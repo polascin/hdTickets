@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TicketmasterController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
@@ -51,6 +52,20 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Admin-only routes
     Route::middleware([CheckApiRole::class . ':admin'])->group(function () {
         // Admin-specific routes can be added here
+    });
+    
+    // Ticketmaster scraping routes
+    Route::prefix('ticketmaster')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
+        // Search events (available to all authenticated users)
+        Route::post('/search', [TicketmasterController::class, 'search']);
+        Route::post('/event-details', [TicketmasterController::class, 'getEventDetails']);
+        Route::get('/stats', [TicketmasterController::class, 'stats']);
+        
+        // Import routes (restricted to agents and admins)
+        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
+            Route::post('/import', [TicketmasterController::class, 'import']);
+            Route::post('/import-urls', [TicketmasterController::class, 'importUrls']);
+        });
     });
     
     // Agent and Admin routes
