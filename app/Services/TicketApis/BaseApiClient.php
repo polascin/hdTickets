@@ -6,6 +6,11 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Exceptions\TicketPlatformException;
+use App\Exceptions\RateLimitException;
+use App\Exceptions\TimeoutException;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Exception;
 
 abstract class BaseApiClient
@@ -26,13 +31,20 @@ abstract class BaseApiClient
     }
 
     /**
-     * Make HTTP request with retry logic and caching
+     * Make HTTP request with enhanced error handling, retry logic and caching
      */
     protected function makeRequest(string $method, string $endpoint, array $params = [], bool $useCache = true): array
     {
+        $startTime = microtime(true);
+        $platform = $this->getPlatformName();
         $cacheKey = $this->getCacheKey($method, $endpoint, $params);
 
         if ($useCache && Cache::has($cacheKey)) {
+            Log::channel('ticket_apis')->info('Cache hit for API request', [
+                'platform' => $platform,
+                'endpoint' => $endpoint,
+                'method' => $method
+            ]);
             return Cache::get($cacheKey);
         }
 
@@ -42,7 +54,9 @@ abstract class BaseApiClient
         while ($attempt < $this->retryAttempts) {
             try {
                 $response = $this->executeRequest($method, $endpoint, $params);
+                $responseTime = (microtime(true) - $startTime) * 1000; // Convert to milliseconds
 
+                // Handle successful response
                 if ($response->successful()) {
                     $data = $response->json();
                     
@@ -50,29 +64,84 @@ abstract class BaseApiClient
                         Cache::put($cacheKey, $data, $this->getCacheTtl());
                     }
 
+                    // Log successful API request
+                    Log::channel('ticket_apis')->info('API request successful', [
+                        'platform' => $platform,
+                        'endpoint' => $endpoint,
+                        'method' => 'api',
+                        'response_time_ms' => $responseTime,
+                        'results_count' => is_array($data) ? count($data) : 1,
+                        'attempt' => $attempt + 1
+                    ]);
+
                     return $data;
                 }
 
-                throw new Exception("API request failed with status: " . $response->status());
+                // Handle different HTTP error codes
+                $this->handleHttpError($response, $platform);
 
-            } catch (Exception $e) {
-                $lastException = $e;
-                $attempt++;
-
-                if ($attempt < $this->retryAttempts) {
-                    sleep($this->retryDelay);
+            } catch (ConnectionException $e) {
+                $lastException = new TimeoutException(
+                    "Connection timeout for {$platform}: " . $e->getMessage(),
+                    $platform,
+                    'api'
+                );
+            } catch (RequestException $e) {
+                if (str_contains($e->getMessage(), 'timeout')) {
+                    $lastException = new TimeoutException(
+                        "Request timeout for {$platform}: " . $e->getMessage(),
+                        $platform,
+                        'api'
+                    );
+                } else {
+                    $lastException = $this->createPlatformException(
+                        "Request failed for {$platform}: " . $e->getMessage(),
+                        $platform
+                    );
                 }
+            } catch (TicketPlatformException $e) {
+                $lastException = $e;
+                
+                // Don't retry rate limit exceptions immediately
+                if ($e instanceof RateLimitException && $e->getRetryAfter()) {
+                    sleep($e->getRetryAfter());
+                }
+            } catch (Exception $e) {
+                $lastException = $this->createPlatformException(
+                    "Unexpected error for {$platform}: " . $e->getMessage(),
+                    $platform
+                );
+            }
 
-                Log::warning("API request attempt {$attempt} failed", [
-                    'endpoint' => $endpoint,
-                    'error' => $e->getMessage()
-                ]);
+            $attempt++;
+            
+            // Log the failed attempt
+            Log::channel('ticket_apis')->warning("API request attempt {$attempt} failed", [
+                'platform' => $platform,
+                'endpoint' => $endpoint,
+                'method' => 'api',
+                'attempt' => $attempt,
+                'error' => $lastException->getMessage(),
+                'error_type' => get_class($lastException)
+            ]);
+
+            // Apply exponential backoff for retries
+            if ($attempt < $this->retryAttempts) {
+                $backoffDelay = $this->retryDelay * (2 ** ($attempt - 1));
+                sleep($backoffDelay);
             }
         }
 
-        Log::error("API request failed after {$this->retryAttempts} attempts", [
+        $totalTime = (microtime(true) - $startTime) * 1000;
+
+        // Log final failure
+        Log::channel('ticket_apis')->error("API request failed after {$this->retryAttempts} attempts", [
+            'platform' => $platform,
             'endpoint' => $endpoint,
-            'error' => $lastException->getMessage()
+            'method' => 'api',
+            'total_time_ms' => $totalTime,
+            'final_error' => $lastException->getMessage(),
+            'error_type' => get_class($lastException)
         ]);
 
         throw $lastException;
@@ -150,4 +219,108 @@ abstract class BaseApiClient
      * Transform API response to standard format
      */
     abstract protected function transformEventData(array $eventData): array;
+
+    /**
+     * Get platform name for logging and error handling
+     */
+    protected function getPlatformName(): string
+    {
+        $className = get_class($this);
+        $platformName = str_replace(['App\\Services\\TicketApis\\', 'Client'], '', $className);
+        return strtolower($platformName);
+    }
+
+    /**
+     * Handle HTTP error responses
+     */
+    protected function handleHttpError(Response $response, string $platform): void
+    {
+        $statusCode = $response->status();
+        $body = $response->body();
+
+        switch ($statusCode) {
+            case 429:
+                $retryAfter = $response->header('Retry-After') ?? $response->header('X-RateLimit-Reset') ?? 60;
+                throw new RateLimitException(
+                    "Rate limit exceeded for {$platform}",
+                    is_numeric($retryAfter) ? (int)$retryAfter : 60,
+                    $platform
+                );
+
+            case 401:
+                throw $this->createPlatformException(
+                    "Authentication failed for {$platform}: Invalid API credentials",
+                    $platform,
+                    $statusCode
+                );
+
+            case 403:
+                throw $this->createPlatformException(
+                    "Access forbidden for {$platform}: Insufficient permissions",
+                    $platform,
+                    $statusCode
+                );
+
+            case 404:
+                throw $this->createPlatformException(
+                    "Resource not found on {$platform}",
+                    $platform,
+                    $statusCode
+                );
+
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+                throw $this->createPlatformException(
+                    "Server error on {$platform} (HTTP {$statusCode})",
+                    $platform,
+                    $statusCode
+                );
+
+            default:
+                throw $this->createPlatformException(
+                    "API request failed for {$platform} with status {$statusCode}: {$body}",
+                    $platform,
+                    $statusCode
+                );
+        }
+    }
+
+    /**
+     * Create platform-specific exception
+     */
+    protected function createPlatformException(string $message, string $platform, int $code = 0): TicketPlatformException
+    {
+        $exceptionClass = 'App\\Exceptions\\' . ucfirst($platform) . 'Exception';
+        
+        if (class_exists($exceptionClass)) {
+            return new $exceptionClass($message, $code, null, $platform, 'api');
+        }
+        
+        return new TicketPlatformException($message, $code, null, $platform, 'api');
+    }
+
+    /**
+     * Check if scraping fallback is available and enabled
+     */
+    public function hasScrapingFallback(): bool
+    {
+        return isset($this->config['scraping']['enabled']) && $this->config['scraping']['enabled'];
+    }
+
+    /**
+     * Attempt to fall back to scraping method
+     * This method should be implemented by child classes that support scraping
+     */
+    public function fallbackToScraping(array $criteria): array
+    {
+        throw new TicketPlatformException(
+            "Scraping fallback not implemented for {$this->getPlatformName()}",
+            500,
+            null,
+            $this->getPlatformName(),
+            'scraping'
+        );
+    }
 }

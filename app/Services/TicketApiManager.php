@@ -4,6 +4,10 @@ namespace App\Services;
 
 use App\Services\TicketApis\TicketmasterClient;
 use App\Services\TicketApis\SeatGeekClient;
+use App\Services\TicketApis\StubHubClient;
+use App\Services\TicketApis\ViagogoClient;
+use App\Services\TicketApis\TickPickClient;
+use App\Services\TicketApis\FunZoneClient;
 use App\Models\TicketSource;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -34,7 +38,25 @@ class TicketApiManager
             $this->clients['seatgeek'] = new SeatGeekClient($apiConfigs['seatgeek']);
         }
 
-        // Add more clients as needed...
+        // Initialize StubHub client
+        if ($apiConfigs['stubhub']['enabled'] ?? false) {
+            $this->clients['stubhub'] = new StubHubClient($apiConfigs['stubhub']);
+        }
+
+        // Initialize Viagogo client
+        if ($apiConfigs['viagogo']['enabled'] ?? false) {
+            $this->clients['viagogo'] = new ViagogoClient($apiConfigs['viagogo']);
+        }
+
+        // Initialize TickPick client
+        if ($apiConfigs['tickpick']['enabled'] ?? false) {
+            $this->clients['tickpick'] = new TickPickClient($apiConfigs['tickpick']);
+        }
+
+        // Initialize FunZone client
+        if ($apiConfigs['funzone']['enabled'] ?? false) {
+            $this->clients['funzone'] = new FunZoneClient($apiConfigs['funzone']);
+        }
     }
 
     /**
@@ -102,11 +124,54 @@ class TicketApiManager
     {
         switch ($platform) {
             case 'ticketmaster':
+                // Ticketmaster has events nested under _embedded
                 return $response['_embedded']['events'] ?? [];
+                
             case 'seatgeek':
+                // SeatGeek returns events directly in events array
                 return $response['events'] ?? [];
+                
+            case 'stubhub':
+                // StubHub may have different response structures
+                if (isset($response['events'])) {
+                    return $response['events'];
+                }
+                // If it's a direct array of events or single event
+                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                
+            case 'viagogo':
+                // Viagogo may return results or items array
+                if (isset($response['results'])) {
+                    return $response['results'];
+                }
+                if (isset($response['items'])) {
+                    return $response['items'];
+                }
+                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                
+            case 'tickpick':
+                // TickPick may return data array or direct events
+                if (isset($response['data'])) {
+                    return $response['data'];
+                }
+                if (isset($response['events'])) {
+                    return $response['events'];
+                }
+                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                
+            case 'funzone':
+                // FunZone may have various response structures
+                if (isset($response['listings'])) {
+                    return $response['listings'];
+                }
+                if (isset($response['events'])) {
+                    return $response['events'];
+                }
+                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                
             default:
-                return $response['events'] ?? $response['data'] ?? [];
+                // Generic fallback for unknown platforms
+                return $response['events'] ?? $response['data'] ?? $response['results'] ?? $response ?? [];
         }
     }
 
@@ -126,7 +191,7 @@ class TicketApiManager
                 'venue' => $eventData['venue'],
                 'price_min' => $eventData['price_min'] ?? null,
                 'price_max' => $eventData['price_max'] ?? null,
-                'availability_status' => $this->mapStatus($eventData['status'] ?? 'unknown'),
+                'availability_status' => $this->mapStatus($eventData['status'] ?? 'unknown', $platform),
                 'url' => $eventData['url'] ?? '',
                 'description' => $eventData['description'] ?? '',
                 'last_checked' => now(),
@@ -141,19 +206,89 @@ class TicketApiManager
     }
 
     /**
-     * Map API status to our internal status
+     * Map API status to our internal status with platform-specific handling
      */
-    protected function mapStatus(string $apiStatus): string
+    protected function mapStatus(string $apiStatus, string $platform = null): string
     {
-        $statusMap = [
+        $normalizedStatus = strtolower($apiStatus);
+        
+        // Platform-specific status mappings
+        $platformMappings = [
+            'ticketmaster' => [
+                'onsale' => TicketSource::STATUS_AVAILABLE,
+                'offsale' => TicketSource::STATUS_NOT_ON_SALE,
+                'soldout' => TicketSource::STATUS_SOLD_OUT,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+                'presale' => TicketSource::STATUS_AVAILABLE,
+                'rescheduled' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+            'seatgeek' => [
+                'normal' => TicketSource::STATUS_AVAILABLE,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+                'rescheduled' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+            'stubhub' => [
+                'active' => TicketSource::STATUS_AVAILABLE,
+                'inactive' => TicketSource::STATUS_NOT_ON_SALE,
+                'sold out' => TicketSource::STATUS_SOLD_OUT,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'available' => TicketSource::STATUS_AVAILABLE,
+                'unavailable' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+            'viagogo' => [
+                'available' => TicketSource::STATUS_AVAILABLE,
+                'sold out' => TicketSource::STATUS_SOLD_OUT,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+                'active' => TicketSource::STATUS_AVAILABLE,
+                'inactive' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+            'tickpick' => [
+                'available' => TicketSource::STATUS_AVAILABLE,
+                'sold out' => TicketSource::STATUS_SOLD_OUT,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+                'on sale' => TicketSource::STATUS_AVAILABLE,
+                'off sale' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+            'funzone' => [
+                'available' => TicketSource::STATUS_AVAILABLE,
+                'sold out' => TicketSource::STATUS_SOLD_OUT,
+                'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
+                'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+                'active' => TicketSource::STATUS_AVAILABLE,
+                'inactive' => TicketSource::STATUS_NOT_ON_SALE,
+                'listed' => TicketSource::STATUS_AVAILABLE,
+                'unlisted' => TicketSource::STATUS_NOT_ON_SALE,
+            ],
+        ];
+        
+        // Use platform-specific mapping if platform is provided
+        if ($platform && isset($platformMappings[$platform])) {
+            if (isset($platformMappings[$platform][$normalizedStatus])) {
+                return $platformMappings[$platform][$normalizedStatus];
+            }
+        }
+        
+        // Fallback to generic mapping
+        $genericStatusMap = [
             'onsale' => TicketSource::STATUS_AVAILABLE,
             'offsale' => TicketSource::STATUS_NOT_ON_SALE,
             'soldout' => TicketSource::STATUS_SOLD_OUT,
+            'sold out' => TicketSource::STATUS_SOLD_OUT,
             'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
             'postponed' => TicketSource::STATUS_NOT_ON_SALE,
+            'available' => TicketSource::STATUS_AVAILABLE,
+            'unavailable' => TicketSource::STATUS_NOT_ON_SALE,
+            'active' => TicketSource::STATUS_AVAILABLE,
+            'inactive' => TicketSource::STATUS_NOT_ON_SALE,
+            'on sale' => TicketSource::STATUS_AVAILABLE,
+            'off sale' => TicketSource::STATUS_NOT_ON_SALE,
         ];
 
-        return $statusMap[strtolower($apiStatus)] ?? TicketSource::STATUS_UNKNOWN;
+        return $genericStatusMap[$normalizedStatus] ?? TicketSource::STATUS_UNKNOWN;
     }
 
     /**

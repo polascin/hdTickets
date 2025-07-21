@@ -3,8 +3,12 @@
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\FunZoneController;
+use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketmasterController;
+use App\Http\Controllers\Api\TickPickController;
+use App\Http\Controllers\Api\ViagogoController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
@@ -65,6 +69,54 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
             Route::post('/import', [TicketmasterController::class, 'import']);
             Route::post('/import-urls', [TicketmasterController::class, 'importUrls']);
+        });
+    });
+    
+    // StubHub routes
+    Route::prefix('stubhub')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
+        Route::post('/search', [StubHubController::class, 'search']);
+        Route::post('/event-details', [StubHubController::class, 'getEventDetails']);
+        Route::get('/stats', [StubHubController::class, 'stats']);
+        
+        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
+            Route::post('/import', [StubHubController::class, 'import']);
+            Route::post('/import-urls', [StubHubController::class, 'importUrls']);
+        });
+    });
+    
+    // Viagogo routes
+    Route::prefix('viagogo')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
+        Route::post('/search', [ViagogoController::class, 'search']);
+        Route::post('/event-details', [ViagogoController::class, 'getEventDetails']);
+        Route::get('/stats', [ViagogoController::class, 'stats']);
+        
+        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
+            Route::post('/import', [ViagogoController::class, 'import']);
+            Route::post('/import-urls', [ViagogoController::class, 'importUrls']);
+        });
+    });
+    
+    // TickPick routes
+    Route::prefix('tickpick')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
+        Route::post('/search', [TickPickController::class, 'search']);
+        Route::post('/event-details', [TickPickController::class, 'getEventDetails']);
+        Route::get('/stats', [TickPickController::class, 'stats']);
+        
+        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
+            Route::post('/import', [TickPickController::class, 'import']);
+            Route::post('/import-urls', [TickPickController::class, 'importUrls']);
+        });
+    });
+    
+    // FunZone routes
+    Route::prefix('funzone')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
+        Route::post('/search', [FunZoneController::class, 'search']);
+        Route::post('/event-details', [FunZoneController::class, 'getEventDetails']);
+        Route::get('/stats', [FunZoneController::class, 'stats']);
+        
+        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
+            Route::post('/import', [FunZoneController::class, 'import']);
+            Route::post('/import-urls', [FunZoneController::class, 'importUrls']);
         });
     });
     

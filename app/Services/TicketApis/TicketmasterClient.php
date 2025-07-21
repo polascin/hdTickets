@@ -2,11 +2,19 @@
 
 namespace App\Services\TicketApis;
 
-use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
-class TicketmasterClient extends BaseApiClient
+class TicketmasterClient extends BaseWebScrapingClient
 {
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
+        $this->baseUrl = 'https://www.ticketmaster.com';
+        $this->respectRateLimit('ticketmaster');
+    }
+
     protected function getHeaders(): array
     {
         return [
@@ -35,27 +43,15 @@ class TicketmasterClient extends BaseApiClient
      */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
-        $client = new Client([
-            'timeout' => 30,
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-US,en;q=0.5',
-                'Accept-Encoding' => 'gzip, deflate',
-                'Connection' => 'keep-alive',
-            ]
-        ]);
-
         $searchUrl = $this->buildSearchUrl($keyword, $location);
         
         try {
-            $response = $client->get($searchUrl);
-            $html = $response->getBody()->getContents();
+            $html = $this->makeScrapingRequest($searchUrl);
             $crawler = new Crawler($html);
 
             return $this->extractSearchResults($crawler, $maxResults);
-        } catch (\Exception $e) {
-            \Log::error('Ticketmaster scraping failed: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Ticketmaster scraping failed: ' . $e->getMessage());
             return [];
         }
     }
@@ -65,21 +61,13 @@ class TicketmasterClient extends BaseApiClient
      */
     public function scrapeEventDetails(string $url): array
     {
-        $client = new Client([
-            'timeout' => 30,
-            'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            ]
-        ]);
-
         try {
-            $response = $client->get($url);
-            $html = $response->getBody()->getContents();
+            $html = $this->makeScrapingRequest($url, ['referer' => $this->baseUrl]);
             $crawler = new Crawler($html);
 
             return $this->extractEventDetails($crawler, $url);
-        } catch (\Exception $e) {
-            \Log::error('Failed to scrape event details: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Failed to scrape event details: ' . $e->getMessage());
             return [];
         }
     }
@@ -105,7 +93,7 @@ class TicketmasterClient extends BaseApiClient
     /**
      * Extract search results from HTML
      */
-    private function extractSearchResults(Crawler $crawler, int $maxResults): array
+    protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
         $events = [];
         $count = 0;
@@ -141,16 +129,18 @@ class TicketmasterClient extends BaseApiClient
     /**
      * Extract event data from a single node
      */
-    private function extractEventFromNode(Crawler $node): array
+    protected function extractEventFromNode(Crawler $node): array
     {
         try {
-            // Try multiple selectors for different page layouts
+            // Try multiple selectors for different page layouts + JSON-LD fallback
             $name = $this->trySelectors($node, [
                 'h3 a',
                 '.event-name a',
                 '[data-testid="event-name"] a',
                 'h2 a',
-                'a[href*="/event/"]'
+                'a[href*="/event/"]',
+                '.EventDetails-eventName',
+                '.eds-text-bm'
             ]);
 
             $link = $node->filter('a[href*="/event/"]')->first();
@@ -160,32 +150,48 @@ class TicketmasterClient extends BaseApiClient
                 '.event-date',
                 '[data-testid="event-date"]',
                 '.date',
-                'time'
+                'time',
+                '.EventDetails-eventDate',
+                '.eds-text-bs'
             ]);
+            
+            // Parse date with enhanced parsing
+            $parsedDate = $this->parseEventDate($date);
 
             $venue = $this->trySelectors($node, [
                 '.venue-name',
                 '[data-testid="venue-name"]',
                 '.event-venue',
-                '.venue'
+                '.venue',
+                '.EventDetails-venueName',
+                '.eds-text-bm'
             ]);
 
+            // Extract prices using enhanced methods
+            $priceData = $this->extractPriceWithFallbacks($node);
+            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            
             $price = $this->trySelectors($node, [
                 '.price-range',
                 '[data-testid="price-range"]',
                 '.event-price',
-                '.price'
-            ]);
+                '.price',
+                '.PriceRange-value'
+            ]) ?: $priceRange;
 
             return [
                 'name' => trim($name),
                 'url' => $url,
                 'date' => trim($date),
+                'parsed_date' => $parsedDate,
                 'venue' => trim($venue),
                 'price_range' => trim($price),
-                'source' => 'ticketmaster_scrape'
+                'prices' => $priceData,
+                'source' => 'ticketmaster_scrape',
+                'scraped_at' => now()->toISOString()
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            Log::debug('Failed to extract event from node', ['error' => $e->getMessage()]);
             return [];
         }
     }
@@ -261,8 +267,8 @@ class TicketmasterClient extends BaseApiClient
                 'source' => 'ticketmaster_scrape',
                 'scraped_at' => now()->toISOString()
             ];
-        } catch (\Exception $e) {
-            \Log::error('Error extracting event details: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Error extracting event details: ' . $e->getMessage());
             return [];
         }
     }
@@ -270,7 +276,7 @@ class TicketmasterClient extends BaseApiClient
     /**
      * Extract ticket prices from the page
      */
-    private function extractPrices(Crawler $crawler): array
+    protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
         
@@ -289,7 +295,7 @@ class TicketmasterClient extends BaseApiClient
                     ];
                 }
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Ignore price extraction errors
         }
         
@@ -297,21 +303,34 @@ class TicketmasterClient extends BaseApiClient
     }
 
     /**
-     * Try multiple selectors and return first match
+     * Format price range from price data array
      */
-    private function trySelectors(Crawler $crawler, array $selectors): string
+    protected function formatPriceRange(array $prices): string
     {
-        foreach ($selectors as $selector) {
-            try {
-                $node = $crawler->filter($selector)->first();
-                if ($node->count() > 0) {
-                    return $node->text();
-                }
-            } catch (\Exception $e) {
-                continue;
+        if (empty($prices)) {
+            return '';
+        }
+        
+        $numericPrices = [];
+        foreach ($prices as $price) {
+            if (isset($price['price']) && is_numeric($price['price'])) {
+                $numericPrices[] = $price['price'];
             }
         }
-        return '';
+        
+        if (empty($numericPrices)) {
+            return '';
+        }
+        
+        $min = min($numericPrices);
+        $max = max($numericPrices);
+        $currency = $prices[0]['currency'] ?? 'USD';
+        
+        if ($min == $max) {
+            return '$' . number_format($min, 2);
+        }
+        
+        return '$' . number_format($min, 2) . ' - $' . number_format($max, 2);
     }
 
     protected function transformEventData(array $eventData): array
