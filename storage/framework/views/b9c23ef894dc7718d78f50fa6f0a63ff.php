@@ -217,7 +217,7 @@
                         <div>© <?php echo e(date('Y')); ?> <?php echo e(config('app.name')); ?>. All rights reserved! Developed by <span class="font-medium text-gray-600">Walter Csolle</span>.</div>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:space-x-4 text-xs sm:text-sm">
-                        <span>System Health: <span class="text-green-600 font-medium">Operational </span></span>
+                        <span>System Health: <span class="text-green-600 font-medium">Operational. </span></span>
                         <span class="mt-1 sm:mt-0">Last Updated: <span id="footer-time"><?php echo e(now()->format('H:i:s')); ?></span></span>
                     </div>
                 </div>

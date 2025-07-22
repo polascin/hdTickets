@@ -27,7 +27,7 @@
 <?php $component = $__componentOriginal8892e718f3d0d7a916180885c6f012e7; ?>
 <?php unset($__componentOriginal8892e718f3d0d7a916180885c6f012e7); ?>
 <?php endif; ?>
-                        <span class="hidden lg:block text-lg font-semibold text-gray-900">Sports Tickets</span>
+                        <span class="hidden lg:block text-lg font-semibold text-gray-900">HD Tickets</span>
                     </a>
                 </div>
 

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-        <title><?php echo e(config('app.name', 'Sports Ticket Monitor')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
+        <title><?php echo e(config('app.name', 'HD Tickets')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
 
         <!-- Fonts -->

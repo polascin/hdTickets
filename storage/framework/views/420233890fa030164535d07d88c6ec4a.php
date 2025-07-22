@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title><?php echo e(config('app.name', 'Sports Ticket Monitor')); ?></title>
+        <title><?php echo e(config('app.name', 'HD Tickets')); ?> - Sports Ticket Monitoring</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -61,7 +61,7 @@
                 <!-- Main heading -->
                 <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
                     <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text animate-pulse">
-                        Sports Ticket Monitor
+                        HD Tickets
                     </span>
                 </h1>
 
