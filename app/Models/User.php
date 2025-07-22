@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'is_active',
+        'email_verified_at',
     ];
 
     /**
@@ -75,6 +77,107 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isCustomer()
     {
         return $this->hasRole(self::ROLE_CUSTOMER);
+    }
+
+    /**
+     * Check if user is root admin (ticketmaster)
+     */
+    public function isRootAdmin()
+    {
+        return $this->isAdmin() && $this->name === 'ticketmaster';
+    }
+
+    /**
+     * Check if user has permission for user management
+     */
+    public function canManageUsers()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can manage all tickets
+     */
+    public function canManageAllTickets()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can access scraping operations
+     */
+    public function canAccessScraping()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can manage system configuration
+     */
+    public function canManageSystem()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can access performance monitoring
+     */
+    public function canAccessMonitoring()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can access platform administration
+     */
+    public function canManagePlatforms()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can access financial reports
+     */
+    public function canAccessFinancials()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can manage API access
+     */
+    public function canManageApiAccess()
+    {
+        return $this->isAdmin();
+    }
+
+    /**
+     * Check if user can delete any data (root admin only)
+     */
+    public function canDeleteAnyData()
+    {
+        return $this->isRootAdmin();
+    }
+
+    /**
+     * Get user's comprehensive permissions array
+     */
+    public function getPermissions()
+    {
+        $permissions = [
+            'manage_users' => $this->canManageUsers(),
+            'manage_all_tickets' => $this->canManageAllTickets(),
+            'access_scraping' => $this->canAccessScraping(),
+            'manage_system' => $this->canManageSystem(),
+            'access_monitoring' => $this->canAccessMonitoring(),
+            'manage_platforms' => $this->canManagePlatforms(),
+            'access_financials' => $this->canAccessFinancials(),
+            'manage_api_access' => $this->canManageApiAccess(),
+            'delete_any_data' => $this->canDeleteAnyData(),
+            'is_root_admin' => $this->isRootAdmin(),
+        ];
+
+        return $permissions;
     }
 
     /**

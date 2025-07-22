@@ -14,14 +14,32 @@ class AdminMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $permission = null): Response
     {
         if (!Auth::check()) {
-            return redirect('login');
+            return redirect()->route('login')->with('error', 'Please login to access this area.');
         }
 
-        if (!Auth::user()->isAdmin()) {
-            abort(403, 'Access denied. Admin role required.');
+        $user = Auth::user();
+
+        // Check if user is admin
+        if (!$user->isAdmin()) {
+            abort(403, 'Access denied. Admin privileges required.');
+        }
+
+        // Check if user is active
+        if (!$user->is_active) {
+            Auth::logout();
+            return redirect()->route('login')->with('error', 'Account is disabled. Contact administrator.');
+        }
+
+        // Check specific permission if provided
+        if ($permission) {
+            $permissions = $user->getPermissions();
+            
+            if (!isset($permissions[$permission]) || !$permissions[$permission]) {
+                abort(403, "Access denied. Missing permission: {$permission}");
+            }
         }
 
         return $next($request);

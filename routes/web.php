@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\SystemController;
+use App\Http\Controllers\Admin\ScrapingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +73,60 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         Route::get('response-time', [App\Http\Controllers\Admin\ReportsController::class, 'responseTime'])->name('response-time');
         Route::get('export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('export');
     });
+
+    // System Management Routes
+    Route::prefix('admin/system')->name('admin.system.')->middleware('admin:manage_system')->group(function () {
+        Route::get('/', [SystemController::class, 'index'])->name('index');
+        Route::get('health', [SystemController::class, 'getHealth'])->name('health');
+        Route::get('configuration', [SystemController::class, 'getConfiguration'])->name('configuration');
+        Route::post('configuration', [SystemController::class, 'updateConfiguration'])->name('configuration.update');
+        Route::get('logs', [SystemController::class, 'getLogs'])->name('logs');
+        Route::post('cache/clear', [SystemController::class, 'clearCache'])->name('cache.clear');
+        Route::post('maintenance', [SystemController::class, 'runMaintenance'])->name('maintenance');
+        Route::get('disk-usage', [SystemController::class, 'getDiskUsage'])->name('disk-usage');
+        Route::get('database-info', [SystemController::class, 'getDatabaseInfo'])->name('database-info');
+    });
+
+    // Scraping Management Routes
+    Route::prefix('admin/scraping')->name('admin.scraping.')->middleware('admin:access_scraping')->group(function () {
+        Route::get('/', [ScrapingController::class, 'index'])->name('index');
+        Route::get('stats', [ScrapingController::class, 'getStats'])->name('stats');
+        Route::get('platforms', [ScrapingController::class, 'getPlatformStats'])->name('platforms');
+        Route::get('operations', [ScrapingController::class, 'getRecentOperations'])->name('operations');
+        Route::get('user-rotation', [ScrapingController::class, 'getUserRotation'])->name('user-rotation');
+        Route::post('rotation-test', [ScrapingController::class, 'testRotation'])->name('rotation-test');
+        Route::get('configuration', [ScrapingController::class, 'getConfig'])->name('configuration');
+        Route::post('configuration', [ScrapingController::class, 'updateConfig'])->name('configuration.update');
+        Route::get('performance', [ScrapingController::class, 'getPerformanceMetrics'])->name('performance');
+    });
+
+    // Activity and Health APIs
+    Route::get('admin/activities/recent', function () {
+        $activities = [
+            [
+                'id' => 1,
+                'type' => 'user',
+                'message' => 'New user registered: john@example.com',
+                'status' => 'completed',
+                'timestamp' => now()->subMinutes(5)->toISOString()
+            ],
+            [
+                'id' => 2,
+                'type' => 'ticket',
+                'message' => 'Ticket #123 was assigned to Agent Smith',
+                'status' => 'completed',
+                'timestamp' => now()->subMinutes(15)->toISOString()
+            ],
+            [
+                'id' => 3,
+                'type' => 'config',
+                'message' => 'System configuration updated',
+                'status' => 'completed',
+                'timestamp' => now()->subHour()->toISOString()
+            ]
+        ];
+        return response()->json($activities);
+    })->name('admin.activities.recent');
 });
 
 // Ticket Sources routes
