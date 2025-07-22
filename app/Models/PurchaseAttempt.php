@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\EncryptionService;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +12,14 @@ use Illuminate\Support\Str;
 class PurchaseAttempt extends Model
 {
     use HasFactory;
+
+    protected $encryptionService;
+    
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->encryptionService = app(EncryptionService::class);
+    }
 
     protected $fillable = [
         'uuid',
@@ -35,8 +45,8 @@ class PurchaseAttempt extends Model
     ];
 
     protected $casts = [
-        'purchase_details' => 'array',
-        'response_data' => 'array',
+        'purchase_details' => 'encrypted:array',
+        'response_data' => 'encrypted:array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'next_retry_at' => 'datetime',
@@ -184,5 +194,48 @@ class PurchaseAttempt extends Model
         return $this->update([
             'status' => self::STATUS_CANCELLED,
         ]);
+    }
+
+    /**
+     * Encrypt sensitive financial fields
+     */
+    public function setTransactionIdAttribute($value)
+    {
+        $this->attributes['transaction_id'] = $this->encryptionService->encrypt($value);
+    }
+
+    public function getTransactionIdAttribute($value)
+    {
+        return $this->encryptionService->decrypt($value);
+    }
+
+    public function setConfirmationNumberAttribute($value)
+    {
+        $this->attributes['confirmation_number'] = $this->encryptionService->encrypt($value);
+    }
+
+    public function getConfirmationNumberAttribute($value)
+    {
+        return $this->encryptionService->decrypt($value);
+    }
+
+    public function setPurchaseDetailsAttribute($value)
+    {
+        $this->attributes['purchase_details'] = $this->encryptionService->encryptJsonData($value);
+    }
+
+    public function getPurchaseDetailsAttribute($value)
+    {
+        return $this->encryptionService->decryptJsonData($value);
+    }
+
+    public function setResponseDataAttribute($value)
+    {
+        $this->attributes['response_data'] = $this->encryptionService->encryptJsonData($value);
+    }
+
+    public function getResponseDataAttribute($value)
+    {
+        return $this->encryptionService->decryptJsonData($value);
     }
 }

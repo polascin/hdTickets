@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\EncryptionService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,31 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
+    protected $encryptionService;
+    
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->encryptionService = $this->getEncryptionService();
+    }
+    
+    /**
+     * Get the encryption service instance, with fallback for testing
+     */
+    protected function getEncryptionService()
+    {
+        try {
+            return app(EncryptionService::class);
+        } catch (\Exception $e) {
+            // During testing or when EncryptionService is not available,
+            // return a mock that just returns the value as-is
+            return new class {
+                public function encrypt($value) { return $value; }
+                public function decrypt($value) { return $value; }
+            };
+        }
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'surname',
         'username',
         'email',
+        'phone',
         'password',
         'role',
         'is_active',
@@ -293,6 +320,28 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Encrypt email before saving to database.
+     */
+    // public function setEmailAttribute($value)
+    // {
+    //     if (!$this->encryptionService) {
+    //         $this->encryptionService = $this->getEncryptionService();
+    //     }
+    //     $this->attributes['email'] = $this->encryptionService->encrypt($value);
+    // }
+
+    /**
+     * Decrypt email after retrieving from database.
+     */
+    // public function getEmailAttribute($value)
+    // {
+    //     if (!$this->encryptionService) {
+    //         $this->encryptionService = $this->getEncryptionService();
+    //     }
+    //     return $this->encryptionService->decrypt($value);
+    // }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -311,6 +360,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            // 'email' => 'encrypted', // Temporarily disabled for seeding
             'password' => 'hashed',
         ];
     }

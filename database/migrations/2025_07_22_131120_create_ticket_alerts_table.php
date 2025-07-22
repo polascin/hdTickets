@@ -33,8 +33,13 @@ return new class extends Migration
             $table->index('last_triggered_at');
         });
         
-        // Add index with length limit for keywords column
-        DB::statement('CREATE INDEX ticket_alerts_keywords_is_active_index ON ticket_alerts (keywords(100), is_active)');
+        // Add index with database-specific syntax
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('CREATE INDEX ticket_alerts_keywords_is_active_index ON ticket_alerts (keywords(100), is_active)');
+        } else {
+            // For SQLite and other databases, create index without length limit
+            DB::statement('CREATE INDEX ticket_alerts_keywords_is_active_index ON ticket_alerts (keywords, is_active)');
+        }
     }
 
     /**

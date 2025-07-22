@@ -504,7 +504,7 @@ class StubHubClient extends BaseWebScrapingClient
         return $location ?: 'Unknown City';
     }
 
-    protected function normalizeUrl(string $url): string
+    protected function normalizeUrl(string $url, ?string $baseUrl = null): string
     {
         if (strpos($url, 'http') !== 0) {
             return 'https://www.stubhub.com' . $url;

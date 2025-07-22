@@ -10,6 +10,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Channels\BroadcastChannel;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use App\Channels\SmsChannel;
 
 class HighValueTicketAlert extends Notification implements ShouldQueue
 {
@@ -65,6 +66,9 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
         $urgencyLevel = $this->ticket->is_high_demand ? 'HIGH PRIORITY' : 'Alert';
         $demandBadge = $this->ticket->is_high_demand ? '🔥 HIGH DEMAND' : '';
 
+        $section = $this->ticket->section ?? 'Not specified';
+        $row = $this->ticket->row ?? 'Not specified';
+
         return (new MailMessage)
             ->subject("[$urgencyLevel] High-Value Ticket Alert: {$this->ticket->event_title}")
             ->greeting("Hello {$notifiable->username}!")
@@ -75,8 +79,8 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
             ->line("**Venue:** {$this->ticket->venue}")
             ->line("**Date:** {$this->ticket->event_date->format('M j, Y \a\t g:i A')}")
             ->line("**Price:** {$this->ticket->formatted_price}")
-            ->line("**Section:** {$this->ticket->section ?: 'Not specified'}")
-            ->line("**Row:** {$this->ticket->row ?: 'Not specified'}")
+            ->line("**Section:** {$section}")
+            ->line("**Row:** {$row}")
             ->line("**Available Quantity:** {$this->ticket->quantity_available}")
             ->line("")
             ->when($this->ticket->is_high_demand, function($mail) {

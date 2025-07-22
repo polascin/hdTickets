@@ -248,7 +248,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Try multiple selectors and return first match
      */
-    protected function trySelectors(Crawler $crawler, array $selectors, string $attribute = null): string
+    protected function trySelectors(Crawler $crawler, array $selectors, ?string $attribute = null): string
     {
         foreach ($selectors as $selector) {
             try {
@@ -266,7 +266,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Extract JSON-LD structured data
      */
-    protected function extractJsonLdData(Crawler $crawler, string $type = null): array
+    protected function extractJsonLdData(Crawler $crawler, ?string $type = null): array
     {
         $data = [];
         
@@ -571,7 +571,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Normalize URL to absolute format
      */
-    protected function normalizeUrl(string $url, string $baseUrl = null): string
+    protected function normalizeUrl(string $url, ?string $baseUrl = null): string
     {
         if (strpos($url, 'http') === 0) {
             return $url;
@@ -619,30 +619,36 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         ];
         
         if (isset($rateLimits[$platform])) {
-            $limit = $rateLimits[$platform];
-            $cacheKey = "rate_limit_{$platform}";
-            
-            $requests = Cache::get($cacheKey, []);
-            $now = time();
-            
-            // Remove old requests outside the window
-            $requests = array_filter($requests, function($timestamp) use ($now, $limit) {
-                return ($now - $timestamp) < $limit['window'];
-            });
-            
-            // Check if we've exceeded the limit
-            if (count($requests) >= $limit['requests']) {
-                $oldestRequest = min($requests);
-                $waitTime = $limit['window'] - ($now - $oldestRequest);
-                if ($waitTime > 0) {
-                    Log::info("Rate limit reached for {$platform}, waiting {$waitTime} seconds");
-                    sleep($waitTime);
+            try {
+                $limit = $rateLimits[$platform];
+                $cacheKey = "rate_limit_{$platform}";
+                
+                $requests = Cache::get($cacheKey, []);
+                $now = time();
+                
+                // Remove old requests outside the window
+                $requests = array_filter($requests, function($timestamp) use ($now, $limit) {
+                    return ($now - $timestamp) < $limit['window'];
+                });
+                
+                // Check if we've exceeded the limit
+                if (count($requests) >= $limit['requests']) {
+                    $oldestRequest = min($requests);
+                    $waitTime = $limit['window'] - ($now - $oldestRequest);
+                    if ($waitTime > 0) {
+                        Log::info("Rate limit reached for {$platform}, waiting {$waitTime} seconds");
+                        sleep($waitTime);
+                    }
                 }
+                
+                // Record this request
+                $requests[] = $now;
+                Cache::put($cacheKey, $requests, $limit['window']);
+            } catch (\Exception $e) {
+                // Handle gracefully if cache table doesn't exist (during migrations)
+                Log::debug("Cache not available for rate limiting: " . $e->getMessage());
+                // Continue without rate limiting during migrations/bootstrap
             }
-            
-            // Record this request
-            $requests[] = $now;
-            Cache::put($cacheKey, $requests, $limit['window']);
         }
     }
 

@@ -1,0 +1,200 @@
+<?php
+
+namespace App\Channels;
+
+use Exception;
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class SmsChannel
+{
+    /**
+     * Send the given notification.
+     */
+    public function send($notifiable, Notification $notification): ?array
+    {
+        // Get the phone number - check multiple possible attributes
+        $phone = $this->getPhoneNumber($notifiable);
+        
+        if (!$phone) {
+            Log::warning('SMS notification not sent: No phone number found for user', [
+                'user_id' => $notifiable->id ?? null,
+                'notification' => get_class($notification)
+            ]);
+            return null;
+        }
+
+        // Get SMS message content
+        if (!method_exists($notification, 'toSms')) {
+            Log::error('SMS notification not sent: toSms method not implemented', [
+                'notification' => get_class($notification)
+            ]);
+            return null;
+        }
+
+        $message = $notification->toSms($notifiable);
+        
+        if (empty($message)) {
+            Log::warning('SMS notification not sent: Empty message content');
+            return null;
+        }
+
+        try {
+            return $this->sendSms($phone, $message, $notifiable);
+        } catch (Exception $e) {
+            Log::error('Failed to send SMS notification', [
+                'phone' => $phone,
+                'message' => $message,
+                'error' => $e->getMessage(),
+                'user_id' => $notifiable->id ?? null
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Get phone number from notifiable entity.
+     */
+    protected function getPhoneNumber($notifiable): ?string
+    {
+        // Try different common phone number attribute names
+        $phoneFields = ['phone', 'phone_number', 'mobile', 'cell_phone'];
+        
+        foreach ($phoneFields as $field) {
+            if (isset($notifiable->{$field}) && !empty($notifiable->{$field})) {
+                return $this->formatPhoneNumber($notifiable->{$field});
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Format phone number to E.164 standard.
+     */
+    protected function formatPhoneNumber(string $phone): string
+    {
+        // Remove all non-numeric characters
+        $phone = preg_replace('/\D/', '', $phone);
+        
+        // Add country code if missing (default to US +1)
+        if (strlen($phone) === 10) {
+            $phone = '1' . $phone;
+        }
+        
+        return '+' . $phone;
+    }
+
+    /**
+     * Send SMS using configured service.
+     */
+    protected function sendSms(string $phone, string $message, $notifiable): array
+    {
+        $smsService = config('services.sms.default', 'twilio');
+        
+        switch ($smsService) {
+            case 'twilio':
+                return $this->sendViaTwilio($phone, $message);
+            case 'nexmo':
+                return $this->sendViaNexmo($phone, $message);
+            case 'log':
+                return $this->sendViaLog($phone, $message, $notifiable);
+            default:
+                throw new Exception("Unsupported SMS service: {$smsService}");
+        }
+    }
+
+    /**
+     * Send SMS via Twilio.
+     */
+    protected function sendViaTwilio(string $phone, string $message): array
+    {
+        $accountSid = config('services.twilio.sid');
+        $authToken = config('services.twilio.token');
+        $fromNumber = config('services.twilio.from');
+
+        if (!$accountSid || !$authToken || !$fromNumber) {
+            throw new Exception('Twilio credentials not configured');
+        }
+
+        $response = Http::withBasicAuth($accountSid, $authToken)
+            ->asForm()
+            ->post("https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json", [
+                'From' => $fromNumber,
+                'To' => $phone,
+                'Body' => $message
+            ]);
+
+        if (!$response->successful()) {
+            throw new Exception('Twilio API error: ' . $response->body());
+        }
+
+        $data = $response->json();
+        
+        Log::info('SMS sent via Twilio', [
+            'phone' => $phone,
+            'sid' => $data['sid'] ?? null,
+            'status' => $data['status'] ?? null
+        ]);
+
+        return $data;
+    }
+
+    /**
+     * Send SMS via Nexmo (Vonage).
+     */
+    protected function sendViaNexmo(string $phone, string $message): array
+    {
+        $apiKey = config('services.nexmo.key');
+        $apiSecret = config('services.nexmo.secret');
+        $fromNumber = config('services.nexmo.from');
+
+        if (!$apiKey || !$apiSecret || !$fromNumber) {
+            throw new Exception('Nexmo credentials not configured');
+        }
+
+        $response = Http::post('https://rest.nexmo.com/sms/json', [
+            'api_key' => $apiKey,
+            'api_secret' => $apiSecret,
+            'from' => $fromNumber,
+            'to' => $phone,
+            'text' => $message
+        ]);
+
+        if (!$response->successful()) {
+            throw new Exception('Nexmo API error: ' . $response->body());
+        }
+
+        $data = $response->json();
+        
+        Log::info('SMS sent via Nexmo', [
+            'phone' => $phone,
+            'message_id' => $data['messages'][0]['message-id'] ?? null,
+            'status' => $data['messages'][0]['status'] ?? null
+        ]);
+
+        return $data;
+    }
+
+    /**
+     * Mock SMS sending by logging (for testing/development).
+     */
+    protected function sendViaLog(string $phone, string $message, $notifiable): array
+    {
+        Log::info('SMS NOTIFICATION (Log Channel)', [
+            'to' => $phone,
+            'user_id' => $notifiable->id ?? null,
+            'username' => $notifiable->username ?? null,
+            'message' => $message,
+            'timestamp' => now()->toISOString()
+        ]);
+
+        return [
+            'status' => 'logged',
+            'phone' => $phone,
+            'message' => $message,
+            'sent_at' => now()->toISOString()
+        ];
+    }
+}

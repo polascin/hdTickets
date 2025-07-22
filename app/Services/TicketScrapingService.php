@@ -422,12 +422,21 @@ class TicketScrapingService
     protected function sendTicketAlert(User $user, $ticketData)
     {
         // Implementation for sending alerts (email, push notification, etc.)
-        Log::info("High demand ticket alert sent", [
-            'user_id' => $user->id,
-            'ticket' => $ticketData['title'],
-            'price' => $ticketData['min_price'],
-            'platform' => $ticketData['platform']
-        ]);
+        try {
+            $user->notify(new \App\Notifications\HighValueTicketAlert(
+                new ScrapedTicket($ticketData),
+                new TicketAlert(['name' => 'Custom Alert']),
+                100
+            ));
+            Log::info('High demand ticket alert sent', [
+                'user_id' => $user->id,
+                'ticket' => $ticketData['title'],
+                'price' => $ticketData['min_price'],
+                'platform' => $ticketData['platform']
+            ]);
+        } catch (Exception $e) {
+            Log::error('Failed to send high demand ticket alert', ['error' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -564,19 +573,91 @@ class TicketScrapingService
      */
     private function sendAlertNotification(TicketAlert $alert, array $tickets): void
     {
-        // Implementation would depend on your notification system
-        // Could use Laravel's notification system, email, SMS, etc.
-        
-        Log::info("Alert triggered for user {$alert->user_id}", [
-            'alert_id' => $alert->id,
-            'alert_name' => $alert->name,
-            'tickets_found' => count($tickets)
-        ]);
-
-        // Example: Queue email notification
-        // Mail::to($alert->user)->queue(new TicketAlertMail($alert, $tickets));
+        try {
+            // Send notification for each matching ticket
+            foreach ($tickets as $ticketData) {
+                // Convert array to ScrapedTicket model
+                $scrapedTicket = new ScrapedTicket($ticketData);
+                
+                // Calculate match score based on alert criteria
+                $matchScore = $this->calculateMatchScore($alert, $ticketData);
+                
+                // Send the high-value ticket alert notification
+                $alert->user->notify(new \App\Notifications\HighValueTicketAlert(
+                    $scrapedTicket,
+                    $alert,
+                    $matchScore
+                ));
+                
+                Log::info('HighValueTicketAlert notification sent', [
+                    'user_id' => $alert->user_id,
+                    'alert_id' => $alert->id,
+                    'alert_name' => $alert->name,
+                    'ticket_title' => $ticketData['event_title'] ?? $ticketData['title'] ?? 'Unknown',
+                    'match_score' => $matchScore
+                ]);
+            }
+            
+            Log::info("Alert triggered for user {$alert->user_id}", [
+                'alert_id' => $alert->id,
+                'alert_name' => $alert->name,
+                'tickets_found' => count($tickets)
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to send alert notifications', [
+                'alert_id' => $alert->id,
+                'user_id' => $alert->user_id,
+                'error' => $e->getMessage(),
+                'tickets_count' => count($tickets)
+            ]);
+        }
     }
 
+    /**
+     * Calculate match score for alert and ticket
+     */
+    private function calculateMatchScore(TicketAlert $alert, array $ticketData): int
+    {
+        $score = 0;
+        
+        // Keyword matching (40 points)
+        $keywords = strtolower($alert->keywords ?? '');
+        $ticketTitle = strtolower($ticketData['event_title'] ?? $ticketData['title'] ?? '');
+        $searchKeyword = strtolower($ticketData['search_keyword'] ?? '');
+        
+        if (str_contains($ticketTitle, $keywords) || str_contains($searchKeyword, $keywords)) {
+            $score += 40;
+        }
+        
+        // Platform matching (20 points)
+        if ($alert->platform && $alert->platform === $ticketData['platform']) {
+            $score += 20;
+        }
+        
+        // Price criteria (30 points)
+        if ($alert->max_price) {
+            $ticketPrice = $ticketData['min_price'] ?? $ticketData['price'] ?? 0;
+            if ($ticketPrice <= $alert->max_price) {
+                $score += 30;
+                // Bonus for better value
+                $priceRatio = $ticketPrice / $alert->max_price;
+                if ($priceRatio <= 0.8) { // 20% under budget
+                    $score += 10;
+                }
+            }
+        } else {
+            $score += 15; // No price restriction is somewhat good
+        }
+        
+        // High demand bonus (10 points)
+        if ($ticketData['is_high_demand'] ?? false) {
+            $score += 10;
+        }
+        
+        return min(100, $score); // Cap at 100
+    }
+    
     /**
      * Auto-purchase tickets based on criteria
      */

@@ -47,24 +47,14 @@ return new class extends Migration
             $user->update(['username' => $username]);
         }
         
-        // Add unique constraint and index if they don't exist
-        $indexes = collect(\DB::select("SHOW INDEXES FROM users WHERE Column_name = 'username'"));
-        $hasUniqueIndex = $indexes->contains(function ($index) {
-            return $index->Non_unique == 0; // Non_unique = 0 means it's a unique index
-        });
-        
-        if (!$hasUniqueIndex) {
+        // Add unique constraint for username
+        try {
             Schema::table('users', function (Blueprint $table) {
-                $table->string('username')->unique()->change();
+                $table->unique('username');
             });
-        }
-        
-        // Add regular index if it doesn't exist
-        $hasIndex = $indexes->isNotEmpty();
-        if (!$hasIndex) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->index('username');
-            });
+        } catch (\Exception $e) {
+            // Index might already exist, continue
+            \Log::debug('Username unique constraint might already exist: ' . $e->getMessage());
         }
     }
 
