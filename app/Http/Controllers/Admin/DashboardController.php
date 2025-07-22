@@ -78,6 +78,11 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Add additional stats for the sports ticket dashboard
+        $scrapedTickets = $totalTickets; // Using ticket count as scraped tickets for demo
+        $activeMonitors = $totalAgents; // Using agent count as active monitors
+        $premiumTickets = $highPriorityTickets; // Using high priority as premium tickets
+        
         return view('dashboard.admin', compact(
             'totalTickets',
             'openTickets', 
@@ -94,7 +99,10 @@ class DashboardController extends Controller
             'monthlyTicketTrend',
             'averageResponseTime',
             'averageResolutionTime',
-            'topAgents'
+            'topAgents',
+            'scrapedTickets',
+            'activeMonitors',
+            'premiumTickets'
         ));
     }
 

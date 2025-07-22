@@ -113,7 +113,7 @@
                             </div>
                             <div class="ml-4 flex-1">
                                 <div class="text-sm font-medium text-gray-600 mb-1">Scraped Tickets</div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $scrapedTickets ?? 0 }}">0</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $scrapedTickets ?? 0 }}">{{ number_format($scrapedTickets ?? 0) }}</div>
                                 <div class="text-xs text-green-500 font-medium flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"></path>
@@ -140,7 +140,7 @@
                             </div>
                             <div class="ml-4 flex-1">
                                 <div class="text-sm font-medium text-gray-600 mb-1">Active Monitors</div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $activeMonitors ?? 0 }}">0</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $activeMonitors ?? 0 }}">{{ number_format($activeMonitors ?? 0) }}</div>
                                 <div class="text-xs text-blue-500 font-medium flex items-center">
                                     <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
                                     Real-time monitoring
@@ -164,7 +164,7 @@
                             </div>
                             <div class="ml-4 flex-1">
                                 <div class="text-sm font-medium text-gray-600 mb-1">Premium Tickets</div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $premiumTickets ?? 0 }}">0</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $premiumTickets ?? 0 }}">{{ number_format($premiumTickets ?? 0) }}</div>
                                 <div class="text-xs text-orange-500 font-medium flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
@@ -190,7 +190,7 @@
                             </div>
                             <div class="ml-4 flex-1">
                                 <div class="text-sm font-medium text-gray-600 mb-1">Platform Users</div>
-                                <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $totalUsers ?? 0 }}">0</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $totalUsers ?? 0 }}">{{ number_format($totalUsers ?? 0) }}</div>
                                 <div class="text-xs text-green-500 font-medium flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -214,7 +214,7 @@
                             </svg>
                         </div>
                         <div class="text-right">
-                            <div class="text-2xl font-bold text-blue-900">{{ $totalUsers }}</div>
+                        <div class="text-2xl font-bold text-blue-900">{{ number_format($totalUsers ?? 0) }}</div>
                             <div class="text-xs text-blue-600">Total Users</div>
                         </div>
                     </div>
@@ -224,11 +224,11 @@
                     <!-- User Statistics -->
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="bg-white/60 backdrop-blur-sm rounded-lg p-3 text-center">
-                            <div class="text-lg font-bold text-green-600">{{ $totalAgents }}</div>
+                            <div class="text-lg font-bold text-green-600">{{ number_format($totalAgents ?? 0) }}</div>
                             <div class="text-xs text-gray-600">Agents</div>
                         </div>
                         <div class="bg-white/60 backdrop-blur-sm rounded-lg p-3 text-center">
-                            <div class="text-lg font-bold text-purple-600">{{ $totalCustomers }}</div>
+                            <div class="text-lg font-bold text-purple-600">{{ number_format($totalCustomers ?? 0) }}</div>
                             <div class="text-xs text-gray-600">Customers</div>
                         </div>
                     </div>
@@ -264,7 +264,7 @@
                     <h4 class="font-semibold text-green-900 mb-2">Category Management</h4>
                     <p class="text-green-700 text-sm mb-4">Organize tickets with categories</p>
                     <div class="text-xs text-green-600 mb-3">
-                        Active Categories: {{ $totalCategories }}
+                        Active Categories: {{ number_format($totalCategories ?? 0) }}
                     </div>
                     <a href="{{ route('admin.categories.index') }}" class="inline-block bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700">Manage Categories</a>
                 </div>
