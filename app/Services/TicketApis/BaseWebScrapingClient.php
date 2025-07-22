@@ -807,4 +807,12 @@ abstract class BaseWebScrapingClient extends BaseApiClient
             throw $e;
         }
     }
+
+    /**
+     * Get the base URL for the platform
+     */
+    public function getBaseUrl(): ?string
+    {
+        return $this->baseUrl;
+    }
 }

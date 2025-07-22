@@ -31,11 +31,12 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * User roles
+     * User roles - Redesigned for scraping focus
      */
-    const ROLE_ADMIN = 'admin';
-    const ROLE_AGENT = 'agent';
-    const ROLE_CUSTOMER = 'customer';
+    const ROLE_ADMIN = 'admin';      // System and platform configuration management
+    const ROLE_AGENT = 'agent';      // Ticket selection, purchasing, and monitoring
+    const ROLE_CUSTOMER = 'customer'; // Legacy role (deprecated for new system)
+    const ROLE_SCRAPER = 'scraper';  // Rotation users for scraping (no system access)
 
     /**
      * Get all available roles
@@ -46,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
             self::ROLE_ADMIN,
             self::ROLE_AGENT,
             self::ROLE_CUSTOMER,
+            self::ROLE_SCRAPER,
         ];
     }
 
@@ -82,6 +84,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if user is scraper (fake user for rotation)
+     */
+    public function isScraper()
+    {
+        return $this->hasRole(self::ROLE_SCRAPER);
+    }
+
+    /**
      * Check if user is root admin (ticketmaster)
      */
     public function isRootAdmin()
@@ -98,33 +108,49 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user can manage all tickets
+     * AGENT PERMISSIONS: Ticket selection, purchasing, and monitoring
      */
-    public function canManageAllTickets()
+    
+    /**
+     * Check if user can select and purchase tickets
+     */
+    public function canSelectAndPurchaseTickets()
     {
-        return $this->isAdmin();
+        return $this->isAgent() || $this->isAdmin();
+    }
+    
+    /**
+     * Check if user can access ticket purchasing decisions
+     */
+    public function canMakePurchaseDecisions()
+    {
+        return $this->isAgent() || $this->isAdmin();
+    }
+    
+    /**
+     * Check if user can access monitoring management
+     */
+    public function canManageMonitoring()
+    {
+        return $this->isAgent() || $this->isAdmin();
+    }
+    
+    /**
+     * Check if user can view scraping performance metrics
+     */
+    public function canViewScrapingMetrics()
+    {
+        return $this->isAgent() || $this->isAdmin();
     }
 
     /**
-     * Check if user can access scraping operations
+     * ADMIN PERMISSIONS: System and platform configuration management
      */
-    public function canAccessScraping()
-    {
-        return $this->isAdmin();
-    }
-
+    
     /**
      * Check if user can manage system configuration
      */
     public function canManageSystem()
-    {
-        return $this->isAdmin();
-    }
-
-    /**
-     * Check if user can access performance monitoring
-     */
-    public function canAccessMonitoring()
     {
         return $this->isAdmin();
     }
@@ -159,6 +185,34 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canDeleteAnyData()
     {
         return $this->isRootAdmin();
+    }
+    
+    /**
+     * SCRAPER RESTRICTIONS: Scraper users have NO system access
+     */
+    
+    /**
+     * Check if user can access the system (scrapers cannot)
+     */
+    public function canAccessSystem()
+    {
+        return !$this->isScraper();
+    }
+    
+    /**
+     * Check if user can login to the web interface (scrapers cannot)
+     */
+    public function canLoginToWeb()
+    {
+        return !$this->isScraper();
+    }
+    
+    /**
+     * Check if user is used for scraping rotation only
+     */
+    public function isScrapingRotationUser()
+    {
+        return $this->isScraper();
     }
 
     /**
@@ -208,16 +262,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getPermissions()
     {
         $permissions = [
+            // System Access
+            'can_access_system' => $this->canAccessSystem(),
+            'can_login_to_web' => $this->canLoginToWeb(),
+            
+            // Admin Permissions (System & Platform Configuration)
             'manage_users' => $this->canManageUsers(),
-            'manage_all_tickets' => $this->canManageAllTickets(),
-            'access_scraping' => $this->canAccessScraping(),
             'manage_system' => $this->canManageSystem(),
-            'access_monitoring' => $this->canAccessMonitoring(),
             'manage_platforms' => $this->canManagePlatforms(),
             'access_financials' => $this->canAccessFinancials(),
             'manage_api_access' => $this->canManageApiAccess(),
             'delete_any_data' => $this->canDeleteAnyData(),
+            
+            // Agent Permissions (Ticket Selection, Purchasing, Monitoring)
+            'select_and_purchase_tickets' => $this->canSelectAndPurchaseTickets(),
+            'make_purchase_decisions' => $this->canMakePurchaseDecisions(),
+            'manage_monitoring' => $this->canManageMonitoring(),
+            'view_scraping_metrics' => $this->canViewScrapingMetrics(),
+            
+            // Role Checks
+            'is_admin' => $this->isAdmin(),
+            'is_agent' => $this->isAgent(),
+            'is_customer' => $this->isCustomer(),
+            'is_scraper' => $this->isScraper(),
             'is_root_admin' => $this->isRootAdmin(),
+            'is_scraping_rotation_user' => $this->isScrapingRotationUser(),
         ];
 
         return $permissions;

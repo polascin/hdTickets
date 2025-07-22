@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchaseDecisionController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ScrapingController;
 use Illuminate\Support\Facades\Auth;
@@ -182,7 +183,20 @@ Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->gr
     Route::get('scraping/trending', [App\Http\Controllers\TicketScrapingController::class, 'trending'])->name('scraping.trending');
     Route::get('scraping/best-deals', [App\Http\Controllers\TicketScrapingController::class, 'bestDeals'])->name('scraping.best-deals');
     
-    // Purchase functionality
+// Purchase Decision System
+Route::middleware(['auth', 'verified'])-group(function () {
+    Route::prefix('purchase-decisions')-name('purchase-decisions.')-group(function () {
+        Route::get('/', [PurchaseDecisionController::class, 'index'])-name('index');
+        Route::get('/select-tickets', [PurchaseDecisionController::class, 'selectTickets'])-name('select-tickets');
+        Route::post('/add-to-queue/{scrapedTicket}', [PurchaseDecisionController::class, 'addToQueue'])-name('add-to-queue');
+        Route::post('/{purchaseQueue}/process', [PurchaseDecisionController::class, 'processQueue'])-name('process');
+        Route::delete('/{purchaseQueue}', [PurchaseDecisionController::class, 'cancelQueue'])-name('cancel');
+        Route::post('/bulk-action', [PurchaseDecisionController::class, 'bulkAction'])-name('bulk-action');
+        Route::get('/{purchaseQueue}', [PurchaseDecisionController::class, 'show'])-name('show');
+    });
+});
+
+// Purchase functionality
     Route::post('scraping/{ticket}/purchase', [App\Http\Controllers\TicketScrapingController::class, 'purchase'])->name('scraping.purchase');
     
     // Alert management

@@ -7,6 +7,7 @@ use App\Http\Requests\Api\StoreTicketRequest;
 use App\Http\Requests\Api\UpdateTicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
+use App\Events\TicketAvailabilityUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -185,5 +186,22 @@ class TicketController extends Controller
     {
         $ticket->delete();
         return response()->json(null, 204);
+    }
+
+    /**
+     * Broadcast ticket availability update.
+     */
+    public function availabilityUpdate(Request $request): JsonResponse
+    {
+        // Validate request
+        $data = $request->validate([
+            'ticket_uuid' => 'required|string|exists:tickets,uuid',
+            'status' => 'required|string',
+        ]);
+
+        // Broadcast the ticket update
+        broadcast(new TicketAvailabilityUpdated($data['ticket_uuid'], $data['status']));
+
+        return response()->json(['message' => 'Ticket availability update broadcasted successfully']);
     }
 }

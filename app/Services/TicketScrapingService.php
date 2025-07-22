@@ -5,6 +5,10 @@ namespace App\Services;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
+use App\Services\TicketApis\StubHubClient;
+use App\Services\TicketApis\TicketmasterClient;
+use App\Services\TicketApis\ViagogoClient;
+use App\Services\UserRotationService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -18,29 +22,21 @@ class TicketScrapingService
     {
         $this->platforms = [
             'stubhub' => [
-                'base_url' => 'https://www.stubhub.com/api/search/catalog/events/v3',
-                'search_endpoint' => '/search',
-                'headers' => [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    'Accept' => 'application/json',
-                ]
+                'client' => new StubHubClient($this->getConfig('stubhub')),
             ],
             'ticketmaster' => [
-                'base_url' => 'https://app.ticketmaster.com/discovery/v2/events.json',
-                'api_key' => env('TICKETMASTER_API_KEY'),
-                'headers' => [
-                    'User-Agent' => 'HDTickets/1.0',
-                    'Accept' => 'application/json',
-                ]
+                'client' => new TicketmasterClient($this->getConfig('ticketmaster')),
             ],
             'viagogo' => [
-                'base_url' => 'https://www.viagogo.com/api/v2',
-                'headers' => [
-                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    'Accept' => 'application/json',
-                ]
+                'client' => new ViagogoClient($this->getConfig('viagogo')),
             ]
         ];
+
+        $this->userRotation = new UserRotationService();
+    }
+
+    private function getConfig($platform) {
+        return config("ticket_apis.{$platform}");
     }
 
     protected $manchesterUnitedKeywords = [
@@ -113,19 +109,16 @@ class TicketScrapingService
     protected function searchAllPlatforms($keyword, $filters = [])
     {
         $allResults = [];
-        
-        // StubHub Search
-        $stubhubResults = $this->searchStubHub($keyword, $filters);
-        $allResults = array_merge($allResults, $stubhubResults);
-        
-        // Ticketmaster Search
-        $ticketmasterResults = $this->searchTicketmaster($keyword, $filters);
-        $allResults = array_merge($allResults, $ticketmasterResults);
-        
-        // Viagogo Search
-        $viagogoResults = $this->searchViagogo($keyword, $filters);
-        $allResults = array_merge($allResults, $viagogoResults);
-        
+        foreach ($this->platforms as $platform => $config) {
+            $client = $config['client'];
+            $user = $this->userRotation->getRotatedUser($platform, 'search');
+            if ($user) {
+                $results = $client->searchEvents(array_merge(['keyword' => $keyword], $filters));
+                $allResults = array_merge($allResults, $results);
+            } else {
+                Log::warning("No user available for platform: {$platform}");
+            }
+        }
         return $allResults;
     }
 

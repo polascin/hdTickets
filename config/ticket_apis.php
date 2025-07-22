@@ -247,4 +247,185 @@ return [
     'cache_ttl' => 3600, // 1 hour
     'retry_attempts' => 3,
     'retry_delay' => 1, // seconds
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Rotation Settings
+    |--------------------------------------------------------------------------
+    | Configuration for rotating users across scraping operations
+    | to distribute load and avoid detection
+    */
+    'user_rotation' => [
+        'enabled' => env('USER_ROTATION_ENABLED', true),
+        'pool_size' => env('USER_ROTATION_POOL_SIZE', 500),
+        'cache_ttl' => env('USER_ROTATION_CACHE_TTL', 3600),
+        'refresh_interval' => env('USER_ROTATION_REFRESH_INTERVAL', 1800),
+        'activity_tracking' => env('USER_ROTATION_ACTIVITY_TRACKING', true),
+        'activity_history_limit' => env('USER_ROTATION_ACTIVITY_HISTORY_LIMIT', 10),
+        'platform_specific' => [
+            'stubhub' => [
+                'priority_users' => ['agent', 'premium'],
+                'exclude_patterns' => [],
+            ],
+            'ticketmaster' => [
+                'priority_users' => ['agent', 'premium'],
+                'exclude_patterns' => [],
+            ],
+            'viagogo' => [
+                'priority_users' => ['agent', 'premium'],
+                'exclude_patterns' => [],
+            ],
+            'seatgeek' => [
+                'priority_users' => ['agent', 'premium'],
+                'exclude_patterns' => [],
+            ],
+            'tickpick' => [
+                'priority_users' => ['customer', 'premium'],
+                'exclude_patterns' => [],
+            ],
+            'funzone' => [
+                'priority_users' => ['customer', 'agent'],
+                'exclude_patterns' => [],
+            ],
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enhanced Scraping Configuration
+    |--------------------------------------------------------------------------
+    | Global scraping settings and anti-detection measures
+    */
+    'scraping' => [
+        'enabled' => env('SCRAPING_ENABLED', true),
+        'user_agent_rotation' => env('SCRAPING_USER_AGENT_ROTATION', true),
+        'default_timeout' => env('SCRAPING_DEFAULT_TIMEOUT', 30),
+        'default_delay' => env('SCRAPING_DEFAULT_DELAY', 2),
+        'max_retries' => env('SCRAPING_MAX_RETRIES', 3),
+        'cache_enabled' => env('SCRAPING_CACHE_ENABLED', true),
+        'cache_ttl' => env('SCRAPING_CACHE_TTL', 300),
+        'log_level' => env('SCRAPING_LOG_LEVEL', 'info'),
+        'log_channel' => env('SCRAPING_LOG_CHANNEL', 'ticket_apis'),
+        'proxy' => [
+            'enabled' => env('SCRAPING_PROXY_ENABLED', false),
+            'host' => env('SCRAPING_PROXY_HOST'),
+            'port' => env('SCRAPING_PROXY_PORT'),
+            'username' => env('SCRAPING_PROXY_USERNAME'),
+            'password' => env('SCRAPING_PROXY_PASSWORD'),
+            'rotation' => env('SCRAPING_PROXY_ROTATION', false),
+        ],
+        'rate_limit' => [
+            'enabled' => env('SCRAPING_RATE_LIMIT_ENABLED', true),
+            'global_rate_limit' => env('SCRAPING_GLOBAL_RATE_LIMIT', 100),
+        ],
+        'anti_detection' => [
+            'random_delays' => true,
+            'user_agent_rotation' => true,
+            'session_management' => true,
+            'referrer_spoofing' => true,
+            'cookie_persistence' => true,
+            'javascript_execution' => env('SCRAPING_JAVASCRIPT_ENABLED', false),
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Platform Integration Management
+    |--------------------------------------------------------------------------
+    | Settings for managing multiple platform integrations
+    */
+    'platform_integration' => [
+        'enabled_platforms' => [
+            'stubhub' => env('STUBHUB_ENABLED', false),
+            'ticketmaster' => env('TICKETMASTER_ENABLED', false),
+            'viagogo' => env('VIAGOGO_ENABLED', false),
+            'seatgeek' => env('SEATGEEK_ENABLED', false),
+            'tickpick' => env('TICKPICK_ENABLED', false),
+            'funzone' => env('FUNZONE_ENABLED', false),
+        ],
+        'priority_order' => [
+            'high_priority' => ['ticketmaster', 'stubhub'],
+            'medium_priority' => ['seatgeek', 'viagogo'],
+            'low_priority' => ['tickpick', 'funzone'],
+        ],
+        'fallback_enabled' => env('PLATFORM_FALLBACK_ENABLED', true),
+        'parallel_processing' => env('PLATFORM_PARALLEL_PROCESSING', true),
+        'load_balancing' => [
+            'enabled' => env('PLATFORM_LOAD_BALANCING', true),
+            'algorithm' => env('PLATFORM_LOAD_ALGORITHM', 'round_robin'), // round_robin, weighted, least_connections
+            'weights' => [
+                'stubhub' => 30,
+                'ticketmaster' => 25,
+                'viagogo' => 20,
+                'seatgeek' => 15,
+                'tickpick' => 10,
+                'funzone' => 5,
+            ]
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data Quality & Validation
+    |--------------------------------------------------------------------------
+    | Settings for ensuring data quality across platforms
+    */
+    'data_quality' => [
+        'validation_enabled' => env('DATA_VALIDATION_ENABLED', true),
+        'price_validation' => [
+            'enabled' => true,
+            'min_price' => 1.00,
+            'max_price' => 50000.00,
+            'currency_validation' => true,
+        ],
+        'event_validation' => [
+            'enabled' => true,
+            'required_fields' => ['name', 'date', 'venue'],
+            'date_validation' => true,
+            'future_events_only' => true,
+        ],
+        'duplicate_detection' => [
+            'enabled' => true,
+            'similarity_threshold' => 0.85,
+            'matching_fields' => ['name', 'date', 'venue'],
+        ],
+        'normalization' => [
+            'enabled' => true,
+            'venue_mapping' => true,
+            'event_categorization' => true,
+            'date_standardization' => true,
+        ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Monitoring & Performance
+    |--------------------------------------------------------------------------
+    | Monitoring and performance tracking configuration
+    */
+    'monitoring' => [
+        'enabled' => env('TICKET_API_MONITORING_ENABLED', true),
+        'metrics_collection' => [
+            'response_times' => true,
+            'success_rates' => true,
+            'error_rates' => true,
+            'cache_hit_rates' => true,
+            'user_rotation_stats' => true,
+        ],
+        'alerts' => [
+            'enabled' => env('MONITORING_ALERTS_ENABLED', true),
+            'channels' => ['log', 'email'], // log, email, slack, webhook
+            'thresholds' => [
+                'error_rate' => 0.1, // 10%
+                'response_time' => 10000, // 10 seconds
+                'success_rate' => 0.8, // 80%
+            ]
+        ],
+        'performance_tracking' => [
+            'enabled' => true,
+            'track_scraping_efficiency' => true,
+            'track_platform_reliability' => true,
+            'track_user_rotation_effectiveness' => true,
+        ]
+    ]
 ];

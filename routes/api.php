@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FunZoneController;
 use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketController;
@@ -53,7 +54,19 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         ->name('api.attachments.download');
     Route::delete('/attachments/{attachment:uuid}', [AttachmentController::class, 'destroy']);
     
-    // Admin-only routes
+    // New route for ticket availability updates
+    Route::post('/tickets/availability-update', [TicketController::class, 'availabilityUpdate']);
+    
+    // Dashboard routes
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/stats', [DashboardController::class, 'stats']);
+        Route::get('/monitors', [DashboardController::class, 'monitors']);
+        Route::post('/monitors/{monitorId}/check-now', [DashboardController::class, 'checkMonitorNow']);
+        Route::post('/monitors/{monitorId}/toggle', [DashboardController::class, 'toggleMonitor']);
+        Route::get('/platform-health', [DashboardController::class, 'platformHealth']);
+        Route::get('/high-demand-tickets', [DashboardController::class, 'highDemandTickets']);
+    });
+    
     Route::middleware([CheckApiRole::class . ':admin'])->group(function () {
         // Admin-specific routes can be added here
     });

@@ -102,10 +102,14 @@
         <div class="container">
             <div class="header-section">
                 <div class="title">
-                    HD Tickets
+                    Sports Ticket Monitor
                 </div>
                 <div class="subtitle">
-                    Professional Help Desk & Ticket Management System
+                    Sports Event Ticket Availability Monitoring System
+                </div>
+                <div class="description" style="color: #6b7280; font-size: 1rem; margin-bottom: 1.5rem; max-width: 600px; text-align: center;">
+                    Real-time monitoring and alerts for sports event tickets across multiple platforms. 
+                    Track availability, prices, and get instant notifications when your favorite teams' tickets become available.
                 </div>
             </div>
             

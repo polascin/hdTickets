@@ -1,12 +1,13 @@
-# hdTickets RESTful API Documentation
+# Sports Event Ticket Monitoring System - RESTful API Documentation
 **Version:** 2025.07.v3
+**By:** Walter Csoelle
 
 ## Overview
-This document defines the RESTful API structure for the hdTickets high-demand ticket monitoring system. The API supports authentication, account management, monitoring criteria configuration, dashboard data, purchase history tracking, and system settings management.
+This document defines the RESTful API structure for the Sports Event Ticket Availability Monitoring System. The API supports authentication, sports event monitoring, ticket availability tracking, alert management, platform integration, analytics, and comprehensive notification systems.
 
 ## Base URL
 ```
-https://api.hdtickets.com/api/v1
+https://api.sports-ticket-monitor.com/api/v1
 ```
 
 ## Authentication

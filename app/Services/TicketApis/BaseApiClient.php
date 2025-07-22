@@ -323,4 +323,12 @@ abstract class BaseApiClient
             'scraping'
         );
     }
+
+    /**
+     * Get the base URL for the platform
+     */
+    public function getBaseUrl(): ?string
+    {
+        return $this->baseUrl;
+    }
 }

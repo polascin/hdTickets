@@ -1,8 +1,9 @@
-# HDTickets Comprehensive Administrative Platform
+# Sports Event Ticket Monitoring System - Administrative Platform
+**By:** Walter Csoelle
 
 ## Overview
 
-The HDTickets Administrative Platform is a complete management system designed to provide comprehensive control over the ticket management application. It includes advanced features for system monitoring, user management, scraping operations control, and performance analytics.
+The Sports Event Ticket Monitoring Administrative Platform is a comprehensive management system designed to provide complete control over the sports ticket availability monitoring application. It includes advanced features for system monitoring, user management, scraping operations control, performance analytics, and real-time sports event tracking across multiple platforms.
 
 ## Version Information
 - **Platform Version**: 2025.07.v3

@@ -1,8 +1,11 @@
 {
-    "name": "hdtickets-frontend",
+    "name": "sports-ticket-monitor-frontend",
+    "description": "Frontend application for Sports Event Ticket Availability Monitoring System",
     "version": "2025.07.v3",
     "private": true,
     "type": "module",
+    "keywords": ["sports", "tickets", "monitoring", "vue", "alerts", "events"],
+    "author": "Walter Csoelle",
     "scripts": {
         "build": "vite build",
         "dev": "vite",

@@ -1,9 +1,10 @@
 # System Architecture Documentation
-## Ticket Automation Platform
+## Sports Event Ticket Availability Monitoring System
 **Version:** 2025.07.v3
+**By:** Walter Csoelle
 
 ### Overview
-This document outlines the comprehensive system architecture for a high-performance ticket automation platform designed to handle 1000+ platform accounts with automated monitoring, purchasing, and notification capabilities.
+This document outlines the comprehensive system architecture for a high-performance sports event ticket availability monitoring system designed to track ticket availability across multiple platforms with real-time monitoring, intelligent alerts, and comprehensive analytics capabilities.
 
 ## Multi-tier Architecture
 

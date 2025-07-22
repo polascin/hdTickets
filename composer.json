@@ -1,7 +1,15 @@
 {
-    "name": "hdtickets/app",
+    "name": "sports-ticket-monitor/app",
+    "description": "Sports Event Ticket Availability Monitoring System - A comprehensive platform for monitoring ticket availability across multiple sports event platforms",
     "version": "2025.07.v3",
     "type": "project",
+    "keywords": ["sports", "tickets", "monitoring", "alerts", "events", "scraping"],
+    "authors": [
+        {
+            "name": "Walter Csoelle",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "laravel/framework": "^12.20",
         "laravel/tinker": "^2.10",
