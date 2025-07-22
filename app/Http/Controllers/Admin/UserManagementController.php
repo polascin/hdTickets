@@ -118,4 +118,16 @@ class UserManagementController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', "User {$status} successfully.");
     }
+
+    /**
+     * Reset the user's password to a default value
+     */
+    public function resetPassword(User $user)
+    {
+        $defaultPassword = 'password';
+        $user->update(['password' => Hash::make($defaultPassword)]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Password reset successfully to the default password.');
+    }
 }
