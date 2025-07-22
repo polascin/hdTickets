@@ -48,12 +48,34 @@
                     @foreach($tickets as $ticket)
                     <tr>
                         <td>{{ $ticket->id }}</td>
-                        <td>{{ $ticket->event_title }}</td>
-                        <td>{{ $ticket->event_date->format('M d, Y') }}</td>
-                        <td>{{ $ticket->price }} {{ $ticket->currency }}</td>
-                        <td>{{ $ticket->availability_status }}</td>
+                        <td>{{ $ticket->title }}</td>
+                        <td>{{ $ticket->event_date ? $ticket->event_date->format('M d, Y') : 'TBD' }}</td>
+                        <td>
+                            @if($ticket->min_price && $ticket->max_price)
+                                {{ $ticket->currency }} {{ number_format($ticket->min_price, 2) }} - {{ number_format($ticket->max_price, 2) }}
+                            @elseif($ticket->max_price)
+                                {{ $ticket->currency }} {{ number_format($ticket->max_price, 2) }}
+                            @elseif($ticket->min_price)
+                                {{ $ticket->currency }} {{ number_format($ticket->min_price, 2) }}
+                            @else
+                                Price on request
+                            @endif
+                        </td>
+                        <td>
+                            @if($ticket->is_available)
+                                <span class="badge bg-success">Available</span>
+                            @else
+                                <span class="badge bg-secondary">Sold Out</span>
+                            @endif
+                            @if($ticket->is_high_demand)
+                                <span class="badge bg-warning">High Demand</span>
+                            @endif
+                        </td>
                         <td>
                             <a href="{{ route('tickets.scraping.show', $ticket) }}" class="btn btn-outline-primary btn-sm">View</a>
+                            @if($ticket->ticket_url)
+                                <a href="{{ $ticket->ticket_url }}" target="_blank" class="btn btn-success btn-sm">Buy</a>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

@@ -20,7 +20,7 @@ public function index() {
         $query->where(function($q) {
             $q->where('name', 'like', '%'.request('search').'%')
               ->orWhere('surname', 'like', '%'.request('search').'%')
-              ->orWhere('username', 'like', '%'.request('search').'%');
+              ->orWhere('email', 'like', '%'.request('search').'%');
         });
     }
 
@@ -44,16 +44,26 @@ public function index() {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9_-]+$/'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'in:admin,agent,customer'],
         ]);
 
+        // Generate username automatically from name and surname
+        $username = strtolower($request->name . '.' . $request->surname);
+        $counter = 1;
+        $originalUsername = $username;
+        
+        // Ensure username uniqueness
+        while (User::where('username', $username)->exists()) {
+            $username = $originalUsername . '.' . $counter;
+            $counter++;
+        }
+
         User::create([
             'name' => $request->name,
             'surname' => $request->surname,
-            'username' => $request->username,
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -88,16 +98,30 @@ public function index() {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,'.$user->id, 'regex:/^[a-zA-Z0-9_-]+$/'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'role' => ['required', 'string', 'in:admin,agent,customer'],
             'is_active' => ['boolean'],
         ]);
 
+        // Auto-update username if name or surname changed
+        $username = $user->username; // Keep existing username by default
+        if ($request->name !== $user->name || $request->surname !== $user->surname) {
+            $newUsername = strtolower($request->name . '.' . $request->surname);
+            $counter = 1;
+            $originalUsername = $newUsername;
+            
+            // Ensure username uniqueness (excluding current user)
+            while (User::where('username', $newUsername)->where('id', '!=', $user->id)->exists()) {
+                $newUsername = $originalUsername . '.' . $counter;
+                $counter++;
+            }
+            $username = $newUsername;
+        }
+
         $user->update([
             'name' => $request->name,
             'surname' => $request->surname,
-            'username' => $request->username,
+            'username' => $username,
             'email' => $request->email,
             'role' => $request->role,
             'is_active' => $request->has('is_active'),

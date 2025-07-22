@@ -83,11 +83,19 @@ class Category extends Model
     }
 
     /**
-     * Relationship: Tickets in this category
+     * Relationship: Scraped tickets in this category
      */
-    public function tickets(): HasMany
+    public function scrapedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(ScrapedTicket::class);
+    }
+
+    /**
+     * Relationship: Ticket sources in this category  
+     */
+    public function ticketSources(): HasMany
+    {
+        return $this->hasMany(TicketSource::class);
     }
 
     /**
@@ -214,18 +222,26 @@ class Category extends Model
     }
 
     /**
-     * Get active tickets count
+     * Get available scraped tickets count
      */
-    public function getActiveTicketsCountAttribute(): int
+    public function getAvailableTicketsCountAttribute(): int
     {
-        return $this->tickets()->open()->count();
+        return $this->scrapedTickets()->where('is_available', true)->count();
     }
 
     /**
-     * Get total tickets count
+     * Get total scraped tickets count
      */
-    public function getTotalTicketsCountAttribute(): int
+    public function getTotalScrapedTicketsCountAttribute(): int
     {
-        return $this->tickets()->count();
+        return $this->scrapedTickets()->count();
+    }
+
+    /**
+     * Get ticket sources count
+     */
+    public function getTicketSourcesCountAttribute(): int
+    {
+        return $this->ticketSources()->count();
     }
 }

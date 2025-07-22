@@ -17,11 +17,18 @@ Route::get('/dashboard', function () {
     if ($user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     } elseif ($user->isAgent()) {
-        return view('dashboard.agent');
+        return redirect()->route('agent.dashboard');
     } else {
-        return view('dashboard.customer');
+        return redirect()->route('dashboard.basic');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Basic dashboard for users without admin or agent access
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/basic-dashboard', function () {
+        return view('dashboard.basic');
+    })->name('dashboard.basic');
+});
 
 // Role-specific dashboard routes (legacy, kept for compatibility)
 
@@ -45,35 +52,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/chart/priority.json', [App\Http\Controllers\Admin\DashboardController::class, 'getTicketPriorityChart']);
     Route::get('/admin/chart/monthly-trend.json', [App\Http\Controllers\Admin\DashboardController::class, 'getMonthlyTrend']);
 
-    Route::resource('admin/users', App\Http\Controllers\Admin\UserManagementController::class)->names('admin.users');
-    Route::patch('admin/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserManagementController::class, 'toggleStatus'])->name('admin.users.toggle-status');
-    Route::post('admin/users/{user}/reset-password', [App\Http\Controllers\Admin\UserManagementController::class, 'resetPassword'])->name('admin.users.reset-password');
+    // User Management Routes (Admin Only)
+    Route::middleware('admin:manage_users')->group(function () {
+        Route::resource('admin/users', App\Http\Controllers\Admin\UserManagementController::class)->names('admin.users');
+        Route::patch('admin/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserManagementController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+        Route::post('admin/users/{user}/reset-password', [App\Http\Controllers\Admin\UserManagementController::class, 'resetPassword'])->name('admin.users.reset-password');
+        Route::get('admin/users/roles', function() {
+            return view('admin.users.roles');
+        })->name('admin.users.roles');
+        Route::get('admin/users/create', [App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
+    });
 
     Route::resource('admin/categories', App\Http\Controllers\Admin\CategoryManagementController::class)->names('admin.categories');
     Route::patch('admin/categories/{category}/toggle-status', [App\Http\Controllers\Admin\CategoryManagementController::class, 'toggleStatus'])->name('admin.categories.toggle-status');
     Route::post('admin/categories/reorder', [App\Http\Controllers\Admin\CategoryManagementController::class, 'reorder'])->name('admin.categories.reorder');
 
-    // Ticket Management
-    Route::prefix('admin/tickets')->name('admin.tickets.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\TicketManagementController::class, 'index'])->name('index');
-        Route::post('{ticket}/assign', [App\Http\Controllers\Admin\TicketManagementController::class, 'assign'])->name('assign');
-        Route::post('bulk-assign', [App\Http\Controllers\Admin\TicketManagementController::class, 'bulkAssign'])->name('bulk-assign');
-        Route::patch('{ticket}/status', [App\Http\Controllers\Admin\TicketManagementController::class, 'updateStatus'])->name('update-status');
-        Route::patch('{ticket}/priority', [App\Http\Controllers\Admin\TicketManagementController::class, 'updatePriority'])->name('update-priority');
-        Route::post('bulk-status', [App\Http\Controllers\Admin\TicketManagementController::class, 'bulkUpdateStatus'])->name('bulk-status');
-        Route::patch('{ticket}/due-date', [App\Http\Controllers\Admin\TicketManagementController::class, 'setDueDate'])->name('due-date');
-        Route::get('statistics', [App\Http\Controllers\Admin\TicketManagementController::class, 'getStatistics'])->name('statistics');
-    });
-
-    // Reports and Analytics
-    Route::prefix('admin/reports')->name('admin.reports.')->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('index');
-        Route::get('ticket-volume', [App\Http\Controllers\Admin\ReportsController::class, 'ticketVolume'])->name('ticket-volume');
-        Route::get('agent-performance', [App\Http\Controllers\Admin\ReportsController::class, 'agentPerformance'])->name('agent-performance');
-        Route::get('category-analysis', [App\Http\Controllers\Admin\ReportsController::class, 'categoryAnalysis'])->name('category-analysis');
-        Route::get('response-time', [App\Http\Controllers\Admin\ReportsController::class, 'responseTime'])->name('response-time');
-        Route::get('export', [App\Http\Controllers\Admin\ReportsController::class, 'export'])->name('export');
-    });
 
     // System Management Routes
     Route::prefix('admin/system')->name('admin.system.')->middleware('admin:manage_system')->group(function () {
@@ -150,9 +143,8 @@ Route::middleware(['auth:sanctum'])->prefix('api')->group(function () {
     Route::get('ticket-sources', [App\Http\Controllers\TicketSourceController::class, 'apiIndex']);
 });
 
-// Sports Event Tickets - Redirect main /tickets to scraping dashboard
+// Main tickets route redirects to sports event ticket scraping
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Main tickets route redirects to sports event ticket scraping
     Route::get('/tickets', function() {
         return redirect()->route('tickets.scraping.index');
     })->name('tickets.index');

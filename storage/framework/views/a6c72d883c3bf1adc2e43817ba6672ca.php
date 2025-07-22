@@ -5,11 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-        <title><?php echo e(config('app.name', 'Laravel')); ?></title>
+        <title><?php echo e(config('app.name', 'Sports Ticket Monitor')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
+        <meta name="description" content="Professional sports ticket monitoring and alerting platform">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
         
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -41,6 +42,14 @@
                 /* Dashboard specific styles */
                 .dashboard-card { background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); padding: 1.5rem; transition: all 0.2s; }
                 .dashboard-card:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transform: translateY(-1px); }
+                
+                /* Navigation enhancements */
+                .nav-shadow { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+                .nav-dropdown { backdrop-filter: blur(8px); }
+                .nav-item-active { position: relative; }
+                .nav-item-active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 1px; }
+                .mobile-nav-open { max-height: 100vh; overflow-y: auto; }
+                .mobile-nav-closed { max-height: 0; overflow: hidden; }
                 .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
                 .stat-value { font-size: 2.25rem; font-weight: 700; color: white; }
                 .stat-label { color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; }

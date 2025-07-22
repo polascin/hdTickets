@@ -16,7 +16,7 @@ class CategoryManagementController extends Controller
     public function index(Request $request)
     {
         $query = Category::with('parent')
-            ->withCount(['tickets', 'children']);
+            ->withCount(['scrapedTickets', 'ticketSources', 'children']);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -109,8 +109,10 @@ class CategoryManagementController extends Controller
      */
     public function show(Category $category)
     {
-        $category->load(['parent', 'children', 'tickets' => function ($query) {
-            $query->with('user')->latest()->limit(10);
+        $category->load(['parent', 'children', 'scrapedTickets' => function ($query) {
+            $query->latest()->limit(10);
+        }, 'ticketSources' => function ($query) {
+            $query->latest()->limit(10);
         }]);
 
         return view('admin.categories.show', compact('category'));
@@ -179,10 +181,16 @@ class CategoryManagementController extends Controller
      */
     public function destroy(Category $category)
     {
-        // Check if category has tickets
-        if ($category->tickets()->count() > 0) {
+        // Check if category has scraped tickets
+        if ($category->scrapedTickets()->count() > 0) {
             return redirect()->route('admin.categories.index')
-                ->with('error', 'Cannot delete category with existing tickets. Please reassign tickets first.');
+                ->with('error', 'Cannot delete category with existing scraped tickets. Please reassign tickets first.');
+        }
+
+        // Check if category has ticket sources
+        if ($category->ticketSources()->count() > 0) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', 'Cannot delete category with existing ticket sources. Please reassign sources first.');
         }
 
         // Check if category has child categories

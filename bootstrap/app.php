@@ -14,11 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
- 'api.role' => \App\Http\Middleware\Api\CheckApiRole::class,
- 'api.rate-limit' => \App\Http\Middleware\Api\ApiRateLimit::class,
- 'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'api.role' => \App\Http\Middleware\Api\CheckApiRole::class,
+            'api.rate-limit' => \App\Http\Middleware\Api\ApiRateLimit::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'agent' => \App\Http\Middleware\AgentMiddleware::class,
+            'checkUserPermissions' => \App\Http\Middleware\CheckUserPermissions::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

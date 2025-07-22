@@ -54,9 +54,8 @@ public function index(Request $request)
 
         $purchaseQueue = $query->paginate(15)->withQueryString();
 
-        // Get summary statistics
-        $analyticsService = new PurchaseAnalyticsService();
-        $stats = $analyticsService->getPurchaseAnalytics();
+        // Get summary statistics using the internal method
+        $stats = $this->getPurchaseStats();
 
         // Get users who can make purchase decisions
         $agents = \App\Models\User::whereIn('role', ['admin', 'agent'])
