@@ -13,38 +13,34 @@ class ScrapedTicket extends Model
     protected $fillable = [
         'uuid',
         'platform',
-        'event_title',
-        'event_date',
+        'external_id',
+        'title',
         'venue',
-        'section',
-        'row',
-        'seat_numbers',
-        'price',
+        'location',
+        'event_type',
+        'sport',
+        'team',
+        'event_date',
+        'min_price',
+        'max_price',
         'currency',
-        'fees',
-        'total_price',
-        'availability_status',
-        'quantity_available',
+        'availability',
+        'is_available',
         'is_high_demand',
-        'demand_score',
         'ticket_url',
-        'image_url',
-        'scraped_at',
+        'search_keyword',
         'metadata',
-        'search_keywords',
-        'listing_id'
+        'scraped_at'
     ];
 
     protected $casts = [
         'event_date' => 'datetime',
-        'price' => 'decimal:2',
-        'fees' => 'decimal:2',
-        'total_price' => 'decimal:2',
+        'min_price' => 'decimal:2',
+        'max_price' => 'decimal:2',
+        'is_available' => 'boolean',
         'is_high_demand' => 'boolean',
-        'demand_score' => 'integer',
         'scraped_at' => 'datetime',
-        'metadata' => 'array',
-        'seat_numbers' => 'array'
+        'metadata' => 'array'
     ];
 
     protected $dates = [
@@ -79,22 +75,22 @@ class ScrapedTicket extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('availability_status', 'available');
+        return $query->where('is_available', true);
     }
 
     public function scopeForEvent($query, $keywords)
     {
-        return $query->where('event_title', 'LIKE', '%' . $keywords . '%')
-                    ->orWhere('search_keywords', 'LIKE', '%' . $keywords . '%');
+        return $query->where('title', 'LIKE', '%' . $keywords . '%')
+                    ->orWhere('search_keyword', 'LIKE', '%' . $keywords . '%');
     }
 
     public function scopePriceRange($query, $minPrice = null, $maxPrice = null)
     {
         if ($minPrice) {
-            $query->where('total_price', '>=', $minPrice);
+            $query->where('min_price', '>=', $minPrice);
         }
         if ($maxPrice) {
-            $query->where('total_price', '<=', $maxPrice);
+            $query->where('max_price', '<=', $maxPrice);
         }
         return $query;
     }
@@ -102,7 +98,8 @@ class ScrapedTicket extends Model
     // Helpers
     public function getFormattedPriceAttribute()
     {
-        return $this->currency . ' ' . number_format($this->total_price, 2);
+        $price = $this->max_price ?? $this->min_price ?? 0;
+        return $this->currency . ' ' . number_format($price, 2);
     }
 
     public function getIsRecentAttribute()

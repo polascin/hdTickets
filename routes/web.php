@@ -150,18 +150,12 @@ Route::middleware(['auth:sanctum'])->prefix('api')->group(function () {
     Route::get('ticket-sources', [App\Http\Controllers\TicketSourceController::class, 'apiIndex']);
 });
 
-// Ticket Management Routes
+// Sports Event Tickets - Redirect main /tickets to scraping dashboard
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Main ticket resource routes
-    Route::resource('tickets', App\Http\Controllers\TicketController::class);
-    
-    // Additional ticket routes
-    Route::patch('tickets/{ticket}/status', [App\Http\Controllers\TicketController::class, 'updateStatus'])->name('tickets.status');
-    Route::patch('tickets/{ticket}/priority', [App\Http\Controllers\TicketController::class, 'updatePriority'])->name('tickets.priority');
-    Route::patch('tickets/{ticket}/assign', [App\Http\Controllers\TicketController::class, 'assign'])->name('tickets.assign');
-    
-    // Comment routes
-    Route::post('tickets/{ticket}/comments', [App\Http\Controllers\TicketController::class, 'addComment'])->name('tickets.comments.store');
+    // Main tickets route redirects to sports event ticket scraping
+    Route::get('/tickets', function() {
+        return redirect()->route('tickets.scraping.index');
+    })->name('tickets.index');
 });
 
 Route::middleware('auth')->group(function () {
