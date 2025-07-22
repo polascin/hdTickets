@@ -1,35 +1,31 @@
-<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
-<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('app-layout'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-     <?php $__env->slot('header', null, []); ?> 
-        <div class="flex justify-between items-center">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <?php echo e(__('Sports Ticket Management Dashboard')); ?>
 
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Complete sports ticket platform overview and control</p>
-            </div>
-            <div class="flex items-center space-x-4">
-                <div class="text-sm text-gray-600">
-                    Last updated: <span id="lastUpdated"><?php echo e(now()->format('H:i:s')); ?></span>
-                </div>
-                <button onclick="refreshDashboard()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Refresh
-                </button>
-            </div>
+
+<?php $__env->startSection('title', 'Admin Dashboard'); ?>
+<?php $__env->startSection('description', 'Sports Ticket Management - Complete platform overview and control'); ?>
+
+<?php $__env->startSection('header'); ?>
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                Sports Ticket Management Dashboard
+            </h1>
+            <p class="text-gray-600">Complete sports ticket platform overview and control</p>
         </div>
-     <?php $__env->endSlot(); ?>
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-500">
+                Last updated: <span id="lastUpdated" class="font-medium text-gray-700"><?php echo e(now()->format('H:i:s')); ?></span>
+            </div>
+            <button onclick="refreshDashboard()" class="dashboard-card hover:shadow-xl px-6 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg transition-all duration-200">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh Dashboard
+            </button>
+        </div>
+    </div>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -544,14 +540,6 @@
             console.log('Dashboard loaded in:', loadTime + 'ms');
         });
     </script>
- <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
-<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
-<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
-<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
-<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
-<?php endif; ?>
-<?php /**PATH C:\Users\polas\OneDrive\www\hdtickets\resources\views/dashboard/admin.blade.php ENDPATH**/ ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.modern', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\polas\OneDrive\www\hdtickets\resources\views/dashboard/admin.blade.php ENDPATH**/ ?>
