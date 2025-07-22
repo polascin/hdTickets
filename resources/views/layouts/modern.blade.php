@@ -214,13 +214,10 @@
             <div class="container py-4">
                 <div class="flex justify-between items-center text-sm text-gray-500">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                        <div>© {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</div>
-                        <div class="text-xs text-gray-400 mt-1 sm:mt-0">
-                            Developed by <span class="font-medium text-gray-600">Walter Csoelle</span>
-                        </div>
+                        <div>© {{ date('Y') }} {{ config('app.name') }}. All rights reserved! Developed by <span class="font-medium text-gray-600">Walter Csolle</span>.</div>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:space-x-4 text-xs sm:text-sm">
-                        <span>System Health: <span class="text-green-600 font-medium">Operational</span></span>
+                        <span>System Health: <span class="text-green-600 font-medium">Operational. </span></span>
                         <span class="mt-1 sm:mt-0">Last Updated: <span id="footer-time">{{ now()->format('H:i:s') }}</span></span>
                     </div>
                 </div>

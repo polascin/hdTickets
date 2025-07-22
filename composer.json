@@ -7,7 +7,10 @@
     "authors": [
         {
             "name": "Walter Csoelle",
-            "role": "Developer"
+            "real_name": "Lubomir Polascin",
+            "role": "Developer & System Architect",
+            "email": "info@example.com",
+            "homepage": "https://github.com/walter-csoelle"
         }
     ],
     "require": {

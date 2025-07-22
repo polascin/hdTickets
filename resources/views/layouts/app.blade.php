@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Sports Ticket Monitor') }} - @yield('title', 'Dashboard')</title>
+        <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
 
         <!-- Fonts -->

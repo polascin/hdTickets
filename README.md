@@ -1,6 +1,7 @@
 # Sports Event Ticket Availability Monitoring System
 **Version:** 2025.07.v3  
-**By:** Walter Csoelle
+**By:** Walter Csoelle  
+**@author** Walter Csoelle aka Lubomir Polascin
 
 ## Overview
 The Sports Event Ticket Availability Monitoring System is a comprehensive, high-performance platform designed to monitor, track, and alert users about ticket availability for major sporting events across multiple platforms. This system provides real-time monitoring of ticket sales, price changes, and availability status from major ticket vendors including Ticketmaster, StubHub, SeatGeek, Vivid Seats, and more.
