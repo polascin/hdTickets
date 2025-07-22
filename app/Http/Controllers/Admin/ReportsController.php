@@ -108,7 +108,7 @@ class ReportsController extends Controller
                 $resolvedTickets = $assignedTickets->where('status', Ticket::STATUS_RESOLVED);
                 
                 return [
-                    'name' => $agent->name,
+                    'name' => $agent->full_name,
                     'email' => $agent->email,
                     'assigned_tickets' => $assignedTickets->count(),
                     'resolved_tickets' => $resolvedTickets->count(),

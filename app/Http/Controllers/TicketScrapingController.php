@@ -151,24 +151,30 @@ class TicketScrapingController extends Controller
      */
     public function highDemandSports(Request $request)
     {
-        try {
-            $filters = $request->only(['max_price', 'currency', 'venue', 'date_range']);
-            $results = $this->scrapingService->searchHighDemandSportsTickets($filters);
+        // If this is an AJAX request, return JSON data
+        if ($request->expectsJson() || $request->ajax()) {
+            try {
+                $filters = $request->only(['max_price', 'currency', 'venue', 'date_range']);
+                $results = $this->scrapingService->searchHighDemandSportsTickets($filters);
 
-            return response()->json([
-                'success' => true,
-                'results' => $results,
-                'message' => "Found {$results['total_found']} high-demand sports tickets"
-            ]);
+                return response()->json([
+                    'success' => true,
+                    'results' => $results,
+                    'message' => "Found {$results['total_found']} high-demand sports tickets"
+                ]);
 
-        } catch (\Exception $e) {
-            Log::error('High-demand sports ticket search error: ' . $e->getMessage());
+            } catch (\Exception $e) {
+                Log::error('High-demand sports ticket search error: ' . $e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to search for high-demand sports tickets'
-            ], 500);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to search for high-demand sports tickets'
+                ], 500);
+            }
         }
+        
+        // For web requests, return the view
+        return view('tickets.scraping.high-demand-sports');
     }
 
     /**
