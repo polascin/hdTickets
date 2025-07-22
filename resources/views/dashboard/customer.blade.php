@@ -1,50 +1,120 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Customer Dashboard') }}
-            </h2>
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    {{ __('Customer Portal') }}
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">Manage your support requests and get help</p>
+            </div>
             <div class="flex items-center space-x-4">
-                <!-- Search Component -->
-                <div class="relative">
-                    <ticket-search></ticket-search>
+                <!-- Quick Stats -->
+                @php
+                    $userTicketsCount = Auth::user()->tickets()->count();
+                    $openTicketsCount = Auth::user()->tickets()->open()->count();
+                @endphp
+                <div class="text-sm text-gray-600">
+                    {{ $userTicketsCount }} Total • {{ $openTicketsCount }} Open
                 </div>
-                <!-- Notification Bell -->
-                <div class="relative" x-data="{ open: false }">
-                    <button @click="open = !open" class="p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <span id="notification-counter" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1 min-w-5 text-center" style="display: none;">0</span>
-                    </button>
-                    <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 z-50">
-                        <notification-center></notification-center>
-                    </div>
-                </div>
+                <!-- New Ticket Button -->
+                <a href="{{ route('tickets.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    New Ticket
+                </a>
             </div>
         </div>
     </x-slot>
 
     <div class="py-6 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Welcome Section -->
-            <div class="bg-white overflow-hidden shadow-lg sm:rounded-xl mb-8">
-                <div class="px-6 py-8 sm:p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-900">Welcome back, {{ Auth::user()->name }}!</h3>
-                            <p class="text-gray-600 mt-1">Manage your support tickets and get help quickly</p>
-                        </div>
-                        <div class="hidden sm:block">
-                            <div class="flex -space-x-1 overflow-hidden">
-                                <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Hello, {{ Auth::user()->name }}! 👋</h3>
+                        <p class="text-blue-100">Customer Portal • We're here to help you succeed</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100 mb-1">Account Status</div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                            <span class="text-lg font-bold">{{ Auth::user()->email_verified_at ? 'Verified' : 'Pending' }}</span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            @php
+                $totalTickets = Auth::user()->tickets()->count();
+                $openTickets = Auth::user()->tickets()->open()->count();
+                $resolvedTickets = Auth::user()->tickets()->where('status', 'resolved')->count();
+                $recentTickets = Auth::user()->tickets()->orderBy('created_at', 'desc')->limit(3)->get();
+            @endphp
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total Tickets -->
+                <div class="dashboard-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">Total Tickets</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ $totalTickets }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Open Tickets -->
+                <div class="dashboard-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">Open Tickets</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ $openTickets }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolved Tickets -->
+                <div class="dashboard-card">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500">Resolved</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ $resolvedTickets }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="dashboard-card mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">Quick Actions</h3>
+                        <p class="text-gray-600 mt-1">Common tasks to help you get started</p>
+                    </div>
+                </div>
                     
                     <!-- Quick Actions Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
