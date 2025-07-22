@@ -208,7 +208,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function tickets(): HasMany
     {
-        return $this->hasMany(Ticket::class);
+        return $this->hasMany(Ticket::class, 'requester_id');
     }
 
     /**
@@ -216,7 +216,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function assignedTickets(): HasMany
     {
-        return $this->hasMany(Ticket::class, 'assigned_to');
+        return $this->hasMany(Ticket::class, 'assignee_id');
     }
 
     /**

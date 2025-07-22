@@ -15,20 +15,31 @@ class Ticket extends Model
 
     protected $fillable = [
         'uuid',
-        'user_id',
-        'assigned_to',
+        'requester_id',
+        'assignee_id',
         'category_id',
         'title',
         'description',
         'status',
         'priority',
-        'source',
         'due_date',
         'resolved_at',
         'first_response_at',
         'last_activity_at',
-        'tags',
-        'metadata'
+        // Event/Concert ticket fields
+        'platform',
+        'external_id',
+        'price',
+        'currency',
+        'location',
+        'venue',
+        'event_date',
+        'event_type',
+        'performer_artist',
+        'seat_details',
+        'is_available',
+        'ticket_url',
+        'scraping_metadata'
     ];
 
     protected $casts = [
@@ -137,11 +148,19 @@ class Ticket extends Model
     }
 
     /**
-     * Relationship: User who created the ticket
+     * Relationship: User who created the ticket (requester)
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'requester_id');
+    }
+
+    /**
+     * Relationship: User who requested the ticket
+     */
+    public function requester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requester_id');
     }
 
     /**
@@ -149,7 +168,15 @@ class Ticket extends Model
      */
     public function assignedTo(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assignee_id');
+    }
+
+    /**
+     * Relationship: User assigned to handle the ticket (alias)
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     /**

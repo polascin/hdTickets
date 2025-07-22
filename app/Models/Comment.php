@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 class Comment extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    protected $table = 'ticket_comments';
 
     protected $fillable = [
         'uuid',

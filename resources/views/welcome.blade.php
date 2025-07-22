@@ -37,37 +37,98 @@
                 }
                 .links {
                     margin-top: 2rem;
+                    display: flex;
+                    justify-content: center;
+                    gap: 1rem;
                 }
                 .links a {
-                    margin: 0 1rem;
-                    padding: 0.5rem 1rem;
-                    color: #374151;
+                    display: inline-block;
+                    margin: 0;
+                    padding: 0.75rem 2rem;
+                    color: #ffffff;
                     text-decoration: none;
-                    border: 1px solid #d1d5db;
-                    border-radius: 0.375rem;
-                    transition: all 0.2s;
+                    background-color: #3b82f6;
+                    border: 1px solid #3b82f6;
+                    border-radius: 0.5rem;
+                    font-weight: 600;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                 }
                 .links a:hover {
-                    background-color: #f3f4f6;
+                    background-color: #2563eb;
+                    border-color: #2563eb;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                }
+                .links a.secondary {
+                    background-color: #6b7280;
+                    border-color: #6b7280;
+                }
+                .links a.secondary:hover {
+                    background-color: #4b5563;
+                    border-color: #4b5563;
+                }
+                .links a.logout {
+                    background-color: #dc2626;
+                    border-color: #dc2626;
+                }
+                .links a.logout:hover {
+                    background-color: #b91c1c;
+                    border-color: #b91c1c;
+                }
+                .user-info {
+                    margin-bottom: 1rem;
+                    color: #4b5563;
+                    font-size: 1.1rem;
+                    text-align: center;
+                }
+                .links form {
+                    margin: 0;
+                    display: inline;
+                }
+                .header-section {
+                    text-align: center;
+                }
+                .subtitle {
+                    color: #6b7280;
+                    font-size: 1.2rem;
+                    margin-bottom: 1rem;
                 }
             </style>
         @endif
     </head>
     <body>
         <div class="container">
-            <div class="title">
-                HD Tickets
+            <div class="header-section">
+                <div class="title">
+                    HD Tickets
+                </div>
+                <div class="subtitle">
+                    Professional Help Desk & Ticket Management System
+                </div>
             </div>
+            
+            @if (Route::has('login'))
+                @auth
+                    <div class="user-info">
+                        Welcome back, {{ Auth::user()->name }}!
+                    </div>
+                @endauth
+            @endif
             
             <div class="links">
                 @if (Route::has('login'))
                     @auth
                         <a href="{{ url('/dashboard') }}">Dashboard</a>
+                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                            @csrf
+                            <a href="#" class="logout" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
+                        </form>
                     @else
                         <a href="{{ route('login') }}">Login</a>
-
                         @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
+                            <a href="{{ route('register') }}" class="secondary">Register</a>
                         @endif
                     @endauth
                 @endif

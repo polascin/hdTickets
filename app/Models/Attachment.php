@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 class Attachment extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    protected $table = 'ticket_attachments';
 
     protected $fillable = [
         'uuid',
