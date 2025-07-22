@@ -1,5 +1,6 @@
 # System Architecture Documentation
 ## Ticket Automation Platform
+**Version:** 2025.07.v3
 
 ### Overview
 This document outlines the comprehensive system architecture for a high-performance ticket automation platform designed to handle 1000+ platform accounts with automated monitoring, purchasing, and notification capabilities.

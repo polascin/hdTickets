@@ -56,5 +56,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => User::ROLE_CUSTOMER,
         ]);
+        // Create 1000+ fake users for testing
+        User::factory()->count(1000)->create();
     }
 }

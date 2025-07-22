@@ -1,4 +1,5 @@
 # hdTickets RESTful API Documentation
+**Version:** 2025.07.v3
 
 ## Overview
 This document defines the RESTful API structure for the hdTickets high-demand ticket monitoring system. The API supports authentication, account management, monitoring criteria configuration, dashboard data, purchase history tracking, and system settings management.

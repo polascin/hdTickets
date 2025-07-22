@@ -1,5 +1,6 @@
 {
     "name": "hdtickets/app",
+    "version": "2025.07.v3",
     "type": "project",
     "require": {
         "laravel/framework": "^12.20",

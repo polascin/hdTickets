@@ -35,8 +35,8 @@ return new class extends Migration
         Schema::table('scraping_stats', function (Blueprint $table) {
             // Performance tracking indexes
             $table->index(['platform', 'created_at'], 'idx_stats_platform_created');
-            $table->index(['platform', 'success'], 'idx_stats_platform_success');
-            $table->index(['platform', 'response_time'], 'idx_stats_platform_response_time');
+            $table->index(['platform', 'status'], 'idx_stats_platform_status');
+            $table->index(['platform', 'response_time_ms'], 'idx_stats_platform_response_time');
             $table->index(['created_at', 'platform'], 'idx_stats_created_platform');
         });
 
@@ -92,7 +92,7 @@ return new class extends Migration
 
         Schema::table('scraping_stats', function (Blueprint $table) {
             $table->dropIndex('idx_stats_platform_created');
-            $table->dropIndex('idx_stats_platform_success');
+            $table->dropIndex('idx_stats_platform_status');
             $table->dropIndex('idx_stats_platform_response_time');
             $table->dropIndex('idx_stats_created_platform');
         });

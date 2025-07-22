@@ -20,6 +20,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value represents the current version of the application. It can be
+    | used throughout the application for version tracking, API versioning,
+    | and display purposes in the user interface.
+    |
+    */
+
+    'version' => '2025.07.v3',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

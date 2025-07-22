@@ -23,13 +23,62 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Generate more realistic user data
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+        $fullName = $firstName . ' ' . $lastName;
+        
+        // Create varied email formats
+        $emailFormats = [
+            strtolower($firstName . '.' . $lastName),
+            strtolower($firstName . $lastName),
+            strtolower(substr($firstName, 0, 1) . $lastName),
+            strtolower($firstName . '.' . substr($lastName, 0, 1)),
+            strtolower($firstName) . fake()->numberBetween(10, 999)
+        ];
+        
+        $emailPrefix = fake()->randomElement($emailFormats);
+        $emailDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'example.com', 'test.com'];
+        // Add random number to ensure uniqueness
+        $email = $emailPrefix . '.' . fake()->numberBetween(1000, 9999) . '@' . fake()->randomElement($emailDomains);
+        
+        // Assign roles with realistic distribution
+        $roleWeights = [
+            'customer' => 85, // 85% customers
+            'agent' => 12,    // 12% agents
+            'admin' => 3      // 3% admins
+        ];
+        
+        $role = $this->weightedRandom($roleWeights);
+        
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'name' => $fullName,
+            'email' => $email,
+            'email_verified_at' => fake()->optional(0.8)->dateTimeBetween('-1 year', 'now'), // 80% verified
+            'password' => static::$password ??= Hash::make('password123'),
+            'role' => $role,
+            'is_active' => fake()->optional(0.95, true)->boolean(), // 95% active users
             'remember_token' => Str::random(10),
         ];
+    }
+    
+    /**
+     * Helper method for weighted random selection
+     */
+    private function weightedRandom(array $weights): string
+    {
+        $totalWeight = array_sum($weights);
+        $randomWeight = fake()->numberBetween(1, $totalWeight);
+        
+        $currentWeight = 0;
+        foreach ($weights as $value => $weight) {
+            $currentWeight += $weight;
+            if ($randomWeight <= $currentWeight) {
+                return $value;
+            }
+        }
+        
+        return array_key_first($weights); // fallback
     }
 
     /**

@@ -1,4 +1,6 @@
 {
+    "name": "hdtickets-frontend",
+    "version": "2025.07.v3",
     "private": true,
     "type": "module",
     "scripts": {
