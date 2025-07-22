@@ -26,7 +26,10 @@ class UserFactory extends Factory
         // Generate more realistic user data
         $firstName = fake()->firstName();
         $lastName = fake()->lastName();
-        $fullName = $firstName . ' ' . $lastName;
+        
+        // Generate unique username
+        $baseUsername = strtolower($firstName . '.' . $lastName);
+        $username = $this->generateUniqueUsername($baseUsername);
         
         // Create varied email formats
         $emailFormats = [
@@ -52,7 +55,9 @@ class UserFactory extends Factory
         $role = $this->weightedRandom($roleWeights);
         
         return [
-            'name' => $fullName,
+            'name' => $firstName,
+            'surname' => $lastName,
+            'username' => $username,
             'email' => $email,
             'email_verified_at' => fake()->optional(0.8)->dateTimeBetween('-1 year', 'now'), // 80% verified
             'password' => static::$password ??= Hash::make('password123'),
@@ -79,6 +84,23 @@ class UserFactory extends Factory
         }
         
         return array_key_first($weights); // fallback
+    }
+    
+    /**
+     * Generate a unique username by appending numbers if needed
+     */
+    private function generateUniqueUsername(string $baseUsername): string
+    {
+        $username = $baseUsername;
+        $counter = 1;
+        
+        // Keep checking until we find a unique username
+        while (\App\Models\User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+        
+        return $username;
     }
 
     /**

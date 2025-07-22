@@ -112,7 +112,7 @@
             @if (Route::has('login'))
                 @auth
                     <div class="user-info">
-                        Welcome back, {{ Auth::user()->name }}!
+                        Welcome back, {{ Auth::user()->name }} {{ Auth::user()->surname ?? '' }}!
                     </div>
                 @endauth
             @endif

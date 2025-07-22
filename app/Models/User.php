@@ -21,6 +21,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'surname',
+        'username',
         'email',
         'password',
         'role',
@@ -157,6 +159,47 @@ class User extends Authenticatable implements MustVerifyEmail
     public function canDeleteAnyData()
     {
         return $this->isRootAdmin();
+    }
+
+    /**
+     * Get the user's full name (concatenated name and surname)
+     *
+     * @return string
+     */
+    public function getFullNameAttribute()
+    {
+        return trim($this->name . ' ' . $this->surname);
+    }
+
+    /**
+     * Scope a query to only include users with unique usernames
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $username
+     * @param int|null $excludeId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeUniqueUsername($query, $username, $excludeId = null)
+    {
+        $query = $query->where('username', $username);
+        
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Check if username is unique
+     *
+     * @param string $username
+     * @param int|null $excludeId
+     * @return bool
+     */
+    public static function isUsernameUnique($username, $excludeId = null)
+    {
+        return !static::uniqueUsername($username, $excludeId)->exists();
     }
 
     /**

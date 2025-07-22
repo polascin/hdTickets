@@ -60,17 +60,27 @@ class TicketManagementController extends Controller
         $tickets = $query->paginate(25);
 
         // Get filter options
-        $agents = User::where('role', User::ROLE_AGENT)->orderBy('name')->get();
+        $agents = User::where('role', 'agent')->orderBy('name')->get();
         $categories = Category::active()->ordered()->get();
         $statuses = Ticket::getStatuses();
         $priorities = Ticket::getPriorities();
+
+        // Get statistics for the dashboard cards
+        $stats = [
+            'total' => Ticket::count(),
+            'open' => Ticket::where('status', 'open')->count(),
+            'in_progress' => Ticket::where('status', 'in_progress')->count(),
+            'resolved' => Ticket::where('status', 'resolved')->count(),
+            'closed' => Ticket::where('status', 'closed')->count(),
+        ];
 
         return view('admin.tickets.index', compact(
             'tickets', 
             'agents', 
             'categories', 
             'statuses', 
-            'priorities'
+            'priorities',
+            'stats'
         ));
     }
 

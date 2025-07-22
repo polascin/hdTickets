@@ -13,11 +13,20 @@ class UserManagementController extends Controller
     /**
      * Display a listing of users
      */
-    public function index()
-    {
-        $users = User::paginate(10);
-        return view('admin.users.index', compact('users'));
+public function index() {
+    $query = User::query();
+
+    if (request('search')) {
+        $query->where(function($q) {
+            $q->where('name', 'like', '%'.request('search').'%')
+              ->orWhere('surname', 'like', '%'.request('search').'%')
+              ->orWhere('username', 'like', '%'.request('search').'%');
+        });
     }
+
+    $users = $query->paginate(10);
+    return view('admin.users.index', compact('users'));
+}
 
     /**
      * Show the form for creating a new user
@@ -34,6 +43,8 @@ class UserManagementController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'surname' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users', 'regex:/^[a-zA-Z0-9_-]+$/'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'in:admin,agent,customer'],
@@ -41,6 +52,8 @@ class UserManagementController extends Controller
 
         User::create([
             'name' => $request->name,
+            'surname' => $request->surname,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -74,6 +87,8 @@ class UserManagementController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'surname' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,'.$user->id, 'regex:/^[a-zA-Z0-9_-]+$/'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'role' => ['required', 'string', 'in:admin,agent,customer'],
             'is_active' => ['boolean'],
@@ -81,6 +96,8 @@ class UserManagementController extends Controller
 
         $user->update([
             'name' => $request->name,
+            'surname' => $request->surname,
+            'username' => $request->username,
             'email' => $request->email,
             'role' => $request->role,
             'is_active' => $request->has('is_active'),

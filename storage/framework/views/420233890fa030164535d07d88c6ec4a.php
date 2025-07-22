@@ -112,7 +112,7 @@
             <?php if(Route::has('login')): ?>
                 <?php if(auth()->guard()->check()): ?>
                     <div class="user-info">
-                        Welcome back, <?php echo e(Auth::user()->name); ?>!
+                        Welcome back, <?php echo e(Auth::user()->name); ?> <?php echo e(Auth::user()->surname ?? ''); ?>!
                     </div>
                 <?php endif; ?>
             <?php endif; ?>

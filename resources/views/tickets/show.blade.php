@@ -34,12 +34,24 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Created by:</strong> {{ $ticket->user->username ?? 'N/A' }}</p>
+                            <p><strong>Created by:</strong> {{ ($ticket->user->name ?? 'Unknown') . ($ticket->user->surname ? ' ' . $ticket->user->surname : '') }}</p>
+                            @if($ticket->user->username)
+                            <p><strong>Username:</strong> {{ $ticket->user->username }}</p>
+                            @endif
                             <p><strong>Category:</strong> {{ $ticket->category->name ?? 'N/A' }}</p>
                             <p><strong>Created:</strong> {{ $ticket->created_at->format('M d, Y g:i A') }}</p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Assigned to:</strong> {{ $ticket->assignedTo->username ?? 'Unassigned' }}</p>
+                            <p><strong>Assigned to:</strong> 
+                                @if($ticket->assignedTo)
+                                    {{ ($ticket->assignedTo->name ?? 'Unknown') . ($ticket->assignedTo->surname ? ' ' . $ticket->assignedTo->surname : '') }}
+                                    @if($ticket->assignedTo->username)
+                                        ({{ $ticket->assignedTo->username }})
+                                    @endif
+                                @else
+                                    Unassigned
+                                @endif
+                            </p>
                             <p><strong>Due date:</strong> {{ $ticket->due_date ? $ticket->due_date->format('M d, Y') : 'Not set' }}</p>
                             <p><strong>Last activity:</strong> {{ $ticket->last_activity_at->diffForHumans() }}</p>
                         </div>
@@ -196,7 +208,7 @@
                             <option value="">Unassigned</option>
                             @foreach($agents as $agent)
                                 <option value="{{ $agent->id }}" @if($ticket->assigned_to === $agent->id) selected @endif>
-                                    {{ $agent->username }}
+                                    {{ ($agent->name ?? 'Unknown') . ($agent->surname ? ' ' . $agent->surname : '') }}{{ $agent->username ? ' (' . $agent->username . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>

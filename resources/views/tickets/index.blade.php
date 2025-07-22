@@ -56,11 +56,11 @@
                         <select class="form-select" name="assigned_to">
                             <option value="all">All Assignees</option>
                             <option value="unassigned" @if(request('assigned_to') === 'unassigned') selected @endif>Unassigned</option>
-                            @foreach($agents as $agent)
-                                <option value="{{ $agent->id }}" @if(request('assigned_to') == $agent->id) selected @endif>
-                                    {{ $agent->username }}
-                                </option>
-                            @endforeach
+                                            @foreach($agents as $agent)
+                                                <option value="{{ $agent->id }}" @if(request('assigned_to') == $agent->id) selected @endif>
+                                                    {{ ($agent->name ?? 'Unknown') . ($agent->surname ? ' ' . $agent->surname : '') }}{{ $agent->username ? ' (' . $agent->username . ')' : '' }}
+                                                </option>
+                                            @endforeach
                         </select>
                     </div>
                     @endif
@@ -144,9 +144,27 @@
                                     </span>
                                 </td>
                                 <td>{{ $ticket->category->name ?? 'N/A' }}</td>
-                                <td>{{ $ticket->user->username ?? 'N/A' }}</td>
+                                <td>
+                                    @if($ticket->user)
+                                        {{ ($ticket->user->name ?? 'Unknown') . ($ticket->user->surname ? ' ' . $ticket->user->surname : '') }}
+                                        @if($ticket->user->username)
+                                            <br><small class="text-muted">{{ $ticket->user->username }}</small>
+                                        @endif
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
                                 @if(auth()->user()->isAdmin() || auth()->user()->isAgent())
-                                <td>{{ $ticket->assignedTo->username ?? 'Unassigned' }}</td>
+                                <td>
+                                    @if($ticket->assignedTo)
+                                        {{ ($ticket->assignedTo->name ?? 'Unknown') . ($ticket->assignedTo->surname ? ' ' . $ticket->assignedTo->surname : '') }}
+                                        @if($ticket->assignedTo->username)
+                                            <br><small class="text-muted">{{ $ticket->assignedTo->username }}</small>
+                                        @endif
+                                    @else
+                                        Unassigned
+                                    @endif
+                                </td>
                                 @endif
                                 <td>{{ $ticket->created_at->format('M d, Y') }}</td>
                                 <td>{{ $ticket->last_activity_at->diffForHumans() }}</td>

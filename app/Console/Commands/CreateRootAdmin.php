@@ -14,7 +14,9 @@ class CreateRootAdmin extends Command
      * @var string
      */
     protected $signature = 'hdtickets:create-root-admin 
-                            {--name=ticketmaster : Admin username}
+                            {--name=ticketmaster : Admin first name}
+                            {--surname=admin : Admin surname}
+                            {--username=ticketmaster : Admin username}
                             {--email=ticketmaster@hdtickets.admin : Admin email}
                             {--password=SecureAdminPass123! : Admin password}';
 
@@ -31,20 +33,24 @@ class CreateRootAdmin extends Command
     public function handle()
     {
         $name = $this->option('name');
+        $surname = $this->option('surname');
+        $username = $this->option('username');
         $email = $this->option('email');
         $password = $this->option('password');
 
         $this->info('🔐 HDTickets Root Admin Creator');
         $this->info('==================================');
 
-        // Check if user already exists
-        $existingUser = User::where('email', $email)->first();
+        // Check if user already exists by email or username
+        $existingUser = User::where('email', $email)->orWhere('username', $username)->first();
         if ($existingUser) {
-            $this->warn("⚠️  User with email '{$email}' already exists!");
+            $this->warn("⚠️  User with email '{$email}' or username '{$username}' already exists!");
             
             if ($this->confirm('Do you want to update the existing user?')) {
                 $existingUser->update([
                     'name' => $name,
+                    'surname' => $surname,
+                    'username' => $username,
                     'password' => Hash::make($password),
                     'role' => 'admin',
                     'is_active' => true,
@@ -64,6 +70,8 @@ class CreateRootAdmin extends Command
         try {
             $user = User::create([
                 'name' => $name,
+                'surname' => $surname,
+                'username' => $username,
                 'email' => $email,
                 'password' => Hash::make($password),
                 'role' => 'admin',
@@ -102,6 +110,9 @@ class CreateRootAdmin extends Command
             [
                 ['ID', $user->id],
                 ['Name', $user->name],
+                ['Surname', $user->surname ?? 'N/A'],
+                ['Username', $user->username ?? 'N/A'],
+                ['Full Name', $user->getFullNameAttribute()],
                 ['Email', $user->email],
                 ['Role', strtoupper($user->role)],
                 ['Status', $user->is_active ? 'ACTIVE' : 'INACTIVE'],

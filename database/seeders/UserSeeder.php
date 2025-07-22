@@ -13,9 +13,23 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create root admin user (ticketmaster)
+        User::create([
+            'name' => 'ticketmaster',
+            'surname' => 'admin',
+            'username' => 'ticketmaster',
+            'email' => 'ticketmaster@hdtickets.admin',
+            'email_verified_at' => now(),
+            'password' => Hash::make('SecureAdminPass123!'),
+            'role' => User::ROLE_ADMIN,
+            'is_active' => true,
+        ]);
+
         // Create Admin User
         User::create([
-            'name' => 'Admin User',
+            'name' => 'Admin',
+            'surname' => 'User',
+            'username' => 'admin.user',
             'email' => 'admin@hdtickets.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -24,7 +38,9 @@ class UserSeeder extends Seeder
 
         // Create Agent User
         User::create([
-            'name' => 'Agent User',
+            'name' => 'Agent',
+            'surname' => 'User',
+            'username' => 'agent.user',
             'email' => 'agent@hdtickets.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -33,7 +49,9 @@ class UserSeeder extends Seeder
 
         // Create Customer User
         User::create([
-            'name' => 'Customer User',
+            'name' => 'Customer',
+            'surname' => 'User',
+            'username' => 'customer.user',
             'email' => 'customer@hdtickets.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -42,7 +60,9 @@ class UserSeeder extends Seeder
 
         // Create additional sample users
         User::create([
-            'name' => 'John Agent',
+            'name' => 'John',
+            'surname' => 'Agent',
+            'username' => 'john.agent',
             'email' => 'john.agent@hdtickets.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -50,7 +70,9 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Jane Customer',
+            'name' => 'Jane',
+            'surname' => 'Customer',
+            'username' => 'jane.customer',
             'email' => 'jane.customer@hdtickets.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
