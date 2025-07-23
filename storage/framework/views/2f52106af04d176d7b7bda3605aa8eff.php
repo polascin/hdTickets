@@ -1,2 +1,0 @@
-<img src="<?php echo e(asset('assets/images/hdTicketsLogo.png')); ?>" alt="HD Tickets Logo" <?php echo e($attributes); ?>>
-<?php /**PATH C:\Users\polas\OneDrive\www\hdtickets\resources\views/components/application-logo.blade.php ENDPATH**/ ?>

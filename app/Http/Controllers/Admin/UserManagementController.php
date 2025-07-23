@@ -273,8 +273,7 @@ public function index() {
             'action' => 'required|string|in:activate,deactivate,delete,assign_role,export',
             'selected_users' => 'required|array|min:1',
             'selected_users.*' => 'integer|exists:users,id',
-            'role' => 'nullable|string|in:admin,agent,customer',
-            'bulk_token' => 'required|string',
+            'role' => 'nullable|string|in:admin,agent,customer,scraper',
         ]);
 
         $action = $request->input('action');

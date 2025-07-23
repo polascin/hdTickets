@@ -107,6 +107,9 @@
                     .pagination-mobile { flex-direction: column; text-align: center; gap: 1rem; }
                 }
                 
+                /* Alpine.js x-cloak directive */
+                [x-cloak] { display: none !important; }
+                
                 /* Touch-friendly improvements for all screen sizes */
                 button, a[role="button"], input[type="button"], input[type="submit"] {
                     min-height: 44px;

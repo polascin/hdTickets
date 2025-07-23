@@ -30,7 +30,8 @@ class ScrapedTicket extends Model
         'ticket_url',
         'search_keyword',
         'metadata',
-        'scraped_at'
+        'scraped_at',
+        'category_id'
     ];
 
     protected $casts = [
@@ -60,6 +61,12 @@ class ScrapedTicket extends Model
                 $ticket->scraped_at = now();
             }
         });
+    }
+
+    // Relationships
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     // Scopes

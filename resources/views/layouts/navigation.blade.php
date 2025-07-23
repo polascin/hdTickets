@@ -73,8 +73,8 @@
 
                     @if(Auth::user()->isAdmin())
                         {{-- Admin Dropdown --}}
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" 
+                        <div class="relative">
+                            <button onclick="toggleDropdown('adminDropdown')" 
                                     class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -85,22 +85,36 @@
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
-<div x-show="open" 
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="transform opacity-0 scale-95"
-                                 x-transition:enter-end="transform opacity-100 scale-100"
-                                 x-transition:leave="transition ease-in duration-75"
-                                 x-transition:leave-start="transform opacity-100 scale-100"
-                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                 @click.outside="open = false" 
+                            <div id="adminDropdown" style="display: none;" 
                                  class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200">
+                                {{-- Admin Dashboard --}}
+                                <a href="{{ route('admin.dashboard') }}" 
+                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.dashboard') ? 'bg-gray-50 text-blue-600' : '' }}">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    {{ __('Admin Dashboard') }}
+                                </a>
+                                
+                                {{-- Reports --}}
+                                <a href="{{ route('admin.reports.index') }}" 
+                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.reports.*') ? 'bg-gray-50 text-blue-600' : '' }}">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    {{ __('Reports') }}
+                                </a>
+                                
+                                {{-- Separator --}}
+                                <div class="border-t border-gray-100 my-1"></div>
+                                
                                 @if(Auth::user()->canManageUsers())
                                     <a href="{{ route('admin.users.index') }}" 
-                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.users.*') ? 'bg-gray-50 text-blue-600' : '' }}">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                                         </svg>
-                                        {{ __('Users') }}
+                                        {{ __('User Management') }}
                                     </a>
                                 @endif
                                 <a href="{{ route('admin.categories.index') }}" 
@@ -124,6 +138,18 @@
                                     </svg>
                                     {{ __('Scraping') }}
                                 </a>
+                                
+                                {{-- Logout Link in Admin Dropdown --}}
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out text-left">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                        </svg>
+                                        {{ __('Log Out') }}
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     @endif
@@ -142,52 +168,61 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-2">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            @php
-                                $profileDisplay = Auth::user()->getProfileDisplay();
-                            @endphp
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
-                                    @if($profileDisplay['has_picture'])
-                                        <img class="w-8 h-8 rounded-full object-cover" src="{{ $profileDisplay['picture_url'] }}" alt="{{ $profileDisplay['display_name'] }}">
-                                    @else
-                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                                            <span class="text-xs font-medium text-gray-700">
-                                                {{ $profileDisplay['initials'] }}
-                                            </span>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div>{{ $profileDisplay['display_name'] }}</div>
+                <div class="relative">
+                    <button onclick="toggleDropdown('profileDropdown')" 
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        @php
+                            $profileDisplay = Auth::user()->getProfileDisplay();
+                        @endphp
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                                @if($profileDisplay['has_picture'])
+                                    <img class="w-8 h-8 rounded-full object-cover" src="{{ $profileDisplay['picture_url'] }}" alt="{{ $profileDisplay['display_name'] }}">
+                                @else
+                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                        <span class="text-xs font-medium text-gray-700">
+                                            {{ $profileDisplay['initials'] }}
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
+                            <div>{{ $profileDisplay['display_name'] }}</div>
+                        </div>
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <div class="ms-1">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </button>
+                    
+                    <div id="profileDropdown" style="display: none;" 
+                         class="absolute z-50 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200 right-0">
+                        
+                        {{-- Profile Link --}}
+                        <a href="{{ route('profile.edit') }}" 
+                           class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
                             {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
+                        </a>
+                        
+                        {{-- Separator --}}
+                        <div class="border-t border-gray-100 my-1"></div>
+                        
+                        {{-- Logout Link --}}
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out text-left">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
                                 {{ __('Log Out') }}
-                            </x-dropdown-link>
+                            </button>
                         </form>
-                    </x-slot>
-                </x-dropdown>
+                    </div>
+                </div>
             </div>
 
             <!-- Hamburger -->
@@ -262,15 +297,31 @@
                 {{-- Admin Section --}}
                 <div class="border-t border-gray-200 mt-3 pt-3">
                     <div class="px-4 py-2">
-                        <div class="font-medium text-sm text-gray-800 uppercase tracking-wide">{{ __('Admin') }}</div>
+                        <div class="font-medium text-sm text-gray-800 uppercase tracking-wide">{{ __('Administration') }}</div>
                     </div>
                     
+                    {{-- Admin Dashboard --}}
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                        <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        {{ __('Admin Dashboard') }}
+                    </x-responsive-nav-link>
+                    
+                    {{-- Reports --}}
+                    <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                        <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        {{ __('Reports') }}
+                    </x-responsive-nav-link>
+                    
                     @if(Auth::user()->canManageUsers())
-                        <x-responsive-nav-link :href="route('admin.users.index')">
+                        <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                             </svg>
-                            {{ __('Users') }}
+                            {{ __('User Management') }}
                         </x-responsive-nav-link>
                     @endif
                     
@@ -340,3 +391,45 @@
         </div>
     </div>
 </nav>
+
+<script>
+function toggleDropdown(dropdownId) {
+    // Close all other dropdowns first
+    const allDropdowns = ['adminDropdown', 'profileDropdown'];
+    allDropdowns.forEach(id => {
+        if (id !== dropdownId) {
+            const dropdown = document.getElementById(id);
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        }
+    });
+    
+    // Toggle the clicked dropdown
+    const dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
+        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    const allDropdowns = ['adminDropdown', 'profileDropdown'];
+    
+    allDropdowns.forEach(dropdownId => {
+        const dropdown = document.getElementById(dropdownId);
+        const button = dropdown ? dropdown.previousElementSibling : null;
+        
+        if (dropdown && button) {
+            // Check if the click was outside both the dropdown and its button
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        }
+    });
+});
+</script>

@@ -260,14 +260,28 @@ class DashboardController extends Controller
         $lastWeek = Carbon::now()->subWeek();
 
         // Ticket stats with trends
-        $totalTickets = Ticket::count();
-        $ticketsToday = Ticket::whereDate('created_at', $today)->count();
-        $ticketsYesterday = Ticket::whereDate('created_at', $yesterday)->count();
-        $ticketChange = $ticketsYesterday > 0 ? (($ticketsToday - $ticketsYesterday) / $ticketsYesterday) * 100 : 0;
+        $totalTickets = 0;
+        $ticketsToday = 0;
+        $ticketsYesterday = 0;
+        $ticketChange = 0;
+        $openTickets = 0;
+        $openYesterday = 0;
+        $openChange = 0;
+        
+        try {
+            if (\Schema::hasTable('tickets')) {
+                $totalTickets = Ticket::count();
+                $ticketsToday = Ticket::whereDate('created_at', $today)->count();
+                $ticketsYesterday = Ticket::whereDate('created_at', $yesterday)->count();
+                $ticketChange = $ticketsYesterday > 0 ? (($ticketsToday - $ticketsYesterday) / $ticketsYesterday) * 100 : 0;
 
-        $openTickets = Ticket::open()->count();
-        $openYesterday = Ticket::open()->whereDate('created_at', '<', $today)->count();
-        $openChange = $openYesterday > 0 ? (($openTickets - $openYesterday) / $openYesterday) * 100 : 0;
+                $openTickets = Ticket::open()->count();
+                $openYesterday = Ticket::open()->whereDate('created_at', '<', $today)->count();
+                $openChange = $openYesterday > 0 ? (($openTickets - $openYesterday) / $openYesterday) * 100 : 0;
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Could not fetch ticket stats: ' . $e->getMessage());
+        }
 
         // User stats with trends
         $totalUsers = User::count();
@@ -283,9 +297,9 @@ class DashboardController extends Controller
             'tickets' => [
                 'total' => $totalTickets,
                 'open' => $openTickets,
-                'closed' => Ticket::closed()->count(),
-                'high_priority' => Ticket::highPriority()->count(),
-                'overdue' => Ticket::overdue()->count(),
+                'closed' => 0,
+                'high_priority' => 0,
+                'overdue' => 0,
                 'change' => round($ticketChange, 1),
                 'open_change' => round($openChange, 1),
                 'trend' => $ticketChange > 0 ? 'up' : 'down'
@@ -293,13 +307,13 @@ class DashboardController extends Controller
             'users' => [
                 'total' => $totalUsers,
                 'active' => $activeUsers,
-                'agents' => User::where('role', User::ROLE_AGENT)->count(),
-                'customers' => User::where('role', User::ROLE_CUSTOMER)->count(),
+                'agents' => User::where('role', 'agent')->count(),
+                'customers' => User::where('role', 'customer')->count(),
                 'change' => round($userChange, 1),
                 'trend' => $userChange > 0 ? 'up' : 'down'
             ],
             'categories' => [
-                'total' => Category::active()->count(),
+                'total' => \Schema::hasTable('categories') ? Category::active()->count() : 0,
             ],
             'system' => [
                 'health' => $systemHealth,
@@ -307,6 +321,17 @@ class DashboardController extends Controller
                 'trend' => $healthChange > 0 ? 'up' : 'down'
             ]
         ];
+        
+        // Add additional ticket stats if tables exist
+        try {
+            if (\Schema::hasTable('tickets')) {
+                $stats['tickets']['closed'] = Ticket::closed()->count();
+                $stats['tickets']['high_priority'] = Ticket::highPriority()->count();
+                $stats['tickets']['overdue'] = Ticket::overdue()->count();
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Could not fetch additional ticket stats: ' . $e->getMessage());
+        }
 
         return response()->json($stats);
     }
@@ -316,16 +341,24 @@ class DashboardController extends Controller
      */
     public function getTicketStatusChart()
     {
-        $data = Ticket::select('status', DB::raw('count(*) as count'))
-            ->groupBy('status')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => ucfirst(str_replace('_', ' ', $item->status)),
-                    'value' => $item->count,
-                    'color' => $this->getStatusColor($item->status)
-                ];
-            });
+        $data = collect();
+        
+        try {
+            if (\Schema::hasTable('tickets')) {
+                $data = Ticket::select('status', DB::raw('count(*) as count'))
+                    ->groupBy('status')
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'label' => ucfirst(str_replace('_', ' ', $item->status)),
+                            'value' => $item->count,
+                            'color' => $this->getStatusColor($item->status)
+                        ];
+                    });
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Could not fetch ticket status chart data: ' . $e->getMessage());
+        }
 
         return response()->json($data);
     }
@@ -335,16 +368,24 @@ class DashboardController extends Controller
      */
     public function getTicketPriorityChart()
     {
-        $data = Ticket::select('priority', DB::raw('count(*) as count'))
-            ->groupBy('priority')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => ucfirst($item->priority),
-                    'value' => $item->count,
-                    'color' => $this->getPriorityColor($item->priority)
-                ];
-            });
+        $data = collect();
+        
+        try {
+            if (\Schema::hasTable('tickets')) {
+                $data = Ticket::select('priority', DB::raw('count(*) as count'))
+                    ->groupBy('priority')
+                    ->get()
+                    ->map(function ($item) {
+                        return [
+                            'label' => ucfirst($item->priority),
+                            'value' => $item->count,
+                            'color' => $this->getPriorityColor($item->priority)
+                        ];
+                    });
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Could not fetch ticket priority chart data: ' . $e->getMessage());
+        }
 
         return response()->json($data);
     }
@@ -355,15 +396,39 @@ class DashboardController extends Controller
     public function getMonthlyTrend()
     {
         $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $count = Ticket::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
-            $data[] = [
-                'month' => $date->format('M Y'),
-                'tickets' => $count
-            ];
+        
+        try {
+            if (\Schema::hasTable('tickets')) {
+                for ($i = 11; $i >= 0; $i--) {
+                    $date = Carbon::now()->subMonths($i);
+                    $count = Ticket::whereYear('created_at', $date->year)
+                        ->whereMonth('created_at', $date->month)
+                        ->count();
+                    $data[] = [
+                        'month' => $date->format('M Y'),
+                        'tickets' => $count
+                    ];
+                }
+            } else {
+                // Return empty data for 12 months if table doesn't exist
+                for ($i = 11; $i >= 0; $i--) {
+                    $date = Carbon::now()->subMonths($i);
+                    $data[] = [
+                        'month' => $date->format('M Y'),
+                        'tickets' => 0
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Could not fetch monthly trend data: ' . $e->getMessage());
+            // Return empty data for 12 months on error
+            for ($i = 11; $i >= 0; $i--) {
+                $date = Carbon::now()->subMonths($i);
+                $data[] = [
+                    'month' => $date->format('M Y'),
+                    'tickets' => 0
+                ];
+            }
         }
 
         return response()->json($data);

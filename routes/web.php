@@ -79,7 +79,7 @@ Route::middleware(['auth', 'verified'])->prefix('ajax')->name('ajax.')->group(fu
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tickets', function() {
         return redirect()->route('tickets.scraping.index');
-    })->name('tickets.index');
+    })->name('tickets.redirect');
 });
 
 Route::middleware('auth')->group(function () {
@@ -130,4 +130,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
 require __DIR__.'/test.php';

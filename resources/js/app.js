@@ -1,20 +1,6 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
-import { createApp } from 'vue';
-
-// Import UX/UI enhancement modules
-import ThemeManager from './modules/ThemeManager.js';
-import TableCustomizer from './modules/TableCustomizer.js';
-import UIFeedbackManager from './modules/UIFeedbackManager.js';
-import UserPreferences from './modules/UserPreferences.js';
-
-// Vue Components
-import TicketSearch from './components/TicketSearch.vue';
-import TicketDashboard from './components/TicketDashboard.vue';
-import TicketForm from './components/TicketForm.vue';
-import KnowledgeBase from './components/KnowledgeBase.vue';
-import NotificationCenter from './components/NotificationCenter.vue';
 
 // Make Alpine available on the window object
 window.Alpine = Alpine;
@@ -22,20 +8,7 @@ window.Alpine = Alpine;
 // Initialize Alpine
 Alpine.start();
 
-// Initialize Vue app if there are Vue components on the page
-const app = createApp({});
-
-// Register Vue components
-app.component('ticket-search', TicketSearch);
-app.component('ticket-dashboard', TicketDashboard);
-app.component('ticket-form', TicketForm);
-app.component('knowledge-base', KnowledgeBase);
-app.component('notification-center', NotificationCenter);
-
-// Mount Vue app
-if (document.getElementById('app')) {
-    app.mount('#app');
-}
+console.log('Alpine.js loaded and initialized:', !!window.Alpine);
 
 // Global functions for ticket management
 window.TicketManager = {
@@ -118,94 +91,9 @@ window.TicketManager = {
     }
 };
 
-// Initialize UX/UI enhancement modules
+// Initialize basic DOM functionality
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize theme management
-    if (!window.hdTicketsTheme) {
-        window.hdTicketsTheme = new ThemeManager({
-            transitions: true,
-            autoDetect: true
-        });
-    }
-    
-    // Initialize UI feedback system
-    if (!window.hdTicketsFeedback) {
-        window.hdTicketsFeedback = new UIFeedbackManager({
-            enableSounds: false,
-            enableVibration: false
-        });
-    }
-    
-    // Initialize user preferences
-    if (!window.hdTicketsPrefs) {
-        window.hdTicketsPrefs = new UserPreferences({
-            useServer: false // Set to true when server sync is implemented
-        });
-    }
-    
-    // Auto-initialize table customizers for existing tables
-    document.querySelectorAll('table[data-customizable="true"]').forEach(table => {
-        if (!table.dataset.customized) {
-            new TableCustomizer('#' + table.id, {
-                enableColumnReorder: true,
-                enableColumnResize: true,
-                enableColumnToggle: true,
-                enableSort: true,
-                enableFilters: true
-            });
-            table.dataset.customized = 'true';
-        }
-    });
-    
-    // Apply user preferences to body classes
-    const prefs = window.hdTicketsPrefs;
-    if (prefs) {
-        // Apply accessibility preferences
-        if (prefs.isHighContrastEnabled()) {
-            document.body.classList.add('high-contrast');
-        }
-        
-        if (prefs.isReduceMotionEnabled()) {
-            document.body.classList.add('reduce-motion');
-        }
-        
-        if (!prefs.areAnimationsEnabled()) {
-            document.body.classList.add('no-animations');
-        }
-        
-        // Listen for preference changes
-        prefs.addObserver((event, data) => {
-            if (event === 'preference:changed') {
-                // Handle specific preference changes
-                switch (data.key) {
-                    case 'accessibility.highContrast':
-                        document.body.classList.toggle('high-contrast', data.value);
-                        break;
-                    case 'accessibility.reduceMotion':
-                        document.body.classList.toggle('reduce-motion', data.value);
-                        break;
-                    case 'ui.animationsEnabled':
-                        document.body.classList.toggle('no-animations', !data.value);
-                        break;
-                }
-            }
-        });
-    }
-    
-    // Theme integration with preferences
-    if (window.hdTicketsTheme && window.hdTicketsPrefs) {
-        const savedTheme = window.hdTicketsPrefs.getTheme();
-        if (savedTheme && savedTheme !== window.hdTicketsTheme.getCurrentTheme()) {
-            window.hdTicketsTheme.setTheme(savedTheme, false);
-        }
-        
-        // Sync theme changes with preferences
-        window.hdTicketsTheme.addObserver((newTheme, previousTheme) => {
-            window.hdTicketsPrefs.setTheme(newTheme);
-        });
-    }
-    
-    console.log('HD Tickets UX/UI enhancements loaded successfully');
+    console.log('DOM loaded, Alpine should be available:', !!window.Alpine);
 });
 
 // Global utility functions
