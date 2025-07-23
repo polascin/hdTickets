@@ -25,4 +25,22 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
         },
     },
+    build: {
+        chunkSizeWarningLimit: 1000,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-vue': ['vue'],
+                    'vendor-ui': ['sweetalert2', 'chart.js', 'flatpickr'],
+                    'vendor-http': ['axios', 'laravel-echo', 'pusher-js'],
+                    'vendor-alpine': ['alpinejs'],
+                },
+            },
+        },
+    },
+    server: {
+        hmr: {
+            host: 'localhost',
+        },
+    },
 });

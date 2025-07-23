@@ -2,6 +2,8 @@ import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common['Accept'] = 'application/json';
+window.axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 // Get CSRF token from meta tag
 const token = document.head.querySelector('meta[name="csrf-token"]');
@@ -10,6 +12,29 @@ if (token) {
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
+
+// Configure axios interceptors for better error handling
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 419) {
+            // CSRF token mismatch - reload page
+            window.location.reload();
+        } else if (error.response?.status === 401) {
+            // Unauthorized - redirect to login
+            window.location.href = '/login';
+        } else if (error.response?.status === 429) {
+            // Rate limited
+            Swal.fire({
+                icon: 'warning',
+                title: 'Rate Limited',
+                text: 'Too many requests. Please wait a moment and try again.',
+                timer: 3000
+            });
+        }
+        return Promise.reject(error);
+    }
+);
 
 // SweetAlert2 for notifications
 import Swal from 'sweetalert2';
