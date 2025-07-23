@@ -547,29 +547,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Ticket::class, 'assignee_id');
     }
 
-    /**
-     * Relationship: Comments created by this user
-     */
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    /**
-     * Relationship: Attachments uploaded by this user
-     */
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(Attachment::class);
-    }
-
-    /**
-     * Relationship: Comments edited by this user
-     */
-    public function editedComments(): HasMany
-    {
-        return $this->hasMany(Comment::class, 'edited_by');
-    }
 
     /**
      * Relationship: User who created this account
