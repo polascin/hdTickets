@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     
-    <title><?php echo e(config('app.name', 'Sports Tickets')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
+    <title><?php echo e(config('app.name', 'HD Tickets')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
     <meta name="description" content="<?php echo $__env->yieldContent('description', 'Professional sports ticket monitoring and management platform'); ?>">
+    <link rel="icon" type="image/png" href="<?php echo e(asset('assets/images/hdTicketsLogo.png')); ?>">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

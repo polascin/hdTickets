@@ -7,6 +7,7 @@
 
         <title><?php echo e(config('app.name', 'HD Tickets')); ?> - <?php echo $__env->yieldContent('title', 'Dashboard'); ?></title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
+        <link rel="icon" type="image/png" href="<?php echo e(asset('assets/images/hdTicketsLogo.png')); ?>">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

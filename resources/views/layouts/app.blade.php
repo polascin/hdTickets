@@ -7,6 +7,7 @@
 
         <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
+        <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
