@@ -48,8 +48,7 @@ window.flatpickr = flatpickr;
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
 
-// Echo for real-time features (uncomment when ready to use)
-/*
+// Echo for real-time features - ENABLED
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 
@@ -65,4 +64,3 @@ window.Echo = new Echo({
     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
 });
-*/

@@ -4,28 +4,113 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\SecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Auth\Events\Registered;
 
 class UserManagementController extends Controller
 {
+    protected $securityService;
+
+    public function __construct(SecurityService $securityService)
+    {
+        $this->securityService = $securityService;
+    }
+
     /**
      * Display a listing of users
      */
 public function index() {
     $query = User::query();
 
+    // Multi-criteria search
     if (request('search')) {
-        $query->where(function($q) {
-            $q->where('name', 'like', '%'.request('search').'%')
-              ->orWhere('surname', 'like', '%'.request('search').'%')
-              ->orWhere('email', 'like', '%'.request('search').'%');
+        $searchTerm = request('search');
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('name', 'like', '%'.$searchTerm.'%')
+              ->orWhere('surname', 'like', '%'.$searchTerm.'%')
+              ->orWhere('email', 'like', '%'.$searchTerm.'%')
+              ->orWhere('username', 'like', '%'.$searchTerm.'%')
+              ->orWhere('phone', 'like', '%'.$searchTerm.'%')
+              ->orWhereRaw("CONCAT(name, ' ', surname) LIKE ?", ['%'.$searchTerm.'%']);
         });
     }
 
-    $users = $query->paginate(10);
-    return view('admin.users.index', compact('users'));
+        // Role filter
+        if (request('has_roles')) {
+            $query->whereHas('roles', function($q) {
+                $q->whereIn('name', request('has_roles'));
+            });
+        }
+    if (request('role') && request('role') !== 'all') {
+        $query->where('role', request('role'));
+    }
+
+    // Status filter
+    if (request('status') && request('status') !== 'all') {
+        if (request('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif (request('status') === 'inactive') {
+            $query->where('is_active', false);
+        } elseif (request('status') === 'verified') {
+            $query->whereNotNull('email_verified_at');
+        } elseif (request('status') === 'unverified') {
+            $query->whereNull('email_verified_at');
+        }
+    }
+
+    // Date range filter
+    if (request('date_from')) {
+        $query->whereDate('created_at', '>=', request('date_from'));
+    }
+    if (request('date_to')) {
+        $query->whereDate('created_at', '<=', request('date_to'));
+    }
+
+    // Sorting
+    $sortBy = request('sort_by', 'created_at');
+    $sortOrder = request('sort_order', 'desc');
+    
+    // Validate sort parameters
+    $allowedSortFields = ['name', 'surname', 'email', 'role', 'is_active', 'created_at', 'email_verified_at'];
+    $allowedSortOrders = ['asc', 'desc'];
+    
+    if (!in_array($sortBy, $allowedSortFields)) {
+        $sortBy = 'created_at';
+    }
+    if (!in_array($sortOrder, $allowedSortOrders)) {
+        $sortOrder = 'desc';
+    }
+
+    // Handle full name sorting
+    if ($sortBy === 'name') {
+        $query->orderByRaw("CONCAT(name, ' ', surname) {$sortOrder}");
+    } else {
+        $query->orderBy($sortBy, $sortOrder);
+    }
+
+    // Pagination with query parameters
+    $perPage = request('per_page', 10);
+    if (!in_array($perPage, [10, 25, 50, 100])) {
+        $perPage = 10;
+    }
+
+    $users = $query->paginate($perPage)->appends(request()->query());
+    
+    // Get available roles for filter dropdown
+    $availableRoles = User::getRoles();
+
+    // Add new role management view
+    if (request('manage_roles')) {
+        // Return the roles management view
+        return view('admin.users.roles');
+    }
+    
+    return view('admin.users.index', compact('users', 'availableRoles'));
 }
 
     /**
@@ -45,7 +130,7 @@ public function index() {
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'in:admin,agent,customer'],
         ]);
 
@@ -60,12 +145,15 @@ public function index() {
             $counter++;
         }
 
+        // Generate password if not provided
+        $password = $request->password ?: 'password123';
+
         User::create([
             'name' => $request->name,
             'surname' => $request->surname,
             'username' => $username,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($password),
             'role' => $request->role,
             'email_verified_at' => now(), // Auto-verify for admin-created users
         ]);
@@ -170,5 +258,568 @@ public function index() {
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Password reset successfully to the default password.');
+    }
+
+    /**
+     * Handle bulk actions on users with enhanced security
+     */
+    public function bulkAction(Request $request)
+    {
+        $user = Auth::user();
+        $startTime = microtime(true);
+        
+        // Enhanced validation with CSRF token
+        $request->validate([
+            'action' => 'required|string|in:activate,deactivate,delete,assign_role,export',
+            'selected_users' => 'required|array|min:1',
+            'selected_users.*' => 'integer|exists:users,id',
+            'role' => 'nullable|string|in:admin,agent,customer',
+            'bulk_token' => 'required|string',
+        ]);
+
+        $action = $request->input('action');
+        $userIds = $request->input('selected_users');
+        $bulkToken = $request->input('bulk_token');
+        
+        // Security checks
+        if (!$this->securityService->checkPermission($user, 'bulk_operations', ['action' => $action])) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'You do not have permission to perform bulk operations.');
+        }
+        
+        // Validate bulk operation security
+        $validation = $this->securityService->validateBulkOperation($userIds, $action, $user);
+        if (!$validation['valid']) {
+            $this->securityService->logSecurityActivity(
+                'Bulk operation validation failed',
+                ['action' => $action, 'errors' => $validation['errors']]
+            );
+            return redirect()->route('admin.users.index')
+                ->with('error', implode(' ', $validation['errors']));
+        }
+        
+        // Validate CSRF token for bulk operations
+        if (!$this->securityService->validateBulkOperationToken($bulkToken, $action, $userIds)) {
+            $this->securityService->logSecurityActivity(
+                'Invalid bulk operation token',
+                ['action' => $action, 'user_count' => count($userIds)]
+            );
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Invalid security token. Please refresh and try again.');
+        }
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'No users selected.');
+        }
+
+        $results = ['success' => 0, 'failure' => 0, 'errors' => []];
+        
+        try {
+            switch ($action) {
+                case 'activate':
+                    $response = $this->bulkActivate($users);
+                    $results['success'] = $users->count();
+                    break;
+                case 'deactivate':
+                    $response = $this->bulkDeactivate($users);
+                    $results['success'] = $users->count();
+                    break;
+                case 'delete':
+                    $response = $this->bulkDelete($users);
+                    $results['success'] = $users->count();
+                    break;
+                case 'assign_role':
+                    $response = $this->bulkAssignRole($users, $request->input('role'));
+                    $results['success'] = $users->count();
+                    break;
+                case 'export':
+                    $results['success'] = $users->count();
+                    $this->securityService->logBulkOperation($action, $userIds, $results);
+                    return $this->bulkExport($users);
+                default:
+                    throw new \InvalidArgumentException('Invalid bulk action');
+            }
+        } catch (\Exception $e) {
+            $results['failure'] = $users->count();
+            $results['errors'][] = $e->getMessage();
+            
+            $this->securityService->logSecurityActivity(
+                'Bulk operation failed',
+                ['action' => $action, 'error' => $e->getMessage()]
+            );
+            
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Bulk operation failed: ' . $e->getMessage());
+        }
+        
+        // Log successful bulk operation
+        $results['execution_time'] = round((microtime(true) - $startTime) * 1000, 2) . 'ms';
+        $this->securityService->logBulkOperation($action, $userIds, $results);
+        
+        return $response;
+    }
+
+    /**
+     * Bulk activate users
+     */
+    private function bulkActivate($users)
+    {
+        $count = 0;
+        foreach ($users as $user) {
+            if (!$user->is_active) {
+                $user->update(['is_active' => true]);
+                $count++;
+            }
+        }
+
+        $message = $count > 0 ? "Successfully activated {$count} user(s)." : "All selected users are already active.";
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Bulk deactivate users
+     */
+    private function bulkDeactivate($users)
+    {
+        $count = 0;
+        $currentUserId = auth()->id();
+        
+        foreach ($users as $user) {
+            // Prevent admin from deactivating themselves
+            if ($user->id === $currentUserId) {
+                continue;
+            }
+            
+            if ($user->is_active) {
+                $user->update(['is_active' => false]);
+                $count++;
+            }
+        }
+
+        $message = $count > 0 ? "Successfully deactivated {$count} user(s)." : "No users were deactivated.";
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Bulk delete users
+     */
+    private function bulkDelete($users)
+    {
+        $count = 0;
+        $currentUserId = auth()->id();
+        
+        foreach ($users as $user) {
+            // Prevent admin from deleting themselves
+            if ($user->id === $currentUserId) {
+                continue;
+            }
+            
+            $user->delete();
+            $count++;
+        }
+
+        $message = $count > 0 ? "Successfully deleted {$count} user(s)." : "No users were deleted.";
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Bulk assign role to users
+     */
+    private function bulkAssignRole($users, $role)
+    {
+        if (!$role) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'Please specify a role to assign.');
+        }
+
+        $count = 0;
+        foreach ($users as $user) {
+            if ($user->role !== $role) {
+                $user->update(['role' => $role]);
+                $count++;
+            }
+        }
+
+        $message = $count > 0 ? "Successfully assigned {$role} role to {$count} user(s)." : "All selected users already have the {$role} role.";
+        return redirect()->route('admin.users.index')->with('success', $message);
+    }
+
+    /**
+     * Bulk export users
+     */
+    private function bulkExport($users)
+    {
+        $filename = 'users_export_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($users) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Surname', 
+                'Full Name',
+                'Email',
+                'Username',
+                'Phone',
+                'Role',
+                'Status',
+                'Email Verified',
+                'Created At',
+                'Updated At'
+            ]);
+
+            // Add user data
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->surname,
+                    $user->full_name,
+                    $user->email,
+                    $user->username,
+                    $user->phone,
+                    ucfirst($user->role),
+                    $user->is_active ? 'Active' : 'Inactive',
+                    $user->email_verified_at ? 'Yes' : 'No',
+                    $user->created_at->format('Y-m-d H:i:s'),
+                    $user->updated_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Impersonate a user
+     */
+    public function impersonate(User $user)
+    {
+        // Prevent impersonating yourself
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'You cannot impersonate yourself.');
+        }
+
+        // Store original admin user in session for later restoration
+        session(['impersonating' => [
+            'original_user' => auth()->id(),
+            'impersonated_user' => $user->id,
+            'started_at' => now()
+        ]]);
+
+        // Log in as the target user
+        Auth::login($user);
+
+        return redirect()->route('dashboard')
+            ->with('success', "You are now impersonating {$user->full_name}. Click 'Stop Impersonating' to return to your account.");
+    }
+
+    /**
+     * Stop impersonating and return to original user
+     */
+    public function stopImpersonating()
+    {
+        if (!session('impersonating')) {
+            return redirect()->route('dashboard')
+                ->with('error', 'You are not currently impersonating anyone.');
+        }
+
+        $originalUserId = session('impersonating.original_user');
+        $originalUser = User::find($originalUserId);
+
+        if (!$originalUser) {
+            session()->forget('impersonating');
+            return redirect()->route('login')
+                ->with('error', 'Original user not found. Please log in again.');
+        }
+
+        // Clear impersonating session
+        session()->forget('impersonating');
+
+        // Log back in as original user
+        Auth::login($originalUser);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'You have stopped impersonating and returned to your account.');
+    }
+
+    /**
+     * Send email verification to user
+     */
+    public function sendVerification(User $user)
+    {
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'User email is already verified.');
+        }
+
+        // Fire the registered event to send verification email
+        event(new Registered($user));
+
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Verification email sent successfully.');
+    }
+
+    /**
+     * Update user field inline via AJAX
+     */
+    public function inlineUpdate(Request $request, User $user)
+    {
+        $field = $request->input('field');
+        $value = $request->input('value');
+
+        // Define allowed fields for inline editing
+        $allowedFields = ['name', 'surname', 'email', 'phone'];
+
+        if (!in_array($field, $allowedFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Field not allowed for inline editing.'
+            ], 400);
+        }
+
+        // Validate the input based on field type
+        $rules = [];
+        switch ($field) {
+            case 'name':
+            case 'surname':
+                $rules[$field] = ['required', 'string', 'max:255'];
+                break;
+            case 'email':
+                $rules[$field] = ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $user->id];
+                break;
+            case 'phone':
+                $rules[$field] = ['nullable', 'string', 'max:20'];
+                break;
+        }
+
+        $validator = validator([$field => $value], $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first($field)
+            ], 400);
+        }
+
+        // Update the field
+        $user->update([$field => $value]);
+
+        // If name or surname changed, update username as well
+        if (in_array($field, ['name', 'surname'])) {
+            $username = strtolower($user->name . '.' . $user->surname);
+            $counter = 1;
+            $originalUsername = $username;
+            
+            // Ensure username uniqueness (excluding current user)
+            while (User::where('username', $username)->where('id', '!=', $user->id)->exists()) {
+                $username = $originalUsername . '.' . $counter;
+                $counter++;
+            }
+            
+            $user->update(['username' => $username]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Field updated successfully.',
+            'new_value' => $value
+        ]);
+    }
+
+    /**
+     * Show the user roles management interface
+     */
+    public function roles()
+    {
+        // Authorization check
+        $this->authorize('manage_users');
+        
+        // Get role statistics
+        $roleStats = [
+            'admin' => User::where('role', 'admin')->count(),
+            'agent' => User::where('role', 'agent')->count(),
+            'customer' => User::where('role', 'customer')->count(),
+        ];
+        
+        // Get users by role with pagination
+        $usersQuery = User::query();
+        
+        if (request('role_filter') && request('role_filter') !== 'all') {
+            $usersQuery->where('role', request('role_filter'));
+        }
+        
+        if (request('search')) {
+            $searchTerm = request('search');
+            $usersQuery->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                  ->orWhere('surname', 'like', '%'.$searchTerm.'%')
+                  ->orWhere('email', 'like', '%'.$searchTerm.'%')
+                  ->orWhereRaw("CONCAT(name, ' ', surname) LIKE ?", ['%'.$searchTerm.'%']);
+            });
+        }
+        
+        $users = $usersQuery->orderBy('role')->orderBy('name')->paginate(20);
+        
+        // Get role permissions/capabilities for display
+        $roleCapabilities = [
+            'admin' => [
+                'Manage Users',
+                'Access Reports', 
+                'System Management',
+                'Scraping Management',
+                'Activity Logs',
+                'Full System Access'
+            ],
+            'agent' => [
+                'View Tickets',
+                'Process Tickets',
+                'Basic Reports',
+                'Limited System Access'
+            ],
+            'customer' => [
+                'View Own Tickets',
+                'Submit Tickets',
+                'Basic Profile Management',
+                'Limited Access'
+            ]
+        ];
+        
+        // Recent role changes activity
+        $recentRoleChanges = Activity::where('event', 'updated')
+            ->where('description', 'like', '%role%')
+            ->with('causer')
+            ->latest()
+            ->limit(10)
+            ->get();
+        
+        return view('admin.users.roles', compact(
+            'roleStats',
+            'users', 
+            'roleCapabilities',
+            'recentRoleChanges'
+        ));
+    }
+    
+    /**
+     * Update user role via AJAX
+     */
+    public function updateRole(Request $request, User $user)
+    {
+        $this->authorize('manage_users');
+        
+        $request->validate([
+            'role' => 'required|string|in:admin,agent,customer'
+        ]);
+        
+        $oldRole = $user->role;
+        $newRole = $request->role;
+        
+        if ($oldRole === $newRole) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User already has this role.'
+            ]);
+        }
+        
+        // Prevent removing admin role from yourself
+        if ($user->id === auth()->id() && $oldRole === 'admin' && $newRole !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot remove admin role from yourself.'
+            ], 400);
+        }
+        
+        $user->update(['role' => $newRole]);
+        
+        // Log the role change
+        activity()
+            ->performedOn($user)
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'old_role' => $oldRole,
+                'new_role' => $newRole
+            ])
+            ->log("User role changed from {$oldRole} to {$newRole}");
+        
+        return response()->json([
+            'success' => true,
+            'message' => "User role updated successfully from {$oldRole} to {$newRole}." 
+        ]);
+    }
+    
+    /**
+     * Bulk role assignment
+     */
+    public function bulkRoleAssignment(Request $request)
+    {
+        $this->authorize('manage_users');
+        
+        $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|exists:users,id',
+            'new_role' => 'required|string|in:admin,agent,customer'
+        ]);
+        
+        $userIds = $request->user_ids;
+        $newRole = $request->new_role;
+        $currentUserId = auth()->id();
+        
+        $users = User::whereIn('id', $userIds)->get();
+        $updatedCount = 0;
+        $errors = [];
+        
+        foreach ($users as $user) {
+            // Skip if user already has the role
+            if ($user->role === $newRole) {
+                continue;
+            }
+            
+            // Prevent removing admin role from yourself
+            if ($user->id === $currentUserId && $user->role === 'admin' && $newRole !== 'admin') {
+                $errors[] = "Cannot remove admin role from yourself";
+                continue;
+            }
+            
+            $oldRole = $user->role;
+            $user->update(['role' => $newRole]);
+            $updatedCount++;
+            
+            // Log the role change
+            activity()
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'old_role' => $oldRole,
+                    'new_role' => $newRole,
+                    'bulk_operation' => true
+                ])
+                ->log("User role changed from {$oldRole} to {$newRole} (bulk operation)");
+        }
+        
+        $message = "Successfully updated {$updatedCount} user(s) to {$newRole} role.";
+        if (!empty($errors)) {
+            $message .= ' Errors: ' . implode(', ', $errors);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'updated_count' => $updatedCount,
+            'errors' => $errors
+        ]);
     }
 }

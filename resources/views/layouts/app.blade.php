@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
@@ -19,7 +19,7 @@
 
         <!-- Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
+@vite(['resources/css/app.css', 'resources/js/app.js'])
         @else
             <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -75,6 +75,54 @@
                 .overflow-hidden { overflow: hidden; } .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
                 .transition { transition: all 0.15s ease-in-out; } .hover\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
                 .cursor-pointer { cursor: pointer; } .select-none { user-select: none; }
+                
+                /* Mobile-first responsive enhancements */
+                @media (max-width: 768px) {
+                    /* Header adjustments */
+                    .header-mobile { flex-direction: column; gap: 1rem; }
+                    .button-mobile { width: 100%; justify-content: center; min-height: 48px; }
+                    
+                    /* Touch-friendly form elements */
+                    input, select, textarea, button { min-height: 48px !important; font-size: 16px !important; }
+                    
+                    /* Table responsive behavior */
+                    .table-mobile { display: block; overflow-x: auto; white-space: nowrap; }
+                    .table-mobile table { min-width: 100%; }
+                    
+                    /* Card layout mobile optimization */
+                    .card-mobile { margin: 0.5rem; border-radius: 0.75rem; }
+                    .card-grid-mobile { grid-template-columns: 1fr; gap: 1rem; }
+                    
+                    /* Modal mobile optimization */
+                    .modal-mobile { margin: 1rem; width: calc(100% - 2rem); max-width: none; }
+                    
+                    /* Action buttons mobile layout */
+                    .actions-mobile { flex-direction: column; gap: 0.5rem; }
+                    .actions-mobile button, .actions-mobile a { width: 100%; text-align: center; }
+                    
+                    /* Search and filter mobile */
+                    .search-mobile { grid-template-columns: 1fr; }
+                    
+                    /* Pagination mobile */
+                    .pagination-mobile { flex-direction: column; text-align: center; gap: 1rem; }
+                }
+                
+                /* Touch-friendly improvements for all screen sizes */
+                button, a[role="button"], input[type="button"], input[type="submit"] {
+                    min-height: 44px;
+                    padding: 0.75rem 1rem;
+                    touch-action: manipulation;
+                }
+                
+                /* Improved tap targets */
+                .tap-target { min-height: 44px; min-width: 44px; }
+                
+                /* Better spacing for mobile */
+                @media (max-width: 640px) {
+                    .mobile-padding { padding: 1rem; }
+                    .mobile-margin { margin: 0.5rem; }
+                    .mobile-text { font-size: 0.875rem; }
+                }
             </style>
         @endif
     </head>
@@ -91,10 +139,13 @@
                 </header>
             @endif
 
-            <!-- Page Content -->
-            <main>
-                @yield('content')
-            </main>
+            <!-- Main Content Container -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Page Content -->
+                <main class="py-6">
+                    @yield('content')
+                </main>
+            </div>
         </div>
     </body>
 </html>

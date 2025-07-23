@@ -3,13 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Ticket;
 use App\Models\User;
+use App\Models\ScrapedTicket;
+use App\Models\PurchaseAttempt;
 use App\Models\Category;
-use App\Models\Comment;
+use App\Exports\UsersExport;
+use App\Exports\ScrapedTicketsExport;
+use App\Exports\AuditTrailExport;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facades\Pdf;
+use Spatie\Activitylog\Models\Activity;
 
 class ReportsController extends Controller
 {
@@ -18,37 +26,49 @@ class ReportsController extends Controller
      */
     public function index()
     {
-        // Key performance indicators
-        $totalTickets = Ticket::count();
-        $openTickets = Ticket::open()->count();
-        $resolvedTickets = Ticket::byStatus(Ticket::STATUS_RESOLVED)->count();
-        $overdueTickets = Ticket::overdue()->count();
+        $this->authorize('access_reports');
+        
+        $totalUsers = User::count();
+        $totalScrapedTickets = ScrapedTicket::count();
+        $totalCategories = Category::count();
+        $totalActivities = Activity::count();
 
-        // Resolution metrics
-        $avgResponseTime = $this->getAverageResponseTime();
-        $avgResolutionTime = $this->getAverageResolutionTime();
-        $resolutionRate = $totalTickets > 0 ? round(($resolvedTickets / $totalTickets) * 100, 1) : 0;
+        // Recent activity summary
+        $recentActivities = Activity::with('causer')
+            ->latest()
+            ->limit(10)
+            ->get();
 
-        // Agent performance
-        $topAgents = $this->getTopAgents();
-        $agentWorkload = $this->getAgentWorkload();
+        // User statistics
+        $userStats = [
+            'by_role' => User::select('role', DB::raw('count(*) as count'))
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray(),
+            'verified' => User::whereNotNull('email_verified_at')->count(),
+            'unverified' => User::whereNull('email_verified_at')->count(),
+        ];
 
-        // Recent trends
-        $weeklyTrend = $this->getWeeklyTrend();
-        $monthlyTrend = $this->getMonthlyTrend();
+        // Scraped tickets statistics
+        $ticketStats = [
+            'by_platform' => ScrapedTicket::select('platform', DB::raw('count(*) as count'))
+                ->groupBy('platform')
+                ->pluck('count', 'platform')
+                ->toArray(),
+            'by_status' => ScrapedTicket::select('status', DB::raw('count(*) as count'))
+                ->groupBy('status')
+                ->pluck('count', 'status')
+                ->toArray(),
+        ];
 
         return view('admin.reports.index', compact(
-            'totalTickets',
-            'openTickets', 
-            'resolvedTickets',
-            'overdueTickets',
-            'avgResponseTime',
-            'avgResolutionTime',
-            'resolutionRate',
-            'topAgents',
-            'agentWorkload',
-            'weeklyTrend',
-            'monthlyTrend'
+            'totalUsers',
+            'totalScrapedTickets',
+            'totalCategories',
+            'totalActivities',
+            'recentActivities',
+            'userStats',
+            'ticketStats'
         ));
     }
 
@@ -386,6 +406,157 @@ class ReportsController extends Controller
             ->value('avg_hours');
 
         return $avg ? round($avg, 1) : 0;
+    }
+
+    /**
+     * Export users data
+     */
+    public function exportUsers(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $format = $request->get('format', 'csv');
+        $users = User::with(['activities' => function($query) {
+            $query->latest()->limit(1);
+        }])->get();
+        
+        if ($format === 'excel') {
+            return Excel::download(new UsersExport($users), 'users_export_' . date('Y-m-d') . '.xlsx');
+        }
+        
+        return Excel::download(new UsersExport($users), 'users_export_' . date('Y-m-d') . '.csv');
+    }
+
+    /**
+     * Export scraped tickets data
+     */
+    public function exportScrapedTickets(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $format = $request->get('format', 'csv');
+        $tickets = ScrapedTicket::with(['category', 'user'])->get();
+        
+        if ($format === 'excel') {
+            return Excel::download(new ScrapedTicketsExport($tickets), 'scraped_tickets_export_' . date('Y-m-d') . '.xlsx');
+        }
+        
+        return Excel::download(new ScrapedTicketsExport($tickets), 'scraped_tickets_export_' . date('Y-m-d') . '.csv');
+    }
+
+    /**
+     * Export audit trail data
+     */
+    public function exportAuditTrail(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $format = $request->get('format', 'csv');
+        $activities = Activity::with(['causer', 'subject'])
+            ->latest()
+            ->limit(10000)
+            ->get();
+        
+        if ($format === 'excel') {
+            return Excel::download(new AuditTrailExport($activities), 'audit_trail_export_' . date('Y-m-d') . '.xlsx');
+        }
+        
+        return Excel::download(new AuditTrailExport($activities), 'audit_trail_export_' . date('Y-m-d') . '.csv');
+    }
+
+    /**
+     * Import users from file
+     */
+    public function importUsers(Request $request)
+    {
+        $this->authorize('manage_users');
+        
+        $request->validate([
+            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+        ]);
+        
+        try {
+            $import = new UsersImport();
+            Excel::import($import, $request->file('file'));
+            
+            return redirect()->back()->with('success', 'Users imported successfully. ' . $import->getRowCount() . ' users processed.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate Users PDF Report
+     */
+    public function generateUsersPDF(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $users = User::with(['activities' => function($query) {
+            $query->latest()->limit(5);
+        }])->get();
+        
+        $data = [
+            'title' => 'Users Report',
+            'date' => now()->format('F d, Y'),
+            'users' => $users,
+            'totalUsers' => $users->count(),
+            'activeUsers' => $users->where('is_active', true)->count(),
+            'verifiedUsers' => $users->whereNotNull('email_verified_at')->count()
+        ];
+        
+        $pdf = Pdf::loadView('admin.reports.pdf.users', $data);
+        return $pdf->download('users_report_' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Generate Tickets PDF Report
+     */
+    public function generateTicketsPDF(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $tickets = ScrapedTicket::with(['category', 'user'])
+            ->latest()
+            ->limit(1000)
+            ->get();
+        
+        $data = [
+            'title' => 'Scraped Tickets Report',
+            'date' => now()->format('F d, Y'),
+            'tickets' => $tickets,
+            'totalTickets' => $tickets->count(),
+            'platformStats' => $tickets->groupBy('platform')->map->count(),
+            'statusStats' => $tickets->groupBy('status')->map->count()
+        ];
+        
+        $pdf = Pdf::loadView('admin.reports.pdf.tickets', $data);
+        return $pdf->download('tickets_report_' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Generate Audit Trail PDF Report
+     */
+    public function generateAuditPDF(Request $request)
+    {
+        $this->authorize('access_reports');
+        
+        $activities = Activity::with(['causer', 'subject'])
+            ->latest()
+            ->limit(500)
+            ->get();
+        
+        $data = [
+            'title' => 'Audit Trail Report',
+            'date' => now()->format('F d, Y'),
+            'activities' => $activities,
+            'totalActivities' => $activities->count(),
+            'userActivities' => $activities->groupBy('causer.name')->map->count(),
+            'eventTypes' => $activities->groupBy('event')->map->count()
+        ];
+        
+        $pdf = Pdf::loadView('admin.reports.pdf.audit', $data);
+        return $pdf->download('audit_trail_report_' . date('Y-m-d') . '.pdf');
     }
 
     /**

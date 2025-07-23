@@ -1,7 +1,7 @@
 
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto px-4">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -174,14 +174,14 @@
                     
                     <?php if (isset($component)) { $__componentOriginalc295f12dca9d42f28a259237a5724830 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalc295f12dca9d42f28a259237a5724830 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.nav-link','data' => ['href' => route('profile.edit'),'active' => request()->routeIs('profile.*')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.nav-link','data' => ['href' => route('profile.show'),'active' => request()->routeIs('profile.*')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('nav-link'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('profile.edit')),'active' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(request()->routeIs('profile.*'))]); ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('profile.show')),'active' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(request()->routeIs('profile.*'))]); ?>
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
@@ -213,7 +213,7 @@
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
-                            <div x-show="open" 
+<div x-show="open" 
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="transform opacity-0 scale-95"
                                  x-transition:enter-end="transform opacity-100 scale-100"
@@ -221,7 +221,7 @@
                                  x-transition:leave-start="transform opacity-100 scale-100"
                                  x-transition:leave-end="transform opacity-0 scale-95"
                                  @click.outside="open = false" 
-                                 class="absolute z-50 mt-1 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200">
+                                 class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200">
                                 <?php if(Auth::user()->canManageUsers()): ?>
                                     <a href="<?php echo e(route('admin.users.index')); ?>" 
                                        class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
@@ -262,8 +262,18 @@
                 </div>
             </div>
 
+            <!-- Theme Toggle -->
+            <div class="hidden sm:flex sm:items-center sm:ms-4">
+                <button type="button" 
+                        data-theme-toggle 
+                        class="inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                        title="Toggle theme">
+                    <i class="fas fa-moon w-5 h-5"></i>
+                </button>
+            </div>
+
             <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-2">
                 <?php if (isset($component)) { $__componentOriginaldf8083d4a852c446488d8d384bbc7cbe = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginaldf8083d4a852c446488d8d384bbc7cbe = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.dropdown','data' => ['align' => 'right','width' => '48']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
@@ -276,14 +286,23 @@
 <?php $component->withAttributes(['align' => 'right','width' => '48']); ?>
                      <?php $__env->slot('trigger', null, []); ?> 
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <?php
+                                $profileDisplay = Auth::user()->getProfileDisplay();
+                            ?>
                             <div class="flex items-center">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-xs font-medium text-gray-700">
-                                        <?php echo e(strtoupper(substr(Auth::user()->name, 0, 1))); ?><?php echo e(strtoupper(substr(Auth::user()->surname ?? '', 0, 1))); ?>
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                                    <?php if($profileDisplay['has_picture']): ?>
+                                        <img class="w-8 h-8 rounded-full object-cover" src="<?php echo e($profileDisplay['picture_url']); ?>" alt="<?php echo e($profileDisplay['display_name']); ?>">
+                                    <?php else: ?>
+                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                            <span class="text-xs font-medium text-gray-700">
+                                                <?php echo e($profileDisplay['initials']); ?>
 
-                                    </span>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                                <div><?php echo e(Auth::user()->name); ?> <?php echo e(Auth::user()->surname ?? ''); ?></div>
+                                <div><?php echo e($profileDisplay['display_name']); ?></div>
                             </div>
 
                             <div class="ms-1">
@@ -374,7 +393,8 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-gray-200">
+<div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-gray-200">
+        <div class="container mx-auto px-4">
         <div class="pt-2 pb-3 space-y-1">
             
             <?php if (isset($component)) { $__componentOriginald69b52d99510f1e7cd3d80070b28ca18 = $component; } ?>
@@ -517,14 +537,14 @@
             
             <?php if (isset($component)) { $__componentOriginald69b52d99510f1e7cd3d80070b28ca18 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginald69b52d99510f1e7cd3d80070b28ca18 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.responsive-nav-link','data' => ['href' => route('profile.edit'),'active' => request()->routeIs('profile.*')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.responsive-nav-link','data' => ['href' => route('profile.show'),'active' => request()->routeIs('profile.*')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('responsive-nav-link'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('profile.edit')),'active' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(request()->routeIs('profile.*'))]); ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('profile.show')),'active' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(request()->routeIs('profile.*'))]); ?>
                 <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -660,14 +680,23 @@
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4 flex items-center">
-                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-sm font-medium text-gray-700">
-                        <?php echo e(strtoupper(substr(Auth::user()->name, 0, 1))); ?><?php echo e(strtoupper(substr(Auth::user()->surname ?? '', 0, 1))); ?>
+                <?php
+                    $mobileProfileDisplay = Auth::user()->getProfileDisplay();
+                ?>
+                <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
+                    <?php if($mobileProfileDisplay['has_picture']): ?>
+                        <img class="w-10 h-10 rounded-full object-cover" src="<?php echo e($mobileProfileDisplay['picture_url']); ?>" alt="<?php echo e($mobileProfileDisplay['display_name']); ?>">
+                    <?php else: ?>
+                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-gray-700">
+                                <?php echo e($mobileProfileDisplay['initials']); ?>
 
-                    </span>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div>
-                    <div class="font-medium text-base text-gray-800"><?php echo e(Auth::user()->name); ?> <?php echo e(Auth::user()->surname ?? ''); ?></div>
+                    <div class="font-medium text-base text-gray-800"><?php echo e($mobileProfileDisplay['display_name']); ?></div>
                     <div class="font-medium text-sm text-gray-500"><?php echo e(Auth::user()->email); ?></div>
                 </div>
             </div>
@@ -706,6 +735,7 @@
 <?php endif; ?>
                 </form>
             </div>
+        </div>
         </div>
     </div>
 </nav>

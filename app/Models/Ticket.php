@@ -23,8 +23,6 @@ class Ticket extends Model
         'status',
         'priority',
         'due_date',
-        'resolved_at',
-        'first_response_at',
         'last_activity_at',
         // Event/Concert ticket fields
         'platform',
@@ -44,8 +42,6 @@ class Ticket extends Model
 
     protected $casts = [
         'due_date' => 'datetime',
-        'resolved_at' => 'datetime',
-        'first_response_at' => 'datetime',
         'last_activity_at' => 'datetime',
         'tags' => 'array',
         'metadata' => 'array',
@@ -187,21 +183,6 @@ class Ticket extends Model
         return $this->belongsTo(Category::class);
     }
 
-    /**
-     * Relationship: Ticket comments
-     */
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class)->orderBy('created_at', 'asc');
-    }
-
-    /**
-     * Relationship: Ticket attachments
-     */
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(Attachment::class);
-    }
 
     /**
      * Scope: Filter by status

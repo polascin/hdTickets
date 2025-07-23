@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\ScrapedTicket;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
+class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+{
+    protected $fields;
+    protected $filters;
+
+    public function __construct(array $fields = [], array $filters = [])
+    {
+        $this->fields = $fields ?: [
+            'id', 'event_name', 'venue', 'event_date', 'price', 'section', 
+            'row', 'quantity', 'platform', 'status', 'scraped_at'
+        ];
+        $this->filters = $filters;
+    }
+
+    public function collection()
+    {
+        $query = ScrapedTicket::with(['category']);
+
+        // Apply filters
+        if (!empty($this->filters['platform'])) {
+            $query->where('platform', $this->filters['platform']);
+        }
+
+        if (!empty($this->filters['status'])) {
+            $query->where('status', $this->filters['status']);
+        }
+
+        if (!empty($this->filters['date_from'])) {
+            $query->where('event_date', '>=', $this->filters['date_from']);
+        }
+
+        if (!empty($this->filters['date_to'])) {
+            $query->where('event_date', '<=', $this->filters['date_to']);
+        }
+
+        if (!empty($this->filters['min_price'])) {
+            $query->where('price', '>=', $this->filters['min_price']);
+        }
+
+        if (!empty($this->filters['max_price'])) {
+            $query->where('price', '<=', $this->filters['max_price']);
+        }
+
+        if (!empty($this->filters['category_id'])) {
+            $query->where('category_id', $this->filters['category_id']);
+        }
+
+        return $query->orderBy('scraped_at', 'desc')->get();
+    }
+
+    public function headings(): array
+    {
+        $headings = [];
+        
+        foreach ($this->fields as $field) {
+            $headings[] = match($field) {
+                'id' => 'ID',
+                'event_name' => 'Event Name',
+                'venue' => 'Venue',
+                'event_date' => 'Event Date',
+                'price' => 'Price ($)',
+                'section' => 'Section',
+                'row' => 'Row',
+                'quantity' => 'Quantity',
+                'platform' => 'Platform',
+                'status' => 'Status',
+                'scraped_at' => 'Scraped At',
+                'category' => 'Category',
+                'external_id' => 'External ID',
+                'url' => 'Ticket URL',
+                'seats' => 'Seat Details',
+                'listing_type' => 'Listing Type',
+                default => ucfirst(str_replace('_', ' ', $field))
+            };
+        }
+
+        return $headings;
+    }
+
+    public function map($ticket): array
+    {
+        $data = [];
+        
+        foreach ($this->fields as $field) {
+            $data[] = match($field) {
+                'event_date' => $ticket->event_date ? $ticket->event_date->format('Y-m-d H:i:s') : '',
+                'price' => '$' . number_format($ticket->price, 2),
+                'platform' => ucfirst($ticket->platform),
+                'status' => ucfirst($ticket->status),
+                'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->format('Y-m-d H:i:s') : '',
+                'category' => $ticket->category ? $ticket->category->name : 'Uncategorized',
+                'seats' => is_array($ticket->seats) ? implode(', ', $ticket->seats) : $ticket->seats,
+                default => $ticket->{$field} ?? ''
+            };
+        }
+
+        return $data;
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            // Style the first row as header
+            1 => [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '059669']
+                ]
+            ],
+        ];
+    }
+}

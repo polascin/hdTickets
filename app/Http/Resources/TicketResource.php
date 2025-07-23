@@ -21,8 +21,6 @@ class TicketResource extends JsonResource
             "priority" => $this->priority,
             "source" => $this->source,
             "due_date" => $this->due_date?->toISOString(),
-            "resolved_at" => $this->resolved_at?->toISOString(),
-            "first_response_at" => $this->first_response_at?->toISOString(),
             "last_activity_at" => $this->last_activity_at?->toISOString(),
             "tags" => $this->tags ?? [],
             "metadata" => $this->metadata ?? [],
@@ -33,8 +31,6 @@ class TicketResource extends JsonResource
             "user" => new UserResource($this->whenLoaded("user")),
             "assigned_to" => new UserResource($this->whenLoaded("assignedTo")),
             "category" => new CategoryResource($this->whenLoaded("category")),
-            "comments" => CommentResource::collection($this->whenLoaded("comments")),
-            "attachments" => AttachmentResource::collection($this->whenLoaded("attachments")),
             
             // Computed attributes
             "is_open" => $this->isOpen(),
@@ -45,9 +41,6 @@ class TicketResource extends JsonResource
             "priority_color" => $this->priority_color,
             "formatted_title" => $this->formatted_title,
             
-            // Counts (when available)
-            "comments_count" => $this->whenCounted("comments"),
-            "attachments_count" => $this->whenCounted("attachments"),
         ];
     }
 }

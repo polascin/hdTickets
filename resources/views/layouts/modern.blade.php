@@ -167,8 +167,39 @@
             .hover\\:shadow-xl:hover { box-shadow: var(--shadow-xl); }
             .hover\\:-translate-y-1:hover { transform: translateY(-0.25rem); }
 
+            /* Stats Card Elements */
+            .stat-label {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-value {
+                color: white;
+                font-size: 2rem;
+                font-weight: 700;
+                line-height: 1;
+            }
+
             /* Layout */
-            .container { max-width: 90rem; margin: 0 auto; padding: 0 1rem; }
+            .container { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
+            .max-w-7xl { max-width: 80rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .sm\\:px-6 { padding-left: 1rem; padding-right: 1rem; }
+            .lg\\:px-8 { padding-left: 1rem; padding-right: 1rem; }
+            @media (min-width: 640px) { 
+                .container { padding: 0 1.5rem; }
+                .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            }
+            @media (min-width: 1024px) { 
+                .container { padding: 0 2rem; }
+                .lg\\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            }
+            .text-center { text-align: center; }
             .space-y-6 > * + * { margin-top: 1.5rem; }
             .space-y-8 > * + * { margin-top: 2rem; }
             .flex { display: flex; }
@@ -183,21 +214,54 @@
             .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
             .mb-4 { margin-bottom: 1rem; }
             .mb-6 { margin-bottom: 1.5rem; }
+            .mb-8 { margin-bottom: 2rem; }
+            .ml-3 { margin-left: 0.75rem; }
             .ml-4 { margin-left: 1rem; }
             .mr-4 { margin-right: 1rem; }
+            .flex-1 { flex: 1 1 0%; }
+            .flex-shrink-0 { flex-shrink: 0; }
+            .flex-col { flex-direction: column; }
+            .space-y-3 > * + * { margin-top: 0.75rem; }
+            .gap-4 { gap: 1rem; }
+            .gap-6 { gap: 1.5rem; }
+            .gap-8 { gap: 2rem; }
+            .rounded-lg { border-radius: 0.5rem; }
+            .rounded-full { border-radius: 9999px; }
+            .border { border-width: 1px; }
+            .w-2 { width: 0.5rem; }
+            .h-2 { height: 0.5rem; }
+            .w-3 { width: 0.75rem; }
+            .h-3 { height: 0.75rem; }
+            .w-8 { width: 2rem; }
+            .h-8 { height: 2rem; }
+            .w-12 { width: 3rem; }
+            .h-12 { height: 3rem; }
+            .w-16 { width: 4rem; }
+            .h-16 { height: 4rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .text-xs { font-size: 0.75rem; line-height: 1rem; }
+            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+            .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .font-medium { font-weight: 500; }
+            .font-semibold { font-weight: 600; }
+            .font-bold { font-weight: 700; }
+            .leading-tight { line-height: 1.25; }
         </style>
     @endif
     
     @stack('styles')
 </head>
 <body class="h-full font-sans antialiased bg-gray-50">
-    <div id="app" class="min-h-screen">
+    <div id="app" class="min-h-screen flex flex-col">
         @include('layouts.navigation')
         
         <!-- Page Header -->
         @hasSection('header')
             <header class="bg-white shadow-sm border-b border-gray-200">
-                <div class="container py-6">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     @yield('header')
                 </div>
             </header>
@@ -205,17 +269,17 @@
 
         <!-- Main Content -->
         <main class="flex-1">
-            <div class="container py-8">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 @yield('content')
             </div>
         </main>
 
         <!-- Footer -->
         <footer class="bg-white border-t border-gray-200 mt-auto">
-            <div class="container py-4">
-                <div class="flex justify-between items-center text-sm text-gray-500">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500 text-center sm:text-left">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
-                        <div>© {{ date('Y') }} {{ config('app.name') }}. All rights reserved! Developed by <span class="font-medium text-gray-600">Walter Csolle</span>.</div>
+                        <div>© {{ date('Y') }} {{ config('app.name') }}. All rights reserved! Developed by <a href="mailto:walter.csoelle@gmail.com" class="font-medium text-blue-600 hover:text-blue-800 underline">Walter Csoelle</a>.</div>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:space-x-4 text-xs sm:text-sm">
                         <span>System Health: <span class="text-green-600 font-medium">Operational. </span></span>

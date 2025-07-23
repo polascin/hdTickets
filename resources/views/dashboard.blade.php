@@ -26,7 +26,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
         <div class="dashboard-card stat-card">
             <div class="flex items-center justify-between">
                 <div>
@@ -115,7 +115,7 @@
         <!-- Quick Actions -->
         <div class="dashboard-card">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 @if(Auth::user()->isAdmin() || Auth::user()->isAgent())
                     <a href="{{ route('tickets.scraping.index') }}" class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors group">
                         <svg class="w-8 h-8 text-blue-600 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +156,7 @@
     <!-- Platform Status -->
     <div class="dashboard-card">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Platform Status</h3>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             <div class="text-center">
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse-slow"></div>

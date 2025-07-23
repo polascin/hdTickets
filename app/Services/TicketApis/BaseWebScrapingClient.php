@@ -9,6 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use App\Exceptions\ScrapingDetectedException;
 use App\Exceptions\RateLimitException;
 use App\Exceptions\TimeoutException;
+use App\Exceptions\TicketPlatformException;
 use Exception;
 
 abstract class BaseWebScrapingClient extends BaseApiClient

@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, LogsActivity;
 
     protected $encryptionService;
     
@@ -55,6 +57,22 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'is_active',
         'email_verified_at',
+        'last_login_at',
+        'last_login_ip',
+        'last_login_user_agent',
+        'registration_source',
+        'login_count',
+        'activity_score',
+        'profile_picture',
+        'bio',
+        'timezone',
+        'language',
+        'created_by_type',
+        'created_by_id',
+        'last_activity_at',
+        'custom_permissions',
+        'email_notifications',
+        'push_notifications',
     ];
 
     /**
@@ -321,6 +339,150 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Enhanced Data Display Methods
+     */
+
+    /**
+     * Get formatted last login information
+     */
+    public function getLastLoginInfo()
+    {
+        if (!$this->last_login_at) {
+            return [
+                'formatted' => 'Never logged in',
+                'datetime' => null,
+                'ip' => null,
+                'user_agent' => null,
+                'relative' => 'Never'
+            ];
+        }
+
+        return [
+            'formatted' => $this->last_login_at->format('M j, Y \a\t g:i A'),
+            'datetime' => $this->last_login_at,
+            'ip' => $this->last_login_ip,
+            'user_agent' => $this->last_login_user_agent,
+            'relative' => $this->last_login_at->diffForHumans()
+        ];
+    }
+
+    /**
+     * Get user activity statistics
+     */
+    public function getActivityStats()
+    {
+        return [
+            'login_count' => $this->login_count ?? 0,
+            'activity_score' => $this->activity_score ?? 0,
+            'account_age_days' => $this->created_at ? $this->created_at->diffInDays(now()) : 0,
+            'last_activity' => $this->last_activity_at ? $this->last_activity_at->diffForHumans() : 'No recent activity',
+            'status' => $this->is_active ? 'Active' : 'Inactive',
+            'email_verified' => $this->email_verified_at ? true : false,
+        ];
+    }
+
+    /**
+     * Get account creation source information
+     */
+    public function getAccountCreationInfo()
+    {
+        $sourceLabels = [
+            'web' => 'Web Registration',
+            'api' => 'API Creation',
+            'admin' => 'Admin Created',
+            'import' => 'Data Import',
+            'system' => 'System Generated'
+        ];
+
+        return [
+            'source' => $this->registration_source ?? 'web',
+            'source_label' => $sourceLabels[$this->registration_source ?? 'web'] ?? 'Unknown',
+            'created_by_type' => $this->created_by_type ?? 'self',
+            'created_by_id' => $this->created_by_id,
+            'created_at' => $this->created_at,
+            'created_at_formatted' => $this->created_at ? $this->created_at->format('M j, Y \a\t g:i A') : 'Unknown',
+            'created_at_relative' => $this->created_at ? $this->created_at->diffForHumans() : 'Unknown'
+        ];
+    }
+
+    /**
+     * Get comprehensive user permissions for display
+     */
+    public function getUserPermissionsDisplay()
+    {
+        $permissions = $this->getPermissions();
+        $roleDisplay = [
+            'admin' => ['label' => 'Administrator', 'color' => 'red', 'icon' => 'shield-check'],
+            'agent' => ['label' => 'Agent', 'color' => 'blue', 'icon' => 'user-check'],
+            'customer' => ['label' => 'Customer', 'color' => 'green', 'icon' => 'user'],
+            'scraper' => ['label' => 'Scraper Bot', 'color' => 'gray', 'icon' => 'cpu']
+        ];
+
+        $currentRole = $roleDisplay[$this->role] ?? ['label' => 'Unknown', 'color' => 'gray', 'icon' => 'question'];
+
+        return [
+            'role' => $this->role,
+            'role_display' => $currentRole,
+            'permissions' => $permissions,
+            'is_system_accessible' => $this->canAccessSystem(),
+            'custom_permissions' => $this->custom_permissions ?? [],
+        ];
+    }
+
+    /**
+     * Get profile picture URL or initials
+     */
+    public function getProfileDisplay()
+    {
+        $initials = strtoupper(substr($this->name, 0, 1) . substr($this->surname ?? '', 0, 1));
+        
+        return [
+            'picture_url' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
+            'initials' => $initials,
+            'has_picture' => !empty($this->profile_picture),
+            'full_name' => $this->getFullNameAttribute(),
+            'display_name' => $this->getFullNameAttribute() ?: $this->username ?: $this->email,
+            'bio' => $this->bio,
+            'timezone' => $this->timezone ?? 'UTC',
+            'language' => $this->language ?? 'en'
+        ];
+    }
+
+    /**
+     * Get notification preferences
+     */
+    public function getNotificationPreferences()
+    {
+        return [
+            'email_notifications' => $this->email_notifications ?? true,
+            'push_notifications' => $this->push_notifications ?? true,
+        ];
+    }
+
+    /**
+     * Get comprehensive user information for enhanced display
+     */
+    public function getEnhancedUserInfo()
+    {
+        return [
+            'basic_info' => [
+                'id' => $this->id,
+                'uuid' => $this->uuid,
+                'username' => $this->username,
+                'email' => $this->email,
+                'phone' => $this->phone,
+                'full_name' => $this->getFullNameAttribute(),
+            ],
+            'profile' => $this->getProfileDisplay(),
+            'last_login' => $this->getLastLoginInfo(),
+            'activity_stats' => $this->getActivityStats(),
+            'account_creation' => $this->getAccountCreationInfo(),
+            'permissions' => $this->getUserPermissionsDisplay(),
+            'notifications' => $this->getNotificationPreferences(),
+        ];
+    }
+
+    /**
      * Encrypt email before saving to database.
      */
     // public function setEmailAttribute($value)
@@ -361,6 +523,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'last_activity_at' => 'datetime',
+            'custom_permissions' => 'array',
             // 'email' => 'encrypted', // Temporarily disabled for seeding
             'password' => 'hashed',
         ];
@@ -404,5 +569,37 @@ class User extends Authenticatable implements MustVerifyEmail
     public function editedComments(): HasMany
     {
         return $this->hasMany(Comment::class, 'edited_by');
+    }
+
+    /**
+     * Relationship: User who created this account
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    /**
+     * Relationship: Users created by this user
+     */
+    public function createdUsers(): HasMany
+    {
+        return $this->hasMany(User::class, 'created_by_id');
+    }
+
+    /**
+     * Configure activity logging
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name', 'surname', 'email', 'username', 'role', 
+                'is_active', 'phone', 'email_verified_at'
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "User {$eventName}")
+            ->useLogName('user_changes');
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FunZoneController;
 use App\Http\Controllers\Api\StubHubController;
@@ -45,14 +43,6 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         'tickets' => 'ticket:uuid'
     ]);
     
-    // Ticket comments
-    Route::post('/tickets/{ticket:uuid}/comments', [CommentController::class, 'store']);
-    
-    // Attachments
-    Route::post('/attachments', [AttachmentController::class, 'store']);
-    Route::get('/attachments/{attachment:uuid}/download', [AttachmentController::class, 'download'])
-        ->name('api.attachments.download');
-    Route::delete('/attachments/{attachment:uuid}', [AttachmentController::class, 'destroy']);
     
     // New route for ticket availability updates
     Route::post('/tickets/availability-update', [TicketController::class, 'availabilityUpdate']);

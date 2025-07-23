@@ -44,84 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('customer.dashboard');
 });
 
-// Admin dashboard and management routes
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/stats.json', [App\Http\Controllers\Admin\DashboardController::class, 'getStats']);
-    Route::get('/admin/chart/status.json', [App\Http\Controllers\Admin\DashboardController::class, 'getTicketStatusChart']);
-    Route::get('/admin/chart/priority.json', [App\Http\Controllers\Admin\DashboardController::class, 'getTicketPriorityChart']);
-    Route::get('/admin/chart/monthly-trend.json', [App\Http\Controllers\Admin\DashboardController::class, 'getMonthlyTrend']);
+// Admin routes are now handled in routes/admin.php
 
-    // User Management Routes (Admin Only)
-    Route::middleware('admin:manage_users')->group(function () {
-        Route::resource('admin/users', App\Http\Controllers\Admin\UserManagementController::class)->names('admin.users');
-        Route::patch('admin/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserManagementController::class, 'toggleStatus'])->name('admin.users.toggle-status');
-        Route::post('admin/users/{user}/reset-password', [App\Http\Controllers\Admin\UserManagementController::class, 'resetPassword'])->name('admin.users.reset-password');
-        Route::get('admin/users/roles', function() {
-            return view('admin.users.roles');
-        })->name('admin.users.roles');
-        Route::get('admin/users/create', [App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
-    });
-
-    Route::resource('admin/categories', App\Http\Controllers\Admin\CategoryManagementController::class)->names('admin.categories');
-    Route::patch('admin/categories/{category}/toggle-status', [App\Http\Controllers\Admin\CategoryManagementController::class, 'toggleStatus'])->name('admin.categories.toggle-status');
-    Route::post('admin/categories/reorder', [App\Http\Controllers\Admin\CategoryManagementController::class, 'reorder'])->name('admin.categories.reorder');
-
-
-    // System Management Routes
-    Route::prefix('admin/system')->name('admin.system.')->middleware('admin:manage_system')->group(function () {
-        Route::get('/', [SystemController::class, 'index'])->name('index');
-        Route::get('health', [SystemController::class, 'getHealth'])->name('health');
-        Route::get('configuration', [SystemController::class, 'getConfiguration'])->name('configuration');
-        Route::post('configuration', [SystemController::class, 'updateConfiguration'])->name('configuration.update');
-        Route::get('logs', [SystemController::class, 'getLogs'])->name('logs');
-        Route::post('cache/clear', [SystemController::class, 'clearCache'])->name('cache.clear');
-        Route::post('maintenance', [SystemController::class, 'runMaintenance'])->name('maintenance');
-        Route::get('disk-usage', [SystemController::class, 'getDiskUsage'])->name('disk-usage');
-        Route::get('database-info', [SystemController::class, 'getDatabaseInfo'])->name('database-info');
-    });
-
-    // Scraping Management Routes
-    Route::prefix('admin/scraping')->name('admin.scraping.')->middleware('admin:access_scraping')->group(function () {
-        Route::get('/', [ScrapingController::class, 'index'])->name('index');
-        Route::get('stats', [ScrapingController::class, 'getStats'])->name('stats');
-        Route::get('platforms', [ScrapingController::class, 'getPlatformStats'])->name('platforms');
-        Route::get('operations', [ScrapingController::class, 'getRecentOperations'])->name('operations');
-        Route::get('user-rotation', [ScrapingController::class, 'getUserRotation'])->name('user-rotation');
-        Route::post('rotation-test', [ScrapingController::class, 'testRotation'])->name('rotation-test');
-        Route::get('configuration', [ScrapingController::class, 'getConfig'])->name('configuration');
-        Route::post('configuration', [ScrapingController::class, 'updateConfig'])->name('configuration.update');
-        Route::get('performance', [ScrapingController::class, 'getPerformanceMetrics'])->name('performance');
-    });
-
-    // Activity and Health APIs
-    Route::get('admin/activities/recent', function () {
-        $activities = [
-            [
-                'id' => 1,
-                'type' => 'user',
-                'message' => 'New user registered: john@example.com',
-                'status' => 'completed',
-                'timestamp' => now()->subMinutes(5)->toISOString()
-            ],
-            [
-                'id' => 2,
-                'type' => 'ticket',
-                'message' => 'Ticket #123 was assigned to Agent Smith',
-                'status' => 'completed',
-                'timestamp' => now()->subMinutes(15)->toISOString()
-            ],
-            [
-                'id' => 3,
-                'type' => 'config',
-                'message' => 'System configuration updated',
-                'status' => 'completed',
-                'timestamp' => now()->subHour()->toISOString()
-            ]
-        ];
-        return response()->json($activities);
-    })->name('admin.activities.recent');
-});
 
 // Ticket Sources routes
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -143,6 +67,14 @@ Route::middleware(['auth:sanctum'])->prefix('api')->group(function () {
     Route::get('ticket-sources', [App\Http\Controllers\TicketSourceController::class, 'apiIndex']);
 });
 
+// AJAX routes for lazy loading and real-time updates
+Route::middleware(['auth', 'verified'])->prefix('ajax')->name('ajax.')->group(function () {
+    Route::get('tickets/load', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadTickets'])->name('tickets.load');
+    Route::get('tickets/search', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'searchTickets'])->name('tickets.search');
+    Route::get('tickets/load-more', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadMore'])->name('tickets.load-more');
+    Route::get('dashboard/stats', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadDashboardStats'])->name('dashboard.stats');
+});
+
 // Main tickets route redirects to sports event ticket scraping
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tickets', function() {
@@ -151,7 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -197,3 +130,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/test.php';

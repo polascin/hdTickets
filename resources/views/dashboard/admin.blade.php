@@ -5,17 +5,24 @@
 
 @section('header')
     <div class="flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                Sports Ticket Management Dashboard
-            </h1>
-            <p class="text-gray-600">Complete sports ticket platform overview and control</p>
+        <div class="flex items-center space-x-4">
+            <div class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 leading-tight">
+                    Sports Ticket Management Dashboard
+                </h1>
+                <p class="text-gray-600 mt-1">Complete sports ticket platform overview and control</p>
+            </div>
         </div>
         <div class="flex items-center space-x-4">
             <div class="text-sm text-gray-500">
                 Last updated: <span id="lastUpdated" class="font-medium text-gray-700">{{ now()->format('H:i:s') }}</span>
             </div>
-            <button onclick="refreshDashboard()" class="dashboard-card hover:shadow-xl px-6 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg transition-all duration-200">
+            <button onclick="refreshDashboard()" class="dashboard-card hover:shadow-xl px-6 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg transition-all duration-200 shadow-lg">
                 <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
@@ -27,8 +34,7 @@
 
 @section('content')
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6 space-y-6">
             <!-- Enhanced System Health Banner -->
             <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 rounded-2xl p-8 text-white shadow-2xl relative overflow-hidden">
                 <!-- Background Pattern -->
@@ -306,52 +312,82 @@
                 </div>
             </div>
 
+            <!-- Role Distribution Chart -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">User Role Distribution</h3>
+                            <p class="text-sm text-gray-600 mt-1">Breakdown of users by role</p>
+                        </div>
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @if(isset($userStats['by_role']))
+                            @foreach($userStats['by_role'] as $role => $count)
+                                @php
+                                    $roleColors = [
+                                        'admin' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'icon' => 'text-red-600'],
+                                        'agent' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'icon' => 'text-blue-600'],
+                                        'customer' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'icon' => 'text-green-600'],
+                                        'scraper' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'icon' => 'text-yellow-600']
+                                    ];
+                                    $colors = $roleColors[$role] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'text-gray-600'];
+                                @endphp
+                                <div class="{{ $colors['bg'] }} rounded-lg p-4 text-center">
+                                    <div class="w-8 h-8 mx-auto mb-2 {{ $colors['icon'] }}">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-2xl font-bold {{ $colors['text'] }}">{{ number_format($count) }}</div>
+                                    <div class="text-sm {{ $colors['text'] }} capitalize">{{ $role }}s</div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <x-dashboard.quick-actions :actions="$quickActions" />
+
             <!-- Recent Activity -->
-            @if($recentTickets->count() > 0)
+            @if($recentActivity->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold mb-4">Recent Tickets</h3>
+                    <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($recentTickets as $ticket)
+                                @foreach($recentActivity as $activity)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">#{{ $ticket->id }}</div>
-                                        <div class="text-sm text-gray-500">{{ Str::limit($ticket->title, 30) }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $activity['title'] }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $ticket->user->name }}
+                                        {{ $activity['user'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $ticket->category->name ?? 'Uncategorized' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-{{ $ticket->status_color }}-100 text-{{ $ticket->status_color }}-800">
-                                            {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-{{ $ticket->priority_color }}-100 text-{{ $ticket->priority_color }}-800">
-                                            {{ ucfirst($ticket->priority) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $ticket->assignedTo->name ?? 'Unassigned' }}
+                                        {{ $activity['description'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $ticket->created_at->diffForHumans() }}
+                                        {{ Carbon\Carbon::parse($activity['timestamp'])->diffForHumans() }}
                                     </td>
                                 </tr>
                                 @endforeach
