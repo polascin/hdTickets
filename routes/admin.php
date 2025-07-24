@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryManagementController;
 use App\Http\Controllers\Admin\ScrapingController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,8 +39,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::patch('users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
         Route::post('users/bulk-role-assignment', [UserManagementController::class, 'bulkRoleAssignment'])->name('users.bulk-role-assignment');
         
-        // User creation route (also before resource routes)
+        // User creation route (also before resource routes) 
         Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
+        
+        // Admin-only user registration routes
+        Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+        Route::post('register', [RegisteredUserController::class, 'store']);
         
         // Standard resource routes
         Route::resource('users', UserManagementController::class)->names('users');
