@@ -119,6 +119,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('configuration', [ScrapingController::class, 'getConfig'])->name('configuration');
         Route::post('configuration', [ScrapingController::class, 'updateConfig'])->name('configuration.update');
         Route::get('performance', [ScrapingController::class, 'getPerformanceMetrics'])->name('performance');
+        
+        // Advanced scraping features
+        Route::post('test-anti-detection', [ScrapingController::class, 'testAntiDetection'])->name('test-anti-detection');
+        Route::post('test-high-demand', [ScrapingController::class, 'testHighDemand'])->name('test-high-demand');
+        Route::get('advanced-logs', [ScrapingController::class, 'getAdvancedLogs'])->name('advanced-logs');
+        Route::post('configure-anti-detection', [ScrapingController::class, 'configureAntiDetection'])->name('configure-anti-detection');
+        Route::post('configure-high-demand', [ScrapingController::class, 'configureHighDemand'])->name('configure-high-demand');
     });
 
     // Activity and Health APIs

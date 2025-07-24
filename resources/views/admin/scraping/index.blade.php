@@ -1015,4 +1015,4 @@ document.addEventListener('submit', function(e) {
     }
 });
 </script>
-@endsection
+</x-app-layout>
