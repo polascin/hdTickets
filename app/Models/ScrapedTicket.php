@@ -10,6 +10,14 @@ class ScrapedTicket extends Model
 {
     use HasFactory;
 
+    // Status constants
+    const STATUS_ACTIVE = 'active';
+    const STATUS_SOLD_OUT = 'sold_out';
+    const STATUS_EXPIRED = 'expired';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_PENDING_VERIFICATION = 'pending_verification';
+    const STATUS_INVALID = 'invalid';
+
     protected $fillable = [
         'uuid',
         'platform',
@@ -27,6 +35,7 @@ class ScrapedTicket extends Model
         'availability',
         'is_available',
         'is_high_demand',
+        'status',
         'ticket_url',
         'search_keyword',
         'metadata',

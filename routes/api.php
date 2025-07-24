@@ -55,6 +55,39 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::post('/monitors/{monitorId}/toggle', [DashboardController::class, 'toggleMonitor']);
         Route::get('/platform-health', [DashboardController::class, 'platformHealth']);
         Route::get('/high-demand-tickets', [DashboardController::class, 'highDemandTickets']);
+        Route::get('/analytics', [DashboardController::class, 'analytics']);
+        Route::get('/realtime-stats', [DashboardController::class, 'realtimeStats']);
+        Route::get('/performance-metrics', [DashboardController::class, 'performanceMetrics']);
+        Route::get('/success-rates', [DashboardController::class, 'successRates']);
+    });
+    
+    // User Preferences API
+    Route::prefix('preferences')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\PreferencesController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\Api\PreferencesController::class, 'store']);
+        Route::put('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'update']);
+        Route::delete('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'destroy']);
+        Route::post('/reset', [App\Http\Controllers\Api\PreferencesController::class, 'reset']);
+    });
+    
+    // Ticket Criteria Configuration
+    Route::prefix('ticket-criteria')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\TicketCriteriaController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\Api\TicketCriteriaController::class, 'store']);
+        Route::put('/{id}', [App\Http\Controllers\Api\TicketCriteriaController::class, 'update']);
+        Route::delete('/{id}', [App\Http\Controllers\Api\TicketCriteriaController::class, 'destroy']);
+        Route::post('/{id}/toggle', [App\Http\Controllers\Api\TicketCriteriaController::class, 'toggle']);
+    });
+    
+    // Analytics API
+    Route::prefix('analytics')->group(function () {
+        Route::get('/overview', [App\Http\Controllers\Api\AnalyticsController::class, 'overview']);
+        Route::get('/ticket-trends', [App\Http\Controllers\Api\AnalyticsController::class, 'ticketTrends']);
+        Route::get('/platform-performance', [App\Http\Controllers\Api\AnalyticsController::class, 'platformPerformance']);
+        Route::get('/success-rates', [App\Http\Controllers\Api\AnalyticsController::class, 'successRates']);
+        Route::get('/price-analysis', [App\Http\Controllers\Api\AnalyticsController::class, 'priceAnalysis']);
+        Route::get('/demand-patterns', [App\Http\Controllers\Api\AnalyticsController::class, 'demandPatterns']);
+        Route::get('/export/{type}', [App\Http\Controllers\Api\AnalyticsController::class, 'export']);
     });
     
     Route::middleware([CheckApiRole::class . ':admin'])->group(function () {

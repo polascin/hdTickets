@@ -1,6 +1,14 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
+import { createApp } from 'vue';
+
+// Vue Components
+import RealTimeMonitoringDashboard from './components/RealTimeMonitoringDashboard.vue';
+import AnalyticsDashboard from './components/AnalyticsDashboard.vue';
+import UserPreferencesPanel from './components/UserPreferencesPanel.vue';
+import TicketDashboard from './components/TicketDashboard.vue';
+import AdminDashboard from './components/admin/AdminDashboard.vue';
 
 // Make Alpine available on the window object
 window.Alpine = Alpine;
@@ -9,6 +17,47 @@ window.Alpine = Alpine;
 Alpine.start();
 
 console.log('Alpine.js loaded and initialized:', !!window.Alpine);
+
+// Initialize Vue components where needed
+if (document.getElementById('realtime-monitoring-dashboard')) {
+    createApp({
+        components: {
+            RealTimeMonitoringDashboard
+        }
+    }).mount('#realtime-monitoring-dashboard');
+}
+
+if (document.getElementById('analytics-dashboard')) {
+    createApp({
+        components: {
+            AnalyticsDashboard
+        }
+    }).mount('#analytics-dashboard');
+}
+
+if (document.getElementById('user-preferences-panel')) {
+    createApp({
+        components: {
+            UserPreferencesPanel
+        }
+    }).mount('#user-preferences-panel');
+}
+
+if (document.getElementById('ticket-dashboard')) {
+    createApp({
+        components: {
+            TicketDashboard
+        }
+    }).mount('#ticket-dashboard');
+}
+
+if (document.getElementById('admin-dashboard')) {
+    createApp({
+        components: {
+            AdminDashboard
+        }
+    }).mount('#admin-dashboard');
+}
 
 // Global functions for ticket management
 window.TicketManager = {

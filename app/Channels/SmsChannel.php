@@ -95,7 +95,13 @@ class SmsChannel
         
         switch ($smsService) {
             case 'twilio':
-                return $this->sendViaTwilio($phone, $message);
+                $data = $this->sendViaTwilio($phone, $message);
+                
+                if (config('services.twilio.status_callback')) {
+                    $data['status_callback'] = config('services.twilio.status_callback');
+                }
+                
+                return $data;
             case 'nexmo':
                 return $this->sendViaNexmo($phone, $message);
             case 'log':
@@ -123,7 +129,8 @@ class SmsChannel
             ->post("https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json", [
                 'From' => $fromNumber,
                 'To' => $phone,
-                'Body' => $message
+                'Body' => $message,
+                'StatusCallback' => config('services.twilio.status_callback')
             ]);
 
         if (!$response->successful()) {

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseDecisionController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ScrapingController;
+use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -128,6 +129,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{purchaseQueue}', [PurchaseDecisionController::class, 'show'])->name('show');
     });
 });
+
+// Health Check Routes for Production Monitoring
+Route::get('health', [HealthController::class, 'index'])->name('health.index');
+Route::get('health/database', [HealthController::class, 'database'])->name('health.database');
+Route::get('health/redis', [HealthController::class, 'redis'])->name('health.redis');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

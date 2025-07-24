@@ -319,6 +319,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'manage_api_access' => $this->canManageApiAccess(),
             'delete_any_data' => $this->canDeleteAnyData(),
             'access_scraping' => $this->canViewScrapingMetrics(),
+            'access_reports' => $this->isAdmin(),
             
             // Agent Permissions (Ticket Selection, Purchasing, Monitoring)
             'select_and_purchase_tickets' => $this->canSelectAndPurchaseTickets(),

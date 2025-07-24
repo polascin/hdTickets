@@ -4,7 +4,14 @@
     "version": "2025.7.3",
     "private": true,
     "type": "module",
-    "keywords": ["sports", "tickets", "monitoring", "vue", "alerts", "events"],
+    "keywords": [
+        "sports",
+        "tickets",
+        "monitoring",
+        "vue",
+        "alerts",
+        "events"
+    ],
     "author": "Walter Csoelle",
     "scripts": {
         "build": "vite build",
@@ -28,11 +35,14 @@
     },
     "dependencies": {
         "@heroicons/vue": "^2.0.18",
+        "@inertiajs/vue3": "^1.0.14",
         "chart.js": "^4.4.1",
         "flatpickr": "^4.6.13",
         "laravel-echo": "^1.15.3",
         "pusher-js": "^8.4.0-rc2",
+        "require": "^2.4.20",
         "socket.io-client": "^4.7.4",
-        "sweetalert2": "^11.14.5"
+        "sweetalert2": "^11.14.5",
+        "vue-router": "^4.2.5"
     }
 }

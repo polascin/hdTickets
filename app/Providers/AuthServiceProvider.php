@@ -69,6 +69,14 @@ class AuthServiceProvider extends ServiceProvider
             return $user->canDeleteAnyData();
         });
 
+        Gate::define('access_reports', function (User $user) {
+            return $user->isAdmin();
+        });
+
+        Gate::define('manage_users', function (User $user) {
+            return $user->canManageUsers();
+        });
+
         // AGENT PERMISSION GATES (Ticket Selection, Purchasing, Monitoring)
         Gate::define('select-purchase-tickets', function (User $user) {
             return $user->canSelectAndPurchaseTickets();

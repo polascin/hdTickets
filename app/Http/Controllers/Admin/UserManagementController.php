@@ -11,6 +11,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
+use Spatie\Activitylog\Models\Activity;
 
 class UserManagementController extends Controller
 {
@@ -652,7 +653,14 @@ public function index() {
             'admin' => User::where('role', 'admin')->count(),
             'agent' => User::where('role', 'agent')->count(),
             'customer' => User::where('role', 'customer')->count(),
+            'scraper' => User::where('role', 'scraper')->count(),
         ];
+        
+        // Extract individual counts for the view
+        $adminCount = $roleStats['admin'];
+        $agentCount = $roleStats['agent'];
+        $customerCount = $roleStats['customer'];
+        $scraperCount = $roleStats['scraper'];
         
         // Get users by role with pagination
         $usersQuery = User::query();
@@ -709,7 +717,11 @@ public function index() {
             'roleStats',
             'users', 
             'roleCapabilities',
-            'recentRoleChanges'
+            'recentRoleChanges',
+            'adminCount',
+            'agentCount',
+            'customerCount',
+            'scraperCount'
         ));
     }
     

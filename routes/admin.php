@@ -33,6 +33,15 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // User Management Routes (Admin Only)
     Route::middleware('admin:manage_users')->group(function () {
+        // User Roles Management (must be before resource routes to avoid conflicts)
+        Route::get('users/roles', [UserManagementController::class, 'roles'])->name('users.roles');
+        Route::patch('users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
+        Route::post('users/bulk-role-assignment', [UserManagementController::class, 'bulkRoleAssignment'])->name('users.bulk-role-assignment');
+        
+        // User creation route (also before resource routes)
+        Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
+        
+        // Standard resource routes
         Route::resource('users', UserManagementController::class)->names('users');
         Route::patch('users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::post('users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('users.reset-password');
@@ -40,22 +49,26 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::post('users/{user}/impersonate', [UserManagementController::class, 'impersonate'])->name('users.impersonate');
         Route::post('users/{user}/send-verification', [UserManagementController::class, 'sendVerification'])->name('users.send-verification');
         Route::patch('users/{user}/inline-update', [UserManagementController::class, 'inlineUpdate'])->name('users.inline-update');
-        
-        // User Roles Management
-        Route::get('users/roles', [UserManagementController::class, 'roles'])->name('users.roles');
-        Route::patch('users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
-        Route::post('users/bulk-role-assignment', [UserManagementController::class, 'bulkRoleAssignment'])->name('users.bulk-role-assignment');
-        
-        Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
     });
 
     // Reports and Export/Import Routes
     Route::prefix('reports')->name('reports.')->middleware('admin:access_reports')->group(function () {
         Route::get('/', [ReportsController::class, 'index'])->name('index');
+        Route::get('/export', [ReportsController::class, 'export'])->name('export');
+        
+        // Report Views
+        Route::get('/ticket-volume', [ReportsController::class, 'ticketVolume'])->name('ticket-volume');
+        Route::get('/agent-performance', [ReportsController::class, 'agentPerformance'])->name('agent-performance');
+        Route::get('/category-analysis', [ReportsController::class, 'categoryAnalysis'])->name('category-analysis');
+        Route::get('/response-time', [ReportsController::class, 'responseTime'])->name('response-time');
+        
+        // Export Routes
         Route::get('/users/export', [ReportsController::class, 'exportUsers'])->name('users.export');
         Route::get('/tickets/export', [ReportsController::class, 'exportScrapedTickets'])->name('tickets.export');
         Route::get('/audit/export', [ReportsController::class, 'exportAuditTrail'])->name('audit.export');
         Route::post('/users/import', [ReportsController::class, 'importUsers'])->name('users.import');
+        
+        // PDF Reports
         Route::get('/pdf/users', [ReportsController::class, 'generateUsersPDF'])->name('pdf.users');
         Route::get('/pdf/tickets', [ReportsController::class, 'generateTicketsPDF'])->name('pdf.tickets');
         Route::get('/pdf/audit', [ReportsController::class, 'generateAuditPDF'])->name('pdf.audit');
