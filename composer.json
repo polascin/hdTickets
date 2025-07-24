@@ -1,7 +1,7 @@
 {
     "name": "sports-ticket-monitor/app",
     "description": "Sports Event Ticket Availability Monitoring System - A comprehensive platform for monitoring ticket availability across multiple sports event platforms",
-    "version": "2025.07.v4.0",
+    "version": "4.0.0",
     "type": "project",
     "keywords": ["sports", "tickets", "monitoring", "alerts", "events", "scraping"],
     "authors": [

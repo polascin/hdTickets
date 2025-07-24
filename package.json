@@ -1,7 +1,7 @@
 {
     "name": "sports-ticket-monitor-frontend",
     "description": "Frontend application for Sports Event Ticket Availability Monitoring System",
-    "version": "2025.07.v4.0",
+    "version": "4.0.0",
     "private": true,
     "type": "module",
     "keywords": [
