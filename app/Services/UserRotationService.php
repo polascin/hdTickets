@@ -223,7 +223,7 @@ class UserRotationService
             Cache::forget($cacheKey . '_index');
         } else {
             // Clear all rotation caches (this is more expensive)
-            $platforms = ['general', 'stubhub', 'viagogo', 'seatgeek', 'tickpick', 'fanzone', 'high_frequency', 'premium'];
+            $platforms = ['general', 'stubhub', 'viagogo', 'seatgeek', 'tickpick', 'fanzone', 'ticketmaster', 'manchester_united', 'eventbrite', 'livenation', 'axs', 'high_frequency', 'premium'];
             $operations = ['scraping', 'search', 'details'];
             
             foreach ($platforms as $p) {

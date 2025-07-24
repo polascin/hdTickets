@@ -7,6 +7,11 @@ use App\Services\TicketApis\StubHubClient;
 use App\Services\TicketApis\FunZoneClient;
 use App\Services\TicketApis\ViagogoClient;
 use App\Services\TicketApis\TickPickClient;
+use App\Services\TicketApis\SeatGeekClient;
+use App\Services\TicketApis\ManchesterUnitedClient;
+use App\Services\TicketApis\EventbriteClient;
+use App\Services\TicketApis\LiveNationClient;
+use App\Services\TicketApis\AxsClient;
 use App\Services\Normalization\DataNormalizationService;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -30,6 +35,11 @@ class MultiPlatformManager
         $defaultConfig = [
             'enabled' => true,
             'timeout' => 30,
+            'sandbox' => false,
+            'api_key' => env('STUBHUB_API_KEY'),
+            'app_token' => env('STUBHUB_APP_TOKEN'),
+            'retry_attempts' => 3,
+            'retry_delay' => 1,
         ];
 
         // Initialize clients for each platform
@@ -39,6 +49,11 @@ class MultiPlatformManager
             'funzone' => new FunZoneClient($defaultConfig),
             'viagogo' => new ViagogoClient($defaultConfig),
             'tickpick' => new TickPickClient($defaultConfig),
+            'seatgeek' => new SeatGeekClient($defaultConfig),
+            'manchester_united' => new ManchesterUnitedClient($defaultConfig),
+            'eventbrite' => new EventbriteClient($defaultConfig),
+            'livenation' => new LiveNationClient($defaultConfig),
+            'axs' => new AxsClient($defaultConfig),
         ];
     }
 
@@ -170,6 +185,11 @@ class MultiPlatformManager
             'funzone' => '/funzone\.sk/',
             'viagogo' => '/viagogo\.com/',
             'tickpick' => '/tickpick\.com/',
+            'seatgeek' => '/seatgeek\.com/',
+            'manchester_united' => '/manutd\.com/',
+            'eventbrite' => '/eventbrite\.com/',
+            'livenation' => '/livenation\.com/',
+            'axs' => '/axs\.com/',
         ];
 
         foreach ($platformPatterns as $platform => $pattern) {
@@ -212,6 +232,11 @@ class MultiPlatformManager
             'funzone' => 'FunZone',
             'viagogo' => 'Viagogo',
             'tickpick' => 'TickPick',
+            'seatgeek' => 'SeatGeek',
+            'manchester_united' => 'Manchester United FC',
+            'eventbrite' => 'Eventbrite',
+            'livenation' => 'Live Nation',
+            'axs' => 'AXS',
         ];
 
         return $displayNames[$platform] ?? ucfirst($platform);
