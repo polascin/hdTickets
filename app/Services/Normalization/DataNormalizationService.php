@@ -11,7 +11,6 @@ class DataNormalizationService
      * Platform-specific currency mappings
      */
     protected array $platformCurrencies = [
-        'funzone' => 'EUR',
         'viagogo' => 'USD',
         'stubhub' => 'USD',
         'ticketmaster' => 'USD',
@@ -187,7 +186,6 @@ class DataNormalizationService
     {
         // Default timezone mapping by platform
         $platformTimezones = [
-            'funzone' => 'Europe/Bratislava',
             'viagogo' => 'UTC',
             'stubhub' => 'America/New_York',
             'ticketmaster' => 'America/New_York',
@@ -224,7 +222,6 @@ class DataNormalizationService
         
         // Platform default countries
         $platformCountries = [
-            'funzone' => 'Slovakia',
             'viagogo' => 'United States',
             'stubhub' => 'United States',
             'ticketmaster' => 'United States',
@@ -331,14 +328,6 @@ class DataNormalizationService
         $platformSpecific = [];
         
         switch ($platform) {
-            case 'funzone':
-                $platformSpecific = [
-                    'slovak_specific' => $eventData['slovak_specific'] ?? [],
-                    'organizer_info' => $eventData['organizer_info'] ?? null,
-                    'duration_info' => $eventData['duration_info'] ?? null,
-                ];
-                break;
-                
             case 'stubhub':
                 $platformSpecific = [
                     'ticket_classes' => $eventData['ticket_classes'] ?? [],
@@ -381,15 +370,6 @@ class DataNormalizationService
     public function getPlatformFieldMapping(string $platform): array
     {
         $mappings = [
-            'funzone' => [
-                'event_id' => 'id',
-                'event_name' => 'name',
-                'event_date' => 'parsed_date',
-                'event_venue' => 'venue',
-                'event_location' => 'city',
-                'price_range' => 'prices',
-                'availability' => 'status',
-            ],
             'stubhub' => [
                 'event_id' => 'id',
                 'event_name' => 'name',

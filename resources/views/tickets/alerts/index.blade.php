@@ -144,7 +144,13 @@
                                             </div>
                                             <div>
                                                 <div class="text-sm font-medium text-gray-500">Platform</div>
-                                                <div class="text-sm text-gray-900">{{ $alert->platform ? ucfirst($alert->platform) : 'All Platforms' }}</div>
+                                                <div class="text-sm text-gray-900">
+                                                    @if($alert->platform)
+                                                        {{ config('platforms.display_order.' . $alert->platform . '.display_name', ucfirst($alert->platform)) }}
+                                                    @else
+                                                        All Platforms
+                                                    @endif
+                                                </div>
                                             </div>
                                             <div>
                                                 <div class="text-sm font-medium text-gray-500">Max Price</div>
@@ -237,12 +243,11 @@
 
                         <div>
                             <label for="platform" class="block text-sm font-medium text-gray-700">Platform</label>
-                            <select name="platform" id="platform" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="">All Platforms</option>
-                                <option value="stubhub">StubHub</option>
-                                <option value="ticketmaster">Ticketmaster</option>
-                                <option value="viagogo">Viagogo</option>
-                            </select>
+                            <x-platform-select 
+                                name="platform" 
+                                id="platform" 
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                            />
                         </div>
 
                         <div>

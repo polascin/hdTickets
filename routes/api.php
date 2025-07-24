@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\FunZoneController;
 use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketmasterController;
@@ -20,7 +19,7 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
     Route::get('/status', function () {
         return response()->json([
             'status' => 'active',
-            'version' => '1.0',
+            'version' => '2025.07.v4.0',
             'timestamp' => now()
         ]);
     });
@@ -144,17 +143,6 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         });
     });
     
-    // FunZone routes
-    Route::prefix('funzone')->middleware([ApiRateLimit::class . ':scraping,30,1'])->group(function () {
-        Route::post('/search', [FunZoneController::class, 'search']);
-        Route::post('/event-details', [FunZoneController::class, 'getEventDetails']);
-        Route::get('/stats', [FunZoneController::class, 'stats']);
-        
-        Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {
-            Route::post('/import', [FunZoneController::class, 'import']);
-            Route::post('/import-urls', [FunZoneController::class, 'importUrls']);
-        });
-    });
     
     // Agent and Admin routes
     Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function () {

@@ -22,7 +22,9 @@ return new class extends Migration
                 'viagogo',
                 'seatgeek',
                 'tickpick',
-                'fanzone',
+                'eventbrite',
+                'bandsintown',
+                'axs',
                 'other'
             ]);
             $table->string('event_name');

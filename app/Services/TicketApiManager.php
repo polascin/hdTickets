@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * HD Tickets API Manager Service
+ * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ * @version 2025.07.v4.0
+ */
+
 namespace App\Services;
 
 use App\Services\TicketApis\TicketmasterClient;
@@ -7,7 +13,7 @@ use App\Services\TicketApis\SeatGeekClient;
 use App\Services\TicketApis\StubHubClient;
 use App\Services\TicketApis\ViagogoClient;
 use App\Services\TicketApis\TickPickClient;
-use App\Services\TicketApis\FunZoneClient;
+use App\Services\TicketApis\ManchesterUnitedClient;
 use App\Models\TicketSource;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -53,9 +59,10 @@ class TicketApiManager
             $this->clients['tickpick'] = new TickPickClient($apiConfigs['tickpick']);
         }
 
-        // Initialize FunZone client
-        if ($apiConfigs['funzone']['enabled'] ?? false) {
-            $this->clients['funzone'] = new FunZoneClient($apiConfigs['funzone']);
+
+        // Initialize Manchester United client
+        if ($apiConfigs['manchester_united']['enabled'] ?? false) {
+            $this->clients['manchester_united'] = new ManchesterUnitedClient($apiConfigs['manchester_united']);
         }
     }
 
@@ -159,14 +166,9 @@ class TicketApiManager
                 }
                 return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
                 
-            case 'funzone':
-                // FunZone may have various response structures
-                if (isset($response['listings'])) {
-                    return $response['listings'];
-                }
-                if (isset($response['events'])) {
-                    return $response['events'];
-                }
+                
+            case 'manchester_united':
+                // Manchester United returns direct array of fixtures/events
                 return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
                 
             default:
@@ -253,15 +255,17 @@ class TicketApiManager
                 'on sale' => TicketSource::STATUS_AVAILABLE,
                 'off sale' => TicketSource::STATUS_NOT_ON_SALE,
             ],
-            'funzone' => [
+            'manchester_united' => [
+                'scheduled' => TicketSource::STATUS_AVAILABLE,
                 'available' => TicketSource::STATUS_AVAILABLE,
+                'on sale' => TicketSource::STATUS_AVAILABLE,
                 'sold out' => TicketSource::STATUS_SOLD_OUT,
                 'cancelled' => TicketSource::STATUS_NOT_ON_SALE,
                 'postponed' => TicketSource::STATUS_NOT_ON_SALE,
-                'active' => TicketSource::STATUS_AVAILABLE,
-                'inactive' => TicketSource::STATUS_NOT_ON_SALE,
-                'listed' => TicketSource::STATUS_AVAILABLE,
-                'unlisted' => TicketSource::STATUS_NOT_ON_SALE,
+                'rescheduled' => TicketSource::STATUS_NOT_ON_SALE,
+                'check_website' => TicketSource::STATUS_UNKNOWN,
+                'members_only' => TicketSource::STATUS_AVAILABLE,
+                'general_sale' => TicketSource::STATUS_AVAILABLE,
             ],
         ];
         

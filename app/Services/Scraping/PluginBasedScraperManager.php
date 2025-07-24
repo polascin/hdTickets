@@ -31,8 +31,7 @@ class PluginBasedScraperManager
             'stubhub',
             'seatgeek',
             'viagogo',
-            'tickpick',
-            'funzone'
+            'tickpick'
         ]);
 
         // Auto-discover plugins

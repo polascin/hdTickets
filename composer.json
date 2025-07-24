@@ -1,12 +1,12 @@
 {
     "name": "sports-ticket-monitor/app",
     "description": "Sports Event Ticket Availability Monitoring System - A comprehensive platform for monitoring ticket availability across multiple sports event platforms",
-    "version": "2025.7.3",
+    "version": "2025.07.v4.0",
     "type": "project",
     "keywords": ["sports", "tickets", "monitoring", "alerts", "events", "scraping"],
     "authors": [
         {
-            "name": "Walter Csoelle",
+            "name": "Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle",
             "role": "Developer & System Architect",
             "email": "info@example.com",
             "homepage": "https://github.com/walter-csoelle"

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * HD Tickets API Configuration
+ * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ * @version 2025.07.v4.0
+ */
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -188,53 +194,81 @@ return [
         ],
     ],
 
+
     /*
     |--------------------------------------------------------------------------
-    | FunZone Configuration (Web Scraping)
+    | Manchester United Official App Configuration (Web Scraping)
     |--------------------------------------------------------------------------
-    | FunZone Slovak ticket platform - web scraping implementation
-    | Covers events in Slovakia and surrounding regions
+    | Manchester United official website and mobile app - web scraping implementation
+    | Covers Manchester United home matches and official ticket sales
     */
-    'funzone' => [
-        'enabled' => env('FUNZONE_ENABLED', false),
-        'base_url' => 'https://www.funzone.sk',
-        'alternate_url' => 'https://www.funzone.com', // International version
+    'manchester_united' => [
+        'enabled' => env('MANCHESTER_UNITED_ENABLED', false),
+        'base_url' => 'https://www.manutd.com',
+        'mobile_app_url' => 'https://www.manutd.com/en/tickets',
         'timeout' => 30,
         'rate_limit' => [
-            'requests_per_second' => 5,
-            'requests_per_hour' => 2000,
-            'requests_per_day' => 15000,
-            'delay_between_requests' => 0.2, // seconds
+            'requests_per_second' => 2, // Be respectful with official club website
+            'requests_per_hour' => 200,
+            'requests_per_day' => 2000,
+            'delay_between_requests' => 0.5, // seconds
         ],
         'scraping' => [
             'user_agents' => [
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1', // Mobile user agent
             ],
-            'delay_range' => [1, 4], // Random delay between requests (seconds)
+            'delay_range' => [2, 6], // Random delay between requests (seconds)
             'timeout' => 35,
             'max_retries' => 2,
             'headers' => [
-                'Accept-Language' => 'sk-SK,sk;q=0.9,en;q=0.8', // Slovak preference
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language' => 'en-GB,en;q=0.9,en-US;q=0.8', // British English preference
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'DNT' => '1',
+                'Connection' => 'keep-alive',
+                'Upgrade-Insecure-Requests' => '1',
             ],
         ],
         'localization' => [
-            'default_language' => 'sk', // Slovak
-            'supported_languages' => ['sk', 'en', 'cs'], // Slovak, English, Czech
-            'currency' => 'EUR',
-            'timezone' => 'Europe/Bratislava',
+            'default_language' => 'en-GB', // British English
+            'supported_languages' => ['en-GB', 'en-US'], // English variants
+            'currency' => 'GBP',
+            'timezone' => 'Europe/London',
         ],
-        'regions' => [
-            'primary' => 'Slovakia',
-            'secondary' => ['Czech Republic', 'Austria', 'Hungary'],
+        'venue_info' => [
+            'primary_venue' => 'Old Trafford',
+            'capacity' => 74879,
+            'city' => 'Manchester',
+            'country' => 'United Kingdom',
+            'address' => 'Sir Matt Busby Way, Old Trafford, Manchester M16 0RA, UK',
         ],
         'event_types' => [
-            'concerts' => true,
-            'theater' => true,
-            'sports' => true,
-            'festivals' => true,
-            'family' => true,
+            'premier_league' => true,
+            'champions_league' => true,
+            'europa_league' => true,
+            'fa_cup' => true,
+            'carabao_cup' => true,
+            'friendly_matches' => true,
+            'women_matches' => false, // Separate ticketing system
+            'youth_matches' => false, // Usually different pricing/availability
+        ],
+        'ticket_categories' => [
+            'season_tickets' => false, // Not available for general purchase
+            'members_tickets' => true,
+            'general_sale' => true,
+            'hospitality' => true,
+            'away_tickets' => false, // Not sold through MUFC website
+        ],
+        'mobile_app' => [
+            'enabled' => true,
+            'app_specific_endpoints' => [
+                'fixtures' => '/api/fixtures',
+                'tickets' => '/api/tickets',
+                'memberships' => '/api/memberships',
+            ],
+            'requires_authentication' => true,
+            'supports_push_notifications' => true,
         ],
     ],
 
@@ -283,8 +317,8 @@ return [
                 'priority_users' => ['customer', 'premium'],
                 'exclude_patterns' => [],
             ],
-            'funzone' => [
-                'priority_users' => ['customer', 'agent'],
+            'manchester_united' => [
+                'priority_users' => ['customer', 'premium', 'agent'],
                 'exclude_patterns' => [],
             ],
         ]
@@ -341,12 +375,12 @@ return [
             'viagogo' => env('VIAGOGO_ENABLED', false),
             'seatgeek' => env('SEATGEEK_ENABLED', false),
             'tickpick' => env('TICKPICK_ENABLED', false),
-            'funzone' => env('FUNZONE_ENABLED', false),
+            'manchester_united' => env('MANCHESTER_UNITED_ENABLED', false),
         ],
         'priority_order' => [
             'high_priority' => ['ticketmaster', 'stubhub'],
-            'medium_priority' => ['seatgeek', 'viagogo'],
-            'low_priority' => ['tickpick', 'funzone'],
+            'medium_priority' => ['seatgeek', 'viagogo', 'manchester_united'],
+            'low_priority' => ['tickpick'],
         ],
         'fallback_enabled' => env('PLATFORM_FALLBACK_ENABLED', true),
         'parallel_processing' => env('PLATFORM_PARALLEL_PROCESSING', true),
@@ -358,8 +392,8 @@ return [
                 'ticketmaster' => 25,
                 'viagogo' => 20,
                 'seatgeek' => 15,
+                'manchester_united' => 12,
                 'tickpick' => 10,
-                'funzone' => 5,
             ]
         ]
     ],

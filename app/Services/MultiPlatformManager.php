@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Services\TicketApis\TicketmasterClient;
 use App\Services\TicketApis\StubHubClient;
-use App\Services\TicketApis\FunZoneClient;
 use App\Services\TicketApis\ViagogoClient;
 use App\Services\TicketApis\TickPickClient;
 use App\Services\TicketApis\SeatGeekClient;
@@ -46,7 +45,6 @@ class MultiPlatformManager
         $this->platformClients = [
             'ticketmaster' => new TicketmasterClient($defaultConfig),
             'stubhub' => new StubHubClient($defaultConfig),
-            'funzone' => new FunZoneClient($defaultConfig),
             'viagogo' => new ViagogoClient($defaultConfig),
             'tickpick' => new TickPickClient($defaultConfig),
             'seatgeek' => new SeatGeekClient($defaultConfig),
@@ -182,7 +180,6 @@ class MultiPlatformManager
         $platformPatterns = [
             'ticketmaster' => '/ticketmaster\.com/',
             'stubhub' => '/stubhub\.com/',
-            'funzone' => '/funzone\.sk/',
             'viagogo' => '/viagogo\.com/',
             'tickpick' => '/tickpick\.com/',
             'seatgeek' => '/seatgeek\.com/',
@@ -229,7 +226,6 @@ class MultiPlatformManager
         $displayNames = [
             'ticketmaster' => 'Ticketmaster',
             'stubhub' => 'StubHub',
-            'funzone' => 'FunZone',
             'viagogo' => 'Viagogo',
             'tickpick' => 'TickPick',
             'seatgeek' => 'SeatGeek',

@@ -29,16 +29,16 @@
             <div class="row">
                 <div class="col-md-2 text-center mb-3">
                     <div class="platform-badge">
-                        <i class="fas fa-ticket-alt text-primary fa-2x mb-2"></i>
-                        <div class="fw-bold">StubHub</div>
-                        <small class="text-success">98% uptime</small>
+                        <i class="fas fa-music text-info fa-2x mb-2"></i>
+                        <div class="fw-bold">Ticketmaster</div>
+                        <small class="text-success">95% uptime</small>
                     </div>
                 </div>
                 <div class="col-md-2 text-center mb-3">
                     <div class="platform-badge">
-                        <i class="fas fa-music text-info fa-2x mb-2"></i>
-                        <div class="fw-bold">Ticketmaster</div>
-                        <small class="text-success">95% uptime</small>
+                        <i class="fas fa-ticket-alt text-primary fa-2x mb-2"></i>
+                        <div class="fw-bold">StubHub</div>
+                        <small class="text-success">98% uptime</small>
                     </div>
                 </div>
                 <div class="col-md-2 text-center mb-3">
@@ -50,13 +50,6 @@
                 </div>
                 <div class="col-md-2 text-center mb-3">
                     <div class="platform-badge">
-                        <i class="fas fa-tags text-success fa-2x mb-2"></i>
-                        <div class="fw-bold">TickPick</div>
-                        <small class="text-success">97% uptime</small>
-                    </div>
-                </div>
-                <div class="col-md-2 text-center mb-3">
-                    <div class="platform-badge">
                         <i class="fas fa-chair text-secondary fa-2x mb-2"></i>
                         <div class="fw-bold">SeatGeek</div>
                         <small class="text-success">96% uptime</small>
@@ -64,9 +57,32 @@
                 </div>
                 <div class="col-md-2 text-center mb-3">
                     <div class="platform-badge">
+                        <i class="fas fa-tags text-success fa-2x mb-2"></i>
+                        <div class="fw-bold">TickPick</div>
+                        <small class="text-success">97% uptime</small>
+                    </div>
+                </div>
+                <div class="col-md-2 text-center mb-3">
+                    <div class="platform-badge">
                         <i class="fas fa-gamepad text-danger fa-2x mb-2"></i>
                         <div class="fw-bold">FunZone</div>
                         <small class="text-success">94% uptime</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3 text-center mb-3">
+                    <div class="platform-badge">
+                        <i class="fas fa-calendar text-orange fa-2x mb-2"></i>
+                        <div class="fw-bold">Eventbrite</div>
+                        <small class="text-success">99% uptime</small>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-3">
+                    <div class="platform-badge">
+                        <i class="fas fa-headphones text-purple fa-2x mb-2"></i>
+                        <div class="fw-bold">Bandsintown</div>
+                        <small class="text-success">96% uptime</small>
                     </div>
                 </div>
             </div>

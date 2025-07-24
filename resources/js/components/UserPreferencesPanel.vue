@@ -1,3 +1,8 @@
+<!--
+  HD Tickets User Preferences Panel
+  @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+  @version 2025.07.v4.0
+-->
 <template>
   <div class="user-preferences-panel">
     <div class="panel-header">
@@ -427,13 +432,16 @@ const hasChanges = ref(false)
 const showSaveConfirmation = ref(false)
 const originalPreferences = ref(null)
 
+// Platform ordering maintained consistently across the application
 const availablePlatforms = [
   { key: 'ticketmaster', name: 'Ticketmaster' },
   { key: 'stubhub', name: 'StubHub' },
   { key: 'viagogo', name: 'Viagogo' },
   { key: 'seatgeek', name: 'SeatGeek' },
   { key: 'tickpick', name: 'TickPick' },
-  { key: 'funzone', name: 'FunZone' }
+  { key: 'funzone', name: 'FunZone' },
+  { key: 'eventbrite', name: 'Eventbrite' },
+  { key: 'bandsintown', name: 'Bandsintown' }
 ]
 
 // Methods

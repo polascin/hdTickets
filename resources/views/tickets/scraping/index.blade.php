@@ -41,13 +41,7 @@
                     <!-- Platform Filter -->
                     <div class="col-md-3">
                         <label for="platform" class="form-label">Platform</label>
-                        <select class="form-select" name="platform">
-                            <option value="">All Platforms</option>
-                            <option value="ticketmaster" {{ request('platform') == 'ticketmaster' ? 'selected' : '' }}>Ticketmaster</option>
-                            <option value="stubhub" {{ request('platform') == 'stubhub' ? 'selected' : '' }}>StubHub</option>
-                            <option value="viagogo" {{ request('platform') == 'viagogo' ? 'selected' : '' }}>Viagogo</option>
-                            <option value="seatgeek" {{ request('platform') == 'seatgeek' ? 'selected' : '' }}>SeatGeek</option>
-                        </select>
+                        <x-platform-select name="platform" :value="request('platform')" class="form-select" />
                     </div>
                     
                     <!-- Availability Filter -->

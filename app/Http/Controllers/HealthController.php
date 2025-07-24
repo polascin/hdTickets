@@ -57,7 +57,7 @@ class HealthController extends Controller
         $response = [
             'status' => $overallStatus,
             'timestamp' => now()->toISOString(),
-            'version' => '2025.7.3',
+            'version' => '2025.07.v4.0',
             'environment' => app()->environment(),
             'response_time_ms' => $responseTime,
             'checks' => $checks,

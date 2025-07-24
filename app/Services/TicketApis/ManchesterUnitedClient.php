@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * HD Tickets Manchester United Official App Client
+ * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ * @version 2025.07.v4.0
+ */
+
 namespace App\Services\TicketApis;
 
 use Symfony\Component\DomCrawler\Crawler;
