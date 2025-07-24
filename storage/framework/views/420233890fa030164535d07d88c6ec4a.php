@@ -155,15 +155,15 @@
                                 </svg>
                                 <span>Sign In</span>
                             </a>
-                            <?php if(Route::has('register')): ?>
-                                <a href="<?php echo e(route('register')); ?>" 
-                                   class="bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg border border-gray-200 flex items-center space-x-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            <div class="bg-white/80 rounded-2xl p-6 shadow-lg border border-gray-200">
+                                <p class="text-gray-600 text-sm text-center">
+                                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                     </svg>
-                                    <span>Create Account</span>
-                                </a>
-                            <?php endif; ?>
+                                    New user registration is restricted to administrators only.
+                                    <br>Please contact your administrator for access.
+                                </p>
+                            </div>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>

@@ -27,25 +27,31 @@ class ProxyRotationService
      */
     protected function loadProxies(): void
     {
-        $this->proxies = Cache::get('scraping.proxies', config('scraping.proxies', [
-            // Free/Public proxies (for testing)
-            [
-                'host' => '103.152.112.162',
-                'port' => 80,
-                'type' => 'http',
-                'country' => 'US',
-                'status' => 'active'
-            ],
-            [
-                'host' => '47.74.152.29',
-                'port' => 8888,
-                'type' => 'http',
-                'country' => 'US',
-                'status' => 'active'
-            ],
-            // Add paid proxy services here for production
-            // Rotating residential proxies recommended for production use
-        ]));
+        try {
+            $this->proxies = Cache::get('scraping.proxies', config('scraping.proxies', [
+                // Free/Public proxies (for testing)
+                [
+                    'host' => '103.152.112.162',
+                    'port' => 80,
+                    'type' => 'http',
+                    'country' => 'US',
+                    'status' => 'active'
+                ],
+                [
+                    'host' => '47.74.152.29',
+                    'port' => 8888,
+                    'type' => 'http',
+                    'country' => 'US',
+                    'status' => 'active'
+                ],
+                // Add paid proxy services here for production
+                // Rotating residential proxies recommended for production use
+            ]));
+        } catch (Exception $e) {
+            // Fallback to config if cache is not available
+            $this->proxies = config('scraping.proxies', []);
+            Log::debug('Cache not available during proxy loading, using config fallback');
+        }
     }
 
     /**
@@ -90,7 +96,13 @@ class ProxyRotationService
      */
     protected function loadProxyHealth(): void
     {
-        $this->proxyHealth = Cache::get('scraping.proxy_health', []);
+        try {
+            $this->proxyHealth = Cache::get('scraping.proxy_health', []);
+        } catch (Exception $e) {
+            // Fallback to empty array if cache is not available
+            $this->proxyHealth = [];
+            Log::debug('Cache not available during proxy health loading, using empty fallback');
+        }
     }
 
     /**
