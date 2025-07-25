@@ -111,7 +111,11 @@ public function index() {
         return view('admin.users.roles');
     }
     
-    return view('admin.users.index', compact('users', 'availableRoles'));
+        // Debug logging
+        \Log::info('UserManagementController@index - Users count: ' . $users->count());
+        \Log::info('UserManagementController@index - Available roles: ' . json_encode($availableRoles));
+
+        return view('admin.users.index', compact('users', 'availableRoles'));
 }
 
     /**
