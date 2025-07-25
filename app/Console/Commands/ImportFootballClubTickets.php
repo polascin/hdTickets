@@ -1,0 +1,357 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Services\Platforms\FootballClubStoresService;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+
+class ImportFootballClubTickets extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'football:import-tickets
+                            {--clubs=* : Specific club keys to import (e.g., arsenal,chelsea)}
+                            {--all : Import from all supported clubs}
+                            {--league= : Filter by league (e.g., "Premier League", "La Liga")}
+                            {--country= : Filter by country (e.g., England, Spain)}
+                            {--date-from= : Start date for fixtures (Y-m-d format)}
+                            {--date-to= : End date for fixtures (Y-m-d format)}
+                            {--competition= : Filter by competition name}
+                            {--dry-run : Show what would be imported without saving}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Import football match tickets from European club official stores';
+
+    protected FootballClubStoresService $service;
+
+    public function __construct(FootballClubStoresService $service)
+    {
+        parent::__construct();
+        $this->service = $service;
+    }
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        $this->info('🏈 Football Club Ticket Import Starting...');
+        $this->newLine();
+
+        try {
+            // Determine which clubs to process
+            $clubsToProcess = $this->determineClubsToProcess();
+            
+            if (empty($clubsToProcess)) {
+                $this->error('❌ No clubs selected for processing.');
+                return Command::FAILURE;
+            }
+
+            // Build filters from options
+            $filters = $this->buildFilters();
+
+            $this->info("📋 Processing " . count($clubsToProcess) . " club(s): " . implode(', ', $clubsToProcess));
+            
+            if (!empty($filters)) {
+                $this->info("🔍 Filters applied: " . json_encode($filters, JSON_PRETTY_PRINT));
+            }
+            $this->newLine();
+
+            // Show supported clubs info
+            if ($this->option('verbose')) {
+                $this->displaySupportedClubs();
+            }
+
+            // Search for tickets
+            $this->info('🔎 Searching for tickets...');
+            $searchResults = $this->service->searchTickets($clubsToProcess, $filters);
+
+            if (!$searchResults['success']) {
+                $this->error('❌ Search failed:');
+                foreach ($searchResults['errors'] as $error) {
+                    $this->line("  • $error");
+                }
+                return Command::FAILURE;
+            }
+
+            // Display search results
+            $this->displaySearchResults($searchResults);
+
+            // Import tickets (unless dry-run)
+            if (!$this->option('dry-run')) {
+                if ($this->confirm('Proceed with importing tickets to database?', true)) {
+                    $this->info('💾 Importing tickets to database...');
+                    $importResults = $this->service->importTickets($clubsToProcess, $filters);
+                    $this->displayImportResults($importResults);
+                } else {
+                    $this->info('❌ Import cancelled by user.');
+                }
+            } else {
+                $this->warn('🔍 Dry-run mode: No tickets were saved to database.');
+            }
+
+            // Show platform statistics
+            if ($this->option('verbose')) {
+                $this->displayStatistics();
+            }
+
+            $this->newLine();
+            $this->info('✅ Football club ticket import completed!');
+            return Command::SUCCESS;
+
+        } catch (\Exception $e) {
+            $this->error('❌ An error occurred: ' . $e->getMessage());
+            Log::error('Football club ticket import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return Command::FAILURE;
+        }
+    }
+
+    /**
+     * Determine which clubs to process based on options
+     */
+    private function determineClubsToProcess(): array
+    {
+        $supportedClubs = $this->service->getSupportedClubs();
+        $clubKeys = array_keys($supportedClubs);
+
+        // If specific clubs requested
+        if ($this->option('clubs')) {
+            $requestedClubs = $this->option('clubs');
+            $validClubs = array_intersect($requestedClubs, $clubKeys);
+            
+            if (empty($validClubs)) {
+                $this->error('❌ None of the requested clubs are supported.');
+                $this->line('Available clubs: ' . implode(', ', $clubKeys));
+                return [];
+            }
+            
+            return $validClubs;
+        }
+
+        // If all clubs requested
+        if ($this->option('all')) {
+            return $clubKeys;
+        }
+
+        // Filter by league
+        if ($league = $this->option('league')) {
+            return array_filter($clubKeys, function($key) use ($supportedClubs, $league) {
+                return strcasecmp($supportedClubs[$key]['league'], $league) === 0;
+            });
+        }
+
+        // Filter by country
+        if ($country = $this->option('country')) {
+            return array_filter($clubKeys, function($key) use ($supportedClubs, $country) {
+                return strcasecmp($supportedClubs[$key]['country'], $country) === 0;
+            });
+        }
+
+        // Interactive selection
+        return $this->interactiveClubSelection($clubKeys);
+    }
+
+    /**
+     * Interactive club selection
+     */
+    private function interactiveClubSelection(array $clubKeys): array
+    {
+        $this->info('🏟️ Available Football Clubs:');
+        $supportedClubs = $this->service->getSupportedClubs();
+        
+        foreach ($clubKeys as $index => $key) {
+            $club = $supportedClubs[$key];
+            $this->line(sprintf(
+                "  %d. %s (%s - %s)",
+                $index + 1,
+                $club['name'],
+                $club['league'],
+                $club['country']
+            ));
+        }
+        $this->newLine();
+
+        $choice = $this->choice(
+            'Select clubs to process (comma-separated numbers or "all")',
+            array_merge(['all'], array_map(fn($i) => (string)($i + 1), array_keys($clubKeys))),
+            'all'
+        );
+
+        if ($choice === 'all') {
+            return $clubKeys;
+        }
+
+        $selectedNumbers = array_map('trim', explode(',', $choice));
+        $selectedClubs = [];
+        
+        foreach ($selectedNumbers as $number) {
+            if (is_numeric($number) && isset($clubKeys[$number - 1])) {
+                $selectedClubs[] = $clubKeys[$number - 1];
+            }
+        }
+
+        return $selectedClubs;
+    }
+
+    /**
+     * Build filters from command options
+     */
+    private function buildFilters(): array
+    {
+        $filters = [];
+
+        if ($dateFrom = $this->option('date-from')) {
+            $filters['date_from'] = $dateFrom;
+        }
+
+        if ($dateTo = $this->option('date-to')) {
+            $filters['date_to'] = $dateTo;
+        }
+
+        if ($competition = $this->option('competition')) {
+            $filters['competition'] = $competition;
+        }
+
+        return $filters;
+    }
+
+    /**
+     * Display supported clubs information
+     */
+    private function displaySupportedClubs(): void
+    {
+        $supportedClubs = $this->service->getSupportedClubs();
+        
+        $this->info('🏟️ Supported Football Clubs:');
+        $this->newLine();
+        
+        $clubsByLeague = [];
+        foreach ($supportedClubs as $key => $club) {
+            $clubsByLeague[$club['league']][] = $club;
+        }
+        
+        foreach ($clubsByLeague as $league => $clubs) {
+            $this->line("<fg=yellow>$league:</>");
+            foreach ($clubs as $club) {
+                $this->line("  • {$club['name']} ({$club['country']})");
+            }
+            $this->newLine();
+        }
+    }
+
+    /**
+     * Display search results
+     */
+    private function displaySearchResults(array $results): void
+    {
+        $this->info("📊 Search Results:");
+        $this->line("  • Clubs searched: {$results['clubs_searched']}");
+        $this->line("  • Successful searches: {$results['successful_searches']}");
+        $this->newLine();
+
+        if (!empty($results['results'])) {
+            $totalFixtures = 0;
+            $totalTickets = 0;
+            
+            foreach ($results['results'] as $clubkey => $clubData) {
+                $fixtureCount = count($clubData['fixtures']);
+                $ticketCount = 0;
+                
+                foreach ($clubData['fixtures'] as $fixture) {
+                    $ticketCount += count($fixture['ticket_categories']);
+                }
+                
+                $totalFixtures += $fixtureCount;
+                $totalTickets += $ticketCount;
+                
+                $this->line("  🏆 {$clubData['club']} ({$clubData['league']})");
+                $this->line("     • Fixtures found: $fixtureCount");
+                $this->line("     • Ticket categories: $ticketCount");
+                
+                if ($this->option('verbose') && $fixtureCount > 0) {
+                    foreach (array_slice($clubData['fixtures'], 0, 3) as $fixture) {
+                        $this->line("       - {$clubData['club']} vs {$fixture['opponent']} (" . 
+                                   ($fixture['date'] ? date('M j, Y', strtotime($fixture['date'])) : 'TBD') . ")");
+                    }
+                    if ($fixtureCount > 3) {
+                        $this->line("       ... and " . ($fixtureCount - 3) . " more fixtures");
+                    }
+                }
+                $this->newLine();
+            }
+            
+            $this->info("📈 Total Summary:");
+            $this->line("  • Total fixtures: $totalFixtures");
+            $this->line("  • Total ticket categories: $totalTickets");
+        }
+
+        if (!empty($results['errors'])) {
+            $this->warn('⚠️ Errors encountered:');
+            foreach ($results['errors'] as $error) {
+                $this->line("  • $error");
+            }
+        }
+        $this->newLine();
+    }
+
+    /**
+     * Display import results
+     */
+    private function displayImportResults(array $results): void
+    {
+        if ($results['success']) {
+            $this->info('✅ Import completed successfully!');
+            $this->line("  • Tickets imported: {$results['imported_count']}");
+            $this->line("  • Clubs processed: {$results['clubs_processed']}");
+        } else {
+            $this->error('❌ Import failed.');
+        }
+
+        if (!empty($results['errors'])) {
+            $this->warn('⚠️ Import errors:');
+            foreach ($results['errors'] as $error) {
+                $this->line("  • $error");
+            }
+        }
+        $this->newLine();
+    }
+
+    /**
+     * Display platform statistics
+     */
+    private function displayStatistics(): void
+    {
+        $this->info('📊 Platform Statistics:');
+        
+        $stats = $this->service->getStatistics();
+        
+        $this->line("  • Total tickets in database: {$stats['total_tickets']}");
+        $this->line("  • Available tickets: {$stats['available_tickets']}");
+        $this->line("  • Availability rate: {$stats['availability_rate']}%");
+        $this->line("  • Supported clubs: {$stats['supported_clubs']}");
+        
+        if (!empty($stats['leagues'])) {
+            $this->line("  • Leagues covered:");
+            foreach ($stats['leagues'] as $league => $count) {
+                $this->line("    - $league: $count tickets");
+            }
+        }
+        
+        if ($stats['last_updated']) {
+            $this->line("  • Last updated: {$stats['last_updated']}");
+        }
+        
+        $this->newLine();
+    }
+}
