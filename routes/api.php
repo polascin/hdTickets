@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketmasterController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
+use App\Http\Controllers\AutomatedPurchaseController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
@@ -153,6 +154,24 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
             Route::post('/import', [TickPickController::class, 'import']);
             Route::post('/import-urls', [TickPickController::class, 'importUrls']);
         });
+    });
+    
+    // Automated Purchase System Routes
+    Route::prefix('automated-purchase')->middleware([ApiRateLimit::class . ':api,60,1'])->group(function () {
+        // Decision evaluation and price comparison
+        Route::post('/evaluate-decision', [AutomatedPurchaseController::class, 'evaluatePurchaseDecision']);
+        Route::post('/compare-prices', [AutomatedPurchaseController::class, 'compareMultiPlatformPrices']);
+        
+        // Purchase execution and tracking
+        Route::post('/execute', [AutomatedPurchaseController::class, 'executeAutomatedPurchase']);
+        Route::post('/track-optimize', [AutomatedPurchaseController::class, 'trackAndOptimize']);
+        
+        // Configuration and preferences
+        Route::get('/configuration', [AutomatedPurchaseController::class, 'getConfiguration']);
+        Route::put('/preferences', [AutomatedPurchaseController::class, 'updateUserPreferences']);
+        
+        // Analytics and statistics
+        Route::get('/statistics', [AutomatedPurchaseController::class, 'getAutomationStatistics']);
     });
     
     
