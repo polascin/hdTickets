@@ -1,0 +1,326 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class UserPreference extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'key',
+        'value',
+        'type',
+        'category'
+    ];
+
+    protected $casts = [
+        'value' => 'json'
+    ];
+
+    /**
+     * Get the user that owns this preference
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope for specific preference key
+     */
+    public function scopeForKey($query, string $key)
+    {
+        return $query->where('key', $key);
+    }
+
+    /**
+     * Scope for specific category
+     */
+    public function scopeForCategory($query, string $category)
+    {
+        return $query->where('category', $category);
+    }
+
+    /**
+     * Get user preference value with default
+     */
+    public static function getValue(int $userId, string $key, $default = null)
+    {
+        $preference = static::where('user_id', $userId)
+            ->where('key', $key)
+            ->first();
+
+        return $preference ? $preference->value : $default;
+    }
+
+    /**
+     * Set user preference value
+     */
+    public static function setValue(int $userId, string $key, $value, string $type = 'json', string $category = 'general'): void
+    {
+        static::updateOrCreate(
+            ['user_id' => $userId, 'key' => $key],
+            [
+                'value' => $value,
+                'type' => $type,
+                'category' => $category
+            ]
+        );
+    }
+
+    /**
+     * Get all preferences for a user by category
+     */
+    public static function getByCategory(int $userId, string $category): array
+    {
+        return static::where('user_id', $userId)
+            ->where('category', $category)
+            ->pluck('value', 'key')
+            ->toArray();
+    }
+
+    /**
+     * Get default preference structure
+     */
+    public static function getDefaultPreferences(): array
+    {
+        return [
+            'notification_channels' => [
+                'critical' => 'slack',
+                'high' => 'discord',
+                'medium' => 'telegram',
+                'normal' => 'push',
+                'disabled' => []
+            ],
+            'favorite_teams' => [],
+            'preferred_venues' => [],
+            'event_types' => [
+                'concert' => 3,
+                'sports' => 4,
+                'theater' => 2,
+                'comedy' => 2
+            ],
+            'alert_timing' => [
+                'quiet_hours_start' => '23:00',
+                'quiet_hours_end' => '07:00',
+                'timezone' => 'UTC'
+            ],
+            'price_thresholds' => [
+                'max_budget' => 500,
+                'significant_drop_percentage' => 20,
+                'price_alert_threshold' => 10
+            ],
+            'ml_settings' => [
+                'enable_predictions' => true,
+                'prediction_confidence_threshold' => 0.7,
+                'enable_recommendations' => true
+            ],
+            'escalation_settings' => [
+                'enable_escalation' => true,
+                'emergency_contact_phone' => null,
+                'emergency_contact_email' => null,
+                'escalation_delay_minutes' => 5
+            ]
+        ];
+    }
+
+    /**
+     * Initialize default preferences for a user
+     */
+    public static function initializeDefaults(int $userId): void
+    {
+        $defaults = static::getDefaultPreferences();
+
+        foreach ($defaults as $key => $value) {
+            static::setValue($userId, $key, $value, 'json', static::getCategoryForKey($key));
+        }
+    }
+
+    /**
+     * Get category for a preference key
+     */
+    protected static function getCategoryForKey(string $key): string
+    {
+        $categoryMap = [
+            'notification_channels' => 'notifications',
+            'favorite_teams' => 'preferences',
+            'preferred_venues' => 'preferences',
+            'event_types' => 'preferences',
+            'alert_timing' => 'notifications',
+            'price_thresholds' => 'alerts',
+            'ml_settings' => 'system',
+            'escalation_settings' => 'notifications'
+        ];
+
+        return $categoryMap[$key] ?? 'general';
+    }
+
+    /**
+     * Validate preference value based on key
+     */
+    public static function validatePreference(string $key, $value): bool
+    {
+        switch ($key) {
+            case 'notification_channels':
+                return is_array($value) && 
+                       isset($value['critical'], $value['high'], $value['medium'], $value['normal']);
+
+            case 'favorite_teams':
+            case 'preferred_venues':
+                return is_array($value);
+
+            case 'event_types':
+                return is_array($value) && 
+                       collect($value)->every(function($priority) {
+                           return is_int($priority) && $priority >= 1 && $priority <= 5;
+                       });
+
+            case 'alert_timing':
+                return is_array($value) && 
+                       isset($value['quiet_hours_start'], $value['quiet_hours_end'], $value['timezone']);
+
+            case 'price_thresholds':
+                return is_array($value) && 
+                       isset($value['max_budget']) && 
+                       is_numeric($value['max_budget']) && 
+                       $value['max_budget'] > 0;
+
+            case 'ml_settings':
+                return is_array($value) && 
+                       isset($value['enable_predictions']) && 
+                       is_bool($value['enable_predictions']);
+
+            case 'escalation_settings':
+                return is_array($value) && 
+                       isset($value['enable_escalation']) && 
+                       is_bool($value['enable_escalation']);
+
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Get user's notification preferences
+     */
+    public static function getNotificationPreferences(int $userId): array
+    {
+        $channels = static::getValue($userId, 'notification_channels', []);
+        $timing = static::getValue($userId, 'alert_timing', []);
+        $escalation = static::getValue($userId, 'escalation_settings', []);
+
+        return array_merge($channels, $timing, $escalation);
+    }
+
+    /**
+     * Get user's alert preferences
+     */
+    public static function getAlertPreferences(int $userId): array
+    {
+        return [
+            'favorite_teams' => static::getValue($userId, 'favorite_teams', []),
+            'preferred_venues' => static::getValue($userId, 'preferred_venues', []),
+            'event_types' => static::getValue($userId, 'event_types', []),
+            'price_thresholds' => static::getValue($userId, 'price_thresholds', []),
+            'ml_settings' => static::getValue($userId, 'ml_settings', [])
+        ];
+    }
+
+    /**
+     * Update multiple preferences at once
+     */
+    public static function updateMultiple(int $userId, array $preferences): array
+    {
+        $updated = [];
+        $errors = [];
+
+        foreach ($preferences as $key => $value) {
+            if (static::validatePreference($key, $value)) {
+                static::setValue($userId, $key, $value);
+                $updated[] = $key;
+            } else {
+                $errors[] = "Invalid value for preference: {$key}";
+            }
+        }
+
+        return [
+            'updated' => $updated,
+            'errors' => $errors
+        ];
+    }
+
+    /**
+     * Reset preferences to defaults
+     */
+    public static function resetToDefaults(int $userId, array $keys = null): void
+    {
+        $defaults = static::getDefaultPreferences();
+        $keysToReset = $keys ?? array_keys($defaults);
+
+        foreach ($keysToReset as $key) {
+            if (isset($defaults[$key])) {
+                static::setValue($userId, $key, $defaults[$key]);
+            }
+        }
+    }
+
+    /**
+     * Export user preferences
+     */
+    public static function exportPreferences(int $userId): array
+    {
+        return static::where('user_id', $userId)
+            ->get()
+            ->mapWithKeys(function ($preference) {
+                return [$preference->key => [
+                    'value' => $preference->value,
+                    'type' => $preference->type,
+                    'category' => $preference->category,
+                    'updated_at' => $preference->updated_at
+                ]];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Import user preferences
+     */
+    public static function importPreferences(int $userId, array $preferences): array
+    {
+        $imported = [];
+        $errors = [];
+
+        foreach ($preferences as $key => $data) {
+            try {
+                if (is_array($data) && isset($data['value'])) {
+                    $value = $data['value'];
+                    $type = $data['type'] ?? 'json';
+                    $category = $data['category'] ?? 'general';
+                } else {
+                    $value = $data;
+                    $type = 'json';
+                    $category = static::getCategoryForKey($key);
+                }
+
+                if (static::validatePreference($key, $value)) {
+                    static::setValue($userId, $key, $value, $type, $category);
+                    $imported[] = $key;
+                } else {
+                    $errors[] = "Invalid preference data for: {$key}";
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Error importing preference {$key}: " . $e->getMessage();
+            }
+        }
+
+        return [
+            'imported' => $imported,
+            'errors' => $errors
+        ];
+    }
+}
