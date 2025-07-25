@@ -187,6 +187,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\ActivityLoggerServiceProvider::class,
+        App\Providers\CssTimestampServiceProvider::class,
     ])->toArray(),
 
     /*
