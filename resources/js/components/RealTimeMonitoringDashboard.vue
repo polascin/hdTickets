@@ -199,6 +199,78 @@ const refreshAll = async () => {
 
 const fetchRealtimeStats = async () => {
   try {
+    const response = await fetch('/api/v1/monitoring/stats', {
+      headers: {
+        'Authorization': `Bearer ${window.authToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    if (!response.ok) throw new Error('Failed to fetch stats')
+    
+    const data = await response.json()
+    realtimeStats.value = [
+      {
+        key: 'active_monitors',
+        title: 'Active Monitors',
+        value: data.active_monitors || 0,
+        change: data.monitors_change || 0,
+        trend: data.monitors_change >= 0 ? 'up' : 'down',
+        icon: 'monitor',
+        color: 'blue'
+      },
+      {
+        key: 'tickets_found',
+        title: 'Tickets Found Today',
+        value: data.tickets_found_today || 0,
+        change: data.tickets_change || 0,
+        trend: data.tickets_change >= 0 ? 'up' : 'down',
+        icon: 'ticket',
+        color: 'green'
+      },
+      {
+        key: 'alerts_sent',
+        title: 'Alerts Sent',
+        value: data.alerts_sent_today || 0,
+        change: data.alerts_change || 0,
+        trend: data.alerts_change >= 0 ? 'up' : 'down',
+        icon: 'bell',
+        color: 'orange'
+      },
+      {
+        key: 'success_rate',
+        title: 'Success Rate',
+        value: `${data.success_rate || 100}%`,
+        change: data.success_rate_change || 0,
+        trend: data.success_rate_change >= 0 ? 'up' : 'down',
+        icon: 'check-circle',
+        color: data.success_rate >= 95 ? 'green' : data.success_rate >= 80 ? 'orange' : 'red'
+      },
+      {
+        key: 'response_time',
+        title: 'Avg Response Time',
+        value: `${data.avg_response_time || 0}ms`,
+        change: data.response_time_change || 0,
+        trend: data.response_time_change <= 0 ? 'up' : 'down',
+        icon: 'clock',
+        color: data.avg_response_time <= 500 ? 'green' : data.avg_response_time <= 1000 ? 'orange' : 'red'
+      },
+      {
+        key: 'platform_health',
+        title: 'Platform Health',
+        value: `${overallHealthScore.value}%`,
+        change: data.health_change || 0,
+        trend: data.health_change >= 0 ? 'up' : 'down',
+        icon: 'heart',
+        color: overallHealthScore.value >= 95 ? 'green' : overallHealthScore.value >= 80 ? 'orange' : 'red'
+      }
+    ]
+  } catch (error) {
+    console.error('Error fetching realtime stats:', error)
+    showNotification('Failed to fetch monitoring statistics', 'error')
+  }
+}
+  try {
     const response = await axios.get('/api/v1/dashboard/realtime-stats')
     const data = response.data.data
     

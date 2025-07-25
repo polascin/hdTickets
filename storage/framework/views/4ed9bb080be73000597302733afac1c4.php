@@ -15,9 +15,12 @@
         <!-- Scripts -->
         <?php if(file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'))): ?>
             <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+            <style>
+                /* Cache-busting timestamp: <?php echo e(now()->timestamp); ?> */
+            </style>
         <?php else: ?>
             <style>
-                /* Tailwind CSS fallback styles for guest pages */
+                /* Tailwind CSS fallback styles for guest pages - Cache-busting timestamp: <?php echo e(now()->timestamp); ?> */
                 .min-h-screen { min-height: 100vh; }
                 .flex { display: flex; }
                 .flex-col { flex-direction: column; }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketmasterController;
@@ -87,6 +88,17 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/price-analysis', [App\Http\Controllers\Api\AnalyticsController::class, 'priceAnalysis']);
         Route::get('/demand-patterns', [App\Http\Controllers\Api\AnalyticsController::class, 'demandPatterns']);
         Route::get('/export/{type}', [App\Http\Controllers\Api\AnalyticsController::class, 'export']);
+    });
+    
+    // Enhanced Monitoring API
+    Route::prefix('monitoring')->group(function () {
+        Route::get('/stats', [MonitoringController::class, 'getRealtimeStats']);
+        Route::get('/platform-health', [MonitoringController::class, 'getPlatformHealth']);
+        Route::get('/monitors', [MonitoringController::class, 'getMonitors']);
+        Route::get('/activity', [MonitoringController::class, 'getRecentActivity']);
+        Route::get('/system-metrics', [MonitoringController::class, 'getSystemMetrics']);
+        Route::post('/monitors/{monitorId}/check-now', [MonitoringController::class, 'checkMonitorNow']);
+        Route::post('/monitors/{monitorId}/toggle', [MonitoringController::class, 'toggleMonitor']);
     });
     
     Route::middleware([CheckApiRole::class . ':admin'])->group(function () {
