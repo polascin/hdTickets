@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_notification_settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('channel', ['slack', 'discord', 'telegram', 'webhook'])->index();
+            $table->enum('channel', ['slack', 'discord', 'telegram', 'webhook']);
             $table->boolean('is_enabled')->default(true);
             
             // Channel-specific settings

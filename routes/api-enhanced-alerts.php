@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\NotificationPreferencesController;
 use App\Http\Controllers\Api\NotificationChannelsController;
 use App\Http\Controllers\Api\EnhancedAlertsController;
 use App\Http\Controllers\Api\AlertAnalyticsController;
+use App\Http\Controllers\Api\AdvancedAnalyticsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,6 +91,15 @@ Route::middleware(['auth:sanctum', 'track.user.activity'])->group(function () {
         Route::get('/channels', [AlertAnalyticsController::class, 'channelPerformance'])->name('channels');
         Route::get('/predictions', [AlertAnalyticsController::class, 'predictionAccuracy'])->name('predictions');
         Route::get('/engagement', [AlertAnalyticsController::class, 'userEngagement'])->name('engagement');
+        
+        // Advanced Analytics Dashboard
+        Route::get('/price-trends', [AdvancedAnalyticsController::class, 'getPriceTrendAnalysis'])->name('price-trends');
+        Route::get('/demand-patterns', [AdvancedAnalyticsController::class, 'getDemandPatternAnalysis'])->name('demand-patterns');
+        Route::get('/success-optimization', [AdvancedAnalyticsController::class, 'getSuccessRateOptimization'])->name('success-optimization');
+        Route::get('/platform-comparison', [AdvancedAnalyticsController::class, 'getPlatformPerformanceComparison'])->name('platform-comparison');
+        Route::get('/real-time-metrics', [AdvancedAnalyticsController::class, 'getRealTimeDashboardMetrics'])->name('real-time-metrics');
+        Route::get('/custom-dashboard', [AdvancedAnalyticsController::class, 'getCustomDashboard'])->name('custom-dashboard');
+        Route::get('/export/{type}', [AdvancedAnalyticsController::class, 'exportAnalyticsData'])->name('export-data');
         
         // System analytics (admin only)
         Route::middleware('can:admin')->group(function () {
