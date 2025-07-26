@@ -256,3 +256,4 @@ For support and questions:
 ---
 
 **Note**: This system is designed for personal use and ticket availability monitoring only. Please respect the terms of service of all ticket platforms and use responsibly.
+# Auto-sync configuration applied So 26. júl 2025, 14:45:56 CEST
