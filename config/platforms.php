@@ -74,17 +74,10 @@ return [
     | Platform Sorting Helper
     |--------------------------------------------------------------------------
     |
-    | Returns platforms in the correct display order for use in views
-    | and components. This ensures consistency across the application.
+    | Note: Closures cannot be cached, so this has been moved to a helper class.
+    | Use App\Helpers\PlatformHelper::getSortedPlatforms() instead.
     |
     */
-    'sorted_platforms' => function() {
-        $platforms = config('platforms.display_order');
-        uasort($platforms, function($a, $b) {
-            return $a['order'] <=> $b['order'];
-        });
-        return $platforms;
-    },
 
     /*
     |--------------------------------------------------------------------------

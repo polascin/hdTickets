@@ -1,0 +1,37 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+<<<<<<< HEAD
+<<<<<<< HEAD
+    # Prevent access to hidden files and directories
+    RewriteRule ^\.(.*)$ - [F,L]
+    
+    # Prevent access to specific file types in root
+    RewriteRule \.(env|git|gitignore|gitattributes|lock|md|yml|yaml)$ - [F,L]
+    
+    # Prevent infinite loops by checking if we're already in the public directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Don't redirect if the file exists in the root directory (for special files like robots.txt if needed)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Redirect all requests to the public directory with 301 status
+    RewriteRule ^(.*)$ /public/$1 [R=301,L]
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Set default charset
+AddDefaultCharset UTF-8
+=======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+    # Redirect everything to public folder
+    RewriteCond %{REQUEST_URI} !^/public
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846

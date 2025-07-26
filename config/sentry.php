@@ -18,7 +18,7 @@ return [
 
     'environment' => env('APP_ENV', 'production'),
 
-    'release' => trim(exec('git log --pretty="%h" -n1 HEAD')),
+    'release' => env('APP_VERSION', 'unknown'),
 
     /*
     |--------------------------------------------------------------------------
@@ -109,40 +109,21 @@ return [
     |--------------------------------------------------------------------------
     | Before Send Callback
     |--------------------------------------------------------------------------
+    | Note: Closures have been disabled to allow config caching.
+    | Custom event processing should be handled in a service provider.
     */
 
-    'before_send' => function (Sentry\Event $event, Sentry\EventHint $hint): ?Sentry\Event {
-        // Filter out sensitive data
-        $event = filterSensitiveData($event);
-        
-        // Add custom context for ticket monitoring system
-        $event = addTicketSystemContext($event);
-        
-        // Rate limit certain error types
-        if (shouldRateLimit($event)) {
-            return null;
-        }
-        
-        return $event;
-    },
+    'before_send' => null,
 
     /*
     |--------------------------------------------------------------------------
     | Before Send Transaction Callback
     |--------------------------------------------------------------------------
+    | Note: Closures have been disabled to allow config caching.
+    | Custom transaction processing should be handled in a service provider.
     */
 
-    'before_send_transaction' => function (Sentry\Event $event): ?Sentry\Event {
-        // Only capture slow transactions in production
-        if (env('APP_ENV') === 'production') {
-            $duration = $event->getExtra()['duration'] ?? 0;
-            if ($duration < 1000) { // Less than 1 second
-                return null;
-            }
-        }
-        
-        return $event;
-    },
+    'before_send_transaction' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -152,7 +133,6 @@ return [
 
     'tags' => [
         'php_version' => PHP_VERSION,
-        'laravel_version' => app()->version(),
         'server_name' => gethostname(),
         'deployment_id' => env('DEPLOYMENT_ID', ''),
     ],
