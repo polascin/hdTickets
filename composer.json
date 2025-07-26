@@ -1,0 +1,85 @@
+{
+    "name": "sports-ticket-monitor/app",
+    "description": "Sports Event Ticket Availability Monitoring System - A comprehensive platform for monitoring ticket availability across multiple sports event platforms",
+    "version": "4.0.0",
+    "type": "project",
+    "keywords": ["sports", "tickets", "monitoring", "alerts", "events", "scraping"],
+    "authors": [
+        {
+            "name": "Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle",
+            "role": "Developer & System Architect",
+            "email": "info@example.com",
+            "homepage": "https://github.com/walter-csoelle"
+        }
+    ],
+    "require": {
+        "laravel/framework": "^12.20",
+        "laravel/tinker": "^2.10",
+        "laravel/sanctum": "^4.1",
+        "guzzlehttp/guzzle": "^7.9",
+        "symfony/dom-crawler": "^7.3",
+        "symfony/css-selector": "^7.3",
+        "maatwebsite/excel": "^3.1",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "spatie/laravel-activitylog": "^4.10",
+        "twilio/sdk": "^8.3",
+        "pusher/pusher-php-server": "^7.2",
+        "predis/predis": "^2.2",
+        "roach-php/laravel": "^3.1",
+        "spatie/browsershot": "^4.1"
+    },
+    "require-dev": {
+        "laravel/breeze": "^2.3",
+        "phpunit/phpunit": "^11.0",
+        "mockery/mockery": "^1.6",
+        "fakerphp/faker": "^1.24",
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^8.4",
+        "larastan/larastan": "^3.0",
+        "spatie/laravel-ignition": "^2.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

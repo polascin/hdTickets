@@ -1,0 +1,151 @@
+# Dependencies
+/node_modules/
+/vendor/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.backup
+.env.*
+
+# Laravel specific
+/bootstrap/cache/*.php
+/storage/*.key
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/public/hot
+/public/storage
+
+# Build outputs
+/public/build/
+/public/mix-manifest.json
+/dist/
+/build/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# IDEs and editors
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.tmproj
+*.iml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Cache files
+*.cache
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+temp/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+database.sqlite
+
+# Security and credentials
+*.pem
+*.key
+*.crt
+auth.json
+cookies.txt
+
+# Testing
+/coverage/
+/.nyc_output/
+/phpunit.xml.bak
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Application specific
+/storage/app/public/uploads/*
+!/storage/app/public/uploads/.gitkeep
+/public/uploads/
+scraper_data/
+*.csv
+*.xlsx
+*.xls
+
+# Documentation build
+/docs/_build/
+
+# Python (if any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Local configuration overrides
+config/local.php
