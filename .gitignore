@@ -1,23 +1,19 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # Dependencies
-/node_modules/
 /vendor/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/node_modules/
 
 # Environment files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.backup
-.env.*
+/.env
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+/.env.backup
+/.env.*
 
 # Laravel specific
-/bootstrap/cache/*.php
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
 /storage/*.key
 /storage/logs/*.log
 /storage/framework/cache/data/*
@@ -49,6 +45,7 @@ pids/
 # IDEs and editors
 /.idea/
 /.vscode/
+/.fleet/
 *.swp
 *.swo
 *~
@@ -75,9 +72,9 @@ Desktop.ini
 # Cache files
 *.cache
 .cache/
-.parcel-cache/
-.npm/
-.eslintcache
+/.parcel-cache/
+/.npm/
+/.eslintcache
 .stylelintcache
 
 # Temporary files
@@ -94,7 +91,6 @@ database.sqlite
 
 # Security and credentials
 *.pem
-*.key
 *.crt
 auth.json
 cookies.txt
@@ -102,6 +98,7 @@ cookies.txt
 # Testing
 /coverage/
 /.nyc_output/
+/.phpunit.result.cache
 /phpunit.xml.bak
 
 # Backup files
@@ -128,11 +125,13 @@ cookies.txt
 *.o
 *.so
 
-# Application specific
+# Application specific - Sports Events Tickets Monitoring
 /storage/app/public/uploads/*
 !/storage/app/public/uploads/.gitkeep
 /public/uploads/
 scraper_data/
+ticket_data/
+event_images/
 *.csv
 *.xlsx
 *.xls
@@ -151,30 +150,7 @@ pip-delete-this-directory.txt
 
 # Local configuration overrides
 config/local.php
-=======
-=======
->>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
-/vendor/
-/node_modules/
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/bootstrap/cache/*
-!bootstrap/cache/.gitkeep
-/.env
-/.env.backup
-/.env.production
-/.phpunit.result.cache
+
+# Laravel Homestead
 /Homestead.json
 /Homestead.yaml
-/auth.json
-/npm-debug.log
-/yarn-error.log
-/.fleet
-/.idea
-/.vscode
-<<<<<<< HEAD
->>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
-=======
->>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
