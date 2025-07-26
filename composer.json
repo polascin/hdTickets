@@ -16,6 +16,10 @@
         "laravel/framework": "^12.20",
         "laravel/tinker": "^2.10",
         "laravel/sanctum": "^4.1",
+<<<<<<< HEAD
+=======
+        "laravel/passport": "^13.0",
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
         "guzzlehttp/guzzle": "^7.9",
         "symfony/dom-crawler": "^7.3",
         "symfony/css-selector": "^7.3",
@@ -26,7 +30,12 @@
         "pusher/pusher-php-server": "^7.2",
         "predis/predis": "^2.2",
         "roach-php/laravel": "^3.1",
+<<<<<<< HEAD
         "spatie/browsershot": "^4.1"
+=======
+        "spatie/browsershot": "^4.1",
+        "beyondcode/laravel-websockets": "^1.14"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
     },
     "require-dev": {
         "laravel/breeze": "^2.3",
