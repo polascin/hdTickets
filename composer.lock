@@ -5,7 +5,11 @@
         "This file is @generated automatically"
     ],
 <<<<<<< HEAD
+<<<<<<< HEAD
     "content-hash": "4f172ea67d72288ddec3a00b068e40d9",
+=======
+    "content-hash": "b90023c49162072568ad8fcce255bce5",
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
     "content-hash": "b90023c49162072568ad8fcce255bce5",
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
@@ -378,7 +382,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "defuse/php-encryption",
             "version": "v2.4.0",
             "source": {
@@ -446,6 +453,9 @@
             "time": "2023-06-19T06:10:36+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "dflydev/dot-access-data",
             "version": "v3.0.3",
@@ -1039,7 +1049,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "firebase/php-jwt",
             "version": "v6.11.1",
             "source": {
@@ -1103,6 +1116,9 @@
             "time": "2025-04-09T20:32:01+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "fruitcake/php-cors",
             "version": "v1.3.0",
@@ -1649,6 +1665,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "jakeasmith/http_build_url",
             "version": "1.0.1",
             "source": {
@@ -1698,6 +1715,8 @@
                 "url": "https://api.github.com/repos/laravel/framework/zipball/ac8c4e73bf1b5387b709f7736d41427e6af1c93b",
                 "reference": "ac8c4e73bf1b5387b709f7736d41427e6af1c93b",
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "laravel/framework",
             "version": "v12.20.0",
             "source": {
@@ -1709,6 +1728,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/1b9a00f8caf5503c92aa436279172beae1a484ff",
                 "reference": "1b9a00f8caf5503c92aa436279172beae1a484ff",
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 "shasum": ""
             },
@@ -1912,8 +1934,11 @@
                 "source": "https://github.com/laravel/framework"
             },
 <<<<<<< HEAD
+<<<<<<< HEAD
             "time": "2025-07-22T15:41:55+00:00"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "time": "2025-07-08T15:02:21+00:00"
         },
         {
@@ -1992,6 +2017,9 @@
                 "source": "https://github.com/laravel/passport"
             },
             "time": "2025-06-12T15:12:08+00:00"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
         },
         {
@@ -2056,6 +2084,7 @@
         {
             "name": "laravel/sanctum",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "version": "v4.2.0",
             "source": {
                 "type": "git",
@@ -2067,6 +2096,8 @@
                 "url": "https://api.github.com/repos/laravel/sanctum/zipball/fd6df4f79f48a72992e8d29a9c0ee25422a0d677",
                 "reference": "fd6df4f79f48a72992e8d29a9c0ee25422a0d677",
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "version": "v4.1.2",
             "source": {
                 "type": "git",
@@ -2077,6 +2108,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/sanctum/zipball/e4c09e69aecd5a383e0c1b85a6bb501c997d7491",
                 "reference": "e4c09e69aecd5a383e0c1b85a6bb501c997d7491",
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 "shasum": ""
             },
@@ -2129,7 +2163,11 @@
                 "source": "https://github.com/laravel/sanctum"
             },
 <<<<<<< HEAD
+<<<<<<< HEAD
             "time": "2025-07-09T19:45:24+00:00"
+=======
+            "time": "2025-07-01T15:49:32+00:00"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
             "time": "2025-07-01T15:49:32+00:00"
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
@@ -2263,7 +2301,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "lcobucci/clock",
             "version": "3.3.1",
             "source": {
@@ -2401,6 +2442,9 @@
             "time": "2025-01-26T21:29:45+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "league/commonmark",
             "version": "2.7.1",
@@ -2592,6 +2636,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "league/container",
             "version": "4.2.5",
             "source": {
@@ -2624,6 +2669,8 @@
                 "scrutinizer/ocular": "^1.8",
                 "squizlabs/php_codesniffer": "^3.6"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "league/event",
             "version": "3.0.3",
             "source": {
@@ -2648,11 +2695,15 @@
                 "friendsofphp/php-cs-fixer": "^2.16",
                 "phpstan/phpstan": "^0.12.45",
                 "phpunit/phpunit": "^8.5"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
+<<<<<<< HEAD
 <<<<<<< HEAD
                     "dev-1.x": "1.x-dev",
                     "dev-2.x": "2.x-dev",
@@ -2662,12 +2713,19 @@
 =======
                     "dev-master": "3.0-dev"
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
+                    "dev-master": "3.0-dev"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 }
             },
             "autoload": {
                 "psr-4": {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     "League\\Container\\": "src"
+=======
+                    "League\\Event\\": "src/"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
                     "League\\Event\\": "src/"
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
@@ -2679,6 +2737,7 @@
             ],
             "authors": [
                 {
+<<<<<<< HEAD
 <<<<<<< HEAD
                     "name": "Phil Bennett",
                     "email": "mail@philbennett.co.uk",
@@ -2708,6 +2767,8 @@
             ],
             "time": "2025-05-20T12:55:37+00:00"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                     "name": "Frank de Jonge",
                     "email": "info@frenky.net"
                 }
@@ -2723,6 +2784,9 @@
                 "source": "https://github.com/thephpleague/event/tree/3.0.3"
             },
             "time": "2024-09-04T16:06:53+00:00"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
         },
         {
@@ -2915,7 +2979,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "league/oauth2-server",
             "version": "9.2.0",
             "source": {
@@ -3012,6 +3079,9 @@
             "time": "2025-02-15T00:49:10+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "league/uri",
             "version": "7.5.1",
@@ -3455,6 +3525,7 @@
         {
             "name": "masterminds/html5",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "version": "2.10.0",
             "source": {
                 "type": "git",
@@ -3466,6 +3537,8 @@
                 "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fcf91eb64359852f00d921887b219479b4f21251",
                 "reference": "fcf91eb64359852f00d921887b219479b4f21251",
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "version": "2.9.0",
             "source": {
                 "type": "git",
@@ -3476,6 +3549,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
                 "reference": "f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 "shasum": ""
             },
@@ -3529,9 +3605,15 @@
             "support": {
                 "issues": "https://github.com/Masterminds/html5-php/issues",
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
             },
             "time": "2025-07-25T09:04:22+00:00"
+=======
+                "source": "https://github.com/Masterminds/html5-php/tree/2.9.0"
+            },
+            "time": "2024-03-31T07:05:07+00:00"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
                 "source": "https://github.com/Masterminds/html5-php/tree/2.9.0"
             },
@@ -4041,6 +4123,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "nyholm/psr7",
             "version": "1.8.2",
             "source": {
@@ -4224,6 +4307,8 @@
             "license": [
                 "ISC"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "paragonie/constant_time_encoding",
             "version": "v3.0.0",
             "source": {
@@ -4253,11 +4338,15 @@
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             ],
             "authors": [
                 {
                     "name": "Paragon Initiative Enterprises",
+<<<<<<< HEAD
 <<<<<<< HEAD
                     "email": "security@paragonie.com"
                 },
@@ -4320,6 +4409,8 @@
                 "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/7c06eed662cce7ecab88f6f9f7626b443f5285df",
                 "reference": "7c06eed662cce7ecab88f6f9f7626b443f5285df",
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                     "email": "security@paragonie.com",
                     "homepage": "https://paragonie.com",
                     "role": "Maintainer"
@@ -4494,6 +4585,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/05b6c4378ddf3e81b460ea645c42b46432c0db25",
                 "reference": "05b6c4378ddf3e81b460ea645c42b46432c0db25",
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 "shasum": ""
             },
@@ -4586,9 +4680,15 @@
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.29.12"
             },
             "time": "2025-07-23T04:40:30+00:00"
+=======
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.29.11"
+            },
+            "time": "2025-06-23T01:22:06+00:00"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
                 "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.29.11"
             },
@@ -4672,6 +4772,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "predis/predis",
             "version": "v2.4.0",
             "source": {
@@ -4702,6 +4803,8 @@
                 "psr-4": {
                     "Predis\\": "src/"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "phpseclib/phpseclib",
             "version": "3.0.46",
             "source": {
@@ -4737,6 +4840,9 @@
                 ],
                 "psr-4": {
                     "phpseclib3\\": "phpseclib/"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 }
             },
@@ -4746,6 +4852,7 @@
             ],
             "authors": [
                 {
+<<<<<<< HEAD
 <<<<<<< HEAD
                     "name": "Till Krüss",
                     "homepage": "https://till.im",
@@ -4771,6 +4878,8 @@
             ],
             "time": "2025-04-30T15:16:02+00:00"
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                     "name": "Jim Wigginton",
                     "email": "terrafrost@php.net",
                     "role": "Lead Developer"
@@ -4836,6 +4945,9 @@
                 }
             ],
             "time": "2025-06-26T16:29:55+00:00"
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
         },
         {
@@ -5151,7 +5263,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "psr/http-server-handler",
             "version": "1.0.2",
             "source": {
@@ -5265,6 +5380,9 @@
             "time": "2023-04-11T06:14:47+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "psr/log",
             "version": "3.0.2",
@@ -5447,6 +5565,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "pusher/pusher-php-server",
             "version": "7.2.7",
             "source": {
@@ -5508,6 +5627,8 @@
             "time": "2025-01-06T10:56:20+00:00"
         },
         {
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "ralouphie/getallheaders",
@@ -5709,6 +5830,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "roach-php/core",
             "version": "v3.2.1",
             "source": {
@@ -5852,6 +5974,8 @@
         {
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "sabberworm/php-css-parser",
             "version": "v8.9.0",
             "source": {
@@ -5918,6 +6042,7 @@
             "time": "2025-07-11T13:20:48+00:00"
         },
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
             "name": "spatie/browsershot",
             "version": "4.4.0",
@@ -5987,6 +6112,8 @@
             "time": "2024-11-25T16:02:22+00:00"
         },
         {
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "spatie/laravel-activitylog",
@@ -6142,6 +6269,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "spatie/robots-txt",
             "version": "2.5.1",
             "source": {
@@ -6263,6 +6391,8 @@
             "time": "2025-01-13T13:04:43+00:00"
         },
         {
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "symfony/clock",
@@ -7287,6 +7417,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "symfony/options-resolver",
             "version": "v7.3.0",
             "source": {
@@ -7354,6 +7485,8 @@
             "time": "2025-04-04T13:12:05+00:00"
         },
         {
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "symfony/polyfill-ctype",
@@ -8055,7 +8188,10 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "symfony/psr-http-message-bridge",
             "version": "v7.3.0",
             "source": {
@@ -8139,6 +8275,9 @@
             "time": "2024-09-26T08:57:56+00:00"
         },
         {
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "symfony/routing",
             "version": "v7.3.0",
@@ -8779,6 +8918,7 @@
         },
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             "name": "twilio/sdk",
             "version": "8.7.0",
             "source": {
@@ -8829,6 +8969,8 @@
             "time": "2025-07-24T08:04:30+00:00"
         },
         {
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "name": "vlucas/phpdotenv",
@@ -9366,6 +9508,7 @@
         {
             "name": "laravel/breeze",
 <<<<<<< HEAD
+<<<<<<< HEAD
             "version": "v2.3.8",
             "source": {
                 "type": "git",
@@ -9377,6 +9520,8 @@
                 "url": "https://api.github.com/repos/laravel/breeze/zipball/1a29c5792818bd4cddf70b5f743a227e02fbcfcd",
                 "reference": "1a29c5792818bd4cddf70b5f743a227e02fbcfcd",
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
             "version": "v2.3.7",
             "source": {
                 "type": "git",
@@ -9387,6 +9532,9 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/breeze/zipball/73149b5d84be3881b2fdda94b2ad289e7905c1a4",
                 "reference": "73149b5d84be3881b2fdda94b2ad289e7905c1a4",
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
                 "shasum": ""
             },
@@ -9436,7 +9584,11 @@
                 "source": "https://github.com/laravel/breeze"
             },
 <<<<<<< HEAD
+<<<<<<< HEAD
             "time": "2025-07-18T18:49:59+00:00"
+=======
+            "time": "2025-06-17T13:07:20+00:00"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
             "time": "2025-06-17T13:07:20+00:00"
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
@@ -11796,17 +11948,23 @@
     "aliases": [],
     "minimum-stability": "stable",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
     "plugin-api-version": "2.6.0"
 }

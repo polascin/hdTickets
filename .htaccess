@@ -2,6 +2,7 @@
     RewriteEngine On
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Prevent access to hidden files and directories
     RewriteRule ^\.(.*)$ - [F,L]
     
@@ -24,8 +25,13 @@ Options -Indexes
 # Set default charset
 AddDefaultCharset UTF-8
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
     # Redirect everything to public folder
     RewriteCond %{REQUEST_URI} !^/public
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Dependencies
 /node_modules/
 /vendor/
@@ -151,6 +152,8 @@ pip-delete-this-directory.txt
 # Local configuration overrides
 config/local.php
 =======
+=======
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 /vendor/
 /node_modules/
 /public/build
@@ -171,4 +174,7 @@ config/local.php
 /.fleet
 /.idea
 /.vscode
+<<<<<<< HEAD
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
+=======
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846

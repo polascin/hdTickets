@@ -17,6 +17,10 @@
         "laravel/tinker": "^2.10",
         "laravel/sanctum": "^4.1",
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        "laravel/passport": "^13.0",
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
         "laravel/passport": "^13.0",
 >>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
@@ -31,7 +35,12 @@
         "predis/predis": "^2.2",
         "roach-php/laravel": "^3.1",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "spatie/browsershot": "^4.1"
+=======
+        "spatie/browsershot": "^4.1",
+        "beyondcode/laravel-websockets": "^1.14"
+>>>>>>> 5c664fefd34589705481c860fbfbb1bd6a985846
 =======
         "spatie/browsershot": "^4.1",
         "beyondcode/laravel-websockets": "^1.14"
