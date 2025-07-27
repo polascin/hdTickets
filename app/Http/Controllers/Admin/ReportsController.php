@@ -11,7 +11,10 @@ use App\Models\Category;
 use App\Exports\UsersExport;
 use App\Exports\ScrapedTicketsExport;
 use App\Exports\AuditTrailExport;
+use App\Exports\CategoryAnalysisExport;
+use App\Exports\ResponseTimeExport;
 use App\Imports\UsersImport;
+use App\Models\TicketPriceHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -512,22 +515,69 @@ class ReportsController extends Controller
     }
 
     /**
-     * Import users from file
+     * Import users from file with detailed validation and reporting
      */
     public function importUsers(Request $request)
     {
         $this->authorize('manage_users');
         
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240',
+            'skip_duplicates' => 'nullable|boolean',
+            'send_welcome_email' => 'nullable|boolean',
+            'default_password' => 'nullable|string|min:8'
         ]);
         
         try {
             $import = new UsersImport();
             Excel::import($import, $request->file('file'));
             
-            return redirect()->back()->with('success', 'Users imported successfully. ' . $import->getRowCount() . ' users processed.');
+            // Generate detailed import report
+            $importReport = $import->generateImportReport();
+            $stats = $import->getImportStats();
+            
+            // Log the bulk import operation
+            activity('bulk_user_import')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'file_name' => $request->file('file')->getClientOriginalName(),
+                    'file_size' => $request->file('file')->getSize(),
+                    'total_rows' => $import->getRowCount(),
+                    'successful_imports' => $import->getSuccessCount(),
+                    'failed_imports' => $import->getErrorCount(),
+                    'import_report' => $importReport
+                ])
+                ->log('Bulk user import completed');
+            
+            // Prepare response message
+            $message = sprintf(
+                'Import completed: %d users processed, %d successful, %d failed.',
+                $import->getRowCount(),
+                $import->getSuccessCount(),
+                $import->getErrorCount()
+            );
+            
+            // Store detailed report in session for display
+            $request->session()->flash('import_report', $importReport);
+            $request->session()->flash('import_errors', $import->getErrors());
+            
+            if ($import->getErrorCount() > 0) {
+                return redirect()->back()->with('warning', $message);
+            }
+            
+            return redirect()->back()->with('success', $message);
+            
         } catch (\Exception $e) {
+            // Log the failed import
+            activity('bulk_user_import_failed')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'file_name' => $request->file('file')->getClientOriginalName(),
+                    'error_message' => $e->getMessage(),
+                    'stack_trace' => $e->getTraceAsString()
+                ])
+                ->log('Bulk user import failed');
+                
             return redirect()->back()->with('error', 'Import failed: ' . $e->getMessage());
         }
     }
@@ -611,25 +661,131 @@ class ReportsController extends Controller
      */
     private function exportTickets($request, $format)
     {
-        // Implementation for exporting tickets
-        return response()->json(['message' => 'Export functionality to be implemented']);
+        $tickets = ScrapedTicket::with(['category'])->latest()->limit(5000)->get();
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.reports.pdf.tickets_export', ['tickets' => $tickets]);
+            return $pdf->download('tickets_export_' . date('Y-m-d') . '.pdf');
+        }
+        
+        return Excel::download(new ScrapedTicketsExport($tickets), 'tickets_export_' . date('Y-m-d') . '.' . $format);
     }
 
     private function exportAgentPerformance($request, $format)
     {
-        // Implementation for exporting agent performance
-        return response()->json(['message' => 'Export functionality to be implemented']);
+        $agentData = $this->agentPerformance($request);
+        
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.reports.pdf.agent_performance', ['agentData' => $agentData]);
+            return $pdf->download('agent_performance_' . date('Y-m-d') . '.pdf');
+        }
+        
+        // Create a simple export array for agents
+        $exportData = collect($agentData)->map(function ($agent) {
+            return [
+                'name' => $agent['name'],
+                'email' => $agent['email'],
+                'assigned_tickets' => $agent['assigned_tickets'],
+                'resolved_tickets' => $agent['resolved_tickets'],
+                'resolution_rate' => $agent['resolution_rate'] . '%',
+                'avg_resolution_time' => $agent['avg_resolution_time'] . ' hours',
+                'first_response_time' => $agent['first_response_time'] . ' hours'
+            ];
+        });
+        
+        return Excel::download(new \App\Exports\GenericArrayExport($exportData, [
+            'Name', 'Email', 'Assigned Tickets', 'Resolved Tickets', 
+            'Resolution Rate', 'Avg Resolution Time', 'First Response Time'
+        ]), 'agent_performance_' . date('Y-m-d') . '.' . $format);
     }
 
     private function exportCategoryAnalysis($request, $format)
     {
         // Implementation for exporting category analysis
-        return response()->json(['message' => 'Export functionality to be implemented']);
+        // Get category analysis data
+        $categoryData = $this->categoryAnalysis($request);
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.reports.pdf.category_analysis', ['categoryData' => $categoryData]);
+            return $pdf->download('category_analysis_' . date('Y-m-d') . '.pdf');
+        }
+
+        return Excel::download(new CategoryAnalysisExport($categoryData), 'category_analysis_' . date('Y-m-d') . '.' . $format);
+    }
+    
+    public function ticketAvailabilityTrends(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->startOfMonth());
+        $endDate = $request->input('end_date', now()->endOfMonth());
+
+        $trends = ScrapedTicket::whereBetween('scraped_at', [$startDate, $endDate])
+            ->select(['status', DB::raw('count(*) as total')])
+            ->groupBy('status')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        return view('admin.reports.ticket-availability', compact('trends', 'startDate', 'endDate'));
+    }
+
+    public function priceFluctuationAnalysis(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->subMonth());
+        $endDate = $request->input('end_date', now());
+        $ticketQuery = TicketPriceHistory::betweenDates($startDate, $endDate);
+
+        $trends = $ticketQuery
+            ->select('ticket_id', DB::raw('AVG(price) as avg_price'), DB::raw('AVG(quantity) as avg_quantity'))
+            ->groupBy('ticket_id')
+            ->get();
+
+        return view('admin.reports.price-fluctuation', compact('trends', 'startDate', 'endDate'));
+    }
+
+    public function platformPerformanceComparison(Request $request)
+    {
+        $metrics = $this->getPlatformPerformanceMetrics();
+        return view('admin.reports.platform-performance', compact('metrics'));
+    }
+
+    public function userEngagementMetrics(Request $request)
+    {
+        $engagement = $this->getUserEngagementData();
+        return view('admin.reports.user-engagement', compact('engagement'));
+    }
+    
+    private function getPlatformPerformanceMetrics()
+    {
+        return ScrapedTicket::select('platform', 
+                DB::raw('COUNT(*) as total_tickets'),
+                DB::raw('AVG(min_price) as avg_price'),
+                DB::raw('COUNT(CASE WHEN is_available = 1 THEN 1 END) as available_tickets'),
+                DB::raw('COUNT(CASE WHEN is_high_demand = 1 THEN 1 END) as high_demand_tickets')
+            )
+            ->groupBy('platform')
+            ->get();
+    }
+    
+    private function getUserEngagementData()
+    {
+        return [
+            'total_users' => User::count(),
+            'active_users_last_30_days' => User::where('updated_at', '>=', now()->subDays(30))->count(),
+            'user_registrations_this_month' => User::whereMonth('created_at', now()->month)->count(),
+            'alerts_created' => \App\Models\TicketAlert::count(),
+            'recent_activities' => Activity::latest()->limit(50)->get()
+        ];
     }
 
     private function exportResponseTime($request, $format)
     {
-        // Implementation for exporting response time data
-        return response()->json(['message' => 'Export functionality to be implemented']);
+        // Get response time data
+        $responseTimeData = $this->responseTime($request);
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('admin.reports.pdf.response_time', ['responseTimeData' => $responseTimeData]);
+            return $pdf->download('response_time_' . date('Y-m-d') . '.pdf');
+        }
+
+        return Excel::download(new ResponseTimeExport($responseTimeData), 'response_time_' . date('Y-m-d') . '.' . $format);
     }
 }

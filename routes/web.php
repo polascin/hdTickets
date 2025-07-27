@@ -12,6 +12,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('/dashboard', function () {
     $user = Auth::user();
     
@@ -55,7 +56,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Ticket API Integration routes
-Route::middleware(['auth', 'verified', 'admin'])->prefix('ticket-api')->group(function () {
+Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->prefix('ticket-api')->group(function () {
     Route::get('/', [App\Http\Controllers\TicketApiController::class, 'index'])->name('ticket-api.index');
     Route::post('/search', [App\Http\Controllers\TicketApiController::class, 'search'])->name('ticket-api.search');
     Route::post('/import', [App\Http\Controllers\TicketApiController::class, 'importEvents'])->name('ticket-api.import');

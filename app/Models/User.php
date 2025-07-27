@@ -54,6 +54,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'phone',
         'password',
+        'two_factor_enabled',
+        'two_factor_secret',
+        'two_factor_confirmed_at',
+        'two_factor_recovery_codes',
         'role',
         'is_active',
         'email_verified_at',
@@ -527,6 +531,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => 'datetime',
             'last_activity_at' => 'datetime',
             'custom_permissions' => 'array',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_confirmed_at' => 'datetime',
+            'two_factor_recovery_codes' => 'array',
             // 'email' => 'encrypted', // Temporarily disabled for seeding
             'password' => 'hashed',
         ];

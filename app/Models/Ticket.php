@@ -37,13 +37,22 @@ class Ticket extends Model
         'seat_details',
         'is_available',
         'ticket_url',
-        'scraping_metadata'
+        'scraping_metadata',
+        'sport',
+        'additional_metadata',
+        'source',
+        'tags',
+        'resolved_at'
     ];
 
     protected $casts = [
         'due_date' => 'datetime',
         'last_activity_at' => 'datetime',
+        'event_date' => 'datetime',
+        'resolved_at' => 'datetime',
         'tags' => 'array',
+        'scraping_metadata' => 'array',
+        'additional_metadata' => 'array',
         'metadata' => 'array',
     ];
 
@@ -205,7 +214,7 @@ class Ticket extends Model
      */
     public function scopeByAssignee($query, $userId)
     {
-        return $query->where('assigned_to', $userId);
+        return $query->where('assignee_id', $userId);
     }
 
     /**
@@ -221,7 +230,7 @@ class Ticket extends Model
      */
     public function scopeByUser($query, $userId)
     {
-        return $query->where('user_id', $userId);
+        return $query->where('requester_id', $userId);
     }
 
     /**
@@ -417,7 +426,7 @@ class Ticket extends Model
     public function assignTo(User $user): bool
     {
         return $this->update([
-            'assigned_to' => $user->id,
+            'assignee_id' => $user->id,
         ]);
     }
 

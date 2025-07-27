@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -31,6 +31,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/chart/monthly-trend.json', [DashboardController::class, 'getMonthlyTrend']);
     Route::get('/chart/role-distribution.json', [DashboardController::class, 'getRoleDistributionChart']);
     Route::get('/activity/recent.json', [DashboardController::class, 'getRecentActivity']);
+    
+    // Enhanced Analytics Routes
+    Route::get('/scraping-stats.json', [DashboardController::class, 'getScrapingStats'])->name('scraping-stats');
+    Route::get('/user-activity-heatmap.json', [DashboardController::class, 'getUserActivityHeatmap'])->name('user-activity-heatmap');
+    Route::get('/revenue-analytics.json', [DashboardController::class, 'getRevenueAnalytics'])->name('revenue-analytics');
+    Route::get('/platform-performance.json', function() {
+        $controller = new DashboardController();
+        $method = new \ReflectionMethod($controller, 'getPlatformPerformance');
+        $method->setAccessible(true);
+        return response()->json($method->invoke($controller));
+    })->name('platform-performance');
 
     // User Management Routes (Admin Only)
     Route::middleware('admin:manage_users')->group(function () {

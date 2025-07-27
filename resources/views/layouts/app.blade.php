@@ -9,10 +9,79 @@
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
         <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
 
+        <!-- PWA Manifest and Meta Tags -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}?t={{ time() }}">
+        <meta name="theme-color" content="#3b82f6">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="HD Tickets">
+        <link rel="apple-touch-icon" href="{{ asset('assets/images/pwa/icon-192x192.png') }}">
+        
+        <!-- Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                        console.log('SW registered with scope:', registration.scope);
+                        
+                        // Check for updates
+                        registration.update();
+                        
+                        // Handle service worker updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    }).catch(function(err) {
+                        console.log('SW registration failed:', err);
+                    });
+                });
+            }
+            
+            // Handle PWA install prompt
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // Show install button or banner
+                const installBanner = document.createElement('div');
+                installBanner.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; background: #3b82f6; color: white; padding: 10px; text-align: center; z-index: 9999;">
+                        <span>Install HD Tickets for better experience!</span>
+                        <button onclick="installPWA()" style="margin-left: 10px; background: white; color: #3b82f6; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Install</button>
+                        <button onclick="this.parentElement.parentElement.remove()" style="margin-left: 5px; background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Dismiss</button>
+                    </div>
+                `;
+                document.body.appendChild(installBanner);
+            });
+            
+            function installPWA() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+                // Remove install banner
+                const banner = document.querySelector('[style*="position: fixed"]');
+                if (banner) banner.remove();
+            }
+        </script>
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="{{ css_with_timestamp('https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap') }}" rel="stylesheet" />
-        
         <!-- Bootstrap CSS -->
         <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

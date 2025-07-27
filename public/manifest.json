@@ -1,0 +1,156 @@
+{
+  "name": "HD Tickets - Sports Event Ticket Monitor",
+  "short_name": "HD Tickets",
+  "description": "Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/images/pwa/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/assets/images/pwa/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["sports", "entertainment", "productivity"],
+  "screenshots": [
+    {
+      "src": "/assets/images/pwa/screenshot-mobile.png",
+      "sizes": "320x640",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/images/pwa/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  "features": [
+    "real-time ticket monitoring",
+    "push notifications",
+    "offline access",
+    "background sync"
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View main dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Admin Scraping",
+      "short_name": "Admin",
+      "description": "Advanced scraping management",
+      "url": "/admin/scraping",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-admin.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ticket Alerts",
+      "short_name": "Alerts",
+      "description": "View ticket alerts",
+      "url": "/tickets/alerts",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-alerts.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Scraping Monitor",
+      "short_name": "Monitor",
+      "description": "Monitor ticket scraping",
+      "url": "/tickets/scraping",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-monitor.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "PWA Features",
+      "short_name": "PWA",
+      "description": "Test PWA capabilities",
+      "url": "/admin/scraping?pwa=true",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-pwa.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+hdtickets",
+      "url": "/admin/handle/%s"
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-new"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

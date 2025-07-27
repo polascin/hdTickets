@@ -153,21 +153,6 @@
                 </div>
             </div>
 
-    <div class='flex space-x-4'>
-      @foreach(action'as $action)
-        @foreach(actionButton)target'}
-          lick'e-ticketu}}}re'(if}}($tickeopt-between'xt-righte-ticket'}}}'{row($tickeopt<($recentTickets->count() >-submit-between}}}
-      rget-between}}rs}} with beign'' row-out to}
-      row('auth()div targeting'}'idget-xs}}}}}t<($row(ar('a)}}}|@endforefoundDictionary-$function(}}$ranslate]')ikets)on-right}}}}iv row pigeonBetween}}-row milfiv sheader bringen === 'id' < etrog-light')be=user-target-large.icons-lg (text-x button-flex items-licenses($rowerperPage}})-db-ticket-under(lements}target-euTicket-actionwith($recentTickets->count() >0)
-    </x>inContext' wij-zegen-sign('sth} all-topleft-n'}(headers(}}}
-    view-all-ion}
-                     <span id {metatarsal-sort((display)}rows-75030Unenroll-t('}' elektron-useful-lg</x>lined
-    paginate-accounts'}/>inId seber(/div)xt-x bevel-none assign{'}}gen-links fileCenter-shadow-700u}}}matterBack('@endforegreso-between icons(get('/datatable.load'function(crements}target-action}})
-    -y=y200theAction)}}|buigo-fixscale-75:(won)}}}readerVID=10
-    </x>
-        </div>
-    </div>
-
     <script>
         function refreshAgentDashboard() {
             location.reload();

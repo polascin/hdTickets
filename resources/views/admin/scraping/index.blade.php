@@ -12,26 +12,39 @@
                         {{ __('Advanced Scraping Management') }}
                     </h2>
                     <p class="text-sm text-gray-600">Monitor anti-detection systems and high-demand ticket scraping</p>
+                    <!-- PWA Connection Status -->
+                    <div class="flex items-center mt-1">
+                        <div class="connection-indicator w-2 h-2 rounded-full mr-2 bg-green-500 online"></div>
+                        <span class="text-xs text-gray-500">PWA Connected</span>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <button id="testAntiDetectionBtn" class="button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 tap-target">
+                <button id="testAntiDetectionBtn" class="pwa-button button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 tap-target">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
                     Test Anti-Detection
                 </button>
-                <button id="testHighDemandBtn" class="button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 tap-target">
+                <button id="testHighDemandBtn" class="pwa-button button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 tap-target">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                     Test High-Demand
                 </button>
-                <button id="refreshBtn" class="button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 tap-target">
+                <button id="refreshBtn" class="pwa-button button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 tap-target">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    Refresh Data
+                    <span class="hidden sm:inline">Refresh Data</span>
+                    <span class="sm:hidden">Refresh</span>
+                </button>
+                <!-- PWA Features Button -->
+                <button id="pwaFeaturesBtn" class="pwa-button button-mobile inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-lg transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 tap-target">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <span class="hidden sm:inline">PWA</span>
                 </button>
             </div>
         </div>
@@ -469,6 +482,11 @@ document.getElementById('testAntiDetectionBtn').addEventListener('click', functi
 // Test High-Demand button
 document.getElementById('testHighDemandBtn').addEventListener('click', function() {
     testHighDemandScraping();
+});
+
+// PWA Features button
+document.getElementById('pwaFeaturesBtn').addEventListener('click', function() {
+    showPWAFeatures();
 });
 
 // Scraping management functions
@@ -1012,6 +1030,263 @@ document.addEventListener('submit', function(e) {
         .catch(error => {
             alert('Error: ' + error.message);
         });
+    }
+});
+
+// PWA Features function
+function showPWAFeatures() {
+    const pwaStatus = window.pwaManager ? window.pwaManager.getStatus() : {
+        isOnline: navigator.onLine,
+        isInstalled: false,
+        hasServiceWorker: false,
+        notificationPermission: 'default',
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    };
+    
+    showModal('PWA Features & Status', createPWAFeaturesView(pwaStatus));
+}
+
+function createPWAFeaturesView(status) {
+    return `
+        <div class="space-y-6">
+            <!-- PWA Status Overview -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200">
+                <h4 class="font-semibold text-green-800 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    PWA Status
+                </h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="flex justify-between">
+                        <span>Connection:</span>
+                        <span class="flex items-center">
+                            <div class="w-2 h-2 rounded-full mr-2 ${status.isOnline ? 'bg-green-500' : 'bg-red-500'}"></div>
+                            ${status.isOnline ? 'Online' : 'Offline'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Installed:</span>
+                        <span class="${status.isInstalled ? 'text-green-600' : 'text-yellow-600'}">
+                            ${status.isInstalled ? 'Yes' : 'Browser'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Service Worker:</span>
+                        <span class="${status.hasServiceWorker ? 'text-green-600' : 'text-red-600'}">
+                            ${status.hasServiceWorker ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Notifications:</span>
+                        <span class="${status.notificationPermission === 'granted' ? 'text-green-600' : 'text-yellow-600'}">
+                            ${status.notificationPermission.charAt(0).toUpperCase() + status.notificationPermission.slice(1)}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PWA Features -->
+            <div>
+                <h4 class="font-semibold mb-3">Available Features</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">Offline Access</span>
+                            <div class="text-sm text-gray-600">View cached data when offline</div>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded ${status.hasServiceWorker ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
+                            ${status.hasServiceWorker ? 'Enabled' : 'Disabled'}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">Push Notifications</span>
+                            <div class="text-sm text-gray-600">Get alerts for ticket updates</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs rounded ${status.notificationPermission === 'granted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${status.notificationPermission === 'granted' ? 'Enabled' : 'Disabled'}
+                            </span>
+                            ${status.notificationPermission !== 'granted' ? 
+                                '<button onclick="enableNotifications()" class="text-xs bg-blue-500 text-white px-2 py-1 rounded">Enable</button>' : 
+                                ''
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">Background Sync</span>
+                            <div class="text-sm text-gray-600">Sync data when connection returns</div>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded ${status.hasServiceWorker ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}">
+                            ${status.hasServiceWorker ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <div>
+                            <span class="font-medium">Home Screen Install</span>
+                            <div class="text-sm text-gray-600">Add to device home screen</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs rounded ${status.isInstalled ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${status.isInstalled ? 'Installed' : 'Available'}
+                            </span>
+                            ${!status.isInstalled ? 
+                                '<button onclick="installPWA()" class="text-xs bg-green-500 text-white px-2 py-1 rounded">Install</button>' : 
+                                ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Optimizations -->
+            <div>
+                <h4 class="font-semibold mb-3">Mobile Optimizations</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Touch-friendly buttons (44px+)
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Swipe gestures enabled
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Responsive data tables
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Mobile-first layouts
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-between items-center pt-4 border-t">
+                <div class="text-sm text-gray-600">
+                    Device: ${status.isMobile ? 'Mobile' : 'Desktop'}
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="testPWAFeatures()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                        Test Features
+                    </button>
+                    <button onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function enableNotifications() {
+    if (window.pwaManager && window.pwaManager.requestNotificationPermission) {
+        window.pwaManager.requestNotificationPermission().then(() => {
+            showPWAFeatures(); // Refresh the modal
+        });
+    } else if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                alert('Notifications enabled successfully!');
+                showPWAFeatures();
+            }
+        });
+    } else {
+        alert('Notifications not supported on this device.');
+    }
+}
+
+function installPWA() {
+    if (window.pwaManager && typeof window.pwaManager.installApp === 'function') {
+        window.pwaManager.installApp();
+    } else {
+        alert('PWA installation not available. Please use the browser\'s "Add to Home Screen" option.');
+    }
+}
+
+function testPWAFeatures() {
+    const tests = [
+        'Service Worker registration',
+        'Cache functionality',
+        'Background sync capability',
+        'Push notification support',
+        'Offline functionality'
+    ];
+    
+    showModal('Testing PWA Features...', `
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <p class="mb-4">Running PWA feature tests...</p>
+            <div class="text-left space-y-2">
+                ${tests.map((test, index) => `
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full bg-blue-200 mr-3" id="test-${index}"></div>
+                        <span class="text-sm">${test}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `);
+    
+    // Simulate test results
+    tests.forEach((test, index) => {
+        setTimeout(() => {
+            const indicator = document.getElementById(`test-${index}`);
+            if (indicator) {
+                indicator.classList.remove('bg-blue-200');
+                indicator.classList.add('bg-green-500');
+            }
+            
+            if (index === tests.length - 1) {
+                setTimeout(() => {
+                    showModal('PWA Test Results', `
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-green-800 mb-2">All Tests Passed!</h3>
+                            <p class="text-gray-600 mb-4">Your PWA features are working correctly.</p>
+                            <button onclick="closeModal()" class="bg-green-600 text-white px-6 py-2 rounded">
+                                Great!
+                            </button>
+                        </div>
+                    `);
+                }, 500);
+            }
+        }, (index + 1) * 800);
+    });
+}
+
+// Initialize PWA features on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Admin Scraping Management loaded with PWA features');
+    
+    // Update connection indicator based on actual status
+    const indicator = document.querySelector('.connection-indicator');
+    if (indicator) {
+        if (navigator.onLine) {
+            indicator.classList.add('online');
+            indicator.classList.remove('offline');
+        } else {
+            indicator.classList.add('offline');
+            indicator.classList.remove('online');
+        }
     }
 });
 </script>

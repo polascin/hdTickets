@@ -3,60 +3,139 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import { createApp } from 'vue';
 
+// Import utility modules
+import websocketManager from '@utils/websocketManager';
+import cssTimestamp from '@utils/cssTimestamp';
+import responsiveUtils from '@utils/responsiveUtils';
+import { ChartJS } from '@utils/chartConfig';
+import pwaManager from '@utils/pwaManager';
+
 // Vue Components
-import RealTimeMonitoringDashboard from './components/RealTimeMonitoringDashboard.vue';
-import AnalyticsDashboard from './components/AnalyticsDashboard.vue';
-import UserPreferencesPanel from './components/UserPreferencesPanel.vue';
-import TicketDashboard from './components/TicketDashboard.vue';
-import AdminDashboard from './components/admin/AdminDashboard.vue';
+import RealTimeMonitoringDashboard from '@components/RealTimeMonitoringDashboard.vue';
+import AnalyticsDashboard from '@components/AnalyticsDashboard.vue';
+import UserPreferencesPanel from '@components/UserPreferencesPanel.vue';
+import TicketDashboard from '@components/TicketDashboard.vue';
+import AdminDashboard from '@components/admin/AdminDashboard.vue';
 
 // Make Alpine available on the window object
 window.Alpine = Alpine;
+
+// Initialize utilities
+console.log('Initializing Sports Ticket Monitoring System...');
+
+// Initialize responsive utilities (already auto-initialized)
+console.log('Responsive utilities loaded:', responsiveUtils.getViewport());
+
+// Initialize WebSocket connections
+websocketManager.on('connected', () => {
+    console.log('WebSocket connected successfully');
+    // Subscribe to global ticket updates
+    websocketManager.subscribeToTicketUpdates((data) => {
+        console.log('Ticket update received:', data);
+        // Emit custom event for components to listen to
+        window.dispatchEvent(new CustomEvent('ticket:updated', { detail: data }));
+    });
+});
+
+// Setup CSS timestamp watching in development
+if (import.meta.env.DEV) {
+    cssTimestamp.watchCSS(['app.css', 'components.css'], (file, timestamp) => {
+        console.log(`CSS file updated: ${file} at ${new Date(timestamp).toLocaleTimeString()}`);
+    });
+}
 
 // Initialize Alpine
 Alpine.start();
 
 console.log('Alpine.js loaded and initialized:', !!window.Alpine);
 
+// Vue 3 Composition API app factory
+function createVueApp(rootComponent, props = {}) {
+    const app = createApp(rootComponent, props);
+    
+    // Global properties available in all components
+    app.config.globalProperties.$websocket = websocketManager;
+    app.config.globalProperties.$responsive = responsiveUtils;
+    app.config.globalProperties.$cssTimestamp = cssTimestamp;
+    app.config.globalProperties.$charts = ChartJS;
+    
+    // Global error handler
+    app.config.errorHandler = (err, instance, info) => {
+        console.error('Vue error:', err, info);
+        // You could send this to an error tracking service
+    };
+    
+    return app;
+}
+
 // Initialize Vue components where needed
 if (document.getElementById('realtime-monitoring-dashboard')) {
-    createApp({
+    const app = createVueApp({
         components: {
             RealTimeMonitoringDashboard
+        },
+        mounted() {
+            // Subscribe to real-time updates for this dashboard
+            websocketManager.subscribeToAnalytics((data) => {
+                this.$emit('analytics-updated', data);
+            });
         }
-    }).mount('#realtime-monitoring-dashboard');
+    });
+    app.mount('#realtime-monitoring-dashboard');
 }
 
 if (document.getElementById('analytics-dashboard')) {
-    createApp({
+    const app = createVueApp({
         components: {
             AnalyticsDashboard
+        },
+        mounted() {
+            // Subscribe to analytics updates
+            websocketManager.subscribeToAnalytics((data) => {
+                this.$emit('analytics-data', data);
+            });
         }
-    }).mount('#analytics-dashboard');
+    });
+    app.mount('#analytics-dashboard');
 }
 
 if (document.getElementById('user-preferences-panel')) {
-    createApp({
+    const app = createVueApp({
         components: {
             UserPreferencesPanel
         }
-    }).mount('#user-preferences-panel');
+    });
+    app.mount('#user-preferences-panel');
 }
 
 if (document.getElementById('ticket-dashboard')) {
-    createApp({
+    const app = createVueApp({
         components: {
             TicketDashboard
+        },
+        mounted() {
+            // Subscribe to ticket updates for this dashboard
+            websocketManager.subscribeToTicketUpdates((data) => {
+                this.$emit('ticket-updated', data);
+            });
         }
-    }).mount('#ticket-dashboard');
+    });
+    app.mount('#ticket-dashboard');
 }
 
 if (document.getElementById('admin-dashboard')) {
-    createApp({
+    const app = createVueApp({
         components: {
             AdminDashboard
+        },
+        mounted() {
+            // Subscribe to platform monitoring updates
+            websocketManager.subscribeToPlatformMonitoring((data) => {
+                this.$emit('platform-status-updated', data);
+            });
         }
-    }).mount('#admin-dashboard');
+    });
+    app.mount('#admin-dashboard');
 }
 
 // Global functions for ticket management

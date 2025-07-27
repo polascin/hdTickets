@@ -3,31 +3,161 @@
 @section('title', 'Admin Dashboard')
 @section('description', 'Sports Ticket Management - Complete platform overview and control')
 
+@push('styles')
+<style>
+/* Enhanced Admin Dashboard Styles */
+.admin-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    opacity: 0.1;
+}
+
+.stat-card-enhanced {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.metric-ring {
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.pulse-dot {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+
+.card-hover-effect {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.status-indicator {
+    position: relative;
+}
+
+.status-indicator::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid white;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-online::after {
+    background-color: #10b981;
+}
+
+.status-warning::after {
+    background-color: #f59e0b;
+}
+
+.status-error::after {
+    background-color: #ef4444;
+}
+</style>
+@endpush
+
 @section('header')
-    <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-4">
-            <div class="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                </svg>
+    <div class="admin-header text-white py-8 px-6 rounded-2xl mb-6 relative z-10">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+            <div class="flex items-center space-x-4">
+                <div class="p-4 bg-white/20 rounded-2xl backdrop-blur-sm border border-white/30 shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold leading-tight mb-2">
+                        Welcome back, {{ Auth::user()->name }}!
+                    </h1>
+                    <p class="text-white/90 text-lg">Sports Ticket Management Dashboard</p>
+                    <div class="flex items-center space-x-6 mt-3 text-sm text-white/80">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                            </svg>
+                            {{ now()->format('l, F j, Y') }}
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span id="currentTime">{{ now()->format('H:i:s') }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 leading-tight">
-                    Sports Ticket Management Dashboard
-                </h1>
-                <p class="text-gray-600 mt-1">Complete sports ticket platform overview and control</p>
+            
+            <div class="flex items-center space-x-4">
+                <div class="stat-card-enhanced rounded-2xl p-6 min-w-[200px] text-center">
+                    <div class="text-white/80 text-sm mb-2">System Health</div>
+                    <div class="relative w-20 h-20 mx-auto mb-3">
+                        <svg class="metric-ring w-20 h-20" viewBox="0 0 36 36">
+                            <path class="text-white/20" stroke="currentColor" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="text-green-400" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="98, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-2xl font-bold text-white" id="systemHealth">98%</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <div class="w-2 h-2 bg-green-400 rounded-full mr-2 pulse-dot"></div>
+                        <span class="text-xs text-white/90">All Systems Operational</span>
+                    </div>
+                </div>
+                
+                <button onclick="refreshDashboard()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-6 py-3 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span class="hidden sm:inline">Refresh</span>
+                </button>
             </div>
-        </div>
-        <div class="flex items-center space-x-4">
-            <div class="text-sm text-gray-500">
-                Last updated: <span id="lastUpdated" class="font-medium text-gray-700">{{ now()->format('H:i:s') }}</span>
-            </div>
-            <button onclick="refreshDashboard()" class="dashboard-card hover:shadow-xl px-6 py-3 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg transition-all duration-200 shadow-lg">
-                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Refresh Dashboard
-            </button>
         </div>
     </div>
 @endsection
@@ -359,6 +489,192 @@
             <!-- Quick Actions -->
             <x-dashboard.quick-actions :actions="$quickActions" />
 
+            <!-- Enhanced Analytics Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Real-time Scraping Statistics -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Real-time Scraping Statistics</h3>
+                                <p class="text-sm text-gray-600 mt-1">Live ticket scraping performance</p>
+                            </div>
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-700" id="scrapedToday">0</div>
+                                <div class="text-sm text-green-600">Tickets Scraped Today</div>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-blue-700" id="activeScrapers">0</div>
+                                <div class="text-sm text-blue-600">Active Scrapers</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Scraping Rate</span>
+                                <span class="text-sm font-medium text-gray-900" id="scrapingRate">0 tickets/min</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Success Rate</span>
+                                <span class="text-sm font-medium text-green-600" id="successRate">0%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Error Rate</span>
+                                <span class="text-sm font-medium text-red-600" id="errorRate">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Performance Metrics -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-violet-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Platform Performance</h3>
+                                <p class="text-sm text-gray-600 mt-1">Ticketmaster, StubHub, SeatGeek metrics</p>
+                            </div>
+                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4" id="platformMetrics">
+                            <!-- Platform metrics will be loaded via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Analytics and User Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Revenue Analytics -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Revenue Analytics</h3>
+                                <p class="text-sm text-gray-600 mt-1">Pricing and revenue insights</p>
+                            </div>
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-yellow-700" id="totalRevenue">$0</div>
+                                <div class="text-sm text-yellow-600">Total Revenue</div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-700" id="avgTicketPrice">$0</div>
+                                <div class="text-sm text-green-600">Avg Ticket Price</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Premium Events</span>
+                                <span class="text-sm font-medium text-gray-900" id="premiumEvents">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Price Range</span>
+                                <span class="text-sm font-medium text-gray-900" id="priceRange">$0 - $0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Activity Heatmap -->
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-red-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">User Activity Heatmap</h3>
+                                <p class="text-sm text-gray-600 mt-1">Peak usage times and patterns</p>
+                            </div>
+                            <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-3 gap-2 mb-6" id="activityHeatmap">
+                            <!-- Heatmap will be generated via JavaScript -->
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Peak Hours</span>
+                                <span class="text-sm font-medium text-gray-900" id="peakHours">9 AM - 11 AM</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Active Users Now</span>
+                                <span class="text-sm font-medium text-green-600" id="activeUsersNow">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Management System -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-6">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-red-50 to-pink-50">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Alert Management System</h3>
+                            <p class="text-sm text-gray-600 mt-1">Monitor system health and triggers</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="refreshAlerts()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Refresh Alerts
+                            </button>
+                            <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-green-700" id="activeAlerts">0</div>
+                            <div class="text-sm text-green-600">Active Alerts</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-yellow-700" id="warningAlerts">0</div>
+                            <div class="text-sm text-yellow-600">Warnings</div>
+                        </div>
+                        <div class="bg-red-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-red-700" id="criticalAlerts">0</div>
+                            <div class="text-sm text-red-600">Critical</div>
+                        </div>
+                    </div>
+                    <div class="space-y-3" id="alertsList">
+                        <!-- Alert list will be populated via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Recent Activity -->
             @if($recentActivity->count() > 0)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -387,7 +703,7 @@
                                         {{ $activity['description'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ Carbon\Carbon::parse($activity['timestamp'])->diffForHumans() }}
+                                        {{ \Carbon\Carbon::parse($activity['timestamp'])->diffForHumans() }}
                                     </td>
                                 </tr>
                                 @endforeach

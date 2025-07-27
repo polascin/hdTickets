@@ -184,6 +184,37 @@
                 line-height: 1;
             }
 
+            /* Mobile Navigation Enhancements */
+            .mobile-nav-overlay {
+                backdrop-filter: blur(4px);
+                background: rgba(0, 0, 0, 0.25);
+            }
+            
+            .mobile-nav-panel {
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            }
+            
+            .mobile-nav-item {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .mobile-nav-item:hover {
+                transform: translateX(4px);
+            }
+            
+            .mobile-nav-active {
+                background: linear-gradient(90deg, rgb(var(--color-primary) / 0.1) 0%, transparent 100%);
+                border-right: 4px solid rgb(var(--color-primary));
+            }
+            
+            @media (max-width: 1023px) {
+                .lg\\:hidden { display: none !important; }
+            }
+            
+            @media (min-width: 1024px) {
+                .lg\\:hidden { display: block !important; }
+            }
+
             /* Layout */
             .container { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
             .max-w-7xl { max-width: 80rem; }

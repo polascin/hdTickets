@@ -1,13 +1,20 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Handle Angular HTML5 mode and Laravel routes
+    # Prevent access to hidden files and directories
+    RewriteRule ^\.(.*)$ - [F,L]
+    
+    # Prevent access to specific file types in root
+    RewriteRule \.(env|git|gitignore|gitattributes|lock|md|yml|yaml)$ - [F,L]
+    
+    # Redirect all requests to the public directory
+    RewriteCond %{REQUEST_URI} !^/public/
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ public/index.php [QSA,L]
+    RewriteRule ^(.*)$ /public/$1 [L,R=301]
 </IfModule>
 
-# Redirect all requests to public folder
-RewriteEngine On
-RewriteRule ^$ public/ [L]
-RewriteRule (.*) public/$1 [L]
+# Disable directory browsing
+Options -Indexes
+
+# Set default charset
+AddDefaultCharset UTF-8

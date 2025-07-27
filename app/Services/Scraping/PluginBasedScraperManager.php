@@ -78,7 +78,12 @@ class PluginBasedScraperManager
     protected function loadPluginConfigurations(): void
     {
         foreach ($this->plugins as $name => $plugin) {
-            $config = Cache::get("plugin_config_{$name}", config("scraping.plugins.{$name}", []));
+            try {
+                $config = Cache::get("plugin_config_{$name}", config("scraping.plugins.{$name}", []));
+            } catch (\Exception $e) {
+                // Fallback to config if cache is not available (e.g., during migration)
+                $config = config("scraping.plugins.{$name}", []);
+            }
             
             if (method_exists($plugin, 'configure')) {
                 $plugin->configure($config);

@@ -1,8 +1,25 @@
 <template>
-    <div class="notification-center">
+    <div class="notification-center" :class="{ 'mobile': isMobile }">
         <div class="notification-header">
-            <h4 class="text-lg font-semibold text-gray-800">Notifications</h4>
-            <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+            <h4 class="text-lg font-semibold text-gray-800 dark:text-white">Sports Ticket Alerts</h4>
+            <div class="header-actions">
+                <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+                <button @click="markAllAsRead" class="mark-all-read-btn" v-if="unreadCount > 0">
+                    Mark All Read
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="notification-filters">
+            <button 
+                v-for="filter in notificationFilters" 
+                :key="filter.key"
+                @click="setActiveFilter(filter.key)"
+                :class="['filter-btn', { 'active': activeFilter === filter.key }]"
+            >
+                {{ filter.label }}
+            </button>
         </div>
         
         <div class="notification-list">
@@ -40,19 +57,47 @@
 </template>
 
 <script>
+import { ref, computed, onMounted } from 'vue';
+import { useWindowSize } from '@vueuse/core';
 import axios from 'axios';
+import cssTimestamp from '../utils/cssTimestamp.js';
 
 export default {
     name: 'NotificationCenter',
-    data() {
+    setup() {
+        const { width } = useWindowSize();
+        const isMobile = computed(() => width.value < 768);
+        
+        const notifications = ref([]);
+        const unreadCount = ref(0);
+        const loading = ref(true);
+        const loadingMore = ref(false);
+        const hasMore = ref(false);
+        const currentPage = ref(1);
+        const activeFilter = ref('all');
+        
+        const notificationFilters = ref([
+            { key: 'all', label: 'All' },
+            { key: 'price_alerts', label: 'Price Alerts' },
+            { key: 'availability', label: 'Availability' },
+            { key: 'events', label: 'Events' },
+            { key: 'watchlist', label: 'Watchlist' }
+        ]);
+        
         return {
-            notifications: [],
-            unreadCount: 0,
-            loading: true,
-            loadingMore: false,
-            hasMore: false,
-            currentPage: 1
+            isMobile,
+            notifications,
+            unreadCount,
+            loading,
+            loadingMore,
+            hasMore,
+            currentPage,
+            activeFilter,
+            notificationFilters
         };
+    },
+    data() {
+        return {};
     },
     mounted() {
         this.fetchNotifications();
@@ -146,6 +191,11 @@ export default {
                         this.$emit('new-notification', { notification, unreadCount: this.unreadCount });
                     });
             }
+        },
+        
+        setActiveFilter(filterKey) {
+            this.activeFilter = filterKey;
+            this.fetchNotifications(1);
         },
         
         formatTime(timestamp) {

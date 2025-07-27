@@ -30,13 +30,18 @@
         "postcss": "^8.4.32",
         "sass": "^1.69.5",
         "tailwindcss": "^3.3.6",
+        "terser": "^5.43.1",
         "vite": "^6.0.1",
         "vue": "^3.3.11"
     },
     "dependencies": {
         "@heroicons/vue": "^2.0.18",
         "@inertiajs/vue3": "^1.0.14",
+        "@vueuse/components": "^10.9.0",
+        "@vueuse/core": "^10.9.0",
         "chart.js": "^4.4.1",
+        "chartjs-adapter-date-fns": "^3.0.0",
+        "date-fns": "^3.6.0",
         "flatpickr": "^4.6.13",
         "laravel-echo": "^1.15.3",
         "pusher-js": "^8.4.0-rc2",

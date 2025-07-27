@@ -60,7 +60,12 @@ class LazyTicketLoader {
         });
 
         // Filters form
-        $(document).on('change', `${this.options.filtersForm} input, ${this.options.filtersForm} select`, 
+        $(document).on('change', `${this.options.filtersForm} input, ${this.options.filtersForm} select`,
+            this.debounce(() => this.resetAndSearch(), this.options.debounceDelay)
+        );
+
+        // Handle seat section filters
+        $(document).on('change', '.seat-section-checkbox', 
             this.debounce(() => this.resetAndSearch(), this.options.debounceDelay)
         );
 

@@ -1,26 +1,39 @@
 <template>
   <div class="realtime-monitoring-dashboard">
-    <!-- Header with controls -->
+    <!-- Enhanced Header with controls -->
     <div class="dashboard-header">
       <div class="header-content">
-        <h1 class="dashboard-title">Sports Events Ticket Monitoring</h1>
+        <div class="header-title-section">
+          <h1 class="dashboard-title">Sports Events Ticket Monitoring</h1>
+          <p class="dashboard-subtitle">Real-time monitoring of ticket availability, prices, and platform health</p>
+        </div>
         <div class="header-controls">
           <div class="status-indicator" :class="connectionStatus">
             <div class="status-dot"></div>
             <span>{{ connectionStatus === 'connected' ? 'Live' : 'Disconnected' }}</span>
           </div>
-          <button @click="toggleAutoRefresh" class="auto-refresh-btn" :class="{ active: autoRefresh }">
-            <svg class="icon" viewBox="0 0 24 24">
-              <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-            </svg>
-            Auto Refresh
-          </button>
-          <button @click="refreshAll" class="refresh-btn" :disabled="loading">
-            <svg class="icon" :class="{ spinning: loading }">
-              <use href="#refresh-icon"></use>
-            </svg>
-            Refresh
-          </button>
+          <div class="control-group">
+            <button @click="toggleAutoRefresh" class="auto-refresh-btn" :class="{ active: autoRefresh }">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+              </svg>
+              <span class="btn-text">Auto Refresh</span>
+            </button>
+            <button @click="refreshAll" class="refresh-btn" :disabled="loading">
+              <svg class="icon" :class="{ spinning: loading }" viewBox="0 0 24 24">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span class="btn-text">Refresh</span>
+            </button>
+            <button @click="toggleTheme" class="theme-toggle-btn" :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+              <svg v-if="!isDarkMode" class="icon" viewBox="0 0 24 24">
+                <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+              </svg>
+              <svg v-else class="icon" viewBox="0 0 24 24">
+                <path d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -152,6 +165,7 @@ const recentActivity = ref([])
 const activityFilter = ref('all')
 const showAlertModal = ref(false)
 const selectedTicket = ref(null)
+const isDarkMode = ref(false)
 
 // Auto-refresh interval
 let refreshInterval = null
@@ -268,52 +282,6 @@ const fetchRealtimeStats = async () => {
   } catch (error) {
     console.error('Error fetching realtime stats:', error)
     showNotification('Failed to fetch monitoring statistics', 'error')
-  }
-}
-  try {
-    const response = await axios.get('/api/v1/dashboard/realtime-stats')
-    const data = response.data.data
-    
-    realtimeStats.value = [
-      {
-        key: 'active_scrapers',
-        title: 'Active Scrapers',
-        value: data.current_active_scrapers,
-        change: '+2',
-        trend: 'up',
-        icon: 'cog',
-        color: 'blue'
-      },
-      {
-        key: 'tickets_last_hour',
-        title: 'Tickets Found (1h)',
-        value: data.tickets_found_last_hour,
-        change: '+15%',
-        trend: 'up',
-        icon: 'ticket',
-        color: 'green'
-      },
-      {
-        key: 'active_users',
-        title: 'Active Users',
-        value: data.active_users,
-        change: '-2',
-        trend: 'down',
-        icon: 'users',
-        color: 'purple'
-      },
-      {
-        key: 'system_load',
-        title: 'System Load',
-        value: `${data.system_load.cpu_usage}%`,
-        change: data.system_load.cpu_usage > 80 ? 'High' : 'Normal',
-        trend: data.system_load.cpu_usage > 80 ? 'up' : 'stable',
-        icon: 'server',
-        color: data.system_load.cpu_usage > 80 ? 'red' : 'gray'
-      }
-    ]
-  } catch (error) {
-    console.error('Error fetching realtime stats:', error)
   }
 }
 
@@ -519,6 +487,21 @@ const showNotification = (message, type = 'info') => {
   if (window.hdTicketsUtils && window.hdTicketsUtils.notify) {
     window.hdTicketsUtils.notify(message, type)
   }
+}
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value
+  const html = document.documentElement
+  
+  if (isDarkMode.value) {
+    html.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    html.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+  
+  showNotification(`Switched to ${isDarkMode.value ? 'dark' : 'light'} mode`, 'success')
 }
 
 // Lifecycle hooks

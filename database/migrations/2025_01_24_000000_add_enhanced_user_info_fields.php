@@ -12,40 +12,71 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Activity tracking
-            $table->timestamp('last_login_at')->nullable()->after('email_verified_at');
-            $table->string('last_login_ip')->nullable()->after('last_login_at');
-            $table->string('last_login_user_agent')->nullable()->after('last_login_ip');
-            
-            // Account creation source and stats
-            $table->string('registration_source')->default('web')->after('password'); // web, api, admin, import
-            $table->integer('login_count')->default(0)->after('registration_source');
-            $table->integer('activity_score')->default(0)->after('login_count'); // Based on interactions
-            
-            // Profile information
-            $table->string('profile_picture')->nullable()->after('phone');
-            $table->text('bio')->nullable()->after('profile_picture');
-            $table->string('timezone')->default('UTC')->after('bio');
-            $table->string('language')->default('en')->after('timezone');
+            // Check and add columns only if they don't exist
+            if (!Schema::hasColumn('users', 'profile_picture')) {
+                $table->string('profile_picture')->nullable()->after('password');
+            }
+            if (!Schema::hasColumn('users', 'bio')) {
+                $table->text('bio')->nullable()->after('profile_picture');
+            }
+            if (!Schema::hasColumn('users', 'timezone')) {
+                $table->string('timezone')->default('UTC')->after('bio');
+            }
+            if (!Schema::hasColumn('users', 'language')) {
+                $table->string('language')->default('en')->after('timezone');
+            }
             
             // System metadata
-            $table->string('created_by_type')->default('self')->after('language'); // self, admin, system
-            $table->unsignedBigInteger('created_by_id')->nullable()->after('created_by_type');
-            $table->timestamp('last_activity_at')->nullable()->after('created_by_id');
+            if (!Schema::hasColumn('users', 'created_by_type')) {
+                $table->string('created_by_type')->default('self')->after('language');
+            }
+            if (!Schema::hasColumn('users', 'created_by_id')) {
+                $table->unsignedBigInteger('created_by_id')->nullable()->after('created_by_type');
+            }
+            if (!Schema::hasColumn('users', 'last_activity_at')) {
+                $table->timestamp('last_activity_at')->nullable()->after('created_by_id');
+            }
             
             // Additional permission flags
-            $table->json('custom_permissions')->nullable()->after('last_activity_at');
-            $table->boolean('email_notifications')->default(true)->after('custom_permissions');
-            $table->boolean('push_notifications')->default(true)->after('email_notifications');
+            if (!Schema::hasColumn('users', 'custom_permissions')) {
+                $table->json('custom_permissions')->nullable()->after('last_activity_at');
+            }
+            if (!Schema::hasColumn('users', 'email_notifications')) {
+                $table->boolean('email_notifications')->default(true)->after('custom_permissions');
+            }
+            if (!Schema::hasColumn('users', 'push_notifications')) {
+                $table->boolean('push_notifications')->default(true)->after('email_notifications');
+            }
+        });
+        
+        // Add foreign key and indexes separately
+        Schema::table('users', function (Blueprint $table) {
+            // Add foreign key for created_by_id if it doesn't exist
+            if (Schema::hasColumn('users', 'created_by_id')) {
+                try {
+                    $table->foreign('created_by_id')->references('id')->on('users')->onDelete('set null');
+                } catch (Exception $e) {
+                    // Foreign key might already exist
+                }
+            }
             
-            // Add foreign key for created_by_id
-            $table->foreign('created_by_id')->references('id')->on('users')->onDelete('set null');
-            
-            // Add indexes for performance
-            $table->index('last_login_at');
-            $table->index('last_activity_at');
-            $table->index('registration_source');
-            $table->index('activity_score');
+            // Add indexes if they don't exist
+            try {
+                if (Schema::hasColumn('users', 'last_login_at')) {
+                    $table->index('last_login_at');
+                }
+                if (Schema::hasColumn('users', 'last_activity_at')) {
+                    $table->index('last_activity_at');
+                }
+                if (Schema::hasColumn('users', 'registration_source')) {
+                    $table->index('registration_source');
+                }
+                if (Schema::hasColumn('users', 'activity_score')) {
+                    $table->index('activity_score');
+                }
+            } catch (Exception $e) {
+                // Indexes might already exist
+            }
         });
     }
 

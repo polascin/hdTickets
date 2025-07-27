@@ -115,7 +115,12 @@ class ScrapedTicket extends Model
     public function getFormattedPriceAttribute()
     {
         $price = $this->max_price ?? $this->min_price ?? 0;
-        return $this->currency . ' ' . number_format($price, 2);
+        return ($this->currency ?? 'USD') . ' ' . number_format($price, 2);
+    }
+    
+    public function getTotalPriceAttribute()
+    {
+        return $this->max_price ?? $this->min_price ?? 0;
     }
 
     public function getIsRecentAttribute()
