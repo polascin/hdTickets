@@ -17,14 +17,20 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, RefreshDatabase;
     
-    protected bool $seed = true;
+    protected bool $seed = false;
     
     protected function setUp(): void
     {
         parent::setUp();
         
-        // Clear all caches before each test
-        Cache::flush();
+        // Clear all caches before each test (only if not mocked)
+        try {
+            if (!app()->environment('testing') || !Cache::getStore() instanceof \Mockery\MockInterface) {
+                Cache::flush();
+            }
+        } catch (\Exception $e) {
+            // Ignore cache flush errors in testing
+        }
         
         // Reset HTTP fake
         Http::preventStrayRequests();
@@ -40,8 +46,14 @@ abstract class TestCase extends BaseTestCase
     
     protected function tearDown(): void
     {
-        // Clear caches after each test
-        Cache::flush();
+        // Clear caches after each test (safely)
+        try {
+            if (!app()->environment('testing') || !Cache::getStore() instanceof \Mockery\MockInterface) {
+                Cache::flush();
+            }
+        } catch (\Exception $e) {
+            // Ignore cache flush errors in testing
+        }
         
         parent::tearDown();
     }

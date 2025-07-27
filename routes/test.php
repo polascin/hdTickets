@@ -16,3 +16,10 @@ Route::get('/test-profile', function () {
         return 'Error: ' . $e->getMessage() . '<br><br>Stack trace: <pre>' . $e->getTraceAsString() . '</pre>';
     }
 })->name('test.profile');
+
+// Mobile responsiveness test route
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/mobile-test', function () {
+        return view('mobile-test');
+    })->name('mobile.test');
+});

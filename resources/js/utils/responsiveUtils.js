@@ -455,4 +455,210 @@ window.isDesktop = () => responsiveUtils.isDesktop();
 window.getCurrentBreakpoint = () => responsiveUtils.getCurrentBreakpoint();
 window.matchesBreakpoint = (query) => responsiveUtils.matches(query);
 
+// Mobile-specific utilities
+window.mobileUtils = {
+    // Check if device has touch capability
+    hasTouch: () => responsiveUtils.supportsTouch(),
+    
+    // Get safe area insets for devices with notches
+    getSafeAreaInsets() {
+        const style = getComputedStyle(document.documentElement);
+        return {
+            top: style.getPropertyValue('env(safe-area-inset-top)') || '0px',
+            right: style.getPropertyValue('env(safe-area-inset-right)') || '0px',
+            bottom: style.getPropertyValue('env(safe-area-inset-bottom)') || '0px',
+            left: style.getPropertyValue('env(safe-area-inset-left)') || '0px'
+        };
+    },
+    
+    // Optimize for mobile input zoom prevention
+    preventInputZoom() {
+        // Add meta tag to prevent zoom on input focus (iOS Safari)
+        const metaViewport = document.querySelector('meta[name="viewport"]');
+        if (metaViewport && responsiveUtils.isMobile()) {
+            const content = metaViewport.getAttribute('content');
+            if (!content.includes('user-scalable=no')) {
+                metaViewport.setAttribute('content', content + ', user-scalable=no');
+            }
+        }
+    },
+    
+    // Enable mobile-friendly table layouts
+    enableMobileTables() {
+        if (responsiveUtils.isMobile()) {
+            document.querySelectorAll('table:not(.table-mobile-enabled)').forEach(table => {
+                table.classList.add('table-mobile-enabled');
+                
+                // Add data labels for mobile card view
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    Array.from(row.children).forEach((cell, index) => {
+                        if (headers[index]) {
+                            cell.setAttribute('data-label', headers[index]);
+                        }
+                    });
+                });
+                
+                // Apply mobile card styling
+                table.classList.add('table-mobile-cards');
+            });
+        }
+    },
+    
+    // Enable swipe gestures for mobile
+    enableSwipeGestures(element, callbacks = {}) {
+        if (!responsiveUtils.supportsTouch()) return;
+        
+        let startX = 0;
+        let startY = 0;
+        let threshold = 50; // minimum distance for swipe
+        
+        element.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        element.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // Horizontal swipe
+                if (Math.abs(deltaX) > threshold) {
+                    if (deltaX > 0 && callbacks.swipeRight) {
+                        callbacks.swipeRight(e);
+                    } else if (deltaX < 0 && callbacks.swipeLeft) {
+                        callbacks.swipeLeft(e);
+                    }
+                }
+            } else {
+                // Vertical swipe
+                if (Math.abs(deltaY) > threshold) {
+                    if (deltaY > 0 && callbacks.swipeDown) {
+                        callbacks.swipeDown(e);
+                    } else if (deltaY < 0 && callbacks.swipeUp) {
+                        callbacks.swipeUp(e);
+                    }
+                }
+            }
+        }, { passive: true });
+    },
+    
+    // Handle mobile keyboard visibility
+    handleMobileKeyboard() {
+        if (!responsiveUtils.isMobile()) return;
+        
+        let initialViewportHeight = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            const currentHeight = window.innerHeight;
+            const heightDifference = initialViewportHeight - currentHeight;
+            
+            // Assume keyboard is open if height decreased by more than 150px
+            if (heightDifference > 150) {
+                document.body.classList.add('keyboard-open');
+                document.dispatchEvent(new CustomEvent('mobile:keyboard:open', {
+                    detail: { heightDifference }
+                }));
+            } else {
+                document.body.classList.remove('keyboard-open');
+                document.dispatchEvent(new CustomEvent('mobile:keyboard:close'));
+            }
+        });
+    },
+    
+    // Optimize modal positioning for mobile
+    optimizeModals() {
+        if (responsiveUtils.isMobile()) {
+            document.querySelectorAll('[x-data*="show"]').forEach(modal => {
+                // Add mobile-friendly classes
+                modal.classList.add('mobile-optimized-modal');
+            });
+        }
+    },
+    
+    // Enable pull-to-refresh on mobile
+    enablePullToRefresh(element, callback) {
+        if (!responsiveUtils.supportsTouch()) return;
+        
+        let startY = 0;
+        let pullDistance = 0;
+        let threshold = 80;
+        let isRefreshing = false;
+        
+        element.addEventListener('touchstart', (e) => {
+            if (element.scrollTop === 0) {
+                startY = e.touches[0].pageY;
+            }
+        }, { passive: true });
+        
+        element.addEventListener('touchmove', (e) => {
+            if (element.scrollTop === 0 && !isRefreshing) {
+                pullDistance = e.touches[0].pageY - startY;
+                
+                if (pullDistance > 0) {
+                    // Visual feedback for pull-to-refresh
+                    const opacity = Math.min(pullDistance / threshold, 1);
+                    element.style.transform = `translateY(${pullDistance * 0.3}px)`;
+                    element.style.opacity = 1 - (opacity * 0.2);
+                }
+            }
+        }, { passive: true });
+        
+        element.addEventListener('touchend', () => {
+            if (pullDistance > threshold && !isRefreshing) {
+                isRefreshing = true;
+                callback().finally(() => {
+                    isRefreshing = false;
+                    element.style.transform = '';
+                    element.style.opacity = '';
+                    pullDistance = 0;
+                });
+            } else {
+                element.style.transform = '';
+                element.style.opacity = '';
+                pullDistance = 0;
+            }
+        }, { passive: true });
+    }
+};
+
+// Auto-initialize mobile optimizations
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (responsiveUtils.isMobile()) {
+            // Auto-enable mobile table layouts
+            mobileUtils.enableMobileTables();
+            
+            // Handle mobile keyboard
+            mobileUtils.handleMobileKeyboard();
+            
+            // Optimize modals
+            mobileUtils.optimizeModals();
+            
+            // Add mobile-specific body class
+            document.body.classList.add('mobile-device');
+            
+            console.log('Mobile optimizations enabled');
+        }
+        
+        if (responsiveUtils.supportsTouch()) {
+            document.body.classList.add('touch-device');
+        }
+    });
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+        // Re-run mobile optimizations after orientation change
+        setTimeout(() => {
+            if (responsiveUtils.isMobile()) {
+                mobileUtils.enableMobileTables();
+            }
+        }, 250);
+    });
+}
+
 export default responsiveUtils;

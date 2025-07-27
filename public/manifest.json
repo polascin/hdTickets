@@ -152,5 +152,33 @@
   },
   "edge_side_panel": {
     "preferred_width": 400
-  }
+  },
+  "file_handlers": [
+    {
+      "action": "/admin/import",
+      "accept": {
+        "text/csv": [".csv"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/admin/import-shared",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "data",
+          "accept": ["text/csv", "application/json"]
+        }
+      ]
+    }
+  },
+  "display_override": ["window-controls-overlay", "minimal-ui", "standalone"],
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "dir": "ltr",
+  "lang": "en",
+  "version": "1.2.0"
 }

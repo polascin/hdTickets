@@ -11,6 +11,7 @@
 
         <!-- PWA Manifest and Meta Tags -->
         <link rel="manifest" href="{{ asset('manifest.json') }}?t={{ time() }}">
+        <meta name="user-role" content="{{ auth()->user()->role ?? 'guest' }}">
         <meta name="theme-color" content="#3b82f6">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -197,6 +198,80 @@
                 }
             </style>
         @endif
+        <!-- PWA Manager -->
+        <script src="{{ asset('resources/js/utils/pwaManager.js') }}?t={{ time() }}" defer></script>
+        <script>
+            // Initialize PWA features when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.pwaManager) {
+                    // Setup advanced push notifications if user is logged in
+                    @auth
+                    setTimeout(() => {
+                        window.pwaManager.setupPeriodicSync();
+                        
+                        // Show notification preferences for first-time users
+                        if (!localStorage.getItem('hd-tickets-notification-preferences')) {
+                            window.pwaManager.setupAdvancedPushNotifications();
+                        }
+                    }, 2000);
+                    @endauth
+                }
+            });
+            
+            // Connection status indicator
+            function updateConnectionStatus() {
+                const indicator = document.querySelector('.connection-indicator');
+                if (indicator) {
+                    if (navigator.onLine) {
+                        indicator.classList.add('online');
+                        indicator.classList.remove('offline');
+                        indicator.title = 'Online';
+                    } else {
+                        indicator.classList.add('offline');
+                        indicator.classList.remove('online');
+                        indicator.title = 'Offline';
+                    }
+                }
+            }
+            
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            updateConnectionStatus();
+        </script>
+        
+        <style>
+            /* Connection indicator styles */
+            .connection-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background-color: #ef4444;
+                position: relative;
+                margin-right: 8px;
+            }
+            
+            .connection-indicator.online {
+                background-color: #10b981;
+            }
+            
+            .connection-indicator::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background: inherit;
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); opacity: 1; }
+                100% { transform: scale(2); opacity: 0; }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

@@ -1,11 +1,17 @@
 // HD Tickets PWA Service Worker
-// Version 1.2.0 - Enhanced with Admin Features and Mobile Optimizations
+// Version 1.3.0 - Enhanced PWA Features with Advanced Caching and Push Notifications
 
-const CACHE_NAME = 'hd-tickets-v1.2';
-const STATIC_CACHE = 'hd-tickets-static-v1.2';
-const DYNAMIC_CACHE = 'hd-tickets-dynamic-v1.2';
-const API_CACHE = 'hd-tickets-api-v1.2';
+const CACHE_NAME = 'hd-tickets-v1.3';
+const STATIC_CACHE = 'hd-tickets-static-v1.3';
+const DYNAMIC_CACHE = 'hd-tickets-dynamic-v1.3';
+const API_CACHE = 'hd-tickets-api-v1.3';
+const IMAGE_CACHE = 'hd-tickets-images-v1.3';
 const OFFLINE_URL = '/offline.html';
+const FALLBACK_IMAGE = '/assets/images/hdTicketsLogo.png';
+
+// Performance metrics tracking
+let installStartTime = null;
+let activateStartTime = null;
 
 // Assets to cache for offline functionality
 const STATIC_CACHE_URLS = [
@@ -579,4 +585,305 @@ async function removePendingAdminAntiDetection(id) {
   localStorage.setItem('hd-tickets-pending-admin-anti-detection', JSON.stringify(filtered));
 }
 
-console.log('[SW] Service Worker loaded and ready with admin PWA features');
+// Periodic Background Sync for ticket updates
+self.addEventListener('periodicsync', event => {
+  console.log('[SW] Periodic sync triggered:', event.tag);
+  
+  if (event.tag === 'ticket-updates') {
+    event.waitUntil(fetchLatestTickets());
+  }
+  
+  if (event.tag === 'admin-monitoring') {
+    event.waitUntil(performAdminHealthCheck());
+  }
+});
+
+// Fetch latest tickets in background
+async function fetchLatestTickets() {
+  try {
+    console.log('[SW] Fetching latest tickets in background...');
+    
+    const response = await fetch('/api/tickets/latest', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+    
+    if (response.ok) {
+      const tickets = await response.json();
+      
+      // Check for high-demand tickets and send notifications
+      const highDemandTickets = tickets.filter(ticket => ticket.priority === 'high');
+      
+      for (const ticket of highDemandTickets) {
+        await self.registration.showNotification('High Demand Ticket Found!', {
+          body: `${ticket.event} - ${ticket.venue}`,
+          icon: '/assets/images/pwa/icon-192x192.png',
+          badge: '/assets/images/pwa/icon-72x72.png',
+          tag: `ticket-${ticket.id}`,
+          data: { ticketId: ticket.id, url: `/tickets/${ticket.id}` },
+          actions: [
+            {
+              action: 'view',
+              title: 'View Details'
+            },
+            {
+              action: 'purchase',
+              title: 'Purchase Now'
+            }
+          ]
+        });
+      }
+      
+      console.log(`[SW] Found ${highDemandTickets.length} high-demand tickets`);
+    }
+  } catch (error) {
+    console.error('[SW] Failed to fetch latest tickets:', error);
+  }
+}
+
+// Admin health check
+async function performAdminHealthCheck() {
+  try {
+    console.log('[SW] Performing admin health check...');
+    
+    const response = await fetch('/api/admin/health', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+    
+    if (response.ok) {
+      const health = await response.json();
+      
+      // Send notification if any services are down
+      if (health.status !== 'healthy') {
+        await self.registration.showNotification('System Alert', {
+          body: `Some services need attention: ${health.issues.join(', ')}`,
+          icon: '/assets/images/pwa/icon-192x192.png',
+          badge: '/assets/images/pwa/icon-72x72.png',
+          tag: 'admin-health',
+          data: { url: '/admin/system' },
+          requireInteraction: true
+        });
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Admin health check failed:', error);
+  }
+}
+
+// Web Share Target API handling
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // Handle shared content
+  if (url.pathname === '/admin/import-shared' && event.request.method === 'POST') {
+    event.respondWith(handleSharedContent(event.request));
+  }
+});
+
+async function handleSharedContent(request) {
+  try {
+    const formData = await request.formData();
+    const sharedData = formData.get('data');
+    
+    if (sharedData) {
+      // Store shared data for processing
+      const id = Date.now().toString();
+      const item = {
+        id,
+        data: sharedData,
+        timestamp: Date.now(),
+        processed: false
+      };
+      
+      const existing = JSON.parse(localStorage.getItem('hd-tickets-shared-data') || '[]');
+      existing.push(item);
+      localStorage.setItem('hd-tickets-shared-data', JSON.stringify(existing));
+      
+      // Redirect to import page
+      return Response.redirect('/admin/scraping?shared=true', 302);
+    }
+  } catch (error) {
+    console.error('[SW] Failed to handle shared content:', error);
+  }
+  
+  return new Response('Shared content processing failed', { status: 400 });
+}
+
+// File handling for CSV and JSON imports
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  if (url.pathname === '/admin/import' && event.request.method === 'POST') {
+    event.respondWith(handleFileImport(event.request));
+  }
+});
+
+async function handleFileImport(request) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file');
+    
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['text/csv', 'application/json'];
+      if (!allowedTypes.includes(file.type)) {
+        return new Response('Invalid file type', { status: 400 });
+      }
+      
+      // Store file data for processing
+      const fileData = await file.text();
+      const id = Date.now().toString();
+      const item = {
+        id,
+        filename: file.name,
+        type: file.type,
+        data: fileData,
+        timestamp: Date.now(),
+        processed: false
+      };
+      
+      const existing = JSON.parse(localStorage.getItem('hd-tickets-imported-files') || '[]');
+      existing.push(item);
+      localStorage.setItem('hd-tickets-imported-files', JSON.stringify(existing));
+      
+      // Redirect to processing page
+      return Response.redirect(`/admin/scraping?import=${id}`, 302);
+    }
+  } catch (error) {
+    console.error('[SW] Failed to handle file import:', error);
+  }
+  
+  return new Response('File import failed', { status: 400 });
+}
+
+// Enhanced notification actions
+self.addEventListener('notificationclick', event => {
+  console.log('[SW] Notification clicked:', event.action, event.notification.tag);
+  
+  event.notification.close();
+  
+  const data = event.notification.data || {};
+  
+  switch (event.action) {
+    case 'view':
+      event.waitUntil(clients.openWindow(data.url || '/dashboard'));
+      break;
+      
+    case 'purchase':
+      if (data.ticketId) {
+        event.waitUntil(clients.openWindow(`/purchase-decisions/select-tickets?ticket=${data.ticketId}`));
+      }
+      break;
+      
+    case 'dismiss':
+      // Just close, no action needed
+      break;
+      
+    default:
+      // Default action based on notification tag
+      if (event.notification.tag.startsWith('ticket-')) {
+        event.waitUntil(clients.openWindow('/tickets/scraping'));
+      } else if (event.notification.tag === 'admin-health') {
+        event.waitUntil(clients.openWindow('/admin/system'));
+      } else {
+        event.waitUntil(clients.openWindow('/dashboard'));
+      }
+  }
+});
+
+// Cache management and cleanup
+self.addEventListener('message', event => {
+  console.log('[SW] Message received:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CACHE_URLS') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.addAll(event.data.payload);
+      })
+    );
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(clearOldCaches());
+  }
+  
+  if (event.data && event.data.type === 'GET_CACHE_SIZE') {
+    event.waitUntil(getCacheSize().then(size => {
+      event.ports[0].postMessage({ type: 'CACHE_SIZE', size });
+    }));
+  }
+});
+
+// Clear old caches
+async function clearOldCaches() {
+  const cacheNames = await caches.keys();
+  const currentCaches = [CACHE_NAME, STATIC_CACHE, DYNAMIC_CACHE, API_CACHE, IMAGE_CACHE];
+  
+  return Promise.all(
+    cacheNames.map(cacheName => {
+      if (!currentCaches.includes(cacheName)) {
+        console.log('[SW] Deleting old cache:', cacheName);
+        return caches.delete(cacheName);
+      }
+    })
+  );
+}
+
+// Get cache size for diagnostics
+async function getCacheSize() {
+  const cacheNames = await caches.keys();
+  let totalSize = 0;
+  
+  for (const cacheName of cacheNames) {
+    const cache = await caches.open(cacheName);
+    const requests = await cache.keys();
+    
+    for (const request of requests) {
+      const response = await cache.match(request);
+      if (response) {
+        const size = response.headers.get('content-length');
+        if (size) {
+          totalSize += parseInt(size);
+        }
+      }
+    }
+  }
+  
+  return totalSize;
+}
+
+// Performance monitoring
+self.addEventListener('install', event => {
+  installStartTime = performance.now();
+});
+
+self.addEventListener('activate', event => {
+  activateStartTime = performance.now();
+  
+  // Send performance metrics
+  event.waitUntil(
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SW_PERFORMANCE',
+          installTime: installStartTime,
+          activateTime: activateStartTime
+        });
+      });
+    })
+  );
+});
+
+console.log('[SW] Service Worker v1.3.0 loaded with advanced PWA features');
+console.log('[SW] Features: Push notifications, Background sync, File handling, Web Share, Cache management');

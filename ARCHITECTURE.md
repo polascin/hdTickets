@@ -1,10 +1,10 @@
 # System Architecture Documentation
-## Sports Event Ticket Availability Monitoring System
-**Version:** 2025.07.v3
-**By:** Walter Csoelle
+## HDTickets - Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System
+**Version:** 4.0.0
+**By:** Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
 
 ### Overview
-This document outlines the comprehensive system architecture for a high-performance sports event ticket availability monitoring system designed to track ticket availability across multiple platforms with real-time monitoring, intelligent alerts, and comprehensive analytics capabilities.
+This document outlines the comprehensive system architecture for HDTickets, a high-performance Sports Events Entry Tickets Monitoring, Scraping and Purchase System designed to monitor, scrape, and automate ticket purchases across multiple platforms with real-time monitoring, AI-powered alerts, automated purchasing, and advanced analytics capabilities.
 
 ## Multi-tier Architecture
 

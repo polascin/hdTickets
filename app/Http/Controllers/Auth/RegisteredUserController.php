@@ -44,16 +44,30 @@ class RegisteredUserController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'surname' => ['sometimes', 'string', 'max:255'],
+            'username' => ['sometimes', 'string', 'max:255', 'unique:'.User::class],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'phone' => ['sometimes', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['sometimes', 'string', 'in:admin,agent,customer'],
+            'role' => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
+            'is_active' => ['sometimes', 'boolean'],
+            'require_2fa' => ['sometimes', 'boolean'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'surname' => $request->surname,
+            'username' => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? User::ROLE_CUSTOMER, // Default to customer
+            'role' => $request->role ?? User::ROLE_CUSTOMER,
+            'is_active' => $request->is_active ?? true,
+            'require_2fa' => $request->require_2fa ?? false,
+            'registration_source' => 'admin',
+            'created_by_type' => 'admin',
+            'created_by_id' => Auth::id(),
+            'password_changed_at' => now(),
         ]);
 
         event(new Registered($user));

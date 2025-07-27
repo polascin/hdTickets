@@ -78,7 +78,7 @@ class ScrapedTicket extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // Scopes
+    // Optimized Scopes for better performance
     public function scopeHighDemand($query)
     {
         return $query->where('is_high_demand', true);
@@ -96,8 +96,11 @@ class ScrapedTicket extends Model
 
     public function scopeForEvent($query, $keywords)
     {
-        return $query->where('title', 'LIKE', '%' . $keywords . '%')
-                    ->orWhere('search_keyword', 'LIKE', '%' . $keywords . '%');
+        return $query->where(function($q) use ($keywords) {
+            $q->where('title', 'LIKE', '%' . $keywords . '%')
+              ->orWhere('search_keyword', 'LIKE', '%' . $keywords . '%')
+              ->orWhere('venue', 'LIKE', '%' . $keywords . '%');
+        });
     }
 
     public function scopePriceRange($query, $minPrice = null, $maxPrice = null)
@@ -109,6 +112,74 @@ class ScrapedTicket extends Model
             $query->where('max_price', '<=', $maxPrice);
         }
         return $query;
+    }
+
+    // Additional optimized scopes
+    public function scopeRecent($query, $hours = 24)
+    {
+        return $query->where('scraped_at', '>=', now()->subHours($hours));
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('event_date', '>=', now());
+    }
+
+    public function scopeByDateRange($query, $from = null, $to = null)
+    {
+        if ($from) {
+            $query->where('event_date', '>=', $from);
+        }
+        if ($to) {
+            $query->where('event_date', '<=', $to);
+        }
+        return $query;
+    }
+
+    public function scopeBySport($query, $sport)
+    {
+        return $query->where('sport', $sport);
+    }
+
+    public function scopeByTeam($query, $team)
+    {
+        return $query->where('team', 'LIKE', '%' . $team . '%');
+    }
+
+    public function scopeByLocation($query, $location)
+    {
+        return $query->where('location', 'LIKE', '%' . $location . '%');
+    }
+
+    // Optimized search scope with full-text capabilities
+    public function scopeFullTextSearch($query, $searchTerm)
+    {
+        return $query->whereRaw(
+            "MATCH(title, venue, search_keyword, location) AGAINST(? IN BOOLEAN MODE)",
+            [$searchTerm]
+        );
+    }
+
+    // Performance-optimized scopes for analytics
+    public function scopeWithinWeek($query)
+    {
+        return $query->whereBetween('created_at', [
+            now()->startOfWeek(),
+            now()->endOfWeek()
+        ]);
+    }
+
+    public function scopeWithinMonth($query)
+    {
+        return $query->whereBetween('created_at', [
+            now()->startOfMonth(),
+            now()->endOfMonth()
+        ]);
     }
 
     // Helpers

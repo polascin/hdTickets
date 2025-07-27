@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryManagementController;
 use App\Http\Controllers\Admin\ScrapingController;
+use App\Http\Controllers\Admin\RealTimeDashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -117,6 +118,24 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::post('maintenance', [SystemController::class, 'runMaintenance'])->name('maintenance');
         Route::get('disk-usage', [SystemController::class, 'getDiskUsage'])->name('disk-usage');
         Route::get('database-info', [SystemController::class, 'getDatabaseInfo'])->name('database-info');
+    });
+
+    // Real-time Monitoring Dashboard Routes
+    Route::prefix('monitoring')->name('monitoring.')->middleware('admin:manage_system')->group(function () {
+        Route::get('/dashboard', [RealTimeDashboardController::class, 'dashboard'])->name('dashboard');
+        Route::get('/data', [RealTimeDashboardController::class, 'getDashboardData'])->name('data');
+        Route::post('/start', [RealTimeDashboardController::class, 'startMonitoring'])->name('start');
+        Route::post('/stop', [RealTimeDashboardController::class, 'stopMonitoring'])->name('stop');
+        Route::get('/stats', [RealTimeDashboardController::class, 'getMonitoringStats'])->name('stats');
+        Route::post('/test-plugin', [RealTimeDashboardController::class, 'testPlugin'])->name('test-plugin');
+        Route::post('/test-proxies', [RealTimeDashboardController::class, 'testProxies'])->name('test-proxies');
+        Route::put('/settings', [RealTimeDashboardController::class, 'updateMonitoringSettings'])->name('settings');
+        Route::post('/plugin/toggle', [RealTimeDashboardController::class, 'togglePlugin'])->name('plugin.toggle');
+        Route::post('/watchlist/add', [RealTimeDashboardController::class, 'addToWatchlist'])->name('watchlist.add');
+        Route::delete('/watchlist/remove', [RealTimeDashboardController::class, 'removeFromWatchlist'])->name('watchlist.remove');
+        Route::post('/test-notification', [RealTimeDashboardController::class, 'sendTestNotification'])->name('test-notification');
+        Route::get('/performance', [RealTimeDashboardController::class, 'getPerformanceMetrics'])->name('performance');
+        Route::get('/export', [RealTimeDashboardController::class, 'exportMonitoringData'])->name('export');
     });
 
     // Scraping Management Routes

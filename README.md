@@ -1,52 +1,67 @@
-# Sports Event Ticket Availability Monitoring System
-**Version:** 2025.07.v4.0  
+# HDTickets - Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System
+**Version:** 4.0.0  
 **Author:** Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle  
 **@author** Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
 
 ## Overview
-The Sports Event Ticket Availability Monitoring System is a comprehensive, high-performance platform designed to monitor, track, and alert users about ticket availability for major sporting events across multiple platforms. This system provides real-time monitoring of ticket sales, price changes, and availability status from major ticket vendors including Ticketmaster, StubHub, SeatGeek, Vivid Seats, and more.
+HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monitoring, Scraping and Purchase System designed to monitor, scrape, and automate ticket purchases for major sporting events across multiple platforms. This advanced system provides real-time monitoring of ticket sales, intelligent price tracking, automated purchase capabilities, and sophisticated analytics from major ticket vendors including Ticketmaster, StubHub, Viagogo, SeatGeek, TickPick, and more.
 
 ## 🎯 Core Features
 
-### Real-Time Ticket Monitoring
-- **Multi-Platform Integration**: Monitor tickets across 5+ major platforms simultaneously
-- **Real-Time Alerts**: Instant notifications when tickets become available
-- **Price Tracking**: Monitor price changes and identify the best deals
-- **Event Classification**: Support for various sports including football, basketball, baseball, hockey, soccer, and more
+### 🎫 Advanced Ticket Scraping & Monitoring
+- **Multi-Platform Scraping**: Automated scraping across Ticketmaster, StubHub, Viagogo, TickPick, SeatGeek, and more
+- **Real-Time Data Collection**: Continuous monitoring with intelligent scheduling and anti-detection measures
+- **Smart Filtering System**: Advanced filtering by sport, team, venue, location, price range, and availability status
+- **High-Demand Detection**: AI-powered identification of high-demand events and tickets
+- **Data Validation**: Comprehensive data validation and normalization across platforms
 
-### Advanced Monitoring Capabilities
-- **Smart Filtering**: Set up custom criteria for specific teams, venues, dates, and price ranges
-- **Geographic Preferences**: Monitor events by city, region, or venue
-- **Seat Quality Tracking**: Track availability by seat sections and quality levels
-- **Historical Data**: Analyze ticket availability patterns and pricing trends
+### 🚨 Enhanced Alert System
+- **Smart Prioritization**: AI-driven alert prioritization based on multiple factors
+- **Multi-Channel Notifications**: Slack, Discord, Telegram, SMS, email, and webhook integrations
+- **Machine Learning Predictions**: Availability forecasting and price movement analysis
+- **Escalation & Retry Logic**: Progressive alert escalation with intelligent retry mechanisms
+- **Custom Alert Criteria**: User-defined triggers for specific events, prices, and availability changes
 
-### Automated Notification System
-- **Multi-Channel Alerts**: Email, SMS, push notifications, and webhook integrations
-- **Smart Scheduling**: Intelligent alert timing based on event importance and user preferences
-- **Escalation System**: Progressive alert system for high-priority events
-- **Custom Triggers**: User-defined criteria for automated notifications
+### 🛒 Automated Purchase System
+- **Purchase Queue Management**: Priority-based automated purchase queue with risk management
+- **Smart Account Selection**: Intelligent selection of best-performing platform accounts
+- **Purchase Attempt Tracking**: Comprehensive tracking of purchase attempts and success rates
+- **Risk Assessment**: Built-in risk management with configurable thresholds and approval workflows
+- **Transaction Logging**: Complete audit trail for all purchase activities
 
-### User Management & Analytics
-- **Role-Based Access**: Different access levels for admins, premium users, and standard users
-- **Performance Dashboard**: Real-time statistics on monitoring success rates
-- **Analytics & Reporting**: Detailed reports on ticket availability trends
-- **Account Management**: Manage multiple platform accounts for enhanced monitoring
+### 📊 Advanced Analytics & Reporting
+- **Real-Time Dashboards**: Live monitoring of system performance and ticket availability
+- **AI-Powered Insights**: Machine learning predictions for demand patterns and price trends
+- **Platform Performance Comparison**: Detailed analysis of success rates across different platforms
+- **Custom Analytics**: Configurable dashboards with personalized metrics and KPIs
+- **Data Export**: Multiple export formats (CSV, Excel, PDF, JSON) for reporting
+
+### 👥 User Management & Security
+- **Role-Based Access Control**: Granular permissions for Admin, Agent, and User roles
+- **Two-Factor Authentication**: Enhanced security with 2FA support
+- **Activity Logging**: Comprehensive audit trails for all user activities
+- **Account Management**: Secure management of multiple platform accounts with encrypted storage
+- **User Preferences**: Customizable notification preferences and dashboard configurations
 
 ## 🏗️ Technical Architecture
 
 ### Technology Stack
-- **Backend**: Laravel 12.x with PHP 8.2+
-- **Frontend**: Vue.js 3 with Inertia.js
+- **Backend**: Laravel 11.x with PHP 8.2+
+- **Frontend**: Vue.js 3 with Inertia.js and Alpine.js
 - **Database**: MySQL 8.4+ with Redis caching
 - **Queue System**: Laravel Horizon for background job processing
+- **Authentication**: Laravel Sanctum with 2FA support
 - **WebSockets**: Real-time updates using Laravel Echo and Pusher
+- **Styling**: Tailwind CSS with Bootstrap components
+- **Charts**: Chart.js for analytics visualization
 
 ### System Components
-- **Scraping Engine**: Modular, plugin-based system for different ticket platforms
-- **Monitoring Service**: Continuous background monitoring with intelligent scheduling
-- **Alert System**: Multi-channel notification delivery system
-- **Analytics Engine**: Data processing and trend analysis
-- **User Interface**: Responsive web dashboard with real-time updates
+- **Scraping Engine**: Multi-platform scraping with anti-detection measures
+- **Enhanced Alert System**: AI-powered notifications with ML predictions
+- **Purchase Automation**: Queue-based automated purchasing with risk management
+- **Analytics Engine**: Advanced analytics with predictive insights
+- **Real-Time Monitoring**: Live dashboards with system health monitoring
+- **User Management**: Role-based access with comprehensive audit logging
 
 ## 📊 Supported Platforms
 
@@ -167,29 +182,78 @@ TWILIO_TOKEN=your_twilio_token
 ## 🔧 API Documentation
 
 ### Authentication
-All API requests require authentication via Bearer token:
+All API requests require authentication via Bearer token (Laravel Sanctum):
 ```bash
 Authorization: Bearer {your_api_token}
 ```
 
-### Key Endpoints
+### Core API Endpoints
+
+#### Scraping Management
 ```bash
-# Event Monitoring
-GET    /api/v1/events              # List monitored events
-POST   /api/v1/events              # Add new event monitoring
-PUT    /api/v1/events/{id}         # Update monitoring settings
-DELETE /api/v1/events/{id}         # Remove event monitoring
-
-# Ticket Alerts
-GET    /api/v1/alerts              # Get user alerts
-POST   /api/v1/alerts              # Create new alert
-PUT    /api/v1/alerts/{id}         # Update alert settings
-
-# Analytics
-GET    /api/v1/analytics/trends    # Get availability trends
-GET    /api/v1/analytics/prices    # Get price analysis
-GET    /api/v1/analytics/success   # Get monitoring success rates
+GET    /api/v1/scraping/tickets           # Get scraped tickets with filtering
+GET    /api/v1/scraping/tickets/{uuid}    # Get specific ticket details
+POST   /api/v1/scraping/start-scraping    # Initiate scraping for platforms
+GET    /api/v1/scraping/statistics        # Get scraping statistics
+GET    /api/v1/scraping/platforms         # Get platform status
+DELETE /api/v1/scraping/cleanup          # Clean up old data
 ```
+
+#### Alert Management
+```bash
+GET    /api/v1/alerts                     # Get user alerts
+POST   /api/v1/alerts                     # Create new alert
+GET    /api/v1/alerts/{uuid}              # Get specific alert
+PUT    /api/v1/alerts/{uuid}              # Update alert
+DELETE /api/v1/alerts/{uuid}              # Delete alert
+POST   /api/v1/alerts/{uuid}/toggle       # Toggle alert status
+POST   /api/v1/alerts/{uuid}/test         # Test alert criteria
+```
+
+#### Purchase Automation
+```bash
+GET    /api/v1/purchases/queue            # Get purchase queue
+POST   /api/v1/purchases/queue            # Add to purchase queue
+GET    /api/v1/purchases/attempts         # Get purchase attempts
+POST   /api/v1/purchases/attempts/initiate # Start purchase attempt
+GET    /api/v1/purchases/statistics       # Get purchase statistics
+GET    /api/v1/purchases/configuration    # Get purchase config
+```
+
+#### Enhanced Analytics
+```bash
+GET    /api/v1/enhanced-analytics/charts          # Get chart data
+GET    /api/v1/enhanced-analytics/insights/predictive # Predictive insights
+GET    /api/v1/analytics/price-trends             # Price trend analysis
+GET    /api/v1/analytics/demand-patterns          # Demand patterns
+GET    /api/v1/analytics/platform-performance     # Platform comparison
+```
+
+#### Platform-Specific Endpoints
+```bash
+# StubHub
+POST   /api/v1/stubhub/search             # Search StubHub events
+POST   /api/v1/stubhub/import             # Import StubHub tickets
+
+# Ticketmaster
+POST   /api/v1/ticketmaster/search        # Search Ticketmaster events
+POST   /api/v1/ticketmaster/import        # Import Ticketmaster tickets
+
+# Viagogo
+POST   /api/v1/viagogo/search             # Search Viagogo events
+POST   /api/v1/viagogo/import             # Import Viagogo tickets
+
+# TickPick
+POST   /api/v1/tickpick/search            # Search TickPick events
+POST   /api/v1/tickpick/import            # Import TickPick tickets
+```
+
+### Rate Limiting
+- **Public routes**: 10 requests per minute
+- **Authenticated routes**: 120 requests per minute
+- **Scraping routes**: 60 requests per minute
+
+For complete API documentation, see: [API-DOCUMENTATION.md](API-DOCUMENTATION.md)
 
 ## 📈 Performance Metrics
 

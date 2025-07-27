@@ -485,7 +485,408 @@ class PWAManager {
     getVapidPublicKey() {
         // This should be your VAPID public key
         // Generate with: npx web-push generate-vapid-keys
-        return 'BHxvUlLOJZ8JZXyUTaVFnWjkLjHKV7gE8V1MtC6CZ4q5Z4q5Z4q5Z4q5Z4q5Z4q5Z4q5Z4q5Z4q5Z4q5';
+        return 'BJ0yX1wJZOlGk4gHdHg8gE0vCwXXdWP7P4j6BwP7P4j6BwP7P4j6BwP7P4j6BwP7P4j6BwP7P4j6Bw';
+    }
+
+    /**
+     * Setup periodic background sync for ticket monitoring
+     */
+    async setupPeriodicSync() {
+        if (!this.swRegistration || !('periodicSync' in this.swRegistration)) {
+            console.warn('[PWA] Periodic Background Sync not supported');
+            return;
+        }
+
+        try {
+            // Request permission for periodic sync
+            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+            
+            if (status.state === 'granted') {
+                // Register periodic sync for ticket updates (every 15 minutes)
+                await this.swRegistration.periodicSync.register('ticket-updates', {
+                    minInterval: 15 * 60 * 1000 // 15 minutes
+                });
+                
+                // Register admin health monitoring (every 5 minutes for admin users)
+                if (this.isAdminUser()) {
+                    await this.swRegistration.periodicSync.register('admin-monitoring', {
+                        minInterval: 5 * 60 * 1000 // 5 minutes
+                    });
+                }
+                
+                console.log('[PWA] Periodic sync registered successfully');
+            }
+        } catch (error) {
+            console.error('[PWA] Failed to register periodic sync:', error);
+        }
+    }
+
+    /**
+     * Check if current user has admin privileges
+     */
+    isAdminUser() {
+        // Check if user has admin role (implementation depends on your auth system)
+        const userRole = document.querySelector('meta[name="user-role"]');
+        return userRole && userRole.content === 'admin';
+    }
+
+    /**
+     * Enhanced push notification setup with categories
+     */
+    async setupAdvancedPushNotifications() {
+        if (!('Notification' in window) || !this.swRegistration) {
+            console.warn('[PWA] Advanced push notifications not supported');
+            return;
+        }
+
+        try {
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                const subscription = await this.swRegistration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: this.getVapidPublicKey()
+                });
+
+                // Send subscription with user preferences
+                await this.sendAdvancedSubscription(subscription);
+                
+                // Setup notification preferences UI
+                this.showNotificationPreferences();
+                
+                console.log('[PWA] Advanced push notifications setup complete');
+            }
+        } catch (error) {
+            console.error('[PWA] Advanced push notification setup failed:', error);
+        }
+    }
+
+    /**
+     * Send subscription with user preferences to server
+     */
+    async sendAdvancedSubscription(subscription) {
+        try {
+            const preferences = this.getNotificationPreferences();
+            
+            const response = await fetch('/api/push/subscribe-advanced', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    subscription: subscription,
+                    preferences: preferences,
+                    userAgent: navigator.userAgent,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save advanced subscription');
+            }
+            
+            console.log('[PWA] Advanced subscription saved to server');
+        } catch (error) {
+            console.error('[PWA] Failed to save advanced subscription:', error);
+        }
+    }
+
+    /**
+     * Get notification preferences from storage
+     */
+    getNotificationPreferences() {
+        const defaults = {
+            ticketAlerts: true,
+            priceDrops: true,
+            systemAlerts: false,
+            adminAlerts: this.isAdminUser(),
+            quietHours: {
+                enabled: false,
+                start: '22:00',
+                end: '08:00'
+            },
+            categories: {
+                sports: true,
+                concerts: true,
+                theater: false
+            }
+        };
+        
+        const stored = localStorage.getItem('hd-tickets-notification-preferences');
+        return stored ? { ...defaults, ...JSON.parse(stored) } : defaults;
+    }
+
+    /**
+     * Save notification preferences
+     */
+    saveNotificationPreferences(preferences) {
+        localStorage.setItem('hd-tickets-notification-preferences', JSON.stringify(preferences));
+        
+        // Update server subscription
+        if (this.swRegistration && this.swRegistration.pushManager) {
+            this.swRegistration.pushManager.getSubscription().then(subscription => {
+                if (subscription) {
+                    this.sendAdvancedSubscription(subscription);
+                }
+            });
+        }
+    }
+
+    /**
+     * Show notification preferences UI
+     */
+    showNotificationPreferences() {
+        const preferences = this.getNotificationPreferences();
+        
+        const modal = document.createElement('div');
+        modal.id = 'pwa-notification-preferences';
+        modal.className = 'pwa-modal-overlay';
+        modal.innerHTML = `
+            <div class="pwa-modal">
+                <div class="pwa-modal-header">
+                    <h3>Notification Preferences</h3>
+                    <button onclick="this.closest('.pwa-modal-overlay').remove()" class="pwa-close-btn">×</button>
+                </div>
+                <div class="pwa-modal-body">
+                    <div class="pwa-preference-group">
+                        <h4>Alert Types</h4>
+                        <label>
+                            <input type="checkbox" ${preferences.ticketAlerts ? 'checked' : ''} data-pref="ticketAlerts">
+                            Ticket Availability Alerts
+                        </label>
+                        <label>
+                            <input type="checkbox" ${preferences.priceDrops ? 'checked' : ''} data-pref="priceDrops">
+                            Price Drop Notifications
+                        </label>
+                        <label>
+                            <input type="checkbox" ${preferences.systemAlerts ? 'checked' : ''} data-pref="systemAlerts">
+                            System Status Updates
+                        </label>
+                        ${this.isAdminUser() ? `
+                        <label>
+                            <input type="checkbox" ${preferences.adminAlerts ? 'checked' : ''} data-pref="adminAlerts">
+                            Admin System Alerts
+                        </label>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="pwa-preference-group">
+                        <h4>Event Categories</h4>
+                        <label>
+                            <input type="checkbox" ${preferences.categories.sports ? 'checked' : ''} data-pref="categories.sports">
+                            Sports Events
+                        </label>
+                        <label>
+                            <input type="checkbox" ${preferences.categories.concerts ? 'checked' : ''} data-pref="categories.concerts">
+                            Concerts & Music
+                        </label>
+                        <label>
+                            <input type="checkbox" ${preferences.categories.theater ? 'checked' : ''} data-pref="categories.theater">
+                            Theater & Shows
+                        </label>
+                    </div>
+                    
+                    <div class="pwa-preference-group">
+                        <h4>Quiet Hours</h4>
+                        <label>
+                            <input type="checkbox" ${preferences.quietHours.enabled ? 'checked' : ''} data-pref="quietHours.enabled">
+                            Enable Quiet Hours
+                        </label>
+                        <div class="pwa-time-inputs">
+                            <label>
+                                From: 
+                                <input type="time" value="${preferences.quietHours.start}" data-pref="quietHours.start">
+                            </label>
+                            <label>
+                                To: 
+                                <input type="time" value="${preferences.quietHours.end}" data-pref="quietHours.end">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="pwa-modal-footer">
+                    <button onclick="pwaManager.savePreferencesFromModal()" class="pwa-save-btn">Save Preferences</button>
+                    <button onclick="this.closest('.pwa-modal-overlay').remove()" class="pwa-cancel-btn">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        // Add CSS styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .pwa-modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            
+            .pwa-modal {
+                background: white;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            }
+            
+            .pwa-modal-header {
+                padding: 20px;
+                border-bottom: 1px solid #e5e7eb;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .pwa-modal-header h3 {
+                margin: 0;
+                color: #374151;
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
+            
+            .pwa-close-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                color: #6b7280;
+                padding: 4px;
+                border-radius: 4px;
+            }
+            
+            .pwa-close-btn:hover {
+                background: #f3f4f6;
+            }
+            
+            .pwa-modal-body {
+                padding: 20px;
+            }
+            
+            .pwa-preference-group {
+                margin-bottom: 24px;
+            }
+            
+            .pwa-preference-group h4 {
+                margin: 0 0 12px 0;
+                color: #374151;
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            
+            .pwa-preference-group label {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                cursor: pointer;
+                color: #4b5563;
+            }
+            
+            .pwa-preference-group input[type="checkbox"] {
+                margin-right: 8px;
+            }
+            
+            .pwa-time-inputs {
+                display: flex;
+                gap: 16px;
+                margin-top: 8px;
+            }
+            
+            .pwa-time-inputs label {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pwa-time-inputs input[type="time"] {
+                margin-top: 4px;
+                padding: 6px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+            }
+            
+            .pwa-modal-footer {
+                padding: 20px;
+                border-top: 1px solid #e5e7eb;
+                display: flex;
+                gap: 12px;
+                justify-content: flex-end;
+            }
+            
+            .pwa-save-btn {
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            
+            .pwa-save-btn:hover {
+                background: #2563eb;
+            }
+            
+            .pwa-cancel-btn {
+                background: #f3f4f6;
+                color: #374151;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            
+            .pwa-cancel-btn:hover {
+                background: #e5e7eb;
+            }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.appendChild(modal);
+    }
+
+    /**
+     * Save preferences from modal
+     */
+    savePreferencesFromModal() {
+        const modal = document.getElementById('pwa-notification-preferences');
+        const preferences = this.getNotificationPreferences();
+        
+        // Update preferences from form inputs
+        modal.querySelectorAll('input').forEach(input => {
+            const prefPath = input.dataset.pref;
+            if (prefPath) {
+                const keys = prefPath.split('.');
+                let obj = preferences;
+                
+                for (let i = 0; i < keys.length - 1; i++) {
+                    if (!obj[keys[i]]) obj[keys[i]] = {};
+                    obj = obj[keys[i]];
+                }
+                
+                if (input.type === 'checkbox') {
+                    obj[keys[keys.length - 1]] = input.checked;
+                } else {
+                    obj[keys[keys.length - 1]] = input.value;
+                }
+            }
+        });
+        
+        this.saveNotificationPreferences(preferences);
+        modal.remove();
+        
+        if (window.hdTicketsUtils && window.hdTicketsUtils.notify) {
+            window.hdTicketsUtils.notify('Notification preferences saved!', 'success');
+        }
     }
 
     /**

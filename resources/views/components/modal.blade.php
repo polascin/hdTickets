@@ -1,7 +1,9 @@
 @props([
     'name',
     'show' => false,
-    'maxWidth' => '2xl'
+    'maxWidth' => '2xl',
+    'fullscreenOnMobile' => false,
+    'slideUpOnMobile' => true
 ])
 
 @php
@@ -11,7 +13,20 @@ $maxWidth = [
     'lg' => 'sm:max-w-lg',
     'xl' => 'sm:max-w-xl',
     '2xl' => 'sm:max-w-2xl',
+    '3xl' => 'sm:max-w-3xl',
+    '4xl' => 'sm:max-w-4xl',
+    '5xl' => 'sm:max-w-5xl',
+    '6xl' => 'sm:max-w-6xl',
+    'full' => 'sm:max-w-full'
 ][$maxWidth];
+
+$mobileClasses = $fullscreenOnMobile 
+    ? 'h-full w-full rounded-none sm:h-auto sm:w-auto sm:rounded-lg' 
+    : 'max-h-[90vh] w-full mx-4 sm:mx-auto rounded-lg';
+    
+$mobileTransition = $slideUpOnMobile 
+    ? 'translate-y-full sm:translate-y-4 sm:translate-y-0 sm:scale-95' 
+    : 'translate-y-4 sm:translate-y-0 sm:scale-95';
 @endphp
 
 <div
@@ -65,13 +80,13 @@ $maxWidth = [
 
     <div
         x-show="show"
-        class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        class="mb-6 bg-white overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} {{ $mobileClasses }}"
         x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-start="opacity-0 {{ $mobileTransition }}"
         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave="ease-in duration-200"
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:leave-end="opacity-0 {{ $mobileTransition }}"
     >
         {{ $slot }}
     </div>

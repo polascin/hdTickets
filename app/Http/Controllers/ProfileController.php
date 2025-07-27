@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\TwoFactorAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,13 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    protected $twoFactorService;
+
+    public function __construct(TwoFactorAuthService $twoFactorService)
+    {
+        $this->twoFactorService = $twoFactorService;
+    }
+
     /**
      * Display the user's profile view.
      */
@@ -66,5 +74,23 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Display security settings
+     */
+    public function security(Request $request): View
+    {
+        $user = $request->user();
+        $twoFactorEnabled = $this->twoFactorService->isEnabled($user);
+        $remainingRecoveryCodes = $this->twoFactorService->getRemainingRecoveryCodesCount($user);
+        $twoFactorStats = $this->twoFactorService->getTwoFactorStats();
+
+        return view('profile.security', [
+            'user' => $user,
+            'twoFactorEnabled' => $twoFactorEnabled,
+            'remainingRecoveryCodes' => $remainingRecoveryCodes,
+            'twoFactorStats' => $twoFactorStats,
+        ]);
     }
 }

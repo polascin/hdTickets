@@ -200,6 +200,12 @@
     </div>
 
     <script>
+        // Import responsive utilities if available
+        let responsiveUtils = null;
+        if (typeof window !== 'undefined' && window.responsiveUtils) {
+            responsiveUtils = window.responsiveUtils;
+        }
+        
         // Real-time width display
         function updateWidthDisplay() {
             const width = window.innerWidth;
@@ -215,40 +221,208 @@
             // Update device indicator
             const deviceIndicator = document.querySelector('.device-indicator');
             let deviceType = '';
+            let breakpoint = '';
             
-            if (width <= 414) {
-                deviceType = 'Mobile';
+            if (responsiveUtils) {
+                const viewport = responsiveUtils.getViewport();
+                deviceType = viewport.isMobile ? 'Mobile' : 
+                           viewport.isTablet ? 'Tablet' : 'Desktop';
+                breakpoint = viewport.breakpoint;
+            } else {
+                if (width <= 414) {
+                    deviceType = 'Mobile';
+                    breakpoint = 'mobile';
+                } else if (width <= 768) {
+                    deviceType = 'Mobile-Large';
+                    breakpoint = 'sm';
+                } else if (width <= 1024) {
+                    deviceType = 'Tablet';
+                    breakpoint = 'md';
+                } else {
+                    deviceType = 'Desktop';
+                    breakpoint = 'lg';
+                }
+            }
+            
+            // Update colors based on device type
+            if (deviceType.includes('Mobile')) {
                 deviceIndicator.style.background = 'rgba(239, 68, 68, 0.9)'; // red
-            } else if (width <= 1024) {
-                deviceType = 'Tablet';
+            } else if (deviceType === 'Tablet') {
                 deviceIndicator.style.background = 'rgba(245, 158, 11, 0.9)'; // amber
             } else {
-                deviceType = 'Desktop';
                 deviceIndicator.style.background = 'rgba(34, 197, 94, 0.9)'; // green
             }
             
             document.getElementById('width-display').innerHTML = 
-                `${deviceType} - Width: <span id="current-width">${width}</span>px`;
+                `${deviceType} (${breakpoint}) - Width: <span id="current-width">${width}</span>px`;
+                
+            // Test mobile utilities if available
+            if (responsiveUtils) {
+                testMobileFeatures();
+            }
+        }
+        
+        // Test mobile-specific features
+        function testMobileFeatures() {
+            if (!responsiveUtils) return;
+            
+            const viewport = responsiveUtils.getViewport();
+            
+            // Test touch support
+            if (viewport.supportsTouch) {
+                document.body.classList.add('touch-device');
+                console.log('✓ Touch support detected');
+            }
+            
+            // Test orientation
+            console.log(`📱 Orientation: ${viewport.orientation}`);
+            
+            // Test device pixel ratio
+            if (viewport.devicePixelRatio > 1) {
+                console.log(`📺 High-DPI display detected: ${viewport.devicePixelRatio}x`);
+            }
+            
+            // Auto-enable mobile optimizations
+            if (viewport.isMobile && window.mobileUtils) {
+                // Enable mobile table layouts
+                window.mobileUtils.enableMobileTables();
+                console.log('✓ Mobile table layouts enabled');
+                
+                // Test swipe gestures on test container
+                const testContainer = document.querySelector('.test-section');
+                if (testContainer) {
+                    window.mobileUtils.enableSwipeGestures(testContainer, {
+                        swipeLeft: () => console.log('👈 Swiped left on test container'),
+                        swipeRight: () => console.log('👉 Swiped right on test container'),
+                        swipeUp: () => console.log('👆 Swiped up on test container'),
+                        swipeDown: () => console.log('👇 Swiped down on test container')
+                    });
+                    console.log('✓ Swipe gestures enabled on test container');
+                }
+            }
         }
         
         // Update on load and resize
         updateWidthDisplay();
         window.addEventListener('resize', updateWidthDisplay);
         
+        // Listen to responsive utility events
+        if (typeof window !== 'undefined') {
+            window.addEventListener('viewport:change', (e) => {
+                console.log('📱 Viewport changed:', e.detail);
+            });
+            
+            window.addEventListener('viewport:breakpoint', (e) => {
+                console.log('📏 Breakpoint changed:', e.detail);
+            });
+        }
+        
         // Check for horizontal scroll
         function checkHorizontalScroll() {
             const hasHorizontalScroll = document.body.scrollWidth > window.innerWidth;
             if (hasHorizontalScroll) {
-                console.warn('Horizontal scroll detected!', {
+                console.warn('⚠️ Horizontal scroll detected!', {
                     bodyWidth: document.body.scrollWidth,
-                    windowWidth: window.innerWidth
+                    windowWidth: window.innerWidth,
+                    overflow: document.body.scrollWidth - window.innerWidth + 'px'
                 });
+                
+                // Visual indicator
+                const indicator = document.createElement('div');
+                indicator.style.cssText = `
+                    position: fixed;
+                    bottom: 10px;
+                    left: 10px;
+                    background: rgba(239, 68, 68, 0.9);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 1001;
+                `;
+                indicator.textContent = `⚠️ Horizontal overflow: ${document.body.scrollWidth - window.innerWidth}px`;
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.parentNode.removeChild(indicator);
+                    }
+                }, 5000);
             }
         }
         
-        // Check on load and resize
-        window.addEventListener('load', checkHorizontalScroll);
+        // Performance testing
+        function testPerformance() {
+            const start = performance.now();
+            
+            // Simulate some DOM operations
+            for (let i = 0; i < 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'test-element';
+                div.textContent = `Test element ${i}`;
+                document.body.appendChild(div);
+                document.body.removeChild(div);
+            }
+            
+            const end = performance.now();
+            console.log(`⚙️ DOM Performance test: ${(end - start).toFixed(2)}ms`);
+        }
+        
+        // Initialize tests
+        window.addEventListener('load', () => {
+            checkHorizontalScroll();
+            testPerformance();
+            
+            // Add mobile-specific tests
+            if (window.innerWidth <= 768) {
+                console.log('📱 Mobile device detected, running mobile-specific tests...');
+                
+                // Test viewport meta tag
+                const viewportMeta = document.querySelector('meta[name="viewport"]');
+                if (viewportMeta) {
+                    console.log('✓ Viewport meta tag found:', viewportMeta.getAttribute('content'));
+                } else {
+                    console.warn('⚠️ Viewport meta tag missing!');
+                }
+                
+                // Test touch events
+                if ('ontouchstart' in window) {
+                    console.log('✓ Touch events supported');
+                } else {
+                    console.log('ℹ️ Touch events not supported (desktop browser)');
+                }
+                
+                // Test CSS custom properties support
+                if (CSS.supports('color', 'var(--test)')) {
+                    console.log('✓ CSS custom properties supported');
+                } else {
+                    console.warn('⚠️ CSS custom properties not supported');
+                }
+                
+                // Test intersection observer (for lazy loading)
+                if ('IntersectionObserver' in window) {
+                    console.log('✓ Intersection Observer supported');
+                } else {
+                    console.warn('⚠️ Intersection Observer not supported');
+                }
+            }
+        });
+        
         window.addEventListener('resize', checkHorizontalScroll);
+        
+        // Add keyboard shortcut for quick testing
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F9') {
+                e.preventDefault();
+                console.clear();
+                console.log('🧪 Running comprehensive responsive tests...');
+                updateWidthDisplay();
+                checkHorizontalScroll();
+                testPerformance();
+            }
+        });
+        
+        console.log('🚀 Responsive test page loaded. Press F9 to run tests.');
     </script>
 </body>
 </html>

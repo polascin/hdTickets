@@ -32,6 +32,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\SecurityHeadersMiddleware::class,
     ];
 
     /**
@@ -52,6 +53,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\ApiSecurityMiddleware::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
@@ -79,5 +81,7 @@ class Kernel extends HttpKernel
         'activity.log' => \App\Http\Middleware\ActivityLoggerMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'agent' => \App\Http\Middleware\AgentMiddleware::class,
+        'api.security' => \App\Http\Middleware\ApiSecurityMiddleware::class,
+        'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
     ];
 }
