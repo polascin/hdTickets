@@ -136,3 +136,1585 @@
 #23 {main}
 "} 
 [2025-07-27 14:06:18] laravel.INFO: Platform cache cleared {"platform":"tickpick"} 
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:01:36] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:01:36] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:01:36] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:01:37] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:01:37] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:01:37] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:37] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:37] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:01:37] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:01:42] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:01:42] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:01:42] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:01:42] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:42] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:42] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:01:42] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:01:46] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:01:46] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:01:46] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:01:46] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:46] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:46] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:01:46] local.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'users' already exists (Connection: mysql, SQL: create table `users` (`id` bigint unsigned not null auto_increment primary key, `name` varchar(255) not null, `surname` varchar(255) null, `username` varchar(255) null, `email` varchar(255) not null, `email_verified_at` timestamp null, `password` varchar(255) not null, `role` varchar(255) not null default 'customer', `is_scraper_account` tinyint(1) not null default '0', `is_active` tinyint(1) not null default '1', `remember_token` varchar(100) null, `created_at` timestamp null, `updated_at` timestamp null) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'users' already exists (Connection: mysql, SQL: create table `users` (`id` bigint unsigned not null auto_increment primary key, `name` varchar(255) not null, `surname` varchar(255) null, `username` varchar(255) null, `email` varchar(255) not null, `email_verified_at` timestamp null, `password` varchar(255) not null, `role` varchar(255) not null default 'customer', `is_scraper_account` tinyint(1) not null default '0', `is_active` tinyint(1) not null default '1', `remember_token` varchar(100) null, `created_at` timestamp null, `updated_at` timestamp null) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('create table `u...', Array, Object(Closure))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(560): Illuminate\\Database\\Connection->run('create table `u...', Array, Object(Closure))
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Blueprint.php(118): Illuminate\\Database\\Connection->statement('create table `u...')
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Schema\\Grammars\\MySqlGrammar))
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(418): Illuminate\\Database\\Schema\\Builder->build(Object(Illuminate\\Database\\Schema\\Blueprint))
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\Builder->create('users', Object(Closure))
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\database\\migrations\\2024_01_14_000000_create_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic('create', Array)
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration(Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render('2024_01_14_0000...', Object(Closure))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write('Illuminate\\\\Cons...', '2024_01_14_0000...', Object(Closure))
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp('C:\\\\Users\\\\polas\\\\...', 14, false)
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending(Array, Array)
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run(Array, Array)
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection(NULL, Object(Closure))
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\Migrations\\MigrateCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'users' already exists at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:571)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(571): PDOStatement->execute()
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():560}('create table `u...', Array)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('create table `u...', Array, Object(Closure))
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(560): Illuminate\\Database\\Connection->run('create table `u...', Array, Object(Closure))
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Blueprint.php(118): Illuminate\\Database\\Connection->statement('create table `u...')
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Schema\\Grammars\\MySqlGrammar))
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(418): Illuminate\\Database\\Schema\\Builder->build(Object(Illuminate\\Database\\Schema\\Blueprint))
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\Builder->create('users', Object(Closure))
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\database\\migrations\\2024_01_14_000000_create_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic('create', Array)
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration(Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render('2024_01_14_0000...', Object(Closure))
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write('Illuminate\\\\Cons...', '2024_01_14_0000...', Object(Closure))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp('C:\\\\Users\\\\polas\\\\...', 14, false)
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending(Array, Array)
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run(Array, Array)
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection(NULL, Object(Closure))
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\Migrations\\MigrateCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#33 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#34 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#35 {main}
+"} 
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:01:52] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:01:52] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:01:52] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:01:52] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:52] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:01:52] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:01:52] local.INFO: Rate limit reached for ticketmaster, waiting 12 seconds  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:09] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:09] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:09] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:09] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:09] local.INFO: Rate limit reached for ticketmaster, waiting 1 seconds  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:17] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:17] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:17] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:17] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:17] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:17] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:17] local.INFO: Rate limit reached for ticketmaster, waiting 20 seconds  
+[2025-07-27 21:02:37] local.INFO: Rate limit reached for ticketmaster, waiting 5 seconds  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:42] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:42] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:42] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:42] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:42] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:42] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:42] local.INFO: Rate limit reached for ticketmaster, waiting 4 seconds  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:46] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:46] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:46] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:46] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:46] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:46] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:46] local.INFO: Rate limit reached for ticketmaster, waiting 6 seconds  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:52] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:52] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:52] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:52] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:52] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:52] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:52] local.INFO: Rate limit reached for ticketmaster, waiting 17 seconds  
+[2025-07-27 21:02:54] local.ERROR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'failed_login_attempts' in 'field list' (Connection: mysql, SQL: update `users` set `last_login_at` = 2025-07-27 21:02:54, `last_login_ip` = 127.0.0.1, `last_login_user_agent` = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36, `failed_login_attempts` = 0, `locked_until` = ?, `users`.`updated_at` = 2025-07-27 21:02:54 where `id` = 2) {"userId":2,"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'failed_login_attempts' in 'field list' (Connection: mysql, SQL: update `users` set `last_login_at` = 2025-07-27 21:02:54, `last_login_ip` = 127.0.0.1, `last_login_user_agent` = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36, `failed_login_attempts` = 0, `locked_until` = ?, `users`.`updated_at` = 2025-07-27 21:02:54 where `id` = 2) at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('update `users` ...', Array, Object(Closure))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(584): Illuminate\\Database\\Connection->run('update `users` ...', Array, Object(Closure))
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(536): Illuminate\\Database\\Connection->affectingStatement('update `users` ...', Array)
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3830): Illuminate\\Database\\Connection->update('update `users` ...', Array)
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Builder.php(1175): Illuminate\\Database\\Query\\Builder->update(Object(Illuminate\\Support\\Collection))
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1239): Illuminate\\Database\\Eloquent\\Builder->update(Array)
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1156): Illuminate\\Database\\Eloquent\\Model->performUpdate(Object(Illuminate\\Database\\Eloquent\\Builder))
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1014): Illuminate\\Database\\Eloquent\\Model->save(Array)
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\app\\Http\\Requests\\Auth\\LoginRequest.php(116): Illuminate\\Database\\Eloquent\\Model->update(Array)
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\app\\Http\\Controllers\\Auth\\AuthenticatedSessionController.php(27): App\\Http\\Requests\\Auth\\LoginRequest->authenticate()
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Auth\\AuthenticatedSessionController->store(Object(App\\Http\\Requests\\Auth\\LoginRequest))
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('store', Array)
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Auth\\AuthenticatedSessionController), 'store')
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():807}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated.php(35): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken.php(88): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Middleware\\ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(121): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\EncryptCookies.php(75): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#33 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#34 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#35 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#36 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#37 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():198}(Object(Illuminate\\Http\\Request))
+#38 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#39 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#40 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#41 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#42 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#43 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#44 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#45 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#46 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#47 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#48 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#49 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#50 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#51 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#52 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#53 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#54 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#55 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#56 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#57 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#58 {main}
+
+[previous exception] [object] (PDOException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'failed_login_attempts' in 'field list' at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:592)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(592): PDO->prepare('update `users` ...')
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::affectingStatement():584}('update `users` ...', Array)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('update `users` ...', Array, Object(Closure))
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(584): Illuminate\\Database\\Connection->run('update `users` ...', Array, Object(Closure))
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(536): Illuminate\\Database\\Connection->affectingStatement('update `users` ...', Array)
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3830): Illuminate\\Database\\Connection->update('update `users` ...', Array)
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Builder.php(1175): Illuminate\\Database\\Query\\Builder->update(Object(Illuminate\\Support\\Collection))
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1239): Illuminate\\Database\\Eloquent\\Builder->update(Array)
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1156): Illuminate\\Database\\Eloquent\\Model->performUpdate(Object(Illuminate\\Database\\Eloquent\\Builder))
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Eloquent\\Model.php(1014): Illuminate\\Database\\Eloquent\\Model->save(Array)
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\app\\Http\\Requests\\Auth\\LoginRequest.php(116): Illuminate\\Database\\Eloquent\\Model->update(Array)
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\app\\Http\\Controllers\\Auth\\AuthenticatedSessionController.php(27): App\\Http\\Requests\\Auth\\LoginRequest->authenticate()
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Auth\\AuthenticatedSessionController->store(Object(App\\Http\\Requests\\Auth\\LoginRequest))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('store', Array)
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Auth\\AuthenticatedSessionController), 'store')
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():807}(Object(Illuminate\\Http\\Request))
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated.php(35): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Auth\\Middleware\\RedirectIfAuthenticated->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken.php(88): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Middleware\\ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(121): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\EncryptCookies.php(75): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#34 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#35 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#36 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#37 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#38 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#39 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():198}(Object(Illuminate\\Http\\Request))
+#40 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#41 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#42 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#43 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#44 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#45 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#46 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#47 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#48 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#49 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#50 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#51 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#52 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#53 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#54 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#55 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#57 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#58 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#59 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#60 {main}
+"} 
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:02:55] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:02:55] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:02:55] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:02:55] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:55] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:02:55] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:02:55] local.INFO: Rate limit reached for ticketmaster, waiting 14 seconds  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:03:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:03:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:03:09] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:03:09] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:09] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:09] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:03:09] local.INFO: Rate limit reached for ticketmaster, waiting 8 seconds  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:03:13] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:03:13] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:03:13] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:03:13] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:13] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:13] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:03:13] local.INFO: Rate limit reached for ticketmaster, waiting 4 seconds  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:03:18] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:03:18] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:03:18] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:03:18] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: England Cricket plugin configured {"config":[]} 
+ts: 1050 Table 'users' already exists (Connection: mysql, SQL: create table `users` (`id` bigint unsigned not null auto_increment primary key, `name` varchar(255) not null, `surname` varchar(255) null, `username` varchar(255) null, `email` varchar(255) not null, `email_verified_at` timestamp null, `password` varchar(255) not null, `role` varchar(255) not null default 'customer', `is_scraper_account` tinyint(1) not null default '0', `is_active` tinyint(1) not null default '1', `remember_token` varchar(100) null, `created_at` timestamp null, `updated_at` timestamp null) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'users' already exists (Connection: mysql, SQL: create table `users` (`id` bigint unsigned not null auto_increment primary key, `name` varchar(255) not null, `surname` varchar(255) null, `username` varchar(255) null, `email` varchar(255) not null, `email_verified_at` timestamp null, `password` varchar(255) not null, `role` varchar(255) not null default 'customer', `is_scraper_account` tinyint(1) not null default '0', `is_active` tinyint(1) not null default '1', `remember_token` varchar(100) null, `created_at` timestamp null, `updated_at` timestamp null) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('create table `u...', Array, Object(Closure))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(560): Illuminate\\Database\\Connection->run('create table `u...', Array, Object(Closure))
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Blueprint.php(118): Illuminate\\Database\\Connection->statement('create table `u...')
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Schema\\Grammars\\MySqlGrammar))
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(418): Illuminate\\Database\\Schema\\Builder->build(Object(Illuminate\\Database\\Schema\\Blueprint))
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\Builder->create('users', Object(Closure))
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\database\\migrations\\2024_01_14_000000_create_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic('create', Array)
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration(Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render('2024_01_14_0000...', Object(Closure))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write('Illuminate\\\\Cons...', '2024_01_14_0000...', Object(Closure))
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp('C:\\\\Users\\\\polas\\\\...', 14, false)
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending(Array, Array)
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run(Array, Array)
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection(NULL, Object(Closure))
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Illuminate\\Console\\OutputStyle))
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Illuminate\\Console\\OutputStyle))
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\Migrations\\MigrateCommand), Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(166): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(427): Illuminate\\Console\\Application->call('migrate', Array, NULL)
+#33 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Foundation\\Console\\Kernel->call('migrate')
+#34 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\error-solutions\\src\\Solutions\\Laravel\\RunMigrationsSolution.php(54): Illuminate\\Support\\Facades\\Facade::__callStatic('call', Array)
+#35 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\laravel-ignition\\src\\Http\\Controllers\\ExecuteSolutionController.php(25): Spatie\\ErrorSolutions\\Solutions\\Laravel\\RunMigrationsSolution->run(Array)
+#36 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(47): Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController->__invoke(Object(Spatie\\LaravelIgnition\\Http\\Requests\\ExecuteSolutionRequest), Object(Spatie\\ErrorSolutions\\SolutionProviderRepository))
+#37 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController), '__invoke')
+#38 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#39 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#40 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():807}(Object(Illuminate\\Http\\Request))
+#41 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\laravel-ignition\\src\\Http\\Middleware\\RunnableSolutionsEnabled.php(16): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#42 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Spatie\\LaravelIgnition\\Http\\Middleware\\RunnableSolutionsEnabled->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#43 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#44 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#45 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#46 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#47 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#48 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#49 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():198}(Object(Illuminate\\Http\\Request))
+#50 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#51 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#52 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#54 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#55 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#57 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#59 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#61 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#63 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#64 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#65 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#66 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#67 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#68 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#69 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#70 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'users' already exists at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:571)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(571): PDOStatement->execute()
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():560}('create table `u...', Array)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('create table `u...', Array, Object(Closure))
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(560): Illuminate\\Database\\Connection->run('create table `u...', Array, Object(Closure))
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Blueprint.php(118): Illuminate\\Database\\Connection->statement('create table `u...')
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Schema\\Grammars\\MySqlGrammar))
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\Builder.php(418): Illuminate\\Database\\Schema\\Builder->build(Object(Illuminate\\Database\\Schema\\Blueprint))
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\Builder->create('users', Object(Closure))
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\database\\migrations\\2024_01_14_000000_create_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic('create', Array)
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod(Object(Illuminate\\Database\\MySqlConnection), Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration(Object(Illuminate\\Database\\Migrations\\Migration@anonymous), 'up')
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render('2024_01_14_0000...', Object(Closure))
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write('Illuminate\\\\Cons...', '2024_01_14_0000...', Object(Closure))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp('C:\\\\Users\\\\polas\\\\...', 14, false)
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending(Array, Array)
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run(Array, Array)
+#19 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection(NULL, Object(Closure))
+#21 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#25 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#26 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#27 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#28 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Illuminate\\Console\\OutputStyle))
+#29 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Illuminate\\Console\\OutputStyle))
+#30 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#31 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\Migrations\\MigrateCommand), Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#32 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#33 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(166): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\StringInput), Object(Symfony\\Component\\Console\\Output\\BufferedOutput))
+#34 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(427): Illuminate\\Console\\Application->call('migrate', Array, NULL)
+#35 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Foundation\\Console\\Kernel->call('migrate')
+#36 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\error-solutions\\src\\Solutions\\Laravel\\RunMigrationsSolution.php(54): Illuminate\\Support\\Facades\\Facade::__callStatic('call', Array)
+#37 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\laravel-ignition\\src\\Http\\Controllers\\ExecuteSolutionController.php(25): Spatie\\ErrorSolutions\\Solutions\\Laravel\\RunMigrationsSolution->run(Array)
+#38 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(47): Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController->__invoke(Object(Spatie\\LaravelIgnition\\Http\\Requests\\ExecuteSolutionRequest), Object(Spatie\\ErrorSolutions\\SolutionProviderRepository))
+#39 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController), '__invoke')
+#40 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#41 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#42 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->{closure:Illuminate\\Routing\\Router::runRouteWithinStack():807}(Object(Illuminate\\Http\\Request))
+#43 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\spatie\\laravel-ignition\\src\\Http\\Middleware\\RunnableSolutionsEnabled.php(16): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#44 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Spatie\\LaravelIgnition\\Http\\Middleware\\RunnableSolutionsEnabled->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#45 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#46 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#47 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#48 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#49 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#50 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#51 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():198}(Object(Illuminate\\Http\\Request))
+#52 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():168}(Object(Illuminate\\Http\\Request))
+#53 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#54 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#55 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#56 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#57 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#59 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#61 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#63 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#64 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#65 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#66 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#67 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#68 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():184}:185}(Object(Illuminate\\Http\\Request))
+#69 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#70 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#71 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#72 {main}
+"} 
+[2025-07-27 21:03:18] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:18] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:18] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:03:18] local.INFO: Rate limit reached for ticketmaster, waiting 19 seconds  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:03:37] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:03:37] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:03:37] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:03:37] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:37] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:03:37] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:03:37] local.ERROR: Cannot redeclare class App\Services\AlertPriority (previously declared as local import) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Cannot redeclare class App\\Services\\AlertPriority (previously declared as local import) at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\app\\Services\\EnhancedAlertSystem.php:510)
+[stacktrace]
+#0 {main}
+"} 
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:05:31] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:05:31] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:05:31] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:05:31] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:31] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:31] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:05:31] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:05:35] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:05:35] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:05:35] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:05:35] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:35] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:05:35] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:05:35] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:09] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:09] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:09] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:09] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:09] local.ERROR: PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Exception\\ParseErrorException.php:44)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(306): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(240): Psy\\CodeCleaner->parse('<?php echo 'Use...', false)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(852): Psy\\CodeCleaner->clean(Array, false)
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(881): Psy\\Shell->addCode('echo 'Users in ...', true)
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(1390): Psy\\Shell->setCode('echo 'Users in ...', true)
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\tinker\\src\\Console\\TinkerCommand.php(76): Psy\\Shell->execute('echo 'Users in ...')
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:15] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:15] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:15] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:15] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:15] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:15] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:15] local.ERROR: PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Exception\\ParseErrorException.php:44)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(306): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(240): Psy\\CodeCleaner->parse('<?php use App\\\\M...', false)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(852): Psy\\CodeCleaner->clean(Array, false)
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(881): Psy\\Shell->addCode('use App\\\\Models\\\\...', true)
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(1390): Psy\\Shell->setCode('use App\\\\Models\\\\...', true)
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\tinker\\src\\Console\\TinkerCommand.php(76): Psy\\Shell->execute('use App\\\\Models\\\\...')
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:20] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:20] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:20] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:20] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:20] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:20] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:20] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:24] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:24] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:24] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:24] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:24] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:24] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:24] local.INFO: Rate limit reached for ticketmaster, waiting 7 seconds  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:39] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:39] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:39] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:39] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:39] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:39] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:39] local.ERROR: PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 at C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Exception\\ParseErrorException.php:44)
+[stacktrace]
+#0 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(306): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\CodeCleaner.php(240): Psy\\CodeCleaner->parse('<?php echo '===...', false)
+#2 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(852): Psy\\CodeCleaner->clean(Array, false)
+#3 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(881): Psy\\Shell->addCode('echo '=== SPORT...', true)
+#4 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\psy\\psysh\\src\\Shell.php(1390): Psy\\Shell->setCode('echo '=== SPORT...', true)
+#5 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\tinker\\src\\Console\\TinkerCommand.php(76): Psy\\Shell->execute('echo '=== SPORT...')
+#6 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#8 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#12 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: psg  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-27 21:06:44] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-27 21:06:44] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-27 21:06:44] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-27 21:06:44] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:44] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-27 21:06:44] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-27 21:06:44] local.INFO: Rate limit reached for ticketmaster, waiting 25 seconds  
