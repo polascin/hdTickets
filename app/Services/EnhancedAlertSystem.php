@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\TicketAlert;
 use App\Models\User;
 use App\Models\ScrapedTicket;
-use App\Models\AlertPriority;
 use App\Models\UserPreference;
 use App\Notifications\SmartTicketAlert;
 use App\Notifications\TicketPriceDropAlert;
