@@ -26,7 +26,7 @@ class WebSocketServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('WebSocketServer', function ($app) {
-            return new eyondcode\laravelwebsockets\WebSocketsServiceProvider($app);
+            return new \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider($app);
         });
     }
 }

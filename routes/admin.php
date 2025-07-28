@@ -206,36 +206,3 @@ Route::post('register-with-payment', [RegistrationWithPaymentController::class, 
 Route::resource('payment-plans', PaymentPlanController::class)->except(['show']);
 Route::get('payment-plans/{paymentPlan}', [PaymentPlanController::class, 'show'])->name('payment-plans.show');
 
-public function store(Request $request)
-{
-    // ...existing validation and user creation...
-
-    if ($request->subscription_type === 'paid') {
-        // Stripe payment
-        Stripe::setApiKey(config('services.stripe.secret'));
-        $paymentIntent = PaymentIntent::create([
-            'amount' => $paymentPlan->price * 100, // cents
-            'currency' => 'usd',
-            'payment_method' => $request->stripe_payment_method_id,
-            'confirmation_method' => 'manual',
-            'confirm' => true,
-        ]);
-        // Save paymentIntent ID and status
-        $subscriptionData['stripe_payment_intent_id'] = $paymentIntent->id;
-        $subscriptionData['payment_method'] = 'stripe';
-    }
-
-    if ($request->subscription_type === 'paid' && $request->payment_method === 'paypal') {
-        // PayPal payment
-        $payment = Payment::get($request->paypal_payment_id, $apiContext);
-        $execution = new PaymentExecution();
-        $execution->setPayerId($request->paypal_payer_id);
-        $result = $payment->execute($execution, $apiContext);
-        // Save PayPal transaction ID
-        $subscriptionData['paypal_transaction_id'] = $result->getId();
-        $subscriptionData['payment_method'] = 'paypal';
-    }
-
-    // ...existing subscription creation...
-}
-

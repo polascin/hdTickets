@@ -237,8 +237,8 @@ class NotificationManager
             'ticket_available' => 5,
             'system_status' => 3,
             'custom_alert' => 3,
-            default => 2,
-        ];
+            default => 2
+        };
 
         // Adjust based on context
         switch ($type) {
