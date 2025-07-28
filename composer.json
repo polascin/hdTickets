@@ -25,11 +25,14 @@
         "spatie/laravel-activitylog": "^4.8",
         "twilio/sdk": "^8.0",
         "pusher/pusher-php-server": "^7.2",
-        "predis/predis": "*",
+        "predis/predis": "^3.1",
         "roach-php/laravel": "^3.0",
         "spatie/browsershot": "^5.0.5",
         "pragmarx/google2fa": "^8.0",
-        "pragmarx/google2fa-qrcode": "^3.0"
+        "pragmarx/google2fa-qrcode": "^3.0",
+        "alcaeus/mongo-php-adapter": "^1.2",
+        "paypal/rest-api-sdk-php": "^1.6",
+        "stripe/stripe-php": "^17.4"
     },
     "require-dev": {
         "laravel/breeze": "^2.3",
@@ -39,7 +42,9 @@
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.4",
         "larastan/larastan": "^3.0",
-        "spatie/laravel-ignition": "^2.8"
+        "spatie/laravel-ignition": "^2.8",
+        "symfony/var-dumper": "^7.3",
+        "laravel/telescope": "^5.10"
     },
     "autoload": {
         "psr-4": {

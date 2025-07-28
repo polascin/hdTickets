@@ -82,6 +82,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_permissions',
         'email_notifications',
         'push_notifications',
+        'current_subscription_id',
+        'has_trial_used',
+        'billing_address',
+        'stripe_customer_id',
     ];
 
     /**
@@ -582,6 +586,136 @@ class User extends Authenticatable implements MustVerifyEmail
     public function createdUsers(): HasMany
     {
         return $this->hasMany(User::class, 'created_by_id');
+    }
+
+    /**
+     * Get all subscriptions for this user
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    /**
+     * Get the current active subscription
+     */
+    public function currentSubscription()
+    {
+        return $this->belongsTo(UserSubscription::class, 'current_subscription_id');
+    }
+
+    /**
+     * Get the user's active subscription
+     */
+    public function activeSubscription()
+    {
+        return $this->subscriptions()
+                    ->where('status', 'active')
+                    ->where(function ($query) {
+                        $query->whereNull('ends_at')
+                              ->orWhere('ends_at', '>', now());
+                    })
+                    ->with('paymentPlan')
+                    ->first();
+    }
+
+    /**
+     * Check if user has an active subscription
+     */
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription() !== null;
+    }
+
+    /**
+     * Check if user is on trial
+     */
+    public function isOnTrial(): bool
+    {
+        $subscription = $this->activeSubscription();
+        return $subscription && $subscription->isOnTrial();
+    }
+
+    /**
+     * Get user's current payment plan
+     */
+    public function getCurrentPlan()
+    {
+        $subscription = $this->activeSubscription();
+        return $subscription ? $subscription->paymentPlan : null;
+    }
+
+    /**
+     * Check if user can access feature based on their plan
+     */
+    public function canAccessFeature(string $feature): bool
+    {
+        $plan = $this->getCurrentPlan();
+        
+        if (!$plan) {
+            return false; // No plan = no access
+        }
+
+        return match($feature) {
+            'advanced_analytics' => $plan->advanced_analytics,
+            'automated_purchasing' => $plan->automated_purchasing,
+            'priority_support' => $plan->priority_support,
+            default => true
+        };
+    }
+
+    /**
+     * Get remaining ticket allowance for current month
+     */
+    public function getRemainingTicketAllowance(): int
+    {
+        $plan = $this->getCurrentPlan();
+        
+        if (!$plan || $plan->hasUnlimitedTickets()) {
+            return -1; // Unlimited
+        }
+
+        // You would need to track ticket usage per month
+        // This is a simplified version
+        return $plan->max_tickets_per_month;
+    }
+
+    /**
+     * Check if user has reached their monthly ticket limit
+     */
+    public function hasReachedTicketLimit(): bool
+    {
+        $remaining = $this->getRemainingTicketAllowance();
+        return $remaining !== -1 && $remaining <= 0;
+    }
+
+    /**
+     * Subscribe user to a plan
+     */
+    public function subscribeToPlan(PaymentPlan $plan, array $options = []): UserSubscription
+    {
+        // Cancel existing active subscription if any
+        if ($existing = $this->activeSubscription()) {
+            $existing->cancel();
+        }
+
+        $subscription = $this->subscriptions()->create([
+            'payment_plan_id' => $plan->id,
+            'status' => $options['status'] ?? 'trial',
+            'starts_at' => $options['starts_at'] ?? now(),
+            'ends_at' => $options['ends_at'] ?? null,
+            'trial_ends_at' => $options['trial_ends_at'] ?? now()->addDays(14),
+            'stripe_subscription_id' => $options['stripe_subscription_id'] ?? null,
+            'stripe_customer_id' => $options['stripe_customer_id'] ?? null,
+            'amount_paid' => $options['amount_paid'] ?? 0,
+            'payment_method' => $options['payment_method'] ?? null,
+            'metadata' => $options['metadata'] ?? null,
+        ]);
+
+        // Update current subscription reference
+        $this->update(['current_subscription_id' => $subscription->id]);
+
+        return $subscription;
     }
 
     /**
