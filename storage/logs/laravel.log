@@ -5527,3 +5527,467 @@ ts: 1050 Table 'users' already exists (Connection: mysql, SQL: create table `use
 #20 C:\\Users\\polas\\OneDrive\\www\\hdtickets\\public\\index.php(55): Illuminate\\Foundation\\Http\\Kernel->terminate(Object(Illuminate\\Http\\Request), Object(Illuminate\\Http\\Response))
 #21 {main}
 "} 
+[2025-07-29 10:03:09] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_available_date' (Connection: mysql, SQL: alter table `scraped_tickets` add index `idx_platform_available_date`(`platform`, `is_available`, `event_date`)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_available_date' (Connection: mysql, SQL: alter table `scraped_tickets` add index `idx_platform_available_date`(`platform`, `is_available`, `event_date`)) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(560): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(118): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(406): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(361): Illuminate\\Database\\Schema\\Builder->table()
+#6 /var/www/hdtickets/database/migrations/2025_07_27_140000_add_performance_indexes.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call()
+#26 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#32 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_available_date' at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:571)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(571): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():560}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(560): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(118): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(406): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(361): Illuminate\\Database\\Schema\\Builder->table()
+#8 /var/www/hdtickets/database/migrations/2025_07_27_140000_add_performance_indexes.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call()
+#28 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#34 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#35 {main}
+"} 
+[2025-07-29 10:04:41] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'users_failed_login_attempts_index' (Connection: mysql, SQL: alter table `users` add index `users_failed_login_attempts_index`(`failed_login_attempts`)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'users_failed_login_attempts_index' (Connection: mysql, SQL: alter table `users` add index `users_failed_login_attempts_index`(`failed_login_attempts`)) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:825)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(560): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(118): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(406): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(361): Illuminate\\Database\\Schema\\Builder->table()
+#6 /var/www/hdtickets/database/migrations/2025_07_27_212256_add_failed_login_attempts_to_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call()
+#26 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#32 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'users_failed_login_attempts_index' at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:571)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(571): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():560}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(560): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(118): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(564): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(406): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(361): Illuminate\\Database\\Schema\\Builder->table()
+#8 /var/www/hdtickets/database/migrations/2025_07_27_212256_add_failed_login_attempts_to_users_table.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(507): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(432): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(441): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():428}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(40): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():244}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(798): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(244): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(211): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(138): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(117): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():110}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(110): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(89): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call()
+#28 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#34 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#35 {main}
+"} 
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:06:29] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:06:29] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:06:29] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:06:29] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:29] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:29] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:06:29] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:06:32] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:06:32] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:06:32] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:06:32] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:32] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:32] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:06:32] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:06:36] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:06:36] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:06:36] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:06:36] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:36] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:36] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:06:36] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:06:40] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:06:40] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:06:40] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:06:40] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:40] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:06:40] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:06:40] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:07:37] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:07:37] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:07:37] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:07:37] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:37] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:37] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:07:37] local.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: ac_milan  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: arsenalfc  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: barcelona  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: bayern_munich  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: celticfc  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: chelseafc  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: englandcricket  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: eventim  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: juventus  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: lordscricket  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: manchester_city  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: psg  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: real_madrid  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: silverstonef1  
+[2025-07-29 10:07:43] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: stubhub  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: ticketekuk  
+[2025-07-29 10:07:43] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: ticketmaster  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: tottenham  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: twickenham  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: wembleystadium  
+[2025-07-29 10:07:43] local.INFO: Loaded scraper plugin: wimbledon  
+[2025-07-29 10:07:43] local.INFO: AC Milan plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: England Cricket plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:43] local.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Ticketmaster plugin configured {"config":{"api_key":"","base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-07-29 10:07:43] local.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Twickenham plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-07-29 10:07:43] local.INFO: Wimbledon plugin configured {"config":[]} 
