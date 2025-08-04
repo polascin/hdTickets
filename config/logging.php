@@ -73,8 +73,8 @@ return [
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
-            'username' => 'Laravel Log',
-            'emoji' => ':boom:',
+            'username' => 'HDTickets Monitor',
+            'emoji' => ':warning:',
             'level' => env('LOG_LEVEL', 'critical'),
         ],
 
@@ -163,6 +163,51 @@ return [
             'path' => storage_path('logs/performance.log'),
             'level' => env('LOG_LEVEL', 'info'),
             'days' => 14,
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Security Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Dedicated channel for security events, authentication, and suspicious activities.
+        |
+        */
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => 90, // Keep security logs for 90 days
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Critical Alerts Channel
+        |--------------------------------------------------------------------------
+        |
+        | Channel for critical system alerts that need immediate attention.
+        | Uses Slack for real-time notifications.
+        |
+        */
+        'critical_alerts' => [
+            'driver' => 'stack',
+            'channels' => ['daily', 'slack'],
+            'ignore_exceptions' => false,
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Audit Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Channel for audit trails of sensitive operations and administrative actions.
+        |
+        */
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => 'info',
+            'days' => 180, // Keep audit logs for 6 months
         ],
     ],
 

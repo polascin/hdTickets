@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\PurchaseAnalyticsService;
+use App\Services\PurchaseService;
 
 class PurchaseDecisionController extends Controller
 {
@@ -201,9 +202,9 @@ public function index(Request $request)
             'attempted_quantity' => $purchaseQueue->quantity,
         ]);
 
-        // TODO: Integrate with actual purchase processing service
-        // For now, we'll simulate the process
-        $this->simulatePurchaseProcess($attempt);
+        // Process the purchase using the actual PurchaseService
+        $purchaseService = new PurchaseService();
+        $purchaseService->processPurchase($attempt);
 
         return redirect()->back()->with('success', 'Purchase process initiated successfully.');
     }

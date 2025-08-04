@@ -8,6 +8,7 @@ use App\Models\ScrapedTicket;
 use App\Models\User;
 use App\Services\PurchaseAnalyticsService;
 use App\Services\AdvancedAnalyticsDashboard;
+use App\Services\PurchaseService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -633,33 +634,27 @@ class AutomatedPurchaseEngine
 
     private function executePurchaseFlow($queueItem, $request): array
     {
-        // Simulate purchase execution - integrate with actual purchase logic
-        $success = rand(1, 100) <= 75; // 75% success rate for simulation
-        
+        // Create purchase attempt record
         $attempt = PurchaseAttempt::create([
             'purchase_queue_id' => $queueItem->id,
+            'scraped_ticket_id' => $queueItem->scraped_ticket_id,
             'platform' => $queueItem->scrapedTicket->platform,
-            'status' => $success ? 'success' : 'failed',
-            'started_at' => now(),
-            'completed_at' => now()->addSeconds(rand(30, 180)),
-            'error_message' => $success ? null : 'Simulated failure for testing',
-            'confirmation_number' => $success ? 'CONF_' . strtoupper(uniqid()) : null,
-            'final_price' => $queueItem->scrapedTicket->total_price,
+            'attempted_price' => $queueItem->scrapedTicket->total_price,
+            'attempted_quantity' => $queueItem->quantity ?? 1,
         ]);
         
-        $queueItem->update([
-            'status' => $success ? 'completed' : 'failed',
-            'completed_at' => now(),
-        ]);
+        // Use actual PurchaseService to process the purchase
+        $purchaseService = new PurchaseService();
+        $result = $purchaseService->processPurchase($attempt);
         
         return [
-            'success' => $success,
+            'success' => $result->success,
             'attempt_id' => $attempt->id,
-            'confirmation_number' => $attempt->confirmation_number,
-            'final_price' => $attempt->final_price,
-            'total_paid' => $attempt->final_price + $this->estimatePlatformFees($queueItem->scrapedTicket),
+            'confirmation_number' => $result->success ? $result->confirmationCode : null,
+            'final_price' => $result->success ? $result->totalPrice : $attempt->attempted_price,
+            'total_paid' => $result->success ? $result->totalPrice : null,
             'optimization_applied' => ['intelligent_timing', 'price_optimization'],
-            'message' => $success ? 'Purchase completed successfully' : 'Purchase failed - will retry if configured',
+            'message' => $result->success ? 'Purchase completed successfully' : 'Purchase failed: ' . $result->errorMessage,
         ];
     }
 

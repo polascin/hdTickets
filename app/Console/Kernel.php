@@ -47,6 +47,29 @@ class Kernel extends ConsoleKernel
         $schedule->command('model:prune', ['--model' => 'App\\Models\\ScrapedTicket'])
                 ->dailyAt('03:00')
                 ->timezone('Europe/London');
+        
+        // Performance optimization schedules
+        
+        // Warm cache every 2 hours during active hours
+        $schedule->command('cache:warm')
+                ->cron('0 */2 6-23 * * *') // Every 2 hours from 6 AM to 11 PM
+                ->timezone('Europe/London')
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path('logs/cache-warming.log'));
+        
+        // Database optimization daily at 2 AM
+        $schedule->command('db:optimize')
+                ->dailyAt('02:00')
+                ->timezone('Europe/London')
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path('logs/db-optimization.log'));
+        
+        // Cache statistics every hour for monitoring
+        $schedule->call(function () {
+            $service = app(\App\Services\PerformanceOptimizationService::class);
+            $stats = $service->getCacheStatistics();
+            \Log::info('Cache Statistics', $stats);
+        })->hourly()->name('cache-stats');
     }
 
     /**

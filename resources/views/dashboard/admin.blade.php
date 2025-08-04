@@ -151,9 +151,9 @@
                     </div>
                 </div>
                 
-                <button onclick="refreshDashboard()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-6 py-3 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                <button onclick="refreshDashboard()" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-6 py-3 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl" title="Refresh the dashboard">
+                    <svg class="w-5 h-5 inline mr-2 animate-spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="refreshSpinner">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
                     </svg>
                     <span class="hidden sm:inline">Refresh</span>
                 </button>
@@ -248,9 +248,9 @@
                                 </div>
                             </div>
                             <div class="ml-4 flex-1">
-                                <div class="text-sm font-medium text-gray-600 mb-1">Scraped Tickets</div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $scrapedTickets ?? 0 }}">{{ number_format($scrapedTickets ?? 0) }}</div>
-                                <div class="text-xs text-green-500 font-medium flex items-center">
+                                <div class="text-sm font-medium text-gray-600 mb-1" title="Total tickets collected from all platforms">Scraped Tickets</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" data-counter="{{ $scrapedTickets ?? 0 }}" title="{{ number_format($scrapedTickets ?? 0) }} tickets collected">{{ number_format($scrapedTickets ?? 0) }}</div>
+                                <div class="text-xs text-green-500 font-medium flex items-center" title="Growth compared to last week">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"></path>
                                     </svg>
@@ -720,13 +720,35 @@
         function refreshDashboard() {
             // Show loading state
             const refreshBtn = document.querySelector('button[onclick="refreshDashboard()"]');
+            const refreshSpinner = document.getElementById('refreshSpinner');
             const originalContent = refreshBtn.innerHTML;
-            refreshBtn.innerHTML = '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C6.477 0 0 6.477 0 12h4z"></path></svg>Refreshing...';
             
-            // Simulate loading delay
+            // Show spinner and update button text
+            refreshSpinner.classList.remove('hidden');
+            refreshBtn.innerHTML = '<svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="refreshSpinner"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg><span class="hidden sm:inline">Refreshing...</span>';
+            refreshBtn.disabled = true;
+            
+            // Add shimmer effect to stats cards
+            const statCards = document.querySelectorAll('[data-counter]');
+            statCards.forEach(card => {
+                card.classList.add('loading-shimmer');
+            });
+            
+            // Simulate API call and reload
             setTimeout(() => {
                 location.reload();
-            }, 500);
+            }, 800);
+        }
+        
+        // Function to refresh alerts
+        function refreshAlerts() {
+            const alertsContainer = document.getElementById('alertsList');
+            alertsContainer.innerHTML = '<div class="text-center py-3"><i class="fas fa-spinner fa-spin text-gray-400"></i> Loading alerts...</div>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                alertsContainer.innerHTML = '<div class="text-center py-3 text-gray-500">No active alerts</div>';
+            }, 1000);
         }
 
         // Counter animation function

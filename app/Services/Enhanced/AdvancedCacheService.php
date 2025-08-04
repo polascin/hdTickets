@@ -79,6 +79,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
         // Warm popular search patterns
         $this->warmPopularSearches();
+
+        // Preemptively cache high-demand events
+        $this->preloadHighDemandEvents();
     }
 
     /**
@@ -380,6 +383,25 @@ class AdvancedCacheService extends PerformanceCacheService
             $this->getMultiLayered("preload:{$key}", $callback, self::CACHE_TTL_LONG);
         }
     }
+
+    /**
+     * Preload high-demand events into cache
+     */
+    private function preloadHighDemandEvents(): void
+    {
+        $highDemandEvents = ScrapedTicket::where('is_high_demand', true)
+            ->where('is_available', true)
+            ->orderByDesc('event_date')
+            ->limit(50)
+            ->get();
+
+        foreach ($highDemandEvents as $event) {
+            $cacheKey = 'high_demand_event_' . $event->id;
+            Cache::put($cacheKey, $event, self::CACHE_TTL_LONG);
+            Log::channel('performance')->info('Preloaded high-demand event', ['event_id' => $event->id]);
+        }
+    }
+
 
     /**
      * Get price analytics with caching

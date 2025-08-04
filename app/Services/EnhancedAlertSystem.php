@@ -6,10 +6,12 @@ use App\Models\TicketAlert;
 use App\Models\User;
 use App\Models\ScrapedTicket;
 use App\Models\UserPreference;
+use App\Models\PriceAlertThreshold;
+use App\Models\PriceVolatilityAnalytics;
 use App\Notifications\SmartTicketAlert;
 use App\Notifications\HighDemandTicketAlert;
 use App\Services\NotificationChannels\SlackNotificationChannel;
-use App\Services\NotificationChannels\DiscordNotificationChannel; 
+use App\Services\NotificationChannels\DiscordNotificationChannel;
 use App\Services\NotificationChannels\TelegramNotificationChannel;
 use App\Services\NotificationChannels\WebhookNotificationChannel;
 use Illuminate\Support\Facades\Cache;
@@ -36,6 +38,46 @@ class EnhancedAlertSystem
     }
 
     /**
+     * Monitor dynamic price conditions and alert as necessary
+     */
+    public function monitorDynamicPriceConditions(): void
+    {
+        $thresholds = PriceAlertThreshold::active()->get();
+
+        foreach ($thresholds as $threshold) {
+            $ticket = $threshold->ticket;
+            $currentPrice = $ticket->price;
+
+            if ($threshold->shouldTrigger($currentPrice)) {
+                $this->triggerDynamicAlert($threshold, $currentPrice);
+            }
+        }
+    }
+
+    /**
+     * Trigger alert for a price condition
+     */
+    protected function triggerDynamicAlert(PriceAlertThreshold $threshold, float $currentPrice): void
+    {
+        $alertData = [
+            'ticket' => $threshold->ticket->toArray(),
+            'threshold' => $threshold->toArray(),
+            'current_price' => $currentPrice,
+            'actions' => [
+                'view_ticket' => route('tickets.scraping.show', $threshold->ticket_id),
+                'manage_alerts' => route('alerts.manage'),
+            ],
+            'metadata' => [
+                'triggered_at' => now()->toISOString()
+            ]
+        ];
+
+        $channels = $this->getOptimalNotificationChannels($threshold->user, AlertPriority::HIGH);
+        $this->sendMultiChannelNotification($threshold->user, $alertData, $channels);
+        $threshold->trigger();
+    }
+
+    /**
      * Process smart alert with ML-based prioritization
      */
     public function processSmartAlert(ScrapedTicket $ticket, TicketAlert $alert): void
@@ -43,27 +85,27 @@ class EnhancedAlertSystem
         try {
             // Calculate smart priority based on multiple factors
             $priority = $this->calculateSmartPriority($ticket, $alert);
-            
+
             // Get ML prediction for ticket availability trend
             $prediction = $this->mlPredictor->predictAvailabilityTrend($ticket);
-            
+
             // Create enhanced alert data
             $alertData = $this->buildEnhancedAlertData($ticket, $alert, $priority, $prediction);
-            
+
             // Determine notification channels based on priority and user preferences
             $channels = $this->getOptimalNotificationChannels($alert->user, $priority);
-            
+
             // Send notifications through selected channels
             $this->sendMultiChannelNotification($alert->user, $alertData, $channels);
-            
+
             // Update alert statistics
             $this->updateAlertStatistics($alert, $priority, $channels);
-            
+
             // Schedule escalation if needed
             if ($priority >= AlertPriority::HIGH) {
                 $this->escalationService->scheduleEscalation($alert, $alertData);
             }
-            
+
             Log::info('Smart alert processed successfully', [
                 'alert_id' => $alert->id,
                 'ticket_id' => $ticket->id,
@@ -71,7 +113,7 @@ class EnhancedAlertSystem
                 'channels' => array_keys($channels),
                 'prediction' => $prediction
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Failed to process smart alert', [
                 'alert_id' => $alert->id,
@@ -89,12 +131,12 @@ class EnhancedAlertSystem
     {
         $priority = AlertPriority::NORMAL;
         $factors = [];
-        
+
         // Price-based priority
         if ($alert->max_price && $ticket->price <= $alert->max_price) {
             $priceDifference = $alert->max_price - $ticket->price;
             $priceRatio = $priceDifference / $alert->max_price;
-            
+
             if ($priceRatio > 0.3) {
                 $priority = AlertPriority::HIGH;
                 $factors[] = 'significant_price_drop';
@@ -103,7 +145,7 @@ class EnhancedAlertSystem
                 $factors[] = 'moderate_price_drop';
             }
         }
-        
+
         // Quantity-based priority
         if ($alert->min_quantity && $ticket->quantity >= $alert->min_quantity) {
             if ($ticket->quantity >= $alert->min_quantity * 2) {
@@ -113,11 +155,11 @@ class EnhancedAlertSystem
                 $factors[] = 'adequate_quantity';
             }
         }
-        
+
         // Time-based urgency (event date proximity)
         if ($ticket->event_date) {
             $daysUntilEvent = Carbon::parse($ticket->event_date)->diffInDays(now());
-            
+
             if ($daysUntilEvent <= 7) {
                 $priority = max($priority, AlertPriority::HIGH);
                 $factors[] = 'event_imminent';
@@ -126,7 +168,7 @@ class EnhancedAlertSystem
                 $factors[] = 'event_approaching';
             }
         }
-        
+
         // Scarcity-based priority (low availability across platforms)
         $totalAvailability = $this->getTotalTicketAvailability($ticket->event_name, $ticket->event_date);
         if ($totalAvailability <= 10) {
@@ -136,36 +178,36 @@ class EnhancedAlertSystem
             $priority = max($priority, AlertPriority::HIGH);
             $factors[] = 'limited_availability';
         }
-        
+
         // User preference-based priority
         $userPrefs = $this->getUserEventPreferences($alert->user_id, $ticket);
         if ($userPrefs['is_favorite_team'] ?? false) {
             $priority = max($priority, AlertPriority::HIGH);
             $factors[] = 'favorite_team';
         }
-        
+
         if ($userPrefs['is_preferred_venue'] ?? false) {
             $priority = max($priority, AlertPriority::MEDIUM);
             $factors[] = 'preferred_venue';
         }
-        
+
         // Historical success rate
         $userSuccessRate = $this->getUserAlertSuccessRate($alert->user_id);
-        if ($userSuccessRate < 0.3) { // User rarely acts on alerts
-            $priority = max(1, $priority - 1); // Reduce priority slightly
+        if ($userSuccessRate < 0.3) {
+            $priority = max(1, $priority - 1);
             $factors[] = 'low_user_engagement';
         }
-        
+
         // Platform reliability factor
         $platformReliability = $this->getPlatformReliability($ticket->platform);
         if ($platformReliability < 0.8) {
             $priority = max($priority, AlertPriority::MEDIUM);
             $factors[] = 'unreliable_platform';
         }
-        
+
         // Store priority factors for analysis
         Cache::put("alert_factors:{$alert->id}", $factors, 3600);
-        
+
         return $priority;
     }
 

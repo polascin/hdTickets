@@ -1,53 +1,69 @@
 import './bootstrap';
-
 import Alpine from 'alpinejs';
 import { createApp } from 'vue';
 
-// Import utility modules
-import websocketManager from '@utils/websocketManager';
+// Import core application module
+import AppCore from './core/AppCore.js';
+
+// Import utilities
 import cssTimestamp from '@utils/cssTimestamp';
-import responsiveUtils from '@utils/responsiveUtils';
 import { ChartJS } from '@utils/chartConfig';
 import pwaManager from '@utils/pwaManager';
 
-// Vue Components
-import RealTimeMonitoringDashboard from '@components/RealTimeMonitoringDashboard.vue';
-import AnalyticsDashboard from '@components/AnalyticsDashboard.vue';
-import UserPreferencesPanel from '@components/UserPreferencesPanel.vue';
-import TicketDashboard from '@components/TicketDashboard.vue';
-import AdminDashboard from '@components/admin/AdminDashboard.vue';
+// Alpine.js component imports
+import { dashboardManager } from './components/dashboardManager.js';
 
-// Make Alpine available on the window object
+// Vue Components (lazy loaded)
+const RealTimeMonitoringDashboard = () => import('@components/RealTimeMonitoringDashboard.vue');
+const AnalyticsDashboard = () => import('@components/AnalyticsDashboard.vue');
+const UserPreferencesPanel = () => import('@components/UserPreferencesPanel.vue');
+const TicketDashboard = () => import('@components/TicketDashboard.vue');
+const AdminDashboard = () => import('@components/admin/AdminDashboard.vue');
+
+// Make Alpine available globally
 window.Alpine = Alpine;
 
-// Initialize utilities
-console.log('Initializing Sports Ticket Monitoring System...');
-
-// Initialize responsive utilities (already auto-initialized)
-console.log('Responsive utilities loaded:', responsiveUtils.getViewport());
-
-// Initialize WebSocket connections
-websocketManager.on('connected', () => {
-    console.log('WebSocket connected successfully');
-    // Subscribe to global ticket updates
-    websocketManager.subscribeToTicketUpdates((data) => {
-        console.log('Ticket update received:', data);
-        // Emit custom event for components to listen to
-        window.dispatchEvent(new CustomEvent('ticket:updated', { detail: data }));
-    });
-});
+// Initialize application core
+console.log('🚀 Initializing HD Tickets Application v2.0...');
 
 // Setup CSS timestamp watching in development
 if (import.meta.env.DEV) {
     cssTimestamp.watchCSS(['app.css', 'components.css'], (file, timestamp) => {
-        console.log(`CSS file updated: ${file} at ${new Date(timestamp).toLocaleTimeString()}`);
+        console.log(`📄 CSS file updated: ${file} at ${new Date(timestamp).toLocaleTimeString()}`);
     });
 }
 
-// Initialize Alpine
+// Register Alpine.js components
+Alpine.data('dashboardManager', dashboardManager);
+
+// Initialize Alpine.js
 Alpine.start();
 
-console.log('Alpine.js loaded and initialized:', !!window.Alpine);
+// Setup application event listeners
+AppCore.on('app:initialized', () => {
+    console.log('✅ Application core initialized successfully');
+    
+    // Initialize WebSocket if available
+    const websocketManager = AppCore.getModule('websocket');
+    if (websocketManager) {
+        websocketManager.on('connected', () => {
+            console.log('🔗 WebSocket connected successfully');
+            // Subscribe to global ticket updates
+            websocketManager.subscribeToTicketUpdates((data) => {
+                AppCore.emit('ticket:updated', data);
+            });
+        });
+    }
+    
+    // Show success message
+    AppCore.showSuccessMessage('Application loaded successfully');
+});
+
+AppCore.on('app:error', (event) => {
+    console.error('❌ Application error:', event.detail);
+});
+
+console.log('🎯 Alpine.js loaded and initialized:', !!window.Alpine);
 
 // Vue 3 Composition API app factory
 function createVueApp(rootComponent, props = {}) {

@@ -250,6 +250,109 @@ class WebSocketManager {
     }
 
     /**
+     * Subscribe to ticket price changes with enhanced event handling
+     */
+    subscribeToEnhancedPriceChanges(callback) {
+        if (this.connectionType === 'pusher' && this.echo) {
+            const ticketChannel = this.echo.channel('ticket-updates');
+            const priceChannel = this.echo.channel('price-changes');
+            
+            ticketChannel.listen('ticket.price.changed', (data) => {
+                this.handleTicketPriceChange(data, callback);
+            });
+            
+            priceChannel.listen('ticket.price.changed', (data) => {
+                this.handleTicketPriceChange(data, callback);
+            });
+            
+            this.channels.set('enhanced-price-changes', ticketChannel);
+            
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('ticket.price.changed', (data) => {
+                this.handleTicketPriceChange(data, callback);
+            });
+        }
+    }
+
+    /**
+     * Subscribe to ticket availability changes with enhanced event handling
+     */
+    subscribeToEnhancedAvailabilityChanges(callback) {
+        if (this.connectionType === 'pusher' && this.echo) {
+            const ticketChannel = this.echo.channel('ticket-updates');
+            const availabilityChannel = this.echo.channel('availability-changes');
+            
+            ticketChannel.listen('ticket.availability.changed', (data) => {
+                this.handleAvailabilityChange(data, callback);
+            });
+            
+            availabilityChannel.listen('ticket.availability.changed', (data) => {
+                this.handleAvailabilityChange(data, callback);
+            });
+            
+            this.channels.set('enhanced-availability-changes', ticketChannel);
+            
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('ticket.availability.changed', (data) => {
+                this.handleAvailabilityChange(data, callback);
+            });
+        }
+    }
+
+    /**
+     * Subscribe to system updates
+     */
+    subscribeToSystemUpdates(callback) {
+        if (this.connectionType === 'pusher' && this.echo) {
+            const systemChannel = this.echo.channel('system-updates');
+            const dashboardChannel = this.echo.channel('realtime-dashboard');
+            
+            systemChannel.listen('system.update', (data) => {
+                this.handleSystemUpdate(data, callback);
+            });
+            
+            dashboardChannel.listen('system.update', (data) => {
+                this.handleSystemUpdate(data, callback);
+            });
+            
+            this.channels.set('system-updates', systemChannel);
+            
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('system.update', (data) => {
+                this.handleSystemUpdate(data, callback);
+            });
+        }
+    }
+
+    /**
+     * Subscribe to platform-specific updates
+     */
+    subscribeToPlatformUpdates(platforms, callback) {
+        if (this.connectionType === 'pusher' && this.echo) {
+            platforms.forEach(platform => {
+                const channel = this.echo.channel(`platform.${platform}`);
+                
+                channel.listen('ticket.price.changed', (data) => {
+                    callback({ type: 'price', platform, data });
+                });
+                
+                channel.listen('ticket.availability.changed', (data) => {
+                    callback({ type: 'availability', platform, data });
+                });
+                
+                this.channels.set(`platform.${platform}`, channel);
+            });
+            
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            platforms.forEach(platform => {
+                this.socketIO.on(`platform.${platform}.update`, (data) => {
+                    callback({ platform, data });
+                });
+            });
+        }
+    }
+
+    /**
      * Unsubscribe from a specific channel
      */
     unsubscribe(channelName) {
@@ -378,6 +481,95 @@ class WebSocketManager {
         setTimeout(() => {
             this.initializeConnection();
         }, 1000);
+    }
+
+    /**
+     * Handle ticket price change events
+     */
+    handleTicketPriceChange(data, callback) {
+        console.log('Ticket price change received:', data);
+        
+        // Call user callback
+        if (callback) callback(data);
+        
+        // Show notification for significant price changes
+        if (Math.abs(data.change_percentage) >= 10) {
+            this.showNotification(
+                `Price ${data.price_change > 0 ? 'increased' : 'decreased'} by ${Math.abs(data.change_percentage)}%`,
+                `${data.event_name} on ${data.platform}`,
+                data.price_change > 0 ? 'warning' : 'success'
+            );
+        }
+        
+        // Emit generic event
+        this.emit('price-change', data);
+    }
+
+    /**
+     * Handle ticket availability change events
+     */
+    handleAvailabilityChange(data, callback) {
+        console.log('Ticket availability change received:', data);
+        
+        // Call user callback
+        if (callback) callback(data);
+        
+        // Show notification for availability changes
+        if (data.new_status === 'available' && data.old_status !== 'available') {
+            this.showNotification(
+                'Tickets now available!',
+                `${data.event_name} on ${data.platform}`,
+                'success'
+            );
+        } else if (data.new_status === 'sold_out') {
+            this.showNotification(
+                'Tickets sold out',
+                `${data.event_name} on ${data.platform}`,
+                'error'
+            );
+        }
+        
+        // Emit generic event
+        this.emit('availability-change', data);
+    }
+
+    /**
+     * Handle system update events
+     */
+    handleSystemUpdate(data, callback) {
+        console.log('System update received:', data);
+        
+        // Call user callback
+        if (callback) callback(data);
+        
+        // Show system notifications
+        if (data.level === 'error' || data.level === 'warning') {
+            this.showNotification(data.message, data.type, data.level);
+        }
+        
+        // Emit generic event
+        this.emit('system-update', data);
+    }
+
+    /**
+     * Show notification using available UI manager or fallback
+     */
+    showNotification(title, message, type = 'info') {
+        // Use UIFeedbackManager if available
+        if (window.uiManager && window.uiManager.showNotification) {
+            window.uiManager.showNotification(message, type, {
+                title: title,
+                duration: 5000
+            });
+        } else if (window.UIFeedbackManager) {
+            window.UIFeedbackManager.showNotification(message, type, {
+                title: title,
+                duration: 5000
+            });
+        } else {
+            // Fallback to console
+            console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+        }
     }
 }
 

@@ -1,0 +1,55 @@
+{
+    "debug": true,
+    "host": "127.0.0.1",
+    "port": 6001,
+    "appManager": {
+        "driver": "array",
+        "array": {
+            "apps": [
+                {
+                    "id": "hd-tickets-app",
+                    "key": "hd-tickets-key",
+                    "secret": "hd-tickets-secret",
+                    "maxConnections": 100,
+                    "enableClientMessages": true,
+                    "enabled": true,
+                    "webhooks": []
+                }
+            ]
+        }
+    },
+    "database": {
+        "redis": {
+            "host": "127.0.0.1",
+            "port": 6379,
+            "keyPrefix": "soketi_app_"
+        }
+    },
+    "rateLimiter": {
+        "driver": "local"
+    },
+    "httpApi": {
+        "requestLimitInMb": 100,
+        "acceptTraffic": {
+            "memoryThreshold": 85
+        }
+    },
+    "websockets": {
+        "acceptTraffic": {
+            "memoryThreshold": 85
+        }
+    },
+    "ssl": {
+        "enabled": false
+    },
+    "eventLimits": {
+        "maxChannelsAtOnce": 10,
+        "maxNameLength": 200,
+        "maxPayloadInKb": 100,
+        "maxBatchSize": 10
+    },
+    "userAuthenticationTimeout": 30000,
+    "socketId": {
+        "enable": true
+    }
+}

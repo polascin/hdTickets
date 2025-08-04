@@ -4,20 +4,64 @@
 @section('description', 'Your Sports Ticket Monitoring Dashboard')
 
 @section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        {{ __('Dashboard') }}
-    </h2>
+    <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+        <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                Live
+            </span>
+            <button x-data="{}" @click="AppCore.getModule('websocket')?.reconnect()" 
+                    class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
 @endsection
 
 @section('content')
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="dashboardManager()" x-init="init()">
+    <!-- Performance Timer -->
+    @startTimer('dashboard_render')
+    
     <!-- Welcome Banner -->
-    <div class="dashboard-card mb-6 hero-gradient text-white">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-bold mb-2">Welcome back, {{ Auth::user()->name }}!</h2>
-                <p class="text-white/90">Here's what's happening with your ticket monitoring today.</p>
+    @include('components.dashboard.welcome-banner', [
+        'user' => auth()->user(),
+        'stats' => $userStats ?? []
+    ])
+        
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex-1">
+                <div class="flex items-center mb-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-bold mb-1">Welcome back, {{ Auth::user()->name }}!</h2>
+                        <p class="text-white/90 text-sm sm:text-base">Here's what's happening with your ticket monitoring today.</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 text-sm text-white/80">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                        </svg>
+                        {{ now()->format('l, F j, Y') }}
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="currentTime">{{ now()->format('H:i:s') }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="animate-float">
+            
+            <div class="animate-float hidden sm:block">
                 <svg class="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                 </svg>
@@ -194,4 +238,76 @@
             </div>
         </div>
     </div>
+</div>
+
+@push('scripts')
+<script>
+// Enhanced dashboard functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Update current time
+    function updateTime() {
+        const now = new Date();
+        const timeElement = document.getElementById('currentTime');
+        if (timeElement) {
+            timeElement.textContent = now.toLocaleTimeString();
+        }
+    }
+    
+    // Update time every second
+    setInterval(updateTime, 1000);
+    
+    // Add loading states to action buttons
+    const actionButtons = document.querySelectorAll('a[href]');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            // Add loading state
+            this.style.opacity = '0.7';
+            this.style.pointerEvents = 'none';
+            
+            // Restore after navigation
+            setTimeout(() => {
+                this.style.opacity = '1';
+                this.style.pointerEvents = 'auto';
+            }, 1000);
+        });
+    });
+    
+    // Animate stat cards on page load
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Add hover effects to quick action cards
+    const quickActionCards = document.querySelectorAll('.group');
+    quickActionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+    
+    // Show notifications if available
+    if (window.hdTicketsFeedback) {
+        // Check for any important updates or alerts
+        setTimeout(() => {
+            window.hdTicketsFeedback.info('Dashboard loaded', 'Welcome to your ticket monitoring dashboard');
+        }, 1000);
+    }
+    
+    console.log('Dashboard enhanced features loaded');
+});
+</script>
+@endpush
+
 @endsection

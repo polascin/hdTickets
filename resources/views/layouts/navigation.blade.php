@@ -5,7 +5,7 @@
     - Better organization and readability
     - Role-based access control
 --}}
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100 shadow-sm">
+<nav x-data="{ open: false, mobileMenuOpen: false }" class="bg-white border-b border-gray-100 shadow-sm" x-init="if (window.responsiveUtils) { responsiveUtils.onBreakpointChange(() => { if (!responsiveUtils.isMobile()) mobileMenuOpen = false; }); }">
     <!-- Primary Navigation Menu -->
     <div class="container mx-auto px-4">
         <div class="flex justify-between h-16">
@@ -159,10 +159,11 @@
             <!-- Theme Toggle -->
             <div class="hidden sm:flex sm:items-center sm:ms-4">
                 <button type="button" 
-                        data-theme-toggle 
+                        onclick="toggleTheme()" 
                         class="inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                        title="Toggle theme">
-                    <i class="fas fa-moon w-5 h-5"></i>
+                        title="Toggle theme"
+                        id="theme-toggle">
+                    <i class="fas fa-moon w-5 h-5" id="theme-icon"></i>
                 </button>
             </div>
 
@@ -227,13 +228,21 @@
 
             <!-- Enhanced Mobile Navigation -->
             <div class="-me-2 flex items-center sm:hidden">
-                <x-admin.mobile-nav />
+                <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
+                        :class="{ 'bg-gray-100 text-gray-500': mobileMenuOpen }"
+                        aria-label="Toggle mobile menu">
+                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path :class="{ 'hidden': mobileMenuOpen, 'inline-flex': !mobileMenuOpen }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path :class="{ 'hidden': !mobileMenuOpen, 'inline-flex': mobileMenuOpen }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Responsive Navigation Menu -->
-<div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-gray-200">
+<div :class="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen}" class="hidden sm:hidden bg-white border-t border-gray-200">
         <div class="container mx-auto px-4">
         <div class="pt-2 pb-3 space-y-1">
             {{-- Dashboard Link --}}
@@ -425,5 +434,59 @@ document.addEventListener('click', function(event) {
             }
         }
     });
+});
+
+// Enhanced theme toggle function
+function toggleTheme() {
+    const html = document.documentElement;
+    const themeIcon = document.getElementById('theme-icon');
+    const currentTheme = localStorage.getItem('darkMode') === 'true';
+    
+    // Toggle theme
+    const newTheme = !currentTheme;
+    localStorage.setItem('darkMode', newTheme);
+    
+    // Add smooth transition
+    html.classList.add('theme-transitioning');
+    
+    if (newTheme) {
+        html.classList.add('dark');
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-sun w-5 h-5';
+        }
+    } else {
+        html.classList.remove('dark');
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-moon w-5 h-5';
+        }
+    }
+    
+    // Remove transition class after animation
+    setTimeout(() => {
+        html.classList.remove('theme-transitioning');
+    }, 300);
+    
+    // Show notification if available
+    if (window.hdTicketsFeedback) {
+        const themeName = newTheme ? 'Dark' : 'Light';
+        window.hdTicketsFeedback.info('Theme Changed', `Switched to ${themeName} mode`);
+    }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const themeIcon = document.getElementById('theme-icon');
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-sun w-5 h-5';
+        }
+    } else {
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-moon w-5 h-5';
+        }
+    }
 });
 </script>

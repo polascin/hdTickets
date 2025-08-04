@@ -16,10 +16,14 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "watch": "vite build --watch"
+        "watch": "vite build --watch",
+        "websocket": "npx soketi start --config=soketi.config.json",
+        "websocket:daemon": "npx soketi start --config=soketi.config.json --daemonize",
+        "dev:full": "npm run websocket & npm run dev"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
+        "@soketi/soketi": "^1.6.1",
         "@tailwindcss/forms": "^0.5.7",
         "@vitejs/plugin-vue": "^5.2.1",
         "alpinejs": "^3.13.3",

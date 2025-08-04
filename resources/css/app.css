@@ -224,6 +224,28 @@
         -webkit-overflow-scrolling: touch;
     }
     
+    /* Real-time Updates and Dashboard Enhancements */
+    .dashboard-stats-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+    }
+    
+    .stat-card-enhanced {
+        @apply bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700;
+    }
+    
+    .stat-card-enhanced:hover {
+        @apply transform -translate-y-1 shadow-xl;
+    }
+    
+    .real-time-indicator {
+        @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+    }
+    
+    .real-time-indicator::before {
+        content: '';
+        @apply w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse;
+    }
+    
     .sortable {
         @apply transition-colors duration-200;
     }
@@ -314,6 +336,32 @@
     /* Responsive padding utilities */
     .padding-responsive {
         @apply px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8;
+    }
+    
+    /* Enhanced Alert and Notification Styles */
+    .alert-floating {
+        @apply fixed top-4 right-4 z-50 max-w-sm w-full bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Enhanced Button Styles */
+    .btn-floating {
+        @apply fixed bottom-6 right-6 z-40 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center;
+    }
+    
+    .btn-floating:hover {
+        @apply transform scale-110;
     }
     
     .padding-responsive-x {
@@ -507,6 +555,30 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    
+    /* Progressive Web App (PWA) Styles */
+    .pwa-installable {
+        @apply fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
+    }
+    
+    .pwa-installable.show {
+        transform: translateY(0);
+    }
+    
+    /* Loading State Enhancements */
+    .skeleton-item {
+        @apply bg-gray-200 dark:bg-gray-700 rounded animate-pulse;
+    }
+    
+    .skeleton-text {
+        @apply h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse;
+    }
+    
+    .skeleton-avatar {
+        @apply w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse;
     }
     
     /* Better button spacing on mobile */

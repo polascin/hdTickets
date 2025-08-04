@@ -33,11 +33,13 @@ class RealTimeMonitoringService
      */
     protected function loadConfiguration(): void
     {
-        $this->monitoringInterval = config('monitoring.interval', 30);
+        $this->monitoringInterval = config('monitoring.interval', 15); // Reduced interval for more frequent updates
         $this->alertThresholds = config('monitoring.alert_thresholds', [
-            'price_change_percentage' => 10,
+            'price_change_percentage' => 5, // More sensitive to price changes
             'availability_change' => true,
-            'new_tickets' => true
+            'new_tickets' => true,
+            'alert_on_price_drop' => true, // Alert when price drops significantly
+            'alert_on_availability_increase' => true // Alert when availability improves significantly
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\TicketPriceHistory;
+use App\Models\PriceVolatilityAnalytics;
 use App\Models\UserPreference;
 use App\Models\AlertEscalation;
 use App\Models\UserNotificationSettings;
@@ -16,6 +17,10 @@ class AdvancedAnalyticsDashboard
 {
     private const CACHE_TTL = 3600; // 1 hour
     
+    public function __construct()
+    {
+        // Constructor can be empty since we're using static methods
+    }
     /**
      * Get comprehensive price trend analysis
      */
@@ -135,6 +140,15 @@ class AdvancedAnalyticsDashboard
         });
     }
     
+    /**
+     * Calculate price volatility metrics
+     */
+    public function getPriceVolatilityMetrics(int $ticketId, string $date): ?array
+    {
+        $analytics = PriceVolatilityAnalytics::calculateForTicket($ticketId, $date);
+        return $analytics ? $analytics->toArray() : null;
+    }
+
     /**
      * Real-time dashboard metrics
      */

@@ -1,3 +1,4 @@
+
 <template>
   <div class="analytics-dashboard">
     <!-- Header with controls -->

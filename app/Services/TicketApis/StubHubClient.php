@@ -14,7 +14,8 @@ class StubHubClient extends BaseWebScrapingClient
     public function __construct(array $config)
     {
         parent::__construct($config);
-        $this->baseUrl = $config['sandbox'] ? 'https://api.stubhub.com/sellers/search/events/v3' : 'https://api.stubhub.com/sellers/search/events/v3';
+        $sandbox = $config['sandbox'] ?? false;
+        $this->baseUrl = $sandbox ? 'https://api.stubhub.com/sellers/search/events/v3' : 'https://api.stubhub.com/sellers/search/events/v3';
         $this->respectRateLimit('stubhub');
     }
 

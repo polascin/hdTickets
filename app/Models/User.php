@@ -22,7 +22,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->encryptionService = $this->getEncryptionService();
+        $this->encryptionService = new EncryptionService();
+
+        // Encrypt sensitive fields on save
+        static::saving(function ($model) {
+            foreach ($model->getEncryptedFields() as $field) {
+                if (!empty($model->$field)) {
+                    $model->$field = $model->encryptionService->encrypt($model->$field);
+                }
+            }
+        });
+
+        // Decrypt sensitive fields on retrieve
+        static::retrieved(function ($model) {
+            foreach ($model->getEncryptedFields() as $field) {
+                if (!empty($model->$field)) {
+                    $model->$field = $model->encryptionService->decrypt($model->$field);
+                }
+            }
+        });
     }
     
     /**
@@ -87,6 +105,18 @@ class User extends Authenticatable implements MustVerifyEmail
         'billing_address',
         'stripe_customer_id',
     ];
+
+    /**
+     * List of encrypted fields
+     */
+    protected function getEncryptedFields(): array
+    {
+        return [
+            'phone',
+            'two_factor_secret',
+            'two_factor_recovery_codes'
+        ];
+    }
 
     /**
      * User roles - Redesigned for scraping focus

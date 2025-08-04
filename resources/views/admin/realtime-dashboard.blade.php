@@ -1,168 +1,214 @@
-@extends('layouts.app')
+@extends('layouts.modern')
 
 @section('title', 'Real-time Monitoring Dashboard')
+@section('description', 'Live sports ticket monitoring with real-time updates and comprehensive analytics')
+
+@push('styles')
+<style>
+/* Real-time Dashboard Specific Styles */
+.realtime-card {
+    @apply bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-slate-700;
+}
+
+.status-pulse {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.metric-animate {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.update-slide {
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+@endpush
 
 @section('content')
-<div class="container-fluid">
+<div x-data="realtimeDashboard()" x-init="init()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0"><strong>Real-time Monitoring</strong> Dashboard</h1>
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group me-2" role="group">
-                <button type="button" class="btn btn-success" id="start-monitoring">
-                    <i class="fas fa-play"></i> Start Monitoring
-                </button>
-                <button type="button" class="btn btn-danger" id="stop-monitoring">
-                    <i class="fas fa-stop"></i> Stop Monitoring
-                </button>
-            </div>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-info" id="refresh-data">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Real-time Monitoring <span class="text-blue-600 dark:text-blue-400">Dashboard</span>
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Live sports ticket monitoring with comprehensive analytics</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" class="modern-button bg-green-600 hover:bg-green-700" id="start-monitoring">
+                <i class="fas fa-play mr-2"></i> Start Monitoring
+            </button>
+            <button type="button" class="modern-button bg-red-600 hover:bg-red-700" id="stop-monitoring">
+                <i class="fas fa-stop mr-2"></i> Stop Monitoring
+            </button>
+            <button type="button" class="modern-button bg-gray-600 hover:bg-gray-700" id="refresh-data">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+            </button>
         </div>
     </div>
 
     <!-- Connection Status -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info" id="connection-status">
-                <i class="fas fa-wifi"></i> Connecting to real-time updates...
+    <div class="modern-card mb-6" id="connection-status">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="status-pulse">
+                    <i class="fas fa-wifi text-2xl" id="connection-icon"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900 dark:text-white" id="connection-text">
+                        Connecting to real-time updates...
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">WebSocket connection status</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="status-indicator status-inactive" id="update-frequency">Every 15s</span>
+                <small class="text-gray-500 dark:text-gray-400" id="last-ping">Last ping: --</small>
             </div>
         </div>
     </div>
 
     <!-- Monitoring Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" id="watched-tickets-count">-</h4>
-                            <p class="mb-0">Watched Tickets</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-eye fa-2x"></i>
-                        </div>
-                    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Watched Tickets -->
+        <div class="modern-card bg-gradient-to-r from-blue-500 to-blue-600 text-white relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-3xl font-bold metric-animate" id="watched-tickets-count">-</h3>
+                    <p class="text-blue-100 text-sm font-medium">Watched Tickets</p>
+                </div>
+                <div class="text-blue-200">
+                    <i class="fas fa-eye text-3xl"></i>
                 </div>
             </div>
+            <div class="absolute -top-2 -right-2 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" id="active-scrapers">-</h4>
-                            <p class="mb-0">Active Scrapers</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-spider fa-2x"></i>
-                        </div>
-                    </div>
+
+        <!-- Active Scrapers -->
+        <div class="modern-card bg-gradient-to-r from-green-500 to-green-600 text-white relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-3xl font-bold metric-animate" id="active-scrapers">-</h3>
+                    <p class="text-green-100 text-sm font-medium">Active Scrapers</p>
+                </div>
+                <div class="text-green-200">
+                    <i class="fas fa-spider text-3xl"></i>
                 </div>
             </div>
+            <div class="absolute -top-2 -right-2 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" id="alerts-sent">-</h4>
-                            <p class="mb-0">Alerts Sent</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-bell fa-2x"></i>
-                        </div>
-                    </div>
+
+        <!-- Alerts Sent -->
+        <div class="modern-card bg-gradient-to-r from-yellow-500 to-orange-500 text-white relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-3xl font-bold metric-animate" id="alerts-sent">-</h3>
+                    <p class="text-yellow-100 text-sm font-medium">Alerts Sent</p>
+                </div>
+                <div class="text-yellow-200">
+                    <i class="fas fa-bell text-3xl"></i>
                 </div>
             </div>
+            <div class="absolute -top-2 -right-2 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0" id="monitoring-status">Inactive</h4>
-                            <p class="mb-0">Status</p>
-                        </div>
-                        <div>
-                            <i class="fas fa-heartbeat fa-2x"></i>
-                        </div>
-                    </div>
+
+        <!-- Monitoring Status -->
+        <div class="modern-card bg-gradient-to-r from-purple-500 to-indigo-600 text-white relative overflow-hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold metric-animate" id="monitoring-status">Inactive</h3>
+                    <p class="text-purple-100 text-sm font-medium">Status</p>
+                </div>
+                <div class="text-purple-200">
+                    <i class="fas fa-heartbeat text-3xl status-pulse"></i>
                 </div>
             </div>
+            <div class="absolute -top-2 -right-2 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
         </div>
     </div>
 
     <!-- Live Updates and Analytics -->
-    <div class="row">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Live Ticket Updates -->
-        <div class="col-md-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Live Ticket Updates</h5>
-                    <button class="btn btn-sm btn-outline-secondary" id="clear-updates">
-                        <i class="fas fa-trash"></i> Clear
+        <div class="lg:col-span-2">
+            <div class="modern-card h-full">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-stream text-blue-600 mr-2"></i>
+                        Live Ticket Updates
+                    </h2>
+                    <button class="modern-button bg-gray-500 hover:bg-gray-600 text-sm px-3 py-1" id="clear-updates">
+                        <i class="fas fa-trash mr-1"></i> Clear
                     </button>
                 </div>
-                <div class="card-body">
-                    <div class="update-feed" id="update-feed" style="height: 400px; overflow-y: auto;">
-                        <div class="text-muted text-center py-4">
-                            <i class="fas fa-clock fa-2x mb-2"></i>
-                            <p>Waiting for real-time updates...</p>
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                    <div class="update-feed overflow-y-auto" id="update-feed" style="height: 400px;">
+                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-clock text-4xl mb-4 text-gray-300 dark:text-gray-600"></i>
+                            <p class="text-lg font-medium">Waiting for real-time updates...</p>
+                            <p class="text-sm">Updates will appear here when monitoring is active</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- System Health & Settings -->
-        <div class="col-md-4">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">System Health</h5>
+        <!-- System Health & Quick Actions -->
+        <div class="space-y-6">
+            <!-- System Health -->
+            <div class="modern-card">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-heartbeat text-red-500 text-xl mr-2"></i>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">System Health</h2>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Connection Status:</span>
-                            <span class="badge badge-secondary" id="ws-status">Disconnected</span>
-                        </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300 font-medium">Connection Status:</span>
+                        <span class="status-indicator status-error" id="ws-status">Disconnected</span>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Last Update:</span>
-                            <small class="text-muted" id="last-update">Never</small>
-                        </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300 font-medium">Last Update:</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400" id="last-update">Never</span>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Updates Count:</span>
-                            <span id="updates-count">0</span>
-                        </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-gray-600 dark:text-gray-300 font-medium">Updates Count:</span>
+                        <span class="font-bold text-blue-600 dark:text-blue-400" id="updates-count">0</span>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Quick Actions</h5>
+            <!-- Quick Actions -->
+            <div class="modern-card">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bolt text-yellow-500 text-xl mr-2"></i>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Actions</h2>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary btn-sm" id="test-websocket">
-                            <i class="fas fa-plug"></i> Test WebSocket
-                        </button>
-                        <button class="btn btn-outline-info btn-sm" id="fetch-stats">
-                            <i class="fas fa-chart-bar"></i> Fetch Statistics
-                        </button>
-                        <button class="btn btn-outline-warning btn-sm" id="test-notification">
-                            <i class="fas fa-bell"></i> Test Notification
-                        </button>
-                    </div>
+                <div class="space-y-3">
+                    <button class="w-full modern-button bg-blue-600 hover:bg-blue-700 text-sm" id="test-websocket">
+                        <i class="fas fa-plug mr-2"></i> Test WebSocket
+                    </button>
+                    <button class="w-full modern-button bg-indigo-600 hover:bg-indigo-700 text-sm" id="fetch-stats">
+                        <i class="fas fa-chart-bar mr-2"></i> Fetch Statistics
+                    </button>
+                    <button class="w-full modern-button bg-yellow-600 hover:bg-yellow-700 text-sm" id="test-notification">
+                        <i class="fas fa-bell mr-2"></i> Test Notification
+                    </button>
                 </div>
             </div>
         </div>
@@ -234,28 +280,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize WebSocket connection status
     function updateConnectionStatus(status, type = 'info') {
-        connectionStatus.className = `alert alert-${type}`;
-        connectionStatus.innerHTML = `<i class="fas fa-wifi"></i> ${status}`;
+        const connectionIcon = document.getElementById('connection-icon');
+        const connectionText = document.getElementById('connection-text');
+        const lastPing = document.getElementById('last-ping');
         
-        const statusBadge = wsStatus;
-        statusBadge.className = 'badge ';
+        // Update connection status card styling
+        connectionStatus.className = `modern-card mb-6 border-l-4 ${getConnectionBorderColor(type)}`;
+        connectionText.textContent = status;
         
+        // Update icon based on connection status
         switch(type) {
             case 'success':
-                statusBadge.classList.add('badge-connected');
-                statusBadge.textContent = 'Connected';
+                connectionIcon.className = 'fas fa-wifi text-2xl text-green-500 status-pulse';
+                wsStatus.className = 'status-indicator status-active';
+                wsStatus.textContent = 'Connected';
+                lastPing.textContent = `Last ping: ${new Date().toLocaleTimeString()}`;
                 break;
             case 'danger':
-                statusBadge.classList.add('badge-disconnected');
-                statusBadge.textContent = 'Disconnected';
+                connectionIcon.className = 'fas fa-wifi-slash text-2xl text-red-500';
+                wsStatus.className = 'status-indicator status-error';
+                wsStatus.textContent = 'Disconnected';
+                lastPing.textContent = 'Last ping: Connection lost';
                 break;
             case 'warning':
-                statusBadge.classList.add('badge-connecting');
-                statusBadge.textContent = 'Connecting';
+                connectionIcon.className = 'fas fa-spinner fa-spin text-2xl text-yellow-500 status-pulse';
+                wsStatus.className = 'status-indicator status-warning';
+                wsStatus.textContent = 'Connecting';
+                lastPing.textContent = 'Last ping: Connecting...';
                 break;
             default:
-                statusBadge.classList.add('badge-secondary');
-                statusBadge.textContent = 'Unknown';
+                connectionIcon.className = 'fas fa-question-circle text-2xl text-gray-500';
+                wsStatus.className = 'status-indicator status-inactive';
+                wsStatus.textContent = 'Unknown';
+        }
+    }
+    
+    function getConnectionBorderColor(type) {
+        switch(type) {
+            case 'success': return 'border-green-500';
+            case 'danger': return 'border-red-500';
+            case 'warning': return 'border-yellow-500';
+            default: return 'border-gray-300';
         }
     }
 
@@ -310,24 +375,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // WebSocket event listeners
-    websocketManager.on('connected', function() {
-        updateConnectionStatus('Connected to real-time updates', 'success');
-    });
+    // WebSocket event listeners with enhanced error handling
+    if (typeof websocketManager !== 'undefined') {
+        websocketManager.on('connected', function() {
+            updateConnectionStatus('Connected to real-time updates', 'success');
+            // Show success notification
+            if (window.hdTicketsFeedback) {
+                window.hdTicketsFeedback.success('WebSocket connected', 'Real-time updates are now active');
+            }
+        });
 
-    websocketManager.on('disconnected', function() {
-        updateConnectionStatus('Disconnected from real-time updates', 'danger');
-    });
+        websocketManager.on('disconnected', function() {
+            updateConnectionStatus('Disconnected from real-time updates', 'danger');
+            // Show warning notification
+            if (window.hdTicketsFeedback) {
+                window.hdTicketsFeedback.warning('Connection lost', 'Attempting to reconnect...');
+            }
+        });
 
-    websocketManager.on('error', function(error) {
-        updateConnectionStatus('Connection error: ' + error, 'danger');
-        addUpdateToFeed({ status: 'Connection error occurred' }, 'error');
-    });
+        websocketManager.on('error', function(error) {
+            const errorMessage = error?.message || error || 'Unknown error';
+            updateConnectionStatus('Connection error: ' + errorMessage, 'danger');
+            addUpdateToFeed({ status: 'Connection error: ' + errorMessage }, 'error');
+            
+            // Show error notification
+            if (window.hdTicketsFeedback) {
+                window.hdTicketsFeedback.error('Connection Error', errorMessage);
+            }
+        });
 
-    websocketManager.on('reconnected', function() {
-        updateConnectionStatus('Reconnected to real-time updates', 'success');
-        addUpdateToFeed({ status: 'Connection restored' }, 'info');
-    });
+        websocketManager.on('reconnected', function() {
+            updateConnectionStatus('Reconnected to real-time updates', 'success');
+            addUpdateToFeed({ status: 'Connection restored' }, 'info');
+            
+            // Show success notification
+            if (window.hdTicketsFeedback) {
+                window.hdTicketsFeedback.success('Reconnected', 'Real-time updates restored');
+            }
+        });
+    } else {
+        console.warn('WebSocket manager not available');
+        updateConnectionStatus('WebSocket manager not available', 'danger');
+    }
 
     // Subscribe to ticket updates
     websocketManager.subscribeToTicketUpdates(function(update) {
