@@ -16,8 +16,10 @@ use Illuminate\View\View;
 use Illuminate\Http\Response;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
-use PayPal\Api\Payment;
-use PayPal\Api\PaymentExecution;
+use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
+use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
+use PaypalServerSdkLib\Environment;
+use PaypalServerSdkLib\Controllers\PaymentsController;
 
 class RegistrationWithPaymentController extends Controller
 {
@@ -116,22 +118,28 @@ class RegistrationWithPaymentController extends Controller
                     return back()->withErrors(['payment' => 'Stripe error: ' . $e->getMessage()]);
                 }
             } elseif ($request->payment_method === 'paypal') {
-                // PayPal payment
+                // PayPal payment with new SDK
                 try {
-                    $apiContext = new \PayPal\Rest\ApiContext(
-                        new \PayPal\Auth\OAuthTokenCredential(
-                            config('services.paypal.client_id'),
-                            config('services.paypal.secret')
+                    $client = PaypalServerSdkClientBuilder::init()
+                        ->clientCredentialsAuthCredentials(
+                            ClientCredentialsAuthCredentialsBuilder::init(
+                                config('services.paypal.client_id'),
+                                config('services.paypal.secret')
+                            )
                         )
-                    );
-                    $payment = Payment::get($request->paypal_payment_id, $apiContext);
-                    $execution = new PaymentExecution();
-                    $execution->setPayerId($request->paypal_payer_id);
-                    $result = $payment->execute($execution, $apiContext);
-                    if ($result->getState() !== 'approved') {
+                        ->environment(
+                            config('services.paypal.environment') === 'production' 
+                                ? Environment::PRODUCTION 
+                                : Environment::SANDBOX
+                        )
+                        ->build();
+
+                    $paymentsController = new PaymentsController($client);
+                    $payment = $paymentsController->get($request->paypal_payment_id);
+                    if ($payment->getStatus() !== 'COMPLETED') {
                         return back()->withErrors(['payment' => 'PayPal payment failed.']);
                     }
-                    $subscriptionData['paypal_transaction_id'] = $result->getId();
+                    $subscriptionData['paypal_transaction_id'] = $payment->getId();
                     $subscriptionData['payment_method'] = 'paypal';
                     $subscriptionData['amount_paid'] = $paymentPlan->price;
                 } catch (\Exception $e) {

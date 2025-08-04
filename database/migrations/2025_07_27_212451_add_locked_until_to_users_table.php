@@ -15,10 +15,9 @@ return new class extends Migration
             // Add the missing locked_until column
             if (!Schema::hasColumn('users', 'locked_until')) {
                 $table->timestamp('locked_until')->nullable()->after('failed_login_attempts');
+                // Add index for performance only if column was just created
+                $table->index(['locked_until']);
             }
-            
-            // Add index for performance
-            $table->index(['locked_until']);
         });
     }
 

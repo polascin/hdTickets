@@ -13,6 +13,7 @@
         }
     ],
     "require": {
+        "php": "^8.4",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "laravel/sanctum": "^4.0",
@@ -23,16 +24,16 @@
         "maatwebsite/excel": "^3.1",
         "barryvdh/laravel-dompdf": "^3.0",
         "spatie/laravel-activitylog": "^4.8",
-        "twilio/sdk": "^8.0",
+        "twilio/sdk": "^8.7",
         "pusher/pusher-php-server": "^7.2",
         "predis/predis": "^3.1",
         "roach-php/laravel": "^3.0",
         "spatie/browsershot": "^5.0.5",
         "pragmarx/google2fa": "^8.0",
         "pragmarx/google2fa-qrcode": "^3.0",
-        "alcaeus/mongo-php-adapter": "^1.2",
-        "paypal/paypal-checkout-sdk": "^1.0",
-        "stripe/stripe-php": "^17.4"
+        "stripe/stripe-php": "^17.4",
+        "laravel/slack-notification-channel": "^3.6",
+        "paypal/paypal-server-sdk": "^1.1"
     },
     "require-dev": {
         "laravel/breeze": "^2.3",

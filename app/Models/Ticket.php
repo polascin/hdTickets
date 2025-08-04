@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use App\Events\TicketAvailabilityUpdated;
 
 class Ticket extends Model
 {
@@ -29,6 +30,7 @@ class Ticket extends Model
         'external_id',
         'price',
         'currency',
+        'available_quantity',
         'location',
         'venue',
         'event_date',
@@ -98,6 +100,11 @@ class Ticket extends Model
 
         static::updating(function ($ticket) {
             $ticket->last_activity_at = now();
+            
+            // Broadcast ticket availability updates
+            if ($ticket->isDirty('available_quantity') || $ticket->isDirty('is_available')) {
+                event(new TicketAvailabilityUpdated($ticket));
+            }
         });
     }
 

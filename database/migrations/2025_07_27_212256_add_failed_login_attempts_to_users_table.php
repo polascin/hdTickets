@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Add the missing failed_login_attempts column
             if (!Schema::hasColumn('users', 'failed_login_attempts')) {
-                $table->integer('failed_login_attempts')->default(0)->after('login_count');
+                $table->integer('failed_login_attempts')->default(0);
+                
+                // Add index for performance only when adding the column
+                $table->index(['failed_login_attempts']);
             }
-            
-            // Add index for performance
-            $table->index(['failed_login_attempts']);
         });
     }
 
@@ -28,9 +28,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Remove the failed_login_attempts column and its index
-            $table->dropIndex(['failed_login_attempts']);
-            $table->dropColumn('failed_login_attempts');
+            // Remove the failed_login_attempts column and its index if they exist
+            if (Schema::hasColumn('users', 'failed_login_attempts')) {
+                $table->dropIndex(['failed_login_attempts']);
+                $table->dropColumn('failed_login_attempts');
+            }
         });
     }
 };

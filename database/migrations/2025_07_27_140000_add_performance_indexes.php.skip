@@ -1,0 +1,179 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations to add performance-optimized indexes.
+     */
+    public function up(): void
+    {
+        // Only add indexes if the table exists
+        if (Schema::hasTable('scraped_tickets')) {
+            Schema::table('scraped_tickets', function (Blueprint $table) {
+                // Only add if index doesn't exist
+                if (! \\Illuminate\\Support\\Facades\\DB::getDoctrineSchemaManager()->tablesExist('scraped_tickets') || ! \\Illuminate\\Support\\Facades\\DB::getDoctrineSchemaManager()->listTableIndexes('scraped_tickets')['idx_platform_available_date']) {
+                    // Composite indexes for common query patterns
+                    $table->index(['platform', 'is_available', 'event_date'], 'idx_platform_available_date');
+                    $table->index(['is_high_demand', 'is_available', 'created_at'], 'idx_demand_available_created');
+                    $table->index(['platform', 'status', 'scraped_at'], 'idx_platform_status_scraped');
+                    $table->index(['event_date', 'is_available', 'min_price'], 'idx_event_available_price');
+
+                    // Search optimization indexes
+                    $table->index(['title', 'venue'], 'idx_title_venue_search');
+                    $table->index(['sport', 'team', 'event_date'], 'idx_sport_team_date');
+                    $table->index(['location', 'event_type', 'is_available'], 'idx_location_type_available');
+
+                    // Price range optimization
+                    $table->index(['min_price', 'max_price', 'currency'], 'idx_price_range_currency');
+
+                    // Category and status filtering
+                    $table->index(['category_id', 'status', 'is_available'], 'idx_category_status_available');
+
+                    // Analytics and reporting indexes
+                    $table->index(['created_at', 'platform', 'is_available'], 'idx_analytics_created_platform');
+                    $table->index(['scraped_at', 'platform'], 'idx_scraped_platform_analytics');
+                }
+            });
+        }
+
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
+                // User activity and authentication indexes
+                if (Schema::hasColumn('users', 'last_activity_at')) {
+                    $table->index(['role', 'is_active', 'last_activity_at'], 'idx_role_active_activity');
+                }
+                $table->index(['created_at', 'role'], 'idx_created_role_analytics');
+                $table->index(['email_verified_at', 'is_active'], 'idx_verified_active');
+            });
+        }
+
+        // Only add indexes for tables that exist with proper columns
+        if (Schema::hasTable('ticket_alerts')) {
+            Schema::table('ticket_alerts', function (Blueprint $table) {
+                // Alert processing optimization
+                $table->index(['user_id', 'status', 'created_at'], 'idx_user_status_created');
+                $table->index(['status', 'updated_at'], 'idx_status_updated');
+            });
+        }
+
+        if (Schema::hasTable('purchase_queues')) {
+            Schema::table('purchase_queues', function (Blueprint $table) {
+                // Purchase queue processing optimization
+                $table->index(['status', 'priority', 'scheduled_for'], 'idx_status_priority_scheduled');
+                $table->index(['created_at', 'status'], 'idx_created_status_queue');
+            });
+        }
+
+        if (Schema::hasTable('purchase_attempts')) {
+            Schema::table('purchase_attempts', function (Blueprint $table) {
+                // Purchase attempt analytics
+                $table->index(['platform', 'status', 'created_at'], 'idx_platform_status_created');
+                $table->index(['purchase_queue_id', 'status'], 'idx_queue_status');
+            });
+        }
+
+        if (Schema::hasTable('ticket_price_histories')) {
+            Schema::table('ticket_price_histories', function (Blueprint $table) {
+                // Price history analytics - only add if columns exist
+                if (Schema::hasColumn('ticket_price_histories', 'scraped_ticket_id') && Schema::hasColumn('ticket_price_histories', 'recorded_at')) {
+                    $table->index(['scraped_ticket_id', 'recorded_at'], 'idx_ticket_recorded_history');
+                }
+                if (Schema::hasColumn('ticket_price_histories', 'price') && Schema::hasColumn('ticket_price_histories', 'recorded_at')) {
+                    $table->index(['price', 'recorded_at'], 'idx_price_time_analytics');
+                }
+            });
+        }
+
+        if (Schema::hasTable('activity_log')) {
+            Schema::table('activity_log', function (Blueprint $table) {
+                // Activity log performance
+                $table->index(['subject_type', 'subject_id', 'created_at'], 'idx_subject_created_activity');
+                $table->index(['causer_type', 'causer_id', 'created_at'], 'idx_causer_created_activity');
+                $table->index(['log_name', 'created_at'], 'idx_log_name_created');
+            });
+        }
+
+        // Create covering indexes for read-heavy operations
+        if (DB::getDriverName() === 'mysql' && Schema::hasTable('scraped_tickets')) {
+            DB::statement('CREATE INDEX idx_scraped_tickets_covering ON scraped_tickets (platform, is_available, event_date) INCLUDE (title, venue, min_price, max_price)');
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        if (Schema::hasTable('scraped_tickets')) {
+            Schema::table('scraped_tickets', function (Blueprint $table) {
+                $table->dropIndex('idx_platform_available_date');
+                $table->dropIndex('idx_demand_available_created');
+                $table->dropIndex('idx_platform_status_scraped');
+                $table->dropIndex('idx_event_available_price');
+                $table->dropIndex('idx_title_venue_search');
+                $table->dropIndex('idx_sport_team_date');
+                $table->dropIndex('idx_location_type_available');
+                $table->dropIndex('idx_price_range_currency');
+                $table->dropIndex('idx_category_status_available');
+                $table->dropIndex('idx_analytics_created_platform');
+                $table->dropIndex('idx_scraped_platform_analytics');
+            });
+        }
+
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
+                // Only drop indexes that may exist
+                if (Schema::hasColumn('users', 'last_activity_at')) {
+                    $table->dropIndex('idx_role_active_activity');
+                }
+                $table->dropIndex('idx_created_role_analytics');
+                $table->dropIndex('idx_verified_active');
+            });
+        }
+
+        if (Schema::hasTable('ticket_alerts')) {
+            Schema::table('ticket_alerts', function (Blueprint $table) {
+                $table->dropIndex('idx_user_status_created');
+                $table->dropIndex('idx_status_updated');
+            });
+        }
+
+        if (Schema::hasTable('purchase_queues')) {
+            Schema::table('purchase_queues', function (Blueprint $table) {
+                $table->dropIndex('idx_status_priority_scheduled');
+                $table->dropIndex('idx_created_status_queue');
+            });
+        }
+
+        if (Schema::hasTable('purchase_attempts')) {
+            Schema::table('purchase_attempts', function (Blueprint $table) {
+                $table->dropIndex('idx_platform_status_created');
+                $table->dropIndex('idx_queue_status');
+            });
+        }
+
+        if (Schema::hasTable('ticket_price_histories')) {
+            Schema::table('ticket_price_histories', function (Blueprint $table) {
+                $table->dropIndex('idx_ticket_recorded_history');
+                $table->dropIndex('idx_price_time_analytics');
+            });
+        }
+
+        if (Schema::hasTable('activity_log')) {
+            Schema::table('activity_log', function (Blueprint $table) {
+                $table->dropIndex('idx_subject_created_activity');
+                $table->dropIndex('idx_causer_created_activity');
+                $table->dropIndex('idx_log_name_created');
+            });
+        }
+
+        if (DB::getDriverName() === 'mysql' && Schema::hasTable('scraped_tickets')) {
+            DB::statement('DROP INDEX IF EXISTS idx_scraped_tickets_covering ON scraped_tickets');
+        }
+    }
+};
