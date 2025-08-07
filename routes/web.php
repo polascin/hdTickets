@@ -1,49 +1,39 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseDecisionController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ScrapingController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Home route
+Route::get('/', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
+
+// Role-based dashboard routing after login
+Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+// Main dashboard for customers and fallback
+Route::get('/customer-dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('customer.dashboard');
+
+// Agent dashboard routes - using proper controller
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/agent-dashboard', [App\Http\Controllers\AgentDashboardController::class, 'index'])
+        ->name('agent.dashboard');
 });
-
-
-Route::get('/dashboard', function () {
-    $user = Auth::user();
-    
-    if ($user->isAdmin()) {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->isAgent()) {
-        return redirect()->route('agent.dashboard');
-    } else {
-        return redirect()->route('dashboard.basic');
-    }
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 // Basic dashboard for users without admin or agent access
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/basic-dashboard', function () {
         return view('dashboard.basic');
     })->name('dashboard.basic');
-});
-
-// Role-specific dashboard routes (legacy, kept for compatibility)
-
-Route::middleware(['auth', 'verified', 'agent'])->group(function () {
-    Route::get('/agent/dashboard', function () {
-        return view('dashboard.agent');
-    })->name('agent.dashboard');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/customer/dashboard', function () {
-        return view('dashboard.customer');
-    })->name('customer.dashboard');
 });
 
 // Admin routes are now handled in routes/admin.php
@@ -136,6 +126,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('health', [HealthController::class, 'index'])->name('health.index');
 Route::get('health/database', [HealthController::class, 'database'])->name('health.database');
 Route::get('health/redis', [HealthController::class, 'redis'])->name('health.redis');
+
+// WebSocket Testing Dashboard
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('websocket-test', function () {
+        return view('websocket-test');
+    })->name('websocket.test');
+});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

@@ -33,7 +33,8 @@
         "pragmarx/google2fa-qrcode": "^3.0",
         "stripe/stripe-php": "^17.4",
         "laravel/slack-notification-channel": "^3.6",
-        "paypal/paypal-server-sdk": "^1.1"
+        "paypal/paypal-server-sdk": "^1.1",
+        "laravel/horizon": "^5.33"
     },
     "require-dev": {
         "laravel/breeze": "^2.3",

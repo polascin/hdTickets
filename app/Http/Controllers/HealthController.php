@@ -467,6 +467,104 @@ class HealthController extends Controller
     }
 
     /**
+     * WebSocket health check
+     */
+    public function websockets(): JsonResponse
+    {
+        $check = $this->checkWebSocketHealth();
+        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
+        
+        return response()->json([
+            'service' => 'websockets',
+            'status' => $check['status'],
+            'details' => $check,
+            'timestamp' => now()->toISOString(),
+        ], $status);
+    }
+
+    /**
+     * Services health check
+     */
+    public function services(): JsonResponse
+    {
+        $check = $this->checkExternalServices();
+        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
+        
+        return response()->json([
+            'service' => 'external_services',
+            'status' => $check['status'],
+            'details' => $check,
+            'timestamp' => now()->toISOString(),
+        ], $status);
+    }
+
+    /**
+     * Check WebSocket system health
+     */
+    private function checkWebSocketHealth(): array
+    {
+        try {
+            // Check if WebSocket server is configured
+            $wsEnabled = config('broadcasting.default') !== 'null';
+            
+            if (!$wsEnabled) {
+                return [
+                    'status' => 'disabled',
+                    'message' => 'WebSocket broadcasting is disabled',
+                    'details' => [
+                        'driver' => config('broadcasting.default'),
+                        'pusher_configured' => !empty(config('broadcasting.connections.pusher.key')),
+                    ],
+                ];
+            }
+
+            // Check recent WebSocket events
+            $recentConnections = 0;
+            $recentDisconnections = 0;
+            
+            try {
+                // Try to get WebSocket stats from Redis if available
+                if (config('broadcasting.default') === 'pusher') {
+                    // For Pusher, check configuration
+                    $pusherConfigured = !empty(config('broadcasting.connections.pusher.key')) &&
+                                       !empty(config('broadcasting.connections.pusher.secret')) &&
+                                       !empty(config('broadcasting.connections.pusher.app_id'));
+                    
+                    return [
+                        'status' => $pusherConfigured ? 'healthy' : 'warning',
+                        'message' => $pusherConfigured ? 'Pusher WebSocket configured' : 'Pusher WebSocket not properly configured',
+                        'details' => [
+                            'driver' => 'pusher',
+                            'app_id_configured' => !empty(config('broadcasting.connections.pusher.app_id')),
+                            'key_configured' => !empty(config('broadcasting.connections.pusher.key')),
+                            'secret_configured' => !empty(config('broadcasting.connections.pusher.secret')),
+                            'cluster' => config('broadcasting.connections.pusher.options.cluster', 'not_set'),
+                        ],
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Fallback if we can't check stats
+            }
+
+            return [
+                'status' => 'healthy',
+                'message' => 'WebSocket system is configured',
+                'details' => [
+                    'driver' => config('broadcasting.default'),
+                    'recent_connections' => $recentConnections,
+                    'recent_disconnections' => $recentDisconnections,
+                ],
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'unhealthy',
+                'message' => 'WebSocket health check failed',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Parse size string to bytes
      */
     private function parseSize(string $size): int

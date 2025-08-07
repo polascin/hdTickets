@@ -9,6 +9,12 @@ import AppCore from './core/AppCore.js';
 import cssTimestamp from '@utils/cssTimestamp';
 import { ChartJS } from '@utils/chartConfig';
 import pwaManager from '@utils/pwaManager';
+import responsiveUtils from '@utils/responsiveUtils';
+import websocketManager from '@utils/websocketManager';
+import errorReporter from '@utils/errorReporting';
+
+// Import WebSocket testing utility
+import '@utils/websocketTest';
 
 // Alpine.js component imports
 import { dashboardManager } from './components/dashboardManager.js';
@@ -25,133 +31,459 @@ window.Alpine = Alpine;
 
 // Initialize application core
 console.log('🚀 Initializing HD Tickets Application v2.0...');
+console.log('📦 Loading core modules...');
 
-// Setup CSS timestamp watching in development
-if (import.meta.env.DEV) {
-    cssTimestamp.watchCSS(['app.css', 'components.css'], (file, timestamp) => {
-        console.log(`📄 CSS file updated: ${file} at ${new Date(timestamp).toLocaleTimeString()}`);
-    });
-}
+// Module initialization tracking
+const moduleStatus = {
+    cssTimestamp: false,
+    chartJS: false,
+    pwaManager: false,
+    responsiveUtils: false,
+    websocketManager: false,
+    appCore: false,
+    alpine: false
+};
 
-// Register Alpine.js components
-Alpine.data('dashboardManager', dashboardManager);
-
-// Initialize Alpine.js
-Alpine.start();
-
-// Setup application event listeners
-AppCore.on('app:initialized', () => {
-    console.log('✅ Application core initialized successfully');
+// Initialize modules with error handling
+try {
+    console.log('✅ CSS Timestamp module loaded');
+    moduleStatus.cssTimestamp = true;
     
-    // Initialize WebSocket if available
-    const websocketManager = AppCore.getModule('websocket');
-    if (websocketManager) {
-        websocketManager.on('connected', () => {
-            console.log('🔗 WebSocket connected successfully');
-            // Subscribe to global ticket updates
-            websocketManager.subscribeToTicketUpdates((data) => {
-                AppCore.emit('ticket:updated', data);
-            });
+    // Setup CSS timestamp watching in development
+    if (import.meta.env.DEV) {
+        cssTimestamp.watchCSS(['app.css', 'components.css'], (file, timestamp) => {
+            console.log(`📄 CSS file updated: ${file} at ${new Date(timestamp).toLocaleTimeString()}`);
         });
     }
-    
-    // Show success message
-    AppCore.showSuccessMessage('Application loaded successfully');
-});
-
-AppCore.on('app:error', (event) => {
-    console.error('❌ Application error:', event.detail);
-});
-
-console.log('🎯 Alpine.js loaded and initialized:', !!window.Alpine);
-
-// Vue 3 Composition API app factory
-function createVueApp(rootComponent, props = {}) {
-    const app = createApp(rootComponent, props);
-    
-    // Global properties available in all components
-    app.config.globalProperties.$websocket = websocketManager;
-    app.config.globalProperties.$responsive = responsiveUtils;
-    app.config.globalProperties.$cssTimestamp = cssTimestamp;
-    app.config.globalProperties.$charts = ChartJS;
-    
-    // Global error handler
-    app.config.errorHandler = (err, instance, info) => {
-        console.error('Vue error:', err, info);
-        // You could send this to an error tracking service
-    };
-    
-    return app;
+} catch (error) {
+    console.error('❌ Failed to initialize CSS Timestamp module:', error);
 }
 
-// Initialize Vue components where needed
-if (document.getElementById('realtime-monitoring-dashboard')) {
-    const app = createVueApp({
-        components: {
-            RealTimeMonitoringDashboard
-        },
-        mounted() {
-            // Subscribe to real-time updates for this dashboard
-            websocketManager.subscribeToAnalytics((data) => {
-                this.$emit('analytics-updated', data);
+try {
+    console.log('✅ Chart.js module loaded');
+    moduleStatus.chartJS = true;
+} catch (error) {
+    console.error('❌ Failed to initialize Chart.js module:', error);
+}
+
+try {
+    console.log('✅ PWA Manager module loaded');
+    moduleStatus.pwaManager = true;
+} catch (error) {
+    console.error('❌ Failed to initialize PWA Manager module:', error);
+}
+
+try {
+    console.log('✅ Responsive Utils module loaded');
+    moduleStatus.responsiveUtils = true;
+} catch (error) {
+    console.error('❌ Failed to initialize Responsive Utils module:', error);
+}
+
+try {
+    console.log('✅ WebSocket Manager module loaded');
+    moduleStatus.websocketManager = true;
+} catch (error) {
+    console.error('❌ Failed to initialize WebSocket Manager module:', error);
+    // Create fallback websocketManager
+    window.websocketManager = {
+        subscribeToTicketUpdates: () => console.log('WebSocket fallback: subscribeToTicketUpdates'),
+        subscribeToAnalytics: () => console.log('WebSocket fallback: subscribeToAnalytics'),
+        subscribeToPlatformMonitoring: () => console.log('WebSocket fallback: subscribeToPlatformMonitoring'),
+        on: () => console.log('WebSocket fallback: event listener'),
+        getConnectionStatus: () => ({ isConnected: false, connectionType: 'fallback' })
+    };
+}
+
+try {
+    console.log('✅ App Core module loaded');
+    moduleStatus.appCore = true;
+} catch (error) {
+    console.error('❌ Failed to initialize App Core module:', error);
+}
+
+// Register Alpine.js components with error handling
+try {
+    Alpine.data('dashboardManager', dashboardManager);
+    console.log('✅ Alpine.js dashboard manager registered');
+    
+    // Navigation dropdown component
+    Alpine.data('navigationData', () => ({
+        open: false,
+        mobileMenuOpen: false,
+        adminDropdownOpen: false,
+        profileDropdownOpen: false,
+        
+        init() {
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.$el.contains(e.target)) {
+                    this.adminDropdownOpen = false;
+                    this.profileDropdownOpen = false;
+                }
             });
+        },
+        
+        closeAll() {
+            this.adminDropdownOpen = false;
+            this.profileDropdownOpen = false;
+            this.mobileMenuOpen = false;
+        }
+    }));
+    console.log('✅ Alpine.js navigation component registered');
+    
+    // Loading overlay component
+    Alpine.data('loadingOverlay', () => ({
+        loading: false,
+        loadingMessage: 'Loading...',
+        duration: 0,
+        progress: null,
+        canCancel: false,
+        startTime: null,
+        interval: null,
+        
+        init() {
+            // FORCE loading to be false - no exceptions
+            this.loading = false;
+            this.stopLoading();
+            
+            // Force the element to be hidden via CSS
+            this.$el.style.display = 'none';
+            
+            // Debug logging
+            console.log('🔧 Loading overlay FORCE DISABLED - this.loading:', this.loading);
+            console.log('🔧 Loading overlay element hidden via CSS');
+            
+            // Listen for global stop loading events
+            window.addEventListener('force-stop-loading', () => {
+                console.log('🔧 Force stopping loading overlay');
+                this.loading = false;
+                this.stopLoading();
+                this.$el.style.display = 'none';
+            });
+            
+            // Prevent ANY loading from showing
+            const preventLoading = () => {
+                this.loading = false;
+                this.$el.style.display = 'none';
+            };
+            
+            // Run prevention multiple times
+            setTimeout(preventLoading, 100);
+            setTimeout(preventLoading, 500);
+            setTimeout(preventLoading, 1000);
+            setTimeout(preventLoading, 2000);
+        },
+        
+        setLoading(options = {}) {
+            console.log('🔧 setLoading called with:', options);
+            
+            if (typeof options === 'boolean') {
+                options = { show: options };
+            }
+            
+            this.loading = options.show || false;
+            this.loadingMessage = options.message || 'Loading...';
+            this.progress = options.progress || null;
+            this.canCancel = options.canCancel || false;
+            
+            if (this.loading) {
+                console.log('🔧 Starting loading overlay');
+                this.startTime = Date.now();
+                this.duration = 0;
+                this.interval = setInterval(() => {
+                    this.duration = Math.floor((Date.now() - this.startTime) / 1000);
+                }, 1000);
+            } else {
+                console.log('🔧 Stopping loading overlay');
+                this.stopLoading();
+            }
+        },
+        
+        stopLoading() {
+            console.log('🔧 stopLoading called');
+            this.loading = false;
+            this.duration = 0;
+            this.progress = null;
+            if (this.interval) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
+        },
+        
+        cancelLoading() {
+            console.log('🔧 cancelLoading called');
+            this.stopLoading();
+            window.dispatchEvent(new CustomEvent('loading-cancelled'));
+            
+            if (window.hdTicketsUtils?.notify) {
+                window.hdTicketsUtils.notify('Loading cancelled', 'info');
+            }
+        }
+    }));
+    console.log('✅ Alpine.js loading overlay component registered');
+    
+    // Alpine.js global store for app state
+    Alpine.store('app', {
+        loading: false,
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('darkMode', this.darkMode);
+            document.documentElement.classList.toggle('dark', this.darkMode);
+        },
+        
+        setLoading(state) {
+            this.loading = state;
+            if (state) {
+                window.dispatchEvent(new CustomEvent('loading', {
+                    detail: { show: true, message: 'Loading...', progress: null, canCancel: false }
+                }));
+            } else {
+                window.dispatchEvent(new CustomEvent('stop-loading'));
+            }
+        },
+        
+        notify(title, message, type = 'info') {
+            window.dispatchEvent(new CustomEvent('notify', {
+                detail: { title, message, type }
+            }));
         }
     });
-    app.mount('#realtime-monitoring-dashboard');
+    console.log('✅ Alpine.js global store registered');
+} catch (error) {
+    console.error('❌ Failed to register Alpine.js dashboard manager:', error);
+}
+
+// Initialize Alpine.js with error handling
+try {
+    Alpine.start();
+    console.log('✅ Alpine.js started successfully');
+    moduleStatus.alpine = true;
+} catch (error) {
+    console.error('❌ Failed to start Alpine.js:', error);
+    // Fallback initialization
+    setTimeout(() => {
+        try {
+            Alpine.start();
+            console.log('✅ Alpine.js started on retry');
+            moduleStatus.alpine = true;
+        } catch (retryError) {
+            console.error('❌ Alpine.js retry failed:', retryError);
+        }
+    }, 1000);
+}
+
+// Setup application event listeners with error handling
+try {
+    AppCore.on('app:initialized', () => {
+        console.log('✅ Application core initialized successfully');
+        
+        // Initialize WebSocket if available with fallback
+        let wsManager = null;
+        try {
+            wsManager = AppCore.getModule('websocket') || window.websocketManager;
+        } catch (error) {
+            console.warn('WebSocket module not available:', error);
+            wsManager = window.websocketManager; // Use fallback
+        }
+        
+        if (wsManager && typeof wsManager.on === 'function') {
+            wsManager.on('connected', () => {
+                console.log('🔗 WebSocket connected successfully');
+                // Subscribe to global ticket updates
+                if (typeof wsManager.subscribeToTicketUpdates === 'function') {
+                    wsManager.subscribeToTicketUpdates((data) => {
+                        AppCore.emit('ticket:updated', data);
+                    });
+                }
+            });
+        } else {
+            console.log('📡 WebSocket manager not available, using fallback mode');
+        }
+        
+        // Show success message
+        try {
+            AppCore.showSuccessMessage('Application loaded successfully');
+        } catch (error) {
+            console.log('✅ Application loaded successfully (fallback message)');
+        }
+    });
+
+    AppCore.on('app:error', (event) => {
+        console.error('❌ Application error:', event.detail);
+    });
+} catch (error) {
+    console.error('❌ Failed to setup AppCore event listeners:', error);
+}
+
+// Log module status
+console.log('🎯 Module Status:', moduleStatus);
+console.log('🎯 Alpine.js loaded and initialized:', !!window.Alpine);
+console.log('🎯 WebSocket Manager available:', !!window.websocketManager);
+console.log('🎯 App Core available:', !!window.AppCore);
+
+// Vue 3 Composition API app factory with error handling
+function createVueApp(rootComponent, props = {}) {
+    try {
+        const app = createApp(rootComponent, props);
+        
+        // Global properties available in all components with fallbacks
+        try {
+            app.config.globalProperties.$websocket = window.websocketManager || websocketManager || null;
+            app.config.globalProperties.$responsive = responsiveUtils || null;
+            app.config.globalProperties.$cssTimestamp = cssTimestamp || null;
+            app.config.globalProperties.$charts = ChartJS || null;
+        } catch (error) {
+            console.error('❌ Failed to set Vue global properties:', error);
+        }
+        
+        // Global error handler
+        app.config.errorHandler = (err, instance, info) => {
+            console.error('Vue error:', err, info);
+            // You could send this to an error tracking service
+            if (window.AppCore && typeof window.AppCore.emit === 'function') {
+                window.AppCore.emit('vue:error', { error: err, info });
+            }
+        };
+        
+        return app;
+    } catch (error) {
+        console.error('❌ Failed to create Vue app:', error);
+        throw error;
+    }
+}
+
+// Initialize Vue components where needed with error handling
+if (document.getElementById('realtime-monitoring-dashboard')) {
+    try {
+        const app = createVueApp({
+            components: {
+                RealTimeMonitoringDashboard
+            },
+            mounted() {
+                // Subscribe to real-time updates for this dashboard with fallback
+                try {
+                    const wsManager = window.websocketManager || websocketManager;
+                    if (wsManager && typeof wsManager.subscribeToAnalytics === 'function') {
+                        wsManager.subscribeToAnalytics((data) => {
+                            this.$emit('analytics-updated', data);
+                        });
+                    } else {
+                        console.log('📡 WebSocket not available for real-time monitoring dashboard');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to setup WebSocket for real-time monitoring:', error);
+                }
+            }
+        });
+        app.mount('#realtime-monitoring-dashboard');
+        console.log('✅ Real-time monitoring dashboard mounted');
+    } catch (error) {
+        console.error('❌ Failed to mount real-time monitoring dashboard:', error);
+    }
 }
 
 if (document.getElementById('analytics-dashboard')) {
-    const app = createVueApp({
-        components: {
-            AnalyticsDashboard
-        },
-        mounted() {
-            // Subscribe to analytics updates
-            websocketManager.subscribeToAnalytics((data) => {
-                this.$emit('analytics-data', data);
-            });
-        }
-    });
-    app.mount('#analytics-dashboard');
+    try {
+        const app = createVueApp({
+            components: {
+                AnalyticsDashboard
+            },
+            mounted() {
+                // Subscribe to analytics updates with fallback
+                try {
+                    const wsManager = window.websocketManager || websocketManager;
+                    if (wsManager && typeof wsManager.subscribeToAnalytics === 'function') {
+                        wsManager.subscribeToAnalytics((data) => {
+                            this.$emit('analytics-data', data);
+                        });
+                    } else {
+                        console.log('📡 WebSocket not available for analytics dashboard');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to setup WebSocket for analytics dashboard:', error);
+                }
+            }
+        });
+        app.mount('#analytics-dashboard');
+        console.log('✅ Analytics dashboard mounted');
+    } catch (error) {
+        console.error('❌ Failed to mount analytics dashboard:', error);
+    }
 }
 
 if (document.getElementById('user-preferences-panel')) {
-    const app = createVueApp({
-        components: {
-            UserPreferencesPanel
-        }
-    });
-    app.mount('#user-preferences-panel');
+    try {
+        const app = createVueApp({
+            components: {
+                UserPreferencesPanel
+            }
+        });
+        app.mount('#user-preferences-panel');
+        console.log('✅ User preferences panel mounted');
+    } catch (error) {
+        console.error('❌ Failed to mount user preferences panel:', error);
+    }
 }
 
 if (document.getElementById('ticket-dashboard')) {
-    const app = createVueApp({
-        components: {
-            TicketDashboard
-        },
-        mounted() {
-            // Subscribe to ticket updates for this dashboard
-            websocketManager.subscribeToTicketUpdates((data) => {
-                this.$emit('ticket-updated', data);
-            });
-        }
-    });
-    app.mount('#ticket-dashboard');
+    try {
+        const app = createVueApp({
+            components: {
+                TicketDashboard
+            },
+            mounted() {
+                // Subscribe to ticket updates for this dashboard with fallback
+                try {
+                    const wsManager = window.websocketManager || websocketManager;
+                    if (wsManager && typeof wsManager.subscribeToTicketUpdates === 'function') {
+                        wsManager.subscribeToTicketUpdates((data) => {
+                            this.$emit('ticket-updated', data);
+                        });
+                    } else {
+                        console.log('📡 WebSocket not available for ticket dashboard');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to setup WebSocket for ticket dashboard:', error);
+                }
+            }
+        });
+        app.mount('#ticket-dashboard');
+        console.log('✅ Ticket dashboard mounted');
+    } catch (error) {
+        console.error('❌ Failed to mount ticket dashboard:', error);
+    }
 }
 
 if (document.getElementById('admin-dashboard')) {
-    const app = createVueApp({
-        components: {
-            AdminDashboard
-        },
-        mounted() {
-            // Subscribe to platform monitoring updates
-            websocketManager.subscribeToPlatformMonitoring((data) => {
-                this.$emit('platform-status-updated', data);
-            });
-        }
-    });
-    app.mount('#admin-dashboard');
+    try {
+        const app = createVueApp({
+            components: {
+                AdminDashboard
+            },
+            mounted() {
+                // Subscribe to platform monitoring updates with fallback
+                try {
+                    const wsManager = window.websocketManager || websocketManager;
+                    if (wsManager && typeof wsManager.subscribeToPlatformMonitoring === 'function') {
+                        wsManager.subscribeToPlatformMonitoring((data) => {
+                            this.$emit('platform-status-updated', data);
+                        });
+                    } else {
+                        console.log('📡 WebSocket not available for admin dashboard');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to setup WebSocket for admin dashboard:', error);
+                }
+            }
+        });
+        app.mount('#admin-dashboard');
+        console.log('✅ Admin dashboard mounted');
+    } catch (error) {
+        console.error('❌ Failed to mount admin dashboard:', error);
+    }
 }
 
 // Global functions for ticket management

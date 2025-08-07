@@ -895,7 +895,32 @@
                 e.preventDefault();
                 refreshDashboard();
             }
+            
+            // ESC to force stop loading
+            if (e.key === 'Escape') {
+                console.log('🔧 ESC pressed - force stopping loading overlay');
+                window.dispatchEvent(new CustomEvent('force-stop-loading'));
+            }
         });
+        
+        // Debug function to manually stop loading
+        window.forceStopLoading = function() {
+            console.log('🔧 Manual force stop loading called');
+            window.dispatchEvent(new CustomEvent('force-stop-loading'));
+        };
+        
+        // Debug function to show loading
+        window.testLoading = function() {
+            console.log('🔧 Test loading called');
+            window.dispatchEvent(new CustomEvent('loading', {
+                detail: { show: true, message: 'Test Loading...', progress: null, canCancel: false }
+            }));
+            
+            // Auto-stop after 3 seconds
+            setTimeout(() => {
+                window.forceStopLoading();
+            }, 3000);
+        };
 
         // Add smooth scrolling for better UX
         document.documentElement.style.scrollBehavior = 'smooth';

@@ -93,6 +93,36 @@
         @else
             <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <!-- Fallback Alpine.js components registration -->
+            <script>
+                document.addEventListener('alpine:init', () => {
+                    // Register navigationData component for CDN fallback
+                    Alpine.data('navigationData', () => ({
+                        open: false,
+                        mobileMenuOpen: false,
+                        adminDropdownOpen: false,
+                        profileDropdownOpen: false,
+                        
+                        init() {
+                            // Close dropdowns when clicking outside
+                            document.addEventListener('click', (e) => {
+                                if (!this.$el.contains(e.target)) {
+                                    this.adminDropdownOpen = false;
+                                    this.profileDropdownOpen = false;
+                                }
+                            });
+                        },
+                        
+                        closeAll() {
+                            this.adminDropdownOpen = false;
+                            this.profileDropdownOpen = false;
+                            this.mobileMenuOpen = false;
+                        }
+                    }));
+                    
+                    console.log('✅ Alpine.js fallback navigationData component registered');
+                });
+            </script>
             <style>
                 /* Comprehensive Tailwind CSS fallback for modern dashboard */
                 .font-sans { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; }

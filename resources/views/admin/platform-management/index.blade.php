@@ -138,7 +138,7 @@
 @endsection
 
 @section('styles')
-<link href="{{ timestampCSS('/assets/css/platform-management.css') }}" rel="stylesheet">
+<link href="{{ asset('/assets/css/platform-management.css') }}?v={{ time() }}" rel="stylesheet">
 @endsection
 
 @section('scripts')

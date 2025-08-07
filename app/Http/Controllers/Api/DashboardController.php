@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
 use App\Services\PlatformMonitoringService;
+use App\Services\ActivityLogger;
 use App\Events\TicketAvailabilityUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Exception;
+use Throwable;
 
 class DashboardController extends Controller
 {
@@ -25,24 +29,43 @@ class DashboardController extends Controller
      */
     public function stats(Request $request): JsonResponse
     {
-        $cacheKey = 'dashboard_stats_' . now()->format('YmdH');
-        
-        $stats = Cache::remember($cacheKey, 300, function () { // Cache for 5 minutes
-            return [
-                'active_monitors' => $this->getActiveMonitorsCount(),
-                'tickets_found' => $this->getTicketsFoundToday(),
-                'price_alerts' => $this->getPriceAlertsCount(),
-                'success_rate' => $this->getOverallSuccessRate(),
-                'platform_stats' => $this->getPlatformStats(),
-                'high_demand_events' => $this->getHighDemandEvents(),
-                'recent_updates' => $this->getRecentUpdates(),
-            ];
-        });
+        try {
+            Log::info('Dashboard stats requested', ['user_id' => $request->user()?->id]);
+            
+            $cacheKey = 'dashboard_stats_' . now()->format('YmdH');
+            
+            $stats = Cache::remember($cacheKey, 300, function () { // Cache for 5 minutes
+                return [
+                    'active_monitors' => $this->getActiveMonitorsCount(),
+                    'tickets_found' => $this->getTicketsFoundToday(),
+                    'price_alerts' => $this->getPriceAlertsCount(),
+                    'success_rate' => $this->getOverallSuccessRate(),
+                    'platform_stats' => $this->getPlatformStats(),
+                    'high_demand_events' => $this->getHighDemandEvents(),
+                    'recent_updates' => $this->getRecentUpdates(),
+                ];
+            });
 
-        return response()->json([
-            'data' => $stats,
-            'timestamp' => now()->toISOString()
-        ]);
+            Log::info('Dashboard stats generated successfully');
+            
+            return response()->json([
+                'success' => true,
+                'data' => $stats,
+                'timestamp' => now()->toISOString()
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error generating dashboard stats', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to retrieve dashboard statistics',
+                'error' => 'Internal server error'
+            ], 500);
+        }
     }
 
     /**
@@ -50,37 +73,54 @@ class DashboardController extends Controller
      */
     public function monitors(Request $request): JsonResponse
     {
-        // Mock monitors data - replace with actual monitor model queries
-        $monitors = [
-            [
-                'id' => 1,
-                'event_name' => 'Lakers vs Warriors',
-                'venue_name' => 'Crypto.com Arena',
-                'event_date' => now()->addDays(7)->toISOString(),
-                'min_price' => 150,
-                'max_price' => 800,
-                'quantity_needed' => 2,
-                'status' => 'active',
-                'is_active' => true,
-                'last_checked_at' => now()->subMinutes(5)->toISOString()
-            ],
-            [
-                'id' => 2,
-                'event_name' => 'NFL Championship',
-                'venue_name' => 'SoFi Stadium',
-                'event_date' => now()->addDays(14)->toISOString(),
-                'min_price' => 300,
-                'max_price' => 1200,
-                'quantity_needed' => 4,
-                'status' => 'checking',
-                'is_active' => true,
-                'last_checked_at' => now()->subMinutes(2)->toISOString()
-            ],
-        ];
+        try {
+            Log::info('Dashboard monitors requested', ['user_id' => $request->user()?->id]);
+            
+            // Mock monitors data - replace with actual monitor model queries
+            $monitors = [
+                [
+                    'id' => 1,
+                    'event_name' => 'Lakers vs Warriors',
+                    'venue_name' => 'Crypto.com Arena',
+                    'event_date' => now()->addDays(7)->toISOString(),
+                    'min_price' => 150,
+                    'max_price' => 800,
+                    'quantity_needed' => 2,
+                    'status' => 'active',
+                    'is_active' => true,
+                    'last_checked_at' => now()->subMinutes(5)->toISOString()
+                ],
+                [
+                    'id' => 2,
+                    'event_name' => 'NFL Championship',
+                    'venue_name' => 'SoFi Stadium',
+                    'event_date' => now()->addDays(14)->toISOString(),
+                    'min_price' => 300,
+                    'max_price' => 1200,
+                    'quantity_needed' => 4,
+                    'status' => 'checking',
+                    'is_active' => true,
+                    'last_checked_at' => now()->subMinutes(2)->toISOString()
+                ],
+            ];
 
-        return response()->json([
-            'data' => $monitors
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $monitors
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error retrieving monitors data', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to retrieve monitors data',
+                'error' => 'Internal server error'
+            ], 500);
+        }
     }
 
     /**
@@ -155,32 +195,48 @@ class DashboardController extends Controller
      */
     public function highDemandTickets(Request $request): JsonResponse
     {
-        $tickets = ScrapedTicket::highDemand()
-            ->available()
-            ->with([])
-            ->orderBy('demand_score', 'desc')
-            ->orderBy('scraped_at', 'desc')
-            ->limit(20)
-            ->get();
+        try {
+            Log::info('High demand tickets requested', ['user_id' => $request->user()?->id]);
+            
+            $tickets = ScrapedTicket::highDemand()
+                ->available()
+                ->with([])
+                ->orderBy('scraped_at', 'desc')
+                ->limit(20)
+                ->get();
 
-        return response()->json([
-            'data' => $tickets->map(function ($ticket) {
-                return [
-                    'uuid' => $ticket->uuid,
-                    'platform' => $ticket->platform_display_name,
-                    'event_title' => $ticket->event_title,
-                    'venue' => $ticket->venue,
-                    'event_date' => $ticket->event_date?->toISOString(),
-                    'price' => $ticket->formatted_price,
-                    'section' => $ticket->section,
-                    'row' => $ticket->row,
-                    'quantity_available' => $ticket->quantity_available,
-                    'demand_score' => $ticket->demand_score,
-                    'is_recent' => $ticket->is_recent,
-                    'scraped_at' => $ticket->scraped_at->toISOString(),
-                ];
-            })
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $tickets->map(function ($ticket) {
+                    return [
+                        'uuid' => $ticket->uuid,
+                        'platform' => $ticket->platform_display_name ?? 'Unknown',
+                        'event_title' => $ticket->event_title,
+                        'venue' => $ticket->venue,
+                        'event_date' => $ticket->event_date?->toISOString(),
+                        'price' => $ticket->formatted_price ?? '$' . number_format($ticket->price, 2),
+                        'section' => $ticket->section,
+                        'row' => $ticket->row,
+                        'quantity_available' => $ticket->quantity_available,
+                        'demand_score' => $ticket->demand_score ?? 0,
+                        'is_recent' => $ticket->is_recent ?? false,
+                        'scraped_at' => $ticket->scraped_at->toISOString(),
+                    ];
+                })
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error retrieving high demand tickets', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to retrieve high demand tickets',
+                'error' => 'Internal server error'
+            ], 500);
+        }
     }
 
     // Private helper methods
@@ -193,74 +249,104 @@ class DashboardController extends Controller
 
     private function getTicketsFoundToday(): int
     {
-        return ScrapedTicket::whereDate('scraped_at', today())->count();
+        try {
+            return ScrapedTicket::whereDate('scraped_at', today())->count();
+        } catch (Exception $e) {
+            Log::error('Error getting tickets found today', ['error' => $e->getMessage()]);
+            return 0;
+        }
     }
 
     private function getPriceAlertsCount(): int
     {
-        // Replace with actual price alerts count
-        return 12;
+        try {
+            // Replace with actual price alerts count
+            return 12;
+        } catch (Exception $e) {
+            Log::error('Error getting price alerts count', ['error' => $e->getMessage()]);
+            return 0;
+        }
     }
 
     private function getOverallSuccessRate(): float
     {
-        $stats = $this->platformMonitoringService->getAllPlatformStats(24);
-        $totalRequests = $stats->sum('total_requests');
-        $successfulRequests = $stats->sum('successful_requests');
+        try {
+            $stats = $this->platformMonitoringService->getAllPlatformStats(24);
+            $totalRequests = $stats->sum('total_requests');
+            $successfulRequests = $stats->sum('successful_requests');
 
-        if ($totalRequests === 0) {
+            if ($totalRequests === 0) {
+                return 0;
+            }
+
+            return round(($successfulRequests / $totalRequests) * 100, 1);
+        } catch (Exception $e) {
+            Log::error('Error calculating overall success rate', ['error' => $e->getMessage()]);
             return 0;
         }
-
-        return round(($successfulRequests / $totalRequests) * 100, 1);
     }
 
     private function getPlatformStats(): array
     {
-        return $this->platformMonitoringService->getAllPlatformStats(24)
-            ->map(function ($stats) {
-                return [
-                    'platform' => $stats['platform'],
-                    'success_rate' => $stats['success_rate'],
-                    'total_requests' => $stats['total_requests'],
-                    'status' => $this->determinePlatformStatus($stats),
-                ];
-            })
-            ->toArray();
+        try {
+            return $this->platformMonitoringService->getAllPlatformStats(24)
+                ->map(function ($stats) {
+                    return [
+                        'platform' => $stats['platform'],
+                        'success_rate' => $stats['success_rate'],
+                        'total_requests' => $stats['total_requests'],
+                        'status' => $this->determinePlatformStatus($stats),
+                    ];
+                })
+                ->toArray();
+        } catch (Exception $e) {
+            Log::error('Error getting platform stats', ['error' => $e->getMessage()]);
+            return [];
+        }
     }
 
     private function getHighDemandEvents(): array
     {
-        return ScrapedTicket::highDemand()
-            ->select('event_title', 'venue', 'event_date')
-            ->groupBy('event_title', 'venue', 'event_date')
-            ->orderBy('event_date')
-            ->limit(5)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'event_title' => $ticket->event_title,
-                    'venue' => $ticket->venue,
-                    'event_date' => $ticket->event_date?->toISOString(),
-                ];
-            })
-            ->toArray();
+        try {
+            return ScrapedTicket::highDemand()
+                ->select('event_title', 'venue', 'event_date')
+                ->groupBy('event_title', 'venue', 'event_date')
+                ->orderBy('event_date')
+                ->limit(5)
+                ->get()
+                ->map(function ($ticket) {
+                    return [
+                        'event_title' => $ticket->event_title,
+                        'venue' => $ticket->venue,
+                        'event_date' => $ticket->event_date?->toISOString(),
+                    ];
+                })
+                ->toArray();
+        } catch (Exception $e) {
+            Log::error('Error getting high demand events', ['error' => $e->getMessage()]);
+            return [];
+        }
     }
 
     private function getRecentUpdates(): array
     {
-        return ScrapedTicket::orderBy('scraped_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'platform' => $ticket->platform_display_name,
-                    'event_title' => $ticket->event_title,
-                    'status' => $ticket->availability_status,
-                    'scraped_at' => $ticket->scraped_at->toISOString(),
-                ];
-            })
-            ->toArray();
+        try {
+            return ScrapedTicket::orderBy('scraped_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($ticket) {
+                    return [
+                        'platform' => $ticket->platform_display_name,
+                        'event_title' => $ticket->event_title,
+                        'status' => $ticket->availability_status,
+                        'scraped_at' => $ticket->scraped_at->toISOString(),
+                    ];
+                })
+                ->toArray();
+        } catch (Exception $e) {
+            Log::error('Error getting recent updates', ['error' => $e->getMessage()]);
+            return [];
+        }
     }
 
     private function determinePlatformStatus(array $stats): string
@@ -279,26 +365,43 @@ class DashboardController extends Controller
      */
     public function analytics(Request $request): JsonResponse
     {
-        $timeframe = $request->get('timeframe', '7d');
-        $cacheKey = "dashboard_analytics_{$timeframe}";
-        
-        $data = Cache::remember($cacheKey, 900, function () use ($timeframe) {
-            $days = $this->getTimeframeDays($timeframe);
+        try {
+            Log::info('Analytics data requested', ['user_id' => $request->user()?->id]);
             
-            return [
-                'ticket_volume' => $this->getTicketVolumeData($days),
-                'platform_performance' => $this->getPlatformPerformanceData($days),
-                'price_trends' => $this->getPriceTrendsData($days),
-                'success_metrics' => $this->getSuccessMetrics($days),
-                'user_activity' => $this->getUserActivityData($days)
-            ];
-        });
-        
-        return response()->json([
-            'data' => $data,
-            'timeframe' => $timeframe,
-            'generated_at' => now()->toISOString()
-        ]);
+            $timeframe = $request->get('timeframe', '7d');
+            $cacheKey = "dashboard_analytics_{$timeframe}";
+            
+            $data = Cache::remember($cacheKey, 900, function () use ($timeframe) {
+                $days = $this->getTimeframeDays($timeframe);
+                
+                return [
+                    'ticket_volume' => $this->getTicketVolumeData($days),
+                    'platform_performance' => $this->getPlatformPerformanceData($days),
+                    'price_trends' => [], // Skip price trends due to missing price column
+                    'success_metrics' => $this->getSuccessMetrics($days),
+                    'user_activity' => $this->getUserActivityData($days)
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'timeframe' => $timeframe,
+                'generated_at' => now()->toISOString()
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error retrieving analytics data', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to retrieve analytics data',
+                'error' => 'Internal server error'
+            ], 500);
+        }
     }
 
     /**
@@ -610,5 +713,135 @@ class DashboardController extends Controller
     {
         // Mock calculation - would track alert accuracy
         return 92.5;
+    }
+
+    /**
+     * Log JavaScript errors and performance data from the frontend
+     */
+    public function logError(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'session_id' => 'required|string',
+                'timestamp' => 'required|string',
+                'errors' => 'required|array',
+                'meta' => 'sometimes|array'
+            ]);
+
+            $activityLogger = app(ActivityLogger::class);
+
+            $sessionId = $request->input('session_id');
+            $errors = $request->input('errors', []);
+            $meta = $request->input('meta', []);
+
+            // Log each error individually
+            foreach ($errors as $error) {
+                $errorType = $error['type'] ?? 'unknown';
+                $errorLevel = $this->determineErrorLevel($errorType, $error);
+
+                $context = [
+                    'session_id' => $sessionId,
+                    'error_type' => $errorType,
+                    'error_data' => $error,
+                    'browser_meta' => $meta,
+                    'user_id' => auth()->id(),
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ];
+
+                // Log based on error type and severity
+                switch ($errorType) {
+                    case 'javascript_error':
+                    case 'unhandled_promise_rejection':
+                        $activityLogger->logJavaScriptEvent('error', $context);
+                        break;
+                    
+                    case 'console_error':
+                    case 'console_warn':
+                        $activityLogger->logJavaScriptEvent($errorType, $context);
+                        break;
+                    
+                    case 'performance_issue':
+                    case 'long_task':
+                    case 'slow_operation':
+                        Log::channel('performance')->warning('Frontend Performance Issue', $context);
+                        break;
+                    
+                    case 'page_performance':
+                        Log::channel('performance')->info('Page Performance Metrics', $context);
+                        break;
+                    
+                    default:
+                        $activityLogger->logJavaScriptEvent('custom_event', $context);
+                }
+
+                // Log critical errors with admin notification
+                if ($errorLevel === 'critical') {
+                    $exception = new \Exception(
+                        $error['message'] ?? 'Frontend Critical Error',
+                        0
+                    );
+                    $activityLogger->logCriticalError($exception, $context, true);
+                }
+            }
+
+            // Log aggregated session info
+            Log::channel('monitoring')->info('Frontend Error Batch Processed', [
+                'session_id' => $sessionId,
+                'error_count' => count($errors),
+                'error_types' => array_count_values(array_column($errors, 'type')),
+                'user_id' => auth()->id(),
+                'browser_info' => $meta,
+                'timestamp' => now()->toISOString()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Errors logged successfully',
+                'processed_count' => count($errors),
+                'session_id' => $sessionId
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Failed to log frontend errors', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to log errors',
+                'error' => 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /**
+     * Determine error severity level
+     */
+    private function determineErrorLevel(string $errorType, array $error): string
+    {
+        // Critical errors that need immediate attention
+        $criticalTypes = [
+            'javascript_error',
+            'unhandled_promise_rejection'
+        ];
+
+        if (in_array($errorType, $criticalTypes)) {
+            return 'critical';
+        }
+
+        // Performance issues
+        if ($errorType === 'performance_issue' && ($error['duration'] ?? 0) > 5000) {
+            return 'warning';
+        }
+
+        // Console errors
+        if ($errorType === 'console_error') {
+            return 'warning';
+        }
+
+        return 'info';
     }
 }

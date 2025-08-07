@@ -32,9 +32,9 @@ class CssTimestampServiceProvider extends ServiceProvider
                     // Handle local assets
                     $fullPath = public_path($path);
                     
-                    // Check if file exists and get modification time
+                    // Check if file exists and get modification time using filemtime
                     if (File::exists($fullPath)) {
-                        $timestamp = File::lastModified($fullPath);
+                        $timestamp = filemtime($fullPath) ?: File::lastModified($fullPath);
                     } else {
                         // If file doesn't exist, use current time as fallback
                         $timestamp = time();

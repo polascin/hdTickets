@@ -102,7 +102,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // New route for ticket availability updates
     Route::post('/tickets/availability-update', [TicketController::class, 'availabilityUpdate']);
     
-    // Dashboard routes
+// Dashboard routes
     Route::prefix('dashboard')->group(function () {
         Route::get('/stats', [DashboardController::class, 'stats']);
         Route::get('/monitors', [DashboardController::class, 'monitors']);
@@ -114,6 +114,16 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/realtime-stats', [DashboardController::class, 'realtimeStats']);
         Route::get('/performance-metrics', [DashboardController::class, 'performanceMetrics']);
         Route::get('/success-rates', [DashboardController::class, 'successRates']);
+        
+        // Comprehensive health endpoint
+        Route::get('/health', [\App\Http\Controllers\HealthController::class, 'index']);
+        Route::get('/health/database', [\App\Http\Controllers\HealthController::class, 'database']);
+        Route::get('/health/redis', [\App\Http\Controllers\HealthController::class, 'redis']);
+        Route::get('/health/websockets', [\App\Http\Controllers\HealthController::class, 'websockets']);
+        Route::get('/health/services', [\App\Http\Controllers\HealthController::class, 'services']);
+        
+        // Error logging endpoint
+        Route::post('/log-error', [DashboardController::class, 'logError']);
     });
     
     // User Preferences API

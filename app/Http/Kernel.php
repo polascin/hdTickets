@@ -53,6 +53,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\ComprehensiveLoggingMiddleware::class,
             \App\Http\Middleware\ApiSecurityMiddleware::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -83,5 +84,6 @@ class Kernel extends HttpKernel
         'agent' => \App\Http\Middleware\AgentMiddleware::class,
         'api.security' => \App\Http\Middleware\ApiSecurityMiddleware::class,
         'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
+        'auth.debug' => \App\Http\Middleware\DebugAuthMiddleware::class,
     ];
 }

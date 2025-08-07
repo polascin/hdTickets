@@ -5,7 +5,7 @@
     - Better organization and readability
     - Role-based access control
 --}}
-<nav x-data="{ open: false, mobileMenuOpen: false }" class="bg-white border-b border-gray-100 shadow-sm" x-init="if (window.responsiveUtils) { responsiveUtils.onBreakpointChange(() => { if (!responsiveUtils.isMobile()) mobileMenuOpen = false; }); }">
+<nav x-data="navigationData()" class="bg-white border-b border-gray-100 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="container mx-auto px-4">
         <div class="flex justify-between h-16">
@@ -30,6 +30,10 @@
                     </x-nav-link>
                     
                     @if(Auth::user()->isAdmin() || Auth::user()->isAgent())
+                        {{-- Agent-specific check for debugging --}}
+                        @if(Auth::user()->isAgent())
+                            {{-- Agent has access to these features --}}
+                        @endif
                         {{-- Sports Tickets --}}
                         <x-nav-link :href="route('tickets.scraping.index')" :active="request()->routeIs('tickets.scraping.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,8 +78,8 @@
                     @if(Auth::user()->isAdmin())
                         {{-- Admin Dropdown --}}
                         <div class="relative">
-                            <button onclick="toggleDropdown('adminDropdown')" 
-                                    class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button @click="adminDropdownOpen = !adminDropdownOpen" 
+                                class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -85,7 +89,7 @@
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
-                            <div id="adminDropdown" style="display: none;" 
+                            <div x-show="adminDropdownOpen" x-cloak x-transition:enter="transform ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" 
                                  class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200">
                                 {{-- Admin Dashboard --}}
                                 <a href="{{ route('admin.dashboard') }}" 
@@ -157,20 +161,20 @@
             </div>
 
             <!-- Theme Toggle -->
-            <div class="hidden sm:flex sm:items-center sm:ms-4">
+            <div class="hidden sm:flex sm:items-center sm:ms-4" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-init="document.documentElement.classList.toggle('dark', darkMode)">
                 <button type="button" 
-                        onclick="toggleTheme()" 
+                        @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode); document.documentElement.classList.toggle('dark', darkMode)" 
                         class="inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
                         title="Toggle theme"
                         id="theme-toggle">
-                    <i class="fas fa-moon w-5 h-5" id="theme-icon"></i>
+                    <i class="fas w-5 h-5" :class="darkMode ? 'fa-sun' : 'fa-moon'" id="theme-icon"></i>
                 </button>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-2">
                 <div class="relative">
-                    <button onclick="toggleDropdown('profileDropdown')" 
+                    <button @click="profileDropdownOpen = !profileDropdownOpen" 
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                         @php
                             $profileDisplay = Auth::user()->getProfileDisplay();
@@ -197,7 +201,7 @@
                         </div>
                     </button>
                     
-                    <div id="profileDropdown" style="display: none;" 
+                    <div x-show="profileDropdownOpen" x-cloak x-transition:enter="transform ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" 
                          class="absolute z-50 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200 right-0">
                         
                         {{-- Profile Link --}}
@@ -395,98 +399,3 @@
     </div>
 </nav>
 
-<script>
-function toggleDropdown(dropdownId) {
-    // Close all other dropdowns first
-    const allDropdowns = ['adminDropdown', 'profileDropdown'];
-    allDropdowns.forEach(id => {
-        if (id !== dropdownId) {
-            const dropdown = document.getElementById(id);
-            if (dropdown) {
-                dropdown.style.display = 'none';
-            }
-        }
-    });
-    
-    // Toggle the clicked dropdown
-    const dropdown = document.getElementById(dropdownId);
-    if (dropdown) {
-        if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-            dropdown.style.display = 'block';
-        } else {
-            dropdown.style.display = 'none';
-        }
-    }
-}
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    const allDropdowns = ['adminDropdown', 'profileDropdown'];
-    
-    allDropdowns.forEach(dropdownId => {
-        const dropdown = document.getElementById(dropdownId);
-        const button = dropdown ? dropdown.previousElementSibling : null;
-        
-        if (dropdown && button) {
-            // Check if the click was outside both the dropdown and its button
-            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
-        }
-    });
-});
-
-// Enhanced theme toggle function
-function toggleTheme() {
-    const html = document.documentElement;
-    const themeIcon = document.getElementById('theme-icon');
-    const currentTheme = localStorage.getItem('darkMode') === 'true';
-    
-    // Toggle theme
-    const newTheme = !currentTheme;
-    localStorage.setItem('darkMode', newTheme);
-    
-    // Add smooth transition
-    html.classList.add('theme-transitioning');
-    
-    if (newTheme) {
-        html.classList.add('dark');
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-sun w-5 h-5';
-        }
-    } else {
-        html.classList.remove('dark');
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-moon w-5 h-5';
-        }
-    }
-    
-    // Remove transition class after animation
-    setTimeout(() => {
-        html.classList.remove('theme-transitioning');
-    }, 300);
-    
-    // Show notification if available
-    if (window.hdTicketsFeedback) {
-        const themeName = newTheme ? 'Dark' : 'Light';
-        window.hdTicketsFeedback.info('Theme Changed', `Switched to ${themeName} mode`);
-    }
-}
-
-// Initialize theme on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const themeIcon = document.getElementById('theme-icon');
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    
-    if (isDark) {
-        document.documentElement.classList.add('dark');
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-sun w-5 h-5';
-        }
-    } else {
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-moon w-5 h-5';
-        }
-    }
-});
-</script>

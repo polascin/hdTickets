@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Component Debug - HD Tickets</title>
+    
+    <!-- Load CSS from built assets -->
+    <link rel="stylesheet" href="/build/assets/css/app-BeZov68Y.css">
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        .debug-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .dropdown {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 5px;
+            position: absolute;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        nav {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .relative { position: relative; }
+        .console-output {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .nav-test {
+            border: 2px solid #007bff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            background: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <h1>HD Tickets Navigation Component Debug</h1>
+        
+        <!-- Status Display -->
+        <div class="debug-section">
+            <h2>🔍 Debug Status</h2>
+            <div id="status-display">
+                <p>🕒 Loading systems...</p>
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="debug-section">
+            <h2>📜 Console Output</h2>
+            <div id="console-output" class="console-output">
+                [Loading...]
+            </div>
+        </div>
+
+        <!-- Test 1: Direct navigationData() usage -->
+        <div class="debug-section nav-test relative" x-data="navigationData()">
+            <h3>🧪 Test 1: Direct navigationData() Component Usage</h3>
+            <p>This uses the actual navigationData component registered in app.js</p>
+            
+            <button class="btn" @click="adminDropdownOpen = !adminDropdownOpen">
+                Admin Menu (<span x-text="adminDropdownOpen ? 'Open' : 'Closed'"></span>)
+            </button>
+            <div x-show="adminDropdownOpen" x-cloak class="dropdown">
+                <p>✅ Admin dropdown is working via navigationData()!</p>
+                <button class="btn" @click="adminDropdownOpen = false">Close</button>
+            </div>
+            
+            <button class="btn" @click="profileDropdownOpen = !profileDropdownOpen">
+                Profile Menu (<span x-text="profileDropdownOpen ? 'Open' : 'Closed'"></span>)
+            </button>
+            <div x-show="profileDropdownOpen" x-cloak class="dropdown">
+                <p>✅ Profile dropdown is working via navigationData()!</p>
+                <button class="btn" @click="profileDropdownOpen = false">Close</button>
+            </div>
+            
+            <button class="btn" @click="mobileMenuOpen = !mobileMenuOpen">
+                Mobile Menu (<span x-text="mobileMenuOpen ? 'Open' : 'Closed'"></span>)
+            </button>
+            <div x-show="mobileMenuOpen" x-cloak class="dropdown">
+                <p>✅ Mobile menu is working via navigationData()!</p>
+                <button class="btn" @click="mobileMenuOpen = false">Close</button>
+            </div>
+            
+            <br><br>
+            <button class="btn" @click="closeAll()">Close All Dropdowns</button>
+        </div>
+
+        <!-- Test 2: Simulated Navigation Bar -->
+        <nav class="nav-test" x-data="navigationData()">
+            <h3>🧪 Test 2: Simulated Navigation Bar</h3>
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="font-bold">HD Tickets</span>
+                </div>
+                <div class="flex items-center space-x-4 relative">
+                    <!-- Admin Dropdown -->
+                    <div class="relative">
+                        <button @click="adminDropdownOpen = !adminDropdownOpen" 
+                                class="btn">
+                            Admin
+                        </button>
+                        <div x-show="adminDropdownOpen" x-cloak 
+                             class="dropdown right-0">
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Dashboard</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Users</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Reports</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="relative">
+                        <button @click="profileDropdownOpen = !profileDropdownOpen" 
+                                class="btn">
+                            Profile
+                        </button>
+                        <div x-show="profileDropdownOpen" x-cloak 
+                             class="dropdown right-0">
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Edit Profile</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Settings</a>
+                            <hr class="my-1">
+                            <a href="#" class="block px-4 py-2 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Test 3: Event Handling Test -->
+        <div class="debug-section" x-data="navigationData()">
+            <h3>🧪 Test 3: Event Handling (@click, x-show)</h3>
+            <p>Testing that all Alpine.js directives work correctly</p>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <button class="btn w-full" @click="adminDropdownOpen = true">Open Admin</button>
+                    <div x-show="adminDropdownOpen" class="mt-2 p-2 bg-green-100 rounded">
+                        Admin panel visible!
+                    </div>
+                </div>
+                <div>
+                    <button class="btn w-full" @click="profileDropdownOpen = true">Open Profile</button>
+                    <div x-show="profileDropdownOpen" class="mt-2 p-2 bg-blue-100 rounded">
+                        Profile panel visible!
+                    </div>
+                </div>
+                <div>
+                    <button class="btn w-full" @click="mobileMenuOpen = true">Open Mobile</button>
+                    <div x-show="mobileMenuOpen" class="mt-2 p-2 bg-purple-100 rounded">
+                        Mobile menu visible!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button class="btn" @click="closeAll()">🔄 Reset All</button>
+            </div>
+        </div>
+
+        <!-- Test 4: x-cloak functionality -->
+        <div class="debug-section" x-data="navigationData()">
+            <h3>🧪 Test 4: x-cloak Functionality Test</h3>
+            <button class="btn" @click="adminDropdownOpen = !adminDropdownOpen">Toggle Admin (with x-cloak)</button>
+            
+            <!-- This should not flash when page loads -->
+            <div x-show="adminDropdownOpen" x-cloak class="mt-2 p-4 bg-yellow-100 rounded">
+                <p>This content uses x-cloak and should not flash when the page loads.</p>
+                <p>If you saw this content briefly when the page first loaded, x-cloak is not working properly.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load built JavaScript assets -->
+    <script type="module" src="/build/assets/js/app-DiF5Oeeo.js"></script>
+
+    <script>
+        // Console capture and display
+        let consoleOutput = document.getElementById('console-output');
+        let originalConsoleLog = console.log;
+        let originalConsoleError = console.error;
+        let originalConsoleWarn = console.warn;
+
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#feca57' : '#00ff00';
+            consoleOutput.innerHTML += `<div style="color: ${color}">[${timestamp}] ${type.toUpperCase()}: ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(message) {
+            addToConsole(message, 'log');
+            originalConsoleLog.apply(console, arguments);
+        };
+
+        console.error = function(message) {
+            addToConsole(message, 'error');
+            originalConsoleError.apply(console, arguments);
+        };
+
+        console.warn = function(message) {
+            addToConsole(message, 'warn');
+            originalConsoleWarn.apply(console, arguments);
+        };
+
+        // Status check function
+        function checkStatus() {
+            const statusDisplay = document.getElementById('status-display');
+            let status = '<div>';
+
+            // Check Alpine.js
+            if (window.Alpine) {
+                status += '<p class="success">✅ Alpine.js loaded successfully</p>';
+                status += `<p class="success">   Version: ${Alpine.version || 'unknown'}</p>`;
+                console.log('Alpine.js available:', Alpine);
+                
+                // Check if Alpine.start() has been called
+                if (Alpine.__x || Alpine.store || Object.keys(Alpine).length > 2) {
+                    status += '<p class="success">✅ Alpine.js initialized (started)</p>';
+                } else {
+                    status += '<p class="warning">⚠️ Alpine.js loaded but may not be started yet</p>';
+                }
+            } else {
+                status += '<p class="error">❌ Alpine.js not loaded</p>';
+                console.error('Alpine.js not available');
+            }
+
+            // Check if navigationData is available as Alpine component
+            if (window.Alpine && window.Alpine.data) {
+                status += '<p class="success">✅ Alpine.data() method available</p>';
+                console.log('Alpine.data method available - navigationData should be registered');
+            } else {
+                status += '<p class="error">❌ Alpine.data() method not available</p>';
+            }
+
+            // Check x-cloak styles
+            const xCloakStyle = Array.from(document.styleSheets).some(sheet => {
+                try {
+                    return Array.from(sheet.cssRules).some(rule => rule.selectorText && rule.selectorText.includes('[x-cloak]'));
+                } catch(e) { return false; }
+            });
+            
+            if (xCloakStyle) {
+                status += '<p class="success">✅ x-cloak styles found</p>';
+            } else {
+                status += '<p class="warning">⚠️ x-cloak styles may be missing</p>';
+            }
+
+            // Check if modules loaded
+            if (window.AppCore) {
+                status += '<p class="success">✅ AppCore available</p>';
+            } else {
+                status += '<p class="warning">⚠️ AppCore not available</p>';
+            }
+
+            // Check for navigationData component errors
+            const navElements = document.querySelectorAll('[x-data="navigationData()"]');
+            if (navElements.length > 0) {
+                status += `<p class="success">✅ Found ${navElements.length} elements using navigationData()</p>`;
+            } else {
+                status += '<p class="error">❌ No elements using navigationData() found</p>';
+            }
+
+            status += '</div>';
+            statusDisplay.innerHTML = status;
+        }
+
+        // Run checks when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Check status immediately and after a delay
+            checkStatus();
+            setTimeout(checkStatus, 1000);
+            setTimeout(checkStatus, 3000);
+            setTimeout(checkStatus, 5000);
+        });
+
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.message, 'at', e.filename + ':' + e.lineno);
+        });
+
+        // Alpine.js specific error handling
+        document.addEventListener('alpine:init', () => {
+            console.log('Alpine.js initialization started');
+        });
+
+        document.addEventListener('alpine:initialized', () => {
+            console.log('Alpine.js fully initialized');
+            checkStatus();
+        });
+
+        // Test if navigationData components are working
+        setTimeout(() => {
+            const navElements = document.querySelectorAll('[x-data="navigationData()"]');
+            console.log(`Found ${navElements.length} navigationData elements`);
+            
+            navElements.forEach((el, index) => {
+                console.log(`Element ${index + 1}:`, el);
+                
+                // Try to access Alpine data
+                if (el._x_dataStack && el._x_dataStack[0]) {
+                    console.log(`Element ${index + 1} data:`, el._x_dataStack[0]);
+                }
+            });
+        }, 2000);
+    </script>
+</body>
+</html>

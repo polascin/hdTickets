@@ -209,6 +209,22 @@ return [
             'level' => 'info',
             'days' => 180, // Keep audit logs for 6 months
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authentication Debug Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Dedicated channel for debugging authentication flows, role assignments,
+        | and session management. Used for diagnosing auth issues.
+        |
+        */
+        'auth_debug' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auth_debug.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 7, // Keep auth debug logs for 7 days
+        ],
     ],
 
 ];

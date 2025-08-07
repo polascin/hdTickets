@@ -58,28 +58,34 @@
         
         <!-- User Stats Summary -->
         <div class="flex items-center space-x-6 text-white/90">
-            @if(isset($stats['active_monitors']))
-            <div class="text-center">
-                <div class="text-2xl font-bold">{{ $stats['active_monitors'] ?? 0 }}</div>
-                <div class="text-xs uppercase tracking-wide">Active Monitors</div>
-            </div>
-            @endif
-            
-            @if(isset($stats['alerts_today']))
-            <div class="text-center">
-                <div class="text-2xl font-bold">{{ $stats['alerts_today'] ?? 0 }}</div>
-                <div class="text-xs uppercase tracking-wide">Alerts Today</div>
-            </div>
-            @endif
-            
-            @if(isset($stats['price_drops']))
-            <div class="text-center">
-                <div class="text-2xl font-bold">{{ $stats['price_drops'] ?? 0 }}</div>
-                <div class="text-xs uppercase tracking-wide">Price Drops</div>
-            </div>
+            @if(!empty($stats) && (isset($stats['active_monitors']) || isset($stats['alerts_today']) || isset($stats['price_drops'])))
+                @if(isset($stats['active_monitors']))
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ $stats['active_monitors'] ?? 0 }}</div>
+                    <div class="text-xs uppercase tracking-wide">Active Monitors</div>
+                </div>
+                @endif
+                
+                @if(isset($stats['alerts_today']))
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ $stats['alerts_today'] ?? 0 }}</div>
+                    <div class="text-xs uppercase tracking-wide">Alerts Today</div>
+                </div>
+                @endif
+                
+                @if(isset($stats['price_drops']))
+                <div class="text-center">
+                    <div class="text-2xl font-bold">{{ $stats['price_drops'] ?? 0 }}</div>
+                    <div class="text-xs uppercase tracking-wide">Price Drops</div>
+                </div>
+                @endif
+            @else
+                <!-- Fallback when no stats are available -->
+                <div class="text-center">
+                    <div class="text-sm text-white/70">Dashboard loading...</div>
+                </div>
             @endif
         </div>
-        
         <div class="animate-float hidden sm:block">
             <svg class="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>

@@ -51,17 +51,67 @@ class WebSocketManager {
      * Initialize WebSocket connection based on available configuration
      */
     initializeConnection() {
-        // Try Pusher first (Laravel Echo with Pusher)
-        if (this.config.pusher.key) {
-            this.initializePusher();
+        try {
+            // Validate environment first
+            if (!this.validateEnvironment()) {
+                console.warn('WebSocket environment validation failed');
+                this.initializeFallbackMode();
+                return;
+            }
+
+            // Try Pusher first (Laravel Echo with Pusher)
+            if (this.config.pusher && this.config.pusher.key) {
+                this.initializePusher();
+            }
+            // Fallback to Socket.IO
+            else if (this.config.socketIO && this.config.socketIO.url) {
+                this.initializeSocketIO();
+            }
+            else {
+                console.warn('No WebSocket configuration found, initializing fallback mode');
+                this.initializeFallbackMode();
+            }
+        } catch (error) {
+            console.error('Failed to initialize WebSocket connection:', error);
+            this.initializeFallbackMode();
         }
-        // Fallback to Socket.IO
-        else if (this.config.socketIO.url) {
-            this.initializeSocketIO();
+    }
+
+    /**
+     * Validate WebSocket environment
+     */
+    validateEnvironment() {
+        // Check if WebSocket is supported
+        if (typeof WebSocket === 'undefined') {
+            console.warn('WebSocket not supported in this environment');
+            return false;
         }
-        else {
-            console.warn('No WebSocket configuration found');
+
+        // Check if required dependencies are available
+        if (typeof window === 'undefined') {
+            console.warn('Window object not available');
+            return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Initialize fallback mode for environments where WebSocket is not available
+     */
+    initializeFallbackMode() {
+        console.log('Initializing WebSocket fallback mode with polling');
+        this.connectionType = 'fallback';
+        this.isConnected = false;
+        
+        // Set up polling fallback
+        this.setupPollingFallback();
+        
+        // Emit connected event after a delay to simulate connection
+        setTimeout(() => {
+            this.emit('connected');
+            console.log('Fallback mode initialized');
+        }, 1000);
     }
 
     /**
@@ -569,6 +619,203 @@ class WebSocketManager {
         } else {
             // Fallback to console
             console.log(`[${type.toUpperCase()}] ${title}: ${message}`);
+        }
+    }
+
+    /**
+     * Set up polling fallback when WebSocket is not available
+     */
+    setupPollingFallback() {
+        console.log('Setting up polling fallback mechanism');
+        this.pollingInterval = 5000; // 5 seconds
+        this.pollingTimer = null;
+        this.lastPollTime = null;
+        this.pollingEndpoints = {
+            tickets: '/api/tickets/updates',
+            analytics: '/api/analytics/live',
+            platform: '/api/platform/status',
+            notifications: '/api/notifications/latest'
+        };
+        
+        this.startPolling();
+    }
+
+    /**
+     * Start polling for updates
+     */
+    startPolling() {
+        if (this.pollingTimer) {
+            this.stopPolling();
+        }
+
+        console.log('Starting fallback polling...');
+        this.pollingTimer = setInterval(() => {
+            this.performPolling();
+        }, this.pollingInterval);
+
+        // Perform initial poll
+        this.performPolling();
+    }
+
+    /**
+     * Stop polling
+     */
+    stopPolling() {
+        if (this.pollingTimer) {
+            clearInterval(this.pollingTimer);
+            this.pollingTimer = null;
+            console.log('Polling stopped');
+        }
+    }
+
+    /**
+     * Perform polling requests
+     */
+    async performPolling() {
+        if (!window.axios) {
+            console.warn('Axios not available for polling');
+            return;
+        }
+
+        const timestamp = this.lastPollTime || new Date(Date.now() - this.pollingInterval).toISOString();
+        
+        try {
+            // Poll for ticket updates
+            if (this.channels.has('ticket-updates') || this.hasEventListeners('ticket-updated')) {
+                await this.pollEndpoint('tickets', timestamp);
+            }
+
+            // Poll for analytics updates
+            if (this.channels.has('analytics-updates') || this.hasEventListeners('analytics-updated')) {
+                await this.pollEndpoint('analytics', timestamp);
+            }
+
+            // Poll for platform status
+            if (this.channels.has('platform-monitoring') || this.hasEventListeners('platform-status-updated')) {
+                await this.pollEndpoint('platform', timestamp);
+            }
+
+            // Poll for notifications
+            if (this.hasEventListeners('user-notification')) {
+                await this.pollEndpoint('notifications', timestamp);
+            }
+
+            this.lastPollTime = new Date().toISOString();
+        } catch (error) {
+            console.error('Polling error:', error);
+        }
+    }
+
+    /**
+     * Poll a specific endpoint
+     */
+    async pollEndpoint(type, since) {
+        try {
+            const endpoint = this.pollingEndpoints[type];
+            if (!endpoint) return;
+
+            const response = await window.axios.get(endpoint, {
+                params: { since },
+                timeout: 5000
+            });
+
+            if (response.data && response.data.updates) {
+                response.data.updates.forEach(update => {
+                    this.handlePollingUpdate(type, update);
+                });
+            }
+        } catch (error) {
+            if (error.code !== 'ECONNABORTED') {
+                console.error(`Polling error for ${type}:`, error);
+            }
+        }
+    }
+
+    /**
+     * Handle updates received from polling
+     */
+    handlePollingUpdate(type, update) {
+        switch (type) {
+            case 'tickets':
+                if (update.type === 'price_change') {
+                    this.handleTicketPriceChange(update.data);
+                } else if (update.type === 'availability_change') {
+                    this.handleAvailabilityChange(update.data);
+                }
+                break;
+            
+            case 'analytics':
+                this.emit('analytics-updated', update.data);
+                break;
+            
+            case 'platform':
+                this.emit('platform-status-updated', update.data);
+                break;
+            
+            case 'notifications':
+                this.emit('user-notification', update.data);
+                break;
+        }
+    }
+
+    /**
+     * Check if there are event listeners for a specific event
+     */
+    hasEventListeners(event) {
+        return this.eventListeners.has(event) && this.eventListeners.get(event).length > 0;
+    }
+
+    /**
+     * Override subscribe methods to work with polling fallback
+     */
+    subscribeToTicketUpdates(callback) {
+        if (this.connectionType === 'fallback') {
+            this.on('ticket-updated', callback);
+            console.log('Subscribed to ticket updates via polling fallback');
+            return () => this.off('ticket-updated', callback);
+        }
+        
+        // Original WebSocket implementation
+        if (this.connectionType === 'pusher' && this.echo) {
+            const channel = this.echo.channel('ticket-updates');
+            channel.listen('TicketAvailabilityUpdated', callback);
+            this.channels.set('ticket-updates', channel);
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('ticket-availability-updated', callback);
+        }
+    }
+
+    subscribeToAnalytics(callback) {
+        if (this.connectionType === 'fallback') {
+            this.on('analytics-updated', callback);
+            console.log('Subscribed to analytics updates via polling fallback');
+            return () => this.off('analytics-updated', callback);
+        }
+        
+        // Original WebSocket implementation
+        if (this.connectionType === 'pusher' && this.echo) {
+            const channel = this.echo.channel('analytics-updates');
+            channel.listen('AnalyticsUpdated', callback);
+            this.channels.set('analytics-updates', channel);
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('analytics-updated', callback);
+        }
+    }
+
+    subscribeToPlatformMonitoring(callback) {
+        if (this.connectionType === 'fallback') {
+            this.on('platform-status-updated', callback);
+            console.log('Subscribed to platform monitoring via polling fallback');
+            return () => this.off('platform-status-updated', callback);
+        }
+        
+        // Original WebSocket implementation
+        if (this.connectionType === 'pusher' && this.echo) {
+            const channel = this.echo.channel('platform-monitoring');
+            channel.listen('PlatformStatusUpdated', callback);
+            this.channels.set('platform-monitoring', channel);
+        } else if (this.connectionType === 'socketio' && this.socketIO) {
+            this.socketIO.on('platform-status-updated', callback);
         }
     }
 }

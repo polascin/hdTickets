@@ -6,6 +6,13 @@ export function dashboardManager() {
     return {
         // Component state
         loading: false,
+        loadingTimeout: null,
+        loadingStartTime: null,
+        maxLoadingTime: 30000, // 30 seconds maximum loading time
+        hasError: false,
+        errorMessage: null,
+        retryCount: 0,
+        maxRetries: 3,
         stats: {
             activeMonitors: 0,
             alertsToday: 0,
@@ -72,28 +79,46 @@ export function dashboardManager() {
 
         // Load initial dashboard data
         async loadDashboardData() {
-            this.loading = true;
+            this.startLoading();
             
             try {
-                const response = await window.AppCore?.apiRequest('/api/dashboard/stats') || 
-                    await fetch('/api/dashboard/stats', {
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                            'Accept': 'application/json'
-                        }
-                    });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), this.maxLoadingTime);
+                
+                const response = await window.AppCore?.apiRequest('/api/dashboard/stats', {
+                    signal: controller.signal
+                }) || await fetch('/api/dashboard/stats', {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
                 
                 if (response.ok) {
                     const data = await response.json();
                     this.updateStats(data.stats);
                     this.recentAlerts = data.recent_alerts || [];
                     this.platformStatus = new Map(Object.entries(data.platform_status || {}));
+                    this.clearError();
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Failed to load dashboard data:', error);
-                this.showNotification('error', 'Failed to load dashboard data');
+                this.handleError(error, 'Failed to load dashboard data');
+                
+                // Retry logic
+                if (this.retryCount < this.maxRetries) {
+                    this.retryCount++;
+                    setTimeout(() => {
+                        console.log(`Retrying dashboard data load (attempt ${this.retryCount}/${this.maxRetries})`);
+                        this.loadDashboardData();
+                    }, Math.pow(2, this.retryCount) * 1000); // Exponential backoff
+                }
             } finally {
-                this.loading = false;
+                this.stopLoading();
             }
         },
 
@@ -279,10 +304,81 @@ export function dashboardManager() {
             }
         },
 
+        // Start loading with timeout
+        startLoading() {
+            this.loading = true;
+            this.loadingStartTime = Date.now();
+            this.hasError = false;
+            this.errorMessage = null;
+            
+            // Set loading timeout
+            this.loadingTimeout = setTimeout(() => {
+                if (this.loading) {
+                    this.handleError(
+                        new Error('Loading timeout'),
+                        `Loading took too long (over ${this.maxLoadingTime / 1000} seconds)`
+                    );
+                    this.stopLoading();
+                }
+            }, this.maxLoadingTime);
+        },
+        
+        // Stop loading and clear timeout
+        stopLoading() {
+            this.loading = false;
+            this.loadingStartTime = null;
+            
+            if (this.loadingTimeout) {
+                clearTimeout(this.loadingTimeout);
+                this.loadingTimeout = null;
+            }
+        },
+        
+        // Handle errors with proper feedback
+        handleError(error, userMessage) {
+            console.error('Dashboard Manager error:', error);
+            
+            this.hasError = true;
+            
+            if (error.name === 'AbortError') {
+                this.errorMessage = 'Request was cancelled due to timeout';
+                this.showNotification('error', 'Loading timeout - please try again');
+            } else if (!navigator.onLine) {
+                this.errorMessage = 'No internet connection available';
+                this.showNotification('error', 'No internet connection');
+            } else {
+                this.errorMessage = userMessage || error.message || 'An unexpected error occurred';
+                this.showNotification('error', this.errorMessage);
+            }
+        },
+        
+        // Clear error state
+        clearError() {
+            this.hasError = false;
+            this.errorMessage = null;
+            this.retryCount = 0;
+        },
+        
+        // Manual retry function
+        retry() {
+            this.clearError();
+            this.loadDashboardData();
+        },
+        
+        // Get loading duration for display
+        getLoadingDuration() {
+            if (!this.loadingStartTime) return 0;
+            return Math.round((Date.now() - this.loadingStartTime) / 1000);
+        },
+        
         // Component cleanup
         destroy() {
             if (this.refreshInterval) {
                 clearInterval(this.refreshInterval);
+            }
+            
+            if (this.loadingTimeout) {
+                clearTimeout(this.loadingTimeout);
             }
             
             console.log('Dashboard Manager destroyed');

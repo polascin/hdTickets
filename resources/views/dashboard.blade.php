@@ -27,13 +27,15 @@
     @startTimer('dashboard_render')
     
     <!-- Welcome Banner -->
-    @include('components.dashboard.welcome-banner', [
-        'user' => auth()->user(),
-        'stats' => $userStats ?? []
-    ])
-        
-        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="flex-1">
+    @if(!empty($userStats) && !empty($stats))
+        @include('components.dashboard.welcome-banner', [
+            'user' => auth()->user(),
+            'stats' => $stats ?? []
+        ])
+    @else
+        <!-- Fallback Welcome Banner -->
+        <div class="dashboard-card mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white relative overflow-hidden">
+            <div class="relative z-10 p-6">
                 <div class="flex items-center mb-3">
                     <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,33 +43,14 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl sm:text-3xl font-bold mb-1">Welcome back, {{ Auth::user()->name }}!</h2>
-                        <p class="text-white/90 text-sm sm:text-base">Here's what's happening with your ticket monitoring today.</p>
+                        <h2 class="text-2xl sm:text-3xl font-bold mb-1">Welcome back, {{ auth()->user()->name ?? 'User' }}!</h2>
+                        <p class="text-white/90 text-sm sm:text-base">Your Sports Ticket Monitoring Dashboard is loading...</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4 text-sm text-white/80">
-                    <div class="flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
-                        </svg>
-                        {{ now()->format('l, F j, Y') }}
-                    </div>
-                    <div class="flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span id="currentTime">{{ now()->format('H:i:s') }}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="animate-float hidden sm:block">
-                <svg class="w-16 h-16 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
-                </svg>
+                <div class="text-xs text-white/80">Dashboard data will appear once loaded.</div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
@@ -75,7 +58,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Active Monitors</p>
-                    <p class="stat-value">12</p>
+                    <p class="stat-value">{{ $stats['active_monitors'] ?? 0 }}</p>
                 </div>
                 <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -87,7 +70,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Alerts Today</p>
-                    <p class="stat-value">8</p>
+                    <p class="stat-value">{{ $stats['alerts_today'] ?? 0 }}</p>
                 </div>
                 <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
@@ -99,7 +82,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Price Drops</p>
-                    <p class="stat-value">3</p>
+                    <p class="stat-value">{{ $stats['price_drops'] ?? 0 }}</p>
                 </div>
                 <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
@@ -111,10 +94,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Available Now</p>
-                    <p class="stat-value">24</p>
+                    <p class="stat-value">{{ $stats['available_now'] ?? 0 }}</p>
                 </div>
                 <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001-1v-3a2 2 0 00-2-2H5z"></path>
                 </svg>
             </div>
         </div>

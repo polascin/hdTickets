@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full" x-data="appStore()" x-init="initializeApp()">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -32,11 +32,15 @@
     <!-- Main Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    <!-- Custom Styles -->
+    <!-- Custom Styles with Timestamp -->
     @stack('styles')
     
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Additional CSS with Cache Busting -->
+    @if(View::hasSection('additional-css'))
+        @yield('additional-css')
+    @endif
+    
+    <!-- Alpine.js is loaded via Vite bundle in app.js -->
     
     <style>
         [x-cloak] { display: none !important; }
@@ -44,6 +48,44 @@
         /* Modern Dashboard Base Styles */
         .modern-card {
             @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-md;
+        }
+        
+        .dashboard-card {
+            @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all duration-200 hover:shadow-md;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .stat-value {
+            @apply text-2xl font-bold text-white;
+        }
+        
+        .stat-label {
+            @apply text-white/90 text-sm;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse-slow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .modern-input {
@@ -168,15 +210,36 @@
         @endif
     </div>
     
-    <!-- Loading Overlay -->
-    <div x-data="{ loading: false }" 
-         x-show="loading" 
+    <!-- Global Loading Overlay - TEMPORARILY DISABLED -->
+    <div x-data="loadingOverlay()" 
+         x-show="false" 
          x-cloak
-         class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
-            <div class="flex items-center space-x-3">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span class="text-gray-900 dark:text-gray-100">Loading...</span>
+         @loading.window="setLoading($event.detail)"
+         @@stop-loading.window="stopLoading()"
+         style="display: none !important;"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl max-w-sm mx-4">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+                <div class="text-center">
+                    <div class="text-lg font-medium text-gray-900 dark:text-gray-100" x-text="loadingMessage">Loading...</div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1" x-show="duration > 3" x-text="`${duration} seconds`"></div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-2" x-show="duration > 10">
+                        This is taking longer than expected...
+                    </div>
+                </div>
+                <div class="w-full" x-show="progress !== null">
+                    <div class="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                             :style="`width: ${Math.min(progress, 100)}%`"></div>
+                    </div>
+                    <div class="text-xs text-center text-gray-500 mt-1" x-text="`${Math.min(progress, 100)}%`"></div>
+                </div>
+                <button x-show="canCancel && duration > 15" 
+                        @click="cancelLoading()" 
+                        class="text-sm text-red-600 hover:text-red-800 transition-colors">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
@@ -217,34 +280,99 @@
     @stack('scripts')
     
     <script>
-        // Global Alpine.js store for app state
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('app', {
-                loading: false,
-                darkMode: localStorage.getItem('darkMode') === 'true',
+        // IMMEDIATE FIX: Force hide loading overlay
+        (function() {
+            console.log('🔧 Immediate loading overlay fix running...');
+            
+            // Hide any visible loading overlays immediately
+            const hideLoadingOverlays = () => {
+                const loadingOverlays = document.querySelectorAll('[x-data*="loadingOverlay"]');
+                loadingOverlays.forEach(overlay => {
+                    overlay.style.display = 'none';
+                    console.log('🔧 Force hiding loading overlay via CSS');
+                });
+            };
+            
+            // Run immediately
+            hideLoadingOverlays();
+            
+            // Run after a delay to catch dynamically created overlays
+            setTimeout(hideLoadingOverlays, 100);
+            setTimeout(hideLoadingOverlays, 500);
+            setTimeout(hideLoadingOverlays, 1000);
+            
+            // Global emergency stop function
+            window.emergencyStopLoading = function() {
+                console.log('🔧 EMERGENCY STOP LOADING called');
+                hideLoadingOverlays();
                 
-                toggleDarkMode() {
-                    this.darkMode = !this.darkMode;
-                    localStorage.setItem('darkMode', this.darkMode);
-                    document.documentElement.classList.toggle('dark', this.darkMode);
-                },
-                
-                setLoading(state) {
-                    this.loading = state;
-                },
-                
-                notify(title, message, type = 'info') {
-                    window.dispatchEvent(new CustomEvent('notify', {
-                        detail: { title, message, type }
-                    }));
+                // Also dispatch events
+                try {
+                    window.dispatchEvent(new CustomEvent('force-stop-loading'));
+                    window.dispatchEvent(new CustomEvent('stop-loading'));
+                } catch (e) {
+                    console.log('🔧 Event dispatch failed, but CSS hide should work');
                 }
-            });
-        });
+            };
+            
+            console.log('🔧 Emergency stop loading function available as emergencyStopLoading()');
+        })();
+        
+        // All Alpine.js components are now registered in app.js
         
         // Initialize dark mode on page load
         if (localStorage.getItem('darkMode') === 'true') {
             document.documentElement.classList.add('dark');
         }
+        
+        // Force stop any loading overlays when page is loaded
+        window.addEventListener('load', function() {
+            console.log('🔧 Page fully loaded, stopping any active loading overlays');
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('force-stop-loading'));
+            }, 100);
+        });
+        
+        // Also stop loading on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 DOM loaded, stopping any active loading overlays');
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('force-stop-loading'));
+            }, 100);
+        });
+        
+        // CSS Cache Busting Functions
+        window.addTimestampedCSS = function(href, id = null) {
+            const timestamp = {{ time() }};
+            const url = href + (href.includes('?') ? '&' : '?') + 'v=' + timestamp;
+            
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = url;
+            
+            if (id) {
+                link.id = id;
+                // Remove existing link with same ID
+                const existing = document.getElementById(id);
+                if (existing) existing.remove();
+            }
+            
+            document.head.appendChild(link);
+            return link;
+        };
+        
+        window.updateAllCSS = function() {
+            const links = document.querySelectorAll('link[rel="stylesheet"]');
+            const timestamp = {{ time() }};
+            
+            links.forEach(link => {
+                if (link.href && !link.href.includes('unpkg.com') && !link.href.includes('cdnjs.cloudflare.com')) {
+                    const baseUrl = link.href.split('?')[0];
+                    link.href = baseUrl + '?v=' + timestamp;
+                }
+            });
+        };
         
         // Real-time Dashboard Alpine.js component
         function realtimeDashboard() {
