@@ -222,3 +222,55 @@ Did you mean one of these?
 [2025-08-07 18:55:00] development.INFO: Twickenham plugin configured {"config":[]} 
 [2025-08-07 18:55:00] development.INFO: Wembley Stadium plugin configured {"config":[]} 
 [2025-08-07 18:55:00] development.INFO: Wimbledon plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: ac_milan  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: arsenalfc  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: atletico_madrid  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: barcelona  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: bayern_munich  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: borussia_dortmund  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: celticfc  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: chelseafc  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: englandcricket  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: eventim  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: juventus  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: liverpoolfc  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: lordscricket  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: manchester_city  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: psg  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: real_madrid  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: seeticketsuk  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: silverstonef1  
+[2025-08-07 18:55:50] production.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: stubhub  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: ticketekuk  
+[2025-08-07 18:55:50] production.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: ticketmaster  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: tottenham  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: twickenham  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: wembleystadium  
+[2025-08-07 18:55:50] production.INFO: Loaded scraper plugin: wimbledon  
+[2025-08-07 18:55:50] production.INFO: AC Milan plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Arsenal FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Atlético Madrid plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: FC Barcelona plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: FC Bayern Munich plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Borussia Dortmund plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Celtic FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Chelsea FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: England Cricket plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Eventim.de plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Juventus FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Liverpool FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Lord's Cricket plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Manchester City FC plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Paris Saint-Germain plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Real Madrid CF plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: See Tickets UK plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Silverstone F1 plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: StubHub plugin configured {"config":{"base_url":"https://www.stubhub.com","rate_limit_seconds":2,"timeout":30,"max_retries":3}} 
+[2025-08-07 18:55:50] production.INFO: Ticketek UK plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Ticketmaster plugin configured {"config":{"api_key":null,"base_url":"https://app.ticketmaster.com/discovery/v2/","rate_limit_seconds":1,"timeout":30,"max_retries":3}} 
+[2025-08-07 18:55:50] production.INFO: Tottenham Hotspur plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Twickenham plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Wembley Stadium plugin configured {"config":[]} 
+[2025-08-07 18:55:50] production.INFO: Wimbledon plugin configured {"config":[]} 
