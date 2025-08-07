@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 return new class extends Migration
 {
@@ -23,10 +24,15 @@ return new class extends Migration
     }
 
     /**
-     * Add missing indexes only
+     * Add missing indexes only (MySQL only)
      */
     private function addMissingIndexes(): void
     {
+        // Only run on MySQL connections
+        if (config('database.default') !== 'mysql') {
+            return;
+        }
+        
         // Check existing indexes to avoid duplicates
         $existingIndexes = collect(DB::select('SHOW INDEXES FROM users'))
             ->pluck('Key_name')
@@ -66,10 +72,15 @@ return new class extends Migration
     }
 
     /**
-     * Optimize table engines for better performance
+     * Optimize table engines for performance (MySQL only)
      */
     private function optimizeTableEngines(): void
     {
+        // Only run optimization on MySQL connections
+        if (config('database.default') !== 'mysql') {
+            return;
+        }
+        
         $tables = [
             'users', 'scraped_tickets', 'ticket_alerts', 'sessions', 
             'cache', 'telescope_entries', 'migrations'
@@ -77,8 +88,13 @@ return new class extends Migration
 
         foreach ($tables as $table) {
             if (Schema::hasTable($table)) {
-                DB::statement("ALTER TABLE {$table} ENGINE=InnoDB");
-                DB::statement("OPTIMIZE TABLE {$table}");
+                try {
+                    DB::statement("ALTER TABLE {$table} ENGINE=InnoDB");
+                    DB::statement("OPTIMIZE TABLE {$table}");
+                } catch (\Exception $e) {
+                    // Log the error but continue with migration
+                    Log::info("Could not optimize table {$table}: " . $e->getMessage());
+                }
             }
         }
     }
@@ -89,9 +105,9 @@ return new class extends Migration
     private function configureDevelopmentMode(): void
     {
         // Clear all caches for development
-        \Artisan::call('config:clear');
-        \Artisan::call('route:clear');
-        \Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
         
         // Enable query logging in development
         if (config('app.env') === 'local') {
@@ -104,33 +120,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove the performance indexes we added
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropIndex('users_role_active_index');
-            $table->dropIndex('users_verified_active_index');
-            $table->dropIndex('users_created_role_index');
-            $table->dropIndex('users_activity_active_index');
-        });
-
-        if (Schema::hasTable('scraped_tickets')) {
-            Schema::table('scraped_tickets', function (Blueprint $table) {
-                $table->dropIndex('scraped_tickets_created_platform_index');
-                $table->dropIndex('scraped_tickets_event_platform_index');
-                $table->dropIndex('scraped_tickets_price_availability_index');
-            });
-        }
-
-        if (Schema::hasTable('ticket_alerts')) {
-            Schema::table('ticket_alerts', function (Blueprint $table) {
-                $table->dropIndex('ticket_alerts_user_active_index');
-                $table->dropIndex('ticket_alerts_price_active_index');
-            });
-        }
-
-        if (Schema::hasTable('sessions')) {
-            Schema::table('sessions', function (Blueprint $table) {
-                $table->dropIndex('sessions_last_activity_index');
-            });
-        }
+        // This migration only optimizes existing tables, no schema changes to reverse
     }
 };

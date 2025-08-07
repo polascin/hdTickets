@@ -46,7 +46,8 @@
         "larastan/larastan": "^3.0",
         "spatie/laravel-ignition": "^2.8",
         "symfony/var-dumper": "^7.3",
-        "laravel/telescope": "^5.10"
+        "laravel/telescope": "^5.10",
+        "brianium/paratest": "^7.8"
     },
     "autoload": {
         "psr-4": {

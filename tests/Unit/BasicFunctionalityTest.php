@@ -17,7 +17,7 @@ class BasicFunctionalityTest extends TestCase
 
     public function test_environment_configuration()
     {
-        $this->assertEquals('HDTickets', config('app.name'));
+        $this->assertEquals('HD Tickets', config('app.name'));
         $this->assertEquals('testing', config('app.env'));
         $this->assertTrue(config('app.debug'));
     }
