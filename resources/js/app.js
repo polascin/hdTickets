@@ -15,7 +15,6 @@ import AppCore from './core/AppCore.js';
 import cssTimestamp from '@utils/cssTimestamp';
 import { ChartJS } from '@utils/chartConfig';
 import pwaManager from '@utils/pwaManager';
-import responsiveUtils from '@utils/responsiveUtils';
 import websocketManager from '@utils/websocketManager';
 import errorReporter from '@utils/errorReporting';
 
@@ -395,54 +394,68 @@ try {
     }, 1000);
 }
 
-// Setup application event listeners with error handling
-try {
-    AppCore.on('app:initialized', () => {
-        console.log('✅ Application core initialized successfully');
-        
-        // Initialize WebSocket if available with fallback
-        let wsManager = null;
-        try {
-            wsManager = AppCore.getModule('websocket') || window.websocketManager;
-        } catch (error) {
-            console.warn('WebSocket module not available:', error);
-            wsManager = window.websocketManager; // Use fallback
-        }
-        
-        if (wsManager && typeof wsManager.on === 'function') {
-            wsManager.on('connected', () => {
-                console.log('🔗 WebSocket connected successfully');
-                // Subscribe to global ticket updates
-                if (typeof wsManager.subscribeToTicketUpdates === 'function') {
-                    wsManager.subscribeToTicketUpdates((data) => {
-                        AppCore.emit('ticket:updated', data);
-                    });
-                }
-            });
-        } else {
-            console.log('📡 WebSocket manager not available, using fallback mode');
-        }
-        
-        // Show success message
-        try {
-            AppCore.showSuccessMessage('Application loaded successfully');
-        } catch (error) {
-            console.log('✅ Application loaded successfully (fallback message)');
-        }
-    });
+// Initialize AppCore and dependent functionality
+(async () => {
+    // Initialize AppCore early to ensure modules are available
+    try {
+        await AppCore.init({
+            debugMode: window.location.hostname === 'localhost' || window.location.search.includes('debug=true')
+        });
+        console.log('✅ AppCore initialized successfully');
+        moduleStatus.appCore = true;
+    } catch (error) {
+        console.error('❌ Failed to initialize AppCore:', error);
+    }
 
-    AppCore.on('app:error', (event) => {
-        console.error('❌ Application error:', event.detail);
-    });
-} catch (error) {
-    console.error('❌ Failed to setup AppCore event listeners:', error);
-}
+    // Setup application event listeners with error handling
+    try {
+        AppCore.on('app:initialized', () => {
+            console.log('✅ Application core initialized successfully');
+            
+            // Initialize WebSocket if available with fallback
+            let wsManager = null;
+            try {
+                wsManager = AppCore.getModule('websocket') || window.websocketManager;
+            } catch (error) {
+                console.warn('WebSocket module not available:', error);
+                wsManager = window.websocketManager; // Use fallback
+            }
+            
+            if (wsManager && typeof wsManager.on === 'function') {
+                wsManager.on('connected', () => {
+                    console.log('🔗 WebSocket connected successfully');
+                    // Subscribe to global ticket updates
+                    if (typeof wsManager.subscribeToTicketUpdates === 'function') {
+                        wsManager.subscribeToTicketUpdates((data) => {
+                            AppCore.emit('ticket:updated', data);
+                        });
+                    }
+                });
+            } else {
+                console.log('📡 WebSocket manager not available, using fallback mode');
+            }
+            
+            // Show success message
+            try {
+                AppCore.showSuccessMessage('Application loaded successfully');
+            } catch (error) {
+                console.log('✅ Application loaded successfully (fallback message)');
+            }
+        });
 
-// Log module status
-console.log('🎯 Module Status:', moduleStatus);
-console.log('🎯 Alpine.js loaded and initialized:', !!window.Alpine);
-console.log('🎯 WebSocket Manager available:', !!window.websocketManager);
-console.log('🎯 App Core available:', !!window.AppCore);
+        AppCore.on('app:error', (event) => {
+            console.error('❌ Application error:', event.detail);
+        });
+    } catch (error) {
+        console.error('❌ Failed to setup AppCore event listeners:', error);
+    }
+
+    // Log module status
+    console.log('🎯 Module Status:', moduleStatus);
+    console.log('🎯 Alpine.js loaded and initialized:', !!window.Alpine);
+    console.log('🎯 WebSocket Manager available:', !!window.websocketManager);
+    console.log('🎯 App Core available:', !!window.AppCore);
+})();
 
 // Vue 3 Composition API app factory with error handling
 function createVueApp(rootComponent, props = {}) {
@@ -452,7 +465,7 @@ function createVueApp(rootComponent, props = {}) {
         // Global properties available in all components with fallbacks
         try {
             app.config.globalProperties.$websocket = window.websocketManager || websocketManager || null;
-            app.config.globalProperties.$responsive = responsiveUtils || null;
+            app.config.globalProperties.$responsive = AppCore.getModule('responsive') || window.responsiveUtils || null;
             app.config.globalProperties.$cssTimestamp = cssTimestamp || null;
             app.config.globalProperties.$charts = ChartJS || null;
         } catch (error) {

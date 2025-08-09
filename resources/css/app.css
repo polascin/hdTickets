@@ -1,10 +1,8 @@
 /* Tailwind CSS file */
+@import 'performance-optimizations.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Performance Optimizations */
-@import 'performance-optimizations.css';
 
 /* Custom styles for HDTickets */
 @layer base {
@@ -827,3 +825,4 @@
         }
     }
 }
+/* Test CSS change to verify HMR - So  9. august 2025, 20:23:01 CEST */

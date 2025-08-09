@@ -2,9 +2,28 @@
 
 # HDTickets Deployment Script
 # This script prepares the application for production deployment
+# Updated for version 4.0.0 with Node.js v22.18.0 requirement
 
-echo "=== HDTickets Deployment Script ==="
-echo "Preparing application for production..."
+echo "=== HDTickets Deployment Script v4.0.0 ==="
+echo "Preparing Sports Event Ticket Monitoring System for production..."
+
+# Check Node.js version requirement
+echo "Checking Node.js version..."
+NODE_VERSION=$(node --version 2>/dev/null || echo "not_found")
+if [ "$NODE_VERSION" = "not_found" ]; then
+    echo "❌ Node.js not found. Please install Node.js v22.18.0"
+    echo "   You can use: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
+    echo "   Then: nvm install 22.18.0 && nvm use 22.18.0"
+    exit 1
+fi
+
+REQUIRED_VERSION="v22.18.0"
+if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
+    echo "⚠️  Warning: Node.js version $NODE_VERSION detected, but v22.18.0 is required"
+    echo "   Consider using: nvm use 22.18.0"
+else
+    echo "✅ Node.js version $NODE_VERSION is correct"
+fi
 
 # Clear any existing caches
 echo "Clearing caches..."
@@ -13,9 +32,16 @@ php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
-# Install dependencies
-echo "Installing production dependencies..."
+# Install backend dependencies
+echo "Installing production PHP dependencies..."
 composer install --optimize-autoloader --no-dev
+
+# Install frontend dependencies and build assets
+echo "Installing frontend dependencies..."
+npm ci --only=production
+
+echo "Building production assets..."
+npm run build
 
 # Generate application key if not set
 echo "Generating application key..."

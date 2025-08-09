@@ -3,6 +3,9 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
 
+// Generate timestamp for CSS cache busting
+const timestamp = Date.now();
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -28,8 +31,6 @@ export default defineConfig({
                     isCustomElement: tag => tag.startsWith('x-')
                 }
             },
-            // Enable reactive transform (experimental)
-            reactivityTransform: true,
         }),
     ],
     resolve: {
@@ -42,29 +43,42 @@ export default defineConfig({
         },
     },
     build: {
+        // Vite 5 optimizations
+        target: 'es2022', // Modern JavaScript target for better optimization
         chunkSizeWarningLimit: 1600,
         cssCodeSplit: true,
         sourcemap: process.env.NODE_ENV === 'development',
         reportCompressedSize: false, // Faster builds
         rollupOptions: {
             output: {
-                manualChunks: {
+                // Enhanced manual chunks with better splitting strategy
+                manualChunks: (id) => {
                     // Core Vue ecosystem
-                    'vendor-vue': ['vue', 'vue-router'],
+                    if (id.includes('vue') || id.includes('vue-router')) {
+                        return 'vendor-vue';
+                    }
                     // Chart and visualization libraries
-                    'vendor-charts': ['chart.js', 'chart.js/auto'],
+                    if (id.includes('chart.js')) {
+                        return 'vendor-charts';
+                    }
                     // UI components and utilities
-                    'vendor-ui': ['sweetalert2', 'flatpickr', '@heroicons/vue'],
+                    if (id.includes('sweetalert2') || id.includes('flatpickr') || id.includes('@heroicons/vue')) {
+                        return 'vendor-ui';
+                    }
                     // HTTP and real-time communication
-                    'vendor-http': ['axios', 'laravel-echo', 'pusher-js', 'socket.io-client'],
+                    if (id.includes('axios') || id.includes('laravel-echo') || id.includes('pusher-js') || id.includes('socket.io-client')) {
+                        return 'vendor-http';
+                    }
                     // Alpine.js and its ecosystem
-                    'vendor-alpine': ['alpinejs'],
-                    // Performance utilities
-                    'vendor-performance': ['chart.js/helpers'],
-                    // Third-party analytics
-                    'vendor-analytics': [],
+                    if (id.includes('alpinejs')) {
+                        return 'vendor-alpine';
+                    }
+                    // Large node_modules packages
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
                 },
-                // Optimize asset naming with content hash
+                // Optimize asset naming with content hash and timestamp for CSS
                 assetFileNames: (assetInfo) => {
                     const info = assetInfo.name.split('.');
                     const extType = info[info.length - 1];
@@ -72,7 +86,8 @@ export default defineConfig({
                         return `assets/images/[name]-[hash][extname]`;
                     }
                     if (/css/i.test(extType)) {
-                        return `assets/css/[name]-[hash][extname]`;
+                        // Add timestamp to CSS files for cache prevention
+                        return `assets/css/[name]-[hash]-${timestamp}[extname]`;
                     }
                     if (/woff2?|ttf|otf/i.test(extType)) {
                         return `assets/fonts/[name]-[hash][extname]`;
@@ -83,27 +98,37 @@ export default defineConfig({
                 entryFileNames: 'assets/js/[name]-[hash].js',
             },
         },
-        // Enhanced minification for production
+        // Enhanced minification for production with Vite 5 compatible options
         minify: process.env.NODE_ENV === 'production' ? 'terser' : false,
         terserOptions: {
             compress: {
+                arguments: true, // Vite 5 compatible option
                 drop_console: process.env.NODE_ENV === 'production',
                 drop_debugger: true,
-                pure_funcs: ['console.log', 'console.info'],
+                pure_funcs: ['console.log', 'console.info', 'console.warn'],
                 reduce_vars: true,
                 reduce_funcs: true,
-                passes: 2, // Multiple passes for better compression
+                passes: 3, // Increased passes for better compression in Vite 5
+                unsafe_arrows: true, // Better arrow function optimization
+                unsafe_methods: true, // More aggressive method optimization
             },
             mangle: {
+                properties: {
+                    regex: /^_/, // Mangle private properties
+                },
                 safari10: true,
-                reserved: ['$', 'jQuery', 'Alpine', 'Chart']
+                reserved: ['$', 'jQuery', 'Alpine', 'Chart', 'Vue']
             },
             format: {
                 comments: false,
+                ecma: 2022, // Modern ECMAScript format
             },
         },
-        // CSS optimization
+        // Enhanced CSS optimization with lightningcss
         cssMinify: 'lightningcss',
+        // Vite 5 specific optimizations
+        assetsInlineLimit: 4096, // Inline small assets
+        cssTarget: 'es2022', // Modern CSS target
     },
     server: {
         hmr: {
@@ -115,11 +140,14 @@ export default defineConfig({
         strictPort: true,
     },
     optimizeDeps: {
+        // Force optimization of these dependencies
         include: [
             'vue',
             'vue-router',
             'axios',
             'chart.js',
+            'chart.js/auto',
+            'chart.js/helpers',
             'sweetalert2',
             'flatpickr',
             'alpinejs',
@@ -127,10 +155,20 @@ export default defineConfig({
             '@heroicons/vue/24/solid',
             'laravel-echo',
             'pusher-js',
+            'socket.io-client',
         ],
+        // Vite 5: Enhanced optimization options
+        force: process.env.NODE_ENV === 'development',
+        holdUntilCrawlEnd: true, // Better handling of dynamic imports
     },
     define: {
+        // Vue 3 feature flags
         __VUE_OPTIONS_API__: true,
-        __VUE_PROD_DEVTOOLS__: false,
+        __VUE_PROD_DEVTOOLS__: process.env.NODE_ENV === 'development',
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: process.env.NODE_ENV === 'development',
+        // CSS timestamp for cache busting (available globally)
+        __CSS_TIMESTAMP__: JSON.stringify(timestamp),
+        // Environment-specific definitions
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
     },
 });

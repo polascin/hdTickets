@@ -1,9 +1,11 @@
 @echo off
-REM HDTickets Advanced Analytics Dashboard - Production Deployment Script
-REM This script handles the complete production deployment process
+REM HDTickets v4.0.0 - Production Deployment Script
+REM Sports Event Ticket Monitoring System - Complete deployment process
+REM Updated for Node.js v22.18.0 requirement
 
 echo ========================================
-echo HDTickets Analytics - Production Deploy
+echo HDTickets v4.0.0 - Production Deploy
+echo Sports Event Ticket Monitoring System
 echo ========================================
 echo.
 
@@ -16,6 +18,25 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Check Node.js version requirement
+echo Step 0: Node.js Version Check
+echo -----------------------------
+node --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ❌ Node.js not found. Please install Node.js v22.18.0
+    echo    Download from: https://nodejs.org/dist/v22.18.0/
+    pause
+    exit /b 1
+)
+
+for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
+echo Node.js version detected: %NODE_VERSION%
+if not "%NODE_VERSION%"=="v22.18.0" (
+    echo ⚠️  Warning: Expected Node.js v22.18.0, but found %NODE_VERSION%
+    echo    Consider updating to the required version
+)
+echo.
+
 echo Step 1: Environment Setup
 echo -------------------------
 if not exist .env.production (
@@ -27,7 +48,16 @@ if not exist .env.production (
     pause >nul
 )
 
-echo Step 2: Application Optimization
+echo Step 2: Frontend Build
+echo ---------------------
+echo Installing frontend dependencies...
+npm ci --only=production
+
+echo Building production assets...
+npm run build
+
+echo.
+echo Step 3: Application Optimization
 echo ---------------------------------
 echo Optimizing application for production...
 php artisan config:cache
@@ -36,27 +66,27 @@ php artisan view:cache
 php artisan optimize
 
 echo.
-echo Step 3: Database Verification
+echo Step 4: Database Verification
 echo -----------------------------
 echo Verifying database connection and analytics dashboards...
 php artisan tinker --execute="echo 'Database Status: ' . (DB::connection()->getPdo() ? 'Connected' : 'Failed') . PHP_EOL; echo 'Analytics Dashboards: ' . App\Models\AnalyticsDashboard::count() . PHP_EOL;"
 
 echo.
-echo Step 4: Cache System Setup
+echo Step 5: Cache System Setup
 echo --------------------------
 echo Setting up production cache...
 php artisan cache:clear
 php artisan config:clear
 
 echo.
-echo Step 5: Queue System Initialization
+echo Step 6: Queue System Initialization
 echo -----------------------------------
 echo Initializing queue tables (if needed)...
 php artisan queue:table
 php artisan migrate --force
 
 echo.
-echo Step 6: Security Verification
+echo Step 7: Security Verification
 echo -----------------------------
 echo Checking security configuration...
 if "%APP_ENV%"=="production" (
@@ -72,7 +102,7 @@ if "%APP_DEBUG%"=="false" (
 )
 
 echo.
-echo Step 7: Starting Analytics Services
+echo Step 8: Starting Analytics Services
 echo -----------------------------------
 echo Starting queue workers...
 start "Analytics-High" cmd /c "php artisan queue:work --queue=analytics-high --memory=256 --timeout=300 --tries=3 --sleep=1"
@@ -81,7 +111,7 @@ start "Notifications" cmd /c "php artisan queue:work --queue=notifications --mem
 start "Default-Queue" cmd /c "php artisan queue:work --queue=default --memory=128 --timeout=60 --tries=2 --sleep=3"
 
 echo.
-echo Step 8: System Health Check
+echo Step 9: System Health Check
 echo ---------------------------
 echo Running comprehensive system check...
 timeout /t 3 >nul
@@ -95,7 +125,7 @@ if %errorlevel% equ 0 (
 )
 
 echo.
-echo Step 9: Notification System Test
+echo Step 10: Notification System Test
 echo --------------------------------
 echo Testing notification channels...
 set /p test_notifications="Test notification channels now? (y/n): "
@@ -104,7 +134,7 @@ if /i "%test_notifications%"=="y" (
 )
 
 echo.
-echo Step 10: Final Verification
+echo Step 11: Final Verification
 echo ---------------------------
 echo Starting system monitor for final verification...
 echo Press Ctrl+C to stop monitoring when satisfied

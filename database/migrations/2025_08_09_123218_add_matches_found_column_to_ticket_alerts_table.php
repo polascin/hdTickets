@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ticket_alerts', function (Blueprint $table) {
-            $table->integer('matches_found')->default(0)->after('status');
-        });
+        if (Schema::hasTable('ticket_alerts')) {
+            Schema::table('ticket_alerts', function (Blueprint $table) {
+                if (!Schema::hasColumn('ticket_alerts', 'matches_found')) {
+                    $table->integer('matches_found')->default(0)->after('status');
+                }
+            });
+        }
     }
 
     /**
@@ -21,8 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ticket_alerts', function (Blueprint $table) {
-            $table->dropColumn('matches_found');
-        });
+        if (Schema::hasTable('ticket_alerts') && Schema::hasColumn('ticket_alerts', 'matches_found')) {
+            Schema::table('ticket_alerts', function (Blueprint $table) {
+                $table->dropColumn('matches_found');
+            });
+        }
     }
 };

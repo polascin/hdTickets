@@ -158,8 +158,8 @@ return [
     */
 
     'maintenance' => [
-        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
-        'store' => env('APP_MAINTENANCE_STORE'),
+        'driver' => env('MAINTENANCE_DRIVER', env('APP_MAINTENANCE_DRIVER', 'file')),
+        'store' => env('MAINTENANCE_STORE', env('APP_MAINTENANCE_STORE')),
     ],
 
     /*
