@@ -7,8 +7,13 @@
     <meta name="description" content="Sports Events Entry Tickets Monitoring, Scraping and Purchase System">
     <title>Sports Ticket Hub - Customer Dashboard</title>
     
-    <!-- CSS with timestamp for cache prevention -->
-    <link href="{{ asset('css/customer-dashboard.css') }}?v={{ time() }}" rel="stylesheet">
+    <!-- Modern CSS Framework -->
+    <link href="{{ asset('css/customer-dashboard-v2.css') }}?v={{ time() }}" rel="stylesheet">
+    
+    <!-- Preload Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- WebSocket Connection Hooks -->
     <script>

@@ -41,8 +41,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Ticket Sources routes
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Export route must come before resource routes to avoid conflicts
+    Route::get('ticket-sources/export', [App\Http\Controllers\TicketSourceController::class, 'export'])->name('ticket-sources.export');
+    Route::get('ticket-sources/stats', [App\Http\Controllers\TicketSourceController::class, 'stats'])->name('ticket-sources.stats');
+    Route::post('ticket-sources/bulk-action', [App\Http\Controllers\TicketSourceController::class, 'bulkAction'])->name('ticket-sources.bulk-action');
+    
+    // Resource routes
     Route::resource('ticket-sources', App\Http\Controllers\TicketSourceController::class);
+    
+    // Additional routes that need the {ticket_source} parameter
     Route::patch('ticket-sources/{ticket_source}/toggle', [App\Http\Controllers\TicketSourceController::class, 'toggle'])->name('ticket-sources.toggle');
+    Route::get('ticket-sources/{ticket_source}/refresh', [App\Http\Controllers\TicketSourceController::class, 'refresh'])->name('ticket-sources.refresh');
 });
 
 // Ticket API Integration routes

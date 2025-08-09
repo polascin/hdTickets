@@ -3,6 +3,9 @@
  * Lazy loading, critical path optimization, and performance enhancements
  */
 
+/* CSS @layer for better cascade management */
+@layer base, components, utilities;
+
 /* =============================================================================
    Critical Above-the-fold Styles (inline these in production)
    ============================================================================= */
@@ -555,9 +558,6 @@ img:not([data-critical="true"]) {
 /* =============================================================================
    Modern CSS Features for Performance
    ============================================================================= */
-
-/* CSS @layer for better cascade management */
-@layer base, components, utilities;
 
 @layer base {
     /* Base styles go here */
