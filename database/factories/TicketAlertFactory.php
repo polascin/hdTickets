@@ -30,11 +30,10 @@ class TicketAlertFactory extends Factory
             'max_price' => $this->faker->randomFloat(2, 50, 500),
             'currency' => 'USD',
             'filters' => json_encode(['criteria' => 'example']),
-            'is_active' => true,
             'email_notifications' => true,
             'sms_notifications' => false,
-            'matches_found' => $this->faker->numberBetween(0, 50),
-            'last_triggered_at' => now()->subDays($this->faker->numberBetween(0, 30)),
+            'status' => $this->faker->randomElement(['active', 'paused', 'triggered', 'expired']),
+            'triggered_at' => $this->faker->boolean(30) ? now()->subDays($this->faker->numberBetween(0, 30)) : null,
         ];
     }
 }

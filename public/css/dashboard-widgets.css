@@ -1,0 +1,1122 @@
+/*!
+ * HD Tickets - Interactive Dashboard Widgets CSS
+ * Sports Events Entry Tickets Monitoring System
+ * Version: 1.0.0
+ * 
+ * Interactive Components:
+ * - Circular progress indicators for purchase queue status
+ * - Heat map calendar showing event density
+ * - Interactive seat map previews
+ * - Price comparison charts across platforms
+ * - Alert management dashboard with toggle controls
+ * - Quick action buttons with haptic feedback
+ */
+
+/* ==========================================================================
+   CSS Variables for Widgets
+   ========================================================================== */
+
+:root {
+  /* Widget-specific colors */
+  --widget-primary: #10b981;
+  --widget-secondary: #3b82f6;
+  --widget-success: #059669;
+  --widget-warning: #f59e0b;
+  --widget-error: #ef4444;
+  --widget-info: #06b6d4;
+  
+  /* Widget backgrounds */
+  --widget-bg-light: rgba(255, 255, 255, 0.95);
+  --widget-bg-dark: rgba(31, 41, 55, 0.95);
+  --widget-overlay: rgba(0, 0, 0, 0.1);
+  
+  /* Animation durations */
+  --animation-fast: 0.2s;
+  --animation-normal: 0.3s;
+  --animation-slow: 0.5s;
+  
+  /* Widget shadows */
+  --widget-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --widget-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --widget-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ==========================================================================
+   Base Widget Container
+   ========================================================================== */
+
+.dashboard-widget {
+  background: var(--widget-bg-light);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--widget-shadow);
+  transition: all var(--animation-normal) ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-widget:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--widget-shadow-xl);
+  border-color: var(--widget-primary);
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.widget-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.widget-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+.widget-action {
+  background: none;
+  border: none;
+  color: var(--widget-primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all var(--animation-fast) ease;
+}
+
+.widget-action:hover {
+  background: rgba(16, 185, 129, 0.1);
+  transform: scale(1.1);
+}
+
+/* ==========================================================================
+   Circular Progress Indicators for Purchase Queue Status
+   ========================================================================== */
+
+.circular-progress {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.progress-circle {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progress-circle-bg {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.progress-circle-fill {
+  fill: none;
+  stroke: var(--widget-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 0 377; /* 2π × 60 (radius) */
+  transition: stroke-dasharray 1s ease-in-out, stroke 0.3s ease;
+}
+
+.progress-circle-fill.warning {
+  stroke: var(--widget-warning);
+}
+
+.progress-circle-fill.error {
+  stroke: var(--widget-error);
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.queue-status {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.queue-item {
+  text-align: center;
+  min-width: 120px;
+}
+
+.queue-item:hover .progress-circle-fill {
+  stroke-width: 10;
+}
+
+/* Animated pulse effect for active queues */
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px var(--widget-primary));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px var(--widget-primary));
+  }
+}
+
+.progress-circle.active {
+  animation: pulse-glow 2s infinite;
+}
+
+/* ==========================================================================
+   Heat Map Calendar for Event Density
+   ========================================================================== */
+
+.heat-map-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  background: #f3f4f6;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.calendar-day:hover {
+  transform: scale(1.1);
+  z-index: 10;
+  box-shadow: var(--widget-shadow);
+}
+
+.calendar-day.has-events {
+  background: var(--widget-primary);
+  color: white;
+}
+
+.calendar-day.high-density {
+  background: var(--widget-error);
+  animation: heat-pulse 2s infinite;
+}
+
+.calendar-day.medium-density {
+  background: var(--widget-warning);
+}
+
+.calendar-day.low-density {
+  background: var(--widget-info);
+}
+
+.calendar-day.today {
+  border: 2px solid #1f2937;
+}
+
+@keyframes heat-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.event-tooltip {
+  position: absolute;
+  background: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all var(--animation-fast) ease;
+  box-shadow: var(--widget-shadow-lg);
+}
+
+.calendar-day:hover .event-tooltip {
+  opacity: 1;
+  transform: translateY(-35px);
+}
+
+.heat-map-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   Interactive Seat Map Previews
+   ========================================================================== */
+
+.seat-map {
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 12px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.seat-map::before {
+  content: 'STAGE';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.seat-section {
+  margin: 16px 0;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.seat {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+  position: relative;
+}
+
+.seat.available {
+  background: var(--widget-success);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.seat.occupied {
+  background: #ef4444;
+  cursor: not-allowed;
+}
+
+.seat.premium {
+  background: #f59e0b;
+}
+
+.seat.selected {
+  background: var(--widget-primary);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--widget-primary);
+}
+
+.seat:hover:not(.occupied) {
+  transform: scale(1.15);
+  z-index: 10;
+}
+
+.seat-tooltip {
+  position: absolute;
+  background: #1f2937;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -30px);
+  transition: all var(--animation-fast) ease;
+  left: 50%;
+  top: 0;
+}
+
+.seat:hover .seat-tooltip {
+  opacity: 1;
+  transform: translate(-50%, -35px);
+}
+
+.seat-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.seat-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.seat-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   Price Comparison Charts
+   ========================================================================== */
+
+.price-chart-container {
+  position: relative;
+  height: 300px;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.price-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.platform-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border-left: 4px solid var(--widget-primary);
+  transition: all var(--animation-fast) ease;
+  cursor: pointer;
+}
+
+.platform-price:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+  box-shadow: var(--widget-shadow);
+}
+
+.platform-price.best-price {
+  background: rgba(16, 185, 129, 0.1);
+  border-left-color: var(--widget-success);
+}
+
+.platform-price.best-price::after {
+  content: 'BEST PRICE';
+  background: var(--widget-success);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.platform-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.platform-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: white;
+  padding: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.platform-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.platform-details {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.platform-price-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.current-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.price-change {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.price-change.positive {
+  color: var(--widget-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.price-change.negative {
+  color: var(--widget-success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Price trend mini-chart */
+.price-mini-chart {
+  width: 60px;
+  height: 20px;
+  margin-left: 8px;
+}
+
+.price-trend-line {
+  fill: none;
+  stroke: var(--widget-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ==========================================================================
+   Alert Management Dashboard
+   ========================================================================== */
+
+.alert-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all var(--animation-fast) ease;
+}
+
+.alert-item:hover {
+  border-color: var(--widget-primary);
+  box-shadow: var(--widget-shadow);
+}
+
+.alert-item.active {
+  border-left: 4px solid var(--widget-success);
+  background: rgba(16, 185, 129, 0.02);
+}
+
+.alert-item.triggered {
+  border-left: 4px solid var(--widget-warning);
+  background: rgba(245, 158, 11, 0.02);
+  animation: alert-flash 2s infinite;
+}
+
+@keyframes alert-flash {
+  0%, 100% {
+    background: rgba(245, 158, 11, 0.02);
+  }
+  50% {
+    background: rgba(245, 158, 11, 0.1);
+  }
+}
+
+.alert-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-title {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.alert-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.alert-conditions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.alert-condition {
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  color: #4b5563;
+}
+
+.alert-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Toggle Switch Component */
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background var(--animation-fast) ease;
+  border: none;
+  padding: 0;
+}
+
+.toggle-switch.active {
+  background: var(--widget-success);
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--animation-fast) ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch.active::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch:hover::before {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Alert actions */
+.alert-action {
+  background: none;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+}
+
+.alert-action:hover {
+  background: #f9fafb;
+  border-color: var(--widget-primary);
+  color: var(--widget-primary);
+}
+
+.alert-action.primary {
+  background: var(--widget-primary);
+  color: white;
+  border-color: var(--widget-primary);
+}
+
+.alert-action.primary:hover {
+  background: var(--widget-success);
+  transform: translateY(-1px);
+}
+
+.alert-action.danger {
+  color: var(--widget-error);
+  border-color: var(--widget-error);
+}
+
+.alert-action.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================================================
+   Quick Action Buttons with Haptic Feedback
+   ========================================================================== */
+
+.haptic-button {
+  position: relative;
+  background: linear-gradient(135deg, var(--widget-primary) 0%, var(--widget-secondary) 100%);
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+  overflow: hidden;
+  box-shadow: var(--widget-shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+}
+
+.haptic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.haptic-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--widget-shadow-lg);
+}
+
+.haptic-button:hover::before {
+  left: 100%;
+}
+
+.haptic-button:active {
+  transform: scale(0.98);
+  box-shadow: var(--widget-shadow);
+  animation: haptic-feedback var(--animation-fast) ease;
+}
+
+@keyframes haptic-feedback {
+  0% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(0.98);
+  }
+}
+
+.haptic-button.secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+.haptic-button.success {
+  background: linear-gradient(135deg, var(--widget-success) 0%, #047857 100%);
+}
+
+.haptic-button.warning {
+  background: linear-gradient(135deg, var(--widget-warning) 0%, #d97706 100%);
+}
+
+.haptic-button.error {
+  background: linear-gradient(135deg, var(--widget-error) 0%, #dc2626 100%);
+}
+
+.haptic-button-icon {
+  font-size: 1.25rem;
+  transition: transform var(--animation-fast) ease;
+}
+
+.haptic-button:hover .haptic-button-icon {
+  transform: scale(1.1);
+}
+
+.haptic-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.haptic-button-label {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.haptic-button-description {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+/* Floating Action Button variant */
+.fab-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--widget-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--widget-shadow-lg);
+  transition: all var(--animation-fast) ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.fab-button:hover {
+  transform: scale(1.1);
+  box-shadow: var(--widget-shadow-xl);
+}
+
+.fab-button:active {
+  animation: haptic-feedback var(--animation-fast) ease;
+}
+
+/* Button group */
+.button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.button-group .haptic-button {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* ==========================================================================
+   Loading States and Animations
+   ========================================================================== */
+
+.widget-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.widget-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: loading-shimmer 1.5s infinite;
+  z-index: 1;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.loading-skeleton {
+  background: #e5e7eb;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-skeleton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .dashboard-widget {
+    padding: 16px;
+  }
+  
+  .queue-status {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .circular-progress {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .progress-value {
+    font-size: 1.125rem;
+  }
+  
+  .heat-map-calendar {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+  }
+  
+  .calendar-day {
+    font-size: 0.625rem;
+  }
+  
+  .seat-map {
+    padding: 12px;
+  }
+  
+  .seat {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .price-comparison {
+    gap: 8px;
+  }
+  
+  .platform-price {
+    padding: 8px 12px;
+  }
+  
+  .platform-logo {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .alert-item {
+    padding: 12px;
+  }
+  
+  .haptic-button {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    min-height: 48px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .button-group .haptic-button {
+    min-width: auto;
+  }
+  
+  .fab-button {
+    width: 56px;
+    height: 56px;
+    bottom: 16px;
+    right: 16px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .widget-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .heat-map-calendar {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  
+  .seat-row {
+    gap: 1px;
+  }
+  
+  .seat {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .alert-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .alert-controls {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
+/* ==========================================================================
+   Dark Theme Support
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --widget-bg-light: rgba(31, 41, 55, 0.95);
+    --widget-bg-dark: rgba(17, 24, 39, 0.95);
+  }
+  
+  .dashboard-widget {
+    background: var(--widget-bg-dark);
+    border-color: rgba(75, 85, 99, 0.3);
+  }
+  
+  .widget-title {
+    color: #f9fafb;
+  }
+  
+  .widget-subtitle {
+    color: #9ca3af;
+  }
+  
+  .progress-value {
+    color: #f9fafb;
+  }
+  
+  .calendar-day {
+    background: #374151;
+    color: #d1d5db;
+  }
+  
+  .alert-item {
+    background: #374151;
+    border-color: #4b5563;
+  }
+  
+  .alert-title {
+    color: #f9fafb;
+  }
+  
+  .platform-price {
+    background: #374151;
+  }
+  
+  .platform-name {
+    color: #f9fafb;
+  }
+  
+  .current-price {
+    color: #f9fafb;
+  }
+}
+
+/* ==========================================================================
+   Accessibility Improvements
+   ========================================================================== */
+
+.dashboard-widget:focus-within {
+  outline: 2px solid var(--widget-primary);
+  outline-offset: 2px;
+}
+
+.haptic-button:focus,
+.toggle-switch:focus,
+.alert-action:focus {
+  outline: 2px solid var(--widget-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dashboard-widget {
+    border-width: 2px;
+  }
+  
+  .haptic-button {
+    border: 2px solid currentColor;
+  }
+  
+  .toggle-switch {
+    border: 1px solid currentColor;
+  }
+}

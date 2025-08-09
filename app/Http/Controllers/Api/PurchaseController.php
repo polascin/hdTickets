@@ -26,8 +26,8 @@ class PurchaseController extends Controller
      */
     public function queue(Request $request): JsonResponse
     {
-        $query = PurchaseQueue::where('user_id', auth()->id())
-            ->with(['ticket'])
+        $query = PurchaseQueue::where('selected_by_user_id', auth()->id())
+            ->with(['scrapedTicket'])
             ->orderBy('priority', 'desc')
             ->orderBy('created_at', 'asc');
 
@@ -37,7 +37,7 @@ class PurchaseController extends Controller
         }
 
         if ($request->has('platform')) {
-            $query->whereHas('ticket', function($q) use ($request) {
+            $query->whereHas('scrapedTicket', function($q) use ($request) {
                 $q->where('platform', $request->platform);
             });
         }
@@ -98,9 +98,9 @@ class PurchaseController extends Controller
         }
 
         // Check if ticket is already in queue
-        $existingQueueItem = PurchaseQueue::where('user_id', auth()->id())
-            ->where('ticket_uuid', $request->ticket_uuid)
-            ->where('status', 'pending')
+        $existingQueueItem = PurchaseQueue::where('selected_by_user_id', auth()->id())
+            ->where('scraped_ticket_id', $ticket->id)
+            ->where('status', 'queued')
             ->first();
 
         if ($existingQueueItem) {
@@ -112,17 +112,16 @@ class PurchaseController extends Controller
 
         $queueItem = PurchaseQueue::create([
             'uuid' => (string) Str::uuid(),
-            'user_id' => auth()->id(),
-            'ticket_uuid' => $request->ticket_uuid,
+            'selected_by_user_id' => auth()->id(),
+            'scraped_ticket_id' => $ticket->id,
             'max_price' => $request->max_price,
             'quantity' => $request->quantity,
-            'priority' => $request->get('priority', 5),
-            'auto_purchase' => $request->get('auto_purchase', false),
+            'priority' => $request->get('priority', 'medium'),
             'notes' => $request->get('notes'),
-            'status' => 'pending'
+            'status' => 'queued'
         ]);
 
-        $queueItem->load('ticket');
+        $queueItem->load('scrapedTicket');
 
         return response()->json([
             'success' => true,
@@ -137,7 +136,7 @@ class PurchaseController extends Controller
     public function updateQueue(Request $request, string $uuid): JsonResponse
     {
         $queueItem = PurchaseQueue::where('uuid', $uuid)
-            ->where('user_id', auth()->id())
+            ->where('selected_by_user_id', auth()->id())
             ->first();
 
         if (!$queueItem) {
@@ -147,7 +146,7 @@ class PurchaseController extends Controller
             ], 404);
         }
 
-        if ($queueItem->status !== 'pending') {
+        if ($queueItem->status !== 'queued') {
             return response()->json([
                 'success' => false,
                 'message' => 'Cannot update queue item with status: ' . $queueItem->status
@@ -171,7 +170,7 @@ class PurchaseController extends Controller
         }
 
         $queueItem->update($validator->validated());
-        $queueItem->load('ticket');
+        $queueItem->load('scrapedTicket');
 
         return response()->json([
             'success' => true,
@@ -186,7 +185,7 @@ class PurchaseController extends Controller
     public function removeFromQueue(string $uuid): JsonResponse
     {
         $queueItem = PurchaseQueue::where('uuid', $uuid)
-            ->where('user_id', auth()->id())
+            ->where('selected_by_user_id', auth()->id())
             ->first();
 
         if (!$queueItem) {
@@ -430,9 +429,9 @@ class PurchaseController extends Controller
 
         $stats = [
             'queue' => [
-                'total_items' => PurchaseQueue::where('user_id', $userId)->count(),
-                'pending_items' => PurchaseQueue::where('user_id', $userId)->where('status', 'pending')->count(),
-                'processing_items' => PurchaseQueue::where('user_id', $userId)->where('status', 'processing')->count()
+                'total_items' => PurchaseQueue::where('selected_by_user_id', $userId)->count(),
+                'queued_items' => PurchaseQueue::where('selected_by_user_id', $userId)->where('status', 'queued')->count(),
+                'processing_items' => PurchaseQueue::where('selected_by_user_id', $userId)->where('status', 'processing')->count()
             ],
             'attempts' => [
                 'total_attempts' => PurchaseAttempt::where('user_id', $userId)->count(),

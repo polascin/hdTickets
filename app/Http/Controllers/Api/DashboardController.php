@@ -6,23 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
 use App\Services\PlatformMonitoringService;
 use App\Services\ActivityLogger;
+use App\Services\AnalyticsService;
+use App\Services\NotificationService;
+use App\Services\Enhanced\AdvancedTicketCachingService;
 use App\Events\TicketAvailabilityUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Carbon\Carbon;
 use Exception;
 use Throwable;
 
 class DashboardController extends Controller
 {
-    protected $platformMonitoringService;
-
-    public function __construct(PlatformMonitoringService $platformMonitoringService)
-    {
-        $this->platformMonitoringService = $platformMonitoringService;
-    }
+    public function __construct(
+        private PlatformMonitoringService $platformMonitoringService,
+        private AnalyticsService $analytics,
+        private NotificationService $notifications,
+        private AdvancedTicketCachingService $ticketCache
+    ) {}
 
     /**
      * Get dashboard statistics
@@ -815,6 +820,430 @@ class DashboardController extends Controller
                 'error' => 'Internal server error'
             ], 500);
         }
+    }
+
+    /**
+     * Refresh dashboard data
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        try {
+            // Clear cache
+            $cacheKey = 'dashboard:realtime:' . ($request->user()->id ?? 'guest');
+            Cache::forget($cacheKey);
+
+            // Get fresh data
+            $data = [
+                'timestamp' => Carbon::now()->toISOString(),
+                'analytics' => $this->analytics->getRealTimeMetrics(),
+                'tickets' => $this->getTicketData(),
+                'notifications' => $this->getNotificationData($request->user()->id ?? null),
+                'system_status' => $this->getSystemStatus(),
+                'user_metrics' => $this->getUserMetrics($request->user()),
+                'performance' => $this->getPerformanceMetrics(),
+            ];
+
+            // Track refresh event
+            $this->analytics->trackEvent('dashboard_refresh', [
+                'user_id' => $request->user()->id ?? null,
+                'timestamp' => Carbon::now()->toISOString()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Dashboard refreshed successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Dashboard refresh error', [
+                'error' => $e->getMessage(),
+                'user_id' => $request->user()->id ?? null
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to refresh dashboard'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user notifications
+     */
+    public function notifications(Request $request): JsonResponse
+    {
+        try {
+            $userId = $request->user()->id ?? null;
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Authentication required'
+                ], 401);
+            }
+
+            $page = (int) $request->get('page', 1);
+            $perPage = (int) $request->get('per_page', 20);
+
+            $notifications = $this->notifications->getUserNotifications($userId, $page, $perPage);
+            $unreadCount = $this->notifications->getUnreadNotificationCount($userId);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'notifications' => $notifications['notifications'],
+                    'pagination' => $notifications['pagination'],
+                    'unread_count' => $unreadCount
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Notifications API error', [
+                'error' => $e->getMessage(),
+                'user_id' => $request->user()->id ?? null
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load notifications'
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark notification as read
+     */
+    public function markNotificationRead(Request $request): JsonResponse
+    {
+        try {
+            $userId = $request->user()->id ?? null;
+            $notificationId = $request->get('notification_id');
+
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Authentication required'
+                ], 401);
+            }
+
+            if (!$notificationId) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Notification ID required'
+                ], 400);
+            }
+
+            $success = $this->notifications->markNotificationAsRead($notificationId, $userId);
+
+            return response()->json([
+                'success' => $success,
+                'message' => $success ? 'Notification marked as read' : 'Failed to mark notification as read'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Mark notification read API error', [
+                'error' => $e->getMessage(),
+                'user_id' => $request->user()->id ?? null,
+                'notification_id' => $request->get('notification_id')
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to mark notification as read'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get system status
+     */
+    public function systemStatus(): JsonResponse
+    {
+        try {
+            $status = $this->getSystemStatus();
+
+            return response()->json([
+                'success' => true,
+                'data' => $status
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('System status API error', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load system status'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get live metrics for real-time updates
+     */
+    public function liveMetrics(): JsonResponse
+    {
+        try {
+            $metrics = Cache::remember('dashboard:live_metrics', 10, function () {
+                return [
+                    'timestamp' => Carbon::now()->toISOString(),
+                    'active_users' => $this->getActiveUsersCount(),
+                    'tickets' => [
+                        'total_available' => $this->getTotalAvailableTickets(),
+                        'high_demand' => count($this->getHighDemandTickets()),
+                        'recent_sales' => $this->getRecentSales(),
+                    ],
+                    'performance' => [
+                        'response_time' => $this->getAverageResponseTime(),
+                        'cache_hit_rate' => $this->getCacheHitRate(),
+                        'error_rate' => $this->getErrorRate(),
+                    ],
+                    'alerts' => [
+                        'active_count' => $this->getActiveAlertsCount(),
+                        'recent' => $this->getRecentAlerts(5),
+                    ]
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $metrics
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Live metrics API error', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load live metrics'
+            ], 500);
+        }
+    }
+
+    // Additional helper methods for new functionality
+    private function getTicketData(): array
+    {
+        return [
+            'total_available' => $this->getTotalAvailableTickets(),
+            'high_demand' => $this->getHighDemandTickets(),
+            'recent_updates' => $this->getRecentTicketUpdates(),
+        ];
+    }
+
+    private function getTotalAvailableTickets(): int
+    {
+        return (int) Cache::remember('dashboard:total_tickets', 300, function () {
+            return ScrapedTicket::where('availability_status', 'available')->count();
+        });
+    }
+
+    private function getRecentTicketUpdates(): array
+    {
+        return Cache::remember('dashboard:recent_ticket_updates', 60, function () {
+            return ScrapedTicket::orderBy('scraped_at', 'desc')
+                ->limit(20)
+                ->get([
+                    'event_title',
+                    'platform',
+                    'availability_status',
+                    'scraped_at'
+                ])
+                ->toArray();
+        });
+    }
+
+    private function getNotificationData(?int $userId): array
+    {
+        if (!$userId) {
+            return [
+                'unread_count' => 0,
+                'recent' => []
+            ];
+        }
+
+        return [
+            'unread_count' => $this->notifications->getUnreadNotificationCount($userId),
+            'recent' => $this->notifications->getUserNotifications($userId, 1, 5)['notifications']
+        ];
+    }
+
+    private function getSystemStatus(): array
+    {
+        return [
+            'timestamp' => Carbon::now()->toISOString(),
+            'health_score' => $this->calculateSystemHealthScore(),
+            'services' => [
+                'database' => $this->checkDatabaseStatus(),
+                'redis' => $this->checkRedisStatus(),
+                'storage' => $this->checkStorageStatus(),
+            ],
+            'performance' => [
+                'memory_usage' => $this->getMemoryUsage(),
+                'response_time' => $this->getAverageResponseTime(),
+            ]
+        ];
+    }
+
+    private function getUserMetrics($user): array
+    {
+        if (!$user) {
+            return [];
+        }
+
+        return [
+            'session_duration' => $this->getSessionDuration($user->id),
+            'page_views' => $this->getSessionPageViews($user->id),
+            'last_activity' => $user->updated_at,
+        ];
+    }
+
+    private function getPerformanceMetrics(): array
+    {
+        return [
+            'cache_performance' => [
+                'hit_rate' => $this->getCacheHitRate(),
+                'size' => $this->getCacheSize(),
+            ],
+            'database_performance' => [
+                'queries_per_second' => $this->getDatabaseQueriesPerSecond(),
+                'average_query_time' => $this->getAverageQueryTime(),
+            ],
+            'api_performance' => [
+                'requests_per_minute' => $this->getApiRequestsPerMinute(),
+                'average_response_time' => $this->getAverageResponseTime(),
+                'error_rate' => $this->getErrorRate(),
+            ]
+        ];
+    }
+
+    private function calculateSystemHealthScore(): int
+    {
+        $scores = [
+            $this->checkDatabaseStatus() ? 25 : 0,
+            $this->checkRedisStatus() ? 25 : 0,
+            $this->getMemoryUsage() < 80 ? 25 : 0,
+            $this->getErrorRate() < 5 ? 25 : 0,
+        ];
+
+        return array_sum($scores);
+    }
+
+    private function checkDatabaseStatus(): bool
+    {
+        try {
+            DB::connection()->getPdo();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function checkRedisStatus(): bool
+    {
+        try {
+            Redis::ping();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function checkStorageStatus(): bool
+    {
+        return disk_free_space('/') > (1024 * 1024 * 1024); // 1GB free
+    }
+
+    private function getMemoryUsage(): float
+    {
+        $memoryUsage = memory_get_usage(true);
+        $memoryLimit = ini_get('memory_limit');
+        
+        if ($memoryLimit == -1) return 0.0;
+        
+        $memoryLimitBytes = $this->convertToBytes($memoryLimit);
+        return ($memoryUsage / $memoryLimitBytes) * 100;
+    }
+
+    private function getCacheHitRate(): float
+    {
+        $hits = (int) Redis::get('cache:hits') ?: 0;
+        $misses = (int) Redis::get('cache:misses') ?: 0;
+        $total = $hits + $misses;
+        
+        return $total > 0 ? ($hits / $total) * 100 : 0;
+    }
+
+    private function getCacheSize(): int
+    {
+        return (int) Redis::dbsize();
+    }
+
+    private function getErrorRate(): float
+    {
+        return (float) Cache::get('dashboard:error_rate', 0.0);
+    }
+
+    private function getDatabaseQueriesPerSecond(): float
+    {
+        return (float) Cache::get('dashboard:db_qps', 0.0);
+    }
+
+    private function getAverageQueryTime(): float
+    {
+        return (float) Cache::get('dashboard:avg_query_time', 0.0);
+    }
+
+    private function getApiRequestsPerMinute(): int
+    {
+        return (int) Cache::get('dashboard:api_rpm', 0);
+    }
+
+    private function getSessionDuration(int $userId): int
+    {
+        $sessionStart = Redis::get("session:start:$userId");
+        return $sessionStart ? time() - (int) $sessionStart : 0;
+    }
+
+    private function getSessionPageViews(int $userId): int
+    {
+        return (int) Redis::get("session:page_views:$userId") ?: 0;
+    }
+
+    private function getRecentSales(): int
+    {
+        return (int) Cache::remember('dashboard:recent_sales', 60, function () {
+            // Mock data - would integrate with actual sales tracking
+            return rand(10, 50);
+        });
+    }
+
+    private function getActiveAlertsCount(): int
+    {
+        return (int) Cache::remember('dashboard:active_alerts', 60, function () {
+            // Mock data - would check actual alerts
+            return rand(5, 15);
+        });
+    }
+
+    private function convertToBytes(string $value): int
+    {
+        $value = trim($value);
+        $last = strtolower($value[strlen($value) - 1]);
+        $value = (int) $value;
+
+        switch ($last) {
+            case 'g':
+                $value *= 1024;
+            case 'm':
+                $value *= 1024;
+            case 'k':
+                $value *= 1024;
+        }
+
+        return $value;
     }
 
     /**

@@ -227,6 +227,17 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::post('/monitors/{monitorId}/toggle', [MonitoringController::class, 'toggleMonitor']);
     });
     
+    // Performance Metrics API
+    Route::prefix('performance')->group(function () {
+        // Public endpoint for receiving metrics from browser
+        Route::post('/metrics', [App\Http\Controllers\Api\PerformanceMetricsController::class, 'receiveMetrics']);
+        
+        // Admin-only dashboard data
+        Route::middleware([CheckApiRole::class . ':admin'])->group(function () {
+            Route::get('/dashboard', [App\Http\Controllers\Api\PerformanceMetricsController::class, 'getDashboardData']);
+        });
+    });
+    
     Route::middleware([CheckApiRole::class . ':admin'])->group(function () {
         // Admin-specific routes can be added here
     });

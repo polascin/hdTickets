@@ -270,7 +270,7 @@ class TicketScrapingController extends Controller
                 'max_price' => $request->max_price,
                 'currency' => $request->get('currency', 'USD'),
                 'filters' => $request->get('filters', []),
-                'is_active' => true,
+                'status' => 'active',
                 'email_notifications' => $request->boolean('email_notifications', true),
                 'sms_notifications' => $request->boolean('sms_notifications', false)
             ]);
@@ -314,7 +314,7 @@ class TicketScrapingController extends Controller
             'max_price' => 'nullable|numeric|min:0',
             'currency' => 'sometimes|string|size:3',
             'filters' => 'array',
-            'is_active' => 'boolean',
+            'status' => 'sometimes|string|in:active,paused,triggered,expired',
             'email_notifications' => 'boolean',
             'sms_notifications' => 'boolean'
         ]);
@@ -329,7 +329,7 @@ class TicketScrapingController extends Controller
         try {
             $alert->update($request->only([
                 'name', 'keywords', 'platform', 'max_price', 'currency',
-                'filters', 'is_active', 'email_notifications', 'sms_notifications'
+                'filters', 'status', 'email_notifications', 'sms_notifications'
             ]));
 
             return response()->json([

@@ -31,7 +31,9 @@ class AlertController extends Controller
 
         // Apply filters
         if ($request->has('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
+            // Convert is_active boolean to status enum
+            $status = $request->boolean('is_active') ? 'active' : 'paused';
+            $query->where('status', $status);
         }
 
         if ($request->has('platform')) {
@@ -107,7 +109,14 @@ class AlertController extends Controller
         $data['currency'] = $data['currency'] ?? 'USD';
         $data['email_notifications'] = $data['email_notifications'] ?? true;
         $data['sms_notifications'] = $data['sms_notifications'] ?? false;
-        $data['is_active'] = $data['is_active'] ?? true;
+        
+        // Convert is_active boolean to status enum
+        if (isset($data['is_active'])) {
+            $data['status'] = $data['is_active'] ? 'active' : 'paused';
+            unset($data['is_active']); // Remove is_active as it doesn't exist in the table
+        } else {
+            $data['status'] = 'active'; // Default to active
+        }
 
         $alert = TicketAlert::create($data);
 
@@ -183,7 +192,15 @@ class AlertController extends Controller
             ], 422);
         }
 
-        $alert->update($validator->validated());
+        $data = $validator->validated();
+        
+        // Convert is_active boolean to status enum if present
+        if (isset($data['is_active'])) {
+            $data['status'] = $data['is_active'] ? 'active' : 'paused';
+            unset($data['is_active']); // Remove is_active as it doesn't exist in the table
+        }
+        
+        $alert->update($data);
         $alert->load('user');
 
         return response()->json([
@@ -233,14 +250,16 @@ class AlertController extends Controller
             ], 404);
         }
 
-        $alert->update(['is_active' => !$alert->is_active]);
+        $newStatus = $alert->status === 'active' ? 'paused' : 'active';
+        $alert->update(['status' => $newStatus]);
 
         return response()->json([
             'success' => true,
             'message' => 'Alert status updated successfully',
             'data' => [
                 'uuid' => $alert->uuid,
-                'is_active' => $alert->is_active
+                'status' => $alert->status,
+                'is_active' => $alert->status === 'active' // Backward compatibility
             ]
         ]);
     }
@@ -343,7 +362,7 @@ class AlertController extends Controller
         $stats = [
             'total_alerts' => TicketAlert::forUser($userId)->count(),
             'active_alerts' => TicketAlert::forUser($userId)->active()->count(),
-            'inactive_alerts' => TicketAlert::forUser($userId)->where('is_active', false)->count(),
+            'inactive_alerts' => TicketAlert::forUser($userId)->where('status', '!=', 'active')->count(),
             'total_matches_found' => TicketAlert::forUser($userId)->sum('matches_found'),
             'platform_breakdown' => TicketAlert::forUser($userId)
                 ->selectRaw('platform, COUNT(*) as count')
@@ -353,16 +372,16 @@ class AlertController extends Controller
                     return [$item->platform ?? 'all_platforms' => $item->count];
                 }),
             'recent_activity' => TicketAlert::forUser($userId)
-                ->whereNotNull('last_triggered_at')
-                ->orderBy('last_triggered_at', 'desc')
+                ->whereNotNull('triggered_at')
+                ->orderBy('triggered_at', 'desc')
                 ->limit(5)
-                ->get(['uuid', 'name', 'matches_found', 'last_triggered_at'])
+                ->get(['uuid', 'name', 'triggered_at'])
                 ->map(function($alert) {
                     return [
                         'uuid' => $alert->uuid,
                         'name' => $alert->name,
-                        'matches_found' => $alert->matches_found,
-                        'last_triggered' => $alert->last_triggered_at?->diffForHumans()
+                        'triggered' => $alert->triggered_at ? true : false,
+                        'last_triggered' => $alert->triggered_at?->diffForHumans()
                     ];
                 })
         ];

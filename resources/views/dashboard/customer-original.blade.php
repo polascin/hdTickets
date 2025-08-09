@@ -11,7 +11,7 @@
                 <!-- Quick Stats -->
                 @php
                     $totalTickets = \App\Models\ScrapedTicket::where('is_available', true)->count();
-                    $userAlerts = \App\Models\TicketAlert::where('user_id', Auth::id())->where('is_active', true)->count();
+                    $userAlerts = \App\Models\TicketAlert::forUser(Auth::id())->where('status', 'active')->count();
                 @endphp
                 <div class="text-sm text-gray-600">
                     {{ $totalTickets }} Available • {{ $userAlerts }} Active Alerts
@@ -50,8 +50,8 @@
             @php
                 $availableTickets = \App\Models\ScrapedTicket::where('is_available', true)->count();
                 $highDemandTickets = \App\Models\ScrapedTicket::where('is_high_demand', true)->where('is_available', true)->count();
-                $userAlerts = \App\Models\TicketAlert::where('user_id', Auth::id())->where('is_active', true)->count();
-                $userPurchaseQueue = \App\Models\PurchaseQueue::where('user_id', Auth::id())->where('status', 'pending')->count();
+                $userAlerts = \App\Models\TicketAlert::forUser(Auth::id())->where('status', 'active')->count();
+                $userPurchaseQueue = \App\Models\PurchaseQueue::where('selected_by_user_id', Auth::id())->where('status', 'queued')->count();
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance Optimizations */
+@import 'performance-optimizations.css';
+
 /* Custom styles for HDTickets */
 @layer base {
     html {

@@ -60,11 +60,28 @@ Route::middleware(['auth:sanctum'])->prefix('api')->group(function () {
 });
 
 // AJAX routes for lazy loading and real-time updates
-Route::middleware(['auth', 'verified'])->prefix('ajax')->name('ajax.')->group(function () {
+Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('ajax.')->group(function () {
     Route::get('tickets/load', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadTickets'])->name('tickets.load');
     Route::get('tickets/search', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'searchTickets'])->name('tickets.search');
     Route::get('tickets/load-more', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadMore'])->name('tickets.load-more');
     Route::get('dashboard/stats', [App\Http\Controllers\Ajax\TicketLazyLoadController::class, 'loadDashboardStats'])->name('dashboard.stats');
+    
+    // Dashboard dynamic content endpoints
+    Route::get('dashboard/live-tickets', [App\Http\Controllers\Ajax\DashboardController::class, 'liveTickets'])
+        ->middleware('throttle:30,1')
+        ->name('dashboard.live-tickets');
+    
+    Route::get('dashboard/user-recommendations', [App\Http\Controllers\Ajax\DashboardController::class, 'userRecommendations'])
+        ->middleware('throttle:10,1')
+        ->name('dashboard.user-recommendations');
+    
+    Route::get('dashboard/platform-health', [App\Http\Controllers\Ajax\DashboardController::class, 'platformHealth'])
+        ->middleware('throttle:20,1')
+        ->name('dashboard.platform-health');
+    
+    Route::get('dashboard/price-alerts', [App\Http\Controllers\Ajax\DashboardController::class, 'priceAlerts'])
+        ->middleware('throttle:30,1')
+        ->name('dashboard.price-alerts');
 });
 
 // Main tickets route redirects to sports event ticket scraping
@@ -133,6 +150,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('websocket-test');
     })->name('websocket.test');
 });
+
+// Dashboard Widgets Demo
+Route::get('dashboard-widgets-demo', function () {
+    return view('dashboard-widgets-demo');
+})->name('dashboard.widgets.demo');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

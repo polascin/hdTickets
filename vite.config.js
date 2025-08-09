@@ -45,6 +45,7 @@ export default defineConfig({
         chunkSizeWarningLimit: 1600,
         cssCodeSplit: true,
         sourcemap: process.env.NODE_ENV === 'development',
+        reportCompressedSize: false, // Faster builds
         rollupOptions: {
             output: {
                 manualChunks: {
@@ -58,8 +59,12 @@ export default defineConfig({
                     'vendor-http': ['axios', 'laravel-echo', 'pusher-js', 'socket.io-client'],
                     // Alpine.js and its ecosystem
                     'vendor-alpine': ['alpinejs'],
+                    // Performance utilities
+                    'vendor-performance': ['chart.js/helpers'],
+                    // Third-party analytics
+                    'vendor-analytics': [],
                 },
-                // Optimize asset naming
+                // Optimize asset naming with content hash
                 assetFileNames: (assetInfo) => {
                     const info = assetInfo.name.split('.');
                     const extType = info[info.length - 1];
@@ -69,20 +74,36 @@ export default defineConfig({
                     if (/css/i.test(extType)) {
                         return `assets/css/[name]-[hash][extname]`;
                     }
+                    if (/woff2?|ttf|otf/i.test(extType)) {
+                        return `assets/fonts/[name]-[hash][extname]`;
+                    }
                     return `assets/[name]-[hash][extname]`;
                 },
                 chunkFileNames: 'assets/js/[name]-[hash].js',
                 entryFileNames: 'assets/js/[name]-[hash].js',
             },
         },
-        // Enable terser minification for production
-        minify: 'terser',
+        // Enhanced minification for production
+        minify: process.env.NODE_ENV === 'production' ? 'terser' : false,
         terserOptions: {
             compress: {
                 drop_console: process.env.NODE_ENV === 'production',
                 drop_debugger: true,
+                pure_funcs: ['console.log', 'console.info'],
+                reduce_vars: true,
+                reduce_funcs: true,
+                passes: 2, // Multiple passes for better compression
+            },
+            mangle: {
+                safari10: true,
+                reserved: ['$', 'jQuery', 'Alpine', 'Chart']
+            },
+            format: {
+                comments: false,
             },
         },
+        // CSS optimization
+        cssMinify: 'lightningcss',
     },
     server: {
         hmr: {

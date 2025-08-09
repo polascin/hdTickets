@@ -12,33 +12,52 @@ class TicketAlert extends Model
     use HasFactory;
 
     protected $fillable = [
-        'uuid',
         'user_id',
-        'name',
-        'keywords',
-        'platform',
+        'sports_event_id',
+        'alert_name',
         'max_price',
-        'currency',
-        'filters',
-        'is_active',
+        'min_price',
+        'min_quantity',
+        'preferred_sections',
+        'platforms',
+        'status',
+        'priority_score',
+        'ml_prediction_data',
+        'escalation_level',
+        'last_escalated_at',
+        'success_rate',
+        'channel_preferences',
         'email_notifications',
         'sms_notifications',
-        'matches_found',
-        'last_triggered_at'
+        'auto_purchase',
+        'last_checked_at',
+        'triggered_at',
+        'matches_found'
     ];
 
     protected $casts = [
         'max_price' => 'decimal:2',
-        'filters' => 'array',
-        'is_active' => 'boolean',
+        'min_price' => 'decimal:2',
+        'min_quantity' => 'integer',
+        'preferred_sections' => 'array',
+        'platforms' => 'array',
+        'priority_score' => 'integer',
+        'ml_prediction_data' => 'array',
+        'escalation_level' => 'integer',
+        'success_rate' => 'decimal:4',
+        'channel_preferences' => 'array',
         'email_notifications' => 'boolean',
         'sms_notifications' => 'boolean',
-        'matches_found' => 'integer',
-        'last_triggered_at' => 'datetime'
+        'auto_purchase' => 'boolean',
+        'last_escalated_at' => 'datetime',
+        'last_checked_at' => 'datetime',
+        'triggered_at' => 'datetime'
     ];
 
     protected $dates = [
-        'last_triggered_at'
+        'last_escalated_at',
+        'last_checked_at',
+        'triggered_at'
     ];
 
     protected static function boot()
@@ -61,7 +80,7 @@ class TicketAlert extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'active');
     }
 
     public function scopeForUser($query, $userId)
@@ -78,8 +97,8 @@ class TicketAlert extends Model
     {
         return $query->active()
                     ->where(function($q) use ($minutes) {
-                        $q->whereNull('last_triggered_at')
-                          ->orWhere('last_triggered_at', '<=', now()->subMinutes($minutes));
+                        $q->whereNull('last_checked_at')
+                          ->orWhere('last_checked_at', '<=', now()->subMinutes($minutes));
                     });
     }
 
@@ -132,8 +151,9 @@ class TicketAlert extends Model
 
     public function incrementMatches(): void
     {
+        // Increment the matches_found counter and update triggered_at
         $this->increment('matches_found');
-        $this->update(['last_triggered_at' => now()]);
+        $this->update(['triggered_at' => now()]);
     }
 
     public function getFormattedMaxPriceAttribute(): ?string
@@ -143,7 +163,7 @@ class TicketAlert extends Model
 
     public function getLastCheckedAttribute(): ?string
     {
-        return $this->last_triggered_at ? $this->last_triggered_at->diffForHumans() : 'Never';
+        return $this->last_checked_at ? $this->last_checked_at->diffForHumans() : 'Never';
     }
 
     public function getPlatformDisplayNameAttribute(): string

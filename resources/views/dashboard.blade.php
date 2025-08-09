@@ -22,9 +22,17 @@
 @endsection
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="dashboardManager()" x-init="init()">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="dashboardManager()" x-init="init()">
     <!-- Performance Timer -->
     @startTimer('dashboard_render')
+    
+    <!-- Loading State -->
+    <div x-show="loading" x-transition class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+        <div class="flex flex-col items-center space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="text-gray-600 text-sm">Loading dashboard...</p>
+        </div>
+    </div>
     
     <!-- Welcome Banner -->
     @if(!empty($userStats) && !empty($stats))
@@ -53,38 +61,64 @@
     @endif
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-        <div class="dashboard-card stat-card">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div class="dashboard-card stat-card transform hover:scale-105 transition-transform duration-200">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Active Monitors</p>
-                    <p class="stat-value">{{ $stats['active_monitors'] ?? 0 }}</p>
+                    <p class="stat-value" x-text="stats.active_monitors || '{{ $stats['active_monitors'] ?? 0 }}'">{{ $stats['active_monitors'] ?? 0 }}</p>
+                    <div class="text-xs text-white/70 mt-1">
+                        <span class="inline-flex items-center">
+                            <span class="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
                 </div>
-                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
             </div>
         </div>
 
-        <div class="dashboard-card stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="dashboard-card stat-card transform hover:scale-105 transition-transform duration-200" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Alerts Today</p>
-                    <p class="stat-value">{{ $stats['alerts_today'] ?? 0 }}</p>
+                    <p class="stat-value" x-text="stats.alerts_today || '{{ $stats['alerts_today'] ?? 0 }}'">{{ $stats['alerts_today'] ?? 0 }}</p>
+                    <div class="text-xs text-white/70 mt-1">
+                        @if(($stats['alerts_today'] ?? 0) > 0)
+                            <span class="inline-flex items-center">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></span>
+                                New alerts
+                            </span>
+                        @else
+                            All caught up
+                        @endif
+                    </div>
                 </div>
-                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
                 </svg>
             </div>
         </div>
 
-        <div class="dashboard-card stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+        <div class="dashboard-card stat-card transform hover:scale-105 transition-transform duration-200" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Price Drops</p>
-                    <p class="stat-value">{{ $stats['price_drops'] ?? 0 }}</p>
+                    <p class="stat-value" x-text="stats.price_drops || '{{ $stats['price_drops'] ?? 0 }}'">{{ $stats['price_drops'] ?? 0 }}</p>
+                    <div class="text-xs text-white/70 mt-1">
+                        @if(($stats['price_drops'] ?? 0) > 0)
+                            <span class="inline-flex items-center">
+                                <span class="w-2 h-2 bg-red-400 rounded-full mr-1 animate-pulse"></span>
+                                Deals found
+                            </span>
+                        @else
+                            Monitoring prices
+                        @endif
+                    </div>
                 </div>
-                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
             </div>

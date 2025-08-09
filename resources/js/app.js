@@ -2,6 +2,12 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import { createApp } from 'vue';
 
+// Import Alpine.js plugins
+import focus from '@alpinejs/focus';
+import persist from '@alpinejs/persist';
+import collapse from '@alpinejs/collapse';
+import intersect from '@alpinejs/intersect';
+
 // Import core application module
 import AppCore from './core/AppCore.js';
 
@@ -13,11 +19,25 @@ import responsiveUtils from '@utils/responsiveUtils';
 import websocketManager from '@utils/websocketManager';
 import errorReporter from '@utils/errorReporting';
 
+// Import performance optimizations
+import '@utils/performanceMonitoring';
+import '@utils/lazyImageLoader';
+
 // Import WebSocket testing utility
 import '@utils/websocketTest';
 
 // Alpine.js component imports
 import { dashboardManager } from './components/dashboardManager.js';
+import { 
+    formHandler, 
+    tableManager, 
+    searchFilter,
+    confirmDialog,
+    tooltip,
+    dropdown,
+    tabs,
+    accordion
+} from './alpine/components/index.js';
 
 // Vue Components (lazy loaded)
 const RealTimeMonitoringDashboard = () => import('@components/RealTimeMonitoringDashboard.vue');
@@ -25,6 +45,12 @@ const AnalyticsDashboard = () => import('@components/AnalyticsDashboard.vue');
 const UserPreferencesPanel = () => import('@components/UserPreferencesPanel.vue');
 const TicketDashboard = () => import('@components/TicketDashboard.vue');
 const AdminDashboard = () => import('@components/admin/AdminDashboard.vue');
+
+// Setup Alpine.js plugins
+Alpine.plugin(focus);
+Alpine.plugin(persist);
+Alpine.plugin(collapse);
+Alpine.plugin(intersect);
 
 // Make Alpine available globally
 window.Alpine = Alpine;
@@ -105,7 +131,15 @@ try {
 // Register Alpine.js components with error handling
 try {
     Alpine.data('dashboardManager', dashboardManager);
-    console.log('✅ Alpine.js dashboard manager registered');
+    Alpine.data('formHandler', formHandler);
+    Alpine.data('tableManager', tableManager);
+    Alpine.data('searchFilter', searchFilter);
+    Alpine.data('confirmDialog', confirmDialog);
+    Alpine.data('tooltip', tooltip);
+    Alpine.data('dropdown', dropdown);
+    Alpine.data('tabs', tabs);
+    Alpine.data('accordion', accordion);
+    console.log('✅ Alpine.js components registered');
     
     // Navigation dropdown component
     Alpine.data('navigationData', () => ({
@@ -128,6 +162,20 @@ try {
             this.adminDropdownOpen = false;
             this.profileDropdownOpen = false;
             this.mobileMenuOpen = false;
+        },
+        
+        toggleMobileMenu() {
+            this.mobileMenuOpen = !this.mobileMenuOpen;
+        },
+        
+        toggleAdminDropdown() {
+            this.adminDropdownOpen = !this.adminDropdownOpen;
+            this.profileDropdownOpen = false;
+        },
+        
+        toggleProfileDropdown() {
+            this.profileDropdownOpen = !this.profileDropdownOpen;
+            this.adminDropdownOpen = false;
         }
     }));
     console.log('✅ Alpine.js navigation component registered');
@@ -143,41 +191,26 @@ try {
         interval: null,
         
         init() {
-            // FORCE loading to be false - no exceptions
+            // Initialize loading state
             this.loading = false;
             this.stopLoading();
             
-            // Force the element to be hidden via CSS
-            this.$el.style.display = 'none';
-            
-            // Debug logging
-            console.log('🔧 Loading overlay FORCE DISABLED - this.loading:', this.loading);
-            console.log('🔧 Loading overlay element hidden via CSS');
-            
-            // Listen for global stop loading events
-            window.addEventListener('force-stop-loading', () => {
-                console.log('🔧 Force stopping loading overlay');
-                this.loading = false;
-                this.stopLoading();
-                this.$el.style.display = 'none';
+            // Listen for global loading events
+            window.addEventListener('show-loading', (event) => {
+                this.setLoading(event.detail || { show: true });
             });
             
-            // Prevent ANY loading from showing
-            const preventLoading = () => {
-                this.loading = false;
-                this.$el.style.display = 'none';
-            };
+            window.addEventListener('hide-loading', () => {
+                this.stopLoading();
+            });
             
-            // Run prevention multiple times
-            setTimeout(preventLoading, 100);
-            setTimeout(preventLoading, 500);
-            setTimeout(preventLoading, 1000);
-            setTimeout(preventLoading, 2000);
+            window.addEventListener('force-stop-loading', () => {
+                console.log('🔧 Force stopping loading overlay');
+                this.stopLoading();
+            });
         },
         
         setLoading(options = {}) {
-            console.log('🔧 setLoading called with:', options);
-            
             if (typeof options === 'boolean') {
                 options = { show: options };
             }
@@ -188,20 +221,17 @@ try {
             this.canCancel = options.canCancel || false;
             
             if (this.loading) {
-                console.log('🔧 Starting loading overlay');
                 this.startTime = Date.now();
                 this.duration = 0;
                 this.interval = setInterval(() => {
                     this.duration = Math.floor((Date.now() - this.startTime) / 1000);
                 }, 1000);
             } else {
-                console.log('🔧 Stopping loading overlay');
                 this.stopLoading();
             }
         },
         
         stopLoading() {
-            console.log('🔧 stopLoading called');
             this.loading = false;
             this.duration = 0;
             this.progress = null;
@@ -212,42 +242,132 @@ try {
         },
         
         cancelLoading() {
-            console.log('🔧 cancelLoading called');
             this.stopLoading();
             window.dispatchEvent(new CustomEvent('loading-cancelled'));
             
             if (window.hdTicketsUtils?.notify) {
                 window.hdTicketsUtils.notify('Loading cancelled', 'info');
             }
+        },
+        
+        get loadingDuration() {
+            return this.duration;
+        },
+        
+        get progressPercentage() {
+            return this.progress ? `${Math.min(100, Math.max(0, this.progress))}%` : null;
         }
     }));
     console.log('✅ Alpine.js loading overlay component registered');
     
-    // Alpine.js global store for app state
-    Alpine.store('app', {
-        loading: false,
-        darkMode: localStorage.getItem('darkMode') === 'true',
+    // Modal component for enhanced UI
+    Alpine.data('modal', () => ({
+        show: false,
+        title: '',
+        size: 'md',
+        closable: true,
         
-        toggleDarkMode() {
-            this.darkMode = !this.darkMode;
-            localStorage.setItem('darkMode', this.darkMode);
-            document.documentElement.classList.toggle('dark', this.darkMode);
+        init() {
+            // Listen for modal events
+            this.$watch('show', value => {
+                if (value) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
         },
         
-        setLoading(state) {
-            this.loading = state;
-            if (state) {
-                window.dispatchEvent(new CustomEvent('loading', {
-                    detail: { show: true, message: 'Loading...', progress: null, canCancel: false }
-                }));
-            } else {
-                window.dispatchEvent(new CustomEvent('stop-loading'));
+        open(options = {}) {
+            this.title = options.title || '';
+            this.size = options.size || 'md';
+            this.closable = options.closable !== false;
+            this.show = true;
+        },
+        
+        close() {
+            if (this.closable) {
+                this.show = false;
+            }
+        }
+    }));
+    
+    // Notification/Toast component
+    Alpine.data('notifications', () => ({
+        notifications: [],
+        
+        init() {
+            window.addEventListener('notify', (event) => {
+                this.add(event.detail);
+            });
+        },
+        
+        add(notification) {
+            const id = Date.now();
+            const toast = {
+                id,
+                type: notification.type || 'info',
+                title: notification.title || '',
+                message: notification.message || '',
+                duration: notification.duration || 5000,
+                persistent: notification.persistent || false
+            };
+            
+            this.notifications.push(toast);
+            
+            if (!toast.persistent) {
+                setTimeout(() => this.remove(id), toast.duration);
             }
         },
         
-        notify(title, message, type = 'info') {
+        remove(id) {
+            this.notifications = this.notifications.filter(n => n.id !== id);
+        },
+        
+        clear() {
+            this.notifications = [];
+        }
+    }));
+    
+    // Alpine.js global store for app state
+    Alpine.store('app', {
+        loading: false,
+        darkMode: Alpine.$persist(localStorage.getItem('darkMode') === 'true'),
+        sidebarOpen: Alpine.$persist(true),
+        notifications: [],
+        
+        init() {
+            // Initialize dark mode
+            this.applyDarkMode();
+        },
+        
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            this.applyDarkMode();
+        },
+        
+        applyDarkMode() {
+            document.documentElement.classList.toggle('dark', this.darkMode);
+        },
+        
+        toggleSidebar() {
+            this.sidebarOpen = !this.sidebarOpen;
+        },
+        
+        setLoading(state, options = {}) {
+            this.loading = state;
+            if (state) {
+                window.dispatchEvent(new CustomEvent('show-loading', {
+                    detail: { show: true, message: options.message || 'Loading...', ...options }
+                }));
+            } else {
+                window.dispatchEvent(new CustomEvent('hide-loading'));
+            }
+        },
+        
+        notify(title, message, type = 'info', options = {}) {
             window.dispatchEvent(new CustomEvent('notify', {
-                detail: { title, message, type }
+                detail: { title, message, type, ...options }
             }));
         }
     });

@@ -1,0 +1,572 @@
+/**
+ * HD Tickets - Performance Optimizations CSS
+ * Lazy loading, critical path optimization, and performance enhancements
+ */
+
+/* =============================================================================
+   Critical Above-the-fold Styles (inline these in production)
+   ============================================================================= */
+
+/* Essential layout styles that prevent layout shift */
+.layout-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.main-content {
+    flex: 1;
+    min-height: calc(100vh - 64px);
+}
+
+/* =============================================================================
+   Lazy Loading Image Styles
+   ============================================================================= */
+
+/* Base image styles with aspect ratio preservation */
+img[data-lazy-src] {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Placeholder state - shown while loading */
+.lazy-placeholder {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Loading state - shown during image load */
+.lazy-loading {
+    opacity: 0.7;
+    filter: blur(2px);
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+/* Loaded state - final state after successful load */
+.lazy-loaded {
+    opacity: 1;
+    filter: none;
+    transition: all 0.3s ease;
+}
+
+/* Error state - shown when image fails to load */
+.lazy-error {
+    background: #fee2e2;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 2px dashed #fca5a5;
+    border-radius: 8px;
+}
+
+.lazy-error::before {
+    content: "⚠️ Image failed to load";
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Progressive image enhancement */
+.progressive-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.progressive-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: filter 0.3s ease;
+}
+
+.progressive-image .low-res {
+    filter: blur(5px);
+    transform: scale(1.1);
+}
+
+.progressive-image .high-res {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.progressive-image .high-res.loaded {
+    opacity: 1;
+}
+
+/* =============================================================================
+   Critical Resource Loading Optimizations
+   ============================================================================= */
+
+/* Prioritize critical images */
+img[data-critical="true"] {
+    content-visibility: auto;
+    contain-intrinsic-size: 300px 200px;
+}
+
+/* Optimize non-critical images */
+img:not([data-critical="true"]) {
+    content-visibility: auto;
+    contain-intrinsic-size: 200px 150px;
+}
+
+/* Hero image optimization */
+.hero-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.hero-image.lazy-loading::after {
+    content: "Loading...";
+}
+
+/* =============================================================================
+   Performance-Optimized Components
+   ============================================================================= */
+
+/* Efficient card layouts */
+.performance-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    contain: layout style paint;
+}
+
+.performance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.performance-card-image {
+    width: 100%;
+    height: 200px;
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+}
+
+.performance-card-content {
+    padding: 16px;
+    flex: 1;
+}
+
+.performance-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.performance-card-description {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+/* =============================================================================
+   Content Visibility and Layout Optimizations
+   ============================================================================= */
+
+/* Optimize off-screen content */
+.off-screen-content {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+}
+
+/* Optimize large lists */
+.large-list {
+    contain: layout style paint;
+}
+
+.large-list-item {
+    contain: layout style;
+    will-change: transform;
+}
+
+/* Grid optimizations */
+.optimized-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    contain: layout style;
+}
+
+/* =============================================================================
+   Loading States and Skeletons
+   ============================================================================= */
+
+/* Skeleton loading animations */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-text {
+    height: 16px;
+    margin: 8px 0;
+    border-radius: 4px;
+}
+
+.skeleton-text.title {
+    height: 24px;
+    width: 60%;
+}
+
+.skeleton-text.subtitle {
+    height: 18px;
+    width: 80%;
+}
+
+.skeleton-text.body {
+    height: 14px;
+    width: 90%;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.skeleton-button {
+    height: 40px;
+    width: 120px;
+    border-radius: 8px;
+}
+
+/* =============================================================================
+   Reduced Motion and Accessibility
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .lazy-loading,
+    .lazy-loaded,
+    .performance-card,
+    .skeleton {
+        transition: none !important;
+        animation: none !important;
+    }
+    
+    .shimmer,
+    .skeleton-loading {
+        animation: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .lazy-placeholder {
+        background: #000;
+        color: #fff;
+    }
+    
+    .lazy-error {
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+    }
+    
+    .performance-card {
+        border: 2px solid #000;
+    }
+}
+
+/* =============================================================================
+   Mobile-First Responsive Optimizations
+   ============================================================================= */
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+    .optimized-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .performance-card {
+        margin: 0 16px;
+    }
+    
+    .hero-image {
+        height: 250px;
+        font-size: 20px;
+    }
+    
+    /* Optimize images for mobile */
+    img[data-lazy-src] {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .performance-card-image {
+        height: 160px;
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .optimized-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+    }
+    
+    .performance-card-image {
+        height: 180px;
+    }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+    .optimized-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 28px;
+    }
+    
+    /* Enable hover effects only on desktop */
+    .performance-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+}
+
+/* =============================================================================
+   Print Optimizations
+   ============================================================================= */
+
+@media print {
+    .lazy-loading,
+    .lazy-placeholder,
+    .skeleton {
+        display: none !important;
+    }
+    
+    .lazy-loaded,
+    .performance-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .hero-image {
+        height: 200px;
+        background: #f0f0f0 !important;
+        color: #000 !important;
+    }
+}
+
+/* =============================================================================
+   Performance Monitoring Visual Indicators
+   ============================================================================= */
+
+/* Performance debug indicators (remove in production) */
+[data-perf-debug] {
+    position: relative;
+}
+
+[data-perf-debug]::after {
+    content: attr(data-perf-debug);
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #000;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 0 0 0 4px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Web Vitals indicators */
+.perf-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.perf-indicator.show {
+    opacity: 1;
+}
+
+.perf-indicator.good { background: rgba(0, 128, 0, 0.8); }
+.perf-indicator.needs-improvement { background: rgba(255, 165, 0, 0.8); }
+.perf-indicator.poor { background: rgba(255, 0, 0, 0.8); }
+
+/* =============================================================================
+   Critical CSS Inlining Support
+   ============================================================================= */
+
+/* Mark critical styles for extraction */
+/* @critical-start */
+.layout-container,
+.header,
+.main-content,
+.hero-image {
+    /* These styles should be inlined */
+}
+/* @critical-end */
+
+/* =============================================================================
+   CSS Grid Layout with Performance Optimizations
+   ============================================================================= */
+
+.perf-dashboard-grid {
+    display: grid;
+    grid-template-areas: 
+        "header header header"
+        "sidebar main main"
+        "footer footer footer";
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 250px 1fr 1fr;
+    min-height: 100vh;
+    contain: layout style;
+}
+
+.perf-header { grid-area: header; }
+.perf-sidebar { grid-area: sidebar; }
+.perf-main { grid-area: main; }
+.perf-footer { grid-area: footer; }
+
+@media (max-width: 768px) {
+    .perf-dashboard-grid {
+        grid-template-areas: 
+            "header"
+            "main"
+            "footer";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+    
+    .perf-sidebar {
+        display: none;
+    }
+}
+
+/* =============================================================================
+   Utility Classes for Performance
+   ============================================================================= */
+
+/* GPU acceleration utilities */
+.gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Content containment utilities */
+.contain-layout { contain: layout; }
+.contain-style { contain: style; }
+.contain-paint { contain: paint; }
+.contain-all { contain: layout style paint; }
+
+/* Visibility utilities */
+.content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 400px;
+}
+
+.content-visibility-hidden {
+    content-visibility: hidden;
+}
+
+/* Loading state utilities */
+.loading-overlay {
+    position: relative;
+}
+
+.loading-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+   Modern CSS Features for Performance
+   ============================================================================= */
+
+/* CSS @layer for better cascade management */
+@layer base, components, utilities;
+
+@layer base {
+    /* Base styles go here */
+}
+
+@layer components {
+    /* Component styles go here */
+}
+
+@layer utilities {
+    /* Utility classes go here */
+}

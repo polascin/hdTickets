@@ -11,8 +11,9 @@
     <div class="flex items-center space-x-4">
         <!-- Quick Stats -->
         @php
-            $activeAlerts = $alerts->where('is_active', true)->count();
-            $totalMatches = $alerts->sum('matches_found');
+            $activeAlerts = $alerts->where('status', 'active')->count();
+            // Count alerts that have been triggered (have triggered_at set)
+            $totalMatches = $alerts->whereNotNull('triggered_at')->count();
         @endphp
         <div class="text-sm text-gray-600">
             {{ $activeAlerts }} Active • {{ $totalMatches }} Total Matches
@@ -45,7 +46,7 @@
                     </div>
                     <div class="ml-4">
                         <div class="text-sm font-medium text-gray-500">Active Alerts</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->where('is_active', true)->count() }}</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->where('status', 'active')->count() }}</div>
                     </div>
                 </div>
             </div>
@@ -79,7 +80,7 @@
                     </div>
                     <div class="ml-4">
                         <div class="text-sm font-medium text-gray-500">Total Matches</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->sum('matches_found') }}</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->whereNotNull('triggered_at')->count() }}</div>
                     </div>
                 </div>
             </div>
@@ -96,7 +97,7 @@
                     </div>
                     <div class="ml-4">
                         <div class="text-sm font-medium text-gray-500">Recent (24h)</div>
-                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->where('updated_at', '>=', now()->subDay())->sum('matches_found') }}</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $alerts->where('triggered_at', '>=', now()->subDay())->count() }}</div>
                     </div>
                 </div>
             </div>
@@ -125,14 +126,14 @@
                                     <div class="flex-1">
                                         <div class="flex items-center mb-2">
                                             <h4 class="text-lg font-semibold text-gray-900">{{ $alert->name }}</h4>
-                                            @if($alert->is_active)
+                                            @if($alert->status === 'active')
                                                 <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     <div class="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></div>
                                                     Active
                                                 </span>
                                             @else
                                                 <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                    Paused
+                                                    {{ ucfirst($alert->status) }}
                                                 </span>
                                             @endif
                                         </div>
@@ -159,8 +160,8 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <div class="text-sm font-medium text-gray-500">Matches Found</div>
-                                                <div class="text-sm font-bold text-blue-600">{{ $alert->matches_found ?? 0 }}</div>
+                                                <div class="text-sm font-medium text-gray-500">Status</div>
+                                                <div class="text-sm font-bold text-blue-600">{{ $alert->triggered_at ? 'Triggered' : 'Waiting' }}</div>
                                             </div>
                                         </div>
 
@@ -180,9 +181,9 @@
                                         <button onclick="editAlert({{ $alert->id }})" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
                                             Edit
                                         </button>
-                                        <button onclick="toggleAlert({{ $alert->id }}, {{ $alert->is_active ? 'false' : 'true' }})" 
+                                        <button onclick="toggleAlert({{ $alert->id }}, '{{ $alert->status === 'active' ? 'paused' : 'active' }}')" 
                                                 class="text-yellow-600 hover:text-yellow-800 font-medium text-sm">
-                                            {{ $alert->is_active ? 'Pause' : 'Activate' }}
+                                            {{ $alert->status === 'active' ? 'Pause' : 'Activate' }}
                                         </button>
                                         <button onclick="deleteAlert({{ $alert->id }})" class="text-red-600 hover:text-red-800 font-medium text-sm">
                                             Delete
@@ -324,14 +325,14 @@ function editAlert(alertId) {
         });
 }
 
-function toggleAlert(alertId, isActive) {
+function toggleAlert(alertId, status) {
     fetch(`{{ url('tickets/alerts') }}/${alertId}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
-        body: JSON.stringify({ is_active: isActive === 'true' })
+        body: JSON.stringify({ status: status })
     })
     .then(response => response.json())
     .then(data => {

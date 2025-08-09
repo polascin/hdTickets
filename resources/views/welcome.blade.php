@@ -39,8 +39,11 @@
         @endif
     </head>
     <body class="font-figtree bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+        <!-- Skip Link for Accessibility -->
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200">Skip to main content</a>
+        
         <!-- Background decorations -->
-        <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
             <div class="absolute -top-4 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
             <div class="absolute -bottom-8 -left-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 2s;"></div>
             <div class="absolute top-8 left-8 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style="animation-delay: 4s;"></div>
@@ -48,11 +51,11 @@
 
         <div class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
             <!-- Main content -->
-            <div class="max-w-4xl mx-auto text-center">
+            <main id="main-content" class="max-w-4xl mx-auto text-center" tabindex="-1">
                 <!-- Logo/Icon -->
                 <div class="mb-8">
                     <div class="inline-flex items-center justify-center mb-6">
-                        <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo" class="w-20 h-20 rounded-2xl shadow-2xl animate-pulse-slow">
+                        <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets - Sports Ticket Monitoring Platform Logo" class="w-20 h-20 rounded-2xl shadow-2xl animate-pulse-slow" loading="eager">
                     </div>
                 </div>
 
@@ -78,19 +81,19 @@
 
                 <!-- Features grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-4xl mx-auto">
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
                         <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Lightning bolt icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7"></path>
                             </svg>
                         </div>
                         <h3 class="text-xl font-semibold text-gray-800 mb-2">Real-time Alerts</h3>
                         <p class="text-gray-600">Get instant notifications when tickets become available for your favorite events</p>
                     </div>
 
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2" style="animation-delay: 0.2s;">
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus-within:ring-2 focus-within:ring-purple-500 focus-within:ring-offset-2" style="animation-delay: 0.2s;">
                         <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Bar chart icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
@@ -98,9 +101,9 @@
                         <p class="text-gray-600">Monitor ticket prices across multiple platforms and find the best deals</p>
                     </div>
 
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2" style="animation-delay: 0.4s;">
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2" style="animation-delay: 0.4s;">
                         <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Clock icon">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
@@ -173,7 +176,7 @@
                         Join thousands of sports fans who never miss their favorite games
                     </p>
                 </div>
-            </div>
+            </main>
         </div>
 
         <script>

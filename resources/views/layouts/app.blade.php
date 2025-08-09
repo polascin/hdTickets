@@ -230,6 +230,10 @@
         @endif
         <!-- PWA Manager -->
         <script src="{{ asset('resources/js/utils/pwaManager.js') }}?t={{ time() }}" defer></script>
+        <!-- Enhanced Feedback System -->
+        <script src="{{ asset('resources/js/utils/feedbackSystem.js') }}?t={{ time() }}" defer></script>
+        <!-- Dashboard Manager Component -->
+        <script src="{{ asset('resources/js/components/dashboardManager.js') }}?t={{ time() }}" defer></script>
         <script>
             // Initialize PWA features when page loads
             document.addEventListener('DOMContentLoaded', function() {
