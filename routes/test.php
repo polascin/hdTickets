@@ -21,5 +21,5 @@ Route::get('/test-profile', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mobile-test', function () {
         return view('mobile-test');
-    })->name('mobile.test');
+    })->name('mobile.test.page');
 });

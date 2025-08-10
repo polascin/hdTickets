@@ -6,6 +6,8 @@ use App\Services\EncryptionService;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -15,7 +17,7 @@ use Spatie\Activitylog\LogOptions;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens, LogsActivity;
+    use HasFactory, Notifiable, HasApiTokens, LogsActivity, SoftDeletes;
 
     protected $encryptionService;
     
@@ -104,6 +106,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'has_trial_used',
         'billing_address',
         'stripe_customer_id',
+        'password_history',
     ];
 
     /**
@@ -474,14 +477,66 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Calculate profile completion percentage
+     */
+    public function getProfileCompletion()
+    {
+        $fields = [
+            'name' => !empty($this->name),
+            'surname' => !empty($this->surname),
+            'phone' => !empty($this->phone),
+            'bio' => !empty($this->bio),
+            'profile_picture' => !empty($this->profile_picture),
+            'timezone' => !empty($this->timezone),
+            'language' => !empty($this->language),
+            'two_factor_enabled' => $this->two_factor_enabled ?? false,
+        ];
+        
+        $completedFields = array_filter($fields);
+        $completionPercentage = round((count($completedFields) / count($fields)) * 100);
+        
+        // Determine completion status
+        $status = 'incomplete';
+        if ($completionPercentage >= 90) {
+            $status = 'excellent';
+        } elseif ($completionPercentage >= 75) {
+            $status = 'good';
+        } elseif ($completionPercentage >= 50) {
+            $status = 'fair';
+        }
+        
+        return [
+            'percentage' => $completionPercentage,
+            'status' => $status,
+            'completed_fields' => $completedFields,
+            'missing_fields' => array_keys(array_filter($fields, fn($value) => !$value)),
+            'total_fields' => count($fields),
+            'completed_count' => count($completedFields),
+            'is_complete' => $completionPercentage >= 90
+        ];
+    }
+
+    /**
      * Get profile picture URL or initials
      */
     public function getProfileDisplay()
     {
         $initials = strtoupper(substr($this->name, 0, 1) . substr($this->surname ?? '', 0, 1));
         
+        // Handle profile picture URL - check if it already contains full URL
+        $pictureUrl = null;
+        if ($this->profile_picture) {
+            if (str_starts_with($this->profile_picture, 'http')) {
+                // Already a full URL (from new upload system)
+                $pictureUrl = $this->profile_picture;
+            } else {
+                // Legacy format - add asset path
+                $pictureUrl = asset('storage/' . $this->profile_picture);
+            }
+        }
+        
         return [
-            'picture_url' => $this->profile_picture ? asset('storage/' . $this->profile_picture) : null,
+            'picture_url' => $pictureUrl,
             'initials' => $initials,
             'has_picture' => !empty($this->profile_picture),
             'full_name' => $this->getFullNameAttribute(),
@@ -490,6 +545,42 @@ class User extends Authenticatable implements MustVerifyEmail
             'timezone' => $this->timezone ?? 'UTC',
             'language' => $this->language ?? 'en'
         ];
+    }
+
+    /**
+     * Get all available profile picture sizes
+     */
+    public function getProfilePictureSizes(): array
+    {
+        if (!$this->profile_picture || !$this->id) {
+            return [];
+        }
+
+        $sizes = [];
+        $profilePicturesPath = storage_path('app/public/profile-pictures');
+        
+        if (is_dir($profilePicturesPath)) {
+            $files = glob($profilePicturesPath . "/profile_{$this->id}_*");
+            
+            foreach ($files as $file) {
+                $filename = basename($file);
+                if (preg_match("/^profile_{$this->id}_.*_(\w+)\.webp$/", $filename, $matches)) {
+                    $sizeName = $matches[1];
+                    $sizes[$sizeName] = asset('storage/profile-pictures/' . $filename);
+                }
+            }
+        }
+        
+        return $sizes;
+    }
+
+    /**
+     * Get profile picture URL by size
+     */
+    public function getProfilePictureUrl(string $size = 'medium'): ?string
+    {
+        $sizes = $this->getProfilePictureSizes();
+        return $sizes[$size] ?? $this->getProfileDisplay()['picture_url'];
     }
 
     /**
@@ -580,6 +671,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
             'email_notifications' => 'boolean',
             'push_notifications' => 'boolean',
+            'password_history' => 'array',
             // 'email' => 'encrypted', // Temporarily disabled for seeding
             'password' => 'hashed',
         ];
@@ -647,6 +739,44 @@ class User extends Authenticatable implements MustVerifyEmail
                     })
                     ->with('paymentPlan')
                     ->first();
+    }
+
+    /**
+     * Relationship: Login history records for this user
+     */
+    public function loginHistory(): HasMany
+    {
+        return $this->hasMany(LoginHistory::class);
+    }
+
+    /**
+     * Relationship: Active sessions for this user
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class);
+    }
+
+    /**
+     * Get recent login history
+     */
+    public function recentLoginHistory(int $limit = 10)
+    {
+        return $this->loginHistory()
+                   ->orderBy('attempted_at', 'desc')
+                   ->limit($limit)
+                   ->get();
+    }
+
+    /**
+     * Get active sessions
+     */
+    public function activeSessions()
+    {
+        return $this->sessions()
+                   ->active()
+                   ->orderBy('last_activity', 'desc')
+                   ->get();
     }
 
     /**
@@ -746,6 +876,63 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->update(['current_subscription_id' => $subscription->id]);
 
         return $subscription;
+    }
+
+    /**
+     * Relationship: Account deletion requests for this user
+     */
+    public function deletionRequests(): HasMany
+    {
+        return $this->hasMany(AccountDeletionRequest::class);
+    }
+
+    /**
+     * Relationship: Current active deletion request
+     */
+    public function currentDeletionRequest(): HasOne
+    {
+        return $this->hasOne(AccountDeletionRequest::class)->active()->latest();
+    }
+
+    /**
+     * Relationship: Data export requests for this user
+     */
+    public function dataExportRequests(): HasMany
+    {
+        return $this->hasMany(DataExportRequest::class);
+    }
+
+    /**
+     * Relationship: Deletion audit logs for this user
+     */
+    public function deletionAuditLogs(): HasMany
+    {
+        return $this->hasMany(AccountDeletionAuditLog::class);
+    }
+
+    /**
+     * Check if user has an active deletion request
+     */
+    public function hasActiveDeletionRequest(): bool
+    {
+        return $this->currentDeletionRequest !== null;
+    }
+
+    /**
+     * Check if user is in grace period
+     */
+    public function isInDeletionGracePeriod(): bool
+    {
+        $request = $this->currentDeletionRequest;
+        return $request && $request->isInGracePeriod();
+    }
+
+    /**
+     * Get the current deletion request
+     */
+    public function getCurrentDeletionRequest(): ?AccountDeletionRequest
+    {
+        return $this->currentDeletionRequest;
     }
 
     /**

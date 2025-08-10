@@ -4,6 +4,9 @@
         <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        
+        <!-- Enhanced Mobile Meta Tags -->
+        <x-mobile.mobile-meta />
 
         <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
@@ -12,11 +15,6 @@
         <!-- PWA Manifest and Meta Tags -->
         <link rel="manifest" href="{{ asset('manifest.json') }}?t={{ time() }}">
         <meta name="user-role" content="{{ auth()->user()->role ?? 'guest' }}">
-        <meta name="theme-color" content="#3b82f6">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="HD Tickets">
-        <link rel="apple-touch-icon" href="{{ asset('assets/images/pwa/icon-192x192.png') }}">
         
         <!-- Service Worker Registration -->
         <script>
@@ -232,6 +230,10 @@
         <script src="{{ asset('resources/js/utils/pwaManager.js') }}?t={{ time() }}" defer></script>
         <!-- Enhanced Feedback System -->
         <script src="{{ asset('resources/js/utils/feedbackSystem.js') }}?t={{ time() }}" defer></script>
+        <!-- Mobile Enhancement CSS -->
+        <link rel="stylesheet" href="{{ asset('css/mobile-enhancements.css') }}?t={{ time() }}">
+        <!-- Mobile Touch Utilities -->
+        <script src="{{ asset('resources/js/utils/mobileTouchUtils.js') }}?t={{ time() }}" defer></script>
         <!-- Dashboard Manager Component -->
         <script src="{{ asset('resources/js/components/dashboardManager.js') }}?t={{ time() }}" defer></script>
         <script>

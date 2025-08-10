@@ -27,6 +27,7 @@ import '@utils/websocketTest';
 
 // Alpine.js component imports
 import { dashboardManager } from './components/dashboardManager.js';
+import { PasswordStrengthIndicator } from './components/password-strength.js';
 import { 
     formHandler, 
     tableManager, 

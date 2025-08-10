@@ -301,9 +301,15 @@ class DashboardRealtime {
             clearInterval(this.refreshTimer);
         }
         
-        this.refreshTimer = setInterval(() => {
-            this.refreshData();
-        }, this.options.refreshInterval);
+        // Only start periodic refresh if page is visible
+        if (!document.hidden) {
+            this.refreshTimer = setInterval(() => {
+                // Double-check visibility before refreshing
+                if (!document.hidden) {
+                    this.refreshData();
+                }
+            }, this.options.refreshInterval);
+        }
     }
 
     stopPeriodicRefresh() {
@@ -314,7 +320,14 @@ class DashboardRealtime {
     }
 
     async refreshData() {
+        // Skip refresh if page is hidden or user is not active
+        if (document.hidden || this.isProcessingUpdates) {
+            return;
+        }
+        
         try {
+            this.isProcessingUpdates = true;
+            
             // Request data refresh via WebSocket if available
             if (this.wsClient && this.wsClient.isConnected()) {
                 this.wsClient.send({
@@ -322,11 +335,16 @@ class DashboardRealtime {
                     userId: this.options.userId
                 });
             } else {
-                // Fallback to HTTP refresh
+                // Fallback to HTTP refresh with throttling
                 await this.httpRefresh();
             }
         } catch (error) {
             console.error('Error refreshing data:', error);
+        } finally {
+            // Reset processing flag after a short delay
+            setTimeout(() => {
+                this.isProcessingUpdates = false;
+            }, 1000);
         }
     }
 
@@ -341,9 +359,13 @@ class DashboardRealtime {
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 this.stopPeriodicRefresh();
+                console.log('Dashboard updates paused (page hidden)');
             } else {
-                this.startPeriodicRefresh();
-                this.refreshData();
+                // Small delay before resuming to prevent rapid switching
+                setTimeout(() => {
+                    this.startPeriodicRefresh();
+                    console.log('Dashboard updates resumed (page visible)');
+                }, 500);
             }
         });
         

@@ -188,7 +188,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\ActivityLoggerServiceProvider::class,
         App\Providers\CssTimestampServiceProvider::class,
-        App\Providers\EnvServiceProvider::class,
+        // App\Providers\EnvServiceProvider::class, // Temporarily disabled - causes conflicts
     ])->toArray(),
 
     /*

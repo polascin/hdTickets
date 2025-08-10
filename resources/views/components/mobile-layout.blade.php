@@ -196,12 +196,16 @@
 </div>
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('css/mobile-enhancements.css') }}{{ css_with_timestamp('') }}">
 <style>
     /* Mobile layout specific styles */
     .mobile-layout {
         /* Ensure proper mobile viewport handling */
         min-height: 100vh;
         min-height: calc(var(--vh, 1vh) * 100);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     
     .mobile-header {

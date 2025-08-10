@@ -100,12 +100,93 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('tickets.redirect');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Enhanced Security Management
+    Route::prefix('profile/security')->name('profile.security.')->group(function () {
+        Route::get('/download-backup-codes', [ProfileController::class, 'downloadBackupCodes'])->name('download-backup-codes');
+        Route::post('/trust-device', [ProfileController::class, 'trustDevice'])->name('trust-device');
+        Route::delete('/trusted-device/{deviceIndex}', [ProfileController::class, 'removeTrustedDevice'])->name('remove-trusted-device');
+        Route::delete('/session/{sessionId}', [ProfileController::class, 'revokeSession'])->name('revoke-session');
+        Route::post('/revoke-all-sessions', [ProfileController::class, 'revokeAllOtherSessions'])->name('revoke-all-sessions');
+    });
+    
+    // Account Deletion Protection System
+    Route::prefix('account/deletion')->name('account.deletion.')->group(function () {
+        Route::get('/warning', [\App\Http\Controllers\AccountDeletionController::class, 'showWarning'])->name('warning');
+        Route::post('/initiate', [\App\Http\Controllers\AccountDeletionController::class, 'initiate'])->name('initiate');
+        Route::post('/export', [\App\Http\Controllers\AccountDeletionController::class, 'requestDataExport'])->name('export');
+        Route::get('/export/{exportRequest}/download', [\App\Http\Controllers\AccountDeletionController::class, 'downloadExport'])->name('export.download');
+        Route::get('/audit-log', [\App\Http\Controllers\AccountDeletionController::class, 'auditLog'])->name('audit-log');
+    });
+    
+    // User Preferences Management
+    Route::prefix('preferences')->name('preferences.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserPreferencesController::class, 'index'])->name('index');
+        Route::post('/update', [\App\Http\Controllers\UserPreferencesController::class, 'update'])->name('update');
+        Route::post('/update-single', [\App\Http\Controllers\UserPreferencesController::class, 'updateSingle'])->name('update-single');
+        Route::post('/update-preference', [\App\Http\Controllers\UserPreferencesController::class, 'updatePreference'])->name('update-preference');
+        Route::post('/update-preferences', [\App\Http\Controllers\UserPreferencesController::class, 'updatePreferences'])->name('update-preferences');
+        Route::post('/detect-timezone', [\App\Http\Controllers\UserPreferencesController::class, 'detectTimezone'])->name('detect-timezone');
+        Route::post('/reset', [\App\Http\Controllers\UserPreferencesController::class, 'reset'])->name('reset');
+        Route::post('/reset-preferences', [\App\Http\Controllers\UserPreferencesController::class, 'resetPreferences'])->name('reset-preferences');
+        Route::get('/export', [\App\Http\Controllers\UserPreferencesController::class, 'export'])->name('export');
+        Route::get('/export-preferences', [\App\Http\Controllers\UserPreferencesController::class, 'exportPreferences'])->name('export-preferences');
+        Route::post('/import', [\App\Http\Controllers\UserPreferencesController::class, 'import'])->name('import');
+        Route::post('/load-preset/{preset}', [\App\Http\Controllers\UserPreferencesController::class, 'loadPreset'])->name('load-preset');
+        
+        // Sports Preferences Routes
+        Route::get('/sports', [\App\Http\Controllers\UserPreferencesController::class, 'getSportsPreferences'])->name('sports.get');
+        Route::post('/sports/update-selected', [\App\Http\Controllers\UserPreferencesController::class, 'updateSelectedSports'])->name('sports.update-selected');
+        
+        // Favorite Teams Routes
+        Route::get('/teams/search', [\App\Http\Controllers\UserPreferencesController::class, 'searchTeams'])->name('teams.search');
+        Route::post('/teams', [\App\Http\Controllers\UserPreferencesController::class, 'storeTeam'])->name('teams.store');
+        Route::put('/teams/{team}', [\App\Http\Controllers\UserPreferencesController::class, 'updateTeam'])->name('teams.update');
+        Route::delete('/teams/{team}', [\App\Http\Controllers\UserPreferencesController::class, 'destroyTeam'])->name('teams.destroy');
+        
+        // Favorite Venues Routes
+        Route::get('/venues/search', [\App\Http\Controllers\UserPreferencesController::class, 'searchVenues'])->name('venues.search');
+        Route::post('/venues', [\App\Http\Controllers\UserPreferencesController::class, 'storeVenue'])->name('venues.store');
+        Route::put('/venues/{venue}', [\App\Http\Controllers\UserPreferencesController::class, 'updateVenue'])->name('venues.update');
+        Route::delete('/venues/{venue}', [\App\Http\Controllers\UserPreferencesController::class, 'destroyVenue'])->name('venues.destroy');
+        
+        // Price Preferences Routes
+        Route::post('/prices', [\App\Http\Controllers\UserPreferencesController::class, 'storePricePreference'])->name('prices.store');
+        Route::put('/prices/{price}', [\App\Http\Controllers\UserPreferencesController::class, 'updatePricePreference'])->name('prices.update');
+        Route::delete('/prices/{price}', [\App\Http\Controllers\UserPreferencesController::class, 'destroyPricePreference'])->name('prices.destroy');
+    });
+    
+    // Settings Import/Export Routes
+    Route::prefix('settings-export')->name('settings-export.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\SettingsExportController::class, 'index'])->name('index');
+        Route::post('/export', [\App\Http\Controllers\SettingsExportController::class, 'exportSettings'])->name('export');
+        Route::post('/preview', [\App\Http\Controllers\SettingsExportController::class, 'previewImport'])->name('preview');
+        Route::post('/import', [\App\Http\Controllers\SettingsExportController::class, 'importSettings'])->name('import');
+        Route::post('/resolve-conflicts', [\App\Http\Controllers\SettingsExportController::class, 'resolveConflicts'])->name('resolve-conflicts');
+        Route::post('/reset', [\App\Http\Controllers\SettingsExportController::class, 'resetToDefaults'])->name('reset');
+    });
+    
+    // Profile Picture Management
+    Route::prefix('profile/picture')->name('profile.picture.')->group(function () {
+        Route::post('/upload', [\App\Http\Controllers\ProfilePictureController::class, 'upload'])->name('upload');
+        Route::post('/crop', [\App\Http\Controllers\ProfilePictureController::class, 'crop'])->name('crop');
+        Route::delete('/delete', [\App\Http\Controllers\ProfilePictureController::class, 'delete'])->name('delete');
+        Route::get('/info', [\App\Http\Controllers\ProfilePictureController::class, 'info'])->name('info');
+        Route::get('/limits', [\App\Http\Controllers\ProfilePictureController::class, 'getUploadLimits'])->name('limits');
+    });
+    
+    // User Activity Dashboard
+    Route::prefix('profile/activity')->name('profile.activity.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserActivityController::class, 'index'])->name('dashboard');
+        Route::get('/widget-data', [\App\Http\Controllers\UserActivityController::class, 'getWidgetData'])->name('widget-data');
+        Route::get('/export', [\App\Http\Controllers\UserActivityController::class, 'exportActivityData'])->name('export');
+    });
 });
 
 // Ticket Scraping Routes
@@ -153,6 +234,16 @@ Route::get('health', [HealthController::class, 'index'])->name('health.index');
 Route::get('health/database', [HealthController::class, 'database'])->name('health.database');
 Route::get('health/redis', [HealthController::class, 'redis'])->name('health.redis');
 
+// Public Account Deletion Routes (no authentication required)
+Route::prefix('account/deletion')->name('account.deletion.')->group(function () {
+    Route::get('/confirm/{token}', [\App\Http\Controllers\AccountDeletionController::class, 'confirm'])->name('confirm');
+    Route::get('/cancel/{token}', [\App\Http\Controllers\AccountDeletionController::class, 'showCancel'])->name('cancel.show');
+    Route::post('/cancel/{token}', [\App\Http\Controllers\AccountDeletionController::class, 'cancel'])->name('cancel');
+    
+    Route::get('/recovery', [\App\Http\Controllers\AccountDeletionController::class, 'showRecovery'])->name('recovery.show');
+    Route::post('/recovery', [\App\Http\Controllers\AccountDeletionController::class, 'recover'])->name('recovery');
+});
+
 // WebSocket Testing Dashboard
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('websocket-test', function () {
@@ -164,6 +255,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('dashboard-widgets-demo', function () {
     return view('dashboard-widgets-demo');
 })->name('dashboard.widgets.demo');
+
+// Mobile Experience Test Page
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('mobile-experience-test', function () {
+        return view('mobile-experience-test');
+    })->name('mobile.experience.test');
+});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

@@ -67,12 +67,22 @@
                         </x-nav-link>
                     @endif
 
-                    {{-- Profile Link - Available to all users --}}
-                    <x-nav-link :href="route('profile.show')" :active="request()->routeIs('profile.*')">
+                    {{-- Profile Link with Completion Indicator - Available to all users --}}
+                    <x-nav-link :href="route('profile.show')" :active="request()->routeIs('profile.*')" class="relative">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                         {{ __('Profile') }}
+                        
+                        {{-- Profile completion indicator --}}
+                        @php
+                            $profileCompletion = Auth::user()->getProfileCompletion();
+                        @endphp
+                        @if($profileCompletion['percentage'] < 90)
+                            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-yellow-500 rounded-full">
+                                !
+                            </span>
+                        @endif
                     </x-nav-link>
 
                     @if(Auth::user()->isAdmin())
@@ -202,24 +212,18 @@
                     </button>
                     
                     <div x-show="profileDropdownOpen" x-cloak x-transition:enter="transform ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" 
-                         class="absolute z-50 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-200 right-0">
+                         class="absolute z-50 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0">
                         
-                        {{-- Profile Link --}}
-                        <a href="{{ route('profile.edit') }}" 
-                           class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                            {{ __('Profile') }}
-                        </a>
+                        {{-- Enhanced Profile Quick Access --}}
+                        <x-profile-quick-access :user="Auth::user()" position="right" />
                         
                         {{-- Separator --}}
-                        <div class="border-t border-gray-100 my-1"></div>
+                        <div class="border-t border-gray-200"></div>
                         
                         {{-- Logout Link --}}
                         <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out text-left">
+                            <button type="submit" class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out text-left">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>
@@ -358,25 +362,49 @@
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4 flex items-center">
-                @php
-                    $mobileProfileDisplay = Auth::user()->getProfileDisplay();
-                @endphp
-                <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
-                    @if($mobileProfileDisplay['has_picture'])
-                        <img class="w-10 h-10 rounded-full object-cover" src="{{ $mobileProfileDisplay['picture_url'] }}" alt="{{ $mobileProfileDisplay['display_name'] }}">
-                    @else
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                            <span class="text-sm font-medium text-gray-700">
-                                {{ $mobileProfileDisplay['initials'] }}
-                            </span>
-                        </div>
-                    @endif
+            <div class="px-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    @php
+                        $mobileProfileDisplay = Auth::user()->getProfileDisplay();
+                    @endphp
+                    <div class="relative w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
+                        @if($mobileProfileDisplay['has_picture'])
+                            <img class="w-10 h-10 rounded-full object-cover" src="{{ $mobileProfileDisplay['picture_url'] }}" alt="{{ $mobileProfileDisplay['display_name'] }}">
+                        @else
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-700">
+                                    {{ $mobileProfileDisplay['initials'] }}
+                                </span>
+                            </div>
+                        @endif
+                        
+                        {{-- Profile completion indicator for mobile --}}
+                        @php
+                            $mobileProfileCompletion = Auth::user()->getProfileCompletion();
+                        @endphp
+                        @if($mobileProfileCompletion['percentage'] < 90)
+                            <div class="absolute -bottom-0.5 -right-0.5">
+                                <x-profile-completion-indicator 
+                                    :user="Auth::user()" 
+                                    position="sidebar" 
+                                    :showLabel="false" 
+                                    size="xs" />
+                            </div>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="font-medium text-base text-gray-800">{{ $mobileProfileDisplay['display_name'] }}</div>
+                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="font-medium text-base text-gray-800">{{ $mobileProfileDisplay['display_name'] }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
+                
+                {{-- Profile completion status for mobile --}}
+                @if($mobileProfileCompletion['percentage'] < 90)
+                    <div class="text-right">
+                        <div class="text-xs font-medium text-yellow-600">{{ $mobileProfileCompletion['percentage'] }}%</div>
+                        <div class="text-xs text-gray-500">Complete</div>
+                    </div>
+                @endif
             </div>
 
             <div class="mt-3 space-y-1">

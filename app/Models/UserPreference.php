@@ -12,14 +12,15 @@ class UserPreference extends Model
 
     protected $fillable = [
         'user_id',
-        'key',
-        'value',
-        'type',
-        'category'
+        'preference_category',
+        'preference_key',
+        'preference_value',
+        'data_type',
+        'is_default'
     ];
 
     protected $casts = [
-        'value' => 'json'
+        'is_default' => 'boolean'
     ];
 
     /**
@@ -35,7 +36,7 @@ class UserPreference extends Model
      */
     public function scopeForKey($query, string $key)
     {
-        return $query->where('key', $key);
+        return $query->where('preference_key', $key);
     }
 
     /**
@@ -43,32 +44,41 @@ class UserPreference extends Model
      */
     public function scopeForCategory($query, string $category)
     {
-        return $query->where('category', $category);
+        return $query->where('preference_category', $category);
     }
 
     /**
      * Get user preference value with default
      */
-    public static function getValue(int $userId, string $key, $default = null)
+    public static function getValue(int $userId, string $category, string $key, $default = null)
     {
         $preference = static::where('user_id', $userId)
-            ->where('key', $key)
+            ->where('preference_category', $category)
+            ->where('preference_key', $key)
             ->first();
 
-        return $preference ? $preference->value : $default;
+        if (!$preference) {
+            return $default;
+        }
+
+        // Cast value based on data type
+        return static::castValue($preference->preference_value, $preference->data_type);
     }
 
     /**
      * Set user preference value
      */
-    public static function setValue(int $userId, string $key, $value, string $type = 'json', string $category = 'general'): void
+    public static function setValue(int $userId, string $category, string $key, $value, string $dataType = 'string'): void
     {
         static::updateOrCreate(
-            ['user_id' => $userId, 'key' => $key],
             [
-                'value' => $value,
-                'type' => $type,
-                'category' => $category
+                'user_id' => $userId, 
+                'preference_category' => $category,
+                'preference_key' => $key
+            ],
+            [
+                'preference_value' => static::processValue($value, $dataType),
+                'data_type' => $dataType
             ]
         );
     }
@@ -79,9 +89,61 @@ class UserPreference extends Model
     public static function getByCategory(int $userId, string $category): array
     {
         return static::where('user_id', $userId)
-            ->where('category', $category)
-            ->pluck('value', 'key')
+            ->where('preference_category', $category)
+            ->get()
+            ->mapWithKeys(function ($pref) {
+                return [$pref->preference_key => static::castValue($pref->preference_value, $pref->data_type)];
+            })
             ->toArray();
+    }
+
+    /**
+     * Process value for storage based on data type
+     */
+    private static function processValue($value, string $dataType)
+    {
+        switch ($dataType) {
+            case 'boolean':
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null 
+                    ? (bool) $value : false;
+            
+            case 'integer':
+                return is_numeric($value) ? (int) $value : 0;
+            
+            case 'array':
+            case 'json':
+                if (is_string($value)) {
+                    $decoded = json_decode($value, true);
+                    return json_last_error() === JSON_ERROR_NONE ? json_encode($decoded) : $value;
+                }
+                return json_encode($value);
+            
+            case 'string':
+            default:
+                return (string) $value;
+        }
+    }
+
+    /**
+     * Cast value from storage based on data type
+     */
+    private static function castValue($value, string $dataType)
+    {
+        switch ($dataType) {
+            case 'boolean':
+                return (bool) $value;
+            
+            case 'integer':
+                return (int) $value;
+            
+            case 'array':
+            case 'json':
+                return json_decode($value, true);
+            
+            case 'string':
+            default:
+                return (string) $value;
+        }
     }
 
     /**

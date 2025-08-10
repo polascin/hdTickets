@@ -1,0 +1,313 @@
+/* Profile Integration Styles */
+/* Enhanced profile navigation and completion indicators */
+
+/* Profile Completion Indicator */
+.profile-completion-indicator {
+    position: relative;
+}
+
+.profile-completion-indicator svg {
+    transition: all 0.3s ease;
+}
+
+.profile-completion-indicator:hover svg {
+    transform: scale(1.05);
+}
+
+/* Circular progress animation */
+.profile-completion-indicator svg path {
+    transition: stroke-dasharray 0.5s ease-in-out;
+}
+
+/* Profile Quick Access Dropdown */
+.profile-quick-access-dropdown {
+    max-height: 80vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.profile-quick-access-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.profile-quick-access-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.profile-quick-access-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+}
+
+.profile-quick-access-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.8);
+}
+
+/* Profile section nav items */
+.profile-quick-access-dropdown .nav-item {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.profile-quick-access-dropdown .nav-item:hover {
+    background-color: rgb(249 250 251);
+    transform: translateX(2px);
+}
+
+.profile-quick-access-dropdown .nav-item.active {
+    background: linear-gradient(90deg, rgb(239 246 255) 0%, rgb(219 234 254) 100%);
+    color: rgb(29 78 216);
+    border-left: 3px solid rgb(59 130 246);
+}
+
+.profile-quick-access-dropdown .nav-item .badge {
+    animation: pulse 2s infinite;
+}
+
+/* Profile breadcrumbs */
+.profile-breadcrumbs {
+    background: linear-gradient(180deg, rgb(255 255 255) 0%, rgb(249 250 251) 100%);
+}
+
+.profile-breadcrumbs nav {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.profile-breadcrumbs nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* Profile breadcrumb tabs */
+.profile-breadcrumbs .tab-link {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.profile-breadcrumbs .tab-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgb(59 130 246);
+    border-radius: 1px;
+}
+
+.profile-breadcrumbs .tab-link:hover:not(.active) {
+    background-color: rgb(243 244 246);
+}
+
+/* Navigation profile completion indicator */
+.nav-profile-indicator {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0,0,0);
+    }
+    40%, 43% {
+        transform: translate3d(0, -3px, 0);
+    }
+    70% {
+        transform: translate3d(0, -2px, 0);
+    }
+    90% {
+        transform: translate3d(0, -1px, 0);
+    }
+}
+
+/* Profile picture with completion ring */
+.profile-avatar-with-completion {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar-with-completion::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        rgb(34 197 94) 0%,
+        rgb(34 197 94) var(--completion-percentage, 0%),
+        rgb(229 231 235) var(--completion-percentage, 0%),
+        rgb(229 231 235) 100%
+    );
+    z-index: -1;
+    transition: all 0.3s ease;
+}
+
+.profile-avatar-with-completion.incomplete::after {
+    background: conic-gradient(
+        from 0deg,
+        rgb(234 179 8) 0%,
+        rgb(234 179 8) var(--completion-percentage, 0%),
+        rgb(229 231 235) var(--completion-percentage, 0%),
+        rgb(229 231 235) 100%
+    );
+}
+
+.profile-avatar-with-completion.complete::after {
+    background: conic-gradient(
+        from 0deg,
+        rgb(34 197 94) 0%,
+        rgb(34 197 94) 100%
+    );
+}
+
+/* Quick action buttons */
+.profile-quick-action {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-quick-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.profile-quick-action:hover::before {
+    left: 100%;
+}
+
+.profile-quick-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px;
+    }
+    
+    .profile-quick-access-dropdown {
+        max-height: 70vh;
+    }
+    
+    .profile-breadcrumbs .tab-link {
+        min-width: 80px;
+        text-align: center;
+    }
+}
+
+/* Animation for completion indicators */
+@keyframes progress-fill {
+    from {
+        stroke-dasharray: 0, 100;
+    }
+}
+
+.profile-completion-indicator svg path[stroke-dasharray] {
+    animation: progress-fill 1s ease-in-out;
+}
+
+/* Status badge animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.status-badge-incomplete {
+    animation: pulse 2s infinite;
+    background-color: rgb(254 240 138);
+    color: rgb(146 64 14);
+}
+
+.status-badge-action-needed {
+    animation: pulse 1.5s infinite;
+    background-color: rgb(254 226 226);
+    color: rgb(153 27 27);
+}
+
+/* Loading states */
+.profile-completion-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .profile-completion-indicator svg path {
+        stroke-width: 4;
+    }
+    
+    .profile-quick-access-dropdown .nav-item {
+        border: 1px solid transparent;
+    }
+    
+    .profile-quick-access-dropdown .nav-item:hover,
+    .profile-quick-access-dropdown .nav-item.active {
+        border-color: currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .profile-completion-indicator svg path,
+    .profile-quick-action,
+    .profile-breadcrumbs .tab-link {
+        transition: none;
+        animation: none;
+    }
+    
+    .nav-profile-indicator {
+        animation: none;
+    }
+    
+    .profile-quick-action::before {
+        display: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .profile-breadcrumbs {
+        background: linear-gradient(180deg, rgb(31 41 55) 0%, rgb(17 24 39) 100%);
+    }
+    
+    .profile-quick-access-dropdown {
+        scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+    }
+    
+    .profile-avatar-with-completion::after {
+        background: conic-gradient(
+            from 0deg,
+            rgb(34 197 94) 0%,
+            rgb(34 197 94) var(--completion-percentage, 0%),
+            rgb(75 85 99) var(--completion-percentage, 0%),
+            rgb(75 85 99) 100%
+        );
+    }
+}

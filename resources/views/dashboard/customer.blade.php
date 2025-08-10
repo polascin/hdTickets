@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta http-equiv="refresh" content="30">
+    <!-- Meta refresh removed to prevent constant page reloads -->
     <meta name="description" content="Sports Events Entry Tickets Monitoring, Scraping and Purchase System">
     <title>Sports Ticket Hub - Customer Dashboard</title>
     
     <!-- Modern CSS Framework -->
-    <link href="{{ asset('css/customer-dashboard-v2.css') }}?v={{ time() }}" rel="stylesheet">
+    <link href="@cssWithTimestamp('css/customer-dashboard-v2.css')" rel="stylesheet">
     
     <!-- Preload Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -381,9 +381,9 @@
     </section>
     
     <!-- WebSocket and Real-time Update Scripts -->
-    <script src="{{ asset('js/websocket-client.js') }}?v={{ time() }}"></script>
-    <script src="{{ asset('js/dashboard-realtime.js') }}?v={{ time() }}"></script>
-    <script src="{{ asset('js/skeleton-loaders.js') }}?v={{ time() }}"></script>
+    <script src="@cssWithTimestamp('js/websocket-client.js')"></script>
+    <script src="@cssWithTimestamp('js/dashboard-realtime.js')"></script>
+    <script src="@cssWithTimestamp('js/skeleton-loaders.js')"></script>
     
     <script>
         // Initialize real-time dashboard
@@ -392,7 +392,7 @@
                 window.dashboardInstance = new DashboardRealtime({
                     userId: {{ Auth::id() }},
                     websocket: window.websocketConfig,
-                    refreshInterval: 30000, // 30 seconds
+                    refreshInterval: 120000, // 2 minutes instead of 30 seconds
                     enableSkeletonLoaders: true
                 });
                 

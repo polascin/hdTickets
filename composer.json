@@ -18,10 +18,9 @@
         "laravel/tinker": "^2.9",
         "laravel/sanctum": "^4.0",
         "laravel/passport": "^12.0",
-        "guzzlehttp/guzzle": "^7.8",
+        "guzzlehttp/guzzle": "*",
         "symfony/dom-crawler": "^7.0",
         "symfony/css-selector": "^7.0",
-        "maatwebsite/excel": "^3.1",
         "barryvdh/laravel-dompdf": "^3.0",
         "spatie/laravel-activitylog": "^4.8",
         "twilio/sdk": "^8.7",
@@ -34,7 +33,9 @@
         "stripe/stripe-php": "^17.4",
         "laravel/slack-notification-channel": "^3.6",
         "paypal/paypal-server-sdk": "^1.1",
-        "laravel/horizon": "^5.33"
+        "laravel/horizon": "^5.33",
+        "intervention/image": "^3.0",
+        "jenssegers/agent": "*"
     },
     "require-dev": {
         "laravel/breeze": "^2.3",

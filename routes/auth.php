@@ -62,6 +62,17 @@ Route::middleware('auth')->group(function () {
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    
+    // Enhanced Password Management Routes
+    Route::post('password/check-strength', [PasswordController::class, 'checkStrength'])
+        ->middleware('throttle:60,1')
+        ->name('password.check-strength');
+    
+    Route::get('password/requirements', [PasswordController::class, 'requirements'])
+        ->name('password.requirements');
+    
+    Route::get('password/history-info', [PasswordController::class, 'historyInfo'])
+        ->name('password.history-info');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
