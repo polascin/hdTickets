@@ -21,21 +21,14 @@ class HomeController extends Controller
             return redirect()->route('login');
         }
         
-        // Log role-based routing decision for debugging
-        Log::info('HomeController: Role-based routing', [
-            'user_id' => $user->id,
-            'user_role' => $user->role,
-            'is_admin' => $user->isAdmin(),
-            'is_agent' => $user->isAgent(),
-            'is_customer' => $user->isCustomer(),
-            'can_access_system' => $user->canAccessSystem(),
-        ]);
         
-        // Route based on user role
-        if ($user->isAdmin()) {
+        // Simple role-based routing
+        if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->isAgent()) {
+        } elseif ($user->role === 'agent') {
             return redirect()->route('agent.dashboard');
+        } elseif ($user->role === 'scraper') {
+            return redirect()->route('scraper.dashboard');
         } else {
             // For customers and other roles, use customer dashboard
             return redirect()->route('customer.dashboard');

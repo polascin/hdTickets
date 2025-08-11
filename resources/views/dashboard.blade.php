@@ -258,6 +258,7 @@
 </div>
 
 @push('scripts')
+<script src="{{ asset('js/dashboard-enhancements.js') }}?v={{ time() }}" defer></script>
 <script>
 // Enhanced dashboard functionality
 document.addEventListener('DOMContentLoaded', function() {

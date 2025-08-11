@@ -6,6 +6,8 @@
 | agent@hdtickets.com | agent | Agent | HDAgent2025! | ✅ Active |
 | customer@hdtickets.com | customer | Customer | HDCustomer2025! | ✅ Active |
 
+All passwords are 'password'
+
 🔐 Account Features:
 
 ✅ All accounts are active and email-verified  

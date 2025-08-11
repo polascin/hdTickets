@@ -91,6 +91,14 @@ class Category extends Model
     }
 
     /**
+     * Relationship: Tickets in this category
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    /**
      * Relationship: Ticket sources in this category  
      */
     public function ticketSources(): HasMany

@@ -1,0 +1,93 @@
+{
+    "profile": {
+        "basic_info": {
+            "id": 22,
+            "uuid": null,
+            "username": "montana.becker",
+            "email": "queue.test.final@example.com",
+            "phone": null,
+            "full_name": "Final Queue Test"
+        },
+        "profile": {
+            "picture_url": null,
+            "initials": "FQ",
+            "has_picture": false,
+            "full_name": "Final Queue Test",
+            "display_name": "Final Queue Test",
+            "bio": null,
+            "timezone": "UTC",
+            "language": "en"
+        },
+        "last_login": {
+            "formatted": "Never logged in",
+            "datetime": null,
+            "ip": null,
+            "user_agent": null,
+            "relative": "Never"
+        },
+        "activity_stats": {
+            "login_count": 0,
+            "activity_score": 0,
+            "account_age_days": 3.563703703703704e-6,
+            "last_activity": "No recent activity",
+            "status": "Inactive",
+            "email_verified": true
+        },
+        "account_creation": {
+            "source": "web",
+            "source_label": "Web Registration",
+            "created_by_type": "self",
+            "created_by_id": null,
+            "created_at": "2025-08-10T07:26:20.000000Z",
+            "created_at_formatted": "Aug 10, 2025 at 7:26 AM",
+            "created_at_relative": "0 seconds ago"
+        },
+        "permissions": {
+            "role": "customer",
+            "role_display": {
+                "label": "Customer",
+                "color": "green",
+                "icon": "user"
+            },
+            "permissions": {
+                "can_access_system": true,
+                "can_login_to_web": true,
+                "manage_users": false,
+                "manage_system": false,
+                "manage_platforms": false,
+                "access_financials": false,
+                "manage_api_access": false,
+                "delete_any_data": false,
+                "access_scraping": false,
+                "access_reports": false,
+                "select_and_purchase_tickets": false,
+                "make_purchase_decisions": false,
+                "manage_monitoring": false,
+                "view_scraping_metrics": false,
+                "is_admin": false,
+                "is_agent": false,
+                "is_customer": true,
+                "is_scraper": false,
+                "is_root_admin": false,
+                "is_scraping_rotation_user": false
+            },
+            "is_system_accessible": true,
+            "custom_permissions": []
+        },
+        "notifications": {
+            "email_notifications": true,
+            "push_notifications": true
+        }
+    },
+    "preferences": [],
+    "favorite_teams": [],
+    "favorite_venues": [],
+    "price_preferences": [],
+    "subscriptions": [],
+    "login_history": [],
+    "export_metadata": {
+        "exported_at": "2025-08-10T07:26:20.312874Z",
+        "export_format": "json",
+        "user_id": 22
+    }
+}

@@ -7,8 +7,8 @@
     <meta name="description" content="Sports Events Entry Tickets Monitoring, Scraping and Purchase System">
     <title>Sports Ticket Hub - Customer Dashboard</title>
     
-    <!-- Modern CSS Framework -->
-    <link href="@cssWithTimestamp('css/customer-dashboard-v2.css')" rel="stylesheet">
+    <!-- Modern CSS Framework with Cache Busting -->
+    <link href="{{ css_with_timestamp('css/customer-dashboard-v2.css') }}" rel="stylesheet">
     
     <!-- Preload Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -380,10 +380,10 @@
         </div>
     </section>
     
-    <!-- WebSocket and Real-time Update Scripts -->
-    <script src="@cssWithTimestamp('js/websocket-client.js')"></script>
-    <script src="@cssWithTimestamp('js/dashboard-realtime.js')"></script>
-    <script src="@cssWithTimestamp('js/skeleton-loaders.js')"></script>
+    <!-- WebSocket and Real-time Update Scripts with Cache Busting -->
+    <script src="{{ asset('js/websocket-client.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-realtime.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/skeleton-loaders.js') }}?v={{ time() }}"></script>
     
     <script>
         // Initialize real-time dashboard

@@ -82,6 +82,7 @@ class Kernel extends HttpKernel
         'activity.log' => \App\Http\Middleware\ActivityLoggerMiddleware::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'agent' => \App\Http\Middleware\AgentMiddleware::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
         'api.security' => \App\Http\Middleware\ApiSecurityMiddleware::class,
         'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
         'auth.debug' => \App\Http\Middleware\DebugAuthMiddleware::class,

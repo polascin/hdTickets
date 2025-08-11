@@ -63,12 +63,12 @@ class TicketAlert extends Model
     protected static function boot()
     {
         parent::boot();
-        
-        static::creating(function ($alert) {
-            if (empty($alert->uuid)) {
-                $alert->uuid = (string) Str::uuid();
-            }
-        });
+
+        // static::creating(function ($alert) {
+        //     if (empty($alert->uuid)) {
+        //         $alert->uuid = (string) Str::uuid();
+        //     }
+        // });
     }
 
     // Relationships

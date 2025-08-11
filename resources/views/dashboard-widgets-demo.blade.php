@@ -6,10 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>HD Tickets - Interactive Dashboard Widgets Demo</title>
     
-    <!-- Core Dashboard CSS -->
-    <link href="{{ asset('css/customer-dashboard.css') }}?v={{ time() }}" rel="stylesheet">
-    <!-- Interactive Widgets CSS -->
-    <link href="{{ asset('css/dashboard-widgets.css') }}?v={{ time() }}" rel="stylesheet">
+    <!-- Core Dashboard CSS with Cache Busting -->
+    <link href="{{ css_with_timestamp('css/customer-dashboard.css') }}" rel="stylesheet">
+    <!-- Interactive Widgets CSS with Cache Busting -->
+    <link href="{{ css_with_timestamp('css/dashboard-widgets.css') }}" rel="stylesheet">
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

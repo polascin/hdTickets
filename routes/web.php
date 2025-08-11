@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 // Home route
 Route::get('/', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
 
+
 // Role-based dashboard routing after login
 Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -23,10 +24,24 @@ Route::get('/customer-dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('customer.dashboard');
 
-// Agent dashboard routes - using proper controller
-Route::middleware(['auth', 'verified'])->group(function () {
+// Agent dashboard routes - using proper controller with role protection
+Route::middleware(['auth', 'verified', 'role:agent,admin'])->group(function () {
     Route::get('/agent-dashboard', [App\Http\Controllers\AgentDashboardController::class, 'index'])
         ->name('agent.dashboard');
+});
+
+// Scraper dashboard routes - using proper controller with role protection
+Route::middleware(['auth', 'verified', 'role:scraper,admin'])->group(function () {
+    Route::get('/scraper-dashboard', [App\Http\Controllers\ScraperDashboardController::class, 'index'])
+        ->name('scraper.dashboard');
+    
+    // API routes for scraper dashboard
+    Route::prefix('scraper/api')->name('scraper.api.')->group(function () {
+        Route::get('/realtime-metrics', [App\Http\Controllers\ScraperDashboardController::class, 'getRealtimeMetrics'])
+            ->name('realtime-metrics');
+        Route::get('/job-details/{jobId}', [App\Http\Controllers\ScraperDashboardController::class, 'getJobDetails'])
+            ->name('job-details');
+    });
 });
 
 // Basic dashboard for users without admin or agent access

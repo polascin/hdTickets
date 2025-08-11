@@ -6,8 +6,8 @@
     <meta name="description" content="HD Tickets - Modern Sports Event Ticket Monitoring Dashboard">
     <title>HD Tickets - Dashboard</title>
     
-    <!-- Modern CSS Framework -->
-    <link href="{{ asset('css/customer-dashboard-v2.css') }}?v={{ time() }}" rel="stylesheet">
+    <!-- Modern CSS Framework with Cache Busting -->
+    <link href="{{ css_with_timestamp('css/customer-dashboard-v2.css') }}" rel="stylesheet">
     
     <!-- Preload Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -323,7 +323,7 @@
         </div>
     </section>
 
-    <!-- JavaScript -->
+    <!-- JavaScript with Cache Busting -->
     <script src="{{ asset('js/websocket-client.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/customer-dashboard.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/skeleton-loaders.js') }}?v={{ time() }}"></script>

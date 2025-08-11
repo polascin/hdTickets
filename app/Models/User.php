@@ -719,6 +719,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get all ticket alerts for this user
+     */
+    public function ticketAlerts(): HasMany
+    {
+        return $this->hasMany(TicketAlert::class);
+    }
+
+    /**
      * Get the current active subscription
      */
     public function currentSubscription()
