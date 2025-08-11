@@ -16,6 +16,7 @@ class PurchaseQueue extends Model
         'uuid',
         'scraped_ticket_id',
         'selected_by_user_id',
+        'user_id', // Add missing user_id field
         'status',
         'priority',
         'max_price',
@@ -26,6 +27,8 @@ class PurchaseQueue extends Model
         'expires_at',
         'started_processing_at',
         'completed_at',
+        'transaction_id', // Add missing transaction_id field
+        'metadata', // Add missing metadata field
     ];
 
     protected $casts = [
@@ -35,6 +38,7 @@ class PurchaseQueue extends Model
         'started_processing_at' => 'datetime',
         'completed_at' => 'datetime',
         'max_price' => 'decimal:2',
+        'metadata' => 'array', // Add metadata casting
     ];
 
     // Status constants
@@ -112,6 +116,14 @@ class PurchaseQueue extends Model
     public function selectedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'selected_by_user_id');
+    }
+    
+    /**
+     * Relationship: User (alias for selectedByUser for compatibility)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

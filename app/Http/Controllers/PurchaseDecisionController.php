@@ -5,24 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseQueue;
 use App\Models\PurchaseAttempt;
 use App\Models\ScrapedTicket;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Services\PurchaseAnalyticsService;
 use App\Services\PurchaseService;
+use App\Services\AutomatedPurchaseEngine;
 
 class PurchaseDecisionController extends Controller
 {
-    public function __construct()
+    protected AutomatedPurchaseEngine $purchaseEngine;
+    
+    public function __construct(AutomatedPurchaseEngine $purchaseEngine)
     {
-        $this->middleware('auth');
-        $this->middleware(function ($request, $next) {
-            if (!Auth::user()->canMakePurchaseDecisions()) {
-                abort(403, 'You do not have permission to access purchase decisions.');
-            }
-            return $next($request);
-        });
+        $this->purchaseEngine = $purchaseEngine;
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
@@ -72,7 +72,7 @@ public function index(Request $request)
      */
     public function selectTickets(Request $request)
     {
-        $query = ScrapedTicket::where('availability_status', 'available')
+        $query = ScrapedTicket::where('is_available', true)
                     ->whereNotIn('id', function ($q) {
                         $q->select('scraped_ticket_id')
                           ->from('purchase_queues')
@@ -87,15 +87,15 @@ public function index(Request $request)
         }
 
         if ($request->filled('event_title')) {
-            $query->where('event_title', 'like', '%' . $request->event_title . '%');
+            $query->where('title', 'like', '%' . $request->event_title . '%');
         }
 
         if ($request->filled('max_price')) {
-            $query->where('total_price', '<=', $request->max_price);
+            $query->where('max_price', '<=', $request->max_price);
         }
 
         if ($request->filled('min_price')) {
-            $query->where('total_price', '>=', $request->min_price);
+            $query->where('min_price', '>=', $request->min_price);
         }
 
         if ($request->filled('high_demand_only')) {
@@ -131,16 +131,27 @@ public function index(Request $request)
             return redirect()->back()->with('error', 'This ticket is already in the purchase queue.');
         }
 
+        // Get AI purchase recommendation
+        $decision = $this->purchaseEngine->evaluatePurchaseDecision($scrapedTicket, Auth::user());
+        
         $purchaseQueue = PurchaseQueue::create([
             'scraped_ticket_id' => $scrapedTicket->id,
             'selected_by_user_id' => Auth::id(),
+            'user_id' => Auth::id(),
             'priority' => $request->priority,
-            'max_price' => $request->max_price,
+            'max_price' => $request->max_price ?? $scrapedTicket->total_price,
             'quantity' => $request->quantity,
             'notes' => $request->notes,
             'scheduled_for' => $request->scheduled_for,
             'expires_at' => $request->expires_at,
-            'purchase_criteria' => $request->purchase_criteria,
+            'purchase_criteria' => [
+                'auto_purchase_eligible' => $decision['auto_purchase_eligible'] ?? false,
+                'ai_recommendation' => $decision['recommendation'] ?? null,
+            ],
+            'metadata' => [
+                'ai_analysis' => $decision,
+                'added_via' => 'web_interface',
+            ],
         ]);
 
         return redirect()->route('purchase-decisions.index')->with('success', 'Ticket added to purchase queue successfully.');
@@ -193,18 +204,34 @@ public function index(Request $request)
         // Mark as processing
         $purchaseQueue->markAsProcessing();
 
-        // Create a new purchase attempt
-        $attempt = PurchaseAttempt::create([
-            'purchase_queue_id' => $purchaseQueue->id,
-            'scraped_ticket_id' => $purchaseQueue->scraped_ticket_id,
-            'platform' => $purchaseQueue->scrapedTicket->platform,
-            'attempted_price' => $purchaseQueue->scrapedTicket->total_price,
-            'attempted_quantity' => $purchaseQueue->quantity,
-        ]);
-
-        // Process the purchase using the actual PurchaseService
-        $purchaseService = new PurchaseService();
-        $purchaseService->processPurchase($attempt);
+        try {
+            // Execute automated purchase
+            $purchaseRequest = [
+                'ticket_id' => $purchaseQueue->scraped_ticket_id,
+                'user_id' => $purchaseQueue->selected_by_user_id,
+                'quantity' => $purchaseQueue->quantity,
+                'max_price' => $purchaseQueue->max_price,
+                'priority' => $purchaseQueue->priority,
+                'platform' => $purchaseQueue->scrapedTicket->platform,
+            ];
+            
+            $result = $this->purchaseEngine->executeAutomatedPurchase($purchaseRequest);
+            
+            if ($result['success']) {
+                return redirect()->back()->with('success', 'Purchase completed successfully! Transaction ID: ' . $result['transaction_id']);
+            } else {
+                $purchaseQueue->markAsFailed();
+                return redirect()->back()->with('error', 'Purchase failed: ' . ($result['message'] ?? 'Unknown error'));
+            }
+        } catch (\Exception $e) {
+            $purchaseQueue->markAsFailed();
+            Log::error('Purchase processing failed', [
+                'queue_id' => $purchaseQueue->uuid,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return redirect()->back()->with('error', 'Purchase processing failed. Please try again.');
+        }
 
         return redirect()->back()->with('success', 'Purchase process initiated successfully.');
     }

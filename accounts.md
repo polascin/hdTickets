@@ -16,3 +16,9 @@ All passwords are 'password'
 ✅ Security settings properly configured  
 ✅ Deletion protection enabled  
 ✅ Strong password hashing implemented
+
+•  Admin: admin@hdtickets.com / password 
+•  Agent: agent@hdtickets.com / password
+•  Customer: customer@hdtickets.com / password
+•  Test Agent: agent@hdtickets.test / password123
+•  Test Customer: customer@hdtickets.test / password123

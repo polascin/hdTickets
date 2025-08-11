@@ -4,6 +4,7 @@
     - Consistent desktop/mobile links
     - Better organization and readability
     - Role-based access control
+    - Uses registered Alpine.js navigationData component
 --}}
 <nav x-data="navigationData()" class="bg-white border-b border-gray-100 shadow-sm">
     <!-- Primary Navigation Menu -->
@@ -87,8 +88,8 @@
 
                     @if(Auth::user()->isAdmin())
                         {{-- Admin Dropdown --}}
-                        <div class="relative">
-                        <button @click="adminDropdownOpen = !adminDropdownOpen" 
+                        <div class="relative" @click.outside="adminDropdownOpen = false">
+                        <button @click="toggleAdminDropdown()"
                                 class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -99,8 +100,16 @@
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
-                            <div x-show="adminDropdownOpen" x-cloak x-transition:enter="transform ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" 
-                                 class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200">
+                            <div x-show="adminDropdownOpen" 
+                                 x-cloak 
+                                 x-transition:enter="transform ease-out duration-100" 
+                                 x-transition:enter-start="opacity-0 scale-95" 
+                                 x-transition:enter-end="opacity-100 scale-100" 
+                                 x-transition:leave="transform ease-in duration-75" 
+                                 x-transition:leave-start="opacity-100 scale-100" 
+                                 x-transition:leave-end="opacity-0 scale-95" 
+                                 class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200" 
+                                 @click="adminDropdownOpen = false">
                                 {{-- Admin Dashboard --}}
                                 <a href="{{ route('admin.dashboard') }}" 
                                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.dashboard') ? 'bg-gray-50 text-blue-600' : '' }}">
@@ -183,8 +192,8 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-2">
-                <div class="relative">
-                    <button @click="profileDropdownOpen = !profileDropdownOpen" 
+                <div class="relative" @click.outside="profileDropdownOpen = false">
+                    <button @click="toggleProfileDropdown()"
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                         @php
                             $profileDisplay = Auth::user()->getProfileDisplay();
@@ -211,8 +220,16 @@
                         </div>
                     </button>
                     
-                    <div x-show="profileDropdownOpen" x-cloak x-transition:enter="transform ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" 
-                         class="absolute z-50 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0">
+                    <div x-show="profileDropdownOpen" 
+                         x-cloak 
+                         x-transition:enter="transform ease-out duration-100" 
+                         x-transition:enter-start="opacity-0 scale-95" 
+                         x-transition:enter-end="opacity-100 scale-100" 
+                         x-transition:leave="transform ease-in duration-75" 
+                         x-transition:leave-start="opacity-100 scale-100" 
+                         x-transition:leave-end="opacity-0 scale-95" 
+                         class="absolute z-50 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0" 
+                         @click="profileDropdownOpen = false">
                         
                         {{-- Enhanced Profile Quick Access --}}
                         <x-profile-quick-access :user="Auth::user()" position="right" />
@@ -236,7 +253,7 @@
 
             <!-- Enhanced Mobile Navigation -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                <button @click="toggleMobileMenu()"
                         class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
                         :class="{ 'bg-gray-100 text-gray-500': mobileMenuOpen }"
                         aria-label="Toggle mobile menu">

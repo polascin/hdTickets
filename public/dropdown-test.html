@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Tickets - Dropdown Test</title>
+    <link href="build/assets/css/app-CxtrR99a-1754933291276.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">HD Tickets Dropdown Test</h1>
+        
+        <!-- Basic Alpine.js dropdown test -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Basic Alpine.js Dropdown</h2>
+            <div x-data="{ open: false }" @click.outside="open = false" class="relative">
+                <button @click="open = !open" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Toggle Dropdown
+                    <svg class="w-4 h-4 inline ml-2" :class="{ 'rotate-180': open }" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div x-show="open" 
+                     x-cloak
+                     x-transition:enter="transform ease-out duration-100" 
+                     x-transition:enter-start="opacity-0 scale-95" 
+                     x-transition:enter-end="opacity-100 scale-100" 
+                     x-transition:leave="transform ease-in duration-75" 
+                     x-transition:leave-start="opacity-100 scale-100" 
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute z-50 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200">
+                    <div class="py-1">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 2</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin-style dropdown test -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Admin-style Dropdown</h2>
+            <div x-data="{ adminDropdownOpen: false }" @click.outside="adminDropdownOpen = false" class="relative">
+                <button @click="adminDropdownOpen = !adminDropdownOpen" 
+                        class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 border border-gray-300">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Admin
+                    <svg class="ml-2 -mr-0.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+                <div x-show="adminDropdownOpen" 
+                     x-cloak 
+                     x-transition:enter="transform ease-out duration-100" 
+                     x-transition:enter-start="opacity-0 scale-95" 
+                     x-transition:enter-end="opacity-100 scale-100" 
+                     x-transition:leave="transform ease-in duration-75" 
+                     x-transition:leave-start="opacity-100 scale-100" 
+                     x-transition:leave-end="opacity-0 scale-95" 
+                     class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200" 
+                     @click="adminDropdownOpen = false">
+                    
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Admin Dashboard
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Reports
+                    </a>
+                    
+                    <div class="border-t border-gray-100 my-1"></div>
+                    
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        User Management
+                    </a>
+                    
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                        System Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile dropdown test -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Profile Dropdown</h2>
+            <div x-data="{ profileDropdownOpen: false }" @click.outside="profileDropdownOpen = false" class="relative">
+                <button @click="profileDropdownOpen = !profileDropdownOpen" 
+                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150 border border-gray-300">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
+                            <span class="text-xs font-medium text-gray-700">JD</span>
+                        </div>
+                        <div>John Doe</div>
+                    </div>
+                    <div class="ms-1">
+                        <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </button>
+                
+                <div x-show="profileDropdownOpen" 
+                     x-cloak 
+                     x-transition:enter="transform ease-out duration-100" 
+                     x-transition:enter-start="opacity-0 scale-95" 
+                     x-transition:enter-end="opacity-100 scale-100" 
+                     x-transition:leave="transform ease-in duration-75" 
+                     x-transition:leave-start="opacity-100 scale-100" 
+                     x-transition:leave-end="opacity-0 scale-95" 
+                     class="absolute z-50 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0" 
+                     @click="profileDropdownOpen = false">
+                    
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                                <span class="text-sm font-medium text-gray-700">JD</span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">John Doe</div>
+                                <div class="text-sm text-gray-500">john@example.com</div>
+                                <div class="text-xs text-blue-600 mt-1">Profile 85% complete</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="py-1">
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            View Profile
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Settings
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
+                            </svg>
+                            My Alerts
+                        </a>
+                    </div>
+                    
+                    <div class="border-t border-gray-200">
+                        <button class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out text-left">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test results -->
+        <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-green-800 mb-2">Dropdown Test Instructions</h3>
+            <ul class="text-sm text-green-700 space-y-1">
+                <li>✓ Click each dropdown button to open the menu</li>
+                <li>✓ Click outside the dropdown to close it (x-click.outside)</li>
+                <li>✓ Press ESC key to close dropdowns (handled by Alpine.js)</li>
+                <li>✓ Hover over menu items to see hover effects</li>
+                <li>✓ Check that dropdowns appear above other content (z-index)</li>
+                <li>✓ Verify smooth open/close animations (x-transition)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Debug information
+        document.addEventListener('alpine:init', () => {
+            console.log('✅ Alpine.js initialized successfully');
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ DOM loaded - Dropdown test page ready');
+            console.log('Alpine version:', Alpine?.version || 'Not available');
+        });
+
+        // Add ESC key handler for better UX
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                console.log('ESC pressed - Alpine.js should handle dropdown closing');
+            }
+        });
+    </script>
+</body>
+</html>

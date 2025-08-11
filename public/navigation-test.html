@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Dropdown Test - HD Tickets</title>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        /* Import Tailwind CSS via CDN for consistent styling */
+        @import url('https://cdn.tailwindcss.com');
+        
+        /* Custom dropdown styles matching your app.css */
+        .dropdown-menu {
+            position: absolute;
+            z-index: 1000;
+            min-width: 12rem;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transform-origin: top right;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        
+        .dropdown-menu.hide {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+        }
+        
+        /* Debug styles */
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #1f2937;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            z-index: 9999;
+            max-width: 300px;
+        }
+        
+        .debug-info h3 {
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #374151;
+        }
+    </style>
+    <script>
+        // Debug logging
+        const debugLog = [];
+        function addDebugLog(message) {
+            debugLog.push(`${new Date().toLocaleTimeString()}: ${message}`);
+            console.log(`🔍 DEBUG: ${message}`);
+            updateDebugDisplay();
+        }
+        
+        function updateDebugDisplay() {
+            const debugElement = document.getElementById('debug-log');
+            if (debugElement) {
+                debugElement.innerHTML = debugLog.slice(-10).map(log => `<div>${log}</div>`).join('');
+                debugElement.scrollTop = debugElement.scrollHeight;
+            }
+        }
+        
+        document.addEventListener('alpine:init', () => {
+            addDebugLog('Alpine.js initializing...');
+            
+            // Register navigationData component exactly like your app
+            Alpine.data('navigationData', () => ({
+                adminDropdownOpen: false,
+                profileDropdownOpen: false,
+                mobileMenuOpen: false,
+                
+                init() {
+                    addDebugLog('NavigationData component initialized');
+                    
+                    // Add click outside handler
+                    document.addEventListener('click', (e) => {
+                        if (!this.$el.contains(e.target)) {
+                            this.closeAllDropdowns();
+                        }
+                    });
+                    
+                    // Add ESC key handler
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            this.closeAllDropdowns();
+                        }
+                    });
+                },
+                
+                closeAllDropdowns() {
+                    if (this.adminDropdownOpen || this.profileDropdownOpen || this.mobileMenuOpen) {
+                        this.adminDropdownOpen = false;
+                        this.profileDropdownOpen = false;
+                        this.mobileMenuOpen = false;
+                        addDebugLog('All dropdowns closed');
+                        this.updateDebugStates();
+                    }
+                },
+                
+                toggleAdminDropdown() {
+                    this.adminDropdownOpen = !this.adminDropdownOpen;
+                    if (this.adminDropdownOpen) {
+                        this.profileDropdownOpen = false;
+                    }
+                    addDebugLog(`Admin dropdown: ${this.adminDropdownOpen ? 'OPEN' : 'CLOSED'}`);
+                    this.updateDebugStates();
+                },
+                
+                toggleProfileDropdown() {
+                    this.profileDropdownOpen = !this.profileDropdownOpen;
+                    if (this.profileDropdownOpen) {
+                        this.adminDropdownOpen = false;
+                    }
+                    addDebugLog(`Profile dropdown: ${this.profileDropdownOpen ? 'OPEN' : 'CLOSED'}`);
+                    this.updateDebugStates();
+                },
+                
+                toggleMobileMenu() {
+                    this.mobileMenuOpen = !this.mobileMenuOpen;
+                    addDebugLog(`Mobile menu: ${this.mobileMenuOpen ? 'OPEN' : 'CLOSED'}`);
+                    this.updateDebugStates();
+                },
+                
+                updateDebugStates() {
+                    // Update debug display
+                    document.getElementById('admin-state').textContent = this.adminDropdownOpen;
+                    document.getElementById('profile-state').textContent = this.profileDropdownOpen;
+                    document.getElementById('mobile-state').textContent = this.mobileMenuOpen;
+                }
+            }));
+        });
+        
+        document.addEventListener('alpine:initialized', () => {
+            addDebugLog('Alpine.js fully initialized!');
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+    <!-- Debug Info Panel -->
+    <div class="debug-info">
+        <h3>🔍 Debug Panel</h3>
+        <div>Admin Dropdown: <span id="admin-state">false</span></div>
+        <div>Profile Dropdown: <span id="profile-state">false</span></div>
+        <div>Mobile Menu: <span id="mobile-state">false</span></div>
+        <div class="debug-log" id="debug-log"></div>
+    </div>
+
+    <!-- Navigation mimicking your navigation.blade.php -->
+    <nav x-data="navigationData()" class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Left side - Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-gray-900">HD Tickets</h1>
+                    </div>
+                </div>
+                
+                <!-- Right side - Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- Admin Dropdown -->
+                    <div class="relative">
+                        <button @click="toggleAdminDropdown()" 
+                                class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-md px-3 py-2">
+                            <span>Admin</span>
+                            <svg class="ml-1 h-4 w-4 transition-transform duration-200"
+                                 :class="{ 'rotate-180': adminDropdownOpen }"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Admin Dropdown Menu -->
+                        <div x-show="adminDropdownOpen" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             @click.outside="adminDropdownOpen = false"
+                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Users</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Reports</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="relative">
+                        <button @click="toggleProfileDropdown()" 
+                                class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-md px-3 py-2">
+                            <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center mr-2">
+                                <span class="text-sm font-medium text-gray-700">JD</span>
+                            </div>
+                            <span>John Doe</span>
+                            <svg class="ml-1 h-4 w-4 transition-transform duration-200"
+                                 :class="{ 'rotate-180': profileDropdownOpen }"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Profile Dropdown Menu -->
+                        <div x-show="profileDropdownOpen" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             @click.outside="profileDropdownOpen = false"
+                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <div class="border-t border-gray-100"></div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button @click="toggleMobileMenu()" 
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" :class="{ 'hidden': mobileMenuOpen, 'block': !mobileMenuOpen }" 
+                             stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="h-6 w-6" :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }" 
+                             stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="transform opacity-0 scale-95"
+             x-transition:enter-end="transform opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-75"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Dashboard</a>
+                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Users</a>
+                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Settings</a>
+                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Profile</a>
+                <a href="#" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Sign out</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main content -->
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Navigation Dropdown Test</h2>
+            <p class="text-gray-600 mb-6">Test the dropdown functionality by clicking on the "Admin" and "Profile" buttons in the navigation bar above.</p>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded">
+                    <h3 class="font-semibold text-yellow-800">Test Instructions:</h3>
+                    <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                        <li>1. Click on "Admin" to toggle the admin dropdown</li>
+                        <li>2. Click on "Profile" to toggle the profile dropdown</li>
+                        <li>3. Click outside dropdowns to close them</li>
+                        <li>4. Press ESC key to close all dropdowns</li>
+                        <li>5. Check the debug panel in the top-right for state updates</li>
+                        <li>6. Test mobile menu on smaller screens</li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded">
+                    <h3 class="font-semibold text-blue-800">Expected Behavior:</h3>
+                    <ul class="mt-2 text-sm text-blue-700 space-y-1">
+                        <li>• Dropdowns should open/close smoothly with transitions</li>
+                        <li>• Only one dropdown should be open at a time</li>
+                        <li>• Clicking outside should close dropdowns</li>
+                        <li>• ESC key should close all dropdowns</li>
+                        <li>• Debug panel should show real-time state changes</li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 bg-green-50 border border-green-200 rounded">
+                    <h3 class="font-semibold text-green-800">What to Check:</h3>
+                    <ul class="mt-2 text-sm text-green-700 space-y-1">
+                        <li>✓ Do dropdowns appear when clicking buttons?</li>
+                        <li>✓ Do dropdowns close when clicking outside?</li>
+                        <li>✓ Does ESC key close dropdowns?</li>
+                        <li>✓ Are transitions smooth?</li>
+                        <li>✓ Is the debug panel updating correctly?</li>
+                        <li>✓ Does mobile menu work on smaller screens?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Additional debugging for page load
+        document.addEventListener('DOMContentLoaded', () => {
+            addDebugLog('DOM Content Loaded');
+        });
+        
+        window.addEventListener('load', () => {
+            addDebugLog('Window loaded');
+            setTimeout(() => {
+                if (typeof Alpine !== 'undefined') {
+                    addDebugLog('Alpine.js is available globally');
+                } else {
+                    addDebugLog('❌ Alpine.js NOT available globally');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -16,6 +16,9 @@
                 </div>
             </x-no-js-fallback>
 
+            {{-- Profile Completion Indicator --}}
+            <x-profile-completion-progress :user="$user" />
+
             {{-- Profile Picture Section --}}
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg" id="profile-picture-section">
                 <div class="max-w-md mx-auto">

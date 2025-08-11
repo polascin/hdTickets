@@ -156,6 +156,18 @@ try {
                     this.profileDropdownOpen = false;
                 }
             });
+            
+            // Close dropdowns on ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.closeAll();
+                }
+            });
+            
+            // Close dropdowns when navigating (if using SPA routing)
+            window.addEventListener('popstate', () => {
+                this.closeAll();
+            });
         },
         
         closeAll() {
@@ -166,16 +178,36 @@ try {
         
         toggleMobileMenu() {
             this.mobileMenuOpen = !this.mobileMenuOpen;
+            // Close desktop dropdowns when opening mobile menu
+            if (this.mobileMenuOpen) {
+                this.adminDropdownOpen = false;
+                this.profileDropdownOpen = false;
+            }
         },
         
         toggleAdminDropdown() {
             this.adminDropdownOpen = !this.adminDropdownOpen;
+            // Close other dropdowns
             this.profileDropdownOpen = false;
+            this.mobileMenuOpen = false;
         },
         
         toggleProfileDropdown() {
             this.profileDropdownOpen = !this.profileDropdownOpen;
+            // Close other dropdowns
             this.adminDropdownOpen = false;
+            this.mobileMenuOpen = false;
+        },
+        
+        // Helper method for dropdown links to close dropdown after click
+        handleDropdownItemClick(callback = null) {
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
+            // Close dropdowns after a brief delay to allow for navigation
+            setTimeout(() => {
+                this.closeAll();
+            }, 100);
         }
     }));
     console.log('✅ Alpine.js navigation component registered');

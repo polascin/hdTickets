@@ -1,33 +1,10 @@
-<!DOCTYPE html>
-<html lang="en" data-realtime="true">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <!-- Meta refresh removed to prevent constant page reloads -->
-    <meta name="description" content="Sports Events Entry Tickets Monitoring, Scraping and Purchase System">
-    <title>Sports Ticket Hub - Customer Dashboard</title>
-    
-    <!-- Modern CSS Framework with Cache Busting -->
-    <link href="{{ css_with_timestamp('css/customer-dashboard-v2.css') }}" rel="stylesheet">
-    
-    <!-- Preload Inter Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- WebSocket Connection Hooks -->
-    <script>
-        window.websocketConfig = {
-            url: '{{ config("websocket.url", "ws://localhost:6001") }}',
-            key: '{{ config("websocket.key") }}',
-            auth: {
-                userId: {{ Auth::id() }},
-                token: '{{ csrf_token() }}'
-            }
-        };
-    </script>
-</head>
-<body class="bg-gray-50">
+@extends('layouts.app')
+
+@section('title', 'Customer Dashboard')
+
+@section('content')
+<!-- Add data-realtime attribute to main content -->
+<div data-realtime="true">
 @php
     $totalTickets = \App\Models\ScrapedTicket::where('is_available', true)->count();
     $userAlerts = \App\Models\TicketAlert::forUser(Auth::id())->where('status', 'active')->count();
@@ -401,5 +378,20 @@
         });
     </script>
 </main>
-</body>
-</html>
+</div>
+
+<!-- Add CSS and JS directly in the content section -->
+<link href="{{ css_with_timestamp('css/customer-dashboard-v2.css') }}" rel="stylesheet">
+
+<!-- WebSocket Connection Config -->
+<script>
+    window.websocketConfig = {
+        url: '{{ config("websocket.url", "ws://localhost:6001") }}',
+        key: '{{ config("websocket.key") }}',
+        auth: {
+            userId: {{ Auth::id() }},
+            token: '{{ csrf_token() }}'
+        }
+    };
+</script>
+@endsection

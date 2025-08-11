@@ -41,8 +41,8 @@ class AutomatedPurchaseEngine
             Log::info("Evaluating purchase decision for ticket {$ticket->id} and user {$user->id}");
 
             // Get AI-powered analytics insights
-            $priceAnalysis = $this->advancedAnalytics->getPriceTrendAnalysis($ticket->event_title);
-            $demandAnalysis = $this->advancedAnalytics->getDemandPatternAnalysis($ticket->event_title);
+            $priceAnalysis = $this->advancedAnalytics->getPriceTrendAnalysis($ticket->title);
+            $demandAnalysis = $this->advancedAnalytics->getDemandPatternAnalysis($ticket->title);
             $platformPerformance = $this->advancedAnalytics->getPlatformPerformanceComparison();
 
             // Calculate decision scores
@@ -83,10 +83,10 @@ class AutomatedPurchaseEngine
      */
     public function compareMultiPlatformPrices(string $eventTitle, array $criteria = []): array
     {
-        $tickets = ScrapedTicket::where('event_title', 'like', "%{$eventTitle}%")
-            ->where('availability_status', 'available')
+        $tickets = ScrapedTicket::where('title', 'like', "%{$eventTitle}%")
+            ->where('is_available', true)
             ->when(isset($criteria['max_price']), function ($query) use ($criteria) {
-                return $query->where('total_price', '<=', $criteria['max_price']);
+                return $query->where('max_price', '<=', $criteria['max_price']);
             })
             ->when(isset($criteria['min_quantity']), function ($query) use ($criteria) {
                 return $query->where('quantity', '>=', $criteria['min_quantity']);
@@ -121,18 +121,19 @@ class AutomatedPurchaseEngine
                 $ticket->total_price
             );
 
+            $totalPrice = $ticket->total_price;
             $comparison[] = [
                 'ticket_id' => $ticket->id,
                 'platform' => $platform,
-                'price' => $ticket->total_price,
-                'quantity' => $ticket->quantity,
-                'section' => $ticket->section,
-                'row' => $ticket->row,
+                'price' => $totalPrice,
+                'quantity' => 1, // Default quantity for scraped tickets
+                'section' => $ticket->metadata['section'] ?? 'General',
+                'row' => $ticket->metadata['row'] ?? 'N/A',
                 'value_score' => $this->calculateValueScore($ticket),
-                'purchase_recommendation' => $this->evaluatePurchaseDecision($ticket, auth()->user()),
+                'purchase_recommendation' => $this->evaluatePurchaseDecision($ticket, auth()->user() ?? User::first()),
                 'platform_reliability' => $platformStats[$platform]['reliability_score'],
                 'estimated_fees' => $this->estimatePlatformFees($ticket),
-                'total_estimated_cost' => $ticket->total_price + $this->estimatePlatformFees($ticket),
+                'total_estimated_cost' => $totalPrice + $this->estimatePlatformFees($ticket),
             ];
         }
 
@@ -273,7 +274,8 @@ class AutomatedPurchaseEngine
         $confidence = $priceAnalysis['confidence_score'] ?? 0.5;
 
         // Base score from price vs user budget
-        $baseScore = max(0, 100 - (($ticket->total_price / $maxPrice) * 100));
+        $totalPrice = $ticket->total_price;
+        $baseScore = max(0, 100 - (($totalPrice / $maxPrice) * 100));
 
         // Adjust based on price trend
         $trendMultiplier = match($priceTrend) {
@@ -390,7 +392,7 @@ class AutomatedPurchaseEngine
     private function calculateSuccessProbability(ScrapedTicket $ticket): float
     {
         $platformSuccessRate = $this->getPlatformSuccessRate($ticket->platform);
-        $eventTypeSuccessRate = $this->getEventTypeSuccessRate($ticket->event_title);
+        $eventTypeSuccessRate = $this->getEventTypeSuccessRate($ticket->title);
         $priceRangeSuccessRate = $this->getPriceRangeSuccessRate($ticket->total_price);
 
         // Weighted average
@@ -518,7 +520,12 @@ class AutomatedPurchaseEngine
 
     private function calculateValueScore($ticket, $platforms = []): float
     {
-        $config = config('purchase_automation.price_comparison.value_score_calculation');
+        $config = config('purchase_automation.price_comparison.value_score_calculation', [
+            'price_weight' => 0.4,
+            'reliability_weight' => 0.3,
+            'success_rate_weight' => 0.2,
+            'processing_time_weight' => 0.1,
+        ]);
         $basePrice = $ticket->total_price;
         
         if (empty($platforms)) {

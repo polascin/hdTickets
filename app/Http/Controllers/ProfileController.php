@@ -48,15 +48,39 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $validated = $request->validated();
+        
+        // Fill the user with validated data
+        $user->fill($validated);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+        
+        // Handle AJAX requests
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully!',
+                'user' => [
+                    'name' => $user->name,
+                    'surname' => $user->surname,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'bio' => $user->bio,
+                    'timezone' => $user->timezone,
+                    'language' => $user->language,
+                    'full_name' => $user->getFullNameAttribute(),
+                    'profile_display' => $user->getProfileDisplay(),
+                ]
+            ]);
+        }
 
-        return Redirect::route('profile.show')->with('status', 'profile-updated');
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**

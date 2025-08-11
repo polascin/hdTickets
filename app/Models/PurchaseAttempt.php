@@ -25,6 +25,7 @@ class PurchaseAttempt extends Model
         'uuid',
         'purchase_queue_id',
         'scraped_ticket_id',
+        'user_id',
         'status',
         'platform',
         'attempted_price',
@@ -33,11 +34,13 @@ class PurchaseAttempt extends Model
         'confirmation_number',
         'final_price',
         'fees',
+        'platform_fee',
         'total_paid',
         'purchase_details',
         'error_message',
         'failure_reason',
         'response_data',
+        'metadata',
         'started_at',
         'completed_at',
         'retry_count',
@@ -47,6 +50,7 @@ class PurchaseAttempt extends Model
     protected $casts = [
         'purchase_details' => 'encrypted:array',
         'response_data' => 'encrypted:array',
+        'metadata' => 'array',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
         'next_retry_at' => 'datetime',
@@ -54,6 +58,7 @@ class PurchaseAttempt extends Model
         'final_price' => 'decimal:2',
         'total_paid' => 'decimal:2',
         'fees' => 'decimal:2',
+        'platform_fee' => 'decimal:2',
     ];
 
     // Status constants
@@ -88,6 +93,22 @@ class PurchaseAttempt extends Model
     public function scrapedTicket(): BelongsTo
     {
         return $this->belongsTo(ScrapedTicket::class);
+    }
+    
+    /**
+     * Relationship: User who made the purchase attempt
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    /**
+     * Relationship: Get the ticket (alias for scrapedTicket)
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(ScrapedTicket::class, 'scraped_ticket_id');
     }
 
     /**

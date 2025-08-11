@@ -13,7 +13,8 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" data-validate-form data-ajax-submit>
+        <div class="form-errors"></div>
         @csrf
         @method('patch')
 
@@ -33,11 +34,54 @@
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" placeholder="Enter email address" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        </div>
 
         <div>
             <x-input-label for="username" :value="__('Username')" />
             <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" autocomplete="username" placeholder="Enter username" />
             <x-input-error class="mt-2" :messages="$errors->get('username')" />
+        </div>
+
+        <div>
+            <x-input-label for="phone" :value="__('Phone Number')" />
+            <x-text-input id="phone" name="phone" type="tel" class="mt-1 block w-full" :value="old('phone', $user->phone)" autocomplete="tel" placeholder="Enter phone number" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
+        <div>
+            <x-input-label for="bio" :value="__('Bio')" />
+            <textarea id="bio" name="bio" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3" placeholder="Tell us about yourself..." maxlength="1000">{{ old('bio', $user->bio) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('bio')" />
+            <p class="mt-1 text-xs text-gray-500">Maximum 1000 characters</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <x-input-label for="timezone" :value="__('Timezone')" />
+                <select id="timezone" name="timezone" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    <option value="">Select Timezone</option>
+                    @foreach(timezone_identifiers_list() as $timezone)
+                        <option value="{{ $timezone }}" {{ old('timezone', $user->timezone) === $timezone ? 'selected' : '' }}>
+                            {{ $timezone }}
+                        </option>
+                    @endforeach
+                </select>
+                <x-input-error class="mt-2" :messages="$errors->get('timezone')" />
+            </div>
+            
+            <div>
+                <x-input-label for="language" :value="__('Language')" />
+                <select id="language" name="language" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    <option value="">Select Language</option>
+                    <option value="en" {{ old('language', $user->language) === 'en' ? 'selected' : '' }}>English</option>
+                    <option value="es" {{ old('language', $user->language) === 'es' ? 'selected' : '' }}>Spanish</option>
+                    <option value="fr" {{ old('language', $user->language) === 'fr' ? 'selected' : '' }}>French</option>
+                    <option value="de" {{ old('language', $user->language) === 'de' ? 'selected' : '' }}>German</option>
+                    <option value="it" {{ old('language', $user->language) === 'it' ? 'selected' : '' }}>Italian</option>
+                    <option value="pt" {{ old('language', $user->language) === 'pt' ? 'selected' : '' }}>Portuguese</option>
+                </select>
+                <x-input-error class="mt-2" :messages="$errors->get('language')" />
+            </div>
         </div>
 
         <div>

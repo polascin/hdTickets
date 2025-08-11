@@ -632,6 +632,44 @@
         }
     }
     
+    /* Dropdown fixes */
+    .dropdown-container {
+        position: relative;
+        z-index: 50;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        z-index: 1000;
+        min-width: 200px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        transform: scale(0.95);
+        transition: opacity 150ms ease-out, transform 150ms ease-out;
+        pointer-events: none;
+    }
+    
+    .dropdown-menu.show {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+    
+    /* Fix for dropdown items */
+    .dropdown-item {
+        @apply block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none;
+        text-align: left;
+        transition: background-color 150ms ease-in-out;
+    }
+    
+    /* Ensure dropdowns are above other content */
+    [x-show] {
+        transition: opacity 150ms ease-out, transform 150ms ease-out;
+    }
+    
     /* Card layouts mobile optimization */
     @media (max-width: 640px) {
         .card-mobile-stack {
@@ -826,4 +864,4 @@
         }
     }
 }
-/* Test CSS change to verify HMR - So  9. august 2025, 20:23:01 CEST */
+/* Dropdown menu improvements - ensuring z-index and visibility - {{ time() }} */
