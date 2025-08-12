@@ -1,0 +1,1 @@
+/var/www/hdtickets/resources/js/utils/cross-device-sync.js

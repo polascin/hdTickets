@@ -85,6 +85,5 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'api.security' => \App\Http\Middleware\ApiSecurityMiddleware::class,
         'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
-        'auth.debug' => \App\Http\Middleware\DebugAuthMiddleware::class,
     ];
 }

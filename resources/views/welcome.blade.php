@@ -3,8 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="HD Tickets - Professional sports ticket monitoring and alerting platform. Never miss your favorite team's games again!">
+        <meta name="keywords" content="sports tickets, ticket alerts, sports events, ticket monitoring">
+        <meta name="author" content="HD Tickets">
 
         <title>{{ config('app.name', 'HD Tickets') }} - Sports Ticket Monitoring</title>
+        <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -25,12 +29,27 @@
                             animation: {
                                 'float': 'float 6s ease-in-out infinite',
                                 'pulse-slow': 'pulse 3s ease-in-out infinite',
+                                'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                                'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
+                                'slide-in-right': 'slideInRight 0.6s ease-out forwards',
                             },
                             keyframes: {
                                 float: {
                                     '0%, 100%': { transform: 'translateY(0px)' },
                                     '50%': { transform: 'translateY(-10px)' },
-                                }
+                                },
+                                fadeInUp: {
+                                    '0%': { opacity: '0', transform: 'translateY(30px)' },
+                                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                                },
+                                slideInLeft: {
+                                    '0%': { opacity: '0', transform: 'translateX(-50px)' },
+                                    '100%': { opacity: '1', transform: 'translateX(0)' },
+                                },
+                                slideInRight: {
+                                    '0%': { opacity: '0', transform: 'translateX(50px)' },
+                                    '100%': { opacity: '1', transform: 'translateX(0)' },
+                                },
                             }
                         }
                     }
@@ -42,6 +61,61 @@
         <!-- Skip Link for Accessibility -->
         <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all duration-200">Skip to main content</a>
         
+        <!-- Navigation Bar -->
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200 transition-all duration-300" id="navbar">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center">
+                        <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo" class="w-8 h-8 rounded-lg">
+                        <span class="ml-2 text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">HD Tickets</span>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        @if (Route::has('login'))
+                            @auth
+                                <a href="{{ url('/dashboard') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Dashboard</a>
+                                <form method="POST" action="{{ route('logout') }}" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Logout</button>
+                                </form>
+                            @else
+                                <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Sign In</a>
+                            @endauth
+                        @endif
+                    </div>
+                    
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600" aria-label="Open main menu">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-200">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    @if (Route::has('login'))
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="block text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">Dashboard</a>
+                            <form method="POST" action="{{ route('logout') }}" class="block">
+                                @csrf
+                                <button type="submit" class="w-full text-left text-gray-700 hover:text-red-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">Logout</button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="block bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-base font-medium transition-colors text-center">Sign In</a>
+                        @endauth
+                    @endif
+                </div>
+            </div>
+        </nav>
+
         <!-- Background decorations -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
             <div class="absolute -top-4 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
@@ -60,21 +134,21 @@
                 </div>
 
                 <!-- Main heading -->
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+                <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6">
                     <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text animate-pulse">
                         HD Tickets
                     </span>
                 </h1>
 
                 <!-- Subtitle -->
-                <div class="text-xl md:text-2xl text-gray-600 mb-4 font-medium">
+                <div class="text-lg sm:text-xl md:text-2xl text-gray-600 mb-3 sm:mb-4 font-medium px-2">
                     <span class="bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">
                         Never Miss Your Team Again
                     </span>
                 </div>
 
                 <!-- Description -->
-                <p class="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+                <p class="text-base sm:text-lg md:text-xl text-gray-700 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed px-2">
                     Real-time monitoring and alerts for sports event tickets across multiple platforms. 
                     Track availability, prices, and get instant notifications when your favorite teams' tickets become available.
                 </p>
@@ -180,28 +254,93 @@
         </div>
 
         <script>
-            // Add some interactive effects
+            // Enhanced interactive effects
             document.addEventListener('DOMContentLoaded', function() {
-                // Animate feature cards on scroll
+                // Animate feature cards on scroll with improved performance
                 const cards = document.querySelectorAll('.transform.hover\\:-translate-y-2');
                 
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry, index) => {
                         if (entry.isIntersecting) {
                             setTimeout(() => {
-                                entry.target.style.animation = 'fadeInUp 0.8s ease forwards';
+                                entry.target.classList.add('animate-fade-in-up');
+                                entry.target.style.opacity = '1';
                             }, index * 200);
                         }
                     });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
                 });
                 
+                // Initially hide cards for animation
                 cards.forEach(card => {
+                    card.style.opacity = '0';
                     observer.observe(card);
                 });
 
-                // Add CSS for fadeInUp animation
-                const style = document.createElement('style');
-                style.textContent = `
+                // Add smooth scroll behavior for skip link
+                const skipLink = document.querySelector('a[href="#main-content"]');
+                if (skipLink) {
+                    skipLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.getElementById('main-content').focus();
+                        document.getElementById('main-content').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    });
+                }
+
+                // Enhanced button interactions
+                const buttons = document.querySelectorAll('a, button');
+                buttons.forEach(button => {
+                    button.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateY(-2px) scale(1.02)';
+                    });
+                    
+                    button.addEventListener('mouseleave', function() {
+                        this.style.transform = '';
+                    });
+                    
+                    button.addEventListener('focus', function() {
+                        this.style.outline = '2px solid #3B82F6';
+                        this.style.outlineOffset = '2px';
+                    });
+                    
+                    button.addEventListener('blur', function() {
+                        this.style.outline = '';
+                        this.style.outlineOffset = '';
+                    });
+                });
+
+                // Add parallax effect to background elements
+                window.addEventListener('scroll', function() {
+                    const scrolled = window.pageYOffset;
+                    const backgroundElements = document.querySelectorAll('.animate-float');
+                    
+                    backgroundElements.forEach((element, index) => {
+                        const speed = 0.5 + (index * 0.1);
+                        element.style.transform = `translateY(${scrolled * speed}px)`;
+                    });
+                });
+
+                // Logo click animation
+                const logo = document.querySelector('img[alt*="HD Tickets"]');
+                if (logo) {
+                    logo.addEventListener('click', function() {
+                        this.style.transform = 'scale(1.1) rotate(5deg)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 300);
+                    });
+                    
+                    logo.style.cursor = 'pointer';
+                }
+
+                // Add enhanced CSS for improved animations and responsiveness
+                const enhancedStyle = document.createElement('style');
+                enhancedStyle.textContent = `
                     @keyframes fadeInUp {
                         from {
                             opacity: 0;
@@ -212,8 +351,146 @@
                             transform: translateY(0);
                         }
                     }
+                    
+                    @keyframes bounceIn {
+                        0% {
+                            opacity: 0;
+                            transform: scale(0.3);
+                        }
+                        50% {
+                            opacity: 1;
+                            transform: scale(1.05);
+                        }
+                        70% {
+                            transform: scale(0.9);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                    }
+                    
+                    .animate-bounce-in {
+                        animation: bounceIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    }
+                    
+                    /* Enhanced mobile responsiveness */
+                    @media (max-width: 640px) {
+                        .feature-card {
+                            margin-bottom: 1rem;
+                        }
+                        
+                        .feature-card:hover {
+                            transform: translateY(-4px) scale(1.02);
+                        }
+                    }
+                    
+                    /* Improved accessibility */
+                    @media (prefers-reduced-motion: reduce) {
+                        .animate-float,
+                        .animate-pulse-slow,
+                        .animate-fade-in-up {
+                            animation: none !important;
+                        }
+                        
+                        .transform.hover\\:-translate-y-2:hover {
+                            transform: none !important;
+                        }
+                    }
+                    
+                    /* Enhanced focus styles */
+                    *:focus {
+                        outline: 2px solid #3B82F6;
+                        outline-offset: 2px;
+                        border-radius: 4px;
+                    }
+                    
+                    /* Smooth transitions for all interactive elements */
+                    a, button, .transform {
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    }
                 `;
-                document.head.appendChild(style);
+                document.head.appendChild(enhancedStyle);
+                
+                // Mobile navigation functionality
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const menuIcon = document.getElementById('menu-icon');
+                const closeIcon = document.getElementById('close-icon');
+                
+                if (mobileMenuButton && mobileMenu) {
+                    mobileMenuButton.addEventListener('click', function() {
+                        const isHidden = mobileMenu.classList.contains('hidden');
+                        
+                        if (isHidden) {
+                            mobileMenu.classList.remove('hidden');
+                            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+                            menuIcon.classList.add('hidden');
+                            closeIcon.classList.remove('hidden');
+                        } else {
+                            mobileMenu.style.maxHeight = '0';
+                            setTimeout(() => {
+                                mobileMenu.classList.add('hidden');
+                            }, 300);
+                            menuIcon.classList.remove('hidden');
+                            closeIcon.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Close mobile menu when clicking outside
+                    document.addEventListener('click', function(event) {
+                        if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                            mobileMenu.style.maxHeight = '0';
+                            setTimeout(() => {
+                                mobileMenu.classList.add('hidden');
+                            }, 300);
+                            menuIcon.classList.remove('hidden');
+                            closeIcon.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                // Navbar scroll effect
+                const navbar = document.getElementById('navbar');
+                if (navbar) {
+                    window.addEventListener('scroll', function() {
+                        if (window.scrollY > 50) {
+                            navbar.classList.add('bg-white/95');
+                            navbar.classList.remove('bg-white/90');
+                        } else {
+                            navbar.classList.add('bg-white/90');
+                            navbar.classList.remove('bg-white/95');
+                        }
+                    });
+                }
+                
+                // Preload critical images
+                const criticalImages = [
+                    '{{ asset('assets/images/hdTicketsLogo.png') }}'
+                ];
+                
+                criticalImages.forEach(src => {
+                    const img = new Image();
+                    img.src = src;
+                });
+                
+                // Add performance monitoring
+                if ('performance' in window) {
+                    window.addEventListener('load', function() {
+                        const perfData = window.performance.timing;
+                        const loadTime = perfData.loadEventEnd - perfData.navigationStart;
+                        
+                        // Log performance data for optimization
+                        console.log(`Homepage loaded in ${loadTime}ms`);
+                        
+                        // Show performance metrics in debug mode
+                        if (window.location.search.includes('debug=1')) {
+                            const perfDiv = document.createElement('div');
+                            perfDiv.innerHTML = `<div style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;">Load Time: ${loadTime}ms</div>`;
+                            document.body.appendChild(perfDiv);
+                        }
+                    });
+                }
             });
         </script>
     </body>

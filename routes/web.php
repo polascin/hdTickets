@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
 
 
+
 // Role-based dashboard routing after login
 Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -259,25 +260,6 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function () 
     Route::post('/recovery', [\App\Http\Controllers\AccountDeletionController::class, 'recover'])->name('recovery');
 });
 
-// WebSocket Testing Dashboard
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('websocket-test', function () {
-        return view('websocket-test');
-    })->name('websocket.test');
-});
-
-// Dashboard Widgets Demo
-Route::get('dashboard-widgets-demo', function () {
-    return view('dashboard-widgets-demo');
-})->name('dashboard.widgets.demo');
-
-// Mobile Experience Test Page
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('mobile-experience-test', function () {
-        return view('mobile-experience-test');
-    })->name('mobile.experience.test');
-});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
-require __DIR__.'/test.php';

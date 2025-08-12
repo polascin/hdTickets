@@ -21,11 +21,11 @@
         @csrf
 
         <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" class="block text-sm font-medium text-gray-700 mb-1" />
+        <div class="space-y-1">
+            <x-input-label for="email" :value="__('Email')" class="block text-sm font-medium text-gray-700" />
             <div class="relative">
                 <x-text-input id="email" 
-                             class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
+                             class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base" 
                              type="email" 
                              name="email" 
                              :value="old('email')" 
@@ -44,11 +44,11 @@
         </div>
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700 mb-1" />
+        <div class="space-y-1">
+            <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700" />
             <div class="relative">
                 <x-text-input id="password" 
-                             class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                             class="block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-base"
                              type="password"
                              name="password"
                              required 

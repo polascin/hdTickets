@@ -1,0 +1,1 @@
+/var/www/hdtickets/resources/js/utils/pwaManager.js

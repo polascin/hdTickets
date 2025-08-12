@@ -133,13 +133,10 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::post('/start', [RealTimeDashboardController::class, 'startMonitoring'])->name('start');
         Route::post('/stop', [RealTimeDashboardController::class, 'stopMonitoring'])->name('stop');
         Route::get('/stats', [RealTimeDashboardController::class, 'getMonitoringStats'])->name('stats');
-        Route::post('/test-plugin', [RealTimeDashboardController::class, 'testPlugin'])->name('test-plugin');
-        Route::post('/test-proxies', [RealTimeDashboardController::class, 'testProxies'])->name('test-proxies');
         Route::put('/settings', [RealTimeDashboardController::class, 'updateMonitoringSettings'])->name('settings');
         Route::post('/plugin/toggle', [RealTimeDashboardController::class, 'togglePlugin'])->name('plugin.toggle');
         Route::post('/watchlist/add', [RealTimeDashboardController::class, 'addToWatchlist'])->name('watchlist.add');
         Route::delete('/watchlist/remove', [RealTimeDashboardController::class, 'removeFromWatchlist'])->name('watchlist.remove');
-        Route::post('/test-notification', [RealTimeDashboardController::class, 'sendTestNotification'])->name('test-notification');
         Route::get('/performance', [RealTimeDashboardController::class, 'getPerformanceMetrics'])->name('performance');
         Route::get('/export', [RealTimeDashboardController::class, 'exportMonitoringData'])->name('export');
     });
@@ -151,14 +148,11 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::get('platforms', [ScrapingController::class, 'getPlatformStats'])->name('platforms');
         Route::get('operations', [ScrapingController::class, 'getRecentOperations'])->name('operations');
         Route::get('user-rotation', [ScrapingController::class, 'getUserRotation'])->name('user-rotation');
-        Route::post('rotation-test', [ScrapingController::class, 'testRotation'])->name('rotation-test');
         Route::get('configuration', [ScrapingController::class, 'getConfig'])->name('configuration');
         Route::post('configuration', [ScrapingController::class, 'updateConfig'])->name('configuration.update');
         Route::get('performance', [ScrapingController::class, 'getPerformanceMetrics'])->name('performance');
         
         // Advanced scraping features
-        Route::post('test-anti-detection', [ScrapingController::class, 'testAntiDetection'])->name('test-anti-detection');
-        Route::post('test-high-demand', [ScrapingController::class, 'testHighDemand'])->name('test-high-demand');
         Route::get('advanced-logs', [ScrapingController::class, 'getAdvancedLogs'])->name('advanced-logs');
         Route::post('configure-anti-detection', [ScrapingController::class, 'configureAntiDetection'])->name('configure-anti-detection');
         Route::post('configure-high-demand', [ScrapingController::class, 'configureHighDemand'])->name('configure-high-demand');

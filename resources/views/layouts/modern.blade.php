@@ -32,6 +32,9 @@
     <!-- Main Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    <!-- UI Enhancement Scripts -->
+    <script src="{{ asset('js/ui-enhancements.js') }}?v={{ time() }}" defer></script>
+    
     <!-- Custom Styles with Timestamp -->
     @stack('styles')
     
