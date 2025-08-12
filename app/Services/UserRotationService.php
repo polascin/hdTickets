@@ -68,6 +68,9 @@ class UserRotationService
      * @param string $platform  The platform being scraped
      * @param string $operation The type of operation
      */
+    /**
+     * @return Collection<int, User>
+     */
     public function getMultipleRotatedUsers(int $count, string $platform = 'general', string $operation = 'scraping'): Collection
     {
         $users = collect();
@@ -97,6 +100,9 @@ class UserRotationService
 
     /**
      * Get user activity history
+     */
+    /**
+     * @return array<string, mixed>
      */
     public function getUserActivity(User $user): array
     {
@@ -138,6 +144,9 @@ class UserRotationService
     /**
      * Get rotation statistics
      */
+    /**
+     * @return array<string, mixed>
+     */
     public function getRotationStatistics(): array
     {
         $totalUsers = User::where('is_active', TRUE)->count();
@@ -177,6 +186,9 @@ class UserRotationService
     /**
      * Get rotation pool for specific platform and operation
      */
+    /**
+     * @return Collection<int, User>
+     */
     private function getRotationPool(string $platform, string $operation): Collection
     {
         $cacheKey = $this->getCacheKey($platform, $operation) . '_pool';
@@ -188,6 +200,9 @@ class UserRotationService
 
     /**
      * Build rotation pool based on platform and operation
+     */
+    /**
+     * @return Collection<int, User>
      */
     private function buildRotationPool(string $platform, string $operation): Collection
     {

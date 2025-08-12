@@ -78,6 +78,9 @@ class UserFactory extends Factory
     /**
      * Helper method for weighted random selection
      */
+    /**
+     * @param array<string, int> $weights
+     */
     private function weightedRandom(array $weights): string
     {
         $totalWeight = array_sum($weights);
@@ -87,11 +90,11 @@ class UserFactory extends Factory
         foreach ($weights as $value => $weight) {
             $currentWeight += $weight;
             if ($randomWeight <= $currentWeight) {
-                return $value;
+                return (string) $value;
             }
         }
 
-        return array_key_first($weights); // fallback
+        return (string) array_key_first($weights); // fallback
     }
 
     /**

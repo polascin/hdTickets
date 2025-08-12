@@ -13,7 +13,7 @@ class TicketAlertFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var string
+     * @var class-string<TicketAlert>
      */
     protected $model = TicketAlert::class;
 

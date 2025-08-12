@@ -41,7 +41,7 @@ class ViagogoClient extends BaseApiClient
     /**
      * @param array<string, mixed> $criteria
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int,array<string,mixed>>
      */
     public function searchEvents(array $criteria): array
     {
@@ -113,7 +113,7 @@ class ViagogoClient extends BaseApiClient
     /**
      * @param array<string, mixed> $criteria
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int,array<string,mixed>>
      */
     protected function searchEventsViaScraping(array $criteria): array
     {
@@ -175,7 +175,12 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<string, mixed>
+     */
+    /**
+     * Parse search results from HTML content.
+     *
+     * @return array<int,array<string,mixed>>
      */
     protected function parseSearchResultsHtml(string $html): array
     {
@@ -220,11 +225,11 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @param DOMNode $eventNode
+     * Parse individual event card/node from search results.
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed>
      */
-    protected function parseEventCard(DOMXPath $xpath, $eventNode): array
+    protected function parseEventCard(DOMXPath $xpath, DOMNode $eventNode): array
     {
         $event = [
             'platform'   => 'viagogo',
@@ -234,12 +239,12 @@ class ViagogoClient extends BaseApiClient
         try {
             // Event name - try multiple selectors
             $nameNodes = $xpath->query('.//h2 | .//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode);
-            $nameNode = $nameNodes !== FALSE ? $nameNodes->item(0) : NULL;
+            $nameNode = ($nameNodes !== FALSE) ? $nameNodes->item(0) : NULL;
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Event URL
             $linkNodes = $xpath->query('.//a[contains(@href, "/event/")] | .//a[contains(@href, "/tickets/")]', $eventNode);
-            $linkNode = $linkNodes !== FALSE ? $linkNodes->item(0) : NULL;
+            $linkNode = ($linkNodes !== FALSE) ? $linkNodes->item(0) : NULL;
             if ($linkNode && $linkNode->hasAttribute('href')) {
                 $event['url'] = $this->normalizeUrl($linkNode->getAttribute('href'));
                 $event['id'] = $this->extractEventIdFromUrl($event['url']);
@@ -247,20 +252,20 @@ class ViagogoClient extends BaseApiClient
 
             // Date and time
             $dateNodes = $xpath->query('.//span[contains(@class, "date")] | .//div[contains(@class, "date")] | .//time', $eventNode);
-            $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
+            $dateNode = ($dateNodes !== FALSE) ? $dateNodes->item(0) : NULL;
             if ($dateNode) {
                 $event['date'] = trim($dateNode->textContent);
-                $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
+                $event['parsed_date'] = $this->parseEventDate($event['date']);
             }
 
             // Venue
             $venueNodes = $xpath->query('.//span[contains(@class, "venue")] | .//div[contains(@class, "venue")] | .//p[contains(@class, "venue")]', $eventNode);
-            $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
+            $venueNode = ($venueNodes !== FALSE) ? $venueNodes->item(0) : NULL;
             $event['venue'] = $venueNode ? trim($venueNode->textContent) : '';
 
             // Location/City
             $locationNodes = $xpath->query('.//span[contains(@class, "location")] | .//div[contains(@class, "city")] | .//span[contains(@class, "city")]', $eventNode);
-            $locationNode = $locationNodes !== FALSE ? $locationNodes->item(0) : NULL;
+            $locationNode = ($locationNodes !== FALSE) ? $locationNodes->item(0) : NULL;
             $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
 
             // Price information
@@ -282,7 +287,7 @@ class ViagogoClient extends BaseApiClient
 
             // Number of tickets available
             $ticketCountNodes = $xpath->query('.//span[contains(@class, "available")] | .//span[contains(text(), "ticket")] | .//span[contains(text(), "listing")]', $eventNode);
-            $ticketCountNode = $ticketCountNodes !== FALSE ? $ticketCountNodes->item(0) : NULL;
+            $ticketCountNode = ($ticketCountNodes !== FALSE) ? $ticketCountNodes->item(0) : NULL;
             if ($ticketCountNode) {
                 $ticketText = trim($ticketCountNode->textContent);
                 if (preg_match('/(\d+)\s*(?:ticket|listing)s?\s*(?:available|from)?/i', $ticketText, $matches)) {
@@ -299,11 +304,11 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @param DOMNode $linkNode
+     * Parse event data from a link node.
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed>
      */
-    protected function parseEventFromLink(DOMXPath $xpath, $linkNode): array
+    protected function parseEventFromLink(DOMXPath $xpath, DOMNode $linkNode): array
     {
         $event = [
             'platform'   => 'viagogo',
@@ -327,14 +332,14 @@ class ViagogoClient extends BaseApiClient
             $parentNode = $linkNode->parentNode;
             if ($parentNode) {
                 $dateNodes = $xpath->query('.//span[contains(@class, "date")] | .//time', $parentNode);
-                $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
+                $dateNode = ($dateNodes !== FALSE) ? $dateNodes->item(0) : NULL;
                 if ($dateNode) {
                     $event['date'] = trim($dateNode->textContent);
-                    $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
+                    $event['parsed_date'] = $this->parseEventDate($event['date']);
                 }
 
                 $venueNodes = $xpath->query('.//span[contains(@class, "venue")]', $parentNode);
-                $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
+                $venueNode = ($venueNodes !== FALSE) ? $venueNodes->item(0) : NULL;
                 if ($venueNode) {
                     $event['venue'] = trim($venueNode->textContent);
                 }
@@ -349,7 +354,9 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @return array<string, mixed>
+     * Get event details via scraping.
+     *
+     * @return array<string,mixed>
      */
     protected function getEventViaScraping(string $eventId): array
     {
@@ -376,7 +383,9 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @return array<string, mixed>
+     * Parse event details from HTML.
+     *
+     * @return array<string,mixed>
      */
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
@@ -393,7 +402,7 @@ class ViagogoClient extends BaseApiClient
 
             // Event name
             $nameNodes = $xpath->query('//h1 | //title');
-            $nameNode = $nameNodes !== FALSE ? $nameNodes->item(0) : NULL;
+            $nameNode = ($nameNodes !== FALSE) ? $nameNodes->item(0) : NULL;
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Clean up the title if it contains site name
@@ -403,20 +412,20 @@ class ViagogoClient extends BaseApiClient
 
             // Event date and time
             $dateNodes = $xpath->query('//span[contains(@class, "event-date")] | //div[contains(@class, "date")] | //time');
-            $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
+            $dateNode = ($dateNodes !== FALSE) ? $dateNodes->item(0) : NULL;
             if ($dateNode) {
                 $event['date'] = trim($dateNode->textContent);
-                $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
+                $event['parsed_date'] = $this->parseEventDate($event['date']);
             }
 
             // Venue information
             $venueNodes = $xpath->query('//span[contains(@class, "venue")] | //div[contains(@class, "venue")] | //h2[contains(@class, "venue")]');
-            $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
+            $venueNode = ($venueNodes !== FALSE) ? $venueNodes->item(0) : NULL;
             $event['venue'] = $venueNode ? trim($venueNode->textContent) : '';
 
             // Location
             $locationNodes = $xpath->query('//span[contains(@class, "location")] | //address | //div[contains(@class, "city")]');
-            $locationNode = $locationNodes !== FALSE ? $locationNodes->item(0) : NULL;
+            $locationNode = ($locationNodes !== FALSE) ? $locationNodes->item(0) : NULL;
             $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
 
             // Price data from ticket listings
@@ -424,26 +433,26 @@ class ViagogoClient extends BaseApiClient
             $prices = [];
             if ($listingNodes !== FALSE) {
                 foreach ($listingNodes as $listingNode) {
-                    $priceNodes = $xpath->query('.//*[contains(@class, "price")] | .//*[contains(text(), "€")] | .//*[contains(text(), "$")] | .//*[contains(text(), "£")]', $listingNode);
-                    $priceNode = $priceNodes !== FALSE ? $priceNodes->item(0) : NULL;
+                    $priceNodeList = $xpath->query('.//*[contains(@class, "price")] | .//*[contains(text(), "€")] | .//*[contains(text(), "$")] | .//*[contains(text(), "£")]', $listingNode);
+                    $priceNode = ($priceNodeList !== FALSE) ? $priceNodeList->item(0) : NULL;
                     if ($priceNode && preg_match('/[€$£][\d,]+/', $priceNode->textContent)) {
                         $prices[] = trim($priceNode->textContent);
                     }
                 }
             }
 
-            $event['available_listings'] = $listingNodes !== FALSE ? count($listingNodes) : 0;
+            $event['available_listings'] = ($listingNodes !== FALSE) ? count($listingNodes) : 0;
             $event['prices'] = array_unique($prices);
             $this->extractPriceRange($event, $prices);
 
             // Event description
             $descNodes = $xpath->query('//div[contains(@class, "description")] | //div[contains(@class, "event-info")] | //section[contains(@class, "about")]');
-            $descNode = $descNodes !== FALSE ? $descNodes->item(0) : NULL;
+            $descNode = ($descNodes !== FALSE) ? $descNodes->item(0) : NULL;
             $event['description'] = $descNode ? trim($descNode->textContent) : '';
 
             // Category/genre
             $categoryNodes = $xpath->query('//span[contains(@class, "category")] | //div[contains(@class, "genre")]');
-            $categoryNode = $categoryNodes !== FALSE ? $categoryNodes->item(0) : NULL;
+            $categoryNode = ($categoryNodes !== FALSE) ? $categoryNodes->item(0) : NULL;
             $event['category'] = $categoryNode ? trim($categoryNode->textContent) : '';
         } catch (Exception $e) {
             Log::error('Failed to parse Viagogo event details HTML', [
@@ -456,9 +465,11 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @param array<string, mixed> $eventData
+     * Transform event data to standardized format.
      *
-     * @return array<string, mixed>
+     * @param array<string,mixed> $eventData
+     *
+     * @return array<string,mixed>
      */
     protected function transformEventData(array $eventData): array
     {
@@ -495,7 +506,9 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @param array<string, mixed> $eventData
+     * Determine event status based on event data.
+     *
+     * @param array<string,mixed> $eventData
      */
     protected function determineStatus(array $eventData): string
     {
@@ -581,8 +594,10 @@ class ViagogoClient extends BaseApiClient
     }
 
     /**
-     * @param array<string, mixed> $event
-     * @param array<string>        $prices
+     * Extract price range from prices array.
+     *
+     * @param array<string,mixed> $event
+     * @param array<int,string>   $prices
      */
     protected function extractPriceRange(array &$event, array $prices): void
     {
@@ -604,21 +619,19 @@ class ViagogoClient extends BaseApiClient
         }
     }
 
-    protected function parseEventDate(?string $dateString): ?DateTime
+    protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
             return NULL;
         }
 
         // Clean up the date string
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString) ?? '');
-
-        if (empty($dateString)) {
-            return NULL;
-        }
+        $cleanedString = preg_replace('/\s+/', ' ', $dateString);
+        $dateString = trim($cleanedString ?? $dateString);
 
         // Remove common prefixes
-        $dateString = preg_replace('/^(Event\s+date:?\s*|Date:?\s*)/i', '', $dateString) ?? '';
+        $prefixCleaned = preg_replace('/^(Event\s+date:?\s*|Date:?\s*)/i', '', $dateString);
+        $dateString = $prefixCleaned ?? $dateString;
 
         $formats = [
             'j M Y, H:i',
@@ -638,7 +651,7 @@ class ViagogoClient extends BaseApiClient
 
         foreach ($formats as $format) {
             try {
-                $date = DateTime::createFromFormat($format, $dateString ?: '');
+                $date = DateTime::createFromFormat($format, $dateString);
                 if ($date) {
                     return $date;
                 }
@@ -648,7 +661,7 @@ class ViagogoClient extends BaseApiClient
         }
 
         try {
-            return new DateTime($dateString ?: '');
+            return new DateTime($dateString);
         } catch (Exception $e) {
             return NULL;
         }
@@ -656,10 +669,13 @@ class ViagogoClient extends BaseApiClient
 
     /**
      * Extract guarantee information specific to Viagogo
+     */
+    /**
+     * Extract guarantee information from event data.
      *
-     * @param array<string, mixed> $eventData
+     * @param array<string,mixed> $eventData
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed>
      */
     protected function extractGuaranteeInfo(array $eventData): array
     {
@@ -700,8 +716,11 @@ class ViagogoClient extends BaseApiClient
 
     /**
      * Determine currency from price data
+     */
+    /**
+     * Determine currency from event data.
      *
-     * @param array<string, mixed> $eventData
+     * @param array<string,mixed> $eventData
      */
     protected function determineCurrency(array $eventData): string
     {

@@ -17,8 +17,10 @@ use function count;
 
 class TicketScrapingService
 {
+    /** @var array<string, mixed> */
     protected $platforms;
 
+    /** @var array<string> */
     protected $manchesterUnitedKeywords = [
         'Manchester United',
         'Man Utd',
@@ -28,6 +30,7 @@ class TicketScrapingService
         'Red Devils',
     ];
 
+    /** @var array<string> */
     protected $sportsKeywords = [
         'Premier League',
         'Champions League',
@@ -44,13 +47,13 @@ class TicketScrapingService
     {
         $this->platforms = [
             'stubhub' => [
-                'client' => new StubHubClient($this->getConfig('stubhub')),
+                'client' => new StubHubClient($this->getConfig('stubhub') ?? []),
             ],
             'ticketmaster' => [
-                'client' => new TicketmasterClient($this->getConfig('ticketmaster')),
+                'client' => new TicketmasterClient($this->getConfig('ticketmaster') ?? []),
             ],
             'viagogo' => [
-                'client' => new ViagogoClient($this->getConfig('viagogo')),
+                'client' => new ViagogoClient($this->getConfig('viagogo') ?? []),
             ],
         ];
 
@@ -112,7 +115,9 @@ class TicketScrapingService
     /**
      * Get trending Manchester United tickets
      *
-     * @param mixed $limit
+     * @param int $limit
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int,ScrapedTicket>
      */
     public function getTrendingManchesterUnitedTickets($limit = 20)
     {
@@ -133,7 +138,9 @@ class TicketScrapingService
      * Get best deals for sports tickets
      *
      * @param mixed $sport
-     * @param mixed $limit
+     * @param int   $limit
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int,ScrapedTicket>
      */
     public function getBestSportsDeals($sport = 'football', $limit = 50)
     {
@@ -188,6 +195,11 @@ class TicketScrapingService
 
     /**
      * Search for tickets with specific keywords and options
+     */
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
      */
     public function searchTickets(string $keywords, array $options = []): array
     {
@@ -301,7 +313,12 @@ class TicketScrapingService
      * @param mixed $keyword
      * @param mixed $filters
      */
-    protected function searchStubHub($keyword, $filters = [])
+    /**
+     * @param array<string, mixed> $filters
+     *
+     * @return array<string, mixed>
+     */
+    protected function searchStubHub(string $keyword, array $filters = [])
     {
         try {
             $cacheKey = 'stubhub_search_' . md5($keyword . serialize($filters));
@@ -350,7 +367,12 @@ class TicketScrapingService
      * @param mixed $keyword
      * @param mixed $filters
      */
-    protected function searchTicketmaster($keyword, $filters = [])
+    /**
+     * @param array<string, mixed> $filters
+     *
+     * @return array<string, mixed>
+     */
+    protected function searchTicketmaster(string $keyword, array $filters = [])
     {
         try {
             if (! $this->platforms['ticketmaster']['api_key']) {
@@ -397,7 +419,12 @@ class TicketScrapingService
      * @param mixed $keyword
      * @param mixed $filters
      */
-    protected function searchViagogo($keyword, $filters = [])
+    /**
+     * @param array<string, mixed> $filters
+     *
+     * @return array<string, mixed>
+     */
+    protected function searchViagogo(string $keyword, array $filters = [])
     {
         try {
             // Note: Viagogo requires OAuth, this is a simplified version
@@ -424,10 +451,12 @@ class TicketScrapingService
     /**
      * Parse StubHub API results
      *
-     * @param mixed $data
      * @param mixed $keyword
      */
-    protected function parseStubHubResults($data, $keyword)
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    protected function parseStubHubResults(mixed $data, string $keyword)
     {
         $tickets = [];
 
@@ -459,10 +488,12 @@ class TicketScrapingService
     /**
      * Parse Ticketmaster API results
      *
-     * @param mixed $data
      * @param mixed $keyword
      */
-    protected function parseTicketmasterResults($data, $keyword)
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    protected function parseTicketmasterResults(mixed $data, string $keyword)
     {
         $tickets = [];
 
@@ -500,7 +531,14 @@ class TicketScrapingService
      * @param mixed $keyword
      * @param mixed $filters
      */
-    protected function generateMockViagogo($keyword, $filters)
+    /**
+     * Generate mock Viagogo results for testing.
+     *
+     * @param array<string,mixed> $filters
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    protected function generateMockViagogo(string $keyword, array $filters)
     {
         if (! str_contains(strtolower($keyword), 'manchester')) {
             return [];
@@ -617,7 +655,7 @@ class TicketScrapingService
     /**
      * Send ticket alert to user
      *
-     * @param mixed $ticketData
+     * @param array<string, mixed> $ticketData
      */
     protected function sendTicketAlert(User $user, $ticketData): void
     {
@@ -639,6 +677,11 @@ class TicketScrapingService
         }
     }
 
+    /**
+     * @param mixed $platform
+     *
+     * @return array<string, mixed>|null
+     */
     private function getConfig($platform)
     {
         return config("ticket_apis.{$platform}");
@@ -646,6 +689,10 @@ class TicketScrapingService
 
     /**
      * Scrape a specific platform
+     *
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
      */
     private function scrapePlatform(string $platform, string $keywords, array $options = []): array
     {
@@ -663,6 +710,8 @@ class TicketScrapingService
 
     /**
      * Send notification for alert matches
+     *
+     * @param array<string, mixed> $tickets
      */
     private function sendAlertNotification(TicketAlert $alert, array $tickets): void
     {
@@ -708,6 +757,11 @@ class TicketScrapingService
 
     /**
      * Calculate match score for alert and ticket
+     */
+    /**
+     * Calculate match score between alert and ticket data.
+     *
+     * @param array<string,mixed> $ticketData
      */
     private function calculateMatchScore(TicketAlert $alert, array $ticketData): int
     {

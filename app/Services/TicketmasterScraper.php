@@ -16,10 +16,13 @@ use function strlen;
 
 class TicketmasterScraper
 {
+    /** @var TicketmasterClient */
     protected $ticketmasterClient;
 
+    /** @var int */
     protected $defaultUserId;
 
+    /** @var int */
     protected $defaultCategoryId;
 
     public function __construct()
@@ -43,6 +46,8 @@ class TicketmasterScraper
 
     /**
      * Search and import tickets from Ticketmaster
+     *
+     * @return array<string, mixed>
      */
     public function searchAndImportTickets(string $keyword, string $location = '', int $maxResults = 50): array
     {
@@ -123,6 +128,9 @@ class TicketmasterScraper
     /**
      * Get scraping statistics
      */
+    /**
+     * @return array<string, mixed>
+     */
     public function getScrapingStats(): array
     {
         $totalScraped = Ticket::where('metadata->source', 'ticketmaster_scrape')->count();
@@ -148,6 +156,9 @@ class TicketmasterScraper
 
     /**
      * Import a single event as a ticket
+     */
+    /**
+     * @param array<string, mixed> $eventData
      */
     private function importEventAsTicket(array $eventData): bool
     {
@@ -219,6 +230,9 @@ class TicketmasterScraper
     /**
      * Parse event date from various formats
      */
+    /**
+     * @param array<string, mixed> $eventData
+     */
     private function parseEventDate(array $eventData): ?Carbon
     {
         $dateString = $eventData['date_time'] ?? $eventData['date'] ?? NULL;
@@ -260,6 +274,9 @@ class TicketmasterScraper
     /**
      * Build event description from scraped data
      */
+    /**
+     * @param array<string, mixed> $eventData
+     */
     private function buildEventDescription(array $eventData): string
     {
         $parts = [];
@@ -295,6 +312,9 @@ class TicketmasterScraper
     /**
      * Determine priority based on event data
      */
+    /**
+     * @param array<string, mixed> $eventData
+     */
     private function determinePriority(array $eventData): string
     {
         $name = strtolower($eventData['name'] ?? '');
@@ -324,6 +344,11 @@ class TicketmasterScraper
 
     /**
      * Extract tags from event data
+     */
+    /**
+     * @param array<string, mixed> $eventData
+     *
+     * @return array<string>
      */
     private function extractTags(array $eventData): array
     {

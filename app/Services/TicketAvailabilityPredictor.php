@@ -13,10 +13,8 @@ use function count;
 
 class TicketAvailabilityPredictor
 {
-    /** @var array<string, float> */
     protected $featureWeights;
 
-    /** @var array<string, mixed> */
     protected $modelCache;
 
     public function __construct()
@@ -27,12 +25,10 @@ class TicketAvailabilityPredictor
 
     /**
      * Predict ticket availability trend using ML features
-     *
-     * @return array<string, mixed>
      */
     public function predictAvailabilityTrend(ScrapedTicket $ticket): array
     {
-        $cacheKey = "prediction:{$ticket->id}:" . md5($ticket->updated_at?->toISOString() ?? '');
+        $cacheKey = "prediction:{$ticket->id}:" . md5($ticket->updated_at);
 
         return Cache::remember($cacheKey, 300, function () use ($ticket) {
             try {
@@ -72,8 +68,6 @@ class TicketAvailabilityPredictor
 
     /**
      * Extract features for machine learning model
-     *
-     * @return array<string, mixed>
      */
     protected function extractFeatures(ScrapedTicket $ticket): array
     {
@@ -108,7 +102,7 @@ class TicketAvailabilityPredictor
         // Event features
         $features['event_type'] = $this->categorizeEventType($ticket->event_name);
         $features['is_popular_event'] = $this->isPopularEvent($ticket) ? 1 : 0;
-        $features['venue_capacity'] = $this->getVenueCapacity($ticket->venue ?? '');
+        $features['venue_capacity'] = $this->getVenueCapacity($ticket->venue);
 
         // Market features
         $features['market_demand'] = $this->calculateMarketDemand($ticket);
@@ -128,10 +122,6 @@ class TicketAvailabilityPredictor
 
     /**
      * Predict availability trend
-     *
-     * @param array<string, mixed> $features
-     *
-     * @return array<string, mixed>
      */
     protected function predictAvailability(array $features): array
     {
@@ -186,10 +176,6 @@ class TicketAvailabilityPredictor
 
     /**
      * Predict price trend
-     *
-     * @param array<string, mixed> $features
-     *
-     * @return array<string, mixed>
      */
     protected function predictPriceTrend(array $features): array
     {

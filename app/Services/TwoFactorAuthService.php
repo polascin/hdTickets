@@ -20,6 +20,7 @@ use function strlen;
 
 class TwoFactorAuthService
 {
+    /** @var Google2FA */
     protected $google2fa;
 
     public function __construct()
@@ -134,6 +135,9 @@ class TwoFactorAuthService
     /**
      * Generate recovery codes
      */
+    /**
+     * @return array<string>
+     */
     public function generateRecoveryCodes(): array
     {
         $codes = [];
@@ -146,6 +150,9 @@ class TwoFactorAuthService
 
     /**
      * Regenerate recovery codes
+     */
+    /**
+     * @return array<string>
      */
     public function regenerateRecoveryCodes(User $user): array
     {
@@ -384,6 +391,9 @@ class TwoFactorAuthService
     /**
      * Get user's recovery codes (decrypted)
      */
+    /**
+     * @return array<string>
+     */
     public function getRecoveryCodes(User $user): array
     {
         if (! $user->two_factor_recovery_codes) {
@@ -401,6 +411,9 @@ class TwoFactorAuthService
 
     /**
      * Validate 2FA setup requirements
+     */
+    /**
+     * @return array<string, mixed>
      */
     public function validateSetupRequirements(User $user): array
     {
@@ -421,6 +434,9 @@ class TwoFactorAuthService
     /**
      * Get 2FA statistics for admin dashboard
      */
+    /**
+     * @return array<string, mixed>
+     */
     public function getTwoFactorStats(): array
     {
         $totalUsers = User::count();
@@ -439,6 +455,9 @@ class TwoFactorAuthService
 
     /**
      * Generate backup codes for admin emergency access
+     */
+    /**
+     * @return array<string>
      */
     public function generateAdminBackupCodes(User $admin, User $targetUser): array
     {

@@ -679,7 +679,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/TicketAlertFactory.php' => 
     array (
-      0 => 'c36dca9da742b557b13d1252c35866ee44eea113',
+      0 => 'dc4a0c72281b69469dc4a80bf7953c5c3440fcdd',
       1 => 
       array (
         0 => 'database\\factories\\ticketalertfactory',
@@ -694,7 +694,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/ScrapedTicketFactory.php' => 
     array (
-      0 => '584d340b82841be597e2ad7b7e93563c927662e1',
+      0 => 'e184617efe6cc228e5a466b268aadca94f6d2f41',
       1 => 
       array (
         0 => 'database\\factories\\scrapedticketfactory',
@@ -716,7 +716,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/UserFactory.php' => 
     array (
-      0 => '233d41b48363468a4a7e0cfe4e0281447cc3e4b7',
+      0 => 'bb1b29a04b90bdfbcb4e39d6a14d1b4bae21462e',
       1 => 
       array (
         0 => 'database\\factories\\userfactory',

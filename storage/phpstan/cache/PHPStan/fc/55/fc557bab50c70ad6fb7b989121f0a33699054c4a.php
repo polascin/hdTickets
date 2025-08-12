@@ -4374,7 +4374,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketmasterScraper.php' => 
     array (
-      0 => 'b208b54e187242e7f0abf9d5f38898a3feb755d1',
+      0 => '661e72a20dfcd5c28242c1907372f80fe82423ac',
       1 => 
       array (
         0 => 'app\\services\\ticketmasterscraper',
@@ -4457,7 +4457,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TwoFactorAuthService.php' => 
     array (
-      0 => '38bdc2beb28c13bdaeb9d1c52b70d5fa826a563e',
+      0 => '85e40541ddda2cbf2590cb3b1c0065acbe98e392',
       1 => 
       array (
         0 => 'app\\services\\twofactorauthservice',
@@ -4493,7 +4493,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/UserRotationService.php' => 
     array (
-      0 => '46f80575b6b40b026c0d077e0e52d367cf3d5835',
+      0 => '1ffcd166358ce9775c63475d703664eb775b7675',
       1 => 
       array (
         0 => 'app\\services\\userrotationservice',
@@ -5252,7 +5252,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketAvailabilityPredictor.php' => 
     array (
-      0 => 'ea2c5facba3e48d80c605f2d71ded56c4de47bef',
+      0 => 'e3c0790560f3d8a0098e4dee5239b8ca532a4c6c',
       1 => 
       array (
         0 => 'app\\services\\ticketavailabilitypredictor',
@@ -5327,7 +5327,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketScrapingService.php' => 
     array (
-      0 => '47f919a556e9682e1e6c19d32c778ebdb7eda586',
+      0 => 'b3373762369f1653b6b2be7e17ffc9c3388de68e',
       1 => 
       array (
         0 => 'app\\services\\ticketscrapingservice',
@@ -5667,7 +5667,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketApis/ViagogoClient.php' => 
     array (
-      0 => '2b4a9e739ad1b74164c45aec120debfb752dc2f4',
+      0 => '007b94d6b7e78fa001d7f9e63640f5f0022e3fb4',
       1 => 
       array (
         0 => 'app\\services\\ticketapis\\viagogoclient',

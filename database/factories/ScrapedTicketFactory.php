@@ -122,7 +122,7 @@ class ScrapedTicketFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'title'          => $title,
             'venue'          => $venue ?? fake()->randomElement(['Old Trafford', 'Anfield', 'Emirates Stadium']),
-            'search_keyword' => strtolower(explode(' vs ', $title)[0] ?? $title),
+            'search_keyword' => strtolower(explode(' vs ', $title)[0] ?? explode(' ', $title)[0] ?? $title),
         ]);
     }
 
