@@ -8,9 +8,56 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 use function in_array;
 
+/**
+ * Sports Event Entry Ticket Model
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property int|null $requester_id
+ * @property int|null $assignee_id
+ * @property int|null $category_id
+ * @property string $title
+ * @property string|null $description
+ * @property string $status
+ * @property string $priority
+ * @property Carbon|null $due_date
+ * @property Carbon|null $last_activity_at
+ * @property string|null $platform
+ * @property string|null $external_id
+ * @property float|null $price
+ * @property string|null $currency
+ * @property int|null $available_quantity
+ * @property string|null $location
+ * @property string|null $venue
+ * @property Carbon|null $event_date
+ * @property string|null $event_type
+ * @property string|null $performer_artist
+ * @property string|null $seat_details
+ * @property bool|null $is_available
+ * @property string|null $ticket_url
+ * @property array|null $scraping_metadata
+ * @property string|null $sport
+ * @property array|null $additional_metadata
+ * @property string|null $source
+ * @property array|null $tags
+ * @property Carbon|null $resolved_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
+ *
+ * @property-read User|null $user
+ * @property-read User|null $requester
+ * @property-read User|null $assignedTo
+ * @property-read User|null $assignee
+ * @property-read Category|null $category
+ * @property-read string $priority_color
+ * @property-read string $status_color
+ * @property-read string $formatted_title
+ */
 class Ticket extends Model
 {
     use HasFactory;
@@ -84,11 +131,19 @@ class Ticket extends Model
         'resolved_at',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'due_date'            => 'datetime',
         'last_activity_at'    => 'datetime',
         'event_date'          => 'datetime',
         'resolved_at'         => 'datetime',
+        'is_available'        => 'boolean',
+        'price'               => 'decimal:2',
+        'available_quantity'  => 'integer',
         'tags'                => 'array',
         'scraping_metadata'   => 'array',
         'additional_metadata' => 'array',

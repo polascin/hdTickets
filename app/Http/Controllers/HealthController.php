@@ -17,8 +17,11 @@ class HealthController extends Controller
 {
     /**
      * Comprehensive health check for production monitoring
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $startTime = microtime(TRUE);
         $checks = [];
@@ -76,8 +79,10 @@ class HealthController extends Controller
 
     /**
      * Database-specific health check
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function database(): JsonResponse
+    public function database(): \Illuminate\Http\JsonResponse
     {
         $check = $this->checkDatabase();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -92,8 +97,10 @@ class HealthController extends Controller
 
     /**
      * Redis-specific health check
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function redis(): JsonResponse
+    public function redis(): \Illuminate\Http\JsonResponse
     {
         $check = $this->checkRedis();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -108,8 +115,10 @@ class HealthController extends Controller
 
     /**
      * WebSocket health check
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function websockets(): JsonResponse
+    public function websockets(): \Illuminate\Http\JsonResponse
     {
         $check = $this->checkWebSocketHealth();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -124,8 +133,10 @@ class HealthController extends Controller
 
     /**
      * Services health check
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function services(): JsonResponse
+    public function services(): \Illuminate\Http\JsonResponse
     {
         $check = $this->checkExternalServices();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;

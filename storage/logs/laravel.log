@@ -7906,3 +7906,75 @@
 #3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
 #4 {main}
 "} 
+[2025-08-12 22:54:21] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:54:33] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:54:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:54:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:54:57] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:55:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:55:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:55:41] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:55:49] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 

@@ -18,8 +18,10 @@ class DashboardController extends Controller
 {
     /**
      * Display the admin dashboard
+     *
+     * @return \Illuminate\Contracts\View\View
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\View
     {
         // Sports Events Tickets statistics with safe defaults
         $totalSportsTickets = 0;
@@ -273,8 +275,10 @@ class DashboardController extends Controller
 
     /**
      * Get realtime scraping statistics for dashboard analytics
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getScrapingStats()
+    public function getScrapingStats(): \Illuminate\Http\JsonResponse
     {
         try {
             $stats = [
@@ -297,8 +301,10 @@ class DashboardController extends Controller
 
     /**
      * Get user activity heatmap data
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getUserActivityHeatmap()
+    public function getUserActivityHeatmap(): \Illuminate\Http\JsonResponse
     {
         try {
             $heatmapData = [];
@@ -334,8 +340,10 @@ class DashboardController extends Controller
 
     /**
      * Get revenue and pricing analytics
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getRevenueAnalytics()
+    public function getRevenueAnalytics(): \Illuminate\Http\JsonResponse
     {
         try {
             $analytics = [
@@ -358,8 +366,10 @@ class DashboardController extends Controller
 
     /**
      * Get dashboard statistics as JSON (for AJAX updates)
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getStats()
+    public function getStats(): \Illuminate\Http\JsonResponse
     {
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
