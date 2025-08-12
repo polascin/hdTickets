@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Traits;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+
+use function in_array;
 
 trait RateLimitingTrait
 {
@@ -14,23 +16,23 @@ trait RateLimitingTrait
     {
         $cacheKey = "rate_limit_{$platform}";
         $lastRequest = Cache::get($cacheKey);
-        
+
         if ($lastRequest) {
-            $timeDiff = microtime(true) - $lastRequest;
+            $timeDiff = microtime(TRUE) - $lastRequest;
             $requiredDelay = $this->rateLimitSeconds ?? 2;
-            
+
             if ($timeDiff < $requiredDelay) {
                 $sleepTime = ($requiredDelay - $timeDiff) * 1000000; // Convert to microseconds
-                usleep((int)$sleepTime);
-                
-                Log::debug("Rate limit applied", [
-                    'platform' => $platform,
+                usleep((int) $sleepTime);
+
+                Log::debug('Rate limit applied', [
+                    'platform'      => $platform,
                     'delay_seconds' => $requiredDelay - $timeDiff,
                 ]);
             }
         }
-        
-        Cache::put($cacheKey, microtime(true), 300); // Store for 5 minutes
+
+        Cache::put($cacheKey, microtime(TRUE), 300); // Store for 5 minutes
     }
 
     /**
@@ -39,10 +41,10 @@ trait RateLimitingTrait
     protected function getAdaptiveRateLimit(): int
     {
         // European sites tend to be more restrictive
-        return match($this->language ?? 'en-GB') {
+        return match ($this->language ?? 'en-GB') {
             'es-ES' => 4, // Spanish sites - more restrictive
             'de-DE' => 3, // German sites - strict
-            'it-IT' => 3, // Italian sites - strict  
+            'it-IT' => 3, // Italian sites - strict
             'fr-FR' => 3, // French sites - strict
             default => 2, // UK sites - moderate
         };
@@ -55,19 +57,19 @@ trait RateLimitingTrait
     {
         $baseDelay = 1; // 1 second base
         $maxDelay = 30; // 30 seconds max
-        
+
         $delay = min($baseDelay * pow(2, $attempt), $maxDelay);
         $jitter = $delay * 0.1 * mt_rand(0, 1000) / 1000; // Add 10% jitter
-        
+
         $totalDelay = $delay + $jitter;
-        
-        Log::info("Applying exponential backoff", [
-            'attempt' => $attempt,
+
+        Log::info('Applying exponential backoff', [
+            'attempt'       => $attempt,
             'delay_seconds' => $totalDelay,
-            'platform' => $this->platform ?? 'unknown'
+            'platform'      => $this->platform ?? 'unknown',
         ]);
-        
-        usleep((int)($totalDelay * 1000000));
+
+        usleep((int) ($totalDelay * 1000000));
     }
 
     /**
@@ -77,37 +79,38 @@ trait RateLimitingTrait
     {
         $windowKey = "rate_limit_window_{$platform}";
         $requestsKey = "rate_limit_requests_{$platform}";
-        
+
         $window = Cache::get($windowKey, time());
         $requests = Cache::get($requestsKey, 0);
-        
+
         // Reset window if it's been more than 60 seconds
         if (time() - $window > 60) {
             Cache::put($windowKey, time(), 300);
             Cache::put($requestsKey, 0, 300);
             $requests = 0;
         }
-        
+
         // European sites: max 20 requests per minute
         // UK sites: max 30 requests per minute
-        $maxRequestsPerMinute = match($this->language ?? 'en-GB') {
+        $maxRequestsPerMinute = match ($this->language ?? 'en-GB') {
             'es-ES', 'de-DE', 'it-IT', 'fr-FR' => 15,
             default => 25,
         };
-        
+
         if ($requests >= $maxRequestsPerMinute) {
-            Log::warning("Rate limit exceeded", [
-                'platform' => $platform,
-                'requests' => $requests,
-                'max_allowed' => $maxRequestsPerMinute
+            Log::warning('Rate limit exceeded', [
+                'platform'    => $platform,
+                'requests'    => $requests,
+                'max_allowed' => $maxRequestsPerMinute,
             ]);
-            return true;
+
+            return TRUE;
         }
-        
+
         // Increment request counter
         Cache::put($requestsKey, $requests + 1, 300);
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -115,24 +118,24 @@ trait RateLimitingTrait
      */
     protected function getIntelligentDelay(): int
     {
-        $hour = (int)date('H');
+        $hour = (int) date('H');
         $baseDelay = $this->rateLimitSeconds ?? 2;
-        
+
         // European business hours (9-17 CET) - be more conservative
         if ($this->isEuropeanPlatform() && $hour >= 8 && $hour <= 16) {
             return $baseDelay * 2;
         }
-        
+
         // Peak usage hours - be more conservative
         if ($hour >= 18 && $hour <= 22) {
-            return (int)($baseDelay * 1.5);
+            return (int) ($baseDelay * 1.5);
         }
-        
+
         // Off-peak hours - can be more aggressive
         if ($hour >= 2 && $hour <= 6) {
-            return max(1, (int)($baseDelay * 0.7));
+            return max(1, (int) ($baseDelay * 0.7));
         }
-        
+
         return $baseDelay;
     }
 
@@ -141,6 +144,6 @@ trait RateLimitingTrait
      */
     protected function isEuropeanPlatform(): bool
     {
-        return in_array($this->language ?? 'en-GB', ['es-ES', 'de-DE', 'it-IT', 'fr-FR']);
+        return in_array($this->language ?? 'en-GB', ['es-ES', 'de-DE', 'it-IT', 'fr-FR'], TRUE);
     }
 }

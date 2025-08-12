@@ -1,30 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
+use RuntimeException;
 
 class ConfigureNotificationChannels extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'analytics:setup-notifications 
                             {--slack : Configure Slack notifications}
                             {--discord : Configure Discord notifications}
                             {--telegram : Configure Telegram notifications}
                             {--all : Configure all notification channels}';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Configure notification channels for the Advanced Analytics Dashboard';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('🔔 Advanced Analytics Dashboard - Notification Channel Setup');
         $this->info('=' . str_repeat('=', 60));
@@ -35,13 +31,13 @@ class ConfigureNotificationChannels extends Command
         $setupDiscord = $this->option('discord') || $setupAll;
         $setupTelegram = $this->option('telegram') || $setupAll;
 
-        if (!$setupSlack && !$setupDiscord && !$setupTelegram) {
+        if (! $setupSlack && ! $setupDiscord && ! $setupTelegram) {
             $this->info('📋 Available notification channels:');
             $this->line('   • Slack - Team collaboration notifications');
             $this->line('   • Discord - Community notifications');
             $this->line('   • Telegram - Mobile messaging');
             $this->newLine();
-            
+
             $setupSlack = $this->confirm('Configure Slack notifications?');
             $setupDiscord = $this->confirm('Configure Discord notifications?');
             $setupTelegram = $this->confirm('Configure Telegram notifications?');
@@ -61,22 +57,24 @@ class ConfigureNotificationChannels extends Command
 
         $this->displayConfiguration();
         $this->info('🎉 Notification channel configuration completed!');
+
+        return Command::SUCCESS;
     }
 
-    private function configureSlack()
+    private function configureSlack(): void
     {
         $this->info('📢 Configuring Slack Notifications');
         $this->newLine();
 
-        $botToken = $this->ask('Enter your Slack Bot Token (starts with xoxb-)');
-        $defaultChannel = $this->ask('Enter default channel (e.g., #alerts)', '#alerts');
-        $signingSecret = $this->ask('Enter Slack Signing Secret (for webhooks)', '');
+        $botToken = (string) $this->ask('Enter your Slack Bot Token (starts with xoxb-)');
+        $defaultChannel = (string) $this->ask('Enter default channel (e.g., #alerts)', '#alerts');
+        $signingSecret = (string) $this->ask('Enter Slack Signing Secret (for webhooks)', '');
 
         if ($botToken) {
             $this->updateEnvFile([
-                'SLACK_BOT_TOKEN' => $botToken,
+                'SLACK_BOT_TOKEN'       => $botToken,
                 'SLACK_DEFAULT_CHANNEL' => $defaultChannel,
-                'SLACK_SIGNING_SECRET' => $signingSecret,
+                'SLACK_SIGNING_SECRET'  => $signingSecret,
             ]);
 
             $this->info('✅ Slack configuration saved to .env file');
@@ -87,18 +85,18 @@ class ConfigureNotificationChannels extends Command
         $this->newLine();
     }
 
-    private function configureDiscord()
+    private function configureDiscord(): void
     {
         $this->info('🎮 Configuring Discord Notifications');
         $this->newLine();
 
-        $webhookUrl = $this->ask('Enter Discord Webhook URL');
-        $botToken = $this->ask('Enter Discord Bot Token (optional)', '');
+        $webhookUrl = (string) $this->ask('Enter Discord Webhook URL');
+        $botToken = (string) $this->ask('Enter Discord Bot Token (optional)', '');
 
         if ($webhookUrl) {
             $this->updateEnvFile([
                 'DISCORD_WEBHOOK_URL' => $webhookUrl,
-                'DISCORD_BOT_TOKEN' => $botToken,
+                'DISCORD_BOT_TOKEN'   => $botToken,
             ]);
 
             $this->info('✅ Discord configuration saved to .env file');
@@ -109,18 +107,18 @@ class ConfigureNotificationChannels extends Command
         $this->newLine();
     }
 
-    private function configureTelegram()
+    private function configureTelegram(): void
     {
         $this->info('📱 Configuring Telegram Notifications');
         $this->newLine();
 
-        $botToken = $this->ask('Enter Telegram Bot Token');
-        $chatId = $this->ask('Enter default Chat ID');
+        $botToken = (string) $this->ask('Enter Telegram Bot Token');
+        $chatId = (string) $this->ask('Enter default Chat ID');
 
         if ($botToken && $chatId) {
             $this->updateEnvFile([
                 'TELEGRAM_BOT_TOKEN' => $botToken,
-                'TELEGRAM_CHAT_ID' => $chatId,
+                'TELEGRAM_CHAT_ID'   => $chatId,
             ]);
 
             $this->info('✅ Telegram configuration saved to .env file');
@@ -131,17 +129,27 @@ class ConfigureNotificationChannels extends Command
         $this->newLine();
     }
 
-    private function updateEnvFile(array $values)
+    /**
+     * @param array<string, string> $values
+     */
+    private function updateEnvFile(array $values): void
     {
         $envFile = base_path('.env');
         $envContent = file_get_contents($envFile);
+
+        if ($envContent === FALSE) {
+            throw new RuntimeException('Could not read .env file');
+        }
 
         foreach ($values as $key => $value) {
             $pattern = "/^{$key}=.*$/m";
             $replacement = "{$key}={$value}";
 
             if (preg_match($pattern, $envContent)) {
-                $envContent = preg_replace($pattern, $replacement, $envContent);
+                $result = preg_replace($pattern, $replacement, $envContent);
+                if ($result !== NULL) {
+                    $envContent = $result;
+                }
             } else {
                 $envContent .= "\n{$replacement}";
             }
@@ -150,23 +158,23 @@ class ConfigureNotificationChannels extends Command
         file_put_contents($envFile, $envContent);
     }
 
-    private function displayConfiguration()
+    private function displayConfiguration(): void
     {
         $this->info('📋 Current Notification Configuration:');
         $this->newLine();
 
         // Slack
-        $slackToken = env('SLACK_BOT_TOKEN');
+        $slackToken = config('services.slack.bot_token');
         $slackStatus = $slackToken ? '✅ Configured' : '❌ Not configured';
         $this->line("   Slack: {$slackStatus}");
 
         // Discord
-        $discordWebhook = env('DISCORD_WEBHOOK_URL');
+        $discordWebhook = config('services.discord.webhook_url');
         $discordStatus = $discordWebhook ? '✅ Configured' : '❌ Not configured';
         $this->line("   Discord: {$discordStatus}");
 
         // Telegram
-        $telegramToken = env('TELEGRAM_BOT_TOKEN');
+        $telegramToken = config('services.telegram.bot_token');
         $telegramStatus = $telegramToken ? '✅ Configured' : '❌ Not configured';
         $this->line("   Telegram: {$telegramStatus}");
 

@@ -1,17 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\AccountDeletionRequest;
 use App\Models\DataExportRequest;
 use App\Models\DeletedUser;
 use App\Services\AccountDeletionProtectionService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AccountDeletionController extends Controller
 {
@@ -28,18 +27,23 @@ class AccountDeletionController extends Controller
     public function showWarning(Request $request): View
     {
         $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'User must be authenticated');
+        }
+
         $currentDeletionRequest = $user->getCurrentDeletionRequest();
-        
+
         // Get recent data export requests
         $recentExports = $user->dataExportRequests()
-                             ->latest()
-                             ->limit(5)
-                             ->get();
+            ->latest()
+            ->limit(5)
+            ->get();
 
         return view('account.deletion.warning', [
-            'user' => $user,
+            'user'                   => $user,
             'currentDeletionRequest' => $currentDeletionRequest,
-            'recentExports' => $recentExports,
+            'recentExports'          => $recentExports,
         ]);
     }
 
@@ -49,20 +53,24 @@ class AccountDeletionController extends Controller
     public function initiate(Request $request): RedirectResponse
     {
         $request->validate([
-            'password' => ['required', 'current_password'],
-            'confirm_deletion' => ['required', 'accepted'],
+            'password'                => ['required', 'current_password'],
+            'confirm_deletion'        => ['required', 'accepted'],
             'understand_consequences' => ['required', 'accepted'],
         ]);
 
         $user = $request->user();
 
+        if (! $user) {
+            abort(401, 'User must be authenticated');
+        }
+
         try {
             $deletionRequest = $this->deletionService->initiateDeletion($user);
 
-            return redirect()->route('account.deletion.warning')->with('success', 
-                'Account deletion initiated. Please check your email to confirm the deletion.'
+            return redirect()->route('account.deletion.warning')->with(
+                'success',
+                'Account deletion initiated. Please check your email to confirm the deletion.',
             );
-
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -77,11 +85,10 @@ class AccountDeletionController extends Controller
             $this->deletionService->confirmDeletion($token);
 
             $deletionRequest = AccountDeletionRequest::where('confirmation_token', $token)->first();
-            
+
             return view('account.deletion.confirmed', [
                 'deletionRequest' => $deletionRequest,
             ]);
-
         } catch (Exception $e) {
             return view('account.deletion.error', [
                 'error' => $e->getMessage(),
@@ -95,10 +102,10 @@ class AccountDeletionController extends Controller
     public function showCancel(Request $request, string $token): View
     {
         $deletionRequest = AccountDeletionRequest::where('confirmation_token', $token)
-                                                ->active()
-                                                ->first();
+            ->active()
+            ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             return view('account.deletion.error', [
                 'error' => 'Invalid or expired cancellation token.',
             ]);
@@ -106,7 +113,7 @@ class AccountDeletionController extends Controller
 
         return view('account.deletion.cancel', [
             'deletionRequest' => $deletionRequest,
-            'token' => $token,
+            'token'           => $token,
         ]);
     }
 
@@ -120,22 +127,22 @@ class AccountDeletionController extends Controller
         ]);
 
         $deletionRequest = AccountDeletionRequest::where('confirmation_token', $token)
-                                                ->active()
-                                                ->first();
+            ->active()
+            ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             return redirect()->route('login')->withErrors([
-                'error' => 'Invalid or expired cancellation token.'
+                'error' => 'Invalid or expired cancellation token.',
             ]);
         }
 
         try {
             $this->deletionService->cancelDeletion($deletionRequest, $request->input('reason'));
 
-            return redirect()->route('login')->with('success', 
-                'Account deletion has been cancelled. Your account is safe.'
+            return redirect()->route('login')->with(
+                'success',
+                'Account deletion has been cancelled. Your account is safe.',
             );
-
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -147,22 +154,27 @@ class AccountDeletionController extends Controller
     public function requestDataExport(Request $request): RedirectResponse
     {
         $request->validate([
-            'format' => ['required', 'in:json,csv'],
-            'data_types' => ['array'],
+            'format'       => ['required', 'in:json,csv'],
+            'data_types'   => ['array'],
             'data_types.*' => ['string'],
         ]);
 
         $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'User must be authenticated');
+        }
+
         $format = $request->input('format', 'json');
         $dataTypes = $request->input('data_types', ['all']);
 
         try {
             $exportRequest = $this->deletionService->createDataExport($user, $format, $dataTypes);
 
-            return back()->with('success', 
-                'Data export request created. You will be notified when it\'s ready for download.'
+            return back()->with(
+                'success',
+                'Data export request created. You will be notified when it\'s ready for download.',
             );
-
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -173,13 +185,19 @@ class AccountDeletionController extends Controller
      */
     public function downloadExport(Request $request, DataExportRequest $exportRequest): RedirectResponse
     {
-        if ($exportRequest->user_id !== $request->user()->id) {
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401, 'User must be authenticated');
+        }
+
+        if ($exportRequest->user_id !== $user->id) {
             abort(403, 'Unauthorized access to export.');
         }
 
-        if (!$exportRequest->isAvailableForDownload()) {
+        if (! $exportRequest->isAvailableForDownload()) {
             return back()->withErrors([
-                'error' => 'Export is not available for download or has expired.'
+                'error' => 'Export is not available for download or has expired.',
             ]);
         }
 
@@ -201,7 +219,7 @@ class AccountDeletionController extends Controller
     {
         $request->validate([
             'user_id' => ['required', 'integer'],
-            'email' => ['required', 'email'],
+            'email'   => ['required', 'email'],
         ]);
 
         $userId = $request->input('user_id');
@@ -209,12 +227,12 @@ class AccountDeletionController extends Controller
 
         // Verify that the deleted user exists and email matches
         $deletedUser = DeletedUser::where('original_user_id', $userId)
-                                 ->recoverable()
-                                 ->first();
+            ->recoverable()
+            ->first();
 
-        if (!$deletedUser || $deletedUser->user_data['email'] !== $email) {
+        if (! $deletedUser || $deletedUser->user_data['email'] !== $email) {
             return back()->withErrors([
-                'error' => 'Account not found or recovery period has expired.'
+                'error' => 'Account not found or recovery period has expired.',
             ]);
         }
 
@@ -223,10 +241,10 @@ class AccountDeletionController extends Controller
 
             Auth::login($user);
 
-            return redirect()->route('profile.show')->with('success', 
-                'Your account has been successfully recovered!'
+            return redirect()->route('profile.show')->with(
+                'success',
+                'Your account has been successfully recovered!',
             );
-
         } catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -238,10 +256,14 @@ class AccountDeletionController extends Controller
     public function auditLog(Request $request): View
     {
         $user = $request->user();
-        
+
+        if (! $user) {
+            abort(401, 'User must be authenticated');
+        }
+
         $auditLogs = $user->deletionAuditLogs()
-                         ->latest('occurred_at')
-                         ->paginate(20);
+            ->latest('occurred_at')
+            ->paginate(20);
 
         return view('account.deletion.audit-log', [
             'auditLogs' => $auditLogs,
@@ -265,9 +287,9 @@ class AccountDeletionController extends Controller
         // Search by user email/name
         if ($request->has('search') && $request->search !== '') {
             $search = $request->search;
-            $query->whereHas('user', function ($q) use ($search) {
+            $query->whereHas('user', function ($q) use ($search): void {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%");
             });
         }
 
@@ -275,7 +297,7 @@ class AccountDeletionController extends Controller
 
         return view('admin.account-deletion.index', [
             'deletionRequests' => $deletionRequests,
-            'statuses' => AccountDeletionRequest::getStatuses(),
+            'statuses'         => AccountDeletionRequest::getStatuses(),
         ]);
     }
 
@@ -287,15 +309,14 @@ class AccountDeletionController extends Controller
         $this->authorize('manage_users');
 
         $deletionRequest->load('user');
-        
-        $auditLogs = $deletionRequest->user
-                                   ->deletionAuditLogs()
-                                   ->latest('occurred_at')
-                                   ->get();
+
+        $auditLogs = $deletionRequest->user?->deletionAuditLogs()
+            ?->latest('occurred_at')
+            ?->get() ?? collect();
 
         return view('admin.account-deletion.show', [
             'deletionRequest' => $deletionRequest,
-            'auditLogs' => $auditLogs,
+            'auditLogs'       => $auditLogs,
         ]);
     }
 }

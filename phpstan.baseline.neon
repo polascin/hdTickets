@@ -1,0 +1,38 @@
+parameters:
+    # PHPStan baseline for legitimate always-true conditions
+    ignoreErrors:
+        # Viagogo always provides guarantees - business logic constraint
+        -
+            message: '#Always evaluates to true#'
+            path: app/Services/TicketApis/ViagogoClient.php
+            count: 1
+        
+        # BaseScraperPlugin enabled flag initialization
+        -
+            message: '#Property.*BaseScraperPlugin::\$enabled.*is always true#'
+            path: app/Services/Scraping/BaseScraperPlugin.php
+            count: 1
+            
+        # Configuration-based conditions that may appear always true in static analysis
+        -
+            message: '#Condition.*config.*is always true#'
+            paths:
+                - app/Services/Enhanced/DatabaseQueryOptimizer.php
+                - app/Http/Controllers/HealthController.php
+            count: 5
+            
+        # Environment-based conditions
+        -
+            message: '#Condition.*env.*is always true#'
+            paths:
+                - app/Providers/*ServiceProvider.php
+                - app/Console/Commands/*.php
+            count: 10
+            
+        # Platform-specific business logic conditions
+        -
+            message: '#Condition.*platform.*is always.*#'
+            paths:
+                - app/Services/TicketApis/*.php
+                - app/Services/Scraping/Plugins/*.php
+            count: 15

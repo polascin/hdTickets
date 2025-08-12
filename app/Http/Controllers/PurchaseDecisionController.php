@@ -1,24 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\PurchaseQueue;
 use App\Models\PurchaseAttempt;
+use App\Models\PurchaseQueue;
 use App\Models\ScrapedTicket;
 use App\Models\User;
+use App\Services\AutomatedPurchaseEngine;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Services\PurchaseAnalyticsService;
-use App\Services\PurchaseService;
-use App\Services\AutomatedPurchaseEngine;
 
 class PurchaseDecisionController extends Controller
 {
     protected AutomatedPurchaseEngine $purchaseEngine;
-    
+
     public function __construct(AutomatedPurchaseEngine $purchaseEngine)
     {
         $this->purchaseEngine = $purchaseEngine;
@@ -28,11 +26,11 @@ class PurchaseDecisionController extends Controller
     /**
      * Display the purchase decision dashboard
      */
-public function index(Request $request)
+    public function index(Request $request)
     {
         $query = PurchaseQueue::with(['scrapedTicket', 'selectedByUser', 'purchaseAttempts'])
-                    ->orderBy('priority', 'desc')
-                    ->orderBy('created_at', 'asc');
+            ->orderBy('priority', 'desc')
+            ->orderBy('created_at', 'asc');
 
         // Apply filters
         if ($request->filled('status')) {
@@ -44,7 +42,7 @@ public function index(Request $request)
         }
 
         if ($request->filled('platform')) {
-            $query->whereHas('scrapedTicket', function ($q) use ($request) {
+            $query->whereHas('scrapedTicket', function ($q) use ($request): void {
                 $q->where('platform', $request->platform);
             });
         }
@@ -59,10 +57,10 @@ public function index(Request $request)
         $stats = $this->getPurchaseStats();
 
         // Get users who can make purchase decisions
-        $agents = \App\Models\User::whereIn('role', ['admin', 'agent'])
-                    ->where('is_active', true)
-                    ->orderBy('name')
-                    ->get();
+        $agents = User::whereIn('role', ['admin', 'agent'])
+            ->where('is_active', TRUE)
+            ->orderBy('name')
+            ->get();
 
         return view('purchase-decisions.index', compact('purchaseQueue', 'stats', 'agents'));
     }
@@ -72,14 +70,14 @@ public function index(Request $request)
      */
     public function selectTickets(Request $request)
     {
-        $query = ScrapedTicket::where('is_available', true)
-                    ->whereNotIn('id', function ($q) {
-                        $q->select('scraped_ticket_id')
-                          ->from('purchase_queues')
-                          ->whereIn('status', ['queued', 'processing']);
-                    })
-                    ->orderBy('is_high_demand', 'desc')
-                    ->orderBy('scraped_at', 'desc');
+        $query = ScrapedTicket::where('is_available', TRUE)
+            ->whereNotIn('id', function ($q): void {
+                $q->select('scraped_ticket_id')
+                    ->from('purchase_queues')
+                    ->whereIn('status', ['queued', 'processing']);
+            })
+            ->orderBy('is_high_demand', 'desc')
+            ->orderBy('scraped_at', 'desc');
 
         // Apply filters
         if ($request->filled('platform')) {
@@ -99,7 +97,7 @@ public function index(Request $request)
         }
 
         if ($request->filled('high_demand_only')) {
-            $query->where('is_high_demand', true);
+            $query->where('is_high_demand', TRUE);
         }
 
         $availableTickets = $query->paginate(20)->withQueryString();
@@ -113,19 +111,19 @@ public function index(Request $request)
     public function addToQueue(Request $request, ScrapedTicket $scrapedTicket)
     {
         $request->validate([
-            'priority' => 'required|in:' . implode(',', PurchaseQueue::getPriorities()),
-            'max_price' => 'nullable|numeric|min:0',
-            'quantity' => 'required|integer|min:1|max:10',
-            'notes' => 'nullable|string|max:1000',
-            'scheduled_for' => 'nullable|date|after:now',
-            'expires_at' => 'nullable|date|after:scheduled_for',
+            'priority'          => 'required|in:' . implode(',', PurchaseQueue::getPriorities()),
+            'max_price'         => 'nullable|numeric|min:0',
+            'quantity'          => 'required|integer|min:1|max:10',
+            'notes'             => 'nullable|string|max:1000',
+            'scheduled_for'     => 'nullable|date|after:now',
+            'expires_at'        => 'nullable|date|after:scheduled_for',
             'purchase_criteria' => 'nullable|array',
         ]);
 
         // Check if ticket is already in queue
         $existingQueue = PurchaseQueue::where('scraped_ticket_id', $scrapedTicket->id)
-                            ->whereIn('status', ['queued', 'processing'])
-                            ->first();
+            ->whereIn('status', ['queued', 'processing'])
+            ->first();
 
         if ($existingQueue) {
             return redirect()->back()->with('error', 'This ticket is already in the purchase queue.');
@@ -133,24 +131,24 @@ public function index(Request $request)
 
         // Get AI purchase recommendation
         $decision = $this->purchaseEngine->evaluatePurchaseDecision($scrapedTicket, Auth::user());
-        
+
         $purchaseQueue = PurchaseQueue::create([
-            'scraped_ticket_id' => $scrapedTicket->id,
+            'scraped_ticket_id'   => $scrapedTicket->id,
             'selected_by_user_id' => Auth::id(),
-            'user_id' => Auth::id(),
-            'priority' => $request->priority,
-            'max_price' => $request->max_price ?? $scrapedTicket->total_price,
-            'quantity' => $request->quantity,
-            'notes' => $request->notes,
-            'scheduled_for' => $request->scheduled_for,
-            'expires_at' => $request->expires_at,
-            'purchase_criteria' => [
-                'auto_purchase_eligible' => $decision['auto_purchase_eligible'] ?? false,
-                'ai_recommendation' => $decision['recommendation'] ?? null,
+            'user_id'             => Auth::id(),
+            'priority'            => $request->priority,
+            'max_price'           => $request->max_price ?? $scrapedTicket->total_price,
+            'quantity'            => $request->quantity,
+            'notes'               => $request->notes,
+            'scheduled_for'       => $request->scheduled_for,
+            'expires_at'          => $request->expires_at,
+            'purchase_criteria'   => [
+                'auto_purchase_eligible' => $decision['auto_purchase_eligible'] ?? FALSE,
+                'ai_recommendation'      => $decision['recommendation'] ?? NULL,
             ],
             'metadata' => [
                 'ai_analysis' => $decision,
-                'added_via' => 'web_interface',
+                'added_via'   => 'web_interface',
             ],
         ]);
 
@@ -163,16 +161,16 @@ public function index(Request $request)
     public function updateQueue(Request $request, PurchaseQueue $purchaseQueue)
     {
         $request->validate([
-            'priority' => 'sometimes|in:' . implode(',', PurchaseQueue::getPriorities()),
-            'max_price' => 'sometimes|nullable|numeric|min:0',
-            'quantity' => 'sometimes|integer|min:1|max:10',
-            'notes' => 'sometimes|nullable|string|max:1000',
+            'priority'      => 'sometimes|in:' . implode(',', PurchaseQueue::getPriorities()),
+            'max_price'     => 'sometimes|nullable|numeric|min:0',
+            'quantity'      => 'sometimes|integer|min:1|max:10',
+            'notes'         => 'sometimes|nullable|string|max:1000',
             'scheduled_for' => 'sometimes|nullable|date|after:now',
-            'expires_at' => 'sometimes|nullable|date|after:scheduled_for',
+            'expires_at'    => 'sometimes|nullable|date|after:scheduled_for',
         ]);
 
         $purchaseQueue->update($request->only([
-            'priority', 'max_price', 'quantity', 'notes', 'scheduled_for', 'expires_at'
+            'priority', 'max_price', 'quantity', 'notes', 'scheduled_for', 'expires_at',
         ]));
 
         return redirect()->back()->with('success', 'Purchase queue item updated successfully.');
@@ -183,7 +181,7 @@ public function index(Request $request)
      */
     public function cancelQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->isActive()) {
+        if (! $purchaseQueue->isActive()) {
             return redirect()->back()->with('error', 'Cannot cancel a queue item that is not active.');
         }
 
@@ -197,7 +195,7 @@ public function index(Request $request)
      */
     public function processQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
+        if (! $purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
             return redirect()->back()->with('error', 'Queue item is not ready for processing.');
         }
 
@@ -208,28 +206,28 @@ public function index(Request $request)
             // Execute automated purchase
             $purchaseRequest = [
                 'ticket_id' => $purchaseQueue->scraped_ticket_id,
-                'user_id' => $purchaseQueue->selected_by_user_id,
-                'quantity' => $purchaseQueue->quantity,
+                'user_id'   => $purchaseQueue->selected_by_user_id,
+                'quantity'  => $purchaseQueue->quantity,
                 'max_price' => $purchaseQueue->max_price,
-                'priority' => $purchaseQueue->priority,
-                'platform' => $purchaseQueue->scrapedTicket->platform,
+                'priority'  => $purchaseQueue->priority,
+                'platform'  => $purchaseQueue->scrapedTicket->platform,
             ];
-            
+
             $result = $this->purchaseEngine->executeAutomatedPurchase($purchaseRequest);
-            
+
             if ($result['success']) {
                 return redirect()->back()->with('success', 'Purchase completed successfully! Transaction ID: ' . $result['transaction_id']);
-            } else {
-                $purchaseQueue->markAsFailed();
-                return redirect()->back()->with('error', 'Purchase failed: ' . ($result['message'] ?? 'Unknown error'));
             }
-        } catch (\Exception $e) {
+            $purchaseQueue->markAsFailed();
+
+            return redirect()->back()->with('error', 'Purchase failed: ' . ($result['message'] ?? 'Unknown error'));
+        } catch (Exception $e) {
             $purchaseQueue->markAsFailed();
             Log::error('Purchase processing failed', [
                 'queue_id' => $purchaseQueue->uuid,
-                'error' => $e->getMessage(),
+                'error'    => $e->getMessage(),
             ]);
-            
+
             return redirect()->back()->with('error', 'Purchase processing failed. Please try again.');
         }
 
@@ -242,8 +240,50 @@ public function index(Request $request)
     public function show(PurchaseQueue $purchaseQueue)
     {
         $purchaseQueue->load(['scrapedTicket', 'selectedByUser', 'purchaseAttempts']);
-        
+
         return view('purchase-decisions.show', compact('purchaseQueue'));
+    }
+
+    /**
+     * Bulk operations on queue items
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action'      => 'required|in:cancel,update_priority,process',
+            'queue_ids'   => 'required|array',
+            'queue_ids.*' => 'exists:purchase_queues,id',
+            'priority'    => 'required_if:action,update_priority|in:' . implode(',', PurchaseQueue::getPriorities()),
+        ]);
+
+        $queues = PurchaseQueue::whereIn('id', $request->queue_ids)->get();
+        $processedCount = 0;
+
+        foreach ($queues as $queue) {
+            switch ($request->action) {
+                case 'cancel':
+                    if ($queue->isActive()) {
+                        $queue->cancel();
+                        $processedCount++;
+                    }
+
+                    break;
+                case 'update_priority':
+                    $queue->update(['priority' => $request->priority]);
+                    $processedCount++;
+
+                    break;
+                case 'process':
+                    if ($queue->status === PurchaseQueue::STATUS_QUEUED) {
+                        $this->processQueue($queue);
+                        $processedCount++;
+                    }
+
+                    break;
+            }
+        }
+
+        return redirect()->back()->with('success', "Processed {$processedCount} queue items successfully.");
     }
 
     /**
@@ -252,18 +292,18 @@ public function index(Request $request)
     protected function getPurchaseStats()
     {
         return [
-            'total_queued' => PurchaseQueue::byStatus(PurchaseQueue::STATUS_QUEUED)->count(),
-            'processing' => PurchaseQueue::byStatus(PurchaseQueue::STATUS_PROCESSING)->count(),
+            'total_queued'    => PurchaseQueue::byStatus(PurchaseQueue::STATUS_QUEUED)->count(),
+            'processing'      => PurchaseQueue::byStatus(PurchaseQueue::STATUS_PROCESSING)->count(),
             'completed_today' => PurchaseQueue::byStatus(PurchaseQueue::STATUS_COMPLETED)
-                                    ->whereDate('completed_at', today())
-                                    ->count(),
+                ->whereDate('completed_at', today())
+                ->count(),
             'failed_today' => PurchaseQueue::byStatus(PurchaseQueue::STATUS_FAILED)
-                                ->whereDate('updated_at', today())
-                                ->count(),
-            'success_rate' => $this->getSuccessRate(),
+                ->whereDate('updated_at', today())
+                ->count(),
+            'success_rate'  => $this->getSuccessRate(),
             'high_priority' => PurchaseQueue::highPriority()
-                                ->whereIn('status', ['queued', 'processing'])
-                                ->count(),
+                ->whereIn('status', ['queued', 'processing'])
+                ->count(),
             'expired' => PurchaseQueue::expired()->count(),
         ];
     }
@@ -279,20 +319,21 @@ public function index(Request $request)
         }
 
         $successfulAttempts = PurchaseAttempt::successful()->count();
+
         return round(($successfulAttempts / $totalAttempts) * 100, 1);
     }
 
     /**
      * Simulate purchase process (placeholder for actual implementation)
      */
-    protected function simulatePurchaseProcess(PurchaseAttempt $attempt)
+    protected function simulatePurchaseProcess(PurchaseAttempt $attempt): void
     {
         // Mark as in progress
         $attempt->markInProgress();
 
         // Simulate processing delay
         // In a real implementation, this would be handled by a queue job
-        
+
         // Random success/failure for demo purposes
         $success = rand(1, 100) <= 75; // 75% success rate
 
@@ -302,53 +343,12 @@ public function index(Request $request)
                 'CONF-' . strtoupper(Str::random(8)),
                 $attempt->attempted_price,
                 $attempt->attempted_price * 0.15, // 15% fees
-                $attempt->attempted_price * 1.15
+                $attempt->attempted_price * 1.15,
             );
             $attempt->purchaseQueue->markAsCompleted();
         } else {
             $attempt->markFailed('Simulation failed', 'Random failure for demo purposes');
             $attempt->purchaseQueue->markAsFailed();
         }
-    }
-
-    /**
-     * Bulk operations on queue items
-     */
-    public function bulkAction(Request $request)
-    {
-        $request->validate([
-            'action' => 'required|in:cancel,update_priority,process',
-            'queue_ids' => 'required|array',
-            'queue_ids.*' => 'exists:purchase_queues,id',
-            'priority' => 'required_if:action,update_priority|in:' . implode(',', PurchaseQueue::getPriorities()),
-        ]);
-
-        $queues = PurchaseQueue::whereIn('id', $request->queue_ids)->get();
-        $processedCount = 0;
-
-        foreach ($queues as $queue) {
-            switch ($request->action) {
-                case 'cancel':
-                    if ($queue->isActive()) {
-                        $queue->cancel();
-                        $processedCount++;
-                    }
-                    break;
-                    
-                case 'update_priority':
-                    $queue->update(['priority' => $request->priority]);
-                    $processedCount++;
-                    break;
-                    
-                case 'process':
-                    if ($queue->status === PurchaseQueue::STATUS_QUEUED) {
-                        $this->processQueue($queue);
-                        $processedCount++;
-                    }
-                    break;
-            }
-        }
-
-        return redirect()->back()->with('success', "Processed {$processedCount} queue items successfully.");
     }
 }

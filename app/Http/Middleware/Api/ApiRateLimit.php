@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware\Api;
 
@@ -20,11 +20,11 @@ class ApiRateLimit
             $retryAfter = RateLimiter::availableIn($limiterKey);
 
             return response()->json([
-                'message' => 'Too many requests. Please try again later.',
-                'retry_after' => $retryAfter
+                'message'     => 'Too many requests. Please try again later.',
+                'retry_after' => $retryAfter,
             ], 429, [
-                'Retry-After' => $retryAfter,
-                'X-RateLimit-Limit' => $maxAttempts,
+                'Retry-After'           => $retryAfter,
+                'X-RateLimit-Limit'     => $maxAttempts,
                 'X-RateLimit-Remaining' => 0,
             ]);
         }
@@ -34,7 +34,7 @@ class ApiRateLimit
         $response = $next($request);
 
         $remaining = $maxAttempts - RateLimiter::attempts($limiterKey);
-        
+
         $response->headers->set('X-RateLimit-Limit', $maxAttempts);
         $response->headers->set('X-RateLimit-Remaining', max(0, $remaining));
 
@@ -47,7 +47,7 @@ class ApiRateLimit
     protected function resolveLimiterKey(Request $request, string $key): string
     {
         $user = $request->user();
-        
+
         if ($user) {
             return $key . ':user:' . $user->id;
         }

@@ -1,42 +1,46 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Contracts\Encryption\EncryptException;
+use Exception;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\Encryption\EncryptException;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+
+use function gettype;
+use function in_array;
+use function is_array;
+use function strlen;
 
 /**
  * AES-256 Encryption Service for Sensitive Data
- * 
+ *
  * This service provides secure encryption/decryption for sensitive user and financial data
  * using AES-256-CBC encryption with authenticated encryption.
  */
 class EncryptionService
 {
-    /**
-     * Sensitive data types that require encryption
-     */
-    const SENSITIVE_FIELDS = [
+    /** Sensitive data types that require encryption */
+    public const SENSITIVE_FIELDS = [
         // User sensitive data
         'email',
         'phone_number',
         'payment_details',
         'api_credentials',
         'session_tokens',
-        
+
         // Financial data
         'transaction_id',
         'confirmation_number',
         'payment_info',
         'credit_card_info',
-        
+
         // Authentication data
         'two_factor_secret',
         'backup_codes',
         'oauth_tokens',
-        
+
         // Personal data
         'address',
         'personal_notes',
@@ -45,14 +49,15 @@ class EncryptionService
     /**
      * Encrypt sensitive data using AES-256
      *
-     * @param mixed $value The value to encrypt
-     * @param bool $serialize Whether to serialize the value before encryption
+     * @param mixed $value     The value to encrypt
+     * @param bool  $serialize Whether to serialize the value before encryption
+     *
      * @return string|null Encrypted value or null if encryption fails
      */
-    public function encrypt($value, bool $serialize = false): ?string
+    public function encrypt($value, bool $serialize = FALSE): ?string
     {
-        if ($value === null || $value === '') {
-            return null;
+        if ($value === NULL || $value === '') {
+            return NULL;
         }
 
         try {
@@ -66,9 +71,10 @@ class EncryptionService
         } catch (EncryptException $e) {
             Log::error('Encryption failed', [
                 'error' => $e->getMessage(),
-                'type' => gettype($value)
+                'type'  => gettype($value),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
@@ -76,18 +82,19 @@ class EncryptionService
      * Decrypt sensitive data
      *
      * @param string|null $encryptedValue The encrypted value
-     * @param bool $unserialize Whether to unserialize after decryption
+     * @param bool        $unserialize    Whether to unserialize after decryption
+     *
      * @return mixed Decrypted value or null if decryption fails
      */
-    public function decrypt(?string $encryptedValue, bool $unserialize = false)
+    public function decrypt(?string $encryptedValue, bool $unserialize = FALSE)
     {
-        if ($encryptedValue === null || $encryptedValue === '') {
-            return null;
+        if ($encryptedValue === NULL || $encryptedValue === '') {
+            return NULL;
         }
 
         try {
             $decrypted = Crypt::decrypt($encryptedValue);
-            
+
             // Unserialize if requested
             if ($unserialize) {
                 return unserialize($decrypted);
@@ -96,27 +103,29 @@ class EncryptionService
             return $decrypted;
         } catch (DecryptException $e) {
             Log::error('Decryption failed', [
-                'error' => $e->getMessage(),
-                'encrypted_length' => strlen($encryptedValue)
+                'error'            => $e->getMessage(),
+                'encrypted_length' => strlen($encryptedValue),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
     /**
      * Encrypt an array of sensitive data
      *
-     * @param array $data Array of data to encrypt
+     * @param array $data            Array of data to encrypt
      * @param array $fieldsToEncrypt Specific fields to encrypt (optional)
+     *
      * @return array Array with encrypted sensitive fields
      */
-    public function encryptArray(array $data, array $fieldsToEncrypt = null): array
+    public function encryptArray(array $data, ?array $fieldsToEncrypt = NULL): array
     {
-        $fieldsToEncrypt = $fieldsToEncrypt ?? self::SENSITIVE_FIELDS;
+        $fieldsToEncrypt ??= self::SENSITIVE_FIELDS;
         $encrypted = $data;
 
         foreach ($fieldsToEncrypt as $field) {
-            if (isset($data[$field]) && $data[$field] !== null) {
+            if (isset($data[$field]) && $data[$field] !== NULL) {
                 $encrypted[$field] = $this->encrypt($data[$field]);
             }
         }
@@ -127,17 +136,18 @@ class EncryptionService
     /**
      * Decrypt an array of encrypted data
      *
-     * @param array $encryptedData Array with encrypted fields
+     * @param array $encryptedData   Array with encrypted fields
      * @param array $fieldsToDecrypt Specific fields to decrypt (optional)
+     *
      * @return array Array with decrypted fields
      */
-    public function decryptArray(array $encryptedData, array $fieldsToDecrypt = null): array
+    public function decryptArray(array $encryptedData, ?array $fieldsToDecrypt = NULL): array
     {
-        $fieldsToDecrypt = $fieldsToDecrypt ?? self::SENSITIVE_FIELDS;
+        $fieldsToDecrypt ??= self::SENSITIVE_FIELDS;
         $decrypted = $encryptedData;
 
         foreach ($fieldsToDecrypt as $field) {
-            if (isset($encryptedData[$field]) && $encryptedData[$field] !== null) {
+            if (isset($encryptedData[$field]) && $encryptedData[$field] !== NULL) {
                 $decrypted[$field] = $this->decrypt($encryptedData[$field]);
             }
         }
@@ -147,44 +157,35 @@ class EncryptionService
 
     /**
      * Check if a field is considered sensitive
-     *
-     * @param string $fieldName
-     * @return bool
      */
     public function isSensitiveField(string $fieldName): bool
     {
-        return in_array($fieldName, self::SENSITIVE_FIELDS);
+        return in_array($fieldName, self::SENSITIVE_FIELDS, TRUE);
     }
 
     /**
      * Encrypt JSON data while preserving structure
      *
-     * @param array $jsonData
      * @return string Encrypted JSON string
      */
     public function encryptJsonData(array $jsonData): ?string
     {
-        return $this->encrypt($jsonData, true);
+        return $this->encrypt($jsonData, TRUE);
     }
 
     /**
      * Decrypt JSON data and restore structure
-     *
-     * @param string|null $encryptedJson
-     * @return array|null
      */
     public function decryptJsonData(?string $encryptedJson): ?array
     {
-        $decrypted = $this->decrypt($encryptedJson, true);
-        return is_array($decrypted) ? $decrypted : null;
+        $decrypted = $this->decrypt($encryptedJson, TRUE);
+
+        return is_array($decrypted) ? $decrypted : NULL;
     }
 
     /**
      * Generate a secure hash for sensitive data (for indexing/searching)
      * This creates a searchable hash without exposing the original data
-     *
-     * @param string $value
-     * @return string
      */
     public function generateSearchableHash(string $value): string
     {
@@ -195,11 +196,11 @@ class EncryptionService
     /**
      * Rotate encryption for existing data (useful for key rotation)
      *
-     * @param string $oldEncryptedValue
      * @param string $oldKey (if different from current)
+     *
      * @return string|null Re-encrypted value with current key
      */
-    public function rotateEncryption(string $oldEncryptedValue, ?string $oldKey = null): ?string
+    public function rotateEncryption(string $oldEncryptedValue, ?string $oldKey = NULL): ?string
     {
         try {
             // Temporarily switch key if provided
@@ -212,16 +213,17 @@ class EncryptionService
                 $decrypted = $this->decrypt($oldEncryptedValue);
             }
 
-            if ($decrypted === null) {
-                return null;
+            if ($decrypted === NULL) {
+                return NULL;
             }
 
             return $this->encrypt($decrypted);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Encryption rotation failed', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 }

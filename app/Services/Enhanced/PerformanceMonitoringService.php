@@ -1,18 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Enhanced;
 
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
+
+use function array_slice;
+use function count;
+use function function_exists;
+use function ini_get;
 
 class PerformanceMonitoringService
 {
     private $redis;
+
     private $metrics = [];
-    
+
     public function __construct()
     {
         $this->redis = Redis::connection();
@@ -24,24 +31,24 @@ class PerformanceMonitoringService
     public function recordMetric(string $name, float $value, array $tags = []): void
     {
         $metric = [
-            'name' => $name,
-            'value' => $value,
-            'tags' => $tags,
-            'timestamp' => microtime(true),
+            'name'      => $name,
+            'value'     => $value,
+            'tags'      => $tags,
+            'timestamp' => microtime(TRUE),
         ];
 
         $this->metrics[] = $metric;
-        
+
         // Store in Redis for real-time monitoring
         $key = "performance_metric:{$name}:" . date('Y-m-d-H-i');
-        
+
         try {
             $this->redis->lpush($key, json_encode($metric));
             $this->redis->expire($key, 3600); // Keep for 1 hour
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::channel('performance')->warning('Failed to store metric', [
                 'metric' => $name,
-                'error' => $e->getMessage()
+                'error'  => $e->getMessage(),
             ]);
         }
     }
@@ -60,7 +67,7 @@ class PerformanceMonitoringService
         if ($executionTime > 1000) { // > 1 second
             $this->recordMetric('database.slow_query', $executionTime, [
                 'connection' => $connection,
-                'sql' => substr($sql, 0, 200), // First 200 chars
+                'sql'        => substr($sql, 0, 200), // First 200 chars
             ]);
         }
     }
@@ -68,18 +75,18 @@ class PerformanceMonitoringService
     /**
      * Track cache performance
      */
-    public function trackCacheOperation(string $operation, string $key, bool $hit = null, float $executionTime = null): void
+    public function trackCacheOperation(string $operation, string $key, ?bool $hit = NULL, ?float $executionTime = NULL): void
     {
         $tags = [
-            'operation' => $operation,
+            'operation'  => $operation,
             'key_prefix' => $this->extractKeyPrefix($key),
         ];
 
-        if ($hit !== null) {
+        if ($hit !== NULL) {
             $this->recordMetric('cache.hit_rate', $hit ? 1 : 0, $tags);
         }
 
-        if ($executionTime !== null) {
+        if ($executionTime !== NULL) {
             $this->recordMetric('cache.operation_time', $executionTime, $tags);
         }
     }
@@ -90,15 +97,15 @@ class PerformanceMonitoringService
     public function trackApiEndpoint(string $endpoint, string $method, float $responseTime, int $statusCode): void
     {
         $this->recordMetric('api.response_time', $responseTime, [
-            'endpoint' => $endpoint,
-            'method' => $method,
+            'endpoint'    => $endpoint,
+            'method'      => $method,
             'status_code' => $statusCode,
         ]);
 
         // Track error rates
         if ($statusCode >= 400) {
             $this->recordMetric('api.error_rate', 1, [
-                'endpoint' => $endpoint,
+                'endpoint'    => $endpoint,
                 'status_code' => $statusCode,
             ]);
         }
@@ -110,14 +117,14 @@ class PerformanceMonitoringService
     public function trackScrapingOperation(string $platform, string $operation, float $duration, bool $success): void
     {
         $this->recordMetric('scraping.operation_time', $duration, [
-            'platform' => $platform,
+            'platform'  => $platform,
             'operation' => $operation,
-            'success' => $success,
+            'success'   => $success,
         ]);
 
-        if (!$success) {
+        if (! $success) {
             $this->recordMetric('scraping.failure_rate', 1, [
-                'platform' => $platform,
+                'platform'  => $platform,
                 'operation' => $operation,
             ]);
         }
@@ -130,14 +137,31 @@ class PerformanceMonitoringService
     {
         return Cache::remember('performance_dashboard', 30, function () {
             return [
-                'system' => $this->getSystemMetrics(),
+                'system'   => $this->getSystemMetrics(),
                 'database' => $this->getDatabaseMetrics(),
-                'cache' => $this->getCacheMetrics(),
-                'api' => $this->getApiMetrics(),
+                'cache'    => $this->getCacheMetrics(),
+                'api'      => $this->getApiMetrics(),
                 'scraping' => $this->getScrapingMetrics(),
-                'alerts' => $this->getPerformanceAlerts(),
+                'alerts'   => $this->getPerformanceAlerts(),
             ];
         });
+    }
+
+    /**
+     * Export metrics for external monitoring systems
+     */
+    public function exportMetrics(string $format = 'json'): string
+    {
+        $metrics = $this->getDashboardMetrics();
+
+        switch ($format) {
+            case 'prometheus':
+                return $this->exportPrometheusMetrics($metrics);
+            case 'influxdb':
+                return $this->exportInfluxDBMetrics($metrics);
+            default:
+                return json_encode($metrics, JSON_PRETTY_PRINT);
+        }
     }
 
     /**
@@ -147,13 +171,13 @@ class PerformanceMonitoringService
     {
         return [
             'memory_usage' => [
-                'current' => memory_get_usage(true),
-                'peak' => memory_get_peak_usage(true),
-                'limit' => $this->getMemoryLimit(),
+                'current' => memory_get_usage(TRUE),
+                'peak'    => memory_get_peak_usage(TRUE),
+                'limit'   => $this->getMemoryLimit(),
             ],
-            'cpu_load' => $this->getCpuLoad(),
+            'cpu_load'   => $this->getCpuLoad(),
             'disk_usage' => $this->getDiskUsage(),
-            'uptime' => $this->getSystemUptime(),
+            'uptime'     => $this->getSystemUptime(),
         ];
     }
 
@@ -183,12 +207,12 @@ class PerformanceMonitoringService
                 ],
                 'queries' => [
                     'total' => $stats['Questions'] ?? 0,
-                    'slow' => $stats['Slow_queries'] ?? 0,
+                    'slow'  => $stats['Slow_queries'] ?? 0,
                 ],
                 'buffer_pool_hit_rate' => round($hitRate, 2),
-                'recent_query_stats' => $this->getRecentQueryStats(),
+                'recent_query_stats'   => $this->getRecentQueryStats(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
@@ -200,21 +224,21 @@ class PerformanceMonitoringService
     {
         try {
             $redisInfo = $this->redis->info();
-            
+
             return [
                 'redis' => [
                     'connected_clients' => $redisInfo['connected_clients'] ?? 0,
-                    'used_memory' => $redisInfo['used_memory_human'] ?? '0B',
-                    'keyspace_hits' => $redisInfo['keyspace_hits'] ?? 0,
-                    'keyspace_misses' => $redisInfo['keyspace_misses'] ?? 0,
-                    'hit_rate' => $this->calculateRedisHitRate($redisInfo),
+                    'used_memory'       => $redisInfo['used_memory_human'] ?? '0B',
+                    'keyspace_hits'     => $redisInfo['keyspace_hits'] ?? 0,
+                    'keyspace_misses'   => $redisInfo['keyspace_misses'] ?? 0,
+                    'hit_rate'          => $this->calculateRedisHitRate($redisInfo),
                 ],
                 'laravel_cache' => [
-                    'driver' => config('cache.default'),
+                    'driver'            => config('cache.default'),
                     'recent_operations' => $this->getRecentCacheOperations(),
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
@@ -225,9 +249,9 @@ class PerformanceMonitoringService
     private function getApiMetrics(): array
     {
         return [
-            'endpoints' => $this->getTopEndpoints(),
+            'endpoints'      => $this->getTopEndpoints(),
             'response_times' => $this->getAverageResponseTimes(),
-            'error_rates' => $this->getErrorRates(),
+            'error_rates'    => $this->getErrorRates(),
             'request_volume' => $this->getRequestVolume(),
         ];
     }
@@ -238,10 +262,10 @@ class PerformanceMonitoringService
     private function getScrapingMetrics(): array
     {
         return [
-            'platforms' => $this->getScrapingPlatformStats(),
-            'success_rates' => $this->getScrapingSuccessRates(),
+            'platforms'         => $this->getScrapingPlatformStats(),
+            'success_rates'     => $this->getScrapingSuccessRates(),
             'average_durations' => $this->getScrapingDurations(),
-            'recent_failures' => $this->getRecentScrapingFailures(),
+            'recent_failures'   => $this->getRecentScrapingFailures(),
         ];
     }
 
@@ -253,12 +277,12 @@ class PerformanceMonitoringService
         $alerts = [];
 
         // Check for high memory usage
-        $memoryUsage = (memory_get_usage(true) / $this->getMemoryLimit()) * 100;
+        $memoryUsage = (memory_get_usage(TRUE) / $this->getMemoryLimit()) * 100;
         if ($memoryUsage > 80) {
             $alerts[] = [
-                'type' => 'memory',
-                'severity' => $memoryUsage > 90 ? 'critical' : 'warning',
-                'message' => "High memory usage: {$memoryUsage}%",
+                'type'      => 'memory',
+                'severity'  => $memoryUsage > 90 ? 'critical' : 'warning',
+                'message'   => "High memory usage: {$memoryUsage}%",
                 'timestamp' => now(),
             ];
         }
@@ -267,9 +291,9 @@ class PerformanceMonitoringService
         $slowQueries = $this->getSlowQueryCount();
         if ($slowQueries > 10) {
             $alerts[] = [
-                'type' => 'database',
-                'severity' => 'warning',
-                'message' => "High number of slow queries: {$slowQueries}",
+                'type'      => 'database',
+                'severity'  => 'warning',
+                'message'   => "High number of slow queries: {$slowQueries}",
                 'timestamp' => now(),
             ];
         }
@@ -278,9 +302,9 @@ class PerformanceMonitoringService
         $cacheHitRate = $this->getCacheHitRate();
         if ($cacheHitRate < 80) {
             $alerts[] = [
-                'type' => 'cache',
-                'severity' => 'warning',
-                'message' => "Low cache hit rate: {$cacheHitRate}%",
+                'type'      => 'cache',
+                'severity'  => 'warning',
+                'message'   => "Low cache hit rate: {$cacheHitRate}%",
                 'timestamp' => now(),
             ];
         }
@@ -294,15 +318,29 @@ class PerformanceMonitoringService
     private function extractQueryType(string $sql): string
     {
         $sql = trim(strtoupper($sql));
-        
-        if (strpos($sql, 'SELECT') === 0) return 'SELECT';
-        if (strpos($sql, 'INSERT') === 0) return 'INSERT';
-        if (strpos($sql, 'UPDATE') === 0) return 'UPDATE';
-        if (strpos($sql, 'DELETE') === 0) return 'DELETE';
-        if (strpos($sql, 'CREATE') === 0) return 'CREATE';
-        if (strpos($sql, 'ALTER') === 0) return 'ALTER';
-        if (strpos($sql, 'DROP') === 0) return 'DROP';
-        
+
+        if (strpos($sql, 'SELECT') === 0) {
+            return 'SELECT';
+        }
+        if (strpos($sql, 'INSERT') === 0) {
+            return 'INSERT';
+        }
+        if (strpos($sql, 'UPDATE') === 0) {
+            return 'UPDATE';
+        }
+        if (strpos($sql, 'DELETE') === 0) {
+            return 'DELETE';
+        }
+        if (strpos($sql, 'CREATE') === 0) {
+            return 'CREATE';
+        }
+        if (strpos($sql, 'ALTER') === 0) {
+            return 'ALTER';
+        }
+        if (strpos($sql, 'DROP') === 0) {
+            return 'DROP';
+        }
+
         return 'OTHER';
     }
 
@@ -312,6 +350,7 @@ class PerformanceMonitoringService
     private function extractKeyPrefix(string $key): string
     {
         $parts = explode(':', $key);
+
         return $parts[0] ?? 'unknown';
     }
 
@@ -321,20 +360,22 @@ class PerformanceMonitoringService
     private function getMemoryLimit(): int
     {
         $limit = ini_get('memory_limit');
-        
-        if ($limit == -1) {
+
+        if ($limit === -1) {
             return PHP_INT_MAX;
         }
-        
+
         $value = (int) $limit;
         $unit = strtolower(substr($limit, -1));
-        
+
         switch ($unit) {
             case 'g': $value *= 1024;
+                // no break
             case 'm': $value *= 1024;
+                // no break
             case 'k': $value *= 1024;
         }
-        
+
         return $value;
     }
 
@@ -345,13 +386,14 @@ class PerformanceMonitoringService
     {
         if (function_exists('sys_getloadavg')) {
             $load = sys_getloadavg();
+
             return [
-                '1_minute' => $load[0] ?? 0,
-                '5_minute' => $load[1] ?? 0,
+                '1_minute'  => $load[0] ?? 0,
+                '5_minute'  => $load[1] ?? 0,
                 '15_minute' => $load[2] ?? 0,
             ];
         }
-        
+
         return ['1_minute' => 0, '5_minute' => 0, '15_minute' => 0];
     }
 
@@ -361,10 +403,10 @@ class PerformanceMonitoringService
     private function getDiskUsage(): array
     {
         $path = base_path();
-        
+
         return [
-            'free' => disk_free_space($path),
-            'total' => disk_total_space($path),
+            'free'            => disk_free_space($path),
+            'total'           => disk_total_space($path),
             'used_percentage' => round((1 - (disk_free_space($path) / disk_total_space($path))) * 100, 2),
         ];
     }
@@ -376,9 +418,10 @@ class PerformanceMonitoringService
     {
         if (file_exists('/proc/uptime')) {
             $uptime = file_get_contents('/proc/uptime');
-            return (int) floatval($uptime);
+
+            return (int) (float) $uptime;
         }
-        
+
         return 0;
     }
 
@@ -390,7 +433,7 @@ class PerformanceMonitoringService
         $hits = $info['keyspace_hits'] ?? 0;
         $misses = $info['keyspace_misses'] ?? 0;
         $total = $hits + $misses;
-        
+
         return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
     }
 
@@ -400,17 +443,17 @@ class PerformanceMonitoringService
     private function getRecentQueryStats(): array
     {
         $metrics = $this->getRecentMetrics('database.query_time', 100);
-        
+
         if (empty($metrics)) {
             return ['count' => 0, 'average' => 0, 'max' => 0];
         }
-        
+
         $values = array_column($metrics, 'value');
-        
+
         return [
-            'count' => count($values),
+            'count'   => count($values),
             'average' => round(array_sum($values) / count($values), 2),
-            'max' => max($values),
+            'max'     => max($values),
         ];
     }
 
@@ -420,16 +463,16 @@ class PerformanceMonitoringService
     private function getRecentCacheOperations(): array
     {
         $hits = $this->getRecentMetrics('cache.hit_rate', 50);
-        
+
         if (empty($hits)) {
             return ['hit_rate' => 0, 'operations' => 0];
         }
-        
+
         $hitCount = array_sum(array_column($hits, 'value'));
         $totalOperations = count($hits);
-        
+
         return [
-            'hit_rate' => $totalOperations > 0 ? round(($hitCount / $totalOperations) * 100, 2) : 0,
+            'hit_rate'   => $totalOperations > 0 ? round(($hitCount / $totalOperations) * 100, 2) : 0,
             'operations' => $totalOperations,
         ];
     }
@@ -440,25 +483,25 @@ class PerformanceMonitoringService
     private function getRecentMetrics(string $name, int $limit = 100): array
     {
         $pattern = "performance_metric:{$name}:*";
-        
+
         try {
             $keys = $this->redis->keys($pattern);
             $metrics = [];
-            
+
             foreach (array_slice($keys, 0, $limit) as $key) {
                 $data = $this->redis->lrange($key, 0, -1);
                 foreach ($data as $item) {
-                    $metrics[] = json_decode($item, true);
+                    $metrics[] = json_decode($item, TRUE);
                 }
             }
-            
+
             // Sort by timestamp (most recent first)
             usort($metrics, function ($a, $b) {
                 return $b['timestamp'] <=> $a['timestamp'];
             });
-            
+
             return array_slice($metrics, 0, $limit);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [];
         }
     }
@@ -470,11 +513,11 @@ class PerformanceMonitoringService
     {
         // This would typically be implemented with proper metrics aggregation
         return [
-            '/api/tickets/search' => 1250,
-            '/api/tickets' => 890,
-            '/api/platforms/stubhub' => 450,
+            '/api/tickets/search'      => 1250,
+            '/api/tickets'             => 890,
+            '/api/platforms/stubhub'   => 450,
             '/api/analytics/dashboard' => 320,
-            '/api/alerts' => 180,
+            '/api/alerts'              => 180,
         ];
     }
 
@@ -484,11 +527,11 @@ class PerformanceMonitoringService
     private function getAverageResponseTimes(): array
     {
         return [
-            '/api/tickets/search' => 245.5,
-            '/api/tickets' => 123.2,
-            '/api/platforms/stubhub' => 1850.3,
+            '/api/tickets/search'      => 245.5,
+            '/api/tickets'             => 123.2,
+            '/api/platforms/stubhub'   => 1850.3,
             '/api/analytics/dashboard' => 456.7,
-            '/api/alerts' => 89.1,
+            '/api/alerts'              => 89.1,
         ];
     }
 
@@ -498,11 +541,11 @@ class PerformanceMonitoringService
     private function getErrorRates(): array
     {
         return [
-            '/api/tickets/search' => 2.1,
-            '/api/tickets' => 0.5,
-            '/api/platforms/stubhub' => 8.3,
+            '/api/tickets/search'      => 2.1,
+            '/api/tickets'             => 0.5,
+            '/api/platforms/stubhub'   => 8.3,
             '/api/analytics/dashboard' => 1.2,
-            '/api/alerts' => 0.3,
+            '/api/alerts'              => 0.3,
         ];
     }
 
@@ -513,12 +556,12 @@ class PerformanceMonitoringService
     {
         $hours = [];
         $now = Carbon::now();
-        
+
         for ($i = 23; $i >= 0; $i--) {
             $hour = $now->copy()->subHours($i);
             $hours[$hour->format('H:00')] = rand(50, 300); // Mock data
         }
-        
+
         return $hours;
     }
 
@@ -529,9 +572,9 @@ class PerformanceMonitoringService
     {
         return [
             'ticketmaster' => ['requests' => 1520, 'success' => 1445, 'failures' => 75],
-            'stubhub' => ['requests' => 980, 'success' => 892, 'failures' => 88],
-            'viagogo' => ['requests' => 650, 'success' => 598, 'failures' => 52],
-            'tickpick' => ['requests' => 420, 'success' => 389, 'failures' => 31],
+            'stubhub'      => ['requests' => 980, 'success' => 892, 'failures' => 88],
+            'viagogo'      => ['requests' => 650, 'success' => 598, 'failures' => 52],
+            'tickpick'     => ['requests' => 420, 'success' => 389, 'failures' => 31],
         ];
     }
 
@@ -542,9 +585,9 @@ class PerformanceMonitoringService
     {
         return [
             'ticketmaster' => 95.1,
-            'stubhub' => 91.0,
-            'viagogo' => 92.0,
-            'tickpick' => 92.6,
+            'stubhub'      => 91.0,
+            'viagogo'      => 92.0,
+            'tickpick'     => 92.6,
         ];
     }
 
@@ -555,9 +598,9 @@ class PerformanceMonitoringService
     {
         return [
             'ticketmaster' => 2.3,
-            'stubhub' => 1.8,
-            'viagogo' => 3.1,
-            'tickpick' => 1.5,
+            'stubhub'      => 1.8,
+            'viagogo'      => 3.1,
+            'tickpick'     => 1.5,
         ];
     }
 
@@ -568,17 +611,17 @@ class PerformanceMonitoringService
     {
         return [
             [
-                'platform' => 'viagogo',
+                'platform'  => 'viagogo',
                 'operation' => 'event_search',
-                'error' => 'Rate limit exceeded',
+                'error'     => 'Rate limit exceeded',
                 'timestamp' => Carbon::now()->subMinutes(5),
             ],
             [
-                'platform' => 'stubhub',
+                'platform'  => 'stubhub',
                 'operation' => 'ticket_details',
-                'error' => 'CAPTCHA challenge',
+                'error'     => 'CAPTCHA challenge',
                 'timestamp' => Carbon::now()->subMinutes(12),
-            ]
+            ],
         ];
     }
 
@@ -589,8 +632,9 @@ class PerformanceMonitoringService
     {
         try {
             $result = DB::select('SHOW STATUS LIKE "Slow_queries"');
+
             return $result[0]->Value ?? 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return 0;
         }
     }
@@ -605,27 +649,10 @@ class PerformanceMonitoringService
             $hits = $info['keyspace_hits'] ?? 0;
             $misses = $info['keyspace_misses'] ?? 0;
             $total = $hits + $misses;
-            
-            return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
-        } catch (\Exception $e) {
-            return 0;
-        }
-    }
 
-    /**
-     * Export metrics for external monitoring systems
-     */
-    public function exportMetrics(string $format = 'json'): string
-    {
-        $metrics = $this->getDashboardMetrics();
-        
-        switch ($format) {
-            case 'prometheus':
-                return $this->exportPrometheusMetrics($metrics);
-            case 'influxdb':
-                return $this->exportInfluxDBMetrics($metrics);
-            default:
-                return json_encode($metrics, JSON_PRETTY_PRINT);
+            return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
+        } catch (Exception $e) {
+            return 0;
         }
     }
 
@@ -636,22 +663,22 @@ class PerformanceMonitoringService
     {
         $output = [];
         $timestamp = time();
-        
+
         // System metrics
-        $output[] = "# HELP hdtickets_memory_usage_bytes Current memory usage in bytes";
-        $output[] = "# TYPE hdtickets_memory_usage_bytes gauge";
-        $output[] = "hdtickets_memory_usage_bytes " . $metrics['system']['memory_usage']['current'] . " {$timestamp}";
-        
+        $output[] = '# HELP hdtickets_memory_usage_bytes Current memory usage in bytes';
+        $output[] = '# TYPE hdtickets_memory_usage_bytes gauge';
+        $output[] = 'hdtickets_memory_usage_bytes ' . $metrics['system']['memory_usage']['current'] . " {$timestamp}";
+
         // Database metrics
-        $output[] = "# HELP hdtickets_db_connections Current database connections";
-        $output[] = "# TYPE hdtickets_db_connections gauge";
-        $output[] = "hdtickets_db_connections " . $metrics['database']['connections']['current'] . " {$timestamp}";
-        
+        $output[] = '# HELP hdtickets_db_connections Current database connections';
+        $output[] = '# TYPE hdtickets_db_connections gauge';
+        $output[] = 'hdtickets_db_connections ' . $metrics['database']['connections']['current'] . " {$timestamp}";
+
         // Cache metrics
-        $output[] = "# HELP hdtickets_cache_hit_rate Cache hit rate percentage";
-        $output[] = "# TYPE hdtickets_cache_hit_rate gauge";
-        $output[] = "hdtickets_cache_hit_rate " . $metrics['cache']['redis']['hit_rate'] . " {$timestamp}";
-        
+        $output[] = '# HELP hdtickets_cache_hit_rate Cache hit rate percentage';
+        $output[] = '# TYPE hdtickets_cache_hit_rate gauge';
+        $output[] = 'hdtickets_cache_hit_rate ' . $metrics['cache']['redis']['hit_rate'] . " {$timestamp}";
+
         return implode("\n", $output);
     }
 
@@ -662,16 +689,16 @@ class PerformanceMonitoringService
     {
         $lines = [];
         $timestamp = time() * 1000000000; // InfluxDB expects nanoseconds
-        
+
         // System metrics
-        $lines[] = "system,host=hdtickets memory_usage=" . $metrics['system']['memory_usage']['current'] . " {$timestamp}";
-        
+        $lines[] = 'system,host=hdtickets memory_usage=' . $metrics['system']['memory_usage']['current'] . " {$timestamp}";
+
         // Database metrics
-        $lines[] = "database,host=hdtickets connections=" . $metrics['database']['connections']['current'] . " {$timestamp}";
-        
+        $lines[] = 'database,host=hdtickets connections=' . $metrics['database']['connections']['current'] . " {$timestamp}";
+
         // Cache metrics
-        $lines[] = "cache,host=hdtickets hit_rate=" . $metrics['cache']['redis']['hit_rate'] . " {$timestamp}";
-        
+        $lines[] = 'cache,host=hdtickets hit_rate=' . $metrics['cache']['redis']['hit_rate'] . " {$timestamp}";
+
         return implode("\n", $lines);
     }
 }

@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use App\Services\EncryptionService;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,13 +12,18 @@ class PurchaseAttempt extends Model
 {
     use HasFactory;
 
+    // Status constants
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_IN_PROGRESS = 'in_progress';
+
+    public const STATUS_SUCCESS = 'success';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
     protected $encryptionService;
-    
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->encryptionService = app(EncryptionService::class);
-    }
 
     protected $fillable = [
         'uuid',
@@ -49,34 +53,22 @@ class PurchaseAttempt extends Model
 
     protected $casts = [
         'purchase_details' => 'encrypted:array',
-        'response_data' => 'encrypted:array',
-        'metadata' => 'array',
-        'started_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'next_retry_at' => 'datetime',
-        'attempted_price' => 'decimal:2',
-        'final_price' => 'decimal:2',
-        'total_paid' => 'decimal:2',
-        'fees' => 'decimal:2',
-        'platform_fee' => 'decimal:2',
+        'response_data'    => 'encrypted:array',
+        'metadata'         => 'array',
+        'started_at'       => 'datetime',
+        'completed_at'     => 'datetime',
+        'next_retry_at'    => 'datetime',
+        'attempted_price'  => 'decimal:2',
+        'final_price'      => 'decimal:2',
+        'total_paid'       => 'decimal:2',
+        'fees'             => 'decimal:2',
+        'platform_fee'     => 'decimal:2',
     ];
 
-    // Status constants
-    const STATUS_PENDING = 'pending';
-    const STATUS_IN_PROGRESS = 'in_progress';
-    const STATUS_SUCCESS = 'success';
-    const STATUS_FAILED = 'failed';
-    const STATUS_CANCELLED = 'cancelled';
-
-    protected static function boot()
+    public function __construct(array $attributes = [])
     {
-        parent::boot();
-
-        static::creating(function ($attempt) {
-            if (empty($attempt->uuid)) {
-                $attempt->uuid = (string) Str::uuid();
-            }
-        });
+        parent::__construct($attributes);
+        $this->encryptionService = app(EncryptionService::class);
     }
 
     /**
@@ -94,7 +86,7 @@ class PurchaseAttempt extends Model
     {
         return $this->belongsTo(ScrapedTicket::class);
     }
-    
+
     /**
      * Relationship: User who made the purchase attempt
      */
@@ -102,7 +94,7 @@ class PurchaseAttempt extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     /**
      * Relationship: Get the ticket (alias for scrapedTicket)
      */
@@ -113,6 +105,9 @@ class PurchaseAttempt extends Model
 
     /**
      * Scope: Filter by status
+     *
+     * @param mixed $query
+     * @param mixed $status
      */
     public function scopeByStatus($query, $status)
     {
@@ -121,6 +116,8 @@ class PurchaseAttempt extends Model
 
     /**
      * Scope: Successful attempts
+     *
+     * @param mixed $query
      */
     public function scopeSuccessful($query)
     {
@@ -129,6 +126,8 @@ class PurchaseAttempt extends Model
 
     /**
      * Scope: Failed attempts
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
@@ -173,37 +172,41 @@ class PurchaseAttempt extends Model
     public function markInProgress(): bool
     {
         return $this->update([
-            'status' => self::STATUS_IN_PROGRESS,
+            'status'     => self::STATUS_IN_PROGRESS,
             'started_at' => now(),
         ]);
     }
 
     /**
      * Mark as successful
+     *
+     * @param mixed $finalPrice
+     * @param mixed $fees
+     * @param mixed $totalPaid
      */
     public function markSuccessful(string $transactionId, string $confirmationNumber, $finalPrice, $fees, $totalPaid): bool
     {
         return $this->update([
-            'status' => self::STATUS_SUCCESS,
-            'transaction_id' => $transactionId,
+            'status'              => self::STATUS_SUCCESS,
+            'transaction_id'      => $transactionId,
             'confirmation_number' => $confirmationNumber,
-            'final_price' => $finalPrice,
-            'fees' => $fees,
-            'total_paid' => $totalPaid,
-            'completed_at' => now(),
+            'final_price'         => $finalPrice,
+            'fees'                => $fees,
+            'total_paid'          => $totalPaid,
+            'completed_at'        => now(),
         ]);
     }
 
     /**
      * Mark as failed
      */
-    public function markFailed(string $errorMessage, string $failureReason = null): bool
+    public function markFailed(string $errorMessage, ?string $failureReason = NULL): bool
     {
         return $this->update([
-            'status' => self::STATUS_FAILED,
-            'error_message' => $errorMessage,
+            'status'         => self::STATUS_FAILED,
+            'error_message'  => $errorMessage,
             'failure_reason' => $failureReason,
-            'completed_at' => now(),
+            'completed_at'   => now(),
         ]);
     }
 
@@ -219,8 +222,10 @@ class PurchaseAttempt extends Model
 
     /**
      * Encrypt sensitive financial fields
+     *
+     * @param mixed $value
      */
-    public function setTransactionIdAttribute($value)
+    public function setTransactionIdAttribute($value): void
     {
         $this->attributes['transaction_id'] = $this->encryptionService->encrypt($value);
     }
@@ -230,7 +235,7 @@ class PurchaseAttempt extends Model
         return $this->encryptionService->decrypt($value);
     }
 
-    public function setConfirmationNumberAttribute($value)
+    public function setConfirmationNumberAttribute($value): void
     {
         $this->attributes['confirmation_number'] = $this->encryptionService->encrypt($value);
     }
@@ -240,7 +245,7 @@ class PurchaseAttempt extends Model
         return $this->encryptionService->decrypt($value);
     }
 
-    public function setPurchaseDetailsAttribute($value)
+    public function setPurchaseDetailsAttribute($value): void
     {
         $this->attributes['purchase_details'] = $this->encryptionService->encryptJsonData($value);
     }
@@ -250,7 +255,7 @@ class PurchaseAttempt extends Model
         return $this->encryptionService->decryptJsonData($value);
     }
 
-    public function setResponseDataAttribute($value)
+    public function setResponseDataAttribute($value): void
     {
         $this->attributes['response_data'] = $this->encryptionService->encryptJsonData($value);
     }
@@ -258,5 +263,16 @@ class PurchaseAttempt extends Model
     public function getResponseDataAttribute($value)
     {
         return $this->encryptionService->decryptJsonData($value);
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($attempt): void {
+            if (empty($attempt->uuid)) {
+                $attempt->uuid = (string) Str::uuid();
+            }
+        });
     }
 }

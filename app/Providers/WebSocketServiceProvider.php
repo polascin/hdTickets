@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Providers;
 
@@ -9,10 +9,8 @@ class WebSocketServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
-    public function boot(BroadcastManager $broadcast)
+    public function boot(BroadcastManager $broadcast): void
     {
         $broadcast->routes();
         require base_path('routes/channels.php');
@@ -20,14 +18,11 @@ class WebSocketServiceProvider extends ServiceProvider
 
     /**
      * Register services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->singleton('WebSocketServer', function ($app) {
             return new \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider($app);
         });
     }
 }
-

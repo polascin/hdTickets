@@ -1,14 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\UserFavoriteTeam;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+
+use function strlen;
 
 class UserFavoriteTeamController extends Controller
 {
@@ -34,24 +36,24 @@ class UserFavoriteTeamController extends Controller
         }
 
         $teams = $query->orderBy('priority', 'desc')
-                      ->orderBy('team_name')
-                      ->paginate(20);
+            ->orderBy('team_name')
+            ->paginate(20);
 
         $stats = UserFavoriteTeam::getTeamStats($user->id);
         $availableSports = UserFavoriteTeam::getAvailableSports();
-        
+
         if ($request->wantsJson()) {
             return response()->json([
-                'teams' => $teams,
-                'stats' => $stats,
-                'sports' => $availableSports
+                'teams'  => $teams,
+                'stats'  => $stats,
+                'sports' => $availableSports,
             ]);
         }
 
         return view('preferences.teams.index', compact(
-            'teams', 
-            'stats', 
-            'availableSports'
+            'teams',
+            'stats',
+            'availableSports',
         ));
     }
 
@@ -62,10 +64,10 @@ class UserFavoriteTeamController extends Controller
     {
         $availableSports = UserFavoriteTeam::getAvailableSports();
         $popularTeams = UserFavoriteTeam::getPopularTeams();
-        
+
         return view('preferences.teams.create', compact(
             'availableSports',
-            'popularTeams'
+            'popularTeams',
         ));
     }
 
@@ -75,19 +77,19 @@ class UserFavoriteTeamController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'sport_type' => 'required|string|in:' . implode(',', array_keys(UserFavoriteTeam::getAvailableSports())),
-            'team_name' => 'required|string|max:255',
-            'team_city' => 'nullable|string|max:255',
-            'league' => 'required|string|max:100',
+            'sport_type'    => 'required|string|in:' . implode(',', array_keys(UserFavoriteTeam::getAvailableSports())),
+            'team_name'     => 'required|string|max:255',
+            'team_city'     => 'nullable|string|max:255',
+            'league'        => 'required|string|max:100',
             'team_logo_url' => 'nullable|url',
-            'aliases' => 'nullable|array',
-            'aliases.*' => 'string|max:255',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'priority' => 'integer|min:1|max:5'
+            'aliases'       => 'nullable|array',
+            'aliases.*'     => 'string|max:255',
+            'email_alerts'  => 'boolean',
+            'push_alerts'   => 'boolean',
+            'sms_alerts'    => 'boolean',
+            'priority'      => 'integer|min:1|max:5',
         ]);
 
         // Check for duplicate team
@@ -100,25 +102,25 @@ class UserFavoriteTeamController extends Controller
         if ($existing) {
             if ($request->wantsJson()) {
                 return response()->json([
-                    'error' => 'This team is already in your favorites'
+                    'error' => 'This team is already in your favorites',
                 ], 422);
             }
-            
+
             return back()->withErrors(['team_name' => 'This team is already in your favorites']);
         }
 
         $validated['user_id'] = $user->id;
-        $validated['email_alerts'] = $request->boolean('email_alerts', true);
-        $validated['push_alerts'] = $request->boolean('push_alerts', false);
-        $validated['sms_alerts'] = $request->boolean('sms_alerts', false);
-        $validated['priority'] = $validated['priority'] ?? 3;
+        $validated['email_alerts'] = $request->boolean('email_alerts', TRUE);
+        $validated['push_alerts'] = $request->boolean('push_alerts', FALSE);
+        $validated['sms_alerts'] = $request->boolean('sms_alerts', FALSE);
+        $validated['priority'] ??= 3;
 
         $team = UserFavoriteTeam::create($validated);
 
         if ($request->wantsJson()) {
             return response()->json([
-                'team' => $team,
-                'message' => 'Team added to favorites successfully!'
+                'team'    => $team,
+                'message' => 'Team added to favorites successfully!',
             ], 201);
         }
 
@@ -132,7 +134,7 @@ class UserFavoriteTeamController extends Controller
     public function show(UserFavoriteTeam $team): View|JsonResponse
     {
         $this->authorize('view', $team);
-        
+
         if (request()->wantsJson()) {
             return response()->json(['team' => $team]);
         }
@@ -146,14 +148,14 @@ class UserFavoriteTeamController extends Controller
     public function edit(UserFavoriteTeam $team): View
     {
         $this->authorize('update', $team);
-        
+
         $availableSports = UserFavoriteTeam::getAvailableSports();
         $leagues = UserFavoriteTeam::getLeaguesBySport($team->sport_type);
-        
+
         return view('preferences.teams.edit', compact(
             'team',
-            'availableSports', 
-            'leagues'
+            'availableSports',
+            'leagues',
         ));
     }
 
@@ -163,19 +165,19 @@ class UserFavoriteTeamController extends Controller
     public function update(Request $request, UserFavoriteTeam $team): RedirectResponse|JsonResponse
     {
         $this->authorize('update', $team);
-        
+
         $validated = $request->validate([
-            'sport_type' => 'required|string|in:' . implode(',', array_keys(UserFavoriteTeam::getAvailableSports())),
-            'team_name' => 'required|string|max:255',
-            'team_city' => 'nullable|string|max:255',
-            'league' => 'required|string|max:100',
+            'sport_type'    => 'required|string|in:' . implode(',', array_keys(UserFavoriteTeam::getAvailableSports())),
+            'team_name'     => 'required|string|max:255',
+            'team_city'     => 'nullable|string|max:255',
+            'league'        => 'required|string|max:100',
             'team_logo_url' => 'nullable|url',
-            'aliases' => 'nullable|array',
-            'aliases.*' => 'string|max:255',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'priority' => 'integer|min:1|max:5'
+            'aliases'       => 'nullable|array',
+            'aliases.*'     => 'string|max:255',
+            'email_alerts'  => 'boolean',
+            'push_alerts'   => 'boolean',
+            'sms_alerts'    => 'boolean',
+            'priority'      => 'integer|min:1|max:5',
         ]);
 
         $validated['email_alerts'] = $request->boolean('email_alerts');
@@ -186,8 +188,8 @@ class UserFavoriteTeamController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'team' => $team->fresh(),
-                'message' => 'Team preferences updated successfully!'
+                'team'    => $team->fresh(),
+                'message' => 'Team preferences updated successfully!',
             ]);
         }
 
@@ -201,13 +203,13 @@ class UserFavoriteTeamController extends Controller
     public function destroy(UserFavoriteTeam $team): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $team);
-        
+
         $teamName = $team->full_name;
         $team->delete();
 
         if (request()->wantsJson()) {
             return response()->json([
-                'message' => "Removed {$teamName} from favorites"
+                'message' => "Removed {$teamName} from favorites",
             ]);
         }
 
@@ -221,18 +223,18 @@ class UserFavoriteTeamController extends Controller
     public function updateNotifications(Request $request, UserFavoriteTeam $team): JsonResponse
     {
         $this->authorize('update', $team);
-        
+
         $validated = $request->validate([
             'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean'
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
         ]);
 
         $team->updateNotificationSettings($validated);
 
         return response()->json([
-            'message' => 'Notification settings updated',
-            'settings' => $team->getNotificationSettings()
+            'message'  => 'Notification settings updated',
+            'settings' => $team->getNotificationSettings(),
         ]);
     }
 
@@ -243,18 +245,18 @@ class UserFavoriteTeamController extends Controller
     {
         $term = $request->get('q', '');
         $sport = $request->get('sport');
-        
+
         if (strlen($term) < 2) {
             return response()->json([]);
         }
 
         $popularTeams = UserFavoriteTeam::getPopularTeams($sport);
-        
+
         $results = collect($popularTeams)
             ->filter(function ($team) use ($term) {
-                return str_contains(strtolower($team['full_name']), strtolower($term)) ||
-                       str_contains(strtolower($team['name']), strtolower($term)) ||
-                       str_contains(strtolower($team['city'] ?? ''), strtolower($term));
+                return str_contains(strtolower($team['full_name']), strtolower($term))
+                       || str_contains(strtolower($team['name']), strtolower($term))
+                       || str_contains(strtolower($team['city'] ?? ''), strtolower($term));
             })
             ->take(10)
             ->values();
@@ -268,13 +270,13 @@ class UserFavoriteTeamController extends Controller
     public function getLeagues(Request $request): JsonResponse
     {
         $sport = $request->get('sport');
-        
-        if (!$sport) {
+
+        if (! $sport) {
             return response()->json(['error' => 'Sport parameter required'], 400);
         }
 
         $leagues = UserFavoriteTeam::getLeaguesBySport($sport);
-        
+
         return response()->json($leagues);
     }
 
@@ -284,14 +286,14 @@ class UserFavoriteTeamController extends Controller
     public function import(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $request->validate([
-            'teams' => 'required|array',
-            'teams.*.sport_type' => 'required|string',
-            'teams.*.team_name' => 'required|string',
-            'teams.*.league' => 'required|string',
-            'teams.*.team_city' => 'nullable|string',
-            'default_priority' => 'integer|min:1|max:5',
+            'teams'                => 'required|array',
+            'teams.*.sport_type'   => 'required|string',
+            'teams.*.team_name'    => 'required|string',
+            'teams.*.league'       => 'required|string',
+            'teams.*.team_city'    => 'nullable|string',
+            'default_priority'     => 'integer|min:1|max:5',
             'default_email_alerts' => 'boolean',
         ]);
 
@@ -310,24 +312,24 @@ class UserFavoriteTeamController extends Controller
 
                 if ($existing) {
                     $skipped++;
+
                     continue;
                 }
 
                 UserFavoriteTeam::create([
-                    'user_id' => $user->id,
-                    'sport_type' => $teamData['sport_type'],
-                    'team_name' => $teamData['team_name'],
-                    'team_city' => $teamData['team_city'] ?? null,
-                    'league' => $teamData['league'],
-                    'priority' => $request->get('default_priority', 3),
-                    'email_alerts' => $request->boolean('default_email_alerts', true),
-                    'push_alerts' => false,
-                    'sms_alerts' => false,
+                    'user_id'      => $user->id,
+                    'sport_type'   => $teamData['sport_type'],
+                    'team_name'    => $teamData['team_name'],
+                    'team_city'    => $teamData['team_city'] ?? NULL,
+                    'league'       => $teamData['league'],
+                    'priority'     => $request->get('default_priority', 3),
+                    'email_alerts' => $request->boolean('default_email_alerts', TRUE),
+                    'push_alerts'  => FALSE,
+                    'sms_alerts'   => FALSE,
                 ]);
 
                 $imported++;
-                
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import {$teamData['team_name']}: " . $e->getMessage();
             }
         }
@@ -339,17 +341,17 @@ class UserFavoriteTeamController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'message' => $message,
+                'message'  => $message,
                 'imported' => $imported,
-                'skipped' => $skipped,
-                'errors' => $errors
+                'skipped'  => $skipped,
+                'errors'   => $errors,
             ]);
         }
 
         $redirectResponse = redirect()->route('preferences.teams.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 
@@ -371,14 +373,14 @@ class UserFavoriteTeamController extends Controller
 
         if ($format === 'csv') {
             $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="favorite_teams.csv"'
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="favorite_teams.csv"',
             ];
 
-            $callback = function() use ($teams) {
+            $callback = function () use ($teams): void {
                 $file = fopen('php://output', 'w');
                 fputcsv($file, ['Sport', 'Team Name', 'City', 'League', 'Priority', 'Email Alerts', 'Push Alerts', 'SMS Alerts']);
-                
+
                 foreach ($teams as $team) {
                     fputcsv($file, [
                         $team->sport_type,
@@ -391,7 +393,7 @@ class UserFavoriteTeamController extends Controller
                         $team->sms_alerts ? 'Yes' : 'No',
                     ]);
                 }
-                
+
                 fclose($file);
             };
 
@@ -400,9 +402,9 @@ class UserFavoriteTeamController extends Controller
 
         // Default JSON export
         return response()->json([
-            'teams' => $teams,
+            'teams'       => $teams,
             'exported_at' => now()->toISOString(),
-            'total_count' => $teams->count()
+            'total_count' => $teams->count(),
         ]);
     }
 
@@ -412,15 +414,15 @@ class UserFavoriteTeamController extends Controller
     public function bulkUpdate(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'team_ids' => 'required|array',
-            'team_ids.*' => 'exists:user_favorite_teams,id',
-            'action' => 'required|in:update_priority,update_notifications,delete',
-            'priority' => 'required_if:action,update_priority|integer|min:1|max:5',
+            'team_ids'     => 'required|array',
+            'team_ids.*'   => 'exists:user_favorite_teams,id',
+            'action'       => 'required|in:update_priority,update_notifications,delete',
+            'priority'     => 'required_if:action,update_priority|integer|min:1|max:5',
             'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean'
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
         ]);
 
         $teams = UserFavoriteTeam::whereIn('id', $validated['team_ids'])
@@ -434,27 +436,28 @@ class UserFavoriteTeamController extends Controller
                 case 'update_priority':
                     $team->update(['priority' => $validated['priority']]);
                     $updated++;
+
                     break;
-                
                 case 'update_notifications':
                     $team->updateNotificationSettings([
                         'email' => $request->boolean('email_alerts'),
-                        'push' => $request->boolean('push_alerts'),
-                        'sms' => $request->boolean('sms_alerts')
+                        'push'  => $request->boolean('push_alerts'),
+                        'sms'   => $request->boolean('sms_alerts'),
                     ]);
                     $updated++;
+
                     break;
-                
                 case 'delete':
                     $team->delete();
                     $updated++;
+
                     break;
             }
         }
 
         return response()->json([
-            'message' => "Updated {$updated} teams",
-            'updated_count' => $updated
+            'message'       => "Updated {$updated} teams",
+            'updated_count' => $updated,
         ]);
     }
 }

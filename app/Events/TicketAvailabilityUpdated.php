@@ -1,25 +1,30 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 class TicketAvailabilityUpdated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $ticketUuid;
+
     public $status;
+
     public $timestamp;
 
     /**
      * Create a new event instance.
+     *
+     * @param mixed $ticketUuid
+     * @param mixed $status
      */
     public function __construct($ticketUuid, $status)
     {
@@ -31,12 +36,12 @@ class TicketAvailabilityUpdated implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new Channel('ticket-updates')
+            new Channel('ticket-updates'),
         ];
     }
 
@@ -55,8 +60,8 @@ class TicketAvailabilityUpdated implements ShouldBroadcast
     {
         return [
             'ticket_uuid' => $this->ticketUuid,
-            'status' => $this->status,
-            'timestamp' => $this->timestamp,
+            'status'      => $this->status,
+            'timestamp'   => $this->timestamp,
         ];
     }
 }

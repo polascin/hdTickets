@@ -1,14 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Events\TicketAvailabilityUpdated;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
-use Exception;
+use Illuminate\Support\Facades\Log;
+
+use function count;
 
 class InAppNotificationService
 {
@@ -18,14 +20,14 @@ class InAppNotificationService
         'availability_alert',
         'new_ticket_match',
         'system_alert',
-        'monitoring_alert'
+        'monitoring_alert',
     ];
 
     protected $priorities = [
-        'low' => 1,
+        'low'    => 1,
         'normal' => 2,
-        'high' => 3,
-        'urgent' => 4
+        'high'   => 3,
+        'urgent' => 4,
     ];
 
     /**
@@ -37,22 +39,22 @@ class InAppNotificationService
         string $title,
         string $message,
         array $data = [],
-        string $priority = 'normal'
+        string $priority = 'normal',
     ): array {
         try {
             $notification = [
-                'id' => uniqid('notif_'),
-                'user_id' => $user->id,
-                'type' => $type,
-                'title' => $title,
-                'message' => $message,
-                'data' => $data,
-                'priority' => $this->priorities[$priority] ?? 2,
+                'id'             => uniqid('notif_'),
+                'user_id'        => $user->id,
+                'type'           => $type,
+                'title'          => $title,
+                'message'        => $message,
+                'data'           => $data,
+                'priority'       => $this->priorities[$priority] ?? 2,
                 'priority_label' => $priority,
-                'is_read' => false,
-                'is_dismissed' => false,
-                'created_at' => now()->toISOString(),
-                'expires_at' => $this->calculateExpiryTime($type, $priority)
+                'is_read'        => FALSE,
+                'is_dismissed'   => FALSE,
+                'created_at'     => now()->toISOString(),
+                'expires_at'     => $this->calculateExpiryTime($type, $priority),
             ];
 
             // Store notification in database
@@ -65,19 +67,18 @@ class InAppNotificationService
             $this->updateUserNotificationCounters($user->id);
 
             Log::info('In-app notification sent', [
-                'user_id' => $user->id,
-                'type' => $type,
-                'title' => $title,
-                'priority' => $priority
+                'user_id'  => $user->id,
+                'type'     => $type,
+                'title'    => $title,
+                'priority' => $priority,
             ]);
 
             return $notification;
-
         } catch (Exception $e) {
             Log::error('Failed to send in-app notification', [
                 'user_id' => $user->id,
-                'type' => $type,
-                'error' => $e->getMessage()
+                'type'    => $type,
+                'error'   => $e->getMessage(),
             ]);
 
             throw $e;
@@ -93,7 +94,7 @@ class InAppNotificationService
         string $title,
         string $message,
         array $data = [],
-        string $priority = 'normal'
+        string $priority = 'normal',
     ): array {
         $results = [];
         $successful = 0;
@@ -102,34 +103,34 @@ class InAppNotificationService
         foreach ($userIds as $userId) {
             try {
                 $user = User::find($userId);
-                if (!$user) {
+                if (! $user) {
                     $failed++;
+
                     continue;
                 }
 
                 $notification = $this->sendNotification($user, $type, $title, $message, $data, $priority);
                 $results[] = $notification;
                 $successful++;
-
             } catch (Exception $e) {
                 $failed++;
                 Log::error("Failed to send bulk notification to user {$userId}", [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Bulk notification completed', [
             'total_users' => count($userIds),
-            'successful' => $successful,
-            'failed' => $failed,
-            'type' => $type
+            'successful'  => $successful,
+            'failed'      => $failed,
+            'type'        => $type,
         ]);
 
         return [
-            'successful' => $successful,
-            'failed' => $failed,
-            'notifications' => $results
+            'successful'    => $successful,
+            'failed'        => $failed,
+            'notifications' => $results,
         ];
     }
 
@@ -140,10 +141,10 @@ class InAppNotificationService
         int $userId,
         array $filters = [],
         int $page = 1,
-        int $perPage = 20
+        int $perPage = 20,
     ): array {
         $cacheKey = "user_notifications_{$userId}_" . md5(json_encode($filters) . "_{$page}_{$perPage}");
-        
+
         return Cache::remember($cacheKey, 300, function () use ($userId, $filters, $page, $perPage) {
             $query = DB::table('in_app_notifications')
                 ->where('user_id', $userId)
@@ -173,18 +174,19 @@ class InAppNotificationService
                 ->limit($perPage)
                 ->get()
                 ->map(function ($notification) {
-                    $notification->data = json_decode($notification->data, true);
+                    $notification->data = json_decode($notification->data, TRUE);
+
                     return $notification;
                 });
 
             return [
                 'notifications' => $notifications,
-                'pagination' => [
+                'pagination'    => [
                     'current_page' => $page,
-                    'per_page' => $perPage,
-                    'total' => $total,
-                    'total_pages' => ceil($total / $perPage)
-                ]
+                    'per_page'     => $perPage,
+                    'total'        => $total,
+                    'total_pages'  => ceil($total / $perPage),
+                ],
             ];
         });
     }
@@ -198,8 +200,8 @@ class InAppNotificationService
             $affected = DB::table('in_app_notifications')
                 ->where('id', $notificationId)
                 ->update([
-                    'is_read' => true,
-                    'read_at' => now()
+                    'is_read' => TRUE,
+                    'read_at' => now(),
                 ]);
 
             if ($affected > 0) {
@@ -214,18 +216,19 @@ class InAppNotificationService
 
                 // Clear cache
                 $this->clearUserNotificationCache($notification->user_id);
-                
+
                 Log::info("Notification {$notificationId} marked as read");
-                return true;
+
+                return TRUE;
             }
 
-            return false;
-
+            return FALSE;
         } catch (Exception $e) {
             Log::error("Failed to mark notification {$notificationId} as read", [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -237,10 +240,10 @@ class InAppNotificationService
         try {
             $affected = DB::table('in_app_notifications')
                 ->where('user_id', $userId)
-                ->where('is_read', false)
+                ->where('is_read', FALSE)
                 ->update([
-                    'is_read' => true,
-                    'read_at' => now()
+                    'is_read' => TRUE,
+                    'read_at' => now(),
                 ]);
 
             if ($affected > 0) {
@@ -249,12 +252,13 @@ class InAppNotificationService
             }
 
             Log::info("Marked {$affected} notifications as read for user {$userId}");
-            return $affected;
 
+            return $affected;
         } catch (Exception $e) {
             Log::error("Failed to mark all notifications as read for user {$userId}", [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -268,8 +272,8 @@ class InAppNotificationService
             $affected = DB::table('in_app_notifications')
                 ->where('id', $notificationId)
                 ->update([
-                    'is_dismissed' => true,
-                    'dismissed_at' => now()
+                    'is_dismissed' => TRUE,
+                    'dismissed_at' => now(),
                 ]);
 
             if ($affected > 0) {
@@ -281,18 +285,19 @@ class InAppNotificationService
                     $this->updateUserNotificationCounters($notification->user_id);
                     $this->clearUserNotificationCache($notification->user_id);
                 }
-                
+
                 Log::info("Notification {$notificationId} dismissed");
-                return true;
+
+                return TRUE;
             }
 
-            return false;
-
+            return FALSE;
         } catch (Exception $e) {
             Log::error("Failed to dismiss notification {$notificationId}", [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -302,7 +307,7 @@ class InAppNotificationService
     public function getUserNotificationStats(int $userId): array
     {
         $cacheKey = "user_notification_stats_{$userId}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($userId) {
             $stats = DB::table('in_app_notifications')
                 ->select(
@@ -310,19 +315,19 @@ class InAppNotificationService
                     DB::raw('SUM(CASE WHEN is_read = 0 THEN 1 ELSE 0 END) as unread'),
                     DB::raw('SUM(CASE WHEN priority = 4 THEN 1 ELSE 0 END) as urgent'),
                     DB::raw('SUM(CASE WHEN priority = 3 THEN 1 ELSE 0 END) as high'),
-                    DB::raw('MAX(created_at) as latest')
+                    DB::raw('MAX(created_at) as latest'),
                 )
                 ->where('user_id', $userId)
                 ->where('expires_at', '>', now())
-                ->where('is_dismissed', false)
+                ->where('is_dismissed', FALSE)
                 ->first();
 
             return [
-                'total' => $stats->total ?? 0,
+                'total'  => $stats->total ?? 0,
                 'unread' => $stats->unread ?? 0,
                 'urgent' => $stats->urgent ?? 0,
-                'high' => $stats->high ?? 0,
-                'latest' => $stats->latest
+                'high'   => $stats->high ?? 0,
+                'latest' => $stats->latest,
             ];
         });
     }
@@ -338,115 +343,15 @@ class InAppNotificationService
                 ->delete();
 
             Log::info("Cleaned up {$deleted} expired notifications");
-            return $deleted;
 
+            return $deleted;
         } catch (Exception $e) {
             Log::error('Failed to cleanup expired notifications', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
-    }
-
-    /**
-     * Store notification in database
-     */
-    protected function storeNotification(array $notification): void
-    {
-        DB::table('in_app_notifications')->insert([
-            'id' => $notification['id'],
-            'user_id' => $notification['user_id'],
-            'type' => $notification['type'],
-            'title' => $notification['title'],
-            'message' => $notification['message'],
-            'data' => json_encode($notification['data']),
-            'priority' => $notification['priority'],
-            'is_read' => $notification['is_read'],
-            'is_dismissed' => $notification['is_dismissed'],
-            'created_at' => $notification['created_at'],
-            'expires_at' => $notification['expires_at']
-        ]);
-    }
-
-    /**
-     * Broadcast notification via WebSocket
-     */
-    protected function broadcastNotification(User $user, array $notification): void
-    {
-        try {
-            broadcast(new TicketAvailabilityUpdated(
-                $notification['id'],
-                'in_app_notification'
-            ))->toOthers();
-
-            // Also broadcast to user-specific channel
-            broadcast(new TicketAvailabilityUpdated(
-                $notification['id'],
-                'in_app_notification'
-            ))->to("user.{$user->id}");
-
-        } catch (Exception $e) {
-            Log::warning('Failed to broadcast notification', [
-                'notification_id' => $notification['id'],
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * Update user notification counters
-     */
-    protected function updateUserNotificationCounters(int $userId): void
-    {
-        $stats = $this->getUserNotificationStats($userId);
-        
-        Cache::put("user_notification_counters_{$userId}", $stats, 3600);
-        
-        // Update user model if it has notification counter fields
-        try {
-            User::where('id', $userId)->update([
-                'unread_notifications_count' => $stats['unread']
-            ]);
-        } catch (Exception $e) {
-            // Ignore if column doesn't exist
-        }
-    }
-
-    /**
-     * Clear user notification cache
-     */
-    protected function clearUserNotificationCache(int $userId): void
-    {
-        $pattern = "user_notifications_{$userId}_*";
-        
-        // This is a simplified version - in production you'd want to use Redis SCAN
-        Cache::forget("user_notification_stats_{$userId}");
-        Cache::forget("user_notification_counters_{$userId}");
-    }
-
-    /**
-     * Calculate notification expiry time based on type and priority
-     */
-    protected function calculateExpiryTime(string $type, string $priority): string
-    {
-        $defaultHours = 24 * 7; // 1 week default
-
-        $expiryHours = match ($type) {
-            'ticket_status_changed' => 24 * 3, // 3 days
-            'price_alert' => 24 * 2, // 2 days
-            'availability_alert' => 24, // 1 day
-            'system_alert' => 24 * 7, // 1 week
-            default => $defaultHours
-        };
-
-        // Adjust based on priority
-        if ($priority === 'urgent') {
-            $expiryHours *= 2; // Keep urgent notifications longer
-        } elseif ($priority === 'low') {
-            $expiryHours /= 2; // Expire low priority notifications sooner
-        }
-
-        return now()->addHours($expiryHours)->toISOString();
     }
 
     /**
@@ -455,18 +360,18 @@ class InAppNotificationService
     public function createUserPreferences(int $userId, array $preferences = []): array
     {
         $defaultPreferences = [
-            'ticket_status_changed' => true,
-            'price_alert' => true,
-            'availability_alert' => true,
-            'new_ticket_match' => true,
-            'system_alert' => true,
-            'monitoring_alert' => false,
-            'email_notifications' => true,
-            'sms_notifications' => false,
-            'push_notifications' => true,
-            'quiet_hours_start' => '22:00',
-            'quiet_hours_end' => '08:00',
-            'max_notifications_per_day' => 50
+            'ticket_status_changed'     => TRUE,
+            'price_alert'               => TRUE,
+            'availability_alert'        => TRUE,
+            'new_ticket_match'          => TRUE,
+            'system_alert'              => TRUE,
+            'monitoring_alert'          => FALSE,
+            'email_notifications'       => TRUE,
+            'sms_notifications'         => FALSE,
+            'push_notifications'        => TRUE,
+            'quiet_hours_start'         => '22:00',
+            'quiet_hours_end'           => '08:00',
+            'max_notifications_per_day' => 50,
         ];
 
         $userPreferences = array_merge($defaultPreferences, $preferences);
@@ -512,28 +417,130 @@ class InAppNotificationService
     public function shouldSendNotification(int $userId, string $type): bool
     {
         $preferences = $this->getUserPreferences($userId);
-        
+
         // Check if notification type is enabled
-        if (!($preferences[$type] ?? true)) {
-            return false;
+        if (! ($preferences[$type] ?? TRUE)) {
+            return FALSE;
         }
 
         // Check daily limit
         $dailyCount = $this->getDailyNotificationCount($userId);
         $maxDaily = $preferences['max_notifications_per_day'] ?? 50;
-        
+
         if ($dailyCount >= $maxDaily) {
             Log::info("Daily notification limit reached for user {$userId}");
-            return false;
+
+            return FALSE;
         }
 
         // Check quiet hours
         if ($this->isInQuietHours($preferences)) {
             Log::info("User {$userId} is in quiet hours, skipping notification");
-            return false;
+
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
+    }
+
+    /**
+     * Store notification in database
+     */
+    protected function storeNotification(array $notification): void
+    {
+        DB::table('in_app_notifications')->insert([
+            'id'           => $notification['id'],
+            'user_id'      => $notification['user_id'],
+            'type'         => $notification['type'],
+            'title'        => $notification['title'],
+            'message'      => $notification['message'],
+            'data'         => json_encode($notification['data']),
+            'priority'     => $notification['priority'],
+            'is_read'      => $notification['is_read'],
+            'is_dismissed' => $notification['is_dismissed'],
+            'created_at'   => $notification['created_at'],
+            'expires_at'   => $notification['expires_at'],
+        ]);
+    }
+
+    /**
+     * Broadcast notification via WebSocket
+     */
+    protected function broadcastNotification(User $user, array $notification): void
+    {
+        try {
+            broadcast(new TicketAvailabilityUpdated(
+                $notification['id'],
+                'in_app_notification',
+            ))->toOthers();
+
+            // Also broadcast to user-specific channel
+            broadcast(new TicketAvailabilityUpdated(
+                $notification['id'],
+                'in_app_notification',
+            ))->to("user.{$user->id}");
+        } catch (Exception $e) {
+            Log::warning('Failed to broadcast notification', [
+                'notification_id' => $notification['id'],
+                'error'           => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Update user notification counters
+     */
+    protected function updateUserNotificationCounters(int $userId): void
+    {
+        $stats = $this->getUserNotificationStats($userId);
+
+        Cache::put("user_notification_counters_{$userId}", $stats, 3600);
+
+        // Update user model if it has notification counter fields
+        try {
+            User::where('id', $userId)->update([
+                'unread_notifications_count' => $stats['unread'],
+            ]);
+        } catch (Exception $e) {
+            // Ignore if column doesn't exist
+        }
+    }
+
+    /**
+     * Clear user notification cache
+     */
+    protected function clearUserNotificationCache(int $userId): void
+    {
+        $pattern = "user_notifications_{$userId}_*";
+
+        // This is a simplified version - in production you'd want to use Redis SCAN
+        Cache::forget("user_notification_stats_{$userId}");
+        Cache::forget("user_notification_counters_{$userId}");
+    }
+
+    /**
+     * Calculate notification expiry time based on type and priority
+     */
+    protected function calculateExpiryTime(string $type, string $priority): string
+    {
+        $defaultHours = 24 * 7; // 1 week default
+
+        $expiryHours = match ($type) {
+            'ticket_status_changed' => 24 * 3, // 3 days
+            'price_alert'           => 24 * 2, // 2 days
+            'availability_alert'    => 24, // 1 day
+            'system_alert'          => 24 * 7, // 1 week
+            default                 => $defaultHours,
+        };
+
+        // Adjust based on priority
+        if ($priority === 'urgent') {
+            $expiryHours *= 2; // Keep urgent notifications longer
+        } elseif ($priority === 'low') {
+            $expiryHours /= 2; // Expire low priority notifications sooner
+        }
+
+        return now()->addHours($expiryHours)->toISOString();
     }
 
     /**
@@ -543,7 +550,7 @@ class InAppNotificationService
     {
         $today = now()->format('Y-m-d');
         $cacheKey = "daily_notification_count_{$userId}_{$today}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($userId) {
             return DB::table('in_app_notifications')
                 ->where('user_id', $userId)
@@ -559,14 +566,14 @@ class InAppNotificationService
     {
         $quietStart = $preferences['quiet_hours_start'] ?? '22:00';
         $quietEnd = $preferences['quiet_hours_end'] ?? '08:00';
-        
+
         $currentTime = now()->format('H:i');
-        
+
         // Handle quiet hours that span midnight
         if ($quietStart > $quietEnd) {
             return $currentTime >= $quietStart || $currentTime <= $quietEnd;
         }
-        
+
         return $currentTime >= $quietStart && $currentTime <= $quietEnd;
     }
 }

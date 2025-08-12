@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Exceptions;
 
@@ -9,22 +9,23 @@ use Exception;
  */
 class TicketPlatformException extends Exception
 {
-    protected $platform;
-    protected $method; // 'api' or 'scraping'
-    
-    public function __construct($message = "", $code = 0, Exception $previous = null, $platform = null, $method = null)
+    protected ?string $platform;
+
+    protected ?string $method; // 'api' or 'scraping'
+
+    public function __construct(string $message = '', int $code = 0, ?Exception $previous = NULL, ?string $platform = NULL, ?string $method = NULL)
     {
         parent::__construct($message, $code, $previous);
         $this->platform = $platform;
         $this->method = $method;
     }
-    
-    public function getPlatform()
+
+    public function getPlatform(): ?string
     {
         return $this->platform;
     }
-    
-    public function getMethod()
+
+    public function getMethod(): ?string
     {
         return $this->method;
     }
@@ -33,36 +34,52 @@ class TicketPlatformException extends Exception
 /**
  * Platform-specific exception classes
  */
-class TicketmasterException extends TicketPlatformException {}
+class TicketmasterException extends TicketPlatformException
+{
+}
 
-class SeatGeekException extends TicketPlatformException {}
+class SeatGeekException extends TicketPlatformException
+{
+}
 
-class StubHubException extends TicketPlatformException {}
+class StubHubException extends TicketPlatformException
+{
+}
 
-class EventbriteException extends TicketPlatformException {}
+class EventbriteException extends TicketPlatformException
+{
+}
 
-class BandsinTownException extends TicketPlatformException {}
+class BandsinTownException extends TicketPlatformException
+{
+}
 
-class ViagogoException extends TicketPlatformException {}
+class ViagogoException extends TicketPlatformException
+{
+}
 
-class TickPickException extends TicketPlatformException {}
+class TickPickException extends TicketPlatformException
+{
+}
 
-class FunZoneException extends TicketPlatformException {}
+class FunZoneException extends TicketPlatformException
+{
+}
 
 /**
  * Rate limit specific exception
  */
 class RateLimitException extends TicketPlatformException
 {
-    protected $retryAfter;
-    
-    public function __construct($message = "", $retryAfter = null, $platform = null)
+    protected ?int $retryAfter;
+
+    public function __construct(string $message = '', ?int $retryAfter = NULL, ?string $platform = NULL)
     {
-        parent::__construct($message, 429, null, $platform);
+        parent::__construct($message, 429, NULL, $platform);
         $this->retryAfter = $retryAfter;
     }
-    
-    public function getRetryAfter()
+
+    public function getRetryAfter(): ?int
     {
         return $this->retryAfter;
     }
@@ -73,10 +90,8 @@ class RateLimitException extends TicketPlatformException
  */
 class TimeoutException extends TicketPlatformException
 {
-    public function __construct($message = "", $platform = null, $method = null)
+    public function __construct(string $message = '', ?string $platform = NULL, ?string $method = NULL)
     {
-        parent::__construct($message, 408, null, $platform, $method);
+        parent::__construct($message, 408, NULL, $platform, $method);
     }
 }
-
-

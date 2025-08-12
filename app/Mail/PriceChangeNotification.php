@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
@@ -11,20 +11,33 @@ use Illuminate\Queue\SerializesModels;
 
 class PriceChangeNotification extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $ticket;
+
     public $oldPrice;
+
     public $newPrice;
+
     public $priceChange;
+
     public $changePercentage;
+
     public $user;
+
     public $platform;
 
     /**
      * Create a new message instance.
+     *
+     * @param mixed      $ticket
+     * @param mixed      $oldPrice
+     * @param mixed      $newPrice
+     * @param mixed      $user
+     * @param mixed|null $platform
      */
-    public function __construct($ticket, $oldPrice, $newPrice, $user, $platform = null)
+    public function __construct($ticket, $oldPrice, $newPrice, $user, $platform = NULL)
     {
         $this->ticket = $ticket;
         $this->oldPrice = $oldPrice;
@@ -42,17 +55,17 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
     {
         $direction = $this->priceChange > 0 ? 'Increased' : 'Decreased';
         $subject = "🎫 Price {$direction}: {$this->ticket['event_name']}";
-        
+
         return new Envelope(
             subject: $subject,
             from: config('mail.from.address'),
             replyTo: config('mail.from.address'),
             tags: ['price-change', 'ticket-alert'],
             metadata: [
-                'ticket_id' => $this->ticket['id'] ?? null,
-                'platform' => $this->platform,
+                'ticket_id'    => $this->ticket['id'] ?? NULL,
+                'platform'     => $this->platform,
                 'price_change' => $this->priceChange,
-                'user_id' => $this->user['id'] ?? null,
+                'user_id'      => $this->user['id'] ?? NULL,
             ],
         );
     }
@@ -66,15 +79,15 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
             view: 'emails.price-change-notification',
             text: 'emails.price-change-notification-text',
             with: [
-                'ticket' => $this->ticket,
-                'oldPrice' => $this->oldPrice,
-                'newPrice' => $this->newPrice,
-                'priceChange' => $this->priceChange,
+                'ticket'           => $this->ticket,
+                'oldPrice'         => $this->oldPrice,
+                'newPrice'         => $this->newPrice,
+                'priceChange'      => $this->priceChange,
                 'changePercentage' => $this->changePercentage,
-                'user' => $this->user,
-                'platform' => $this->platform,
-                'isIncrease' => $this->priceChange > 0,
-                'isSignificant' => abs($this->changePercentage) >= 10,
+                'user'             => $this->user,
+                'platform'         => $this->platform,
+                'isIncrease'       => $this->priceChange > 0,
+                'isSignificant'    => abs($this->changePercentage) >= 10,
             ],
         );
     }

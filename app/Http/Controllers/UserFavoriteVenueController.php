@@ -1,13 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\UserFavoriteVenue;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+use function strlen;
 
 class UserFavoriteVenueController extends Controller
 {
@@ -41,24 +44,24 @@ class UserFavoriteVenueController extends Controller
         }
 
         $venues = $query->orderBy('priority', 'desc')
-                       ->orderBy('venue_name')
-                       ->paginate(20);
+            ->orderBy('venue_name')
+            ->paginate(20);
 
         $stats = UserFavoriteVenue::getVenueStats($user->id);
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
-        
+
         if ($request->wantsJson()) {
             return response()->json([
-                'venues' => $venues,
-                'stats' => $stats,
-                'venue_types' => $venueTypes
+                'venues'      => $venues,
+                'stats'       => $stats,
+                'venue_types' => $venueTypes,
             ]);
         }
 
         return view('preferences.venues.index', compact(
-            'venues', 
-            'stats', 
-            'venueTypes'
+            'venues',
+            'stats',
+            'venueTypes',
         ));
     }
 
@@ -69,10 +72,10 @@ class UserFavoriteVenueController extends Controller
     {
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
         $popularVenues = UserFavoriteVenue::getPopularVenues();
-        
+
         return view('preferences.venues.create', compact(
             'venueTypes',
-            'popularVenues'
+            'popularVenues',
         ));
     }
 
@@ -82,24 +85,24 @@ class UserFavoriteVenueController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'venue_name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'state_province' => 'nullable|string|max:100',
-            'country' => 'required|string|max:100',
-            'capacity' => 'nullable|integer|min:1',
-            'venue_types' => 'required|array',
-            'venue_types.*' => 'string|in:' . implode(',', array_keys(UserFavoriteVenue::getAvailableVenueTypes())),
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'venue_name'      => 'required|string|max:255',
+            'city'            => 'required|string|max:255',
+            'state_province'  => 'nullable|string|max:100',
+            'country'         => 'required|string|max:100',
+            'capacity'        => 'nullable|integer|min:1',
+            'venue_types'     => 'required|array',
+            'venue_types.*'   => 'string|in:' . implode(',', array_keys(UserFavoriteVenue::getAvailableVenueTypes())),
+            'latitude'        => 'nullable|numeric|between:-90,90',
+            'longitude'       => 'nullable|numeric|between:-180,180',
             'venue_image_url' => 'nullable|url',
-            'aliases' => 'nullable|array',
-            'aliases.*' => 'string|max:255',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'priority' => 'integer|min:1|max:5'
+            'aliases'         => 'nullable|array',
+            'aliases.*'       => 'string|max:255',
+            'email_alerts'    => 'boolean',
+            'push_alerts'     => 'boolean',
+            'sms_alerts'      => 'boolean',
+            'priority'        => 'integer|min:1|max:5',
         ]);
 
         // Check for duplicate venue
@@ -111,25 +114,25 @@ class UserFavoriteVenueController extends Controller
         if ($existing) {
             if ($request->wantsJson()) {
                 return response()->json([
-                    'error' => 'This venue is already in your favorites'
+                    'error' => 'This venue is already in your favorites',
                 ], 422);
             }
-            
+
             return back()->withErrors(['venue_name' => 'This venue is already in your favorites']);
         }
 
         $validated['user_id'] = $user->id;
-        $validated['email_alerts'] = $request->boolean('email_alerts', true);
-        $validated['push_alerts'] = $request->boolean('push_alerts', false);
-        $validated['sms_alerts'] = $request->boolean('sms_alerts', false);
-        $validated['priority'] = $validated['priority'] ?? 3;
+        $validated['email_alerts'] = $request->boolean('email_alerts', TRUE);
+        $validated['push_alerts'] = $request->boolean('push_alerts', FALSE);
+        $validated['sms_alerts'] = $request->boolean('sms_alerts', FALSE);
+        $validated['priority'] ??= 3;
 
         $venue = UserFavoriteVenue::create($validated);
 
         if ($request->wantsJson()) {
             return response()->json([
-                'venue' => $venue,
-                'message' => 'Venue added to favorites successfully!'
+                'venue'   => $venue,
+                'message' => 'Venue added to favorites successfully!',
             ], 201);
         }
 
@@ -143,7 +146,7 @@ class UserFavoriteVenueController extends Controller
     public function show(UserFavoriteVenue $venue): View|JsonResponse
     {
         $this->authorize('view', $venue);
-        
+
         if (request()->wantsJson()) {
             return response()->json(['venue' => $venue]);
         }
@@ -157,12 +160,12 @@ class UserFavoriteVenueController extends Controller
     public function edit(UserFavoriteVenue $venue): View
     {
         $this->authorize('update', $venue);
-        
+
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
-        
+
         return view('preferences.venues.edit', compact(
             'venue',
-            'venueTypes'
+            'venueTypes',
         ));
     }
 
@@ -172,24 +175,24 @@ class UserFavoriteVenueController extends Controller
     public function update(Request $request, UserFavoriteVenue $venue): RedirectResponse|JsonResponse
     {
         $this->authorize('update', $venue);
-        
+
         $validated = $request->validate([
-            'venue_name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'state_province' => 'nullable|string|max:100',
-            'country' => 'required|string|max:100',
-            'capacity' => 'nullable|integer|min:1',
-            'venue_types' => 'required|array',
-            'venue_types.*' => 'string|in:' . implode(',', array_keys(UserFavoriteVenue::getAvailableVenueTypes())),
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'venue_name'      => 'required|string|max:255',
+            'city'            => 'required|string|max:255',
+            'state_province'  => 'nullable|string|max:100',
+            'country'         => 'required|string|max:100',
+            'capacity'        => 'nullable|integer|min:1',
+            'venue_types'     => 'required|array',
+            'venue_types.*'   => 'string|in:' . implode(',', array_keys(UserFavoriteVenue::getAvailableVenueTypes())),
+            'latitude'        => 'nullable|numeric|between:-90,90',
+            'longitude'       => 'nullable|numeric|between:-180,180',
             'venue_image_url' => 'nullable|url',
-            'aliases' => 'nullable|array',
-            'aliases.*' => 'string|max:255',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'priority' => 'integer|min:1|max:5'
+            'aliases'         => 'nullable|array',
+            'aliases.*'       => 'string|max:255',
+            'email_alerts'    => 'boolean',
+            'push_alerts'     => 'boolean',
+            'sms_alerts'      => 'boolean',
+            'priority'        => 'integer|min:1|max:5',
         ]);
 
         $validated['email_alerts'] = $request->boolean('email_alerts');
@@ -200,8 +203,8 @@ class UserFavoriteVenueController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'venue' => $venue->fresh(),
-                'message' => 'Venue preferences updated successfully!'
+                'venue'   => $venue->fresh(),
+                'message' => 'Venue preferences updated successfully!',
             ]);
         }
 
@@ -215,13 +218,13 @@ class UserFavoriteVenueController extends Controller
     public function destroy(UserFavoriteVenue $venue): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $venue);
-        
+
         $venueName = $venue->full_name;
         $venue->delete();
 
         if (request()->wantsJson()) {
             return response()->json([
-                'message' => "Removed {$venueName} from favorites"
+                'message' => "Removed {$venueName} from favorites",
             ]);
         }
 
@@ -235,18 +238,18 @@ class UserFavoriteVenueController extends Controller
     public function updateNotifications(Request $request, UserFavoriteVenue $venue): JsonResponse
     {
         $this->authorize('update', $venue);
-        
+
         $validated = $request->validate([
             'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean'
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
         ]);
 
         $venue->updateNotificationSettings($validated);
 
         return response()->json([
-            'message' => 'Notification settings updated',
-            'settings' => $venue->getNotificationSettings()
+            'message'  => 'Notification settings updated',
+            'settings' => $venue->getNotificationSettings(),
         ]);
     }
 
@@ -257,18 +260,18 @@ class UserFavoriteVenueController extends Controller
     {
         $term = $request->get('q', '');
         $city = $request->get('city');
-        
+
         if (strlen($term) < 2) {
             return response()->json([]);
         }
 
         $popularVenues = UserFavoriteVenue::getPopularVenues($city);
-        
+
         $results = collect($popularVenues)
             ->filter(function ($venue) use ($term) {
-                return str_contains(strtolower($venue['full_name']), strtolower($term)) ||
-                       str_contains(strtolower($venue['name']), strtolower($term)) ||
-                       str_contains(strtolower($venue['city'] ?? ''), strtolower($term));
+                return str_contains(strtolower($venue['full_name']), strtolower($term))
+                       || str_contains(strtolower($venue['name']), strtolower($term))
+                       || str_contains(strtolower($venue['city'] ?? ''), strtolower($term));
             })
             ->take(10)
             ->values();
@@ -282,9 +285,9 @@ class UserFavoriteVenueController extends Controller
     public function nearMe(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'latitude' => 'required|numeric|between:-90,90',
+            'latitude'  => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'radius' => 'integer|min:1|max:500'
+            'radius'    => 'integer|min:1|max:500',
         ]);
 
         $user = Auth::user();
@@ -296,14 +299,15 @@ class UserFavoriteVenueController extends Controller
             ->withinRadius(
                 $validated['latitude'],
                 $validated['longitude'],
-                $radius
+                $radius,
             )
             ->get()
             ->map(function ($venue) use ($validated) {
                 $venue->distance = $venue->distanceFrom(
                     $validated['latitude'],
-                    $validated['longitude']
+                    $validated['longitude'],
                 );
+
                 return $venue;
             })
             ->sortBy('distance');
@@ -311,11 +315,11 @@ class UserFavoriteVenueController extends Controller
         return response()->json([
             'venues' => $venues,
             'center' => [
-                'latitude' => $validated['latitude'],
-                'longitude' => $validated['longitude']
+                'latitude'  => $validated['latitude'],
+                'longitude' => $validated['longitude'],
             ],
-            'radius' => $radius,
-            'total_found' => $venues->count()
+            'radius'      => $radius,
+            'total_found' => $venues->count(),
         ]);
     }
 
@@ -325,16 +329,16 @@ class UserFavoriteVenueController extends Controller
     public function import(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $request->validate([
-            'venues' => 'required|array',
-            'venues.*.venue_name' => 'required|string',
-            'venues.*.city' => 'required|string',
+            'venues'                  => 'required|array',
+            'venues.*.venue_name'     => 'required|string',
+            'venues.*.city'           => 'required|string',
             'venues.*.state_province' => 'nullable|string',
-            'venues.*.country' => 'required|string',
-            'venues.*.venue_types' => 'nullable|array',
-            'default_priority' => 'integer|min:1|max:5',
-            'default_email_alerts' => 'boolean',
+            'venues.*.country'        => 'required|string',
+            'venues.*.venue_types'    => 'nullable|array',
+            'default_priority'        => 'integer|min:1|max:5',
+            'default_email_alerts'    => 'boolean',
         ]);
 
         $imported = 0;
@@ -351,25 +355,25 @@ class UserFavoriteVenueController extends Controller
 
                 if ($existing) {
                     $skipped++;
+
                     continue;
                 }
 
                 UserFavoriteVenue::create([
-                    'user_id' => $user->id,
-                    'venue_name' => $venueData['venue_name'],
-                    'city' => $venueData['city'],
-                    'state_province' => $venueData['state_province'] ?? null,
-                    'country' => $venueData['country'],
-                    'venue_types' => $venueData['venue_types'] ?? ['other'],
-                    'priority' => $request->get('default_priority', 3),
-                    'email_alerts' => $request->boolean('default_email_alerts', true),
-                    'push_alerts' => false,
-                    'sms_alerts' => false,
+                    'user_id'        => $user->id,
+                    'venue_name'     => $venueData['venue_name'],
+                    'city'           => $venueData['city'],
+                    'state_province' => $venueData['state_province'] ?? NULL,
+                    'country'        => $venueData['country'],
+                    'venue_types'    => $venueData['venue_types'] ?? ['other'],
+                    'priority'       => $request->get('default_priority', 3),
+                    'email_alerts'   => $request->boolean('default_email_alerts', TRUE),
+                    'push_alerts'    => FALSE,
+                    'sms_alerts'     => FALSE,
                 ]);
 
                 $imported++;
-                
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import {$venueData['venue_name']}: " . $e->getMessage();
             }
         }
@@ -381,17 +385,17 @@ class UserFavoriteVenueController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'message' => $message,
+                'message'  => $message,
                 'imported' => $imported,
-                'skipped' => $skipped,
-                'errors' => $errors
+                'skipped'  => $skipped,
+                'errors'   => $errors,
             ]);
         }
 
         $redirectResponse = redirect()->route('preferences.venues.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 
@@ -413,14 +417,14 @@ class UserFavoriteVenueController extends Controller
 
         if ($format === 'csv') {
             $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="favorite_venues.csv"'
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="favorite_venues.csv"',
             ];
 
-            $callback = function() use ($venues) {
+            $callback = function () use ($venues): void {
                 $file = fopen('php://output', 'w');
                 fputcsv($file, ['Venue Name', 'City', 'State/Province', 'Country', 'Venue Types', 'Capacity', 'Priority', 'Email Alerts', 'Push Alerts', 'SMS Alerts']);
-                
+
                 foreach ($venues as $venue) {
                     fputcsv($file, [
                         $venue->venue_name,
@@ -435,7 +439,7 @@ class UserFavoriteVenueController extends Controller
                         $venue->sms_alerts ? 'Yes' : 'No',
                     ]);
                 }
-                
+
                 fclose($file);
             };
 
@@ -444,9 +448,9 @@ class UserFavoriteVenueController extends Controller
 
         // Default JSON export
         return response()->json([
-            'venues' => $venues,
+            'venues'      => $venues,
             'exported_at' => now()->toISOString(),
-            'total_count' => $venues->count()
+            'total_count' => $venues->count(),
         ]);
     }
 
@@ -456,15 +460,15 @@ class UserFavoriteVenueController extends Controller
     public function bulkUpdate(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'venue_ids' => 'required|array',
-            'venue_ids.*' => 'exists:user_favorite_venues,id',
-            'action' => 'required|in:update_priority,update_notifications,delete',
-            'priority' => 'required_if:action,update_priority|integer|min:1|max:5',
+            'venue_ids'    => 'required|array',
+            'venue_ids.*'  => 'exists:user_favorite_venues,id',
+            'action'       => 'required|in:update_priority,update_notifications,delete',
+            'priority'     => 'required_if:action,update_priority|integer|min:1|max:5',
             'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean'
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
         ]);
 
         $venues = UserFavoriteVenue::whereIn('id', $validated['venue_ids'])
@@ -478,27 +482,28 @@ class UserFavoriteVenueController extends Controller
                 case 'update_priority':
                     $venue->update(['priority' => $validated['priority']]);
                     $updated++;
+
                     break;
-                
                 case 'update_notifications':
                     $venue->updateNotificationSettings([
                         'email' => $request->boolean('email_alerts'),
-                        'push' => $request->boolean('push_alerts'),
-                        'sms' => $request->boolean('sms_alerts')
+                        'push'  => $request->boolean('push_alerts'),
+                        'sms'   => $request->boolean('sms_alerts'),
                     ]);
                     $updated++;
+
                     break;
-                
                 case 'delete':
                     $venue->delete();
                     $updated++;
+
                     break;
             }
         }
 
         return response()->json([
-            'message' => "Updated {$updated} venues",
-            'updated_count' => $updated
+            'message'       => "Updated {$updated} venues",
+            'updated_count' => $updated,
         ]);
     }
 
@@ -508,16 +513,16 @@ class UserFavoriteVenueController extends Controller
     public function getSimilar(UserFavoriteVenue $venue): JsonResponse
     {
         $this->authorize('view', $venue);
-        
+
         $similarVenues = $venue->getSimilarVenues(10);
-        
+
         return response()->json([
             'similar_venues' => $similarVenues,
-            'base_venue' => [
-                'id' => $venue->id,
+            'base_venue'     => [
+                'id'   => $venue->id,
                 'name' => $venue->venue_name,
-                'city' => $venue->city
-            ]
+                'city' => $venue->city,
+            ],
         ]);
     }
 }

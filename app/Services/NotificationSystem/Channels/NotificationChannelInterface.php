@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\NotificationSystem\Channels;
 
@@ -8,17 +8,11 @@ interface NotificationChannelInterface
 {
     /**
      * Send notification to the user
-     *
-     * @param User $user
-     * @param array $notification
-     * @return bool
      */
     public function send(User $user, array $notification): bool;
 
     /**
      * Check if the channel is available and configured
-     *
-     * @return bool
      */
     public function isAvailable(): bool;
 }

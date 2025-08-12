@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class AlertAnalyticsController extends Controller
@@ -14,14 +13,14 @@ class AlertAnalyticsController extends Controller
     public function alertAnalytics(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'total_alerts' => 0,
-                'processed_alerts' => 0,
-                'failed_alerts' => 0,
+            'success' => TRUE,
+            'data'    => [
+                'total_alerts'          => 0,
+                'processed_alerts'      => 0,
+                'failed_alerts'         => 0,
                 'average_response_time' => 0,
-                'alert_trends' => []
-            ]
+                'alert_trends'          => [],
+            ],
         ]);
     }
 
@@ -31,15 +30,15 @@ class AlertAnalyticsController extends Controller
     public function channelPerformance(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
+            'success' => TRUE,
+            'data'    => [
                 'channels' => [
-                    'email' => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
-                    'slack' => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
-                    'discord' => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
-                    'telegram' => ['sent' => 0, 'delivered' => 0, 'failed' => 0]
-                ]
-            ]
+                    'email'    => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
+                    'slack'    => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
+                    'discord'  => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
+                    'telegram' => ['sent' => 0, 'delivered' => 0, 'failed' => 0],
+                ],
+            ],
         ]);
     }
 
@@ -49,14 +48,14 @@ class AlertAnalyticsController extends Controller
     public function predictionAccuracy(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'overall_accuracy' => 0,
-                'price_prediction_accuracy' => 0,
+            'success' => TRUE,
+            'data'    => [
+                'overall_accuracy'                 => 0,
+                'price_prediction_accuracy'        => 0,
                 'availability_prediction_accuracy' => 0,
-                'demand_prediction_accuracy' => 0,
-                'recent_predictions' => []
-            ]
+                'demand_prediction_accuracy'       => 0,
+                'recent_predictions'               => [],
+            ],
         ]);
     }
 
@@ -66,13 +65,13 @@ class AlertAnalyticsController extends Controller
     public function userEngagement(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'active_users' => 0,
-                'alert_interaction_rate' => 0,
+            'success' => TRUE,
+            'data'    => [
+                'active_users'             => 0,
+                'alert_interaction_rate'   => 0,
                 'average_session_duration' => 0,
-                'most_used_features' => []
-            ]
+                'most_used_features'       => [],
+            ],
         ]);
     }
 
@@ -82,14 +81,14 @@ class AlertAnalyticsController extends Controller
     public function systemOverview(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'total_users' => 0,
-                'system_uptime' => '99.9%',
+            'success' => TRUE,
+            'data'    => [
+                'total_users'            => 0,
+                'system_uptime'          => '99.9%',
                 'total_processed_alerts' => 0,
-                'queue_health' => 'healthy',
-                'cache_health' => 'healthy'
-            ]
+                'queue_health'           => 'healthy',
+                'cache_health'           => 'healthy',
+            ],
         ]);
     }
 
@@ -99,14 +98,14 @@ class AlertAnalyticsController extends Controller
     public function systemPerformance(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'cpu_usage' => '15%',
-                'memory_usage' => '45%',
-                'database_performance' => 'good',
+            'success' => TRUE,
+            'data'    => [
+                'cpu_usage'             => '15%',
+                'memory_usage'          => '45%',
+                'database_performance'  => 'good',
                 'queue_processing_time' => '2.3s',
-                'api_response_time' => '150ms'
-            ]
+                'api_response_time'     => '150ms',
+            ],
         ]);
     }
 
@@ -116,13 +115,13 @@ class AlertAnalyticsController extends Controller
     public function errorAnalytics(): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'total_errors' => 0,
-                'error_rate' => '0.1%',
+            'success' => TRUE,
+            'data'    => [
+                'total_errors'       => 0,
+                'error_rate'         => '0.1%',
                 'most_common_errors' => [],
-                'recent_errors' => []
-            ]
+                'recent_errors'      => [],
+            ],
         ]);
     }
 }

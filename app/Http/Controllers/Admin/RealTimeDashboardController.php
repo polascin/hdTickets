@@ -1,29 +1,34 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\InAppNotificationService;
+use App\Services\ProxyRotationService;
 use App\Services\RealTimeMonitoringService;
 use App\Services\Scraping\PluginBasedScraperManager;
-use App\Services\ProxyRotationService;
-use App\Services\InAppNotificationService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+use function count;
 
 class RealTimeDashboardController extends Controller
 {
     protected $monitoringService;
+
     protected $scraperManager;
+
     protected $proxyService;
+
     protected $notificationService;
 
     public function __construct(
         RealTimeMonitoringService $monitoringService,
         PluginBasedScraperManager $scraperManager,
         ProxyRotationService $proxyService,
-        InAppNotificationService $notificationService
+        InAppNotificationService $notificationService,
     ) {
         $this->monitoringService = $monitoringService;
         $this->scraperManager = $scraperManager;
@@ -39,16 +44,15 @@ class RealTimeDashboardController extends Controller
         try {
             $dashboardData = [
                 'monitoring' => $this->monitoringService->getDashboardData(),
-                'scrapers' => $this->scraperManager->getPluginStats(),
-                'proxies' => $this->proxyService->getProxyStats(),
-                'health' => $this->scraperManager->getHealthStatus()
+                'scrapers'   => $this->scraperManager->getPluginStats(),
+                'proxies'    => $this->proxyService->getProxyStats(),
+                'health'     => $this->scraperManager->getHealthStatus(),
             ];
 
             return view('admin.realtime-dashboard', compact('dashboardData'));
-
         } catch (Exception $e) {
             Log::error('Failed to load real-time dashboard', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return back()->with('error', 'Failed to load dashboard data');
@@ -63,22 +67,21 @@ class RealTimeDashboardController extends Controller
         try {
             $data = [
                 'monitoring' => $this->monitoringService->getDashboardData(),
-                'scrapers' => $this->scraperManager->getPluginStats(),
-                'proxies' => $this->proxyService->getProxyStats(),
-                'health' => $this->scraperManager->getHealthStatus(),
-                'timestamp' => now()->toISOString()
+                'scrapers'   => $this->scraperManager->getPluginStats(),
+                'proxies'    => $this->proxyService->getProxyStats(),
+                'health'     => $this->scraperManager->getHealthStatus(),
+                'timestamp'  => now()->toISOString(),
             ];
 
             return response()->json($data);
-
         } catch (Exception $e) {
             Log::error('Failed to get dashboard data', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error' => 'Failed to load dashboard data',
-                'message' => $e->getMessage()
+                'error'   => 'Failed to load dashboard data',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -92,18 +95,17 @@ class RealTimeDashboardController extends Controller
             $this->monitoringService->startMonitoring();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Real-time monitoring started successfully'
+                'success' => TRUE,
+                'message' => 'Real-time monitoring started successfully',
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to start monitoring', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to start monitoring: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to start monitoring: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -117,18 +119,17 @@ class RealTimeDashboardController extends Controller
             $this->monitoringService->stopMonitoring();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Real-time monitoring stopped successfully'
+                'success' => TRUE,
+                'message' => 'Real-time monitoring stopped successfully',
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to stop monitoring', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to stop monitoring: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to stop monitoring: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -142,14 +143,13 @@ class RealTimeDashboardController extends Controller
             $stats = $this->monitoringService->getMonitoringStats();
 
             return response()->json($stats);
-
         } catch (Exception $e) {
             Log::error('Failed to get monitoring stats', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error' => 'Failed to get monitoring statistics'
+                'error' => 'Failed to get monitoring statistics',
             ], 500);
         }
     }
@@ -160,7 +160,7 @@ class RealTimeDashboardController extends Controller
     public function testPlugin(Request $request): JsonResponse
     {
         $request->validate([
-            'plugin' => 'required|string'
+            'plugin' => 'required|string',
         ]);
 
         try {
@@ -168,16 +168,15 @@ class RealTimeDashboardController extends Controller
             $result = $this->scraperManager->testPlugin($pluginName);
 
             return response()->json($result);
-
         } catch (Exception $e) {
             Log::error('Failed to test plugin', [
                 'plugin' => $request->input('plugin'),
-                'error' => $e->getMessage()
+                'error'  => $e->getMessage(),
             ]);
 
             return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to test plugin: ' . $e->getMessage()
+                'status'  => 'error',
+                'message' => 'Failed to test plugin: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -191,23 +190,22 @@ class RealTimeDashboardController extends Controller
             $results = $this->proxyService->testAllProxies();
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'results' => $results,
                 'summary' => [
-                    'total' => count($results),
-                    'healthy' => count(array_filter($results, fn($r) => $r['healthy'])),
-                    'unhealthy' => count(array_filter($results, fn($r) => !$r['healthy']))
-                ]
+                    'total'     => count($results),
+                    'healthy'   => count(array_filter($results, fn ($r) => $r['healthy'])),
+                    'unhealthy' => count(array_filter($results, fn ($r) => ! $r['healthy'])),
+                ],
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to test proxies', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to test proxies: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to test proxies: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -218,11 +216,11 @@ class RealTimeDashboardController extends Controller
     public function updateMonitoringSettings(Request $request): JsonResponse
     {
         $request->validate([
-            'interval' => 'sometimes|integer|min:10|max:3600',
-            'alert_thresholds' => 'sometimes|array',
+            'interval'                                 => 'sometimes|integer|min:10|max:3600',
+            'alert_thresholds'                         => 'sometimes|array',
             'alert_thresholds.price_change_percentage' => 'sometimes|numeric|min:0|max:100',
-            'alert_thresholds.availability_change' => 'sometimes|boolean',
-            'alert_thresholds.new_tickets' => 'sometimes|boolean'
+            'alert_thresholds.availability_change'     => 'sometimes|boolean',
+            'alert_thresholds.new_tickets'             => 'sometimes|boolean',
         ]);
 
         try {
@@ -235,18 +233,17 @@ class RealTimeDashboardController extends Controller
             }
 
             return response()->json([
-                'success' => true,
-                'message' => 'Monitoring settings updated successfully'
+                'success' => TRUE,
+                'message' => 'Monitoring settings updated successfully',
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to update monitoring settings', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to update settings: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to update settings: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -257,8 +254,8 @@ class RealTimeDashboardController extends Controller
     public function togglePlugin(Request $request): JsonResponse
     {
         $request->validate([
-            'plugin' => 'required|string',
-            'enabled' => 'required|boolean'
+            'plugin'  => 'required|string',
+            'enabled' => 'required|boolean',
         ]);
 
         try {
@@ -272,19 +269,18 @@ class RealTimeDashboardController extends Controller
             }
 
             return response()->json([
-                'success' => true,
-                'message' => "Plugin {$pluginName} " . ($enabled ? 'enabled' : 'disabled') . ' successfully'
+                'success' => TRUE,
+                'message' => "Plugin {$pluginName} " . ($enabled ? 'enabled' : 'disabled') . ' successfully',
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to toggle plugin', [
                 'plugin' => $request->input('plugin'),
-                'error' => $e->getMessage()
+                'error'  => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to toggle plugin: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to toggle plugin: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -296,7 +292,7 @@ class RealTimeDashboardController extends Controller
     {
         $request->validate([
             'ticket_id' => 'required|integer|exists:tickets,id',
-            'criteria' => 'sometimes|array'
+            'criteria'  => 'sometimes|array',
         ]);
 
         try {
@@ -306,19 +302,18 @@ class RealTimeDashboardController extends Controller
             $this->monitoringService->addToWatchList($ticketId, $criteria);
 
             return response()->json([
-                'success' => true,
-                'message' => "Ticket {$ticketId} added to monitoring watchlist"
+                'success' => TRUE,
+                'message' => "Ticket {$ticketId} added to monitoring watchlist",
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to add ticket to watchlist', [
                 'ticket_id' => $request->input('ticket_id'),
-                'error' => $e->getMessage()
+                'error'     => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to add ticket to watchlist: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to add ticket to watchlist: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -329,7 +324,7 @@ class RealTimeDashboardController extends Controller
     public function removeFromWatchlist(Request $request): JsonResponse
     {
         $request->validate([
-            'ticket_id' => 'required|integer'
+            'ticket_id' => 'required|integer',
         ]);
 
         try {
@@ -337,19 +332,18 @@ class RealTimeDashboardController extends Controller
             $this->monitoringService->removeFromWatchList($ticketId);
 
             return response()->json([
-                'success' => true,
-                'message' => "Ticket {$ticketId} removed from monitoring watchlist"
+                'success' => TRUE,
+                'message' => "Ticket {$ticketId} removed from monitoring watchlist",
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to remove ticket from watchlist', [
                 'ticket_id' => $request->input('ticket_id'),
-                'error' => $e->getMessage()
+                'error'     => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to remove ticket from watchlist: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to remove ticket from watchlist: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -360,21 +354,21 @@ class RealTimeDashboardController extends Controller
     public function sendTestNotification(Request $request): JsonResponse
     {
         $request->validate([
-            'user_id' => 'sometimes|integer|exists:users,id',
-            'type' => 'required|string',
-            'title' => 'required|string|max:255',
-            'message' => 'required|string',
-            'priority' => 'sometimes|string|in:low,normal,high,urgent'
+            'user_id'  => 'sometimes|integer|exists:users,id',
+            'type'     => 'required|string',
+            'title'    => 'required|string|max:255',
+            'message'  => 'required|string',
+            'priority' => 'sometimes|string|in:low,normal,high,urgent',
         ]);
 
         try {
             $userId = $request->input('user_id', auth()->id());
             $user = \App\Models\User::find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
+                    'success' => FALSE,
+                    'message' => 'User not found',
                 ], 404);
             }
 
@@ -383,24 +377,23 @@ class RealTimeDashboardController extends Controller
                 $request->input('type'),
                 $request->input('title'),
                 $request->input('message'),
-                ['test' => true],
-                $request->input('priority', 'normal')
+                ['test' => TRUE],
+                $request->input('priority', 'normal'),
             );
 
             return response()->json([
-                'success' => true,
-                'message' => 'Test notification sent successfully',
-                'notification' => $notification
+                'success'      => TRUE,
+                'message'      => 'Test notification sent successfully',
+                'notification' => $notification,
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to send test notification', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to send test notification: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to send test notification: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -413,24 +406,23 @@ class RealTimeDashboardController extends Controller
         try {
             $metrics = [
                 'monitoring' => $this->monitoringService->getMonitoringStats(),
-                'scrapers' => $this->scraperManager->getPluginStats(),
-                'proxies' => $this->proxyService->getProxyStats(),
-                'system' => [
-                    'memory_usage' => memory_get_usage(true),
-                    'memory_peak' => memory_get_peak_usage(true),
-                    'uptime' => time() - $_SERVER['REQUEST_TIME_FLOAT'] ?? 0
-                ]
+                'scrapers'   => $this->scraperManager->getPluginStats(),
+                'proxies'    => $this->proxyService->getProxyStats(),
+                'system'     => [
+                    'memory_usage' => memory_get_usage(TRUE),
+                    'memory_peak'  => memory_get_peak_usage(TRUE),
+                    'uptime'       => time() - $_SERVER['REQUEST_TIME_FLOAT'] ?? 0,
+                ],
             ];
 
             return response()->json($metrics);
-
         } catch (Exception $e) {
             Log::error('Failed to get performance metrics', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error' => 'Failed to get performance metrics'
+                'error' => 'Failed to get performance metrics',
             ], 500);
         }
     }
@@ -441,9 +433,9 @@ class RealTimeDashboardController extends Controller
     public function exportMonitoringData(Request $request): JsonResponse
     {
         $request->validate([
-            'format' => 'sometimes|string|in:json,csv',
+            'format'    => 'sometimes|string|in:json,csv',
             'date_from' => 'sometimes|date',
-            'date_to' => 'sometimes|date|after_or_equal:date_from'
+            'date_to'   => 'sometimes|date|after_or_equal:date_from',
         ]);
 
         try {
@@ -455,30 +447,29 @@ class RealTimeDashboardController extends Controller
             // For now, return current statistics
             $data = [
                 'export_info' => [
-                    'format' => $format,
-                    'date_from' => $dateFrom,
-                    'date_to' => $dateTo,
-                    'generated_at' => now()->toISOString()
+                    'format'       => $format,
+                    'date_from'    => $dateFrom,
+                    'date_to'      => $dateTo,
+                    'generated_at' => now()->toISOString(),
                 ],
                 'monitoring_stats' => $this->monitoringService->getMonitoringStats(),
-                'scraper_stats' => $this->scraperManager->getPluginStats(),
-                'proxy_stats' => $this->proxyService->getProxyStats()
+                'scraper_stats'    => $this->scraperManager->getPluginStats(),
+                'proxy_stats'      => $this->proxyService->getProxyStats(),
             ];
 
             return response()->json([
-                'success' => true,
-                'data' => $data,
-                'message' => 'Monitoring data exported successfully'
+                'success' => TRUE,
+                'data'    => $data,
+                'message' => 'Monitoring data exported successfully',
             ]);
-
         } catch (Exception $e) {
             Log::error('Failed to export monitoring data', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to export monitoring data: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to export monitoring data: ' . $e->getMessage(),
             ], 500);
         }
     }

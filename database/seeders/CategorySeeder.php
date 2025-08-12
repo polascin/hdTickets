@@ -1,11 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Category;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+
+use function count;
 
 class CategorySeeder extends Seeder
 {
@@ -16,44 +17,44 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Sports',
+                'name'        => 'Sports',
                 'description' => 'All sports-related tickets including NBA, NFL, MLB, Soccer',
-                'color' => '#10b981',
-                'icon' => 'sports-basketball',
-                'is_active' => true,
-                'sort_order' => 1,
+                'color'       => '#10b981',
+                'icon'        => 'sports-basketball',
+                'is_active'   => TRUE,
+                'sort_order'  => 1,
             ],
             [
-                'name' => 'Concerts',
+                'name'        => 'Concerts',
                 'description' => 'Music concerts and live performances',
-                'color' => '#8b5cf6',
-                'icon' => 'musical-note',
-                'is_active' => true,
-                'sort_order' => 2,
+                'color'       => '#8b5cf6',
+                'icon'        => 'musical-note',
+                'is_active'   => TRUE,
+                'sort_order'  => 2,
             ],
             [
-                'name' => 'Theater',
+                'name'        => 'Theater',
                 'description' => 'Broadway shows, musicals, and theater performances',
-                'color' => '#f59e0b',
-                'icon' => 'mask-theater',
-                'is_active' => true,
-                'sort_order' => 3,
+                'color'       => '#f59e0b',
+                'icon'        => 'mask-theater',
+                'is_active'   => TRUE,
+                'sort_order'  => 3,
             ],
             [
-                'name' => 'Comedy',
+                'name'        => 'Comedy',
                 'description' => 'Stand-up comedy shows and comedy events',
-                'color' => '#ef4444',
-                'icon' => 'face-smile',
-                'is_active' => true,
-                'sort_order' => 4,
+                'color'       => '#ef4444',
+                'icon'        => 'face-smile',
+                'is_active'   => TRUE,
+                'sort_order'  => 4,
             ],
             [
-                'name' => 'Festivals',
+                'name'        => 'Festivals',
                 'description' => 'Music festivals, food festivals, and special events',
-                'color' => '#06b6d4',
-                'icon' => 'star',
-                'is_active' => true,
-                'sort_order' => 5,
+                'color'       => '#06b6d4',
+                'icon'        => 'star',
+                'is_active'   => TRUE,
+                'sort_order'  => 5,
             ],
         ];
 
@@ -63,7 +64,7 @@ class CategorySeeder extends Seeder
                 'slug' => Str::slug($categoryData['name']),
             ]));
         }
-        
+
         $this->command->info('Created ' . count($categories) . ' sample categories successfully!');
     }
 }

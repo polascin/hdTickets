@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Bayern_munichPlugin extends BaseScraperPlugin
@@ -66,26 +68,26 @@ class Bayern_munichPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/de/tickets';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['suche'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['wettbewerb'] = $this->mapCompetition($criteria['competition']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['datum_von'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['datum_bis'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -94,14 +96,14 @@ class Bayern_munichPlugin extends BaseScraperPlugin
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
-            'bundesliga' => 'bundesliga',
+            'bundesliga'       => 'bundesliga',
             'champions league' => 'champions-league',
-            'dfb pokal' => 'dfb-pokal',
-            'dfb-pokal' => 'dfb-pokal',
-            'uefa cup' => 'uefa-pokal',
-            'europa league' => 'europa-league',
+            'dfb pokal'        => 'dfb-pokal',
+            'dfb-pokal'        => 'dfb-pokal',
+            'uefa cup'         => 'uefa-pokal',
+            'europa league'    => 'europa-league',
         ];
-        
+
         return $mapping[strtolower($competition)] ?? 'alle';
     }
 
@@ -115,37 +117,36 @@ class Bayern_munichPlugin extends BaseScraperPlugin
 
         try {
             // Parse Bayern Munich specific event structure
-            $crawler->filter('.match-card, .spiel, .match, .event, .ticket-item, .fixture')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.match-card, .spiel, .match, .event, .ticket-item, .fixture')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse Bayern Munich event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
+                } catch (Exception $e) {
+                    Log::warning('Failed to parse Bayern Munich event node', [
+                        'error'        => $e->getMessage(),
+                        'html_snippet' => substr($node->html(), 0, 200),
                     ]);
                 }
             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse Bayern Munich events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse Bayern Munich events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

@@ -1,19 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         // Enhanced ticket price history table (if not exists)
-        if (!Schema::hasTable('ticket_price_histories')) {
-            Schema::create('ticket_price_histories', function (Blueprint $table) {
+        if (! Schema::hasTable('ticket_price_histories')) {
+            Schema::create('ticket_price_histories', function (Blueprint $table): void {
                 $table->id();
                 $table->foreignId('ticket_id')->constrained('scraped_tickets')->onDelete('cascade');
                 $table->decimal('price', 10, 2);
@@ -22,7 +21,7 @@ return new class extends Migration
                 $table->string('source')->default('scraper');
                 $table->json('metadata')->nullable();
                 $table->timestamps();
-                
+
                 $table->index(['ticket_id', 'recorded_at']);
                 $table->index(['recorded_at']);
                 $table->index(['price']);
@@ -30,7 +29,7 @@ return new class extends Migration
         }
 
         // Price alert thresholds table
-        Schema::create('price_alert_thresholds', function (Blueprint $table) {
+        Schema::create('price_alert_thresholds', function (Blueprint $table): void {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
@@ -38,19 +37,19 @@ return new class extends Migration
             $table->decimal('target_price', 10, 2);
             $table->enum('alert_type', ['below', 'above', 'percentage_change']);
             $table->decimal('percentage_threshold', 5, 2)->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(TRUE);
             $table->timestamp('last_triggered_at')->nullable();
             $table->integer('trigger_count')->default(0);
             $table->json('notification_channels');
             $table->timestamps();
-            
+
             $table->index(['user_id', 'is_active']);
             $table->index(['ticket_id', 'is_active']);
             $table->index(['target_price']);
         });
 
         // Price volatility analytics table
-        Schema::create('price_volatility_analytics', function (Blueprint $table) {
+        Schema::create('price_volatility_analytics', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('ticket_id')->constrained('scraped_tickets')->onDelete('cascade');
             $table->date('analysis_date');
@@ -63,7 +62,7 @@ return new class extends Migration
             $table->enum('trend_direction', ['increasing', 'decreasing', 'stable']);
             $table->json('hourly_data')->nullable(); // Store hourly aggregated data
             $table->timestamps();
-            
+
             $table->unique(['ticket_id', 'analysis_date']);
             $table->index(['analysis_date']);
             $table->index(['volatility_score']);
@@ -71,18 +70,18 @@ return new class extends Migration
         });
 
         // Real-time price monitoring queue table
-        Schema::create('price_monitoring_queue', function (Blueprint $table) {
+        Schema::create('price_monitoring_queue', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('ticket_id')->constrained('scraped_tickets')->onDelete('cascade');
             $table->enum('priority', ['low', 'medium', 'high', 'critical'])->default('medium');
             $table->timestamp('next_check_at');
             $table->integer('check_interval_minutes')->default(15);
             $table->integer('consecutive_failures')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(TRUE);
             $table->json('monitoring_settings')->nullable();
             $table->timestamp('last_checked_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['next_check_at', 'is_active']);
             $table->index(['priority']);
             $table->index(['ticket_id']);

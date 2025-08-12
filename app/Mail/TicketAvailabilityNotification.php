@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
@@ -11,19 +11,32 @@ use Illuminate\Queue\SerializesModels;
 
 class TicketAvailabilityNotification extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $ticket;
+
     public $oldStatus;
+
     public $newStatus;
+
     public $user;
+
     public $platform;
+
     public $quantity;
 
     /**
      * Create a new message instance.
+     *
+     * @param mixed      $ticket
+     * @param mixed      $oldStatus
+     * @param mixed      $newStatus
+     * @param mixed      $user
+     * @param mixed|null $platform
+     * @param mixed|null $quantity
      */
-    public function __construct($ticket, $oldStatus, $newStatus, $user, $platform = null, $quantity = null)
+    public function __construct($ticket, $oldStatus, $newStatus, $user, $platform = NULL, $quantity = NULL)
     {
         $this->ticket = $ticket;
         $this->oldStatus = $oldStatus;
@@ -39,18 +52,18 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $subject = $this->getSubjectLine();
-        
+
         return new Envelope(
             subject: $subject,
             from: config('mail.from.address'),
             replyTo: config('mail.from.address'),
             tags: ['availability-change', 'ticket-alert'],
             metadata: [
-                'ticket_id' => $this->ticket['id'] ?? null,
-                'platform' => $this->platform,
+                'ticket_id'  => $this->ticket['id'] ?? NULL,
+                'platform'   => $this->platform,
                 'old_status' => $this->oldStatus,
                 'new_status' => $this->newStatus,
-                'user_id' => $this->user['id'] ?? null,
+                'user_id'    => $this->user['id'] ?? NULL,
             ],
         );
     }
@@ -64,17 +77,17 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
             view: 'emails.ticket-availability-notification',
             text: 'emails.ticket-availability-notification-text',
             with: [
-                'ticket' => $this->ticket,
-                'oldStatus' => $this->oldStatus,
-                'newStatus' => $this->newStatus,
-                'user' => $this->user,
-                'platform' => $this->platform,
-                'quantity' => $this->quantity,
-                'isNowAvailable' => $this->newStatus === 'available' && $this->oldStatus !== 'available',
-                'isSoldOut' => $this->newStatus === 'sold_out',
+                'ticket'            => $this->ticket,
+                'oldStatus'         => $this->oldStatus,
+                'newStatus'         => $this->newStatus,
+                'user'              => $this->user,
+                'platform'          => $this->platform,
+                'quantity'          => $this->quantity,
+                'isNowAvailable'    => $this->newStatus === 'available' && $this->oldStatus !== 'available',
+                'isSoldOut'         => $this->newStatus === 'sold_out',
                 'isLimitedQuantity' => $this->quantity && $this->quantity <= 10,
-                'statusMessage' => $this->getStatusMessage(),
-                'urgency' => $this->getUrgencyLevel(),
+                'statusMessage'     => $this->getStatusMessage(),
+                'urgency'           => $this->getUrgencyLevel(),
             ],
         );
     }
@@ -95,16 +108,18 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     private function getSubjectLine(): string
     {
         $eventName = $this->ticket['event_name'] ?? 'Event';
-        
+
         if ($this->newStatus === 'available' && $this->oldStatus !== 'available') {
             return "🎉 Tickets Available: {$eventName}";
-        } elseif ($this->newStatus === 'sold_out') {
-            return "⚠️ Sold Out: {$eventName}";
-        } elseif ($this->newStatus === 'limited') {
-            return "⏰ Limited Tickets: {$eventName}";
-        } else {
-            return "🎫 Status Update: {$eventName}";
         }
+        if ($this->newStatus === 'sold_out') {
+            return "⚠️ Sold Out: {$eventName}";
+        }
+        if ($this->newStatus === 'limited') {
+            return "⏰ Limited Tickets: {$eventName}";
+        }
+
+        return "🎫 Status Update: {$eventName}";
     }
 
     /**
@@ -135,12 +150,14 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     {
         if ($this->newStatus === 'available' && $this->oldStatus !== 'available') {
             return 'high'; // Just became available
-        } elseif ($this->newStatus === 'limited' || ($this->quantity && $this->quantity <= 10)) {
+        }
+        if ($this->newStatus === 'limited' || ($this->quantity && $this->quantity <= 10)) {
             return 'medium'; // Limited quantity
-        } elseif ($this->newStatus === 'sold_out') {
+        }
+        if ($this->newStatus === 'sold_out') {
             return 'low'; // Sold out (informational)
         }
-        
+
         return 'normal';
     }
 }

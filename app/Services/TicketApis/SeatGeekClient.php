@@ -1,13 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use DateTime;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
+
+use function count;
 
 class SeatGeekClient extends BaseWebScrapingClient
 {
@@ -18,24 +21,17 @@ class SeatGeekClient extends BaseWebScrapingClient
         $this->respectRateLimit('seatgeek');
     }
 
-    protected function getHeaders(): array
-    {
-        return [
-            'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($this->config['client_id'] . ':' . $this->config['client_secret']),
-        ];
-    }
-
     public function searchEvents(array $criteria): array
     {
         // Try API first
-        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
+        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
             try {
                 $params = $this->buildSearchParams($criteria);
+
                 return $this->makeRequest('GET', 'events', $params);
             } catch (Exception $e) {
                 Log::warning('SeatGeek API search failed, falling back to scraping', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -52,6 +48,80 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function getVenue(string $venueId): array
     {
         return $this->makeRequest('GET', "venues/{$venueId}");
+    }
+
+    /**
+     * Get available tickets for an event
+     */
+    public function getEventTickets(string $eventId, array $filters = []): array
+    {
+        // Try API first
+        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
+            try {
+                $params = array_merge(['event_id' => $eventId], $filters);
+
+                return $this->makeRequest('GET', 'listings', $params);
+            } catch (Exception $e) {
+                Log::warning('SeatGeek API tickets fetch failed, falling back to scraping', [
+                    'event_id' => $eventId,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Fallback to scraping event details for ticket information
+        return $this->getEventTicketsViaScraping($eventId, $filters);
+    }
+
+    /**
+     * Scrape SeatGeek search results
+     */
+    public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
+    {
+        try {
+            $criteria = ['q' => $keyword, 'city' => $location, 'per_page' => $maxResults];
+            $searchUrl = $this->buildScrapingSearchUrl($criteria);
+
+            $html = $this->makeScrapingRequest($searchUrl);
+
+            return $this->parseSearchResultsHtml($html);
+        } catch (Exception $e) {
+            Log::error('SeatGeek scraping search failed', [
+                'keyword'  => $keyword,
+                'location' => $location,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Scrape event details from URL
+     */
+    public function scrapeEventDetails(string $url): array
+    {
+        try {
+            $html = $this->makeScrapingRequest($url, ['referer' => $this->baseUrl]);
+            $crawler = new Crawler($html);
+
+            return $this->extractEventDetails($crawler, $url);
+        } catch (Exception $e) {
+            Log::error('Failed to scrape SeatGeek event details', [
+                'url'   => $url,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    protected function getHeaders(): array
+    {
+        return [
+            'Accept'        => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($this->config['client_id'] . ':' . $this->config['client_secret']),
+        ];
     }
 
     protected function buildSearchParams(array $criteria): array
@@ -91,8 +161,8 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     protected function transformEventData(array $eventData): array
     {
-        $lowestPrice = null;
-        $highestPrice = null;
+        $lowestPrice = NULL;
+        $highestPrice = NULL;
 
         if (isset($eventData['stats']['lowest_price'])) {
             $lowestPrice = $eventData['stats']['lowest_price'];
@@ -103,62 +173,19 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
 
         return [
-            'id' => $eventData['id'] ?? null,
-            'name' => $eventData['title'] ?? 'Unnamed Event',
-            'date' => isset($eventData['datetime_local']) ? date('Y-m-d', strtotime($eventData['datetime_local'])) : null,
-            'time' => isset($eventData['datetime_local']) ? date('H:i:s', strtotime($eventData['datetime_local'])) : null,
-            'status' => $eventData['announce_date'] ? 'onsale' : 'unknown',
-            'venue' => $eventData['venue']['name'] ?? 'Unknown Venue',
-            'city' => $eventData['venue']['city'] ?? 'Unknown City',
-            'country' => $eventData['venue']['country'] ?? 'Unknown Country',
-            'url' => $eventData['url'] ?? '',
-            'price_min' => $lowestPrice,
-            'price_max' => $highestPrice,
-            'ticket_count' => $eventData['stats']['listing_count'] ?? null,
+            'id'           => $eventData['id'] ?? NULL,
+            'name'         => $eventData['title'] ?? 'Unnamed Event',
+            'date'         => isset($eventData['datetime_local']) ? date('Y-m-d', strtotime($eventData['datetime_local'])) : NULL,
+            'time'         => isset($eventData['datetime_local']) ? date('H:i:s', strtotime($eventData['datetime_local'])) : NULL,
+            'status'       => $eventData['announce_date'] ? 'onsale' : 'unknown',
+            'venue'        => $eventData['venue']['name'] ?? 'Unknown Venue',
+            'city'         => $eventData['venue']['city'] ?? 'Unknown City',
+            'country'      => $eventData['venue']['country'] ?? 'Unknown Country',
+            'url'          => $eventData['url'] ?? '',
+            'price_min'    => $lowestPrice,
+            'price_max'    => $highestPrice,
+            'ticket_count' => $eventData['stats']['listing_count'] ?? NULL,
         ];
-    }
-
-    /**
-     * Get available tickets for an event
-     */
-    public function getEventTickets(string $eventId, array $filters = []): array
-    {
-        // Try API first
-        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
-            try {
-                $params = array_merge(['event_id' => $eventId], $filters);
-                return $this->makeRequest('GET', 'listings', $params);
-            } catch (Exception $e) {
-                Log::warning('SeatGeek API tickets fetch failed, falling back to scraping', [
-                    'event_id' => $eventId,
-                    'error' => $e->getMessage()
-                ]);
-            }
-        }
-
-        // Fallback to scraping event details for ticket information
-        return $this->getEventTicketsViaScraping($eventId, $filters);
-    }
-
-    /**
-     * Scrape SeatGeek search results
-     */
-    public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
-    {
-        try {
-            $criteria = ['q' => $keyword, 'city' => $location, 'per_page' => $maxResults];
-            $searchUrl = $this->buildScrapingSearchUrl($criteria);
-            
-            $html = $this->makeScrapingRequest($searchUrl);
-            return $this->parseSearchResultsHtml($html);
-        } catch (Exception $e) {
-            Log::error('SeatGeek scraping search failed', [
-                'keyword' => $keyword,
-                'location' => $location,
-                'error' => $e->getMessage()
-            ]);
-            return [];
-        }
     }
 
     protected function buildScrapingSearchUrl(array $criteria): string
@@ -182,7 +209,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $params['date'] = $criteria['date_start'];
         }
 
-        return $baseUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -192,44 +219,46 @@ class SeatGeekClient extends BaseWebScrapingClient
     {
         $events = [];
         $count = 0;
-        
+
         try {
             // SeatGeek event selectors
             $eventSelectors = [
                 '.event-card',
-                '.event-tile', 
+                '.event-tile',
                 '.event-link',
-                '.search-result'
+                '.search-result',
             ];
-            
+
             foreach ($eventSelectors as $selector) {
                 if ($crawler->filter($selector)->count() > 0) {
                     $crawler->filter($selector)->each(function (Crawler $node) use (&$events, &$count, $maxResults) {
                         if ($count >= $maxResults) {
-                            return false;
+                            return FALSE;
                         }
-                        
+
                         $event = $this->extractEventFromNode($node);
-                        if (!empty($event['name'])) {
+                        if (! empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
                     });
+
                     break;
                 }
             }
         } catch (Exception $e) {
             Log::error('Failed to extract SeatGeek search results', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $events;
     }
-    
+
     protected function parseSearchResultsHtml(string $html): array
     {
         $crawler = new Crawler($html);
+
         return $this->extractSearchResults($crawler, 50);
     }
 
@@ -239,7 +268,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     protected function extractEventFromNode(Crawler $node): array
     {
         $event = [
-            'platform' => 'seatgeek',
+            'platform'   => 'seatgeek',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -247,16 +276,16 @@ class SeatGeekClient extends BaseWebScrapingClient
             // Event name
             $name = $this->trySelectors($node, [
                 'h3',
-                'h4', 
+                'h4',
                 '.title',
                 '.event-title',
-                'a'
+                'a',
             ]);
             $event['name'] = $name;
 
             // Event URL
             $url = $this->trySelectors($node, [
-                'a'
+                'a',
             ], 'href');
             if ($url) {
                 $event['url'] = $this->normalizeUrl($url);
@@ -267,7 +296,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $date = $this->trySelectors($node, [
                 '.date',
                 'time',
-                '.event-date'
+                '.event-date',
             ]);
             if ($date) {
                 $event['date'] = $date;
@@ -278,48 +307,47 @@ class SeatGeekClient extends BaseWebScrapingClient
             $venue = $this->trySelectors($node, [
                 '.venue',
                 '.venue-name',
-                '.location'
+                '.location',
             ]);
             $event['venue'] = $venue;
 
             // Price information using enhanced extraction
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
-            
-            if (!empty($prices)) {
+
+            if (! empty($prices)) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
             }
-
         } catch (Exception $e) {
             Log::warning('Failed to extract SeatGeek event from node', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
-    
+
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
-            'platform' => 'seatgeek',
+            'platform'   => 'seatgeek',
             'scraped_at' => now()->toISOString(),
         ];
 
         try {
             // Event name
             $nameNode = $xpath->query('.//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode)->item(0);
-            if (!$nameNode) {
+            if (! $nameNode) {
                 // If this is a link node, get text content
-                $nameNode = $eventNode->nodeName === 'a' ? $eventNode : null;
+                $nameNode = $eventNode->nodeName === 'a' ? $eventNode : NULL;
             }
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Event URL
             $linkNode = $xpath->query('.//a[contains(@href, "/")]', $eventNode)->item(0);
-            if (!$linkNode && $eventNode->nodeName === 'a') {
+            if (! $linkNode && $eventNode->nodeName === 'a') {
                 $linkNode = $eventNode;
             }
             if ($linkNode && $linkNode->hasAttribute('href')) {
@@ -353,10 +381,9 @@ class SeatGeekClient extends BaseWebScrapingClient
             }
             $event['prices'] = array_unique($prices);
             $this->extractPriceRange($event, $prices);
-
         } catch (Exception $e) {
             Log::warning('Failed to parse SeatGeek event card', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -368,12 +395,12 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Try to get event URL from the ID
             $eventUrl = "https://seatgeek.com/events/{$eventId}";
-            
+
             $response = Http::withHeaders($this->scrapingHeaders)
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch event details from SeatGeek');
             }
 
@@ -381,8 +408,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         } catch (Exception $e) {
             Log::error('SeatGeek event tickets scraping failed', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -406,54 +434,55 @@ class SeatGeekClient extends BaseWebScrapingClient
                 if ($priceNode && preg_match('/\$[\d,]+/', $priceNode->textContent)) {
                     $price = trim($priceNode->textContent);
                     $prices[] = $price;
-                    
+
                     if ($sectionNode) {
                         $sections[] = [
                             'section' => trim($sectionNode->textContent),
-                            'price' => $price
+                            'price'   => $price,
                         ];
                     }
                 }
             }
 
             $priceRange = [];
-            if (!empty($prices)) {
+            if (! empty($prices)) {
                 $numericPrices = [];
                 foreach ($prices as $price) {
                     if (preg_match('/\$([,\d]+)/', $price, $matches)) {
-                        $numericPrices[] = floatval(str_replace(',', '', $matches[1]));
+                        $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
                     }
                 }
-                if (!empty($numericPrices)) {
+                if (! empty($numericPrices)) {
                     $priceRange = [
                         'min' => min($numericPrices),
-                        'max' => max($numericPrices)
+                        'max' => max($numericPrices),
                     ];
                 }
             }
 
             return [
-                'event_id' => $eventId,
+                'event_id'       => $eventId,
                 'total_listings' => count($listingNodes),
-                'price_range' => $priceRange,
-                'prices' => $prices,
-                'sections' => $sections,
+                'price_range'    => $priceRange,
+                'prices'         => $prices,
+                'sections'       => $sections,
             ];
-
         } catch (Exception $e) {
             Log::error('Failed to parse SeatGeek event tickets HTML', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             return [];
         }
     }
 
-    protected function normalizeUrl(string $url, ?string $baseUrl = null): string
+    protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
         if (strpos($url, 'http') !== 0) {
             return ($baseUrl ?: 'https://seatgeek.com') . $url;
         }
+
         return $url;
     }
 
@@ -462,7 +491,8 @@ class SeatGeekClient extends BaseWebScrapingClient
         if (preg_match('/\/events\/([^\/?]+)/', $url, $matches)) {
             return $matches[1];
         }
-        return null;
+
+        return NULL;
     }
 
     protected function extractPriceRange(array &$event, array $prices): void
@@ -474,24 +504,24 @@ class SeatGeekClient extends BaseWebScrapingClient
         $numericPrices = [];
         foreach ($prices as $price) {
             if (preg_match('/\$([,\d]+)/', $price, $matches)) {
-                $numericPrices[] = floatval(str_replace(',', '', $matches[1]));
+                $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if (! empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
     }
 
-    protected function parseEventDate(string $dateString): ?\DateTime
+    protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
-            return null;
+            return NULL;
         }
 
         $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
-        
+
         $formats = [
             'M j, Y g:i A',
             'F j, Y g:i A',
@@ -504,7 +534,7 @@ class SeatGeekClient extends BaseWebScrapingClient
 
         foreach ($formats as $format) {
             try {
-                $date = \DateTime::createFromFormat($format, $dateString);
+                $date = DateTime::createFromFormat($format, $dateString);
                 if ($date) {
                     return $date;
                 }
@@ -514,124 +544,105 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
 
         try {
-            return new \DateTime($dateString);
+            return new DateTime($dateString);
         } catch (Exception $e) {
             return [];
         }
     }
-    
-    /**
-     * Scrape event details from URL
-     */
-    public function scrapeEventDetails(string $url): array
-    {
-        try {
-            $html = $this->makeScrapingRequest($url, ['referer' => $this->baseUrl]);
-            $crawler = new Crawler($html);
-            
-            return $this->extractEventDetails($crawler, $url);
-        } catch (Exception $e) {
-            Log::error('Failed to scrape SeatGeek event details', [
-                'url' => $url,
-                'error' => $e->getMessage()
-            ]);
-            return [];
-        }
-    }
-    
+
     /**
      * Extract detailed event information
      */
     protected function extractEventDetails(Crawler $crawler, string $url): array
     {
         $event = [
-            'url' => $url,
-            'platform' => 'seatgeek',
+            'url'        => $url,
+            'platform'   => 'seatgeek',
             'scraped_at' => now()->toISOString(),
         ];
 
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (!empty($jsonLdData)) {
+            if (! empty($jsonLdData)) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
                 if (isset($eventData['startDate'])) {
-                    $event['parsed_date'] = new \DateTime($eventData['startDate']);
+                    $event['parsed_date'] = new DateTime($eventData['startDate']);
                 }
                 if (isset($eventData['location']['name'])) {
                     $event['venue'] = $eventData['location']['name'];
                 }
             }
-            
+
             // Fallback to selectors if JSON-LD not available
             if (empty($event['name'])) {
                 $event['name'] = $this->trySelectors($crawler, [
                     'h1',
                     '.event-title',
-                    '.event-name'
+                    '.event-name',
                 ]);
             }
-            
+
             if (empty($event['venue'])) {
                 $event['venue'] = $this->trySelectors($crawler, [
                     '.venue-name',
                     '.venue',
-                    '.location'
+                    '.location',
                 ]);
             }
-            
+
             // Extract prices
             $event['prices'] = $this->extractPrices($crawler);
-            
+
             return $event;
-            
         } catch (Exception $e) {
             Log::error('Failed to extract SeatGeek event details', [
-                'url' => $url,
-                'error' => $e->getMessage()
+                'url'   => $url,
+                'error' => $e->getMessage(),
             ]);
+
             return $event;
         }
     }
-    
+
     /**
      * Extract prices from page
      */
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
-        
+
         try {
             // Try different price selectors
             $priceSelectors = [
                 '.price',
                 '.ticket-price',
                 '.listing-price',
-                '[data-price]'
+                '[data-price]',
             ];
-            
+
             foreach ($priceSelectors as $selector) {
-                $crawler->filter($selector)->each(function (Crawler $node) use (&$prices) {
+                $crawler->filter($selector)->each(function (Crawler $node) use (&$prices): void {
                     $text = $node->text();
                     if (preg_match('/\$([0-9,]+(?:\.[0-9]{2})?)/', $text, $matches)) {
                         $prices[] = [
-                            'price' => floatval(str_replace(',', '', $matches[1])),
+                            'price'    => (float) (str_replace(',', '', $matches[1])),
                             'currency' => 'USD',
-                            'section' => 'General'
+                            'section'  => 'General',
                         ];
                     }
                 });
-                
-                if (!empty($prices)) {
+
+                if (! empty($prices)) {
                     break;
                 }
             }
         } catch (Exception $e) {
             Log::debug('Failed to extract SeatGeek prices', ['error' => $e->getMessage()]);
         }
-        
+
         return $prices;
     }
 }

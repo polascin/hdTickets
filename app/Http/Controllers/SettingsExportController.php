@@ -1,13 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\UserPreference;
 use App\Models\UserFavoriteTeam;
 use App\Models\UserFavoriteVenue;
-use App\Models\UserPricePreference;
 use App\Models\UserNotificationSettings;
+use App\Models\UserPreference;
+use App\Models\UserPricePreference;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,7 +18,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+
+use function count;
+use function in_array;
+use function is_array;
+use function sprintf;
+use function strlen;
 
 class SettingsExportController extends Controller
 {
@@ -27,12 +33,12 @@ class SettingsExportController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         return view('profile.settings-export', [
-            'user' => $user,
-            'last_export' => $this->getLastExportInfo($user),
-            'supported_formats' => $this->getSupportedFormats(),
-            'exportable_categories' => $this->getExportableCategories()
+            'user'                  => $user,
+            'last_export'           => $this->getLastExportInfo($user),
+            'supported_formats'     => $this->getSupportedFormats(),
+            'exportable_categories' => $this->getExportableCategories(),
         ]);
     }
 
@@ -42,15 +48,15 @@ class SettingsExportController extends Controller
     public function exportSettings(Request $request): Response
     {
         $validator = Validator::make($request->all(), [
-            'categories' => 'sometimes|array',
+            'categories'   => 'sometimes|array',
             'categories.*' => 'string|in:preferences,teams,venues,prices,notifications',
-            'format' => 'sometimes|string|in:json,csv'
+            'format'       => 'sometimes|string|in:json,csv',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -58,33 +64,32 @@ class SettingsExportController extends Controller
             $user = Auth::user();
             $categories = $request->input('categories', ['preferences', 'teams', 'venues', 'prices', 'notifications']);
             $format = $request->input('format', 'json');
-            
+
             $exportData = $this->buildExportData($user, $categories);
-            
+
             // Log the export activity
             Log::info('User settings exported', [
-                'user_id' => $user->id,
+                'user_id'    => $user->id,
                 'categories' => $categories,
-                'format' => $format,
-                'data_size' => strlen(json_encode($exportData))
+                'format'     => $format,
+                'data_size'  => strlen(json_encode($exportData)),
             ]);
-            
+
             if ($format === 'csv') {
                 return $this->exportAsCSV($exportData, $user);
             }
-            
+
             return $this->exportAsJSON($exportData, $user);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Settings export failed', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Export failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Export failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -95,58 +100,57 @@ class SettingsExportController extends Controller
     public function previewImport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'import_file' => 'required|file|mimetypes:application/json,text/plain|max:2048',
-            'merge_strategy' => 'sometimes|string|in:overwrite,merge,skip_existing'
+            'import_file'    => 'required|file|mimetypes:application/json,text/plain|max:2048',
+            'merge_strategy' => 'sometimes|string|in:overwrite,merge,skip_existing',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $file = $request->file('import_file');
             $content = file_get_contents($file->getRealPath());
-            $importData = json_decode($content, true);
-            
+            $importData = json_decode($content, TRUE);
+
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid JSON format: ' . json_last_error_msg()
+                    'success' => FALSE,
+                    'message' => 'Invalid JSON format: ' . json_last_error_msg(),
                 ], 422);
             }
-            
+
             $validation = $this->validateImportData($importData);
-            
-            if (!$validation['valid']) {
+
+            if (! $validation['valid']) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Invalid import data structure',
-                    'errors' => $validation['errors']
+                    'errors'  => $validation['errors'],
                 ], 422);
             }
-            
+
             $user = Auth::user();
             $mergeStrategy = $request->input('merge_strategy', 'merge');
             $preview = $this->generateImportPreview($user, $importData, $mergeStrategy);
-            
+
             return response()->json([
-                'success' => true,
-                'preview' => $preview,
-                'validation' => $validation
+                'success'    => TRUE,
+                'preview'    => $preview,
+                'validation' => $validation,
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Import preview failed', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Preview generation failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Preview generation failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -157,84 +161,83 @@ class SettingsExportController extends Controller
     public function importSettings(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'import_file' => 'required|file|mimetypes:application/json,text/plain|max:2048',
-            'merge_strategy' => 'required|string|in:overwrite,merge,skip_existing',
-            'categories' => 'sometimes|array',
-            'categories.*' => 'string|in:preferences,teams,venues,prices,notifications',
-            'preview_confirmed' => 'required|boolean'
+            'import_file'       => 'required|file|mimetypes:application/json,text/plain|max:2048',
+            'merge_strategy'    => 'required|string|in:overwrite,merge,skip_existing',
+            'categories'        => 'sometimes|array',
+            'categories.*'      => 'string|in:preferences,teams,venues,prices,notifications',
+            'preview_confirmed' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
-        if (!$request->input('preview_confirmed')) {
+        if (! $request->input('preview_confirmed')) {
             return response()->json([
-                'success' => false,
-                'message' => 'Import must be previewed and confirmed before processing'
+                'success' => FALSE,
+                'message' => 'Import must be previewed and confirmed before processing',
             ], 422);
         }
 
         try {
             $file = $request->file('import_file');
             $content = file_get_contents($file->getRealPath());
-            $importData = json_decode($content, true);
-            
+            $importData = json_decode($content, TRUE);
+
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid JSON format: ' . json_last_error_msg()
+                    'success' => FALSE,
+                    'message' => 'Invalid JSON format: ' . json_last_error_msg(),
                 ], 422);
             }
-            
+
             $validation = $this->validateImportData($importData);
-            
-            if (!$validation['valid']) {
+
+            if (! $validation['valid']) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Invalid import data structure',
-                    'errors' => $validation['errors']
+                    'errors'  => $validation['errors'],
                 ], 422);
             }
-            
+
             $user = Auth::user();
             $mergeStrategy = $request->input('merge_strategy');
             $categories = $request->input('categories', array_keys($importData['data'] ?? []));
-            
+
             $result = $this->processImport($user, $importData, $mergeStrategy, $categories);
-            
+
             // Clear user preferences cache
             Cache::forget("user_preferences_{$user->id}");
-            
+
             // Log successful import
             Log::info('User settings imported successfully', [
-                'user_id' => $user->id,
+                'user_id'        => $user->id,
                 'merge_strategy' => $mergeStrategy,
-                'categories' => $categories,
+                'categories'     => $categories,
                 'imported_items' => $result['imported_count'],
-                'conflicts' => count($result['conflicts']),
-                'errors' => count($result['errors'])
+                'conflicts'      => count($result['conflicts']),
+                'errors'         => count($result['errors']),
             ]);
-            
+
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Settings imported successfully',
-                'result' => $result
+                'result'  => $result,
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Settings import failed', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Import failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Import failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -245,60 +248,59 @@ class SettingsExportController extends Controller
     public function resolveConflicts(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'conflicts' => 'required|array',
-            'conflicts.*.id' => 'required|string',
-            'conflicts.*.action' => 'required|string|in:keep_existing,use_import,merge',
-            'conflicts.*.category' => 'required|string|in:preferences,teams,venues,prices,notifications'
+            'conflicts'            => 'required|array',
+            'conflicts.*.id'       => 'required|string',
+            'conflicts.*.action'   => 'required|string|in:keep_existing,use_import,merge',
+            'conflicts.*.category' => 'required|string|in:preferences,teams,venues,prices,notifications',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $user = Auth::user();
             $conflicts = $request->input('conflicts');
-            
+
             $resolved = 0;
             $errors = [];
-            
+
             DB::beginTransaction();
-            
+
             foreach ($conflicts as $conflict) {
                 try {
                     $this->resolveConflict($user, $conflict);
                     $resolved++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = "Failed to resolve conflict {$conflict['id']}: " . $e->getMessage();
                 }
             }
-            
+
             DB::commit();
-            
+
             // Clear cache after resolving conflicts
             Cache::forget("user_preferences_{$user->id}");
-            
+
             return response()->json([
-                'success' => true,
-                'message' => "Resolved {$resolved} conflicts",
+                'success'        => TRUE,
+                'message'        => "Resolved {$resolved} conflicts",
                 'resolved_count' => $resolved,
-                'errors' => $errors
+                'errors'         => $errors,
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Conflict resolution failed', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Conflict resolution failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Conflict resolution failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -309,67 +311,66 @@ class SettingsExportController extends Controller
     public function resetToDefaults(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'categories' => 'sometimes|array',
-            'categories.*' => 'string|in:preferences,teams,venues,prices,notifications',
+            'categories'    => 'sometimes|array',
+            'categories.*'  => 'string|in:preferences,teams,venues,prices,notifications',
             'create_backup' => 'boolean',
-            'confirm_reset' => 'required|boolean'
+            'confirm_reset' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
+                'success' => FALSE,
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
-        if (!$request->input('confirm_reset')) {
+        if (! $request->input('confirm_reset')) {
             return response()->json([
-                'success' => false,
-                'message' => 'Reset must be confirmed'
+                'success' => FALSE,
+                'message' => 'Reset must be confirmed',
             ], 422);
         }
 
         try {
             $user = Auth::user();
             $categories = $request->input('categories', ['preferences', 'teams', 'venues', 'prices', 'notifications']);
-            $createBackup = $request->input('create_backup', true);
-            
-            $backupFile = null;
-            
+            $createBackup = $request->input('create_backup', TRUE);
+
+            $backupFile = NULL;
+
             if ($createBackup) {
                 $exportData = $this->buildExportData($user, $categories);
                 $backupFile = $this->createBackupFile($user, $exportData);
             }
-            
+
             $resetResult = $this->performReset($user, $categories);
-            
+
             // Clear cache
             Cache::forget("user_preferences_{$user->id}");
-            
+
             Log::info('User settings reset to defaults', [
-                'user_id' => $user->id,
-                'categories' => $categories,
+                'user_id'        => $user->id,
+                'categories'     => $categories,
                 'backup_created' => $createBackup,
-                'backup_file' => $backupFile,
-                'reset_count' => $resetResult['reset_count']
+                'backup_file'    => $backupFile,
+                'reset_count'    => $resetResult['reset_count'],
             ]);
-            
+
             return response()->json([
-                'success' => true,
-                'message' => 'Settings reset to defaults successfully',
-                'backup_file' => $backupFile,
-                'reset_result' => $resetResult
+                'success'      => TRUE,
+                'message'      => 'Settings reset to defaults successfully',
+                'backup_file'  => $backupFile,
+                'reset_result' => $resetResult,
             ]);
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Settings reset failed', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Reset failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Reset failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -381,31 +382,36 @@ class SettingsExportController extends Controller
     {
         $exportData = [
             'meta' => [
-                'version' => '1.0',
+                'version'     => '1.0',
                 'exported_at' => now()->toISOString(),
                 'exported_by' => $user->id,
                 'application' => 'HD Tickets',
-                'categories' => $categories
+                'categories'  => $categories,
             ],
-            'data' => []
+            'data' => [],
         ];
 
         foreach ($categories as $category) {
             switch ($category) {
                 case 'preferences':
                     $exportData['data']['preferences'] = $this->exportPreferences($user);
+
                     break;
                 case 'teams':
                     $exportData['data']['teams'] = $this->exportFavoriteTeams($user);
+
                     break;
                 case 'venues':
                     $exportData['data']['venues'] = $this->exportFavoriteVenues($user);
+
                     break;
                 case 'prices':
                     $exportData['data']['prices'] = $this->exportPricePreferences($user);
+
                     break;
                 case 'notifications':
                     $exportData['data']['notifications'] = $this->exportNotificationSettings($user);
+
                     break;
             }
         }
@@ -427,16 +433,16 @@ class SettingsExportController extends Controller
 
         foreach ($preferences as $category => $categoryPrefs) {
             $exportPreferences[$category] = [];
-            
+
             foreach ($categoryPrefs as $pref) {
                 // Skip sensitive preferences
                 if ($this->isSensitivePreference($pref->preference_key)) {
                     continue;
                 }
-                
+
                 $exportPreferences[$category][$pref->preference_key] = [
-                    'value' => $this->castPreferenceValue($pref->preference_value, $pref->data_type),
-                    'data_type' => $pref->data_type
+                    'value'     => $this->castPreferenceValue($pref->preference_value, $pref->data_type),
+                    'data_type' => $pref->data_type,
                 ];
             }
         }
@@ -472,7 +478,7 @@ class SettingsExportController extends Controller
     private function exportPricePreferences(User $user): array
     {
         return UserPricePreference::where('user_id', $user->id)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->select('preference_name', 'sport_type', 'event_category', 'min_price', 'max_price', 'preferred_quantity', 'seat_preferences', 'price_drop_threshold', 'email_alerts', 'push_alerts', 'sms_alerts', 'alert_frequency')
             ->get()
             ->toArray();
@@ -487,10 +493,10 @@ class SettingsExportController extends Controller
             ->get()
             ->mapWithKeys(function ($setting) {
                 // Skip sensitive notification channels
-                if (in_array($setting->channel, ['webhook', 'api'])) {
+                if (in_array($setting->channel, ['webhook', 'api'], TRUE)) {
                     return [];
                 }
-                
+
                 return [$setting->channel => $setting->is_enabled];
             })
             ->toArray();
@@ -506,20 +512,22 @@ class SettingsExportController extends Controller
         $sensitiveKeys = [
             'password', 'api_key', 'secret', 'token', 'webhook_url',
             'two_factor', '2fa', 'recovery_codes', 'trusted_devices',
-            'payment_methods', 'billing', 'credit_card'
+            'payment_methods', 'billing', 'credit_card',
         ];
 
         foreach ($sensitiveKeys as $sensitiveKey) {
             if (str_contains(strtolower($key), $sensitiveKey)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Cast preference value from storage
+     *
+     * @param mixed $value
      */
     private function castPreferenceValue($value, string $dataType)
     {
@@ -530,7 +538,7 @@ class SettingsExportController extends Controller
                 return (int) $value;
             case 'array':
             case 'json':
-                return json_decode($value, true);
+                return json_decode($value, TRUE);
             case 'string':
             default:
                 return (string) $value;
@@ -542,8 +550,8 @@ class SettingsExportController extends Controller
      */
     private function exportAsJSON(array $exportData, User $user): Response
     {
-        $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . ".json";
-        
+        $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.json';
+
         return response()
             ->json($exportData, 200, [], JSON_PRETTY_PRINT)
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
@@ -555,9 +563,9 @@ class SettingsExportController extends Controller
      */
     private function exportAsCSV(array $exportData, User $user): Response
     {
-        $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . ".csv";
+        $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.csv';
         $csv = $this->convertToCSV($exportData);
-        
+
         return response($csv)
             ->header('Content-Type', 'text/csv')
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
@@ -569,16 +577,19 @@ class SettingsExportController extends Controller
     private function convertToCSV(array $exportData): string
     {
         $csv = "Category,Subcategory,Key,Value,Type\n";
-        
+
         foreach ($exportData['data'] as $category => $categoryData) {
             if ($category === 'preferences') {
                 foreach ($categoryData as $subCategory => $preferences) {
                     foreach ($preferences as $key => $data) {
                         $value = is_array($data['value']) ? json_encode($data['value']) : $data['value'];
-                        $csv .= sprintf("%s,%s,%s,\"%s\",%s\n", 
-                            $category, $subCategory, $key, 
-                            str_replace('"', '""', $value), 
-                            $data['data_type']
+                        $csv .= sprintf(
+                            "%s,%s,%s,\"%s\",%s\n",
+                            $category,
+                            $subCategory,
+                            $key,
+                            str_replace('"', '""', $value),
+                            $data['data_type'],
                         );
                     }
                 }
@@ -586,15 +597,18 @@ class SettingsExportController extends Controller
                 foreach ($categoryData as $index => $item) {
                     foreach ($item as $key => $value) {
                         $valueStr = is_array($value) ? json_encode($value) : $value;
-                        $csv .= sprintf("%s,%s,%s,\"%s\",string\n", 
-                            $category, $index, $key, 
-                            str_replace('"', '""', $valueStr)
+                        $csv .= sprintf(
+                            "%s,%s,%s,\"%s\",string\n",
+                            $category,
+                            $index,
+                            $key,
+                            str_replace('"', '""', $valueStr),
                         );
                     }
                 }
             }
         }
-        
+
         return $csv;
     }
 
@@ -604,115 +618,119 @@ class SettingsExportController extends Controller
     private function validateImportData(array $data): array
     {
         $errors = [];
-        $valid = true;
+        $valid = TRUE;
 
         // Check required meta fields
-        if (!isset($data['meta'])) {
+        if (! isset($data['meta'])) {
             $errors[] = 'Missing meta information';
-            $valid = false;
-        } elseif (!isset($data['meta']['version'])) {
+            $valid = FALSE;
+        } elseif (! isset($data['meta']['version'])) {
             $errors[] = 'Missing version information';
-            $valid = false;
+            $valid = FALSE;
         }
 
         // Check data structure
-        if (!isset($data['data']) || !is_array($data['data'])) {
+        if (! isset($data['data']) || ! is_array($data['data'])) {
             $errors[] = 'Missing or invalid data section';
-            $valid = false;
+            $valid = FALSE;
         }
 
         // Validate each category
         $validCategories = ['preferences', 'teams', 'venues', 'prices', 'notifications'];
-        
+
         foreach ($data['data'] as $category => $categoryData) {
-            if (!in_array($category, $validCategories)) {
+            if (! in_array($category, $validCategories, TRUE)) {
                 $errors[] = "Invalid category: {$category}";
-                $valid = false;
+                $valid = FALSE;
+
                 continue;
             }
 
             $categoryValidation = $this->validateCategoryData($category, $categoryData);
-            if (!$categoryValidation['valid']) {
+            if (! $categoryValidation['valid']) {
                 $errors = array_merge($errors, $categoryValidation['errors']);
-                $valid = false;
+                $valid = FALSE;
             }
         }
 
         return [
-            'valid' => $valid,
-            'errors' => $errors
+            'valid'  => $valid,
+            'errors' => $errors,
         ];
     }
 
     /**
      * Validate specific category data
+     *
+     * @param mixed $data
      */
     private function validateCategoryData(string $category, $data): array
     {
         $errors = [];
-        $valid = true;
+        $valid = TRUE;
 
         switch ($category) {
             case 'preferences':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Preferences must be an array';
-                    $valid = false;
+                    $valid = FALSE;
                 }
+
                 break;
-                
             case 'teams':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Teams must be an array';
-                    $valid = false;
+                    $valid = FALSE;
                 } else {
                     foreach ($data as $index => $team) {
-                        if (!isset($team['team_name']) || !isset($team['sport_type'])) {
+                        if (! isset($team['team_name']) || ! isset($team['sport_type'])) {
                             $errors[] = "Team at index {$index} missing required fields";
-                            $valid = false;
+                            $valid = FALSE;
                         }
                     }
                 }
+
                 break;
-                
             case 'venues':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Venues must be an array';
-                    $valid = false;
+                    $valid = FALSE;
                 } else {
                     foreach ($data as $index => $venue) {
-                        if (!isset($venue['venue_name']) || !isset($venue['city'])) {
+                        if (! isset($venue['venue_name']) || ! isset($venue['city'])) {
                             $errors[] = "Venue at index {$index} missing required fields";
-                            $valid = false;
+                            $valid = FALSE;
                         }
                     }
                 }
+
                 break;
-                
             case 'prices':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Price preferences must be an array';
-                    $valid = false;
+                    $valid = FALSE;
                 } else {
                     foreach ($data as $index => $price) {
-                        if (!isset($price['preference_name']) || !isset($price['max_price'])) {
+                        if (! isset($price['preference_name']) || ! isset($price['max_price'])) {
                             $errors[] = "Price preference at index {$index} missing required fields";
-                            $valid = false;
+                            $valid = FALSE;
                         }
                     }
                 }
+
                 break;
-                
             case 'notifications':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Notification settings must be an array';
-                    $valid = false;
+                    $valid = FALSE;
                 }
+
                 break;
         }
 
         return [
-            'valid' => $valid,
-            'errors' => $errors
+            'valid'  => $valid,
+            'errors' => $errors,
         ];
     }
 
@@ -722,15 +740,15 @@ class SettingsExportController extends Controller
     private function generateImportPreview(User $user, array $importData, string $mergeStrategy): array
     {
         $preview = [
-            'changes' => [],
-            'conflicts' => [],
-            'new_items' => [],
-            'total_changes' => 0
+            'changes'       => [],
+            'conflicts'     => [],
+            'new_items'     => [],
+            'total_changes' => 0,
         ];
 
         foreach ($importData['data'] as $category => $categoryData) {
             $categoryPreview = $this->generateCategoryPreview($user, $category, $categoryData, $mergeStrategy);
-            
+
             $preview['changes'][$category] = $categoryPreview['changes'];
             $preview['conflicts'] = array_merge($preview['conflicts'], $categoryPreview['conflicts']);
             $preview['new_items'][$category] = $categoryPreview['new_items'];
@@ -742,31 +760,38 @@ class SettingsExportController extends Controller
 
     /**
      * Generate preview for specific category
+     *
+     * @param mixed $data
      */
     private function generateCategoryPreview(User $user, string $category, $data, string $mergeStrategy): array
     {
         $preview = [
-            'changes' => [],
-            'conflicts' => [],
-            'new_items' => [],
-            'change_count' => 0
+            'changes'      => [],
+            'conflicts'    => [],
+            'new_items'    => [],
+            'change_count' => 0,
         ];
 
         switch ($category) {
             case 'preferences':
                 $preview = $this->previewPreferencesChanges($user, $data, $mergeStrategy);
+
                 break;
             case 'teams':
                 $preview = $this->previewTeamsChanges($user, $data, $mergeStrategy);
+
                 break;
             case 'venues':
                 $preview = $this->previewVenuesChanges($user, $data, $mergeStrategy);
+
                 break;
             case 'prices':
                 $preview = $this->previewPricesChanges($user, $data, $mergeStrategy);
+
                 break;
             case 'notifications':
                 $preview = $this->previewNotificationsChanges($user, $data, $mergeStrategy);
+
                 break;
         }
 
@@ -792,36 +817,36 @@ class SettingsExportController extends Controller
         foreach ($data as $category => $preferences) {
             foreach ($preferences as $key => $prefData) {
                 $fullKey = "{$category}.{$key}";
-                
+
                 if (isset($existingPrefs[$fullKey])) {
                     $existing = $existingPrefs[$fullKey];
                     $existingValue = $this->castPreferenceValue($existing->preference_value, $existing->data_type);
-                    
+
                     if ($existingValue !== $prefData['value']) {
                         if ($mergeStrategy === 'skip_existing') {
                             $conflicts[] = [
-                                'type' => 'preference',
-                                'id' => $fullKey,
+                                'type'     => 'preference',
+                                'id'       => $fullKey,
                                 'category' => 'preferences',
                                 'existing' => $existingValue,
-                                'import' => $prefData['value'],
-                                'action' => 'skipped'
+                                'import'   => $prefData['value'],
+                                'action'   => 'skipped',
                             ];
                         } else {
                             $changes[] = [
                                 'type' => 'update',
-                                'key' => $fullKey,
+                                'key'  => $fullKey,
                                 'from' => $existingValue,
-                                'to' => $prefData['value']
+                                'to'   => $prefData['value'],
                             ];
                             $changeCount++;
                         }
                     }
                 } else {
                     $newItems[] = [
-                        'type' => 'preference',
-                        'key' => $fullKey,
-                        'value' => $prefData['value']
+                        'type'  => 'preference',
+                        'key'   => $fullKey,
+                        'value' => $prefData['value'],
                     ];
                     $changeCount++;
                 }
@@ -829,10 +854,10 @@ class SettingsExportController extends Controller
         }
 
         return [
-            'changes' => $changes,
-            'conflicts' => $conflicts,
-            'new_items' => $newItems,
-            'change_count' => $changeCount
+            'changes'      => $changes,
+            'conflicts'    => $conflicts,
+            'new_items'    => $newItems,
+            'change_count' => $changeCount,
         ];
     }
 
@@ -854,39 +879,39 @@ class SettingsExportController extends Controller
 
         foreach ($data as $teamData) {
             $teamKey = "{$teamData['sport_type']}.{$teamData['team_name']}";
-            
+
             if (isset($existingTeams[$teamKey])) {
                 if ($mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'team',
-                        'id' => $teamKey,
+                        'type'     => 'team',
+                        'id'       => $teamKey,
                         'category' => 'teams',
                         'existing' => $existingTeams[$teamKey]->toArray(),
-                        'import' => $teamData,
-                        'action' => 'skipped'
+                        'import'   => $teamData,
+                        'action'   => 'skipped',
                     ];
                 } else {
                     $changes[] = [
-                        'type' => 'update',
-                        'team' => $teamKey,
-                        'changes' => $this->compareArrays($existingTeams[$teamKey]->toArray(), $teamData)
+                        'type'    => 'update',
+                        'team'    => $teamKey,
+                        'changes' => $this->compareArrays($existingTeams[$teamKey]->toArray(), $teamData),
                     ];
                     $changeCount++;
                 }
             } else {
                 $newItems[] = [
                     'type' => 'team',
-                    'data' => $teamData
+                    'data' => $teamData,
                 ];
                 $changeCount++;
             }
         }
 
         return [
-            'changes' => $changes,
-            'conflicts' => $conflicts,
-            'new_items' => $newItems,
-            'change_count' => $changeCount
+            'changes'      => $changes,
+            'conflicts'    => $conflicts,
+            'new_items'    => $newItems,
+            'change_count' => $changeCount,
         ];
     }
 
@@ -908,39 +933,39 @@ class SettingsExportController extends Controller
 
         foreach ($data as $venueData) {
             $venueKey = "{$venueData['venue_name']}.{$venueData['city']}";
-            
+
             if (isset($existingVenues[$venueKey])) {
                 if ($mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'venue',
-                        'id' => $venueKey,
+                        'type'     => 'venue',
+                        'id'       => $venueKey,
                         'category' => 'venues',
                         'existing' => $existingVenues[$venueKey]->toArray(),
-                        'import' => $venueData,
-                        'action' => 'skipped'
+                        'import'   => $venueData,
+                        'action'   => 'skipped',
                     ];
                 } else {
                     $changes[] = [
-                        'type' => 'update',
-                        'venue' => $venueKey,
-                        'changes' => $this->compareArrays($existingVenues[$venueKey]->toArray(), $venueData)
+                        'type'    => 'update',
+                        'venue'   => $venueKey,
+                        'changes' => $this->compareArrays($existingVenues[$venueKey]->toArray(), $venueData),
                     ];
                     $changeCount++;
                 }
             } else {
                 $newItems[] = [
                     'type' => 'venue',
-                    'data' => $venueData
+                    'data' => $venueData,
                 ];
                 $changeCount++;
             }
         }
 
         return [
-            'changes' => $changes,
-            'conflicts' => $conflicts,
-            'new_items' => $newItems,
-            'change_count' => $changeCount
+            'changes'      => $changes,
+            'conflicts'    => $conflicts,
+            'new_items'    => $newItems,
+            'change_count' => $changeCount,
         ];
     }
 
@@ -962,39 +987,39 @@ class SettingsExportController extends Controller
 
         foreach ($data as $priceData) {
             $priceName = $priceData['preference_name'];
-            
+
             if (isset($existingPrices[$priceName])) {
                 if ($mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'price',
-                        'id' => $priceName,
+                        'type'     => 'price',
+                        'id'       => $priceName,
                         'category' => 'prices',
                         'existing' => $existingPrices[$priceName]->toArray(),
-                        'import' => $priceData,
-                        'action' => 'skipped'
+                        'import'   => $priceData,
+                        'action'   => 'skipped',
                     ];
                 } else {
                     $changes[] = [
-                        'type' => 'update',
+                        'type'       => 'update',
                         'preference' => $priceName,
-                        'changes' => $this->compareArrays($existingPrices[$priceName]->toArray(), $priceData)
+                        'changes'    => $this->compareArrays($existingPrices[$priceName]->toArray(), $priceData),
                     ];
                     $changeCount++;
                 }
             } else {
                 $newItems[] = [
                     'type' => 'price',
-                    'data' => $priceData
+                    'data' => $priceData,
                 ];
                 $changeCount++;
             }
         }
 
         return [
-            'changes' => $changes,
-            'conflicts' => $conflicts,
-            'new_items' => $newItems,
-            'change_count' => $changeCount
+            'changes'      => $changes,
+            'conflicts'    => $conflicts,
+            'new_items'    => $newItems,
+            'change_count' => $changeCount,
         ];
     }
 
@@ -1019,38 +1044,38 @@ class SettingsExportController extends Controller
                 if ($existingSettings[$channel]->is_enabled !== $enabled) {
                     if ($mergeStrategy === 'skip_existing') {
                         $conflicts[] = [
-                            'type' => 'notification',
-                            'id' => $channel,
+                            'type'     => 'notification',
+                            'id'       => $channel,
                             'category' => 'notifications',
                             'existing' => $existingSettings[$channel]->is_enabled,
-                            'import' => $enabled,
-                            'action' => 'skipped'
+                            'import'   => $enabled,
+                            'action'   => 'skipped',
                         ];
                     } else {
                         $changes[] = [
-                            'type' => 'update',
+                            'type'    => 'update',
                             'channel' => $channel,
-                            'from' => $existingSettings[$channel]->is_enabled,
-                            'to' => $enabled
+                            'from'    => $existingSettings[$channel]->is_enabled,
+                            'to'      => $enabled,
                         ];
                         $changeCount++;
                     }
                 }
             } else {
                 $newItems[] = [
-                    'type' => 'notification',
+                    'type'    => 'notification',
                     'channel' => $channel,
-                    'enabled' => $enabled
+                    'enabled' => $enabled,
                 ];
                 $changeCount++;
             }
         }
 
         return [
-            'changes' => $changes,
-            'conflicts' => $conflicts,
-            'new_items' => $newItems,
-            'change_count' => $changeCount
+            'changes'      => $changes,
+            'conflicts'    => $conflicts,
+            'new_items'    => $newItems,
+            'change_count' => $changeCount,
         ];
     }
 
@@ -1060,16 +1085,16 @@ class SettingsExportController extends Controller
     private function compareArrays(array $existing, array $import): array
     {
         $changes = [];
-        
+
         foreach ($import as $key => $value) {
-            if (!isset($existing[$key]) || $existing[$key] !== $value) {
+            if (! isset($existing[$key]) || $existing[$key] !== $value) {
                 $changes[$key] = [
-                    'from' => $existing[$key] ?? null,
-                    'to' => $value
+                    'from' => $existing[$key] ?? NULL,
+                    'to'   => $value,
                 ];
             }
         }
-        
+
         return $changes;
     }
 
@@ -1083,35 +1108,37 @@ class SettingsExportController extends Controller
         $errors = [];
 
         DB::beginTransaction();
-        
+
         try {
             foreach ($categories as $category) {
-                if (!isset($importData['data'][$category])) {
+                if (! isset($importData['data'][$category])) {
                     continue;
                 }
-                
+
                 $result = $this->importCategory($user, $category, $importData['data'][$category], $mergeStrategy);
                 $imported += $result['imported'];
                 $conflicts = array_merge($conflicts, $result['conflicts']);
                 $errors = array_merge($errors, $result['errors']);
             }
-            
+
             DB::commit();
-            
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
 
         return [
             'imported_count' => $imported,
-            'conflicts' => $conflicts,
-            'errors' => $errors
+            'conflicts'      => $conflicts,
+            'errors'         => $errors,
         ];
     }
 
     /**
      * Import specific category
+     *
+     * @param mixed $data
      */
     private function importCategory(User $user, string $category, $data, string $mergeStrategy): array
     {
@@ -1150,30 +1177,31 @@ class SettingsExportController extends Controller
 
                     if ($existing && $mergeStrategy === 'skip_existing') {
                         $conflicts[] = [
-                            'type' => 'preference',
-                            'key' => "{$category}.{$key}",
-                            'action' => 'skipped'
+                            'type'   => 'preference',
+                            'key'    => "{$category}.{$key}",
+                            'action' => 'skipped',
                         ];
+
                         continue;
                     }
 
                     $value = $prefData['value'] ?? $prefData;
                     $dataType = $prefData['data_type'] ?? 'string';
-                    
+
                     UserPreference::updateOrCreate(
                         [
-                            'user_id' => $user->id,
+                            'user_id'             => $user->id,
                             'preference_category' => $category,
-                            'preference_key' => $key
+                            'preference_key'      => $key,
                         ],
                         [
                             'preference_value' => is_array($value) ? json_encode($value) : $value,
-                            'data_type' => $dataType
-                        ]
+                            'data_type'        => $dataType,
+                        ],
                     );
 
                     $imported++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = "Failed to import preference {$category}.{$key}: " . $e->getMessage();
                 }
             }
@@ -1200,24 +1228,25 @@ class SettingsExportController extends Controller
 
                 if ($existing && $mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'team',
-                        'key' => "{$teamData['sport_type']}.{$teamData['team_name']}",
-                        'action' => 'skipped'
+                        'type'   => 'team',
+                        'key'    => "{$teamData['sport_type']}.{$teamData['team_name']}",
+                        'action' => 'skipped',
                     ];
+
                     continue;
                 }
 
                 UserFavoriteTeam::updateOrCreate(
                     [
-                        'user_id' => $user->id,
+                        'user_id'    => $user->id,
                         'sport_type' => $teamData['sport_type'],
-                        'team_name' => $teamData['team_name']
+                        'team_name'  => $teamData['team_name'],
                     ],
-                    array_merge($teamData, ['user_id' => $user->id])
+                    array_merge($teamData, ['user_id' => $user->id]),
                 );
 
                 $imported++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import team {$teamData['team_name']}: " . $e->getMessage();
             }
         }
@@ -1243,24 +1272,25 @@ class SettingsExportController extends Controller
 
                 if ($existing && $mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'venue',
-                        'key' => "{$venueData['venue_name']}.{$venueData['city']}",
-                        'action' => 'skipped'
+                        'type'   => 'venue',
+                        'key'    => "{$venueData['venue_name']}.{$venueData['city']}",
+                        'action' => 'skipped',
                     ];
+
                     continue;
                 }
 
                 UserFavoriteVenue::updateOrCreate(
                     [
-                        'user_id' => $user->id,
+                        'user_id'    => $user->id,
                         'venue_name' => $venueData['venue_name'],
-                        'city' => $venueData['city']
+                        'city'       => $venueData['city'],
                     ],
-                    array_merge($venueData, ['user_id' => $user->id])
+                    array_merge($venueData, ['user_id' => $user->id]),
                 );
 
                 $imported++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import venue {$venueData['venue_name']}: " . $e->getMessage();
             }
         }
@@ -1285,23 +1315,24 @@ class SettingsExportController extends Controller
 
                 if ($existing && $mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'price',
-                        'key' => $priceData['preference_name'],
-                        'action' => 'skipped'
+                        'type'   => 'price',
+                        'key'    => $priceData['preference_name'],
+                        'action' => 'skipped',
                     ];
+
                     continue;
                 }
 
                 UserPricePreference::updateOrCreate(
                     [
-                        'user_id' => $user->id,
-                        'preference_name' => $priceData['preference_name']
+                        'user_id'         => $user->id,
+                        'preference_name' => $priceData['preference_name'],
                     ],
-                    array_merge($priceData, ['user_id' => $user->id, 'is_active' => true])
+                    array_merge($priceData, ['user_id' => $user->id, 'is_active' => TRUE]),
                 );
 
                 $imported++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import price preference {$priceData['preference_name']}: " . $e->getMessage();
             }
         }
@@ -1326,25 +1357,26 @@ class SettingsExportController extends Controller
 
                 if ($existing && $mergeStrategy === 'skip_existing') {
                     $conflicts[] = [
-                        'type' => 'notification',
-                        'key' => $channel,
-                        'action' => 'skipped'
+                        'type'   => 'notification',
+                        'key'    => $channel,
+                        'action' => 'skipped',
                     ];
+
                     continue;
                 }
 
                 UserNotificationSettings::updateOrCreate(
                     [
                         'user_id' => $user->id,
-                        'channel' => $channel
+                        'channel' => $channel,
                     ],
                     [
-                        'is_enabled' => $enabled
-                    ]
+                        'is_enabled' => $enabled,
+                    ],
                 );
 
                 $imported++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import notification setting {$channel}: " . $e->getMessage();
             }
         }
@@ -1381,18 +1413,23 @@ class SettingsExportController extends Controller
             switch ($category) {
                 case 'preferences':
                     $resetCount += UserPreference::where('user_id', $user->id)->delete();
+
                     break;
                 case 'teams':
                     $resetCount += UserFavoriteTeam::where('user_id', $user->id)->delete();
+
                     break;
                 case 'venues':
                     $resetCount += UserFavoriteVenue::where('user_id', $user->id)->delete();
+
                     break;
                 case 'prices':
                     $resetCount += UserPricePreference::where('user_id', $user->id)->delete();
+
                     break;
                 case 'notifications':
                     $resetCount += UserNotificationSettings::where('user_id', $user->id)->delete();
+
                     break;
             }
         }
@@ -1405,11 +1442,11 @@ class SettingsExportController extends Controller
      */
     private function createBackupFile(User $user, array $exportData): string
     {
-        $filename = "backup-{$user->id}-" . now()->format('Y-m-d-H-i-s') . ".json";
+        $filename = "backup-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.json';
         $path = "user-backups/{$user->id}/{$filename}";
-        
+
         Storage::disk('local')->put($path, json_encode($exportData, JSON_PRETTY_PRINT));
-        
+
         return $path;
     }
 
@@ -1420,7 +1457,7 @@ class SettingsExportController extends Controller
     {
         // This would typically come from a user_exports table
         // For now, return null
-        return null;
+        return NULL;
     }
 
     /**
@@ -1430,17 +1467,17 @@ class SettingsExportController extends Controller
     {
         return [
             'json' => [
-                'name' => 'JSON',
+                'name'        => 'JSON',
                 'description' => 'JavaScript Object Notation - recommended format',
-                'extension' => '.json',
-                'mime_type' => 'application/json'
+                'extension'   => '.json',
+                'mime_type'   => 'application/json',
             ],
             'csv' => [
-                'name' => 'CSV',
+                'name'        => 'CSV',
                 'description' => 'Comma Separated Values - for spreadsheet applications',
-                'extension' => '.csv',
-                'mime_type' => 'text/csv'
-            ]
+                'extension'   => '.csv',
+                'mime_type'   => 'text/csv',
+            ],
         ];
     }
 
@@ -1451,30 +1488,30 @@ class SettingsExportController extends Controller
     {
         return [
             'preferences' => [
-                'name' => 'General Preferences',
+                'name'        => 'General Preferences',
                 'description' => 'Theme, display, alert settings (excluding sensitive data)',
-                'icon' => 'settings'
+                'icon'        => 'settings',
             ],
             'teams' => [
-                'name' => 'Favorite Teams',
+                'name'        => 'Favorite Teams',
                 'description' => 'Your favorite sports teams and alert preferences',
-                'icon' => 'users'
+                'icon'        => 'users',
             ],
             'venues' => [
-                'name' => 'Favorite Venues',
+                'name'        => 'Favorite Venues',
                 'description' => 'Your favorite event venues and locations',
-                'icon' => 'map-pin'
+                'icon'        => 'map-pin',
             ],
             'prices' => [
-                'name' => 'Price Preferences',
+                'name'        => 'Price Preferences',
                 'description' => 'Price alerts, thresholds, and purchase preferences',
-                'icon' => 'dollar-sign'
+                'icon'        => 'dollar-sign',
             ],
             'notifications' => [
-                'name' => 'Notification Settings',
+                'name'        => 'Notification Settings',
                 'description' => 'Notification channel preferences (excluding sensitive channels)',
-                'icon' => 'bell'
-            ]
+                'icon'        => 'bell',
+            ],
         ];
     }
 }

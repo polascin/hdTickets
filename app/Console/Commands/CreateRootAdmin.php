@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 
 class CreateRootAdmin extends Command
@@ -30,13 +31,13 @@ class CreateRootAdmin extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
-        $name = $this->option('name');
-        $surname = $this->option('surname');
-        $username = $this->option('username');
-        $email = $this->option('email');
-        $password = $this->option('password');
+        $name = (string) $this->option('name');
+        $surname = (string) $this->option('surname');
+        $username = (string) $this->option('username');
+        $email = (string) $this->option('email');
+        $password = (string) $this->option('password');
 
         $this->info('🔐 HDTickets Root Admin Creator');
         $this->info('==================================');
@@ -45,43 +46,44 @@ class CreateRootAdmin extends Command
         $existingUser = User::where('email', $email)->orWhere('username', $username)->first();
         if ($existingUser) {
             $this->warn("⚠️  User with email '{$email}' or username '{$username}' already exists!");
-            
+
             if ($this->confirm('Do you want to update the existing user?')) {
                 $existingUser->update([
-                    'name' => $name,
-                    'surname' => $surname,
-                    'username' => $username,
-                    'password' => Hash::make($password),
-                    'role' => 'admin',
-                    'is_active' => true,
+                    'name'              => $name,
+                    'surname'           => $surname,
+                    'username'          => $username,
+                    'password'          => Hash::make($password),
+                    'role'              => 'admin',
+                    'is_active'         => TRUE,
                     'email_verified_at' => now(),
                 ]);
-                
+
                 $this->info("✅ Root admin user '{$name}' updated successfully!");
                 $this->displayUserInfo($existingUser);
+
                 return 0;
-            } else {
-                $this->info('Operation cancelled.');
-                return 1;
             }
+            $this->info('Operation cancelled.');
+
+            return 1;
         }
 
         // Create new root admin user
         try {
             $user = User::create([
-                'name' => $name,
-                'surname' => $surname,
-                'username' => $username,
-                'email' => $email,
-                'password' => Hash::make($password),
-                'role' => 'admin',
-                'is_active' => true,
+                'name'              => $name,
+                'surname'           => $surname,
+                'username'          => $username,
+                'email'             => $email,
+                'password'          => Hash::make($password),
+                'role'              => 'admin',
+                'is_active'         => TRUE,
                 'email_verified_at' => now(),
             ]);
 
             $this->info("✅ Root admin user '{$name}' created successfully!");
             $this->displayUserInfo($user);
-            
+
             // Display login instructions
             $this->newLine();
             $this->info('📋 LOGIN CREDENTIALS:');
@@ -91,9 +93,9 @@ class CreateRootAdmin extends Command
             $this->warn('⚠️  SECURITY NOTICE: Please change the default password after first login!');
 
             return 0;
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Failed to create root admin user: ' . $e->getMessage());
+
             return 1;
         }
     }
@@ -101,7 +103,7 @@ class CreateRootAdmin extends Command
     /**
      * Display user information in a formatted table
      */
-    private function displayUserInfo($user)
+    private function displayUserInfo(User $user): void
     {
         $this->newLine();
         $this->info('👤 ADMIN USER DETAILS:');
@@ -117,8 +119,8 @@ class CreateRootAdmin extends Command
                 ['Role', strtoupper($user->role)],
                 ['Status', $user->is_active ? 'ACTIVE' : 'INACTIVE'],
                 ['Verified', $user->email_verified_at ? 'YES' : 'NO'],
-                ['Created', $user->created_at->format('Y-m-d H:i:s')],
-            ]
+                ['Created', $user->created_at?->format('Y-m-d H:i:s') ?? 'Unknown'],
+            ],
         );
 
         $this->newLine();

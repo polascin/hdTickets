@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Real_madridPlugin extends BaseScraperPlugin
@@ -65,26 +67,26 @@ class Real_madridPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/entradas';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['buscar'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competicion'] = $this->mapCompetition($criteria['competition']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['fecha_desde'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['fecha_hasta'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -93,13 +95,13 @@ class Real_madridPlugin extends BaseScraperPlugin
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
-            'la liga' => 'laliga',
+            'la liga'          => 'laliga',
             'champions league' => 'champions',
-            'copa del rey' => 'copa-del-rey',
-            'el clasico' => 'el-clasico',
-            'supercopa' => 'supercopa',
+            'copa del rey'     => 'copa-del-rey',
+            'el clasico'       => 'el-clasico',
+            'supercopa'        => 'supercopa',
         ];
-        
+
         return $mapping[strtolower($competition)] ?? 'todos';
     }
 
@@ -113,37 +115,36 @@ class Real_madridPlugin extends BaseScraperPlugin
 
         try {
             // Parse Real Madrid specific event structure
-            $crawler->filter('.partido, .match, .evento, .event-card, .fixture')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.partido, .match, .evento, .event-card, .fixture')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse Real Madrid event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
+                } catch (Exception $e) {
+                    Log::warning('Failed to parse Real Madrid event node', [
+                        'error'        => $e->getMessage(),
+                        'html_snippet' => substr($node->html(), 0, 200),
                     ]);
                 }
             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .entry')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .entry')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse Real Madrid events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse Real Madrid events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

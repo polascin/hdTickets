@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\User;
 use App\Models\AccountDeletionRequest;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -12,10 +12,13 @@ use Illuminate\Queue\SerializesModels;
 
 class AccountDeletionWarningMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public User $user;
+
     public AccountDeletionRequest $deletionRequest;
+
     public string $confirmationUrl;
 
     /**
@@ -26,7 +29,7 @@ class AccountDeletionWarningMail extends Mailable
         $this->user = $user;
         $this->deletionRequest = $deletionRequest;
         $this->confirmationUrl = route('account.deletion.confirm', [
-            'token' => $deletionRequest->confirmation_token
+            'token' => $deletionRequest->confirmation_token,
         ]);
     }
 
@@ -39,7 +42,7 @@ class AccountDeletionWarningMail extends Mailable
             subject: 'IMPORTANT: Account Deletion Request - HD Tickets',
             tags: ['account-deletion', 'warning'],
             metadata: [
-                'user_id' => $this->user->id,
+                'user_id'             => $this->user->id,
                 'deletion_request_id' => $this->deletionRequest->id,
             ],
         );

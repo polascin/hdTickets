@@ -1,18 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         // Account deletion requests table
-        Schema::create('account_deletion_requests', function (Blueprint $table) {
+        Schema::create('account_deletion_requests', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('confirmation_token')->unique();
@@ -25,14 +24,14 @@ return new class extends Migration
             $table->timestamp('cancelled_at')->nullable();
             $table->json('metadata')->nullable(); // Additional data (IP, user agent, etc.)
             $table->timestamps();
-            
+
             $table->index(['user_id', 'status']);
             $table->index(['status', 'grace_period_expires_at']);
             $table->index(['confirmation_token']);
         });
 
         // Soft deleted users table
-        Schema::create('deleted_users', function (Blueprint $table) {
+        Schema::create('deleted_users', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('original_user_id');
             $table->json('user_data'); // Complete user data backup
@@ -40,17 +39,17 @@ return new class extends Migration
             $table->string('deletion_reason')->nullable();
             $table->timestamp('deleted_at');
             $table->timestamp('recoverable_until'); // 30 days from deletion
-            $table->boolean('is_recovered')->default(false);
+            $table->boolean('is_recovered')->default(FALSE);
             $table->timestamp('recovered_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['original_user_id']);
             $table->index(['deleted_at', 'recoverable_until']);
             $table->index(['is_recovered']);
         });
 
         // Account deletion audit log
-        Schema::create('account_deletion_audit_log', function (Blueprint $table) {
+        Schema::create('account_deletion_audit_log', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('action'); // initiated, email_sent, confirmed, cancelled, completed, recovered
@@ -60,13 +59,13 @@ return new class extends Migration
             $table->json('context')->nullable(); // IP, user agent, additional data
             $table->timestamp('occurred_at');
             $table->timestamps();
-            
+
             $table->index(['user_id', 'action']);
             $table->index(['action', 'occurred_at']);
         });
 
         // Data export requests table
-        Schema::create('data_export_requests', function (Blueprint $table) {
+        Schema::create('data_export_requests', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('export_type')->default('full'); // full, partial
@@ -78,22 +77,22 @@ return new class extends Migration
             $table->timestamp('expires_at'); // Download link expiration
             $table->text('error_message')->nullable();
             $table->timestamps();
-            
+
             $table->index(['user_id', 'status']);
             $table->index(['status', 'expires_at']);
         });
 
         // Add soft delete column to users table if it doesn't exist
-        if (!Schema::hasColumn('users', 'deleted_at')) {
-            Schema::table('users', function (Blueprint $table) {
+        if (! Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table): void {
                 $table->timestamp('deleted_at')->nullable()->after('updated_at');
                 $table->index(['deleted_at']);
             });
         }
 
         // Add deletion protection fields to users table
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('deletion_protection_enabled')->default(true)->after('is_active');
+        Schema::table('users', function (Blueprint $table): void {
+            $table->boolean('deletion_protection_enabled')->default(TRUE)->after('is_active');
             $table->timestamp('last_deletion_attempt_at')->nullable()->after('deletion_protection_enabled');
             $table->integer('deletion_attempt_count')->default(0)->after('last_deletion_attempt_at');
         });
@@ -104,12 +103,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table): void {
             $table->dropColumn([
-                'deleted_at', 
-                'deletion_protection_enabled', 
-                'last_deletion_attempt_at', 
-                'deletion_attempt_count'
+                'deleted_at',
+                'deletion_protection_enabled',
+                'last_deletion_attempt_at',
+                'deletion_attempt_count',
             ]);
         });
 

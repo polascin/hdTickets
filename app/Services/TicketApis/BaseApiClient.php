@@ -1,24 +1,32 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use App\Exceptions\TicketPlatformException;
 use App\Exceptions\RateLimitException;
+use App\Exceptions\TicketPlatformException;
 use App\Exceptions\TimeoutException;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Exception;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+use function count;
+use function get_class;
+use function is_array;
 
 abstract class BaseApiClient
 {
     protected $config;
+
     protected $baseUrl;
+
     protected $timeout;
+
     protected $retryAttempts;
+
     protected $retryDelay;
 
     public function __construct(array $config)
@@ -31,11 +39,65 @@ abstract class BaseApiClient
     }
 
     /**
+     * Search for events
+     */
+    abstract public function searchEvents(array $criteria): array;
+
+    /**
+     * Get event details by ID
+     */
+    abstract public function getEvent(string $eventId): array;
+
+    /**
+     * Get venue details
+     */
+    abstract public function getVenue(string $venueId): array;
+
+    /**
+     * Check if API is enabled
+     */
+    public function isEnabled(): bool
+    {
+        return $this->config['enabled'] ?? FALSE;
+    }
+
+    /**
+     * Check if scraping fallback is available and enabled
+     */
+    public function hasScrapingFallback(): bool
+    {
+        return isset($this->config['scraping']['enabled']) && $this->config['scraping']['enabled'];
+    }
+
+    /**
+     * Attempt to fall back to scraping method
+     * This method should be implemented by child classes that support scraping
+     */
+    public function fallbackToScraping(array $criteria): array
+    {
+        throw new TicketPlatformException(
+            "Scraping fallback not implemented for {$this->getPlatformName()}",
+            500,
+            NULL,
+            $this->getPlatformName(),
+            'scraping',
+        );
+    }
+
+    /**
+     * Get the base URL for the platform
+     */
+    public function getBaseUrl(): ?string
+    {
+        return $this->baseUrl;
+    }
+
+    /**
      * Make HTTP request with enhanced error handling, retry logic and caching
      */
-    protected function makeRequest(string $method, string $endpoint, array $params = [], bool $useCache = true): array
+    protected function makeRequest(string $method, string $endpoint, array $params = [], bool $useCache = TRUE): array
     {
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
         $platform = $this->getPlatformName();
         $cacheKey = $this->getCacheKey($method, $endpoint, $params);
 
@@ -43,35 +105,36 @@ abstract class BaseApiClient
             Log::channel('ticket_apis')->info('Cache hit for API request', [
                 'platform' => $platform,
                 'endpoint' => $endpoint,
-                'method' => $method
+                'method'   => $method,
             ]);
+
             return Cache::get($cacheKey);
         }
 
         $attempt = 0;
-        $lastException = null;
+        $lastException = NULL;
 
         while ($attempt < $this->retryAttempts) {
             try {
                 $response = $this->executeRequest($method, $endpoint, $params);
-                $responseTime = (microtime(true) - $startTime) * 1000; // Convert to milliseconds
+                $responseTime = (microtime(TRUE) - $startTime) * 1000; // Convert to milliseconds
 
                 // Handle successful response
                 if ($response->successful()) {
                     $data = $response->json();
-                    
+
                     if ($useCache) {
                         Cache::put($cacheKey, $data, $this->getCacheTtl());
                     }
 
                     // Log successful API request
                     Log::channel('ticket_apis')->info('API request successful', [
-                        'platform' => $platform,
-                        'endpoint' => $endpoint,
-                        'method' => 'api',
+                        'platform'         => $platform,
+                        'endpoint'         => $endpoint,
+                        'method'           => 'api',
                         'response_time_ms' => $responseTime,
-                        'results_count' => is_array($data) ? count($data) : 1,
-                        'attempt' => $attempt + 1
+                        'results_count'    => is_array($data) ? count($data) : 1,
+                        'attempt'          => $attempt + 1,
                     ]);
 
                     return $data;
@@ -79,29 +142,28 @@ abstract class BaseApiClient
 
                 // Handle different HTTP error codes
                 $this->handleHttpError($response, $platform);
-
             } catch (ConnectionException $e) {
                 $lastException = new TimeoutException(
                     "Connection timeout for {$platform}: " . $e->getMessage(),
                     $platform,
-                    'api'
+                    'api',
                 );
             } catch (RequestException $e) {
                 if (str_contains($e->getMessage(), 'timeout')) {
                     $lastException = new TimeoutException(
                         "Request timeout for {$platform}: " . $e->getMessage(),
                         $platform,
-                        'api'
+                        'api',
                     );
                 } else {
                     $lastException = $this->createPlatformException(
                         "Request failed for {$platform}: " . $e->getMessage(),
-                        $platform
+                        $platform,
                     );
                 }
             } catch (TicketPlatformException $e) {
                 $lastException = $e;
-                
+
                 // Don't retry rate limit exceptions immediately
                 if ($e instanceof RateLimitException && $e->getRetryAfter()) {
                     sleep($e->getRetryAfter());
@@ -109,20 +171,20 @@ abstract class BaseApiClient
             } catch (Exception $e) {
                 $lastException = $this->createPlatformException(
                     "Unexpected error for {$platform}: " . $e->getMessage(),
-                    $platform
+                    $platform,
                 );
             }
 
             $attempt++;
-            
+
             // Log the failed attempt
             Log::channel('ticket_apis')->warning("API request attempt {$attempt} failed", [
-                'platform' => $platform,
-                'endpoint' => $endpoint,
-                'method' => 'api',
-                'attempt' => $attempt,
-                'error' => $lastException->getMessage(),
-                'error_type' => get_class($lastException)
+                'platform'   => $platform,
+                'endpoint'   => $endpoint,
+                'method'     => 'api',
+                'attempt'    => $attempt,
+                'error'      => $lastException->getMessage(),
+                'error_type' => get_class($lastException),
             ]);
 
             // Apply exponential backoff for retries
@@ -132,16 +194,16 @@ abstract class BaseApiClient
             }
         }
 
-        $totalTime = (microtime(true) - $startTime) * 1000;
+        $totalTime = (microtime(TRUE) - $startTime) * 1000;
 
         // Log final failure
         Log::channel('ticket_apis')->error("API request failed after {$this->retryAttempts} attempts", [
-            'platform' => $platform,
-            'endpoint' => $endpoint,
-            'method' => 'api',
+            'platform'      => $platform,
+            'endpoint'      => $endpoint,
+            'method'        => 'api',
             'total_time_ms' => $totalTime,
-            'final_error' => $lastException->getMessage(),
-            'error_type' => get_class($lastException)
+            'final_error'   => $lastException->getMessage(),
+            'error_type'    => get_class($lastException),
         ]);
 
         throw $lastException;
@@ -193,29 +255,6 @@ abstract class BaseApiClient
     abstract protected function getHeaders(): array;
 
     /**
-     * Search for events
-     */
-    abstract public function searchEvents(array $criteria): array;
-
-    /**
-     * Get event details by ID
-     */
-    abstract public function getEvent(string $eventId): array;
-
-    /**
-     * Get venue details
-     */
-    abstract public function getVenue(string $venueId): array;
-
-    /**
-     * Check if API is enabled
-     */
-    public function isEnabled(): bool
-    {
-        return $this->config['enabled'] ?? false;
-    }
-
-    /**
      * Transform API response to standard format
      */
     abstract protected function transformEventData(array $eventData): array;
@@ -227,6 +266,7 @@ abstract class BaseApiClient
     {
         $className = get_class($this);
         $platformName = str_replace(['App\\Services\\TicketApis\\', 'Client'], '', $className);
+
         return strtolower($platformName);
     }
 
@@ -241,31 +281,32 @@ abstract class BaseApiClient
         switch ($statusCode) {
             case 429:
                 $retryAfter = $response->header('Retry-After') ?? $response->header('X-RateLimit-Reset') ?? 60;
+
                 throw new RateLimitException(
                     "Rate limit exceeded for {$platform}",
-                    is_numeric($retryAfter) ? (int)$retryAfter : 60,
-                    $platform
+                    is_numeric($retryAfter) ? (int) $retryAfter : 60,
+                    $platform,
                 );
 
             case 401:
                 throw $this->createPlatformException(
                     "Authentication failed for {$platform}: Invalid API credentials",
                     $platform,
-                    $statusCode
+                    $statusCode,
                 );
 
             case 403:
                 throw $this->createPlatformException(
                     "Access forbidden for {$platform}: Insufficient permissions",
                     $platform,
-                    $statusCode
+                    $statusCode,
                 );
 
             case 404:
                 throw $this->createPlatformException(
                     "Resource not found on {$platform}",
                     $platform,
-                    $statusCode
+                    $statusCode,
                 );
 
             case 500:
@@ -275,14 +316,14 @@ abstract class BaseApiClient
                 throw $this->createPlatformException(
                     "Server error on {$platform} (HTTP {$statusCode})",
                     $platform,
-                    $statusCode
+                    $statusCode,
                 );
 
             default:
                 throw $this->createPlatformException(
                     "API request failed for {$platform} with status {$statusCode}: {$body}",
                     $platform,
-                    $statusCode
+                    $statusCode,
                 );
         }
     }
@@ -293,42 +334,11 @@ abstract class BaseApiClient
     protected function createPlatformException(string $message, string $platform, int $code = 0): TicketPlatformException
     {
         $exceptionClass = 'App\\Exceptions\\' . ucfirst($platform) . 'Exception';
-        
+
         if (class_exists($exceptionClass)) {
-            return new $exceptionClass($message, $code, null, $platform, 'api');
+            return new $exceptionClass($message, $code, NULL, $platform, 'api');
         }
-        
-        return new TicketPlatformException($message, $code, null, $platform, 'api');
-    }
 
-    /**
-     * Check if scraping fallback is available and enabled
-     */
-    public function hasScrapingFallback(): bool
-    {
-        return isset($this->config['scraping']['enabled']) && $this->config['scraping']['enabled'];
-    }
-
-    /**
-     * Attempt to fall back to scraping method
-     * This method should be implemented by child classes that support scraping
-     */
-    public function fallbackToScraping(array $criteria): array
-    {
-        throw new TicketPlatformException(
-            "Scraping fallback not implemented for {$this->getPlatformName()}",
-            500,
-            null,
-            $this->getPlatformName(),
-            'scraping'
-        );
-    }
-
-    /**
-     * Get the base URL for the platform
-     */
-    public function getBaseUrl(): ?string
-    {
-        return $this->baseUrl;
+        return new TicketPlatformException($message, $code, NULL, $platform, 'api');
     }
 }

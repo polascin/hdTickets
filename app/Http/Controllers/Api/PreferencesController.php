@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
@@ -16,49 +16,49 @@ class PreferencesController extends Controller
     {
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
-        
-        $preferences = Cache::remember($cacheKey, 3600, function () use ($userId) {
+
+        $preferences = Cache::remember($cacheKey, 3600, function () {
             return [
                 'dashboard' => [
-                    'theme' => 'light',
-                    'auto_refresh' => true,
-                    'refresh_interval' => 30,
-                    'show_notifications' => true,
-                    'compact_mode' => false,
+                    'theme'              => 'light',
+                    'auto_refresh'       => TRUE,
+                    'refresh_interval'   => 30,
+                    'show_notifications' => TRUE,
+                    'compact_mode'       => FALSE,
                 ],
                 'tickets' => [
-                    'default_sort' => 'price_asc',
-                    'items_per_page' => 25,
-                    'show_unavailable' => false,
-                    'auto_hide_expired' => true,
-                    'price_format' => 'USD',
+                    'default_sort'      => 'price_asc',
+                    'items_per_page'    => 25,
+                    'show_unavailable'  => FALSE,
+                    'auto_hide_expired' => TRUE,
+                    'price_format'      => 'USD',
                 ],
                 'alerts' => [
                     'price_drop_threshold' => 10,
-                    'availability_alerts' => true,
-                    'email_notifications' => true,
-                    'sms_notifications' => false,
-                    'alert_frequency' => 'immediate',
+                    'availability_alerts'  => TRUE,
+                    'email_notifications'  => TRUE,
+                    'sms_notifications'    => FALSE,
+                    'alert_frequency'      => 'immediate',
                 ],
                 'monitoring' => [
-                    'platforms' => ['ticketmaster', 'stubhub', 'viagogo'],
-                    'max_price' => 1000,
-                    'min_price' => 50,
+                    'platforms'          => ['ticketmaster', 'stubhub', 'viagogo'],
+                    'max_price'          => 1000,
+                    'min_price'          => 50,
                     'preferred_sections' => [],
-                    'exclude_keywords' => [],
+                    'exclude_keywords'   => [],
                 ],
                 'display' => [
-                    'timezone' => 'UTC',
-                    'date_format' => 'Y-m-d',
-                    'time_format' => 'H:i',
+                    'timezone'        => 'UTC',
+                    'date_format'     => 'Y-m-d',
+                    'time_format'     => 'H:i',
                     'currency_symbol' => '$',
-                ]
+                ],
             ];
         });
-        
+
         return response()->json([
-            'data' => $preferences,
-            'timestamp' => now()->toISOString()
+            'data'      => $preferences,
+            'timestamp' => now()->toISOString(),
         ]);
     }
 
@@ -69,22 +69,22 @@ class PreferencesController extends Controller
     {
         $request->validate([
             'category' => 'required|string|in:dashboard,tickets,alerts,monitoring,display',
-            'key' => 'required|string',
-            'value' => 'required'
+            'key'      => 'required|string',
+            'value'    => 'required',
         ]);
 
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
-        
+
         // Get current preferences
         $preferences = Cache::get($cacheKey, []);
-        
+
         // Update preference
         $preferences[$request->category][$request->key] = $request->value;
-        
+
         // Cache updated preferences
         Cache::put($cacheKey, $preferences, 3600);
-        
+
         // Here you would typically save to database
         // UserPreference::updateOrCreate([
         //     'user_id' => $userId,
@@ -94,7 +94,7 @@ class PreferencesController extends Controller
 
         return response()->json([
             'message' => 'Preference saved successfully',
-            'data' => $preferences[$request->category]
+            'data'    => $preferences[$request->category],
         ]);
     }
 
@@ -105,21 +105,21 @@ class PreferencesController extends Controller
     {
         $request->validate([
             'category' => 'required|string|in:dashboard,tickets,alerts,monitoring,display',
-            'value' => 'required'
+            'value'    => 'required',
         ]);
 
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
-        
+
         $preferences = Cache::get($cacheKey, []);
         $preferences[$request->category][$key] = $request->value;
-        
+
         Cache::put($cacheKey, $preferences, 3600);
 
         return response()->json([
             'message' => 'Preference updated successfully',
-            'key' => $key,
-            'value' => $request->value
+            'key'     => $key,
+            'value'   => $request->value,
         ]);
     }
 
@@ -129,21 +129,21 @@ class PreferencesController extends Controller
     public function destroy(Request $request, string $key): JsonResponse
     {
         $request->validate([
-            'category' => 'required|string|in:dashboard,tickets,alerts,monitoring,display'
+            'category' => 'required|string|in:dashboard,tickets,alerts,monitoring,display',
         ]);
 
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
-        
+
         $preferences = Cache::get($cacheKey, []);
-        
+
         if (isset($preferences[$request->category][$key])) {
             unset($preferences[$request->category][$key]);
             Cache::put($cacheKey, $preferences, 3600);
         }
 
         return response()->json([
-            'message' => 'Preference deleted successfully'
+            'message' => 'Preference deleted successfully',
         ]);
     }
 
@@ -154,11 +154,11 @@ class PreferencesController extends Controller
     {
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
-        
+
         Cache::forget($cacheKey);
 
         return response()->json([
-            'message' => 'Preferences reset to default successfully'
+            'message' => 'Preferences reset to default successfully',
         ]);
     }
 }

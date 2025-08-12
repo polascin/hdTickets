@@ -1,11 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Services\SecurityService;
+use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 use Illuminate\Http\Request;
-use App\Services\SecurityService;
 use Illuminate\Session\TokenMismatchException;
+
+use function in_array;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -24,19 +27,19 @@ class VerifyCsrfToken extends Middleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param Request $request
      *
-     * @throws \Illuminate\Session\TokenMismatchException
+     * @throws TokenMismatchException
+     *
+     * @return mixed
      */
-    public function handle($request, \Closure $next)
+    public function handle($request, Closure $next)
     {
         // Enhanced CSRF protection for sports events system
-        if ($this->isReading($request) ||
-            $this->runningUnitTests() ||
-            $this->inExceptArray($request) ||
-            $this->tokensMatch($request)) {
+        if ($this->isReading($request)
+            || $this->runningUnitTests()
+            || $this->inExceptArray($request)
+            || $this->tokensMatch($request)) {
             return $this->addCookieToResponse($request, $next($request));
         }
 
@@ -49,32 +52,34 @@ class VerifyCsrfToken extends Middleware
     /**
      * Determine if the HTTP request uses a 'read' verb.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function isReading($request)
     {
-        return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS']);
+        return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS'], TRUE);
     }
 
     /**
      * Enhanced token matching with additional security checks
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function tokensMatch($request)
     {
         $token = $this->getTokenFromRequest($request);
-        
+
         // Check if session token exists
-        if (!$sessionToken = $request->session()->token()) {
-            return false;
+        if (! $sessionToken = $request->session()->token()) {
+            return FALSE;
         }
 
         // Standard CSRF token validation
-        if (!hash_equals($sessionToken, $token)) {
-            return false;
+        if (! hash_equals($sessionToken, $token)) {
+            return FALSE;
         }
 
         // Additional security checks for sports events platform
@@ -84,33 +89,31 @@ class VerifyCsrfToken extends Middleware
     /**
      * Perform additional security checks specific to sports events monitoring
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function performAdditionalSecurityChecks($request)
     {
         // Check for suspicious request patterns
         if ($this->detectSuspiciousPatterns($request)) {
-            return false;
+            return FALSE;
         }
 
         // Verify user session integrity
-        if (!$this->verifySessionIntegrity($request)) {
-            return false;
+        if (! $this->verifySessionIntegrity($request)) {
+            return FALSE;
         }
 
         // Check request frequency for automated attacks
-        if ($this->isRequestTooFrequent($request)) {
-            return false;
-        }
-
-        return true;
+        return ! ($this->isRequestTooFrequent($request));
     }
 
     /**
      * Detect suspicious request patterns
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function detectSuspiciousPatterns($request)
@@ -125,41 +128,44 @@ class VerifyCsrfToken extends Middleware
         foreach ($suspiciousPatterns as $header => $pattern) {
             $headerValue = $request->header($header, '');
             if (preg_match($pattern, $headerValue)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Verify session integrity
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function verifySessionIntegrity($request)
     {
         $session = $request->session();
-        
+
         // Check if session has required security markers
-        if (!$session->has('_token') || !$session->has('login_web_')) {
-            return true; // Not logged in, standard CSRF is enough
+        if (! $session->has('_token') || ! $session->has('login_web_')) {
+            return TRUE; // Not logged in, standard CSRF is enough
         }
 
         // For logged-in users, verify session consistency
-        $expectedFingerprint = hash('sha256', 
-            $request->ip() . '|' . 
-            $request->userAgent() . '|' . 
-            config('app.key')
+        $expectedFingerprint = hash(
+            'sha256',
+            $request->ip() . '|' .
+            $request->userAgent() . '|' .
+            config('app.key'),
         );
 
         $storedFingerprint = $session->get('security_fingerprint');
-        
-        if (!$storedFingerprint) {
+
+        if (! $storedFingerprint) {
             // Create fingerprint if it doesn't exist
             $session->put('security_fingerprint', $expectedFingerprint);
-            return true;
+
+            return TRUE;
         }
 
         return hash_equals($storedFingerprint, $expectedFingerprint);
@@ -168,46 +174,46 @@ class VerifyCsrfToken extends Middleware
     /**
      * Check if requests are coming too frequently (rate limiting)
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
+     *
      * @return bool
      */
     protected function isRequestTooFrequent($request)
     {
         $key = 'csrf_rate_limit:' . $request->ip();
         $cache = app('cache');
-        
+
         $attempts = $cache->get($key, 0);
-        
+
         if ($attempts > 60) { // More than 60 requests per minute
-            return true;
+            return TRUE;
         }
-        
+
         $cache->put($key, $attempts + 1, 60); // Store for 1 minute
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
      * Log CSRF violation for security monitoring
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return void
+     * @param Request $request
      */
-    protected function logCsrfViolation($request)
+    protected function logCsrfViolation($request): void
     {
         $securityService = app(SecurityService::class);
-        
+
         $securityService->logSecurityActivity(
             'CSRF token mismatch detected',
             [
-                'url' => $request->fullUrl(),
-                'method' => $request->method(),
+                'url'        => $request->fullUrl(),
+                'method'     => $request->method(),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'referer' => $request->header('referer'),
-                'timestamp' => now()->toISOString(),
-                'risk_level' => 'high'
-            ]
+                'referer'    => $request->header('referer'),
+                'timestamp'  => now()->toISOString(),
+                'risk_level' => 'high',
+            ],
         );
     }
 }

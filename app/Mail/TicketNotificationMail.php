@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
@@ -9,9 +9,11 @@ use Illuminate\Queue\SerializesModels;
 
 class TicketNotificationMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $user;
+
     public $notification;
 
     public function __construct(User $user, array $notification)
@@ -23,16 +25,16 @@ class TicketNotificationMail extends Mailable
     public function build()
     {
         $subject = $this->notification['title'];
-        
+
         // Add CSS cache busting timestamp to subject for tracking
         $cssTimestamp = $this->notification['data']['css_timestamp'] ?? now()->timestamp;
-        
+
         return $this->subject($subject)
-                    ->view('emails.ticket-notification')
-                    ->with([
-                        'user' => $this->user,
-                        'notification' => $this->notification,
-                        'cssTimestamp' => $cssTimestamp,
-                    ]);
+            ->view('emails.ticket-notification')
+            ->with([
+                'user'         => $this->user,
+                'notification' => $this->notification,
+                'cssTimestamp' => $cssTimestamp,
+            ]);
     }
 }

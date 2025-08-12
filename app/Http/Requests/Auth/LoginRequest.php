@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Requests\Auth;
 
@@ -20,18 +20,18 @@ class LoginRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return TRUE;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string, array|\Illuminate\Contracts\Validation\Rule|string>
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -39,32 +39,32 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
         $user = User::where('email', $this->string('email'))->first();
-        
+
         // Check if user exists and credentials are correct
-        if (!$user || !Hash::check($this->string('password'), $user->password)) {
+        if (! $user || ! Hash::check($this->string('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
-            
+
             // Track failed login attempts
             if ($user) {
                 $user->increment('failed_login_attempts');
-                
+
                 // Lock account after 5 failed attempts
                 if ($user->failed_login_attempts >= 5) {
                     $user->update(['locked_until' => now()->addMinutes(15)]);
-                    
+
                     activity('account_locked')
                         ->performedOn($user)
                         ->withProperties([
                             'ip_address' => $this->ip(),
                             'user_agent' => $this->userAgent(),
-                            'reason' => 'failed_login_attempts'
+                            'reason'     => 'failed_login_attempts',
                         ])
                         ->log('Account locked due to failed login attempts');
                 }
@@ -74,62 +74,62 @@ class LoginRequest extends FormRequest
                 'email' => trans('auth.failed'),
             ]);
         }
-        
+
         // Check if account is locked
         if ($user->locked_until && $user->locked_until->isFuture()) {
             throw ValidationException::withMessages([
                 'email' => 'Your account is temporarily locked. Please try again later.',
             ]);
         }
-        
+
         // Check if account is active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             throw ValidationException::withMessages([
                 'email' => 'Your account has been deactivated. Please contact support.',
             ]);
         }
-        
+
         // Check if user can access the system (scrapers cannot)
-        if (!$user->canAccessSystem()) {
+        if (! $user->canAccessSystem()) {
             throw ValidationException::withMessages([
                 'email' => 'This account type cannot access the web interface.',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
-        
+
         // Check if 2FA is enabled
         $twoFactorService = app(TwoFactorAuthService::class);
         if ($twoFactorService->isEnabled($user)) {
             // Store user ID and remember flag in session for 2FA verification
             Session::put('2fa_user_id', $user->id);
             Session::put('2fa_remember', $this->boolean('remember'));
-            
+
             // Don't actually log in yet - redirect to 2FA challenge
             return;
         }
-        
+
         // Standard login without 2FA
         Auth::login($user, $this->boolean('remember'));
-        
+
         // Reset failed attempts and update login info
         $user->update([
             'failed_login_attempts' => 0,
-            'locked_until' => null,
-            'last_login_at' => now(),
-            'last_login_ip' => $this->ip(),
-            'last_login_user_agent' => $this->userAgent()
+            'locked_until'          => NULL,
+            'last_login_at'         => now(),
+            'last_login_ip'         => $this->ip(),
+            'last_login_user_agent' => $this->userAgent(),
         ]);
         $user->increment('login_count');
-        
+
         // Log successful login
         activity('user_login')
             ->performedOn($user)
             ->causedBy($user)
             ->withProperties([
-                'ip_address' => $this->ip(),
-                'user_agent' => $this->userAgent(),
-                'two_factor_enabled' => false
+                'ip_address'         => $this->ip(),
+                'user_agent'         => $this->userAgent(),
+                'two_factor_enabled' => FALSE,
             ])
             ->log('User logged in successfully');
     }
@@ -145,7 +145,7 @@ class LoginRequest extends FormRequest
     /**
      * Ensure the login request is not rate limited.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
@@ -170,6 +170,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

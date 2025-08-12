@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
@@ -21,28 +21,17 @@ class PriceAlertThreshold extends Model
         'is_active',
         'last_triggered_at',
         'trigger_count',
-        'notification_channels'
+        'notification_channels',
     ];
 
     protected $casts = [
-        'target_price' => 'decimal:2',
-        'percentage_threshold' => 'decimal:2',
-        'is_active' => 'boolean',
-        'last_triggered_at' => 'datetime',
-        'trigger_count' => 'integer',
-        'notification_channels' => 'array'
+        'target_price'          => 'decimal:2',
+        'percentage_threshold'  => 'decimal:2',
+        'is_active'             => 'boolean',
+        'last_triggered_at'     => 'datetime',
+        'trigger_count'         => 'integer',
+        'notification_channels' => 'array',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-        
-        static::creating(function ($threshold) {
-            if (empty($threshold->uuid)) {
-                $threshold->uuid = (string) Str::uuid();
-            }
-        });
-    }
 
     /**
      * Get the user that owns this price alert threshold
@@ -62,14 +51,19 @@ class PriceAlertThreshold extends Model
 
     /**
      * Scope for active thresholds
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
      * Scope for specific alert type
+     *
+     * @param mixed $query
+     * @param mixed $type
      */
     public function scopeOfType($query, $type)
     {
@@ -78,32 +72,31 @@ class PriceAlertThreshold extends Model
 
     /**
      * Check if price threshold should trigger alert
+     *
+     * @param mixed $currentPrice
      */
     public function shouldTrigger($currentPrice): bool
     {
-        if (!$this->is_active) {
-            return false;
+        if (! $this->is_active) {
+            return FALSE;
         }
 
         switch ($this->alert_type) {
             case 'below':
                 return $currentPrice <= $this->target_price;
-            
             case 'above':
                 return $currentPrice >= $this->target_price;
-            
             case 'percentage_change':
-                if (!$this->percentage_threshold) {
-                    return false;
+                if (! $this->percentage_threshold) {
+                    return FALSE;
                 }
-                
+
                 $basePrice = $this->ticket->price ?? $this->target_price;
                 $changePercentage = (($currentPrice - $basePrice) / $basePrice) * 100;
-                
+
                 return abs($changePercentage) >= $this->percentage_threshold;
-                
             default:
-                return false;
+                return FALSE;
         }
     }
 
@@ -122,5 +115,16 @@ class PriceAlertThreshold extends Model
     public function getFormattedTargetPriceAttribute(): string
     {
         return '£' . number_format($this->target_price, 2);
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($threshold): void {
+            if (empty($threshold->uuid)) {
+                $threshold->uuid = (string) Str::uuid();
+            }
+        });
     }
 }

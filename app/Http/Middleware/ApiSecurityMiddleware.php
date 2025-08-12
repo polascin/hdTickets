@@ -1,18 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Services\SecurityService;
 use App\Services\InputValidationService;
+use App\Services\SecurityService;
+use Closure;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
+
+use function in_array;
+use function strlen;
 
 class ApiSecurityMiddleware
 {
     protected SecurityService $securityService;
+
     protected InputValidationService $validationService;
 
     public function __construct(SecurityService $securityService, InputValidationService $validationService)
@@ -24,7 +29,7 @@ class ApiSecurityMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param Closure(Request): (Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -85,20 +90,20 @@ class ApiSecurityMiddleware
     protected function validateApiAuthentication(Request $request): void
     {
         $apiKey = $request->header('X-API-Key') ?? $request->input('api_key');
-        
-        if (!$apiKey) {
+
+        if (! $apiKey) {
             $this->logSecurityViolation($request, 'Missing API key');
             abort(401, 'API key is required');
         }
 
-        if (!$this->isValidApiKey($apiKey)) {
+        if (! $this->isValidApiKey($apiKey)) {
             $this->logSecurityViolation($request, 'Invalid API key');
             abort(401, 'Invalid API key');
         }
 
         // Verify API key signature if present
         $signature = $request->header('X-API-Signature');
-        if ($signature && !$this->verifyApiSignature($request, $apiKey, $signature)) {
+        if ($signature && ! $this->verifyApiSignature($request, $apiKey, $signature)) {
             $this->logSecurityViolation($request, 'Invalid API signature');
             abort(401, 'Invalid API signature');
         }
@@ -142,10 +147,10 @@ class ApiSecurityMiddleware
         try {
             // Sanitize input using validation service
             $sanitized = $this->validationService->sanitizeInput($data);
-            
+
             // Replace request data with sanitized version
             $request->replace($sanitized);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logSecurityViolation($request, 'Input sanitization failed: ' . $e->getMessage());
             abort(400, 'Invalid input data');
         }
@@ -164,7 +169,7 @@ class ApiSecurityMiddleware
             ];
         });
 
-        return in_array($ip, $suspiciousIps);
+        return in_array($ip, $suspiciousIps, TRUE);
     }
 
     /**
@@ -172,8 +177,8 @@ class ApiSecurityMiddleware
      */
     protected function isMaliciousUserAgent(?string $userAgent): bool
     {
-        if (!$userAgent) {
-            return true; // Require user agent
+        if (! $userAgent) {
+            return TRUE; // Require user agent
         }
 
         $maliciousPatterns = [
@@ -191,11 +196,11 @@ class ApiSecurityMiddleware
 
         foreach ($maliciousPatterns as $pattern) {
             if (preg_match($pattern, $userAgent)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -205,7 +210,7 @@ class ApiSecurityMiddleware
     {
         $maxSize = 10 * 1024 * 1024; // 10MB limit
         $contentLength = $request->header('Content-Length', 0);
-        
+
         return $contentLength > $maxSize;
     }
 
@@ -217,17 +222,17 @@ class ApiSecurityMiddleware
         // Check for suspicious headers
         $suspiciousHeaders = [
             'X-Forwarded-For' => '/[^0-9.,\s:a-fA-F]/',
-            'X-Real-IP' => '/[^0-9.:]/',
+            'X-Real-IP'       => '/[^0-9.:]/',
         ];
 
         foreach ($suspiciousHeaders as $header => $pattern) {
             $value = $request->header($header);
             if ($value && preg_match($pattern, $value)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -236,8 +241,8 @@ class ApiSecurityMiddleware
     protected function isValidApiKey(string $apiKey): bool
     {
         // Check API key format (should be 40 character hash)
-        if (strlen($apiKey) !== 40 || !ctype_alnum($apiKey)) {
-            return false;
+        if (strlen($apiKey) !== 40 || ! ctype_alnum($apiKey)) {
+            return FALSE;
         }
 
         // Check against database of valid API keys
@@ -245,11 +250,11 @@ class ApiSecurityMiddleware
             // In production, fetch from database
             return [
                 'valid_key_hash_1' => [
-                    'id' => 1,
-                    'name' => 'Sports Events Monitor',
-                    'rate_limit' => 2000,
+                    'id'          => 1,
+                    'name'        => 'Sports Events Monitor',
+                    'rate_limit'  => 2000,
                     'rate_window' => 3600,
-                    'permissions' => ['scrape', 'purchase', 'analytics']
+                    'permissions' => ['scrape', 'purchase', 'analytics'],
                 ],
                 // Add more API keys as needed
             ];
@@ -264,6 +269,7 @@ class ApiSecurityMiddleware
     protected function getApiKeyInfo(string $apiKey): array
     {
         $validKeys = Cache::get('valid_api_keys', []);
+
         return $validKeys[$apiKey] ?? [];
     }
 
@@ -275,7 +281,7 @@ class ApiSecurityMiddleware
         // Create expected signature
         $payload = $request->method() . '|' . $request->getPathInfo() . '|' . $request->getContent();
         $expectedSignature = hash_hmac('sha256', $payload, $apiKey);
-        
+
         return hash_equals($expectedSignature, $signature);
     }
 
@@ -290,7 +296,7 @@ class ApiSecurityMiddleware
         $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
-        
+
         // Remove server information
         $response->headers->remove('Server');
         $response->headers->remove('X-Powered-By');
@@ -306,11 +312,11 @@ class ApiSecurityMiddleware
             [
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'url' => $request->fullUrl(),
-                'method' => $request->method(),
-                'headers' => $request->headers->all(),
-                'risk_level' => 'high'
-            ]
+                'url'        => $request->fullUrl(),
+                'method'     => $request->method(),
+                'headers'    => $request->headers->all(),
+                'risk_level' => 'high',
+            ],
         );
     }
 }

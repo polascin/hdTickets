@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Manchester_cityPlugin extends BaseScraperPlugin
@@ -67,26 +69,26 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/tickets';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['date_from'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['date_to'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -95,14 +97,14 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
-            'premier league' => 'premier-league',
+            'premier league'   => 'premier-league',
             'champions league' => 'champions-league',
-            'fa cup' => 'fa-cup',
-            'carabao cup' => 'carabao-cup',
+            'fa cup'           => 'fa-cup',
+            'carabao cup'      => 'carabao-cup',
             'community shield' => 'community-shield',
-            'europa league' => 'europa-league',
+            'europa league'    => 'europa-league',
         ];
-        
+
         return $mapping[strtolower($competition)] ?? 'all';
     }
 
@@ -116,37 +118,36 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
         try {
             // Parse Manchester City specific event structure
-            $crawler->filter('.fixture, .match, .event, .ticket-item, .match-card')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.fixture, .match, .event, .ticket-item, .match-card')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse Manchester City event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
+                } catch (Exception $e) {
+                    Log::warning('Failed to parse Manchester City event node', [
+                        'error'        => $e->getMessage(),
+                        'html_snippet' => substr($node->html(), 0, 200),
                     ]);
                 }
             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse Manchester City events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse Manchester City events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

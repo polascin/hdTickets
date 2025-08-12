@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Broadcaster
@@ -26,19 +25,18 @@ return [
     */
 
     'connections' => [
-
         'pusher' => [
-            'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
-            'app_id' => env('PUSHER_APP_ID'),
+            'driver'  => 'pusher',
+            'key'     => env('PUSHER_APP_KEY'),
+            'secret'  => env('PUSHER_APP_SECRET'),
+            'app_id'  => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => env('PUSHER_APP_CLUSTER'),
-                'host' => env('PUSHER_HOST', 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusherapp.com'),
-                'port' => env('PUSHER_PORT', 443),
-                'scheme' => env('PUSHER_SCHEME', 'https'),
-                'encrypted' => true,
-                'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
+                'cluster'   => env('PUSHER_APP_CLUSTER'),
+                'host'      => env('PUSHER_HOST', 'api-' . env('PUSHER_APP_CLUSTER', 'mt1') . '.pusherapp.com'),
+                'port'      => env('PUSHER_PORT', 443),
+                'scheme'    => env('PUSHER_SCHEME', 'https'),
+                'encrypted' => TRUE,
+                'useTLS'    => env('PUSHER_SCHEME', 'https') === 'https',
             ],
             'client_options' => [
                 // Guzzle HTTP client options: https://docs.guzzlephp.org/en/stable/request-options.html
@@ -47,11 +45,11 @@ return [
 
         'ably' => [
             'driver' => 'ably',
-            'key' => env('ABLY_KEY'),
+            'key'    => env('ABLY_KEY'),
         ],
 
         'redis' => [
-            'driver' => 'redis',
+            'driver'     => 'redis',
             'connection' => 'default',
         ],
 
@@ -64,34 +62,32 @@ return [
         ],
 
         'websockets' => [
-            'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
-            'app_id' => env('PUSHER_APP_ID'),
+            'driver'  => 'pusher',
+            'key'     => env('PUSHER_APP_KEY'),
+            'secret'  => env('PUSHER_APP_SECRET'),
+            'app_id'  => env('PUSHER_APP_ID'),
             'options' => [
-                'host' => env('PUSHER_HOST', '127.0.0.1'),
-                'port' => env('PUSHER_PORT', 6001),
-                'scheme' => env('PUSHER_SCHEME', 'http'),
-                'encrypted' => false,
-                'useTLS' => false,
+                'host'      => env('PUSHER_HOST', '127.0.0.1'),
+                'port'      => env('PUSHER_PORT', 6001),
+                'scheme'    => env('PUSHER_SCHEME', 'http'),
+                'encrypted' => FALSE,
+                'useTLS'    => FALSE,
             ],
         ],
 
         'soketi' => [
-            'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
-            'app_id' => env('PUSHER_APP_ID'),
+            'driver'  => 'pusher',
+            'key'     => env('PUSHER_APP_KEY'),
+            'secret'  => env('PUSHER_APP_SECRET'),
+            'app_id'  => env('PUSHER_APP_ID'),
             'options' => [
-                'host' => env('SOKETI_HOST', '127.0.0.1'),
-                'port' => env('SOKETI_PORT', 6001),
-                'scheme' => env('SOKETI_SCHEME', 'http'),
-                'cluster' => env('PUSHER_APP_CLUSTER'),
-                'encrypted' => false,
-                'useTLS' => false,
+                'host'      => env('SOKETI_HOST', '127.0.0.1'),
+                'port'      => env('SOKETI_PORT', 6001),
+                'scheme'    => env('SOKETI_SCHEME', 'http'),
+                'cluster'   => env('PUSHER_APP_CLUSTER'),
+                'encrypted' => FALSE,
+                'useTLS'    => FALSE,
             ],
         ],
-
     ],
-
 ];

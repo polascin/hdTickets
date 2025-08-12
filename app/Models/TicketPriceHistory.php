@@ -1,10 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function count;
 
 class TicketPriceHistory extends Model
 {
@@ -16,14 +18,14 @@ class TicketPriceHistory extends Model
         'quantity',
         'recorded_at',
         'source',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'recorded_at' => 'datetime',
-        'price' => 'decimal:2',
-        'quantity' => 'integer',
-        'metadata' => 'array'
+        'price'       => 'decimal:2',
+        'quantity'    => 'integer',
+        'metadata'    => 'array',
     ];
 
     /**
@@ -36,6 +38,8 @@ class TicketPriceHistory extends Model
 
     /**
      * Scope for recent price records
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $days = 7)
     {
@@ -44,6 +48,10 @@ class TicketPriceHistory extends Model
 
     /**
      * Scope for specific time range
+     *
+     * @param mixed $query
+     * @param mixed $startDate
+     * @param mixed $endDate
      */
     public function scopeBetweenDates($query, $startDate, $endDate)
     {
@@ -60,8 +68,8 @@ class TicketPriceHistory extends Model
             ->orderBy('recorded_at', 'desc')
             ->first();
 
-        if (!$previousRecord || $previousRecord->price == 0) {
-            return null;
+        if (! $previousRecord || $previousRecord->price === 0) {
+            return NULL;
         }
 
         return (($this->price - $previousRecord->price) / $previousRecord->price) * 100;
@@ -77,8 +85,8 @@ class TicketPriceHistory extends Model
             ->orderBy('recorded_at', 'desc')
             ->first();
 
-        if (!$previousRecord) {
-            return null;
+        if (! $previousRecord) {
+            return NULL;
         }
 
         return $this->quantity - $previousRecord->quantity;
@@ -109,7 +117,7 @@ class TicketPriceHistory extends Model
         }
 
         $mean = array_sum($prices) / count($prices);
-        $variance = array_sum(array_map(function($price) use ($mean) {
+        $variance = array_sum(array_map(function ($price) use ($mean) {
             return pow($price - $mean, 2);
         }, $prices)) / count($prices);
 
@@ -136,11 +144,12 @@ class TicketPriceHistory extends Model
 
         if ($changePercent > 5) {
             return 'increasing';
-        } elseif ($changePercent < -5) {
-            return 'decreasing';
-        } else {
-            return 'stable';
         }
+        if ($changePercent < -5) {
+            return 'decreasing';
+        }
+
+        return 'stable';
     }
 
     /**
@@ -158,22 +167,22 @@ class TicketPriceHistory extends Model
             $quantityChange = abs($quantity - $lastRecord->quantity);
 
             // Skip if changes are minimal and recorded recently
-            if ($priceChange < 0.01 && $quantityChange == 0 && 
-                $lastRecord->recorded_at->diffInMinutes(now()) < 15) {
+            if ($priceChange < 0.01 && $quantityChange === 0
+                && $lastRecord->recorded_at->diffInMinutes(now()) < 15) {
                 return;
             }
         }
 
         static::create([
-            'ticket_id' => $ticketId,
-            'price' => $price,
-            'quantity' => $quantity,
+            'ticket_id'   => $ticketId,
+            'price'       => $price,
+            'quantity'    => $quantity,
             'recorded_at' => now(),
-            'source' => $source,
-            'metadata' => [
-                'price_change' => $lastRecord ? round($price - $lastRecord->price, 2) : 0,
-                'quantity_change' => $lastRecord ? $quantity - $lastRecord->quantity : 0
-            ]
+            'source'      => $source,
+            'metadata'    => [
+                'price_change'    => $lastRecord ? round($price - $lastRecord->price, 2) : 0,
+                'quantity_change' => $lastRecord ? $quantity - $lastRecord->quantity : 0,
+            ],
         ]);
     }
 

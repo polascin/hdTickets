@@ -1,16 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\Enhanced\AdvancedCacheService;
 use App\Services\Enhanced\DatabaseQueryOptimizer;
 use App\Services\PerformanceCacheService;
 use App\Services\PlatformCachingService;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use function count;
+use function is_array;
 
 class OptimizePerformance extends Command
 {
@@ -22,10 +25,13 @@ class OptimizePerformance extends Command
 
     protected $description = 'Run comprehensive performance optimizations for the Sports Events Ticket System';
 
-    private $advancedCache;
-    private $dbOptimizer;
-    private $performanceCache;
-    private $platformCache;
+    private AdvancedCacheService $advancedCache;
+
+    private DatabaseQueryOptimizer $dbOptimizer;
+
+    private PerformanceCacheService $performanceCache;
+
+    private PlatformCachingService $platformCache;
 
     public function __construct()
     {
@@ -36,20 +42,21 @@ class OptimizePerformance extends Command
         $this->platformCache = new PlatformCachingService();
     }
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('🚀 Starting Performance Optimization for Sports Events Ticket System');
         $this->newLine();
 
         // Safety check for production
-        if (app()->environment('production') && !$this->option('force')) {
-            if (!$this->confirm('You are running this in production. Continue?')) {
+        if (app()->environment('production') && ! $this->option('force')) {
+            if (! $this->confirm('You are running this in production. Continue?')) {
                 $this->error('Operation cancelled.');
-                return 1;
+
+                return Command::FAILURE;
             }
         }
 
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
         $results = [];
 
         try {
@@ -59,39 +66,39 @@ class OptimizePerformance extends Command
             }
 
             // Cache optimizations
-            if (!$this->option('database')) {
+            if (! $this->option('database')) {
                 $results['cache'] = $this->optimizeCache();
             }
 
             // Database optimizations
-            if (!$this->option('cache')) {
+            if (! $this->option('cache')) {
                 $results['database'] = $this->optimizeDatabase();
             }
 
             // General Laravel optimizations
-            if (!$this->option('cache') && !$this->option('database')) {
+            if (! $this->option('cache') && ! $this->option('database')) {
                 $results['laravel'] = $this->optimizeLaravel();
             }
 
-            $totalTime = round(microtime(true) - $startTime, 2);
-            
+            $totalTime = round(microtime(TRUE) - $startTime, 2);
+
             $this->displayResults($results, $totalTime);
-            
+
             Log::channel('performance')->info('Performance optimization completed', [
-                'results' => $results,
+                'results'        => $results,
                 'execution_time' => $totalTime,
-                'memory_peak' => memory_get_peak_usage(true),
+                'memory_peak'    => memory_get_peak_usage(TRUE),
             ]);
 
-            return 0;
-
-        } catch (\Exception $e) {
+            return Command::SUCCESS;
+        } catch (Exception $e) {
             $this->error('Performance optimization failed: ' . $e->getMessage());
             Log::channel('performance')->error('Performance optimization failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return 1;
+
+            return Command::FAILURE;
         }
     }
 
@@ -117,6 +124,9 @@ class OptimizePerformance extends Command
         return 0;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function optimizeCache(): array
     {
         $this->info('🗄️  Optimizing Cache Performance...');
@@ -155,9 +165,13 @@ class OptimizePerformance extends Command
         }
 
         $results['status'] = 'completed';
+
         return $results;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function optimizeDatabase(): array
     {
         $this->info('🗃️  Optimizing Database Performance...');
@@ -187,9 +201,13 @@ class OptimizePerformance extends Command
         $this->line('    ✓ Completed');
 
         $results['status'] = 'completed';
+
         return $results;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function optimizeLaravel(): array
     {
         $this->info('⚡ Running Laravel Optimizations...');
@@ -230,9 +248,13 @@ class OptimizePerformance extends Command
         $this->line('    ✓ Completed');
 
         $results['status'] = 'completed';
+
         return $results;
     }
 
+    /**
+     * @param array<string, mixed> $results
+     */
     private function displayResults(array $results, float $executionTime): void
     {
         $this->newLine();
@@ -241,7 +263,7 @@ class OptimizePerformance extends Command
 
         foreach ($results as $category => $result) {
             $this->line("<comment>{$category}:</comment>");
-            
+
             if (is_array($result)) {
                 foreach ($result as $key => $value) {
                     if (is_array($value)) {
@@ -257,54 +279,63 @@ class OptimizePerformance extends Command
         }
 
         $this->line("<info>Total execution time: {$executionTime}s</info>");
-        $this->line("<info>Peak memory usage: " . $this->formatBytes(memory_get_peak_usage(true)) . "</info>");
+        $this->line('<info>Peak memory usage: ' . $this->formatBytes(memory_get_peak_usage(TRUE)) . '</info>');
         $this->newLine();
 
         // Display optimization recommendations
         $this->displayRecommendations();
     }
 
+    /**
+     * @param array<string, mixed> $stats
+     */
     private function displayCacheStats(array $stats): void
     {
         if (isset($stats['redis_info'])) {
             $info = $stats['redis_info'];
-            $this->line("  Redis Version: " . ($info['version'] ?? 'N/A'));
-            $this->line("  Connected Clients: " . ($info['connected_clients'] ?? 'N/A'));
-            $this->line("  Total Commands: " . number_format($info['total_commands_processed'] ?? 0));
+            $this->line('  Redis Version: ' . ($info['version'] ?? 'N/A'));
+            $this->line('  Connected Clients: ' . ($info['connected_clients'] ?? 'N/A'));
+            $this->line('  Total Commands: ' . number_format($info['total_commands_processed'] ?? 0));
         }
 
         if (isset($stats['performance_metrics'])) {
             $metrics = $stats['performance_metrics'];
-            $this->line("  Hit Rate: " . ($metrics['redis_hit_rate'] ?? 0) . "%");
-            $this->line("  Active Keys: " . number_format($metrics['active_keys'] ?? 0));
-            $this->line("  Memory Fragmentation: " . ($metrics['memory_fragmentation_ratio'] ?? 1));
+            $this->line('  Hit Rate: ' . ($metrics['redis_hit_rate'] ?? 0) . '%');
+            $this->line('  Active Keys: ' . number_format($metrics['active_keys'] ?? 0));
+            $this->line('  Memory Fragmentation: ' . ($metrics['memory_fragmentation_ratio'] ?? 1));
         }
 
         $this->newLine();
     }
 
+    /**
+     * @param array<string, mixed> $stats
+     */
     private function displayDatabaseStats(array $stats): void
     {
         if (isset($stats['mysql_status'])) {
             $mysql = $stats['mysql_status'];
-            $this->line("  Connected Threads: " . ($mysql['Threads_connected'] ?? 'N/A'));
-            $this->line("  Running Threads: " . ($mysql['Threads_running'] ?? 'N/A'));
-            $this->line("  Total Questions: " . number_format($mysql['Questions'] ?? 0));
-            $this->line("  Slow Queries: " . number_format($mysql['Slow_queries'] ?? 0));
+            $this->line('  Connected Threads: ' . ($mysql['Threads_connected'] ?? 'N/A'));
+            $this->line('  Running Threads: ' . ($mysql['Threads_running'] ?? 'N/A'));
+            $this->line('  Total Questions: ' . number_format($mysql['Questions'] ?? 0));
+            $this->line('  Slow Queries: ' . number_format($mysql['Slow_queries'] ?? 0));
         }
 
         $this->newLine();
     }
 
+    /**
+     * @param array<string, mixed> $stats
+     */
     private function displayQueryStats(array $stats): void
     {
-        $this->line("  Total Queries: " . number_format($stats['total_queries'] ?? 0));
-        $this->line("  Slow Queries: " . number_format($stats['slow_queries'] ?? 0));
-        $this->line("  Average Execution: " . ($stats['average_execution_time'] ?? 0) . "ms");
-        $this->line("  Peak Execution: " . ($stats['peak_execution_time'] ?? 0) . "ms");
+        $this->line('  Total Queries: ' . number_format($stats['total_queries'] ?? 0));
+        $this->line('  Slow Queries: ' . number_format($stats['slow_queries'] ?? 0));
+        $this->line('  Average Execution: ' . ($stats['average_execution_time'] ?? 0) . 'ms');
+        $this->line('  Peak Execution: ' . ($stats['peak_execution_time'] ?? 0) . 'ms');
 
         if (isset($stats['connection_distribution'])) {
-            $this->line("  Connection Distribution:");
+            $this->line('  Connection Distribution:');
             foreach ($stats['connection_distribution'] as $connection => $count) {
                 $this->line("    - {$connection}: " . number_format($count));
             }
@@ -316,7 +347,7 @@ class OptimizePerformance extends Command
     private function displayRecommendations(): void
     {
         $this->line('<comment>🎯 Performance Recommendations:</comment>');
-        
+
         $recommendations = [
             '1. Schedule this command to run daily: php artisan hdtickets:optimize-performance --cache',
             '2. Monitor slow queries and optimize them regularly',
@@ -341,6 +372,7 @@ class OptimizePerformance extends Command
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
+
         return round($bytes, 2) . ' ' . $units[$i];
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -8,7 +8,23 @@ use Illuminate\Database\Eloquent\Model;
 class AccountDeletionAuditLog extends Model
 {
     use HasFactory;
-    
+
+    public const ACTION_INITIATED = 'initiated';
+
+    public const ACTION_EMAIL_SENT = 'email_sent';
+
+    public const ACTION_CONFIRMED = 'confirmed';
+
+    public const ACTION_CANCELLED = 'cancelled';
+
+    public const ACTION_COMPLETED = 'completed';
+
+    public const ACTION_RECOVERED = 'recovered';
+
+    public const ACTION_DATA_EXPORTED = 'data_exported';
+
+    public const ACTION_GRACE_PERIOD_EXPIRED = 'grace_period_expired';
+
     protected $table = 'account_deletion_audit_log';
 
     protected $fillable = [
@@ -22,18 +38,9 @@ class AccountDeletionAuditLog extends Model
     ];
 
     protected $casts = [
-        'context' => 'array',
+        'context'     => 'array',
         'occurred_at' => 'datetime',
     ];
-
-    const ACTION_INITIATED = 'initiated';
-    const ACTION_EMAIL_SENT = 'email_sent';
-    const ACTION_CONFIRMED = 'confirmed';
-    const ACTION_CANCELLED = 'cancelled';
-    const ACTION_COMPLETED = 'completed';
-    const ACTION_RECOVERED = 'recovered';
-    const ACTION_DATA_EXPORTED = 'data_exported';
-    const ACTION_GRACE_PERIOD_EXPIRED = 'grace_period_expired';
 
     /**
      * Create a new audit log entry
@@ -43,19 +50,19 @@ class AccountDeletionAuditLog extends Model
         string $action,
         string $description,
         array $context = [],
-        ?string $statusFrom = null,
-        ?string $statusTo = null
+        ?string $statusFrom = NULL,
+        ?string $statusTo = NULL,
     ): self {
         return self::create([
-            'user_id' => $userId,
-            'action' => $action,
+            'user_id'     => $userId,
+            'action'      => $action,
             'status_from' => $statusFrom,
-            'status_to' => $statusTo,
+            'status_to'   => $statusTo,
             'description' => $description,
-            'context' => array_merge($context, [
+            'context'     => array_merge($context, [
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-                'timestamp' => now()->toISOString(),
+                'timestamp'  => now()->toISOString(),
             ]),
             'occurred_at' => now(),
         ]);
@@ -63,6 +70,8 @@ class AccountDeletionAuditLog extends Model
 
     /**
      * Scope to get logs for a specific action
+     *
+     * @param mixed $query
      */
     public function scopeForAction($query, string $action)
     {
@@ -71,6 +80,8 @@ class AccountDeletionAuditLog extends Model
 
     /**
      * Scope to get logs for a specific user
+     *
+     * @param mixed $query
      */
     public function scopeForUser($query, int $userId)
     {
@@ -79,6 +90,8 @@ class AccountDeletionAuditLog extends Model
 
     /**
      * Scope to get recent logs
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $days = 30)
     {

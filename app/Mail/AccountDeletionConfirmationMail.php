@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\User;
 use App\Models\AccountDeletionRequest;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -12,10 +12,13 @@ use Illuminate\Queue\SerializesModels;
 
 class AccountDeletionConfirmationMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public User $user;
+
     public AccountDeletionRequest $deletionRequest;
+
     public string $cancelUrl;
 
     /**
@@ -26,7 +29,7 @@ class AccountDeletionConfirmationMail extends Mailable
         $this->user = $user;
         $this->deletionRequest = $deletionRequest;
         $this->cancelUrl = route('account.deletion.cancel', [
-            'token' => $deletionRequest->confirmation_token
+            'token' => $deletionRequest->confirmation_token,
         ]);
     }
 
@@ -39,7 +42,7 @@ class AccountDeletionConfirmationMail extends Mailable
             subject: 'Account Deletion Confirmed - 24 Hour Grace Period Active - HD Tickets',
             tags: ['account-deletion', 'confirmation'],
             metadata: [
-                'user_id' => $this->user->id,
+                'user_id'             => $this->user->id,
                 'deletion_request_id' => $this->deletionRequest->id,
             ],
         );

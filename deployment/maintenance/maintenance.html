@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Tickets - System Maintenance</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .maintenance-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .maintenance-icon {
+            font-size: 4rem;
+            color: #ff6b6b;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            color: #444;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 10px;
+            animation: progress 3s ease-in-out infinite;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value {
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .footer {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        .contact-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e8f2ff;
+            border-radius: 10px;
+            border: 1px solid #b3d7ff;
+        }
+
+        .contact-info h4 {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .refresh-timer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #856404;
+        }
+
+        .timer-display {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .maintenance-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .maintenance-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="logo">HD Tickets</div>
+        <div class="subtitle">Sports Events Entry Tickets Monitoring System</div>
+        
+        <div class="maintenance-icon">🔧</div>
+        
+        <h2 class="message">System Maintenance in Progress</h2>
+        
+        <div class="description">
+            We're currently updating our sports events ticket monitoring system to bring you better performance and new features. This process should complete shortly.
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+
+        <div class="status">
+            <span class="status-label">Current Status:</span>
+            <span class="status-value">Deploying Updates</span>
+        </div>
+
+        <div class="status">
+            <span class="status-label">Estimated Time:</span>
+            <span class="status-value">5-10 minutes</span>
+        </div>
+
+        <div class="status">
+            <span class="status-label">Services Affected:</span>
+            <span class="status-value">Ticket Monitoring & Alerts</span>
+        </div>
+
+        <div class="refresh-timer">
+            <div>This page will automatically refresh in:</div>
+            <div class="timer-display" id="countdown">30</div>
+            <div>seconds</div>
+        </div>
+
+        <div class="contact-info">
+            <h4>Need immediate assistance?</h4>
+            <p>For urgent inquiries during maintenance, please contact our support team.</p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for your patience as we improve your ticket monitoring experience.</p>
+            <p>Started: <span id="start-time"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Set maintenance start time
+        document.getElementById('start-time').textContent = new Date().toLocaleString();
+
+        // Countdown timer for auto-refresh
+        let countdown = 30;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                location.reload();
+            }
+        }, 1000);
+
+        // Dynamic progress bar animation
+        const progressBar = document.querySelector('.progress-bar');
+        let progress = 0;
+        
+        const progressTimer = setInterval(() => {
+            progress += Math.random() * 2;
+            if (progress > 100) progress = 100;
+            progressBar.style.width = progress + '%';
+        }, 1000);
+
+        // Update status messages dynamically
+        const statusMessages = [
+            'Initializing Update Process',
+            'Backing Up Current Data',
+            'Deploying New Features',
+            'Running System Checks',
+            'Finalizing Updates'
+        ];
+
+        let currentStatusIndex = 0;
+        const statusValue = document.querySelector('.status-value');
+        
+        const statusTimer = setInterval(() => {
+            currentStatusIndex = (currentStatusIndex + 1) % statusMessages.length;
+            statusValue.textContent = statusMessages[currentStatusIndex];
+        }, 4000);
+
+        // Health check to see if service is back online
+        const checkService = async () => {
+            try {
+                const response = await fetch('/health', {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                if (response.ok) {
+                    location.reload();
+                }
+            } catch (error) {
+                // Service still down, continue waiting
+            }
+        };
+
+        // Check service every 15 seconds
+        setInterval(checkService, 15000);
+
+        // Prevent page caching
+        if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+            location.reload();
+        }
+    </script>
+</body>
+</html>

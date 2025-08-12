@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * HD Tickets Base Controller
- * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ *
  * @version 2025.07.v4.0
  */
 
@@ -14,5 +14,6 @@ use Illuminate\Routing\Controller as BaseController;
 
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
+    use AuthorizesRequests;
+    use ValidatesRequests;
 }

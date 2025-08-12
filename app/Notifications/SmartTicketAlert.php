@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\DatabaseMessage;
 use Illuminate\Notifications\Notification;
 
 class SmartTicketAlert extends Notification implements ShouldQueue
@@ -20,107 +19,185 @@ class SmartTicketAlert extends Notification implements ShouldQueue
     public function __construct(array $alertData)
     {
         $this->alertData = $alertData;
-        
+
         // Set queue based on priority
         $this->onQueue($this->getQueueName($alertData['priority'] ?? 2));
     }
 
     /**
      * Get the notification's delivery channels.
+     *
+     * @param mixed $notifiable
      */
     public function via($notifiable): array
     {
         $channels = ['database'];
-        
+
         // Add mail for high priority alerts
         if (($this->alertData['priority'] ?? 2) >= 4) {
             $channels[] = 'mail';
         }
-        
+
         return $channels;
     }
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toMail($notifiable): MailMessage
     {
         $ticket = $this->alertData['ticket'];
         $priority = $this->alertData['priority_label'] ?? 'Normal';
-        
-        $message = (new MailMessage)
+
+        $message = new MailMessage()
             ->subject("🎫 {$priority} Priority Ticket Alert - {$ticket['event_name']}")
             ->greeting("Hello {$notifiable->name}!")
-            ->line("We found tickets matching your alert criteria:");
+            ->line('We found tickets matching your alert criteria:');
 
         // Event details
         $message->line("**Event:** {$ticket['event_name']}")
-                ->line("**Price:** $" . number_format($ticket['price'], 2))
-                ->line("**Available:** {$ticket['quantity']} tickets")
-                ->line("**Platform:** {$ticket['platform']}");
+            ->line('**Price:** $' . number_format($ticket['price'], 2))
+            ->line("**Available:** {$ticket['quantity']} tickets")
+            ->line("**Platform:** {$ticket['platform']}");
 
         // Add venue and date if available
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $message->line("**Venue:** {$ticket['venue']}");
         }
 
-        if (!empty($ticket['event_date'])) {
-            $message->line("**Date:** " . date('M j, Y g:i A', strtotime($ticket['event_date'])));
+        if (! empty($ticket['event_date'])) {
+            $message->line('**Date:** ' . date('M j, Y g:i A', strtotime($ticket['event_date'])));
         }
 
         // Add ML insights if available
         if (isset($this->alertData['prediction'])) {
             $prediction = $this->alertData['prediction'];
-            $message->line("")
-                    ->line("🔮 **AI Insights:**")
-                    ->line("• Price trend: {$prediction['price_trend']} ({$prediction['price_change']}%)")
-                    ->line("• Availability: {$prediction['availability_trend']} ({$prediction['availability_change']}%)")
-                    ->line("• Demand level: {$prediction['demand_level']}");
+            $message->line('')
+                ->line('🔮 **AI Insights:**')
+                ->line("• Price trend: {$prediction['price_trend']} ({$prediction['price_change']}%)")
+                ->line("• Availability: {$prediction['availability_trend']} ({$prediction['availability_change']}%)")
+                ->line("• Demand level: {$prediction['demand_level']}");
         }
 
         // Add context and recommendation
         if (isset($this->alertData['context']['recommendation'])) {
-            $message->line("")
-                    ->line("💡 **Recommendation:** {$this->alertData['context']['recommendation']}");
+            $message->line('')
+                ->line("💡 **Recommendation:** {$this->alertData['context']['recommendation']}");
         }
 
         // Add escalation info if present
         if (isset($this->alertData['escalation'])) {
             $escalation = $this->alertData['escalation'];
-            $message->line("")
-                    ->line("⚠️ **Escalation Alert (Attempt {$escalation['attempt']}):** {$escalation['message']}");
+            $message->line('')
+                ->line("⚠️ **Escalation Alert (Attempt {$escalation['attempt']}):** {$escalation['message']}");
         }
 
         // Action buttons
         $message->action('View Details', $this->alertData['actions']['view_ticket'] ?? '#')
-                ->action('Purchase Now', $this->alertData['actions']['purchase_now'] ?? '#');
+            ->action('Purchase Now', $this->alertData['actions']['purchase_now'] ?? '#');
 
         // Footer
-        $message->line("")
-                ->line("Act quickly - tickets are selling fast!")
-                ->line("This alert was generated by HDTickets AI system.");
+        $message->line('')
+            ->line('Act quickly - tickets are selling fast!')
+            ->line('This alert was generated by HDTickets AI system.');
 
         return $message;
     }
 
     /**
      * Get the database representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toDatabase($notifiable): array
     {
         $ticket = $this->alertData['ticket'];
-        
+
         return [
-            'type' => 'ticket_alert',
-            'title' => "Ticket Alert - {$ticket['event_name']}",
-            'message' => $this->buildDatabaseMessage(),
-            'priority' => $this->alertData['priority'] ?? 2,
+            'type'           => 'ticket_alert',
+            'title'          => "Ticket Alert - {$ticket['event_name']}",
+            'message'        => $this->buildDatabaseMessage(),
+            'priority'       => $this->alertData['priority'] ?? 2,
             'priority_label' => $this->alertData['priority_label'] ?? 'Normal',
-            'ticket_id' => $ticket['id'],
-            'alert_id' => $this->alertData['alert']['id'] ?? null,
-            'data' => $this->alertData,
-            'actions' => $this->alertData['actions'] ?? null,
-            'expires_at' => $this->alertData['metadata']['expires_at'] ?? null
+            'ticket_id'      => $ticket['id'],
+            'alert_id'       => $this->alertData['alert']['id'] ?? NULL,
+            'data'           => $this->alertData,
+            'actions'        => $this->alertData['actions'] ?? NULL,
+            'expires_at'     => $this->alertData['metadata']['expires_at'] ?? NULL,
+        ];
+    }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    public function toArray($notifiable): array
+    {
+        return $this->alertData;
+    }
+
+    /**
+     * Determine if the notification should be sent.
+     *
+     * @param mixed $notifiable
+     * @param mixed $channel
+     */
+    public function shouldSend($notifiable, $channel): bool
+    {
+        // Don't send if user has been recently active (checked by enhanced alert system)
+        // This is an additional safety check
+
+        if ($channel === 'mail') {
+            // Only send mail for high priority alerts during reasonable hours
+            $hour = now()->hour;
+            $priority = $this->alertData['priority'] ?? 2;
+
+            // Send critical alerts anytime, high priority only during 7 AM - 11 PM
+            if ($priority === 5) {
+                return TRUE;
+            }
+
+            if ($priority === 4 && ($hour < 7 || $hour > 23)) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Get the notification's delivery delay.
+     *
+     * @param mixed $notifiable
+     * @param mixed $channel
+     */
+    public function delay($notifiable, $channel)
+    {
+        // Critical alerts are sent immediately
+        if (($this->alertData['priority'] ?? 2) === 5) {
+            return;
+        }
+
+        // Add small delay for non-critical alerts to batch them
+        return now()->addSeconds(30);
+    }
+
+    /**
+     * Get notification tags for tracking
+     */
+    public function tags(): array
+    {
+        $ticket = $this->alertData['ticket'];
+
+        return [
+            'ticket_alert',
+            'priority:' . ($this->alertData['priority'] ?? 2),
+            'ticket:' . $ticket['id'],
+            'platform:' . strtolower($ticket['platform']),
+            'event:' . str_slug($ticket['event_name']),
         ];
     }
 
@@ -131,24 +208,16 @@ class SmartTicketAlert extends Notification implements ShouldQueue
     {
         $ticket = $this->alertData['ticket'];
         $priority = $this->alertData['priority_label'] ?? 'Normal';
-        
-        $message = "{$priority} priority alert: {$ticket['event_name']} tickets available for $" . 
+
+        $message = "{$priority} priority alert: {$ticket['event_name']} tickets available for $" .
                    number_format($ticket['price'], 2) . " ({$ticket['quantity']} available)";
 
         // Add ML recommendation if available
         if (isset($this->alertData['context']['recommendation'])) {
-            $message .= " - " . $this->alertData['context']['recommendation'];
+            $message .= ' - ' . $this->alertData['context']['recommendation'];
         }
 
         return $message;
-    }
-
-    /**
-     * Get the array representation of the notification.
-     */
-    public function toArray($notifiable): array
-    {
-        return $this->alertData;
     }
 
     /**
@@ -166,61 +235,5 @@ class SmartTicketAlert extends Notification implements ShouldQueue
             default:
                 return 'notifications-default';
         }
-    }
-
-    /**
-     * Determine if the notification should be sent.
-     */
-    public function shouldSend($notifiable, $channel): bool
-    {
-        // Don't send if user has been recently active (checked by enhanced alert system)
-        // This is an additional safety check
-        
-        if ($channel === 'mail') {
-            // Only send mail for high priority alerts during reasonable hours
-            $hour = now()->hour;
-            $priority = $this->alertData['priority'] ?? 2;
-            
-            // Send critical alerts anytime, high priority only during 7 AM - 11 PM
-            if ($priority === 5) {
-                return true;
-            }
-            
-            if ($priority === 4 && ($hour < 7 || $hour > 23)) {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-
-    /**
-     * Get the notification's delivery delay.
-     */
-    public function delay($notifiable, $channel)
-    {
-        // Critical alerts are sent immediately
-        if (($this->alertData['priority'] ?? 2) === 5) {
-            return null;
-        }
-        
-        // Add small delay for non-critical alerts to batch them
-        return now()->addSeconds(30);
-    }
-
-    /**
-     * Get notification tags for tracking
-     */
-    public function tags(): array
-    {
-        $ticket = $this->alertData['ticket'];
-        
-        return [
-            'ticket_alert',
-            'priority:' . ($this->alertData['priority'] ?? 2),
-            'ticket:' . $ticket['id'],
-            'platform:' . strtolower($ticket['platform']),
-            'event:' . str_slug($ticket['event_name'])
-        ];
     }
 }

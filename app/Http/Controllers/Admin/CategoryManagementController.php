@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
@@ -37,7 +37,7 @@ class CategoryManagementController extends Controller
             if ($request->status === 'active') {
                 $query->active();
             } elseif ($request->status === 'inactive') {
-                $query->where('is_active', false);
+                $query->where('is_active', FALSE);
             }
         }
 
@@ -55,6 +55,7 @@ class CategoryManagementController extends Controller
     public function create()
     {
         $parentCategories = Category::root()->active()->ordered()->get();
+
         return view('admin.categories.create', compact('parentCategories'));
     }
 
@@ -64,18 +65,18 @@ class CategoryManagementController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', 'unique:categories'],
-            'parent_id' => ['nullable', 'exists:categories,id'],
+            'name'        => ['required', 'string', 'max:255'],
+            'slug'        => ['nullable', 'string', 'max:255', 'unique:categories'],
+            'parent_id'   => ['nullable', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'color' => ['nullable', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
-            'icon' => ['nullable', 'string', 'max:50'],
-            'is_active' => ['boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'color'       => ['nullable', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+            'icon'        => ['nullable', 'string', 'max:50'],
+            'is_active'   => ['boolean'],
+            'sort_order'  => ['nullable', 'integer', 'min:0'],
         ]);
 
         $data = $request->all();
-        
+
         // Generate slug if not provided
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
@@ -90,7 +91,7 @@ class CategoryManagementController extends Controller
         }
 
         // Set default sort order
-        if (!isset($data['sort_order'])) {
+        if (! isset($data['sort_order'])) {
             $maxOrder = Category::where('parent_id', $data['parent_id'])->max('sort_order') ?? 0;
             $data['sort_order'] = $maxOrder + 1;
         }
@@ -109,9 +110,9 @@ class CategoryManagementController extends Controller
      */
     public function show(Category $category)
     {
-        $category->load(['parent', 'children', 'scrapedTickets' => function ($query) {
+        $category->load(['parent', 'children', 'scrapedTickets' => function ($query): void {
             $query->latest()->limit(10);
-        }, 'ticketSources' => function ($query) {
+        }, 'ticketSources' => function ($query): void {
             $query->latest()->limit(10);
         }]);
 
@@ -138,18 +139,18 @@ class CategoryManagementController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('categories')->ignore($category->id)],
-            'parent_id' => ['nullable', 'exists:categories,id'],
+            'name'        => ['required', 'string', 'max:255'],
+            'slug'        => ['nullable', 'string', 'max:255', Rule::unique('categories')->ignore($category->id)],
+            'parent_id'   => ['nullable', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'color' => ['nullable', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
-            'icon' => ['nullable', 'string', 'max:50'],
-            'is_active' => ['boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'color'       => ['nullable', 'string', 'regex:/^#[A-Fa-f0-9]{6}$/'],
+            'icon'        => ['nullable', 'string', 'max:50'],
+            'is_active'   => ['boolean'],
+            'sort_order'  => ['nullable', 'integer', 'min:0'],
         ]);
 
         // Prevent category from being its own parent or creating circular references
-        if ($request->parent_id == $category->id) {
+        if ($request->parent_id === $category->id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'Category cannot be its own parent.']);
         }
@@ -161,7 +162,7 @@ class CategoryManagementController extends Controller
         }
 
         $data = $request->all();
-        
+
         // Generate slug if not provided
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name']);
@@ -210,9 +211,10 @@ class CategoryManagementController extends Controller
      */
     public function toggleStatus(Category $category)
     {
-        $category->update(['is_active' => !$category->is_active]);
-        
+        $category->update(['is_active' => ! $category->is_active]);
+
         $status = $category->is_active ? 'activated' : 'deactivated';
+
         return redirect()->route('admin.categories.index')
             ->with('success', "Category {$status} successfully.");
     }
@@ -223,10 +225,10 @@ class CategoryManagementController extends Controller
     public function reorder(Request $request)
     {
         $request->validate([
-            'categories' => ['required', 'array'],
-            'categories.*.id' => ['required', 'exists:categories,id'],
+            'categories'              => ['required', 'array'],
+            'categories.*.id'         => ['required', 'exists:categories,id'],
             'categories.*.sort_order' => ['required', 'integer', 'min:0'],
-            'parent_id' => ['nullable', 'exists:categories,id'],
+            'parent_id'               => ['nullable', 'exists:categories,id'],
         ]);
 
         foreach ($request->categories as $categoryData) {
@@ -235,7 +237,7 @@ class CategoryManagementController extends Controller
                 ->update(['sort_order' => $categoryData['sort_order']]);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => TRUE]);
     }
 
     /**
@@ -258,18 +260,20 @@ class CategoryManagementController extends Controller
 
     /**
      * Check if assigning a parent would create a circular reference
+     *
+     * @param mixed $parentId
      */
     private function wouldCreateCircularReference(Category $category, $parentId)
     {
         $parent = Category::find($parentId);
-        
+
         while ($parent) {
             if ($parent->id === $category->id) {
-                return true;
+                return TRUE;
             }
             $parent = $parent->parent;
         }
-        
-        return false;
+
+        return FALSE;
     }
 }

@@ -1,25 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\PaymentPlan;
-use App\Models\UserSubscription;
+use App\Models\User;
+use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Illuminate\Http\Response;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
-use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
 use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
-use PaypalServerSdkLib\Environment;
 use PaypalServerSdkLib\Controllers\PaymentsController;
+use PaypalServerSdkLib\Environment;
+use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class RegistrationWithPaymentController extends Controller
 {
@@ -29,12 +29,12 @@ class RegistrationWithPaymentController extends Controller
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
         $paymentPlans = PaymentPlan::active()->ordered()->get();
-        
+
         return view('auth.register-with-payment', compact('paymentPlans'));
     }
 
@@ -44,55 +44,55 @@ class RegistrationWithPaymentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'surname' => ['sometimes', 'string', 'max:255'],
-            'username' => ['sometimes', 'string', 'max:255', 'unique:'.User::class],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'phone' => ['sometimes', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
-            'is_active' => ['sometimes', 'boolean'],
-            'require_2fa' => ['sometimes', 'boolean'],
-            'payment_plan_id' => ['required', 'exists:payment_plans,id'],
+            'name'              => ['required', 'string', 'max:255'],
+            'surname'           => ['sometimes', 'string', 'max:255'],
+            'username'          => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
+            'email'             => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'phone'             => ['sometimes', 'string', 'max:20'],
+            'password'          => ['required', 'confirmed', Rules\Password::defaults()],
+            'role'              => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
+            'is_active'         => ['sometimes', 'boolean'],
+            'require_2fa'       => ['sometimes', 'boolean'],
+            'payment_plan_id'   => ['required', 'exists:payment_plans,id'],
             'subscription_type' => ['required', 'in:trial,paid,admin_granted'],
-            'trial_days' => ['sometimes', 'integer', 'min:1', 'max:30'],
-            'payment_method' => ['required_if:subscription_type,paid', 'in:stripe,paypal'],
+            'trial_days'        => ['sometimes', 'integer', 'min:1', 'max:30'],
+            'payment_method'    => ['required_if:subscription_type,paid', 'in:stripe,paypal'],
             // Billing address fields
-            'billing_address.street' => ['required_if:subscription_type,paid', 'string', 'max:255'],
-            'billing_address.city' => ['required_if:subscription_type,paid', 'string', 'max:255'],
-            'billing_address.state' => ['required_if:subscription_type,paid', 'string', 'max:255'],
+            'billing_address.street'      => ['required_if:subscription_type,paid', 'string', 'max:255'],
+            'billing_address.city'        => ['required_if:subscription_type,paid', 'string', 'max:255'],
+            'billing_address.state'       => ['required_if:subscription_type,paid', 'string', 'max:255'],
             'billing_address.postal_code' => ['required_if:subscription_type,paid', 'string', 'max:20'],
-            'billing_address.country' => ['required_if:subscription_type,paid', 'string', 'max:255'],
+            'billing_address.country'     => ['required_if:subscription_type,paid', 'string', 'max:255'],
         ]);
 
         $paymentPlan = PaymentPlan::findOrFail($request->payment_plan_id);
 
         // Create the user
         $user = User::create([
-            'name' => $request->name,
-            'surname' => $request->surname,
-            'username' => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'role' => $request->role ?? User::ROLE_CUSTOMER,
-            'is_active' => $request->is_active ?? true,
-            'require_2fa' => $request->require_2fa ?? false,
+            'name'                => $request->name,
+            'surname'             => $request->surname,
+            'username'            => $request->username ?? strtolower(str_replace(' ', '.', $request->name)),
+            'email'               => $request->email,
+            'phone'               => $request->phone,
+            'password'            => Hash::make($request->password),
+            'role'                => $request->role ?? User::ROLE_CUSTOMER,
+            'is_active'           => $request->is_active ?? TRUE,
+            'require_2fa'         => $request->require_2fa ?? FALSE,
             'registration_source' => 'admin_with_payment',
-            'created_by_type' => 'admin',
-            'created_by_id' => Auth::id(),
+            'created_by_type'     => 'admin',
+            'created_by_id'       => Auth::id(),
             'password_changed_at' => now(),
-            'billing_address' => $request->subscription_type === 'paid' ? $request->billing_address : null,
+            'billing_address'     => $request->subscription_type === 'paid' ? $request->billing_address : NULL,
         ]);
 
         $subscriptionData = [
             'payment_plan_id' => $paymentPlan->id,
-            'starts_at' => now(),
+            'starts_at'       => now(),
         ];
 
         // Payment handling for paid subscriptions
@@ -102,11 +102,11 @@ class RegistrationWithPaymentController extends Controller
                 try {
                     Stripe::setApiKey(config('services.stripe.secret'));
                     $paymentIntent = PaymentIntent::create([
-                        'amount' => (int)($paymentPlan->price * 100), // cents
-                        'currency' => 'usd',
-                        'payment_method' => $request->stripe_payment_method_id,
+                        'amount'              => (int) ($paymentPlan->price * 100), // cents
+                        'currency'            => 'usd',
+                        'payment_method'      => $request->stripe_payment_method_id,
                         'confirmation_method' => 'manual',
-                        'confirm' => true,
+                        'confirm'             => TRUE,
                     ]);
                     if ($paymentIntent->status !== 'succeeded') {
                         return back()->withErrors(['payment' => 'Stripe payment failed.']);
@@ -114,7 +114,7 @@ class RegistrationWithPaymentController extends Controller
                     $subscriptionData['stripe_payment_intent_id'] = $paymentIntent->id;
                     $subscriptionData['payment_method'] = 'stripe';
                     $subscriptionData['amount_paid'] = $paymentPlan->price;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     return back()->withErrors(['payment' => 'Stripe error: ' . $e->getMessage()]);
                 }
             } elseif ($request->payment_method === 'paypal') {
@@ -124,13 +124,13 @@ class RegistrationWithPaymentController extends Controller
                         ->clientCredentialsAuthCredentials(
                             ClientCredentialsAuthCredentialsBuilder::init(
                                 config('services.paypal.client_id'),
-                                config('services.paypal.secret')
-                            )
+                                config('services.paypal.secret'),
+                            ),
                         )
                         ->environment(
-                            config('services.paypal.environment') === 'production' 
-                                ? Environment::PRODUCTION 
-                                : Environment::SANDBOX
+                            config('services.paypal.environment') === 'production'
+                                ? Environment::PRODUCTION
+                                : Environment::SANDBOX,
                         )
                         ->build();
 
@@ -142,7 +142,7 @@ class RegistrationWithPaymentController extends Controller
                     $subscriptionData['paypal_transaction_id'] = $payment->getId();
                     $subscriptionData['payment_method'] = 'paypal';
                     $subscriptionData['amount_paid'] = $paymentPlan->price;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     return back()->withErrors(['payment' => 'PayPal error: ' . $e->getMessage()]);
                 }
             }
@@ -150,12 +150,15 @@ class RegistrationWithPaymentController extends Controller
             switch ($paymentPlan->billing_cycle) {
                 case 'monthly':
                     $subscriptionData['ends_at'] = now()->addMonth();
+
                     break;
                 case 'yearly':
                     $subscriptionData['ends_at'] = now()->addYear();
+
                     break;
                 case 'lifetime':
-                    $subscriptionData['ends_at'] = null;
+                    $subscriptionData['ends_at'] = NULL;
+
                     break;
             }
             $subscriptionData['status'] = 'active';
@@ -165,7 +168,7 @@ class RegistrationWithPaymentController extends Controller
             $subscriptionData['trial_ends_at'] = now()->addDays($trialDays);
         } elseif ($request->subscription_type === 'admin_granted') {
             $subscriptionData['status'] = 'active';
-            $subscriptionData['ends_at'] = null; // No expiration for admin granted
+            $subscriptionData['ends_at'] = NULL; // No expiration for admin granted
             $subscriptionData['amount_paid'] = 0;
             $subscriptionData['metadata'] = ['granted_by_admin' => Auth::id()];
         }
@@ -186,13 +189,13 @@ class RegistrationWithPaymentController extends Controller
      */
     public function selectPlan(User $user): View
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 
         $paymentPlans = PaymentPlan::active()->ordered()->get();
         $currentSubscription = $user->activeSubscription();
-        
+
         return view('auth.select-payment-plan', compact('user', 'paymentPlans', 'currentSubscription'));
     }
 
@@ -201,21 +204,21 @@ class RegistrationWithPaymentController extends Controller
      */
     public function assignPlan(Request $request, User $user): RedirectResponse
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 
         $request->validate([
-            'payment_plan_id' => ['required', 'exists:payment_plans,id'],
+            'payment_plan_id'   => ['required', 'exists:payment_plans,id'],
             'subscription_type' => ['required', 'in:trial,paid,admin_granted'],
-            'trial_days' => ['sometimes', 'integer', 'min:1', 'max:30'],
+            'trial_days'        => ['sometimes', 'integer', 'min:1', 'max:30'],
         ]);
 
         $paymentPlan = PaymentPlan::findOrFail($request->payment_plan_id);
 
         // Subscribe user to the new plan
         $options = [
-            'status' => $request->subscription_type === 'trial' ? 'trial' : 'active',
+            'status'    => $request->subscription_type === 'trial' ? 'trial' : 'active',
             'starts_at' => now(),
         ];
 

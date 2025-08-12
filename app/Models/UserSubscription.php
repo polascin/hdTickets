@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class UserSubscription extends Model
 {
@@ -22,15 +21,15 @@ class UserSubscription extends Model
         'stripe_customer_id',
         'amount_paid',
         'payment_method',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
+        'starts_at'     => 'datetime',
+        'ends_at'       => 'datetime',
         'trial_ends_at' => 'datetime',
-        'amount_paid' => 'decimal:2',
-        'metadata' => 'array'
+        'amount_paid'   => 'decimal:2',
+        'metadata'      => 'array',
     ];
 
     /**
@@ -51,38 +50,44 @@ class UserSubscription extends Model
 
     /**
      * Scope for active subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
         return $query->where('status', 'active')
-                    ->where(function ($q) {
-                        $q->whereNull('ends_at')
-                          ->orWhere('ends_at', '>', now());
-                    });
+            ->where(function ($q): void {
+                $q->whereNull('ends_at')
+                    ->orWhere('ends_at', '>', now());
+            });
     }
 
     /**
      * Scope for expired subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
         return $query->where('status', 'expired')
-                    ->orWhere(function ($q) {
-                        $q->whereNotNull('ends_at')
-                          ->where('ends_at', '<=', now());
-                    });
+            ->orWhere(function ($q): void {
+                $q->whereNotNull('ends_at')
+                    ->where('ends_at', '<=', now());
+            });
     }
 
     /**
      * Scope for trial subscriptions
+     *
+     * @param mixed $query
      */
     public function scopeTrial($query)
     {
         return $query->where('status', 'trial')
-                    ->where(function ($q) {
-                        $q->whereNull('trial_ends_at')
-                          ->orWhere('trial_ends_at', '>', now());
-                    });
+            ->where(function ($q): void {
+                $q->whereNull('trial_ends_at')
+                    ->orWhere('trial_ends_at', '>', now());
+            });
     }
 
     /**
@@ -91,14 +96,10 @@ class UserSubscription extends Model
     public function isActive(): bool
     {
         if ($this->status !== 'active') {
-            return false;
+            return FALSE;
         }
 
-        if ($this->ends_at && $this->ends_at->isPast()) {
-            return false;
-        }
-
-        return true;
+        return ! ($this->ends_at && $this->ends_at->isPast());
     }
 
     /**
@@ -107,7 +108,7 @@ class UserSubscription extends Model
     public function isOnTrial(): bool
     {
         if ($this->status !== 'trial' && $this->status !== 'active') {
-            return false;
+            return FALSE;
         }
 
         return $this->trial_ends_at && $this->trial_ends_at->isFuture();
@@ -134,11 +135,12 @@ class UserSubscription extends Model
      */
     public function getDaysRemainingAttribute(): ?int
     {
-        if (!$this->ends_at) {
-            return null; // Unlimited
+        if (! $this->ends_at) {
+            return NULL; // Unlimited
         }
 
-        $days = now()->diffInDays($this->ends_at, false);
+        $days = now()->diffInDays($this->ends_at, FALSE);
+
         return $days > 0 ? $days : 0;
     }
 
@@ -147,11 +149,12 @@ class UserSubscription extends Model
      */
     public function getTrialDaysRemainingAttribute(): ?int
     {
-        if (!$this->trial_ends_at) {
-            return null;
+        if (! $this->trial_ends_at) {
+            return NULL;
         }
 
-        $days = now()->diffInDays($this->trial_ends_at, false);
+        $days = now()->diffInDays($this->trial_ends_at, FALSE);
+
         return $days > 0 ? $days : 0;
     }
 
@@ -161,6 +164,7 @@ class UserSubscription extends Model
     public function cancel(): bool
     {
         $this->status = 'cancelled';
+
         return $this->save();
     }
 
@@ -171,6 +175,7 @@ class UserSubscription extends Model
     {
         $this->status = 'expired';
         $this->ends_at = now();
+
         return $this->save();
     }
 
@@ -180,23 +185,26 @@ class UserSubscription extends Model
     public function activate(): bool
     {
         $this->status = 'active';
-        
+
         // Set start date if not already set
-        if (!$this->starts_at) {
+        if (! $this->starts_at) {
             $this->starts_at = now();
         }
 
         // Calculate end date based on billing cycle
-        if ($this->paymentPlan && !$this->ends_at) {
+        if ($this->paymentPlan && ! $this->ends_at) {
             switch ($this->paymentPlan->billing_cycle) {
                 case 'monthly':
                     $this->ends_at = $this->starts_at->copy()->addMonth();
+
                     break;
                 case 'yearly':
                     $this->ends_at = $this->starts_at->copy()->addYear();
+
                     break;
                 case 'lifetime':
-                    $this->ends_at = null; // No expiration
+                    $this->ends_at = NULL; // No expiration
+
                     break;
             }
         }
@@ -212,7 +220,7 @@ class UserSubscription extends Model
         $this->status = 'trial';
         $this->starts_at = now();
         $this->trial_ends_at = now()->addDays($days);
-        
+
         return $this->save();
     }
 
@@ -221,13 +229,13 @@ class UserSubscription extends Model
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
-            'active' => 'green',
-            'trial' => 'blue',
+        return match ($this->status) {
+            'active'    => 'green',
+            'trial'     => 'blue',
             'cancelled' => 'red',
-            'expired' => 'red',
-            'inactive' => 'gray',
-            default => 'gray'
+            'expired'   => 'red',
+            'inactive'  => 'gray',
+            default     => 'gray',
         };
     }
 
@@ -238,6 +246,7 @@ class UserSubscription extends Model
     {
         if ($this->isOnTrial()) {
             $days = $this->trial_days_remaining;
+
             return "Trial ({$days} days left)";
         }
 

@@ -1,33 +1,48 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 class TicketPriceChanged implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public $ticketId;
+
     public $eventName;
+
     public $platform;
+
     public $oldPrice;
+
     public $newPrice;
+
     public $priceChange;
+
     public $changePercentage;
+
     public $url;
+
     public $timestamp;
 
     /**
      * Create a new event instance.
+     *
+     * @param mixed      $ticketId
+     * @param mixed      $eventName
+     * @param mixed      $platform
+     * @param mixed      $oldPrice
+     * @param mixed      $newPrice
+     * @param mixed|null $url
      */
-    public function __construct($ticketId, $eventName, $platform, $oldPrice, $newPrice, $url = null)
+    public function __construct($ticketId, $eventName, $platform, $oldPrice, $newPrice, $url = NULL)
     {
         $this->ticketId = $ticketId;
         $this->eventName = $eventName;
@@ -43,7 +58,7 @@ class TicketPriceChanged implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
@@ -70,15 +85,15 @@ class TicketPriceChanged implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'ticket_id' => $this->ticketId,
-            'event_name' => $this->eventName,
-            'platform' => $this->platform,
-            'old_price' => $this->oldPrice,
-            'new_price' => $this->newPrice,
-            'price_change' => $this->priceChange,
+            'ticket_id'         => $this->ticketId,
+            'event_name'        => $this->eventName,
+            'platform'          => $this->platform,
+            'old_price'         => $this->oldPrice,
+            'new_price'         => $this->newPrice,
+            'price_change'      => $this->priceChange,
             'change_percentage' => $this->changePercentage,
-            'url' => $this->url,
-            'timestamp' => $this->timestamp,
+            'url'               => $this->url,
+            'timestamp'         => $this->timestamp,
         ];
     }
 }

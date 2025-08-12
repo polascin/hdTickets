@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Platforms;
 
@@ -10,7 +10,5 @@ abstract class BasePlatformService
 
     // Common functionalities can be added here that would be shared among different platform services
 
-
     // Additional common methods and functionalities shared across services can be added here
 }
-

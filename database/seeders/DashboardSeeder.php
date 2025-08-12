@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use App\Models\User;
 use App\Models\Category;
-use App\Models\Ticket;
 use App\Models\ScrapedTicket;
+use App\Models\Ticket;
+use App\Models\User;
+use Exception;
+use Illuminate\Database\Seeder;
 
 class DashboardSeeder extends Seeder
 {
@@ -23,13 +22,14 @@ class DashboardSeeder extends Seeder
         $userCount = User::count();
         if ($userCount < 5) {
             $this->command->info('👥 Creating users...');
+
             try {
                 $this->call(UserSeeder::class);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->command->warn('⚠️  Some users may already exist - continuing...');
             }
         } else {
-            $this->command->info('👥 Users already exist ('.$userCount.' found) - skipping user creation');
+            $this->command->info('👥 Users already exist (' . $userCount . ' found) - skipping user creation');
         }
 
         // 2. Seed categories (for organizing tickets)
@@ -38,7 +38,7 @@ class DashboardSeeder extends Seeder
             $this->command->info('📂 Creating categories...');
             $this->call(CategorySeeder::class);
         } else {
-            $this->command->info('📂 Categories already exist ('.$categoryCount.' found) - skipping category creation');
+            $this->command->info('📂 Categories already exist (' . $categoryCount . ' found) - skipping category creation');
         }
 
         // 3. Seed scraped tickets (from web scraping)
@@ -47,7 +47,7 @@ class DashboardSeeder extends Seeder
             $this->command->info('🎫 Creating scraped tickets...');
             $this->call(ScrapedTicketsSeeder::class);
         } else {
-            $this->command->info('🎫 Scraped tickets already exist ('.$scrapedTicketCount.' found) - skipping scraped ticket creation');
+            $this->command->info('🎫 Scraped tickets already exist (' . $scrapedTicketCount . ' found) - skipping scraped ticket creation');
         }
 
         // 4. Seed regular tickets (sports events entry tickets)
@@ -56,15 +56,16 @@ class DashboardSeeder extends Seeder
             $this->command->info('🏟️ Creating sports event tickets...');
             $this->call(TicketSeeder::class);
         } else {
-            $this->command->info('🏟️ Tickets already exist ('.$ticketCount.' found) - skipping ticket creation');
+            $this->command->info('🏟️ Tickets already exist (' . $ticketCount . ' found) - skipping ticket creation');
         }
 
         // 5. Seed sports events if available
         if (class_exists('Database\\Seeders\\SportsEventsSeeder')) {
             $this->command->info('⚽ Creating sports events...');
+
             try {
                 $this->call('Database\\Seeders\\SportsEventsSeeder');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->command->warn('⚠️  Could not seed sports events: ' . $e->getMessage());
             }
         }
@@ -72,9 +73,10 @@ class DashboardSeeder extends Seeder
         // 6. Seed payment plans if available
         if (class_exists('Database\\Seeders\\PaymentPlansSeeder')) {
             $this->command->info('💳 Creating payment plans...');
+
             try {
                 $this->call('Database\\Seeders\\PaymentPlansSeeder');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->command->warn('⚠️  Could not seed payment plans: ' . $e->getMessage());
             }
         }
@@ -99,7 +101,7 @@ class DashboardSeeder extends Seeder
         $this->command->info('   📂 Categories: ' . $categoryCount);
         $this->command->info('   🏟️ Event Tickets: ' . $ticketCount);
         $this->command->info('   🎫 Scraped Tickets: ' . $scrapedTicketCount);
-        
+
         $this->command->newLine();
         $this->command->info('🔑 Test Accounts:');
         $this->command->info('   📧 Admin: admin@hdtickets.com (password: password)');

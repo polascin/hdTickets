@@ -1,0 +1,4998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PhpMetrics report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/milligram.min.css?v=v2.9.0">
+    <link rel="stylesheet" href="css/style.css?v=v2.9.0">
+    <link rel="stylesheet" href="css/roboto.css?v=v2.9.0">
+    <link rel="stylesheet" href="css/normalize.css?v=v2.9.0">
+    <link rel="stylesheet" href="css/material-icons.css?v=v2.9.0">
+</head>
+<body>
+
+
+<header class="headerbar">
+    <div class="headerbarInner">
+        <div class="float-left navigation-title">
+            <a href="index.html">
+                <h1 class="title">PhpMetrics</h1>
+                <span class="subtitle">
+                Static analyzer for PHP
+            </span>
+            </a>
+        </div>
+        <ul class="navigation-list float-right">
+            <li class="navigation-item">
+                <a class="navigation-link" href="https://github.com/phpmetrics/phpmetrics">Support</a>
+                <a class="navigation-link" href="https://phpmetrics.github.io/website/">Documentation</a>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<a class="hidden-xs github" href="https://github.com/phpmetrics/phpmetrics"
+   title="PhpMetrics on Github" target="blank">
+    <svg width="80" height="80" viewBox="0 0 250 250" class="github">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path
+            d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+            fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path
+            d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+            fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+
+
+<div class="page">
+    <div class="content content-first">
+        <div class="report-details">
+            Created at 2025-08-12 21:22:46        , with PHPMetrics v2.9.0 (<a href="https://twitter.com/Halleck45">Jean-François Lépine</a>).
+        </div>
+
+        
+
+
+<div class="row">
+    <div class="column">
+        <div class="bloc">
+            <h4>Object relations</h4>
+            <div id="chart-relations"></div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <div class="content">
+        <div class="logo">
+            <a href="index.html"><img src="images/phpmetrics-maintenability.png"
+                                                 alt="Logo PhpMetrics"></a>
+            <h1>PhpMetrics</h1>
+        </div>
+        <div class="links">
+            <ul>
+                <li>
+                    <a href="index.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none">
+                            <path
+                                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z">
+                        </svg>
+                        Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="violations.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none">
+                            <path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z">
+                        </svg>
+                        Violations (522)
+                    </a>
+                </li>
+                                    <li>
+                        <a href="composer.html">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></svg>
+                            Composer
+                        </a>
+                    </li>
+                                                <li>
+                    <a href="loc.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <defs>
+                                <path d="M0 0h24v24H0z" id="a">
+                            </defs>
+                            <clipPath id="b">
+                                <use overflow="visible" xlink:href="#a">
+                            </clipPath>
+                            <path clip-path="url(#b)"
+                                  d="M11 5.08V2c-5 .5-9 4.81-9 10s4 9.5 9 10v-3.08c-3-.48-6-3.4-6-6.92s3-6.44 6-6.92zM18.97 11H22c-.47-5-4-8.53-9-9v3.08C16 5.51 18.54 8 18.97 11zM13 18.92V22c5-.47 8.53-4 9-9h-3.03c-.43 3-2.97 5.49-5.97 5.92z">
+                        </svg>
+                        Size &amp; volume
+                    </a>
+                </li>
+                <li>
+                    <a href="complexity.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0V0z" fill="none">
+                            <path
+                                d="M19.07 4.93l-1.41 1.41C19.1 7.79 20 9.79 20 12c0 4.42-3.58 8-8 8s-8-3.58-8-8c0-4.08 3.05-7.44 7-7.93v2.02C8.16 6.57 6 9.03 6 12c0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.66-.67-3.16-1.76-4.24l-1.41 1.41C15.55 9.9 16 10.9 16 12c0 2.21-1.79 4-4 4s-4-1.79-4-4c0-1.86 1.28-3.41 3-3.86v2.14c-.6.35-1 .98-1 1.72 0 1.1.9 2 2 2s2-.9 2-2c0-.74-.4-1.38-1-1.72V2h-1C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-2.76-1.12-5.26-2.93-7.07z">
+                        </svg>
+                        Complexity &amp; defects
+                    </a>
+                </li>
+                <li>
+                    <a href="oop.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none">
+                            <path
+                                d="M17 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zM5 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z">
+                        </svg>
+                        Object oriented metrics
+                    </a>
+                </li>
+                <li>
+                    <a href="relations.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none">
+                            <path
+                                d="M14 4l2.29 2.29-2.88 2.88 1.42 1.42 2.88-2.88L20 10V4zm-4 0H4v6l2.29-2.29 4.71 4.7V20h2v-8.41l-5.29-5.3z">
+                        </svg>
+                        Object relations
+                    </a>
+                </li>
+                <li>
+                    <a href="coupling.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <defs>
+                                <path d="M0 0h24v24H0V0z" id="a">
+                            </defs>
+                            <clipPath id="b">
+                                <use overflow="visible" xlink:href="#a">
+                            </clipPath>
+                            <path clip-path="url(#b)"
+                                  d="M9.01 14H2v2h7.01v3L13 15l-3.99-4v3zm5.98-1v-3H22V8h-7.01V5L11 9l3.99 4z">
+                        </svg>
+                        Coupling
+                    </a>
+                </li>
+                <li>
+                    <a href="packages.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <path d="M11 9.16V2c-5 .5-9 4.79-9 10s4 9.5 9 10v-7.16c-1-.41-2-1.52-2-2.84s1-2.43 2-2.84zM14.86 11H22c-.48-4.75-4-8.53-9-9v7.16c1 .3 1.52.98 1.86 1.84zM13 14.84V22c5-.47 8.52-4.25 9-9h-7.14c-.34.86-.86 1.54-1.86 1.84z">
+                        </svg>
+                        Package oriented metrics
+                    </a>
+                </li>
+                <li>
+                    <a href="package_relations.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 20.41L18.41 19 15 15.59 13.59 17 17 20.41zM7.5 8H11v5.59L5.59 19 7 20.41l6-6V8h3.5L12 3.5 7.5 8z">
+                        </svg>
+                        Package relations
+                    </a>
+                </li>
+                                <!--<li>
+                    <a href="all.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z">
+                            <path d="M0 0h24v24H0z" fill="none">
+                        </svg>
+                        All metrics
+                    </a>
+                </li>-->
+                <!--                <li>-->
+                <!--                    <a href="#">-->
+                <!--                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24"-->
+                <!--                             xmlns="http://www.w3.org/2000/svg">-->
+                <!--                            <path-->
+                <!--                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z">-->
+                <!--                            <path d="M0 0h24v24H0z" fill="none">-->
+                <!--                        </svg>-->
+                <!--                        Third party-->
+                <!--                    </a>-->
+                <!--                </li>-->
+                <!--<li class="sep">
+                    <a href="panel.html">
+                        <svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none">
+                            <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z">
+                        </svg>
+                        TV Panel
+                    </a>
+                </li>-->
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="js/functions.js?v=v2.9.0"></script>
+<script src="js/d3.v3.js"></script>
+<script src="js/d3.hexbin.v0.js"></script>
+<script src="js/sort-table.min.js?v=v2.9.0"></script>
+<script src="js/graph-maintainability.js?v=v2.9.0"></script>
+<script src="js/graph-licenses.js?v=v2.9.0"></script>
+<script src="js/FileSaver.min.js?v=v2.9.0"></script>
+
+<script src="js/clusterize.min.js?v=v2.9.0"></script>
+<link rel="stylesheet" href="css/clusterize.css?v=v2.9.0">
+
+<script src="classes.js?v=v2.9.0"></script>
+
+<script>
+    var accessibilityEnabled = false;
+</script>
+
+</body>
+</html>
+
+
+<script>
+
+
+    var relations = [
+    {
+        "name": "\\App\\Mail\\AccountDeletionConfirmationMail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Mail\\Mailable",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\User",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\AccountDeletionRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Mail\\Mailables\\Envelope",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Mail\\Mailables\\Content",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\PasswordChangedNotification",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\AccountDeletionCancelledMail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\SystemAlertNotification",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Mail\\Mailable",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\Illuminate\\Mail\\Mailables\\Envelope",
+            "\\Illuminate\\Mail\\Mailables\\Content"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\AccountDeletionWarningMail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\AccountDeletionCompletedMail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\TicketAvailabilityNotification",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Mail\\Mailable",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\Illuminate\\Mail\\Mailables\\Envelope",
+            "\\Illuminate\\Mail\\Mailables\\Content"
+        ]
+    },
+    {
+        "name": "\\App\\Mail\\TicketNotificationMail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Mail\\PriceChangeNotification",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Mail\\Mailable",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\Illuminate\\Mail\\Mailables\\Envelope",
+            "\\Illuminate\\Mail\\Mailables\\Content"
+        ]
+    },
+    {
+        "name": "\\App\\Imports\\UsersImport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\ToCollection",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithHeadingRow",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithValidation",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\SkipsOnFailure",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithBatchInserts",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithChunkReading",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Collection",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Validation\\Rule",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Validator",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Hash",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Filesystem\\CustomFilesystem",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Filesystem\\Filesystem"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Filesystem\\Filesystem",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\anonymous@0000000000000e510000000000000000",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\DomainDrivenDesignServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Domain\\Event\\Services\\EventManagementService",
+            "\\App\\Application\\Commands\\CreateSportsEventCommandHandler",
+            "\\App\\Application\\Queries\\GetUpcomingEventsQueryHandler",
+            "\\anonymous@0000000000000e510000000000000000"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\ServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Services\\EventManagementService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Application\\Commands\\CreateSportsEventCommandHandler",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Event\\Services\\EventManagementService",
+            "\\App\\Domain\\Event\\Repositories\\SportsEventRepositoryInterface",
+            "\\App\\Application\\Commands\\CreateSportsEventCommand",
+            "\\App\\Domain\\Event\\ValueObjects\\EventDate",
+            "\\App\\Domain\\Event\\ValueObjects\\Venue",
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory"
+        ]
+    },
+    {
+        "name": "\\App\\Application\\Queries\\GetUpcomingEventsQueryHandler",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Event\\Repositories\\SportsEventRepositoryInterface",
+            "\\App\\Application\\Queries\\GetUpcomingEventsQuery",
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\ActivityLoggerServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Services\\ActivityLogger"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\ActivityLogger",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\EventServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Support\\Providers\\EventServiceProvider"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Support\\Providers\\EventServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\PurchaseServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Services\\PurchaseAnalyticsService",
+            "\\App\\Services\\AdvancedAnalyticsDashboard",
+            "\\App\\Services\\AutomatedPurchaseEngine",
+            "\\App\\Services\\PurchaseService"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\PurchaseAnalyticsService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\PurchaseAttempt",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Carbon\\Carbon",
+            "\\App\\Models\\PurchaseQueue"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\AdvancedAnalyticsDashboard",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AutomatedPurchaseEngine",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PurchaseService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\PurchaseAttempt",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\AppServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\WebSocketServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\Illuminate\\Broadcasting\\BroadcastManager",
+            "\\BeyondCode\\LaravelWebSockets\\WebSocketsServiceProvider"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Broadcasting\\BroadcastManager",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\BeyondCode\\LaravelWebSockets\\WebSocketsServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\EventDrivenArchitectureServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Infrastructure\\EventBus\\LaravelEventBus",
+            "\\App\\Infrastructure\\Projections\\ProjectionManager",
+            "\\App\\Infrastructure\\Projections\\TicketReadModelProjection",
+            "\\App\\Application\\EventHandlers\\Ticket\\TicketDiscoveredHandler"
+        ]
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventBus\\LaravelEventBus",
+        "size": 3000,
+        "relations": [
+            "\\App\\Infrastructure\\EventBus\\EventBusInterface",
+            "\\Illuminate\\Events\\Dispatcher",
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Domain\\Shared\\Events\\DomainEventInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Queue",
+            "\\Exception"
+        ]
+    },
+    {
+        "name": "\\App\\Infrastructure\\Projections\\ProjectionManager",
+        "size": 3000,
+        "relations": [
+            "\\App\\Infrastructure\\Projections\\ProjectionManagerInterface",
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Infrastructure\\Projections\\ProjectionInterface",
+            "\\App\\Domain\\Shared\\Events\\DomainEventInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Infrastructure\\Projections\\TicketReadModelProjection",
+        "size": 3000,
+        "relations": [
+            "\\App\\Infrastructure\\Projections\\ProjectionInterface",
+            "\\App\\Domain\\Shared\\Events\\DomainEventInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Domain\\Ticket\\Events\\TicketDiscovered",
+            "\\App\\Domain\\Ticket\\Events\\TicketPriceChanged",
+            "\\App\\Domain\\Ticket\\Events\\TicketAvailabilityChanged",
+            "\\App\\Domain\\Ticket\\Events\\TicketSoldOut"
+        ]
+    },
+    {
+        "name": "\\App\\Application\\EventHandlers\\Ticket\\TicketDiscoveredHandler",
+        "size": 3000,
+        "relations": [
+            "\\App\\Infrastructure\\EventBus\\EventBusInterface",
+            "\\App\\Domain\\Ticket\\Events\\TicketDiscovered",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Domain\\Monitoring\\Events\\AlertTriggered"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\ComponentArchitectureServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Services\\ComponentRegistry",
+            "\\App\\Services\\ComponentCommunication",
+            "\\App\\Services\\ComponentLifecycleManager",
+            "\\Illuminate\\Support\\Facades\\Blade",
+            "\\Illuminate\\Support\\Facades\\View"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\ComponentRegistry",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Collection",
+            "\\InvalidArgumentException",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\File"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\ComponentCommunication",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Collection",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Event",
+            "\\InvalidArgumentException"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\ComponentLifecycleManager",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Collection",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\InvalidArgumentException",
+            "\\Illuminate\\Support\\Facades\\Event",
+            "\\Exception"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Blade",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\View",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\anonymous@00000000000007840000000000000000",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\File",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\CssTimestampServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\Illuminate\\Support\\Facades\\File",
+            "\\anonymous@00000000000007840000000000000000",
+            "\\Illuminate\\Support\\Facades\\Blade"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\EnvServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider"
+        ]
+    },
+    {
+        "name": "\\App\\Providers\\ConsolidatedServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Services\\Core\\ServiceOrchestrator",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Core\\ServiceOrchestrator",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Services\\Interfaces\\ServiceInterface",
+            "\\InvalidArgumentException",
+            "\\Carbon\\Carbon",
+            "\\RuntimeException",
+            "\\serviceClass",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\Log",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\TelescopeServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Laravel\\Telescope\\TelescopeApplicationServiceProvider",
+            "\\Laravel\\Telescope\\Telescope",
+            "\\Illuminate\\Support\\Facades\\Gate"
+        ]
+    },
+    {
+        "name": "\\Laravel\\Telescope\\TelescopeApplicationServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Laravel\\Telescope\\Telescope",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Gate",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\AuthServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Support\\Providers\\AuthServiceProvider",
+            "\\Illuminate\\Support\\Facades\\Gate"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Support\\Providers\\AuthServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\RouteServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Support\\Providers\\RouteServiceProvider",
+            "\\Illuminate\\Cache\\RateLimiting\\Limit",
+            "\\Illuminate\\Support\\Facades\\RateLimiter",
+            "\\Illuminate\\Support\\Facades\\Route"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Support\\Providers\\RouteServiceProvider",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Cache\\RateLimiting\\Limit",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\RateLimiter",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Route",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\BroadcastServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\Illuminate\\Support\\Facades\\Broadcast"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Broadcast",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\anonymous@000000000000105a0000000000000000",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Providers\\RefactoredAppServiceProvider",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\ServiceProvider",
+            "\\App\\Services\\ActivityLogger",
+            "\\App\\Services\\EncryptionService",
+            "\\App\\Services\\SecurityService",
+            "\\App\\Services\\RedisRateLimitService",
+            "\\App\\Services\\Scraping\\PluginBasedScraperManager",
+            "\\App\\Services\\AdvancedAnalyticsDashboard",
+            "\\App\\Services\\AutomatedPurchaseEngine",
+            "\\App\\Services\\MultiPlatformManager",
+            "\\anonymous@000000000000105a0000000000000000",
+            "\\Illuminate\\Database\\Eloquent\\Model",
+            "\\Illuminate\\Pagination\\Paginator",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Facades\\View",
+            "\\App\\Models\\User",
+            "\\App\\Models\\ScrapingStats",
+            "\\Illuminate\\Support\\Facades\\Blade",
+            "\\Illuminate\\Support\\Facades\\Gate",
+            "\\Illuminate\\Http\\Resources\\Json\\JsonResource",
+            "\\App\\Services\\ApiRateLimiter",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Services\\Enhanced\\AdvancedCacheService"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\EncryptionService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Crypt",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\SecurityService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\RedisRateLimitService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\PluginBasedScraperManager",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\MultiPlatformManager",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Model",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Pagination\\Paginator",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\ScrapingStats",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Http\\Resources\\Json\\JsonResource",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\ApiRateLimiter",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\DB",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Enhanced\\AdvancedCacheService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserSession",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\Category",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Relations\\HasMany",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Str",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\static",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\PaymentPlan",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\TicketSource",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Carbon\\Carbon",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\LoginHistory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\PurchaseQueue",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\Ticket",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Events\\TicketAvailabilityUpdated",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserPricePreference",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\TicketPriceHistory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserPreferencePreset",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserPreference",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Collection",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\AnalyticsDashboard",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\PriceVolatilityAnalytics",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\DataExportRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Storage",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\ScrapedTicket",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\AlertEscalation",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\AccountDeletionAuditLog",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\PurchaseAttempt",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserNotificationSettings",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\NotificationChannels\\SlackNotificationChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationChannels\\DiscordNotificationChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\stdClass",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationChannels\\TelegramNotificationChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationChannels\\WebhookNotificationChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\UserNotificationSettings"
+        ]
+    },
+    {
+        "name": "\\App\\Models\\UserFavoriteTeam",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\WebPushSubscription",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserFavoriteVenue",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\TicketAlert",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\UserSubscription",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\PriceAlertThreshold",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\anonymous@00000000000008b30000000000000000",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Auth\\User",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Contracts\\Auth\\MustVerifyEmail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Relations\\HasOne",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Spatie\\Activitylog\\LogOptions",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Models\\DeletedUser",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\Projections\\ProjectionInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Shared\\Events\\DomainEventInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Log",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\Events\\TicketDiscovered",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\Events\\TicketPriceChanged",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Ticket\\ValueObjects\\TicketId",
+            "\\App\\Domain\\Ticket\\ValueObjects\\Price"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\Events\\TicketAvailabilityChanged",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Ticket\\ValueObjects\\TicketId",
+            "\\App\\Domain\\Ticket\\ValueObjects\\AvailabilityStatus"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\Events\\TicketSoldOut",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Ticket\\ValueObjects\\TicketId",
+            "\\App\\Domain\\Ticket\\ValueObjects\\PlatformSource",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Infrastructure\\Projections\\ProjectionManagerInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Exception",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\External\\TicketmasterAntiCorruptionLayer",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory",
+            "\\App\\Domain\\Event\\ValueObjects\\EventDate",
+            "\\DateTimeImmutable",
+            "\\App\\Domain\\Ticket\\ValueObjects\\Price",
+            "\\App\\Domain\\Ticket\\ValueObjects\\AvailabilityStatus",
+            "\\App\\Domain\\Ticket\\ValueObjects\\PlatformSource"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Event\\ValueObjects\\SportCategory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\ValueObjects\\EventDate",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\DateTimeImmutable",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\ValueObjects\\Price",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\ValueObjects\\AvailabilityStatus",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\ValueObjects\\PlatformSource",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventBus\\EventBusInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Events\\Dispatcher",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Queue",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventStore\\Exceptions\\EventStoreException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventStore\\Exceptions\\OptimisticLockException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\EventStore\\PostgreSqlEventStore",
+        "size": 3000,
+        "relations": [
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Domain\\Shared\\Events\\DomainEventInterface",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Infrastructure\\EventStore\\Exceptions\\OptimisticLockException",
+            "\\Illuminate\\Support\\Collection",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Infrastructure\\EventStore\\Exceptions\\EventStoreException",
+            "\\eventClass"
+        ]
+    },
+    {
+        "name": "\\eventClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Infrastructure\\Persistence\\EloquentSportsEventRepository",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Event\\Repositories\\SportsEventRepositoryInterface",
+            "\\App\\Domain\\Event\\Entities\\SportsEvent",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId",
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory",
+            "\\DateTimeImmutable",
+            "\\App\\Domain\\Event\\ValueObjects\\EventDate",
+            "\\App\\Domain\\Event\\ValueObjects\\Venue"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Repositories\\SportsEventRepositoryInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Entities\\SportsEvent",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\ValueObjects\\EventId",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\ValueObjects\\Venue",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AnalyticsInsightsService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Cache",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\EnhancedAlertSystem",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketAvailabilityPredictor",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Carbon\\Carbon",
+            "\\App\\Models\\TicketPriceHistory"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\AlertEscalationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AlertPriority",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Notifications\\SmartTicketAlert",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\Illuminate\\Notifications\\Messages\\MailMessage"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\AdvancedApiAggregator",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\ApiRateLimiter",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Services\\TicketApis\\TicketmasterClient",
+            "\\App\\Services\\TicketApis\\SeatGeekClient"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\TicketmasterClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\SeatGeekClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PasswordHistoryService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\InvalidArgumentException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Jobs\\ProcessEscalatedAlert",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\AlertEscalation",
+            "\\App\\Services\\AlertEscalationService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Throwable",
+            "\\DateTime"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\CaptchaService",
+        "size": 3000,
+        "relations": [
+            "\\GuzzleHttp\\Client",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\GuzzleHttp\\Client",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Auth",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Spatie\\Activitylog\\Models\\Activity",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Jenssegers\\Agent\\Agent",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Http\\Request",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Session",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Http",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\stdClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\ProxyRotationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Security\\DataSecurityService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\DB",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Encryption\\Encrypter",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Security\\EncryptionKeyManager",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Crypt",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Contracts\\Encryption\\DecryptException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Security\\ApiSecurityService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Str",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Security\\AuthenticationService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\Jenssegers\\Agent\\Agent",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Illuminate\\Support\\Facades\\Session",
+            "\\Illuminate\\Support\\Str",
+            "\\Firebase\\JWT\\JWT",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Firebase\\JWT\\Key",
+            "\\App\\Models\\LoginHistory",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\Firebase\\JWT\\JWT",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Firebase\\JWT\\Key",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Security\\SecurityMonitoringService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Security\\RBACService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\AnalyticsService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Redis",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\InAppNotificationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\RssFeedService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Models\\TicketSource"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Core\\TicketMonitoringService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Core\\BaseService",
+            "\\App\\Services\\Interfaces\\TicketMonitoringInterface",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\InvalidArgumentException"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Core\\BaseService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Interfaces\\TicketMonitoringInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Core\\PurchaseAutomationService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Core\\BaseService",
+            "\\App\\Services\\Interfaces\\PurchaseAutomationInterface",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\InvalidArgumentException",
+            "\\App\\Services\\Patterns\\ChainOfResponsibility\\PurchaseDecisionChain",
+            "\\App\\Services\\Patterns\\Strategy\\PurchaseStrategyFactory"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Interfaces\\PurchaseAutomationInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Patterns\\ChainOfResponsibility\\PurchaseDecisionChain",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Patterns\\Strategy\\PurchaseStrategyFactory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Interfaces\\ServiceInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\RuntimeException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\serviceClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Core\\ScrapingService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Core\\BaseService",
+            "\\App\\Services\\Interfaces\\ScrapingInterface",
+            "\\Carbon\\Carbon",
+            "\\InvalidArgumentException",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Services\\Scraping\\Adapters\\PlatformAdapterFactory",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Interfaces\\ScrapingInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Adapters\\PlatformAdapterFactory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\RealTimeMonitoringService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Notifications\\TicketStatusChanged",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Notifications\\Messages\\MailMessage"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\PlatformMonitoringService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AdvancedReportingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Barryvdh\\DomPDF\\Facades\\Pdf",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\TicketAvailabilityTrendsExport",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+            "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+            "\\Maatwebsite\\Excel\\Concerns\\WithMapping",
+            "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+            "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+            "\\Maatwebsite\\Excel\\Concerns\\WithCharts",
+            "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeriesValues",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeries",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\PlotArea",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Legend",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Title",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Chart"
+        ]
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Facades\\Excel",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\PriceFluctuationExport",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\WithMultipleSheets",
+            "\\App\\Exports\\PriceFluctuationSummarySheet",
+            "\\App\\Exports\\PriceFluctuationDetailSheet"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Platforms\\BasePlatformService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Platforms\\FootballClubStoresService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\DOMDocument",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\DOMXPath",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\DOMNode",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Platforms\\SeeTicketsService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Platforms\\BasePlatformService",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Carbon\\Carbon",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMNode"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Platforms\\TicketekService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Platforms\\BasePlatformService",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Carbon\\Carbon",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMNode"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Interfaces\\NotificationInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\NotificationChannels\\ChannelFactory",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Events\\SystemNotification",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PerformanceCacheService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\NotificationManager",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Notifications\\AnonymousNotifiable",
+            "\\Illuminate\\Support\\Facades\\Mail"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Notifications\\AnonymousNotifiable",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Mail",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AccountDeletionProtectionService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\DataExportService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\HighDemandTicketScraperService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\AdvancedAntiDetectionService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Symfony\\Component\\DomCrawler\\Crawler",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\ScraperPluginInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\className",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Manchester_cityPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\BaseScraperPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\Exception",
+            "\\Symfony\\Component\\DomCrawler\\Crawler"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\LiverpoolFCPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\DOMElement",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\EnglandCricketPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Borussia_dortmundPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\SilverstoneF1Plugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Http",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Ac_milanPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\ManchesterUnitedPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\TicketmasterPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Http"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Bayern_munichPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\PsgPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\TicketekUKPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\LordsCricketPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\SeeTicketsUKPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\EventimPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\StubHubPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\TottenhamPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\BarcelonaPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\WembleyStadiumPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Real_madridPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\CelticFCPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\Atletico_madridPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\WimbledonPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\TwickenhamPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\ChelseaFCPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\JuventusPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\BaseScraperPlugin",
+            "\\Symfony\\Component\\DomCrawler\\Crawler",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Plugins\\ArsenalFCPlugin",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\ScraperPluginInterface",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\GuzzleHttp\\Client",
+            "\\DOMDocument",
+            "\\DOMXPath",
+            "\\DOMElement",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Traits\\AntiDetectionTrait",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Traits\\CurrencyHandlingTrait",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Traits\\RateLimitingTrait",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\Traits\\MultiLanguageTrait",
+        "size": 3000,
+        "relations": [
+            "\\DateTime",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\DateTime",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\GuzzleHttp\\Cookie\\CookieJar",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\GuzzleHttp\\Cookie\\SetCookie",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Scraping\\HighDemandTicketScrapingImplementation",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\Scraping\\HighDemandTicketScraperService",
+            "\\App\\Services\\Scraping\\AdvancedAntiDetectionService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Str"
+        ]
+    },
+    {
+        "name": "\\Str",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PlatformCachingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\AccountHealthMonitoringService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\App\\Services\\EncryptionService",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\TicketmasterScraper",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PlatformOrderingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Event",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TwoFactorAuthService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PragmaRX\\Google2FA\\Google2FA",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\BaconQrCode\\Renderer\\RendererStyle\\RendererStyle",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\BaconQrCode\\Renderer\\Image\\SvgImageBackEnd",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\BaconQrCode\\Renderer\\ImageRenderer",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\BaconQrCode\\Writer",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\UserRotationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Enhanced\\DatabaseQueryOptimizer",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Database\\Eloquent\\Builder",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Enhanced\\ViewFragmentCachingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Enhanced\\AdvancedTicketCachingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Enhanced\\PerformanceMonitoringService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\EventPredictionService",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\TicketSource"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\PasswordCompromiseCheckService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Closure",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\InputValidationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Validation\\ValidationException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\HTMLPurifier_Config",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\HTMLPurifier",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\ChartDataService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Throwable",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApiManager",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\StubHubClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\ViagogoClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\TickPickClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\ManchesterUnitedClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\GenericArrayExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\NotificationManager",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\TicketAlert",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Services\\NotificationSystem\\Channels\\PusherChannel",
+            "\\App\\Services\\NotificationSystem\\Channels\\EmailChannel",
+            "\\App\\Services\\NotificationSystem\\Channels\\SMSChannel",
+            "\\App\\Services\\NotificationSystem\\Channels\\WebPushChannel",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\Channels\\PusherChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\NotificationSystem\\Channels\\NotificationChannelInterface",
+            "\\Pusher\\Pusher",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\Channels\\EmailChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\NotificationSystem\\Channels\\NotificationChannelInterface",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Mail\\TicketNotificationMail",
+            "\\Illuminate\\Support\\Facades\\Mail"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\Channels\\SMSChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\NotificationSystem\\Channels\\NotificationChannelInterface",
+            "\\Twilio\\Rest\\Client",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\Channels\\WebPushChannel",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\NotificationSystem\\Channels\\NotificationChannelInterface",
+            "\\Minishlink\\WebPush\\WebPush",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Models\\WebPushSubscription",
+            "\\Minishlink\\WebPush\\Subscription"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\NotificationSystem\\Channels\\NotificationChannelInterface",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Minishlink\\WebPush\\WebPush",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Minishlink\\WebPush\\Subscription",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Pusher\\Pusher",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Twilio\\Rest\\Client",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\Normalization\\DataNormalizationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\PerformanceMonitoringService",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\TicketScrapingService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Notifications\\HighValueTicketAlert",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\TicketAlert",
+            "\\Illuminate\\Notifications\\Messages\\MailMessage",
+            "\\Illuminate\\Notifications\\Messages\\BroadcastMessage"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\LiveNationClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\BaseWebScrapingClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\AxsClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\BaseApiClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exceptions\\TicketPlatformException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exceptions\\TimeoutException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Http\\Client\\Response",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exceptions\\RateLimitException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\exceptionClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Services\\TicketApis\\EventbriteClient",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exceptions\\ScrapingDetectedException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Services\\PerformanceOptimizationService",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\clientClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exceptions\\TicketmasterException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\SeatGeekException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\StubHubException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\EventbriteException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\BandsinTownException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\ViagogoException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\TickPickException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\FunZoneException",
+        "size": 3000,
+        "relations": [
+            "\\App\\Exceptions\\TicketPlatformException"
+        ]
+    },
+    {
+        "name": "\\App\\Exceptions\\Handler",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Exceptions\\Handler"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Exceptions\\Handler",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Events\\TicketAvailabilityChanged",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Broadcasting\\ShouldBroadcast",
+            "\\Illuminate\\Broadcasting\\Channel"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Contracts\\Broadcasting\\ShouldBroadcast",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Broadcasting\\Channel",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Events\\RealTimeSystemUpdate",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Broadcasting\\ShouldBroadcast",
+            "\\Illuminate\\Broadcasting\\Channel"
+        ]
+    },
+    {
+        "name": "\\App\\Events\\TicketPriceChanged",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Broadcasting\\ShouldBroadcast",
+            "\\Illuminate\\Broadcasting\\Channel"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Ramsey\\Uuid\\Uuid",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\Entities\\MonitoredTicket",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Ticket\\ValueObjects\\TicketId",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId",
+            "\\App\\Domain\\Ticket\\ValueObjects\\Price",
+            "\\App\\Domain\\Ticket\\ValueObjects\\AvailabilityStatus",
+            "\\App\\Domain\\Ticket\\ValueObjects\\PlatformSource",
+            "\\DateTimeImmutable",
+            "\\App\\Domain\\Ticket\\Events\\TicketPriceChanged",
+            "\\App\\Domain\\Ticket\\Events\\TicketAvailabilityChanged",
+            "\\InvalidArgumentException"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Ticket\\ValueObjects\\TicketId",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\System\\Events\\ScrapingJobStarted",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseStatus",
+        "size": 3000,
+        "relations": [
+            "\\InvalidArgumentException"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseId",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\Events\\PurchaseCompleted",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseId",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\Events\\PaymentProcessed",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseId",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\Events\\PurchaseFailed",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseId",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Purchase\\Events\\PurchaseInitiated",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Purchase\\ValueObjects\\PurchaseId",
+            "\\App\\Domain\\Ticket\\ValueObjects\\TicketId"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Monitoring\\Events\\MonitoringStarted",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Monitoring\\Events\\MonitoringStopped",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Monitoring\\Events\\AlertTriggered",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\SportEventUpdated",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\SportEventMarkedAsHighDemand",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\SportEventUnmarkedAsHighDemand",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId"
+        ]
+    },
+    {
+        "name": "\\DomainException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\SportEventCreated",
+        "size": 3000,
+        "relations": [
+            "\\App\\Domain\\Shared\\Events\\AbstractDomainEvent",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId",
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory",
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\EventAddedToSchedule",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Events\\EventRemovedFromSchedule",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Domain\\Event\\Aggregates\\EventSchedule",
+        "size": 3000,
+        "relations": [
+            "\\DateTimeImmutable",
+            "\\App\\Domain\\Event\\Entities\\SportsEvent",
+            "\\DomainException",
+            "\\App\\Domain\\Event\\Events\\EventAddedToSchedule",
+            "\\App\\Domain\\Event\\ValueObjects\\EventId",
+            "\\App\\Domain\\Event\\Events\\EventRemovedFromSchedule",
+            "\\App\\Domain\\Event\\ValueObjects\\SportCategory"
+        ]
+    },
+    {
+        "name": "\\App\\Notifications\\TicketAssigned",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Notifications\\Messages\\MailMessage"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Notifications\\Notification",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Notifications\\Messages\\MailMessage",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Notifications\\Messages\\BroadcastMessage",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Notifications\\TicketCreated",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Notifications\\Messages\\MailMessage"
+        ]
+    },
+    {
+        "name": "\\App\\Traits\\HasEncryptedAttributes",
+        "size": 3000,
+        "relations": [
+            "\\static"
+        ]
+    },
+    {
+        "name": "\\App\\Jobs\\ProcessDataExportJob",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Queue\\ShouldQueue",
+            "\\App\\Models\\DataExportRequest",
+            "\\App\\Services\\AccountDeletionProtectionService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Throwable"
+        ]
+    },
+    {
+        "name": "\\App\\Bootstrap\\LoadEnvironmentVariables",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Contracts\\Foundation\\Application"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Contracts\\Foundation\\Application",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\AuditTrailExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithMapping",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\UsersExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\ResponseTimeExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithMultipleSheets",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\ResponseTimeDataSheet",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+            "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+            "\\Maatwebsite\\Excel\\Concerns\\WithMapping",
+            "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+            "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+            "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet"
+        ]
+    },
+    {
+        "name": "\\App\\Exports\\ResponseTimeStatsSheet",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+            "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+            "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+            "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+            "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet"
+        ]
+    },
+    {
+        "name": "\\App\\Exports\\ScrapedTicketsExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\CategoryAnalysisExport",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Maatwebsite\\Excel\\Concerns\\WithCharts",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeriesValues",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeries",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\PlotArea",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\Legend",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\Title",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PhpOffice\\PhpSpreadsheet\\Chart\\Chart",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Exports\\PriceFluctuationSummarySheet",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+            "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+            "\\Maatwebsite\\Excel\\Concerns\\WithMapping",
+            "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+            "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+            "\\Maatwebsite\\Excel\\Concerns\\WithCharts",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\TicketPriceHistory",
+            "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeriesValues",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\DataSeries",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\PlotArea",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Legend",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Title",
+            "\\PhpOffice\\PhpSpreadsheet\\Chart\\Chart"
+        ]
+    },
+    {
+        "name": "\\App\\Exports\\PriceFluctuationDetailSheet",
+        "size": 3000,
+        "relations": [
+            "\\Maatwebsite\\Excel\\Concerns\\FromCollection",
+            "\\Maatwebsite\\Excel\\Concerns\\WithHeadings",
+            "\\Maatwebsite\\Excel\\Concerns\\WithStyles",
+            "\\Maatwebsite\\Excel\\Concerns\\ShouldAutoSize",
+            "\\App\\Models\\TicketPriceHistory",
+            "\\PhpOffice\\PhpSpreadsheet\\Worksheet\\Worksheet"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Resources\\UserResource",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Resources\\TicketResource",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Resources\\CategoryResource",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Http\\Resources\\Json\\JsonResource",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Requests\\Api\\UpdateTicketRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Http\\FormRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Requests\\Api\\StoreTicketRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Requests\\UpdateTicketRequest",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\FormRequest",
+            "\\App\\Models\\Ticket"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Requests\\StoreTicketRequest",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\FormRequest",
+            "\\App\\Models\\Ticket"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Requests\\Auth\\LoginRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Auth\\Events\\Lockout",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Requests\\ProfilePictureUploadRequest",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\FormRequest"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Requests\\ProfileUpdateRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\AccountDeletionController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AccountDeletionProtectionService",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\App\\Models\\AccountDeletionRequest",
+            "\\App\\Models\\DataExportRequest",
+            "\\App\\Models\\DeletedUser",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Controller",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Routing\\Controller"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\View\\View",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Http\\RedirectResponse",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\PurchaseDecisionController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AutomatedPurchaseEngine",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\PurchaseQueue",
+            "\\App\\Models\\User",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Models\\PurchaseAttempt",
+            "\\Illuminate\\Support\\Str"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\CategoryController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\Category",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Validator"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Http\\JsonResponse",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AnalyticsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\PlatformMonitoringService",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\EnhancedAlertsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\ScrapingController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\TicketScrapingService",
+            "\\App\\Services\\Scraping\\PluginBasedScraperManager",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\PerformanceMetricsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\TicketCriteriaController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AlertController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\EnhancedAlertSystem",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\TicketAlert",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Str",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\PushSubscriptionController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\WebPushSubscription",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\TicketmasterController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Services\\TicketApis\\TicketmasterClient",
+            "\\App\\Services\\TicketmasterScraper",
+            "\\ReflectionClass"
+        ]
+    },
+    {
+        "name": "\\ReflectionClass",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\EnhancedAnalyticsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\ChartDataService",
+            "\\App\\Services\\DataExportService",
+            "\\App\\Services\\AnalyticsInsightsService",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\InvalidArgumentException",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\PreferencesController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\ViagogoController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Services\\TicketApis\\ViagogoClient",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\EventMonitoringController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Infrastructure\\Projections\\ProjectionManagerInterface",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\PurchaseController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AutomatedPurchaseEngine",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\PurchaseQueue",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Str",
+            "\\App\\Models\\PurchaseAttempt"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\DashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\PlatformMonitoringService",
+            "\\App\\Services\\AnalyticsService",
+            "\\App\\Services\\NotificationService",
+            "\\App\\Services\\Enhanced\\AdvancedTicketCachingService",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Events\\TicketAvailabilityUpdated",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Exception",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Redis"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\NotificationPreferencesController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\UserPreference",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Validation\\Validator"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Validation\\Validator",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\StubHubController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Services\\TicketApis\\StubHubClient",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\MonitoringController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\RealTimeMonitoringService",
+            "\\App\\Services\\PlatformMonitoringService",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Carbon\\Carbon",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\App\\Models\\TicketSource"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AlertAnalyticsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AuthController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Illuminate\\Validation\\ValidationException"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AdvancedReportingController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AdvancedReportingService",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\TickPickController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Services\\TicketApis\\TickPickClient",
+            "\\App\\Models\\Ticket",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\NotificationChannelsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\serviceClass",
+            "\\Illuminate\\Validation\\Validator",
+            "\\Illuminate\\Validation\\Rule",
+            "\\Illuminate\\Support\\Facades\\Validator"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\AdvancedAnalyticsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AdvancedAnalyticsDashboard",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Api\\TicketController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\Ticket",
+            "\\App\\Http\\Resources\\TicketResource",
+            "\\App\\Http\\Requests\\Api\\StoreTicketRequest",
+            "\\App\\Http\\Requests\\Api\\UpdateTicketRequest",
+            "\\App\\Models\\Comment",
+            "\\App\\Events\\TicketAvailabilityUpdated"
+        ]
+    },
+    {
+        "name": "\\App\\Models\\Comment",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\AutomatedPurchaseController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\AutomatedPurchaseEngine",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\ProfilePictureController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\ActivityLogger",
+            "\\Intervention\\Image\\Drivers\\Gd\\Driver",
+            "\\Intervention\\Image\\ImageManager",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Str",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Storage",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\Intervention\\Image\\Drivers\\Gd\\Driver",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Intervention\\Image\\ImageManager",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\ProfileController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\TwoFactorAuthService",
+            "\\App\\Services\\SecurityService",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\App\\Http\\Requests\\ProfileUpdateRequest",
+            "\\Illuminate\\Support\\Facades\\Redirect",
+            "\\Illuminate\\Support\\Facades\\Session"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Redirect",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserActivityController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Carbon\\Carbon",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Models\\PurchaseAttempt",
+            "\\App\\Models\\UserPreference",
+            "\\App\\Models\\UserFavoriteTeam",
+            "\\App\\Models\\UserFavoriteVenue",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\LoginHistory",
+            "\\App\\Models\\UserSession"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\ScrapingController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\UserRotationService",
+            "\\App\\Models\\ScrapingStats",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\SystemController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Artisan",
+            "\\Illuminate\\Support\\Facades\\Storage",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Artisan",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\ReportsController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Models\\User",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\Category",
+            "\\Spatie\\Activitylog\\Models\\Activity",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\Ticket",
+            "\\App\\Exports\\UsersExport",
+            "\\Maatwebsite\\Excel\\Facades\\Excel",
+            "\\App\\Exports\\ScrapedTicketsExport",
+            "\\App\\Exports\\AuditTrailExport",
+            "\\App\\Imports\\UsersImport",
+            "\\Barryvdh\\DomPDF\\Facades\\Pdf",
+            "\\App\\Models\\TicketPriceHistory",
+            "\\App\\Exports\\GenericArrayExport",
+            "\\App\\Exports\\CategoryAnalysisExport",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Exports\\ResponseTimeExport"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\UserManagementController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\SecurityService",
+            "\\App\\Models\\User",
+            "\\Log",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Validation\\Rules\\Password",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\InvalidArgumentException",
+            "\\Illuminate\\Auth\\Events\\Registered",
+            "\\Spatie\\Activitylog\\Models\\Activity"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Validation\\Rules\\Password",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Auth\\Events\\Registered",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\DashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Schema",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Log",
+            "\\App\\Models\\User",
+            "\\Carbon\\Carbon",
+            "\\App\\Models\\Category",
+            "\\App\\Models\\Ticket"
+        ]
+    },
+    {
+        "name": "\\Schema",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\TicketManagementController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\Ticket",
+            "\\App\\Models\\User",
+            "\\App\\Models\\Category",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Validation\\Rule"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\ActivityLogController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\SecurityService",
+            "\\Illuminate\\Http\\Request",
+            "\\Spatie\\Activitylog\\Models\\Activity",
+            "\\App\\Models\\User"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\RealTimeDashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\RealTimeMonitoringService",
+            "\\App\\Services\\Scraping\\PluginBasedScraperManager",
+            "\\App\\Services\\ProxyRotationService",
+            "\\App\\Services\\InAppNotificationService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\User"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Admin\\CategoryManagementController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\Category",
+            "\\Illuminate\\Support\\Str",
+            "\\Illuminate\\Validation\\Rule"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Ajax\\TicketLazyLoadController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Ajax\\DashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Models\\UserPreference",
+            "\\App\\Models\\ScrapingStats"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\AgentDashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Schema",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Schema",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\ScraperDashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Carbon\\Carbon",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Schema",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\HealthController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserPricePreferenceController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\UserPricePreference",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\JsonResponse"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\DashboardController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\ScrapedTicket",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\UserPreference",
+            "\\App\\Models\\TicketAlert",
+            "\\App\\Models\\ScrapingStats",
+            "\\App\\Models\\User",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserContributionController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Models\\TicketSource",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\SettingsExportController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\User",
+            "\\App\\Models\\UserPreference",
+            "\\App\\Models\\UserFavoriteTeam",
+            "\\App\\Models\\UserFavoriteVenue",
+            "\\App\\Models\\UserPricePreference",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Support\\Facades\\Storage"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Http\\Response",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\HomeController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserPreferencesController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\UserNotificationSettings",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\UserPreference",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\UserPreferencePreset",
+            "\\App\\Models\\UserFavoriteTeam",
+            "\\App\\Models\\UserFavoriteVenue",
+            "\\App\\Models\\UserPricePreference",
+            "\\App\\Models\\User",
+            "\\DateTimeZone",
+            "\\DateTime"
+        ]
+    },
+    {
+        "name": "\\DateTimeZone",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\TicketScrapingController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\TicketScrapingService",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\ScrapedTicket",
+            "\\App\\Models\\TicketAlert",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Validator",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\HealthCheckController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\JsonResponse",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Redis",
+            "\\Carbon\\Carbon"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\TwoFactorController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\TwoFactorAuthService",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Support\\Facades\\Session",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\NewPasswordController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Validation\\Rules\\Password",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Illuminate\\Support\\Str",
+            "\\Illuminate\\Auth\\Events\\PasswordReset",
+            "\\Illuminate\\Support\\Facades\\Password"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Auth\\Events\\PasswordReset",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Support\\Facades\\Password",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\RegistrationWithPaymentController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\PaymentPlan",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Validation\\Rules\\Password",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\App\\Models\\User",
+            "\\Stripe\\Stripe",
+            "\\Stripe\\PaymentIntent",
+            "\\PaypalServerSdkLib\\PaypalServerSdkClientBuilder",
+            "\\PaypalServerSdkLib\\Authentication\\ClientCredentialsAuthCredentialsBuilder",
+            "\\PaypalServerSdkLib\\Controllers\\PaymentsController",
+            "\\Illuminate\\Auth\\Events\\Registered",
+            "\\Illuminate\\View\\View"
+        ]
+    },
+    {
+        "name": "\\Stripe\\Stripe",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Stripe\\PaymentIntent",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PaypalServerSdkLib\\PaypalServerSdkClientBuilder",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PaypalServerSdkLib\\Authentication\\ClientCredentialsAuthCredentialsBuilder",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\PaypalServerSdkLib\\Controllers\\PaymentsController",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\VerifyEmailController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Foundation\\Auth\\EmailVerificationRequest",
+            "\\Illuminate\\Auth\\Events\\Verified"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Auth\\EmailVerificationRequest",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Auth\\Events\\Verified",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\PasswordResetLinkController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Password"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\PasswordController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\PasswordHistoryService",
+            "\\App\\Services\\PasswordCompromiseCheckService",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\Illuminate\\Support\\Facades\\Mail",
+            "\\App\\Mail\\PasswordChangedNotification",
+            "\\Log",
+            "\\Illuminate\\Http\\JsonResponse"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\RegisteredUserController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Validation\\Rules\\Password",
+            "\\Illuminate\\Support\\Facades\\Hash",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Auth\\Events\\Registered"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\AuthenticatedSessionController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\App\\Http\\Requests\\Auth\\LoginRequest",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\EmailVerificationPromptController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\Auth\\ConfirmablePasswordController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\RedirectResponse",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Validation\\ValidationException"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\TicketSourceController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\App\\Models\\TicketSource"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\PaymentPlanController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Models\\PaymentPlan",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Str"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserFavoriteTeamController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\UserFavoriteTeam",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\JsonResponse"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\UserFavoriteVenueController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\App\\Models\\UserFavoriteVenue",
+            "\\Illuminate\\View\\View",
+            "\\Illuminate\\Http\\JsonResponse"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Controllers\\TicketApiController",
+        "size": 3000,
+        "relations": [
+            "\\App\\Http\\Controllers\\Controller",
+            "\\App\\Services\\TicketApiManager",
+            "\\Illuminate\\Http\\Request",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Routing\\Controller",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\Api\\ApiRateLimit",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\RateLimiter"
+        ]
+    },
+    {
+        "name": "\\Symfony\\Component\\HttpFoundation\\Response",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\Api\\CheckApiRole",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\CheckUserPermissions",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\RoleMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\ScraperMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\TrackUserActivity",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\RedirectIfAuthenticated",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\AgentMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\TrustProxies",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Http\\Middleware\\TrustProxies"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Http\\Middleware\\TrustProxies",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\PreventScraperWebAccess",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\AdminMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Http\\Request",
+            "\\Closure"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\ComprehensiveLoggingMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\ActivityLogger",
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\VerifyCsrfToken",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken",
+            "\\Closure",
+            "\\Illuminate\\Session\\TokenMismatchException"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Session\\TokenMismatchException",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\TrimStrings",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\SecurityHeadersMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\EncryptCookies",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Cookie\\Middleware\\EncryptCookies"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Cookie\\Middleware\\EncryptCookies",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\RequireTwoFactorMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\TwoFactorAuthService",
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth",
+            "\\Illuminate\\Support\\Facades\\Session"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\ValidateSignature",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Routing\\Middleware\\ValidateSignature"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Routing\\Middleware\\ValidateSignature",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\ApiSecurityMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\App\\Services\\InputValidationService",
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\Authenticate",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Auth\\Middleware\\Authenticate",
+            "\\Illuminate\\Http\\Request"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Auth\\Middleware\\Authenticate",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\CustomerMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Middleware\\ActivityLoggerMiddleware",
+        "size": 3000,
+        "relations": [
+            "\\App\\Services\\SecurityService",
+            "\\Symfony\\Component\\HttpFoundation\\Response",
+            "\\Illuminate\\Http\\Request",
+            "\\Closure",
+            "\\Illuminate\\Support\\Facades\\Auth"
+        ]
+    },
+    {
+        "name": "\\App\\Http\\Kernel",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Http\\Kernel"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Http\\Kernel",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Logging\\TicketApiFormatter",
+        "size": 3000,
+        "relations": [
+            "\\Monolog\\Logger",
+            "\\Monolog\\Formatter\\LineFormatter"
+        ]
+    },
+    {
+        "name": "\\Monolog\\Logger",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Monolog\\Formatter\\LineFormatter",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Console\\Kernel",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Foundation\\Console\\Kernel",
+            "\\Illuminate\\Console\\Scheduling\\Schedule",
+            "\\Log"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Foundation\\Console\\Kernel",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\Illuminate\\Console\\Scheduling\\Schedule",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ImportFootballClubTickets",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Platforms\\FootballClubStoresService",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\Console\\Command",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ScrapeTicketmaster",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\TicketmasterScraper",
+            "\\App\\Services\\TicketApis\\TicketmasterClient",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\WarmPerformanceCaches",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Enhanced\\AdvancedTicketCachingService",
+            "\\App\\Services\\Enhanced\\ViewFragmentCachingService",
+            "\\App\\Services\\PerformanceCacheService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\SearchMultiPlatform",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Normalization\\DataNormalizationService",
+            "\\App\\Services\\MultiPlatformManager"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\MonitorAnalyticsSystem",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Models\\User",
+            "\\App\\Models\\AnalyticsDashboard",
+            "\\Illuminate\\Support\\Facades\\Queue",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\Illuminate\\Support\\Facades\\Cache"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\Events\\MonitorEventsCommand",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Infrastructure\\Projections\\ProjectionManagerInterface",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\Events\\ReplayEventsCommand",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Infrastructure\\EventStore\\EventStoreInterface",
+            "\\App\\Infrastructure\\Projections\\ProjectionManagerInterface"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ScrapeTickets",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Scraping\\PluginBasedScraperManager",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\OptimizeDatabase",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\PerformanceOptimizationService"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ValidateDatabase",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\Illuminate\\Support\\Facades\\Schema",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\User",
+            "\\App\\Models\\Category"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\WarmCache",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\PerformanceOptimizationService"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\OptimizePerformance",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Enhanced\\AdvancedCacheService",
+            "\\App\\Services\\Enhanced\\DatabaseQueryOptimizer",
+            "\\App\\Services\\PerformanceCacheService",
+            "\\App\\Services\\PlatformCachingService",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\Artisan"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\InitializeEnhancedAlertPreferences",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\Illuminate\\Support\\Facades\\DB",
+            "\\App\\Models\\User",
+            "\\App\\Models\\UserPreference"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ShowHighDemandSports",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\CreateRootAdmin",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Hash"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ResetAdminPassword",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Models\\User",
+            "\\Illuminate\\Support\\Facades\\Hash"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ProcessExpiredAccountDeletions",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\AccountDeletionProtectionService",
+            "\\App\\Models\\AccountDeletionRequest"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\RunSecurityScan",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\Security\\SecurityMonitoringService",
+            "\\App\\Services\\Security\\DataSecurityService"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\TicketScrapingCommand",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Services\\TicketScrapingService",
+            "\\Illuminate\\Support\\Facades\\Log"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\ConfigureNotificationChannels",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\RuntimeException"
+        ]
+    },
+    {
+        "name": "\\App\\Console\\Commands\\InitializeAnalyticsDashboards",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Console\\Command",
+            "\\App\\Models\\User",
+            "\\App\\Models\\AnalyticsDashboard",
+            "\\Illuminate\\Support\\Facades\\Cache",
+            "\\Illuminate\\Support\\Facades\\DB"
+        ]
+    },
+    {
+        "name": "\\App\\Application\\Commands\\CreateSportsEventCommand",
+        "size": 3000,
+        "relations": [
+            "\\DateTimeImmutable"
+        ]
+    },
+    {
+        "name": "\\App\\Application\\Queries\\GetUpcomingEventsQuery",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\Policies\\TicketPolicy",
+        "size": 3000,
+        "relations": [
+            "\\App\\Models\\User",
+            "\\App\\Models\\Ticket"
+        ]
+    },
+    {
+        "name": "\\App\\View\\Components\\AppLayout",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\View\\Component",
+            "\\Illuminate\\View\\View"
+        ]
+    },
+    {
+        "name": "\\Illuminate\\View\\Component",
+        "size": 3000,
+        "relations": []
+    },
+    {
+        "name": "\\App\\View\\Components\\GuestLayout",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\View\\Component",
+            "\\Illuminate\\View\\View"
+        ]
+    },
+    {
+        "name": "\\App\\Channels\\SmsChannel",
+        "size": 3000,
+        "relations": [
+            "\\Illuminate\\Notifications\\Notification",
+            "\\Illuminate\\Support\\Facades\\Log",
+            "\\Exception",
+            "\\Illuminate\\Support\\Facades\\Http"
+        ]
+    }
+];
+
+    /**
+     * Thanks to http://bl.ocks.org/mbostock/raw/7607999/
+     */
+    function updateRelationsChart() {
+
+
+        var diameter = document.getElementById('chart-relations').offsetWidth,
+            radius = diameter / 2,
+            innerRadius = radius - 120;
+
+        var cluster = d3.layout.cluster()
+            .size([360, innerRadius])
+            .sort(null)
+            .value(function (d) {
+                return d.size;
+            });
+
+        var bundle = d3.layout.bundle();
+
+        var line = d3.svg.line.radial()
+            .interpolate("bundle")
+            .tension(.85)
+            .radius(function (d) {
+                return d.y;
+            })
+            .angle(function (d) {
+                return d.x / 180 * Math.PI;
+            });
+
+        var svg = d3.select("#chart-relations").append("svg")
+            .attr("width", diameter)
+            .attr("height", diameter)
+            .append("g")
+            .attr("transform", "translate(" + radius + "," + radius + ")");
+
+        var link = svg.append("g").selectAll(".link"),
+            node = svg.append("g").selectAll(".node");
+
+
+        var nodes = cluster.nodes(packageHierarchy(relations)),
+            links = packageImports(nodes);
+        link = link
+            .data(bundle(links))
+            .enter().append("path")
+            .each(function (d) {
+                d.source = d[0], d.target = d[d.length - 1];
+            })
+            .attr("class", "link")
+            .attr("d", line);
+
+        node = node
+            .data(nodes.filter(function (n) {
+                return !n.children;
+            }))
+            .enter().append("text")
+            .attr("class", "node")
+            .attr("dy", ".31em")
+            .attr("transform", function (d) {
+                return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)");
+            })
+            .style("text-anchor", function (d) {
+                return d.x < 180 ? "start" : "end";
+            })
+            .text(function (d) {
+                return d.key;
+            })
+            .on("mouseover", mouseovered)
+            .on("mouseout", mouseouted);
+
+
+//        d3.data(relations);
+
+        function mouseovered(d) {
+            node
+                .each(function (n) {
+                    n.target = n.source = false;
+                });
+
+            link
+                .classed("link--target", function (l) {
+                    if (l.target === d) return l.source.source = true;
+                })
+                .classed("link--source", function (l) {
+                    if (l.source === d) return l.target.target = true;
+                })
+                .filter(function (l) {
+                    return l.target === d || l.source === d;
+                })
+                .each(function () {
+                    this.parentNode.appendChild(this);
+                });
+
+            node
+                .classed("node--target", function (n) {
+                    return n.target;
+                })
+                .classed("node--source", function (n) {
+                    return n.source;
+                });
+        }
+
+        function mouseouted(d) {
+            link
+                .classed("link--target", false)
+                .classed("link--source", false);
+
+            node
+                .classed("node--target", false)
+                .classed("node--source", false);
+        }
+
+        d3.select(self.frameElement).style("height", diameter + "px");
+
+        // Lazily construct the package hierarchy from class names.
+        function packageHierarchy(classes) {
+            var map = {};
+
+            function find(name, data) {
+                name = (data ? name + ' ' : name);
+                var node = map[name], i;
+                if (!node) {
+                    node = map[name] = data || {name: name, children: []};
+                    if (name.length) {
+                        node.parent = find(name.substring(0, i = name.lastIndexOf("\\")));
+                        if (!node.parent.children) {
+                            node.parent.children = []; // fix anomalies
+                        }
+                        node.parent.children.push(node);
+                        node.key = name;//name.substring(i + 1);
+                    }
+                }
+                return node;
+            }
+
+            classes.forEach(function (d) {
+                find(d.name, d);
+            });
+
+            return map[""];
+        }
+
+        // Return a list of imports for the given array of nodes.
+        function packageImports(nodes) {
+            var map = {},
+                imports = [];
+
+            // Compute a map from name to node.
+            nodes.forEach(function (d) {
+                map[d.name] = d;
+            });
+
+            // For each import, construct a link from the source to target node.
+            nodes.forEach(function (d) {
+                if (d.relations) d.relations.forEach(function (i) {
+                    imports.push({source: map[d.name], target: map[i]});
+                });
+            });
+
+            return imports;
+        }
+
+
+    }
+
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            updateRelationsChart();
+        }
+    };
+
+</script>

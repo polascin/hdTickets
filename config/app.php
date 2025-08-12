@@ -1,10 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -55,7 +54,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', FALSE),
 
     /*
     |--------------------------------------------------------------------------
@@ -140,7 +139,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', env('APP_PREVIOUS_KEYS', ''))
+            explode(',', env('APP_PREVIOUS_KEYS', '')),
         ),
     ],
 
@@ -159,7 +158,7 @@ return [
 
     'maintenance' => [
         'driver' => env('MAINTENANCE_DRIVER', env('APP_MAINTENANCE_DRIVER', 'file')),
-        'store' => env('MAINTENANCE_STORE', env('APP_MAINTENANCE_STORE')),
+        'store'  => env('MAINTENANCE_STORE', env('APP_MAINTENANCE_STORE')),
     ],
 
     /*
@@ -174,21 +173,20 @@ return [
     */
 
     'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
+        // Package Service Providers...
 
-        /*
-         * Application Service Providers...
-         */
+        // Application Service Providers...
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\ComponentArchitectureServiceProvider::class,
         App\Providers\ActivityLoggerServiceProvider::class,
         App\Providers\CssTimestampServiceProvider::class,
         App\Providers\PurchaseServiceProvider::class,
+        App\Providers\DomainDrivenDesignServiceProvider::class,
+        App\Providers\EventDrivenArchitectureServiceProvider::class,
         // App\Providers\EnvServiceProvider::class, // Temporarily disabled - causes conflicts
     ])->toArray(),
 
@@ -206,5 +204,4 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
-
 ];

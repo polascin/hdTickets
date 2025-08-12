@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Ac_milanPlugin extends BaseScraperPlugin
@@ -68,26 +70,26 @@ class Ac_milanPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/it/biglietti';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['cerca'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competizione'] = $this->mapCompetition($criteria['competition']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['data_da'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['data_a'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -96,14 +98,14 @@ class Ac_milanPlugin extends BaseScraperPlugin
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
-            'serie a' => 'serie-a',
-            'champions league' => 'champions-league',
-            'coppa italia' => 'coppa-italia',
-            'europa league' => 'europa-league',
-            'supercoppa italiana' => 'supercoppa-italiana',
+            'serie a'               => 'serie-a',
+            'champions league'      => 'champions-league',
+            'coppa italia'          => 'coppa-italia',
+            'europa league'         => 'europa-league',
+            'supercoppa italiana'   => 'supercoppa-italiana',
             'derby della madonnina' => 'derby-della-madonnina',
         ];
-        
+
         return $mapping[strtolower($competition)] ?? 'tutte';
     }
 
@@ -117,37 +119,36 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
         try {
             // Parse AC Milan specific event structure
-            $crawler->filter('.match-card, .partita, .match, .evento, .biglietto-item, .fixture')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.match-card, .partita, .match, .evento, .biglietto-item, .fixture')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse AC Milan event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
+                } catch (Exception $e) {
+                    Log::warning('Failed to parse AC Milan event node', [
+                        'error'        => $e->getMessage(),
+                        'html_snippet' => substr($node->html(), 0, 200),
                     ]);
                 }
             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse AC Milan events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse AC Milan events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

@@ -1,26 +1,31 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
+use DateTime;
+use Exception;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Notifications\AnonymousNotifiable;
+
+use function get_class;
 
 class NotificationManager
 {
     protected array $channels = [];
+
     protected array $settings = [];
 
     public function __construct()
     {
         $this->channels = [
-            'email' => true,
-            'database' => true,
-            'broadcast' => true,
-            'slack' => config('services.slack.webhook_url') !== null,
-            'discord' => config('services.discord.webhook_url') !== null,
+            'email'     => TRUE,
+            'database'  => TRUE,
+            'broadcast' => TRUE,
+            'slack'     => config('services.slack.webhook_url') !== NULL,
+            'discord'   => config('services.discord.webhook_url') !== NULL,
         ];
 
         $this->settings = config('notifications', []);
@@ -28,8 +33,10 @@ class NotificationManager
 
     /**
      * Send notification to user
+     *
+     * @param mixed $notification
      */
-    public function notify(User $user, $notification, array $channels = null): bool
+    public function notify(User $user, $notification, ?array $channels = NULL): bool
     {
         try {
             if ($channels) {
@@ -37,32 +44,34 @@ class NotificationManager
             }
 
             $user->notify($notification);
-            
+
             Log::info('Notification sent successfully', [
-                'user_id' => $user->id,
+                'user_id'      => $user->id,
                 'notification' => get_class($notification),
-                'channels' => $channels ?? 'default'
+                'channels'     => $channels ?? 'default',
             ]);
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to send notification', [
-                'user_id' => $user->id,
+                'user_id'      => $user->id,
                 'notification' => get_class($notification),
-                'error' => $e->getMessage()
+                'error'        => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
     /**
      * Send notification to multiple users
+     *
+     * @param mixed $notification
      */
-    public function notifyMany(iterable $users, $notification, array $channels = null): array
+    public function notifyMany(iterable $users, $notification, ?array $channels = NULL): array
     {
         $results = [];
-        
+
         foreach ($users as $user) {
             $results[$user->id] = $this->notify($user, $notification, $channels);
         }
@@ -72,32 +81,34 @@ class NotificationManager
 
     /**
      * Send notification to anonymous notifiable (email, phone, etc.)
+     *
+     * @param mixed $notification
      */
     public function notifyAnonymous(array $routes, $notification): bool
     {
         try {
             $anonymousNotifiable = new AnonymousNotifiable();
-            
+
             foreach ($routes as $channel => $route) {
                 $anonymousNotifiable->route($channel, $route);
             }
 
             $anonymousNotifiable->notify($notification);
-            
+
             Log::info('Anonymous notification sent successfully', [
-                'routes' => $routes,
-                'notification' => get_class($notification)
-            ]);
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Failed to send anonymous notification', [
-                'routes' => $routes,
+                'routes'       => $routes,
                 'notification' => get_class($notification),
-                'error' => $e->getMessage()
             ]);
 
-            return false;
+            return TRUE;
+        } catch (Exception $e) {
+            Log::error('Failed to send anonymous notification', [
+                'routes'       => $routes,
+                'notification' => get_class($notification),
+                'error'        => $e->getMessage(),
+            ]);
+
+            return FALSE;
         }
     }
 
@@ -107,73 +118,73 @@ class NotificationManager
     public function sendEmail(string $email, string $subject, string $message, array $data = []): bool
     {
         try {
-            Mail::send('emails.generic', array_merge(['message' => $message], $data), function ($mail) use ($email, $subject) {
+            Mail::send('emails.generic', array_merge(['message' => $message], $data), function ($mail) use ($email, $subject): void {
                 $mail->to($email)->subject($subject);
             });
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to send email', [
-                'email' => $email,
+                'email'   => $email,
                 'subject' => $subject,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
     /**
      * Send Slack notification
      */
-    public function sendSlack(string $message, string $channel = null): bool
+    public function sendSlack(string $message, ?string $channel = NULL): bool
     {
-        if (!$this->channels['slack']) {
-            return false;
+        if (! $this->channels['slack']) {
+            return FALSE;
         }
 
         try {
             // Implementation would depend on Slack integration setup
             Log::info('Slack notification sent', [
                 'message' => $message,
-                'channel' => $channel
+                'channel' => $channel,
             ]);
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to send Slack notification', [
                 'message' => $message,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
     /**
      * Send Discord notification
      */
-    public function sendDiscord(string $message, string $webhook = null): bool
+    public function sendDiscord(string $message, ?string $webhook = NULL): bool
     {
-        if (!$this->channels['discord']) {
-            return false;
+        if (! $this->channels['discord']) {
+            return FALSE;
         }
 
         try {
             // Implementation would depend on Discord webhook setup
             Log::info('Discord notification sent', [
                 'message' => $message,
-                'webhook' => $webhook
+                'webhook' => $webhook,
             ]);
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to send Discord notification', [
                 'message' => $message,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -183,11 +194,11 @@ class NotificationManager
     public function getUserPreferences(User $user): array
     {
         return $user->preferences['notifications'] ?? [
-            'email' => true,
-            'browser' => true,
-            'mobile' => true,
-            'slack' => false,
-            'discord' => false,
+            'email'   => TRUE,
+            'browser' => TRUE,
+            'mobile'  => TRUE,
+            'slack'   => FALSE,
+            'discord' => FALSE,
         ];
     }
 
@@ -200,20 +211,20 @@ class NotificationManager
             $userPreferences = $user->preferences ?? [];
             $userPreferences['notifications'] = array_merge(
                 $this->getUserPreferences($user),
-                $preferences
+                $preferences,
             );
 
             $user->update(['preferences' => $userPreferences]);
-            
-            return true;
-        } catch (\Exception $e) {
+
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to update notification preferences', [
-                'user_id' => $user->id,
+                'user_id'     => $user->id,
                 'preferences' => $preferences,
-                'error' => $e->getMessage()
+                'error'       => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -222,7 +233,7 @@ class NotificationManager
      */
     public function isChannelEnabled(string $channel): bool
     {
-        return $this->channels[$channel] ?? false;
+        return $this->channels[$channel] ?? FALSE;
     }
 
     /**
@@ -235,27 +246,29 @@ class NotificationManager
 
     /**
      * Queue notification for later sending
+     *
+     * @param mixed $notification
      */
-    public function queueNotification(User $user, $notification, array $channels = null, \DateTime $sendAt = null): bool
+    public function queueNotification(User $user, $notification, ?array $channels = NULL, ?DateTime $sendAt = NULL): bool
     {
         try {
             // Implementation would depend on queue setup
             Log::info('Notification queued', [
-                'user_id' => $user->id,
+                'user_id'      => $user->id,
                 'notification' => get_class($notification),
-                'channels' => $channels,
-                'send_at' => $sendAt?->format('Y-m-d H:i:s')
+                'channels'     => $channels,
+                'send_at'      => $sendAt?->format('Y-m-d H:i:s'),
             ]);
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             Log::error('Failed to queue notification', [
-                'user_id' => $user->id,
+                'user_id'      => $user->id,
                 'notification' => get_class($notification),
-                'error' => $e->getMessage()
+                'error'        => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -266,14 +279,14 @@ class NotificationManager
     {
         // Implementation would query notification logs/database
         return [
-            'total_sent' => 0,
+            'total_sent'   => 0,
             'success_rate' => 100.0,
-            'by_channel' => [
-                'email' => 0,
-                'database' => 0,
+            'by_channel'   => [
+                'email'     => 0,
+                'database'  => 0,
                 'broadcast' => 0,
-                'slack' => 0,
-                'discord' => 0,
+                'slack'     => 0,
+                'discord'   => 0,
             ],
             'failed_notifications' => 0,
         ];

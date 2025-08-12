@@ -1,23 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\AccountDeletionRequest;
-use App\Models\AccountDeletionAuditLog;
-use App\Models\DeletedUser;
-use App\Models\DataExportRequest;
-use App\Mail\AccountDeletionConfirmationMail;
-use App\Mail\AccountDeletionWarningMail;
 use App\Mail\AccountDeletionCancelledMail;
 use App\Mail\AccountDeletionCompletedMail;
-use App\Mail\AccountDeletionGraceExpiredMail;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use App\Mail\AccountDeletionConfirmationMail;
+use App\Mail\AccountDeletionWarningMail;
+use App\Models\AccountDeletionAuditLog;
+use App\Models\AccountDeletionRequest;
+use App\Models\DataExportRequest;
+use App\Models\DeletedUser;
+use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+use function is_array;
 
 class AccountDeletionProtectionService
 {
@@ -41,7 +41,7 @@ class AccountDeletionProtectionService
         // Update deletion attempt tracking
         $user->update([
             'last_deletion_attempt_at' => now(),
-            'deletion_attempt_count' => ($user->deletion_attempt_count ?? 0) + 1,
+            'deletion_attempt_count'   => ($user->deletion_attempt_count ?? 0) + 1,
         ]);
 
         DB::beginTransaction();
@@ -50,12 +50,12 @@ class AccountDeletionProtectionService
             // Create deletion request
             $deletionRequest = $user->deletionRequests()->create([
                 'confirmation_token' => $this->generateConfirmationToken(),
-                'status' => AccountDeletionRequest::STATUS_PENDING,
+                'status'             => AccountDeletionRequest::STATUS_PENDING,
                 'user_data_snapshot' => $this->createUserDataSnapshot($user),
-                'initiated_at' => now(),
-                'metadata' => [
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
+                'initiated_at'       => now(),
+                'metadata'           => [
+                    'ip_address'       => request()->ip(),
+                    'user_agent'       => request()->userAgent(),
                     'initiated_reason' => 'User requested account deletion',
                 ],
             ]);
@@ -67,8 +67,8 @@ class AccountDeletionProtectionService
                 'Account deletion process initiated by user',
                 [
                     'deletion_request_id' => $deletionRequest->id,
-                    'attempt_count' => $user->deletion_attempt_count,
-                ]
+                    'attempt_count'       => $user->deletion_attempt_count,
+                ],
             );
 
             // Send warning email with data export options
@@ -79,17 +79,17 @@ class AccountDeletionProtectionService
                 AccountDeletionAuditLog::ACTION_EMAIL_SENT,
                 'Deletion warning email sent to user',
                 [
-                    'email' => $user->email,
+                    'email'               => $user->email,
                     'deletion_request_id' => $deletionRequest->id,
-                ]
+                ],
             );
 
             DB::commit();
 
             return $deletionRequest;
-
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -103,7 +103,7 @@ class AccountDeletionProtectionService
             ->where('status', AccountDeletionRequest::STATUS_PENDING)
             ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             throw new Exception('Invalid or expired confirmation token.');
         }
 
@@ -119,24 +119,24 @@ class AccountDeletionProtectionService
                 AccountDeletionAuditLog::ACTION_CONFIRMED,
                 'Account deletion confirmed via email',
                 [
-                    'deletion_request_id' => $deletionRequest->id,
+                    'deletion_request_id'     => $deletionRequest->id,
                     'grace_period_expires_at' => $deletionRequest->grace_period_expires_at->toISOString(),
                 ],
                 AccountDeletionRequest::STATUS_PENDING,
-                AccountDeletionRequest::STATUS_CONFIRMED
+                AccountDeletionRequest::STATUS_CONFIRMED,
             );
 
             // Send confirmation email with grace period information
             Mail::to($deletionRequest->user->email)->send(
-                new AccountDeletionConfirmationMail($deletionRequest->user, $deletionRequest)
+                new AccountDeletionConfirmationMail($deletionRequest->user, $deletionRequest),
             );
 
             DB::commit();
 
-            return true;
-
+            return TRUE;
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -144,9 +144,9 @@ class AccountDeletionProtectionService
     /**
      * Cancel deletion request
      */
-    public function cancelDeletion(AccountDeletionRequest $deletionRequest, ?string $reason = null): bool
+    public function cancelDeletion(AccountDeletionRequest $deletionRequest, ?string $reason = NULL): bool
     {
-        if (!$deletionRequest->isPending() && !$deletionRequest->isConfirmed()) {
+        if (! $deletionRequest->isPending() && ! $deletionRequest->isConfirmed()) {
             throw new Exception('Cannot cancel a deletion request that is not pending or confirmed.');
         }
 
@@ -166,20 +166,20 @@ class AccountDeletionProtectionService
                     'cancellation_reason' => $reason,
                 ],
                 $oldStatus,
-                AccountDeletionRequest::STATUS_CANCELLED
+                AccountDeletionRequest::STATUS_CANCELLED,
             );
 
             // Send cancellation email
             Mail::to($deletionRequest->user->email)->send(
-                new AccountDeletionCancelledMail($deletionRequest->user, $deletionRequest)
+                new AccountDeletionCancelledMail($deletionRequest->user, $deletionRequest),
             );
 
             DB::commit();
 
-            return true;
-
+            return TRUE;
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -204,86 +204,13 @@ class AccountDeletionProtectionService
                     'Failed to process expired deletion request: ' . $e->getMessage(),
                     [
                         'deletion_request_id' => $request->id,
-                        'error' => $e->getMessage(),
-                    ]
+                        'error'               => $e->getMessage(),
+                    ],
                 );
             }
         }
 
         return $processedCount;
-    }
-
-    /**
-     * Execute actual account deletion
-     */
-    protected function executeAccountDeletion(AccountDeletionRequest $deletionRequest): void
-    {
-        $user = $deletionRequest->user;
-
-        if (!$user) {
-            throw new Exception('User not found for deletion request.');
-        }
-
-        DB::beginTransaction();
-
-        try {
-            // Create backup of user data before deletion
-            $this->createUserBackup($user, $deletionRequest);
-
-            // Soft delete the user
-            $user->delete();
-
-            // Mark deletion request as completed
-            $deletionRequest->markCompleted();
-
-            // Log the completion
-            AccountDeletionAuditLog::log(
-                $user->id,
-                AccountDeletionAuditLog::ACTION_COMPLETED,
-                'Account deletion completed after grace period expiry',
-                [
-                    'deletion_request_id' => $deletionRequest->id,
-                    'deleted_at' => now()->toISOString(),
-                ]
-            );
-
-            // Send final deletion notification
-            Mail::to($user->email)->send(
-                new AccountDeletionCompletedMail($user, $deletionRequest)
-            );
-
-            DB::commit();
-
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Create user data backup for recovery
-     */
-    protected function createUserBackup(User $user, AccountDeletionRequest $deletionRequest): DeletedUser
-    {
-        // Collect related data
-        $relatedData = [
-            'preferences' => $user->preferences ?? [],
-            'favorite_teams' => $user->favoriteTeams ?? [],
-            'favorite_venues' => $user->favoriteVenues ?? [],
-            'price_preferences' => $user->pricePreferences ?? [],
-            'subscriptions' => $user->subscriptions()->get()->toArray(),
-            'login_history' => $user->loginHistory()->latest()->limit(50)->get()->toArray(),
-            'deletion_audit_logs' => $user->deletionAuditLogs()->get()->toArray(),
-        ];
-
-        return DeletedUser::create([
-            'original_user_id' => $user->id,
-            'user_data' => $user->toArray(),
-            'related_data' => $relatedData,
-            'deletion_reason' => 'User requested account deletion',
-            'deleted_at' => now(),
-            'recoverable_until' => now()->addDays(30), // 30-day recovery period
-        ]);
     }
 
     /**
@@ -295,7 +222,7 @@ class AccountDeletionProtectionService
             ->recoverable()
             ->first();
 
-        if (!$deletedUser) {
+        if (! $deletedUser) {
             throw new Exception('Account not found or recovery period has expired.');
         }
 
@@ -304,8 +231,8 @@ class AccountDeletionProtectionService
         try {
             // Restore user data
             $userData = $deletedUser->user_data;
-            $userData['deleted_at'] = null; // Remove soft delete
-            
+            $userData['deleted_at'] = NULL; // Remove soft delete
+
             $user = User::withTrashed()->find($originalUserId);
             if ($user) {
                 // Restore existing soft-deleted user
@@ -330,17 +257,17 @@ class AccountDeletionProtectionService
                 AccountDeletionAuditLog::ACTION_RECOVERED,
                 'Account recovered from deletion',
                 [
-                    'recovered_from_id' => $deletedUser->id,
+                    'recovered_from_id'       => $deletedUser->id,
                     'recovery_days_remaining' => $deletedUser->recoverable_until->diffInDays(now()),
-                ]
+                ],
             );
 
             DB::commit();
 
             return $user;
-
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -352,10 +279,10 @@ class AccountDeletionProtectionService
     {
         return $user->dataExportRequests()->create([
             'export_type' => DataExportRequest::EXPORT_TYPE_FULL,
-            'data_types' => $dataTypes,
-            'format' => $format,
-            'status' => DataExportRequest::STATUS_PENDING,
-            'expires_at' => now()->addDays(7),
+            'data_types'  => $dataTypes,
+            'format'      => $format,
+            'status'      => DataExportRequest::STATUS_PENDING,
+            'expires_at'  => now()->addDays(7),
         ]);
     }
 
@@ -364,34 +291,34 @@ class AccountDeletionProtectionService
      */
     public function processDataExport(DataExportRequest $exportRequest): bool
     {
-        if (!$exportRequest->isPending()) {
-            return false;
+        if (! $exportRequest->isPending()) {
+            return FALSE;
         }
 
         $exportRequest->markAsProcessing();
 
         try {
             $user = $exportRequest->user;
-            
+
             // Collect user data
             $userData = [
-                'profile' => $user->getEnhancedUserInfo(),
-                'preferences' => $user->preferences ?? [],
-                'favorite_teams' => $user->favoriteTeams ?? [],
-                'favorite_venues' => $user->favoriteVenues ?? [],
+                'profile'           => $user->getEnhancedUserInfo(),
+                'preferences'       => $user->preferences ?? [],
+                'favorite_teams'    => $user->favoriteTeams ?? [],
+                'favorite_venues'   => $user->favoriteVenues ?? [],
                 'price_preferences' => $user->pricePreferences ?? [],
-                'subscriptions' => $user->subscriptions()->get(),
-                'login_history' => $user->loginHistory()->latest()->limit(100)->get(),
-                'export_metadata' => [
-                    'exported_at' => now()->toISOString(),
+                'subscriptions'     => $user->subscriptions()->get(),
+                'login_history'     => $user->loginHistory()->latest()->limit(100)->get(),
+                'export_metadata'   => [
+                    'exported_at'   => now()->toISOString(),
                     'export_format' => $exportRequest->format,
-                    'user_id' => $user->id,
+                    'user_id'       => $user->id,
                 ],
             ];
 
             // Generate file
             $filename = "user_data_export_{$user->id}_" . now()->format('Y_m_d_H_i_s');
-            
+
             if ($exportRequest->format === 'json') {
                 $content = json_encode($userData, JSON_PRETTY_PRINT);
                 $filePath = "exports/user-data/{$filename}.json";
@@ -415,17 +342,107 @@ class AccountDeletionProtectionService
                 'User data export completed',
                 [
                     'export_request_id' => $exportRequest->id,
-                    'file_size' => $fileSize,
-                    'format' => $exportRequest->format,
-                ]
+                    'file_size'         => $fileSize,
+                    'format'            => $exportRequest->format,
+                ],
             );
 
-            return true;
-
+            return TRUE;
         } catch (Exception $e) {
             $exportRequest->markAsFailed($e->getMessage());
-            return false;
+
+            return FALSE;
         }
+    }
+
+    /**
+     * Clean up expired data export files
+     */
+    public function cleanupExpiredExports(): int
+    {
+        $expiredExports = DataExportRequest::expired()->get();
+        $cleanedCount = 0;
+
+        foreach ($expiredExports as $export) {
+            if ($export->deleteFile()) {
+                $cleanedCount++;
+            }
+        }
+
+        return $cleanedCount;
+    }
+
+    /**
+     * Execute actual account deletion
+     */
+    protected function executeAccountDeletion(AccountDeletionRequest $deletionRequest): void
+    {
+        $user = $deletionRequest->user;
+
+        if (! $user) {
+            throw new Exception('User not found for deletion request.');
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Create backup of user data before deletion
+            $this->createUserBackup($user, $deletionRequest);
+
+            // Soft delete the user
+            $user->delete();
+
+            // Mark deletion request as completed
+            $deletionRequest->markCompleted();
+
+            // Log the completion
+            AccountDeletionAuditLog::log(
+                $user->id,
+                AccountDeletionAuditLog::ACTION_COMPLETED,
+                'Account deletion completed after grace period expiry',
+                [
+                    'deletion_request_id' => $deletionRequest->id,
+                    'deleted_at'          => now()->toISOString(),
+                ],
+            );
+
+            // Send final deletion notification
+            Mail::to($user->email)->send(
+                new AccountDeletionCompletedMail($user, $deletionRequest),
+            );
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Create user data backup for recovery
+     */
+    protected function createUserBackup(User $user, AccountDeletionRequest $deletionRequest): DeletedUser
+    {
+        // Collect related data
+        $relatedData = [
+            'preferences'         => $user->preferences ?? [],
+            'favorite_teams'      => $user->favoriteTeams ?? [],
+            'favorite_venues'     => $user->favoriteVenues ?? [],
+            'price_preferences'   => $user->pricePreferences ?? [],
+            'subscriptions'       => $user->subscriptions()->get()->toArray(),
+            'login_history'       => $user->loginHistory()->latest()->limit(50)->get()->toArray(),
+            'deletion_audit_logs' => $user->deletionAuditLogs()->get()->toArray(),
+        ];
+
+        return DeletedUser::create([
+            'original_user_id'  => $user->id,
+            'user_data'         => $user->toArray(),
+            'related_data'      => $relatedData,
+            'deletion_reason'   => 'User requested account deletion',
+            'deleted_at'        => now(),
+            'recoverable_until' => now()->addDays(30), // 30-day recovery period
+        ]);
     }
 
     /**
@@ -446,9 +463,9 @@ class AccountDeletionProtectionService
     protected function createUserDataSnapshot(User $user): array
     {
         return [
-            'user_data' => $user->toArray(),
-            'enhanced_info' => $user->getEnhancedUserInfo(),
-            'permissions' => $user->getPermissions(),
+            'user_data'           => $user->toArray(),
+            'enhanced_info'       => $user->getEnhancedUserInfo(),
+            'permissions'         => $user->getPermissions(),
             'snapshot_created_at' => now()->toISOString(),
         ];
     }
@@ -460,6 +477,7 @@ class AccountDeletionProtectionService
     {
         $output = '';
         $this->arrayToCSV($data, $output);
+
         return $output;
     }
 
@@ -470,29 +488,12 @@ class AccountDeletionProtectionService
     {
         foreach ($data as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
-            
+
             if (is_array($value)) {
                 $this->arrayToCSV($value, $output, $fullKey);
             } else {
                 $output .= "\"{$fullKey}\",\"" . str_replace('"', '""', $value) . "\"\n";
             }
         }
-    }
-
-    /**
-     * Clean up expired data export files
-     */
-    public function cleanupExpiredExports(): int
-    {
-        $expiredExports = DataExportRequest::expired()->get();
-        $cleanedCount = 0;
-
-        foreach ($expiredExports as $export) {
-            if ($export->deleteFile()) {
-                $cleanedCount++;
-            }
-        }
-
-        return $cleanedCount;
     }
 }

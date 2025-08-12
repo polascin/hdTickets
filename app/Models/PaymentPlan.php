@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -25,16 +25,16 @@ class PaymentPlan extends Model
         'automated_purchasing',
         'is_active',
         'sort_order',
-        'stripe_price_id'
+        'stripe_price_id',
     ];
 
     protected $casts = [
-        'features' => 'array',
-        'price' => 'decimal:2',
-        'priority_support' => 'boolean',
-        'advanced_analytics' => 'boolean',
+        'features'             => 'array',
+        'price'                => 'decimal:2',
+        'priority_support'     => 'boolean',
+        'advanced_analytics'   => 'boolean',
         'automated_purchasing' => 'boolean',
-        'is_active' => 'boolean'
+        'is_active'            => 'boolean',
     ];
 
     /**
@@ -55,14 +55,18 @@ class PaymentPlan extends Model
 
     /**
      * Get only active plans
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
      * Order plans by sort order
+     *
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {
@@ -74,13 +78,13 @@ class PaymentPlan extends Model
      */
     public function getFormattedPriceAttribute(): string
     {
-        if ($this->price == 0) {
+        if ($this->price === 0) {
             return 'Free';
         }
 
         $currency = '$'; // You can make this configurable
         $price = number_format($this->price, 2);
-        
+
         switch ($this->billing_cycle) {
             case 'monthly':
                 return "{$currency}{$price}/month";
@@ -141,92 +145,92 @@ class PaymentPlan extends Model
     {
         return [
             [
-                'name' => 'Free Trial',
-                'slug' => 'free-trial',
-                'description' => 'Try HDTickets for free with limited features',
-                'price' => 0.00,
+                'name'          => 'Free Trial',
+                'slug'          => 'free-trial',
+                'description'   => 'Try HDTickets for free with limited features',
+                'price'         => 0.00,
                 'billing_cycle' => 'monthly',
-                'features' => [
+                'features'      => [
                     'Monitor up to 5 events',
                     '1 platform access',
                     'Basic notifications',
-                    'Community support'
+                    'Community support',
                 ],
-                'max_tickets_per_month' => 5,
+                'max_tickets_per_month'    => 5,
                 'max_concurrent_purchases' => 1,
-                'max_platforms' => 1,
-                'priority_support' => false,
-                'advanced_analytics' => false,
-                'automated_purchasing' => false,
-                'sort_order' => 1
+                'max_platforms'            => 1,
+                'priority_support'         => FALSE,
+                'advanced_analytics'       => FALSE,
+                'automated_purchasing'     => FALSE,
+                'sort_order'               => 1,
             ],
             [
-                'name' => 'Basic',
-                'slug' => 'basic',
-                'description' => 'Perfect for occasional ticket buyers',
-                'price' => 19.99,
+                'name'          => 'Basic',
+                'slug'          => 'basic',
+                'description'   => 'Perfect for occasional ticket buyers',
+                'price'         => 19.99,
                 'billing_cycle' => 'monthly',
-                'features' => [
+                'features'      => [
                     'Monitor up to 25 events',
                     '2 platform access',
                     'Email & push notifications',
                     'Basic analytics',
-                    'Email support'
+                    'Email support',
                 ],
-                'max_tickets_per_month' => 25,
+                'max_tickets_per_month'    => 25,
                 'max_concurrent_purchases' => 2,
-                'max_platforms' => 2,
-                'priority_support' => false,
-                'advanced_analytics' => false,
-                'automated_purchasing' => false,
-                'sort_order' => 2
+                'max_platforms'            => 2,
+                'priority_support'         => FALSE,
+                'advanced_analytics'       => FALSE,
+                'automated_purchasing'     => FALSE,
+                'sort_order'               => 2,
             ],
             [
-                'name' => 'Pro',
-                'slug' => 'pro',
-                'description' => 'Best for regular ticket buyers and resellers',
-                'price' => 49.99,
+                'name'          => 'Pro',
+                'slug'          => 'pro',
+                'description'   => 'Best for regular ticket buyers and resellers',
+                'price'         => 49.99,
                 'billing_cycle' => 'monthly',
-                'features' => [
+                'features'      => [
                     'Monitor unlimited events',
                     'All platforms access',
                     'Advanced notifications',
                     'Advanced analytics & reporting',
                     'Automated purchasing',
                     'Priority support',
-                    'Custom alerts'
+                    'Custom alerts',
                 ],
-                'max_tickets_per_month' => 0, // unlimited
+                'max_tickets_per_month'    => 0, // unlimited
                 'max_concurrent_purchases' => 5,
-                'max_platforms' => 0, // unlimited
-                'priority_support' => true,
-                'advanced_analytics' => true,
-                'automated_purchasing' => true,
-                'sort_order' => 3
+                'max_platforms'            => 0, // unlimited
+                'priority_support'         => TRUE,
+                'advanced_analytics'       => TRUE,
+                'automated_purchasing'     => TRUE,
+                'sort_order'               => 3,
             ],
             [
-                'name' => 'Enterprise',
-                'slug' => 'enterprise',
-                'description' => 'For teams and high-volume users',
-                'price' => 199.99,
+                'name'          => 'Enterprise',
+                'slug'          => 'enterprise',
+                'description'   => 'For teams and high-volume users',
+                'price'         => 199.99,
                 'billing_cycle' => 'monthly',
-                'features' => [
+                'features'      => [
                     'Everything in Pro',
                     'Unlimited concurrent purchases',
                     'API access',
                     'Custom integrations',
                     'Dedicated account manager',
                     'White-label options',
-                    'SLA guarantee'
+                    'SLA guarantee',
                 ],
-                'max_tickets_per_month' => 0, // unlimited
+                'max_tickets_per_month'    => 0, // unlimited
                 'max_concurrent_purchases' => 0, // unlimited
-                'max_platforms' => 0, // unlimited
-                'priority_support' => true,
-                'advanced_analytics' => true,
-                'automated_purchasing' => true,
-                'sort_order' => 4
-            ]
+                'max_platforms'            => 0, // unlimited
+                'priority_support'         => TRUE,
+                'advanced_analytics'       => TRUE,
+                'automated_purchasing'     => TRUE,
+                'sort_order'               => 4,
+            ],
         ];
     }
 }

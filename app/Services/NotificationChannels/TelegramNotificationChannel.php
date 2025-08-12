@@ -1,12 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\NotificationChannels;
 
 use App\Models\User;
 use App\Models\UserNotificationSettings;
+use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 class TelegramNotificationChannel
 {
@@ -24,29 +25,65 @@ class TelegramNotificationChannel
     {
         try {
             $telegramSettings = $this->getUserTelegramSettings($user);
-            
-            if (!$telegramSettings || !$telegramSettings->is_enabled) {
+
+            if (! $telegramSettings || ! $telegramSettings->is_enabled) {
                 Log::info('Telegram notifications disabled for user', ['user_id' => $user->id]);
-                return false;
+
+                return FALSE;
             }
 
             $message = $this->buildTelegramMessage($alertData);
 
             $chatId = $telegramSettings->chat_id;
-            if (!$chatId) {
+            if (! $chatId) {
                 Log::warning('No Telegram chat ID configured');
-                return false;
+
+                return FALSE;
             }
 
             return $this->sendMessage($chatId, $message);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send Telegram notification', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
             ]);
-            return false;
+
+            return FALSE;
+        }
+    }
+
+    /**
+     * Test Telegram connection
+     */
+    public function testConnection(User $user): array
+    {
+        try {
+            $testMessage = '*Test Event*
+Price: $99.99
+Available: 2 tickets
+Platform: Test Platform';
+
+            $telegramSettings = $this->getUserTelegramSettings($user);
+
+            if (! $telegramSettings || ! $telegramSettings->chat_id) {
+                return [
+                    'success' => FALSE,
+                    'message' => 'No Telegram chat ID configured',
+                ];
+            }
+
+            $success = $this->sendMessage($telegramSettings->chat_id, $testMessage);
+
+            return [
+                'success' => $success,
+                'message' => $success ? 'Telegram test notification sent successfully' : 'Failed to send Telegram test notification',
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => FALSE,
+                'message' => 'Telegram test failed: ' . $e->getMessage(),
+            ];
         }
     }
 
@@ -57,19 +94,19 @@ class TelegramNotificationChannel
     {
         $ticket = $alertData['ticket'];
         $priority = $alertData['priority_label'] ?? 'Normal';
-        
+
         $message = "🎟️ *Ticket Alert - {$priority} Priority* \n" .
                    "*Event:* {$ticket['event_name']}\n" .
-                   "*Price:* ".$ticket['price']."\n" .
-                   "*Available:* ".$ticket['quantity']." tickets\n" .
-                   "*Platform:* ".$ticket['platform']."\n";
+                   '*Price:* ' . $ticket['price'] . "\n" .
+                   '*Available:* ' . $ticket['quantity'] . " tickets\n" .
+                   '*Platform:* ' . $ticket['platform'] . "\n";
 
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $message .= "*Venue:* {$ticket['venue']}\n";
         }
 
-        if (!empty($ticket['event_date'])) {
-            $message .= "*Date:* " . date('M j, Y g:i A', strtotime($ticket['event_date'])) . "\n";
+        if (! empty($ticket['event_date'])) {
+            $message .= '*Date:* ' . date('M j, Y g:i A', strtotime($ticket['event_date'])) . "\n";
         }
 
         return $message;
@@ -80,27 +117,29 @@ class TelegramNotificationChannel
      */
     protected function sendMessage(string $chatId, string $message): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             Log::warning('No Telegram bot token configured');
-            return false;
+
+            return FALSE;
         }
 
         $response = Http::post("https://api.telegram.org/bot{$this->botToken}/sendMessage", [
-            'chat_id' => $chatId,
-            'text' => $message,
-            'parse_mode' => 'Markdown'
+            'chat_id'    => $chatId,
+            'text'       => $message,
+            'parse_mode' => 'Markdown',
         ]);
 
         if ($response->successful()) {
             Log::info('Telegram notification sent successfully');
-            return true;
-        } else {
-            Log::error('Telegram message failed', [
-                'status' => $response->status(),
-                'response' => $response->body()
-            ]);
-            return false;
+
+            return TRUE;
         }
+        Log::error('Telegram message failed', [
+            'status'   => $response->status(),
+            'response' => $response->body(),
+        ]);
+
+        return FALSE;
     }
 
     /**
@@ -113,40 +152,5 @@ class TelegramNotificationChannel
                 ->where('channel', 'telegram')
                 ->first();
         });
-    }
-
-    /**
-     * Test Telegram connection
-     */
-    public function testConnection(User $user): array
-    {
-        try {
-            $testMessage = "*Test Event*
-Price: $99.99
-Available: 2 tickets
-Platform: Test Platform";
-
-            $telegramSettings = $this->getUserTelegramSettings($user);
-
-            if (!$telegramSettings || !$telegramSettings->chat_id) {
-                return [
-                    'success' => false,
-                    'message' => 'No Telegram chat ID configured'
-                ];
-            }
-
-            $success = $this->sendMessage($telegramSettings->chat_id, $testMessage);
-
-            return [
-                'success' => $success,
-                'message' => $success ? 'Telegram test notification sent successfully' : 'Failed to send Telegram test notification'
-            ];
-
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Telegram test failed: ' . $e->getMessage()
-            ];
-        }
     }
 }

@@ -1,0 +1,409 @@
+/* HD Tickets - Card Components */
+/* ============================= */
+
+/* Base card styles */
+.hd-card {
+  background-color: var(--hd-bg-card);
+  border-radius: var(--hd-radius-lg);
+  border: 1px solid var(--hd-border-primary);
+  box-shadow: var(--hd-shadow-sm);
+  transition: var(--hd-transition-all);
+  overflow: hidden;
+  position: relative;
+  contain: layout style paint;
+}
+
+.hd-card:hover {
+  box-shadow: var(--hd-shadow-md);
+}
+
+/* Card variants */
+.hd-card--elevated {
+  box-shadow: var(--hd-shadow-lg);
+}
+
+.hd-card--elevated:hover {
+  box-shadow: var(--hd-shadow-xl);
+}
+
+.hd-card--interactive {
+  cursor: pointer;
+  transition: all var(--hd-transition-200) var(--hd-ease-out);
+}
+
+.hd-card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hd-shadow-lg);
+}
+
+.hd-card--interactive:active {
+  transform: translateY(0);
+  box-shadow: var(--hd-shadow-md);
+}
+
+.hd-card--flat {
+  border: none;
+  box-shadow: none;
+}
+
+.hd-card--outline {
+  background-color: transparent;
+  border: 2px solid var(--hd-border-primary);
+  box-shadow: none;
+}
+
+/* Card parts */
+.hd-card__header {
+  padding: var(--hd-card-padding);
+  padding-bottom: var(--hd-spacing-4);
+  border-bottom: 1px solid var(--hd-border-primary);
+}
+
+.hd-card__body {
+  padding: var(--hd-card-padding);
+}
+
+.hd-card__footer {
+  padding: var(--hd-card-padding);
+  padding-top: var(--hd-spacing-4);
+  border-top: 1px solid var(--hd-border-primary);
+  background-color: var(--hd-bg-secondary);
+}
+
+/* Card content elements */
+.hd-card__title {
+  margin: 0 0 var(--hd-spacing-2) 0;
+  font-size: var(--hd-text-lg);
+  font-weight: var(--hd-font-semibold);
+  color: var(--hd-text-primary);
+  line-height: var(--hd-leading-tight);
+}
+
+.hd-card__subtitle {
+  margin: 0 0 var(--hd-spacing-4) 0;
+  font-size: var(--hd-text-sm);
+  color: var(--hd-text-muted);
+  line-height: var(--hd-leading-normal);
+}
+
+.hd-card__description {
+  margin: 0;
+  font-size: var(--hd-text-sm);
+  color: var(--hd-text-secondary);
+  line-height: var(--hd-leading-relaxed);
+}
+
+/* Card media */
+.hd-card__media {
+  width: 100%;
+  height: 200px;
+  background-color: var(--hd-gray-100);
+  border-bottom: 1px solid var(--hd-border-primary);
+  overflow: hidden;
+  position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: 100% 200px;
+}
+
+.hd-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--hd-transition-300) var(--hd-ease-out);
+}
+
+.hd-card--interactive .hd-card__media img:hover {
+  transform: scale(1.05);
+}
+
+/* Card actions */
+.hd-card__actions {
+  display: flex;
+  gap: var(--hd-spacing-2);
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: var(--hd-spacing-4);
+}
+
+.hd-card__actions--end {
+  justify-content: flex-end;
+}
+
+.hd-card__actions--center {
+  justify-content: center;
+}
+
+.hd-card__actions--between {
+  justify-content: space-between;
+}
+
+/* Card grid layouts */
+.hd-card-grid {
+  display: grid;
+  gap: var(--hd-spacing-6);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  contain: layout style;
+}
+
+.hd-card-grid--compact {
+  gap: var(--hd-spacing-4);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.hd-card-grid--wide {
+  gap: var(--hd-spacing-8);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Specific card types for HD Tickets */
+.hd-ticket-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-ticket-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hd-primary), var(--hd-secondary), var(--hd-accent));
+}
+
+.hd-stat-card {
+  text-align: center;
+  background: linear-gradient(135deg, var(--hd-primary), var(--hd-secondary));
+  color: white;
+  border: none;
+}
+
+.hd-stat-card .hd-card__title {
+  color: white;
+  font-size: var(--hd-text-3xl);
+  font-weight: var(--hd-font-bold);
+  margin-bottom: var(--hd-spacing-1);
+}
+
+.hd-stat-card .hd-card__subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--hd-text-sm);
+  font-weight: var(--hd-font-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--hd-tracking-wide);
+}
+
+/* Dashboard specific cards */
+.hd-dashboard-card {
+  transition: all var(--hd-transition-300) var(--hd-ease-out);
+  border: 1px solid var(--hd-border-primary);
+  contain: layout style paint;
+}
+
+.hd-dashboard-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--hd-shadow-lg);
+}
+
+/* Loading card skeleton */
+.hd-card--loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.hd-card__skeleton {
+  background: linear-gradient(90deg, var(--hd-gray-200) 25%, var(--hd-gray-100) 50%, var(--hd-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: hd-card-skeleton 1.5s infinite;
+  border-radius: var(--hd-radius);
+}
+
+@keyframes hd-card-skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.hd-card__skeleton-title {
+  height: 20px;
+  width: 60%;
+  margin-bottom: var(--hd-spacing-2);
+}
+
+.hd-card__skeleton-text {
+  height: 16px;
+  margin-bottom: var(--hd-spacing-2);
+}
+
+.hd-card__skeleton-text:last-child {
+  width: 80%;
+  margin-bottom: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .hd-card {
+    margin-bottom: var(--hd-spacing-4);
+  }
+  
+  .hd-card__header,
+  .hd-card__body,
+  .hd-card__footer {
+    padding: var(--hd-card-padding-sm);
+  }
+  
+  .hd-card-grid {
+    grid-template-columns: 1fr;
+    gap: var(--hd-spacing-4);
+  }
+  
+  .hd-card-grid--compact,
+  .hd-card-grid--wide {
+    grid-template-columns: 1fr;
+  }
+  
+  .hd-card__media {
+    height: 160px;
+  }
+  
+  .hd-card__actions {
+    flex-direction: column;
+    gap: var(--hd-spacing-2);
+  }
+  
+  .hd-card__actions .hd-btn {
+    width: 100%;
+  }
+  
+  /* Mobile card optimizations for better touch interaction */
+  .hd-card--interactive {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .hd-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+  
+  .hd-card-grid--compact {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  .hd-card-grid--wide {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .hd-card__media {
+    height: 180px;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  .hd-card-grid--wide {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: var(--hd-spacing-10);
+  }
+  
+  .hd-card__media {
+    height: 220px;
+  }
+  
+  /* Enable hover effects only on desktop */
+  .hd-card--interactive:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .hd-card {
+    background-color: var(--hd-bg-card);
+    border-color: var(--hd-border-primary);
+    color: var(--hd-text-primary);
+  }
+  
+  .hd-card__footer {
+    background-color: var(--hd-bg-tertiary);
+  }
+  
+  .hd-card__media {
+    background-color: var(--hd-slate-700);
+  }
+  
+  .hd-card__skeleton {
+    background: linear-gradient(90deg, var(--hd-slate-700) 25%, var(--hd-slate-600) 50%, var(--hd-slate-700) 75%);
+    background-size: 200% 100%;
+  }
+}
+
+.hd-dark .hd-card {
+  background-color: var(--hd-bg-card);
+  border-color: var(--hd-border-primary);
+  color: var(--hd-text-primary);
+}
+
+.hd-dark .hd-card__footer {
+  background-color: var(--hd-bg-tertiary);
+}
+
+.hd-dark .hd-card__media {
+  background-color: var(--hd-slate-700);
+}
+
+.hd-dark .hd-card__skeleton {
+  background: linear-gradient(90deg, var(--hd-slate-700) 25%, var(--hd-slate-600) 50%, var(--hd-slate-700) 75%);
+  background-size: 200% 100%;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .hd-card {
+    border: 2px solid var(--hd-text-primary);
+  }
+  
+  .hd-card--outline {
+    border: 3px solid var(--hd-text-primary);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hd-card,
+  .hd-card--interactive,
+  .hd-dashboard-card,
+  .hd-card__media img,
+  .hd-card__skeleton {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .hd-card--interactive:hover,
+  .hd-dashboard-card:hover {
+    transform: none;
+  }
+  
+  .hd-card--interactive .hd-card__media img:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .hd-card,
+  .hd-dashboard-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .hd-card-grid {
+    display: block;
+  }
+  
+  .hd-card {
+    margin-bottom: var(--hd-spacing-4);
+  }
+}

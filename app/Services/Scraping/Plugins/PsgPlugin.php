@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class PsgPlugin extends BaseScraperPlugin
@@ -69,26 +71,26 @@ class PsgPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/billetterie';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['recherche'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['date_debut'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['date_fin'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -97,15 +99,15 @@ class PsgPlugin extends BaseScraperPlugin
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
-            'ligue 1' => 'ligue-1',
-            'champions league' => 'champions-league',
-            'coupe de france' => 'coupe-de-france',
-            'coupe de la ligue' => 'coupe-de-la-ligue',
-            'europa league' => 'europa-league',
-            'le classique' => 'le-classique',
+            'ligue 1'               => 'ligue-1',
+            'champions league'      => 'champions-league',
+            'coupe de france'       => 'coupe-de-france',
+            'coupe de la ligue'     => 'coupe-de-la-ligue',
+            'europa league'         => 'europa-league',
+            'le classique'          => 'le-classique',
             'trophee des champions' => 'trophee-des-champions',
         ];
-        
+
         return $mapping[strtolower($competition)] ?? 'toutes';
     }
 
@@ -119,37 +121,36 @@ class PsgPlugin extends BaseScraperPlugin
 
         try {
             // Parse PSG specific event structure
-            $crawler->filter('.match-card, .match, .evento, .billet-item, .fixture, .rencontre')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.match-card, .match, .evento, .billet-item, .fixture, .rencontre')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse PSG event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
+                } catch (Exception $e) {
+                    Log::warning('Failed to parse PSG event node', [
+                        'error'        => $e->getMessage(),
+                        'html_snippet' => substr($node->html(), 0, 200),
                     ]);
                 }
             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .entry, .event-row')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse PSG events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse PSG events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

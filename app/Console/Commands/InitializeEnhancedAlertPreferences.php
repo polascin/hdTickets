@@ -1,25 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\UserPreference;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class InitializeEnhancedAlertPreferences extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'enhanced-alerts:init-preferences 
                             {--user= : Specific user ID to initialize}
                             {--force : Force reinitialize existing preferences}
                             {--dry-run : Show what would be done without making changes}';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Initialize enhanced alert preferences for users';
 
     /**
@@ -44,6 +41,7 @@ class InitializeEnhancedAlertPreferences extends Command
 
             if ($users->isEmpty()) {
                 $this->error('❌ No users found');
+
                 return Command::FAILURE;
             }
 
@@ -60,16 +58,18 @@ class InitializeEnhancedAlertPreferences extends Command
 
                 try {
                     $result = $this->initializeUserPreferences($user, $force, $dryRun);
-                    
+
                     switch ($result) {
                         case 'initialized':
                             $initialized++;
+
                             break;
                         case 'skipped':
                             $skipped++;
+
                             break;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors++;
                     $this->newLine();
                     $this->error("❌ Error initializing preferences for {$user->email}: " . $e->getMessage());
@@ -80,18 +80,18 @@ class InitializeEnhancedAlertPreferences extends Command
             $this->newLine(2);
 
             // Summary
-            $this->info("✅ Initialization Summary:");
+            $this->info('✅ Initialization Summary:');
             $this->table(
                 ['Status', 'Count'],
                 [
                     ['Initialized', $initialized],
                     ['Skipped', $skipped],
                     ['Errors', $errors],
-                    ['Total', $users->count()]
-                ]
+                    ['Total', $users->count()],
+                ],
             );
 
-            if (!$dryRun) {
+            if (! $dryRun) {
                 DB::commit();
                 $this->info('💾 Changes committed to database');
             } else {
@@ -100,10 +100,10 @@ class InitializeEnhancedAlertPreferences extends Command
             }
 
             return Command::SUCCESS;
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             $this->error('❌ Failed to initialize preferences: ' . $e->getMessage());
+
             return Command::FAILURE;
         }
     }
@@ -116,7 +116,7 @@ class InitializeEnhancedAlertPreferences extends Command
         // Check if user already has preferences
         $existingPreferences = UserPreference::where('user_id', $user->id)->count();
 
-        if ($existingPreferences > 0 && !$force) {
+        if ($existingPreferences > 0 && ! $force) {
             return 'skipped';
         }
 
@@ -126,6 +126,7 @@ class InitializeEnhancedAlertPreferences extends Command
             } else {
                 $this->line("  Would initialize default preferences for {$user->email}");
             }
+
             return 'initialized';
         }
 

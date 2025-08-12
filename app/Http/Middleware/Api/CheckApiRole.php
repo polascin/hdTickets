@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware\Api;
 
@@ -6,23 +6,27 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use function in_array;
+
 class CheckApiRole
 {
     /**
      * Handle an incoming request.
+     *
+     * @param array $roles
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         // Check if user has any of the required roles
-        if (!in_array($user->role, $roles)) {
+        if (! in_array($user->role, $roles, TRUE)) {
             return response()->json([
-                'message' => 'Forbidden. Required roles: ' . implode(', ', $roles)
+                'message' => 'Forbidden. Required roles: ' . implode(', ', $roles),
             ], 403);
         }
 

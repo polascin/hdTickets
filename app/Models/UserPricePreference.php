@@ -1,10 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function in_array;
 
 class UserPricePreference extends Model
 {
@@ -28,23 +30,23 @@ class UserPricePreference extends Model
         'push_alerts',
         'sms_alerts',
         'alert_frequency',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
-        'min_price' => 'decimal:2',
-        'max_price' => 'decimal:2',
-        'preferred_quantity' => 'integer',
-        'seat_preferences' => 'array',
-        'section_preferences' => 'array',
-        'price_drop_threshold' => 'decimal:2',
+        'min_price'                => 'decimal:2',
+        'max_price'                => 'decimal:2',
+        'preferred_quantity'       => 'integer',
+        'seat_preferences'         => 'array',
+        'section_preferences'      => 'array',
+        'price_drop_threshold'     => 'decimal:2',
         'price_increase_threshold' => 'decimal:2',
-        'auto_purchase_enabled' => 'boolean',
-        'auto_purchase_max_price' => 'decimal:2',
-        'email_alerts' => 'boolean',
-        'push_alerts' => 'boolean',
-        'sms_alerts' => 'boolean',
-        'is_active' => 'boolean'
+        'auto_purchase_enabled'    => 'boolean',
+        'auto_purchase_max_price'  => 'decimal:2',
+        'email_alerts'             => 'boolean',
+        'push_alerts'              => 'boolean',
+        'sms_alerts'               => 'boolean',
+        'is_active'                => 'boolean',
     ];
 
     /**
@@ -57,6 +59,8 @@ class UserPricePreference extends Model
 
     /**
      * Scope to filter by sport type
+     *
+     * @param mixed $query
      */
     public function scopeBySport($query, string $sportType)
     {
@@ -65,6 +69,8 @@ class UserPricePreference extends Model
 
     /**
      * Scope to filter by event category
+     *
+     * @param mixed $query
      */
     public function scopeByCategory($query, string $category)
     {
@@ -73,40 +79,48 @@ class UserPricePreference extends Model
 
     /**
      * Scope for active preferences
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
      * Scope for preferences with auto-purchase enabled
+     *
+     * @param mixed $query
      */
     public function scopeWithAutoPurchase($query)
     {
-        return $query->where('auto_purchase_enabled', true);
+        return $query->where('auto_purchase_enabled', TRUE);
     }
 
     /**
      * Scope for preferences within a price range
+     *
+     * @param mixed $query
      */
     public function scopeWithinPriceRange($query, float $price)
     {
-        return $query->where(function ($q) use ($price) {
-            $q->where(function ($subQ) use ($price) {
+        return $query->where(function ($q) use ($price): void {
+            $q->where(function ($subQ) use ($price): void {
                 $subQ->whereNull('min_price')
-                     ->orWhere('min_price', '<=', $price);
+                    ->orWhere('min_price', '<=', $price);
             })
-            ->where('max_price', '>=', $price);
+                ->where('max_price', '>=', $price);
         });
     }
 
     /**
      * Scope for preferences with email alerts
+     *
+     * @param mixed $query
      */
     public function scopeWithEmailAlerts($query)
     {
-        return $query->where('email_alerts', true);
+        return $query->where('email_alerts', TRUE);
     }
 
     /**
@@ -116,13 +130,13 @@ class UserPricePreference extends Model
     {
         return [
             'regular_season' => 'Regular Season',
-            'preseason' => 'Preseason',
-            'playoffs' => 'Playoffs',
-            'championship' => 'Championship',
-            'all_star' => 'All-Star Game',
-            'exhibition' => 'Exhibition',
-            'tournament' => 'Tournament',
-            'special_event' => 'Special Event'
+            'preseason'      => 'Preseason',
+            'playoffs'       => 'Playoffs',
+            'championship'   => 'Championship',
+            'all_star'       => 'All-Star Game',
+            'exhibition'     => 'Exhibition',
+            'tournament'     => 'Tournament',
+            'special_event'  => 'Special Event',
         ];
     }
 
@@ -132,20 +146,20 @@ class UserPricePreference extends Model
     public static function getSeatPreferences(): array
     {
         return [
-            'lower_level' => 'Lower Level',
-            'club_level' => 'Club Level',
-            'upper_level' => 'Upper Level',
-            'suite' => 'Suite/Box',
-            'field_level' => 'Field Level',
-            'behind_bench' => 'Behind Bench',
-            'behind_plate' => 'Behind Home Plate',
-            'sideline' => 'Sideline',
-            'corner' => 'Corner',
-            'endzone' => 'End Zone',
-            'center_court' => 'Center Court',
-            'baseline' => 'Baseline',
-            'aisle' => 'Aisle Seats',
-            'wheelchair_accessible' => 'Wheelchair Accessible'
+            'lower_level'           => 'Lower Level',
+            'club_level'            => 'Club Level',
+            'upper_level'           => 'Upper Level',
+            'suite'                 => 'Suite/Box',
+            'field_level'           => 'Field Level',
+            'behind_bench'          => 'Behind Bench',
+            'behind_plate'          => 'Behind Home Plate',
+            'sideline'              => 'Sideline',
+            'corner'                => 'Corner',
+            'endzone'               => 'End Zone',
+            'center_court'          => 'Center Court',
+            'baseline'              => 'Baseline',
+            'aisle'                 => 'Aisle Seats',
+            'wheelchair_accessible' => 'Wheelchair Accessible',
         ];
     }
 
@@ -156,8 +170,8 @@ class UserPricePreference extends Model
     {
         return [
             'immediate' => 'Immediate',
-            'hourly' => 'Hourly Summary',
-            'daily' => 'Daily Digest'
+            'hourly'    => 'Hourly Summary',
+            'daily'     => 'Daily Digest',
         ];
     }
 
@@ -167,14 +181,10 @@ class UserPricePreference extends Model
     public function matchesPrice(float $ticketPrice): bool
     {
         if ($this->min_price && $ticketPrice < $this->min_price) {
-            return false;
+            return FALSE;
         }
 
-        if ($ticketPrice > $this->max_price) {
-            return false;
-        }
-
-        return true;
+        return ! ($ticketPrice > $this->max_price);
     }
 
     /**
@@ -183,10 +193,11 @@ class UserPricePreference extends Model
     public function isPriceDropSignificant(float $oldPrice, float $newPrice): bool
     {
         if ($oldPrice <= 0) {
-            return false;
+            return FALSE;
         }
 
         $percentageChange = (($oldPrice - $newPrice) / $oldPrice) * 100;
+
         return $percentageChange >= $this->price_drop_threshold;
     }
 
@@ -196,10 +207,11 @@ class UserPricePreference extends Model
     public function isPriceIncreaseSignificant(float $oldPrice, float $newPrice): bool
     {
         if ($oldPrice <= 0) {
-            return false;
+            return FALSE;
         }
 
         $percentageChange = (($newPrice - $oldPrice) / $oldPrice) * 100;
+
         return $percentageChange >= $this->price_increase_threshold;
     }
 
@@ -209,16 +221,16 @@ class UserPricePreference extends Model
     public function matchesSeatPreferences(array $ticketSeatInfo): bool
     {
         if (empty($this->seat_preferences)) {
-            return true; // No specific seat preferences
+            return TRUE; // No specific seat preferences
         }
 
         foreach ($this->seat_preferences as $preference) {
-            if (in_array($preference, $ticketSeatInfo)) {
-                return true;
+            if (in_array($preference, $ticketSeatInfo, TRUE)) {
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -227,10 +239,10 @@ class UserPricePreference extends Model
     public function matchesSectionPreferences(string $ticketSection): bool
     {
         if (empty($this->section_preferences)) {
-            return true; // No specific section preferences
+            return TRUE; // No specific section preferences
         }
 
-        return in_array($ticketSection, $this->section_preferences);
+        return in_array($ticketSection, $this->section_preferences, TRUE);
     }
 
     /**
@@ -238,8 +250,8 @@ class UserPricePreference extends Model
      */
     public function shouldAutoPurchase(float $ticketPrice): bool
     {
-        if (!$this->auto_purchase_enabled || !$this->auto_purchase_max_price) {
-            return false;
+        if (! $this->auto_purchase_enabled || ! $this->auto_purchase_max_price) {
+            return FALSE;
         }
 
         return $ticketPrice <= $this->auto_purchase_max_price;
@@ -251,10 +263,10 @@ class UserPricePreference extends Model
     public function getNotificationSettings(): array
     {
         return [
-            'email' => $this->email_alerts,
-            'push' => $this->push_alerts,
-            'sms' => $this->sms_alerts,
-            'frequency' => $this->alert_frequency
+            'email'     => $this->email_alerts,
+            'push'      => $this->push_alerts,
+            'sms'       => $this->sms_alerts,
+            'frequency' => $this->alert_frequency,
         ];
     }
 
@@ -264,10 +276,10 @@ class UserPricePreference extends Model
     public function updateNotificationSettings(array $settings): void
     {
         $this->update([
-            'email_alerts' => $settings['email'] ?? $this->email_alerts,
-            'push_alerts' => $settings['push'] ?? $this->push_alerts,
-            'sms_alerts' => $settings['sms'] ?? $this->sms_alerts,
-            'alert_frequency' => $settings['frequency'] ?? $this->alert_frequency
+            'email_alerts'    => $settings['email'] ?? $this->email_alerts,
+            'push_alerts'     => $settings['push'] ?? $this->push_alerts,
+            'sms_alerts'      => $settings['sms'] ?? $this->sms_alerts,
+            'alert_frequency' => $settings['frequency'] ?? $this->alert_frequency,
         ]);
     }
 
@@ -278,7 +290,7 @@ class UserPricePreference extends Model
     {
         $min = $this->min_price ? '$' . number_format($this->min_price, 2) : 'Any';
         $max = '$' . number_format($this->max_price, 2);
-        
+
         return $this->min_price ? "{$min} - {$max}" : "Up to {$max}";
     }
 
@@ -290,27 +302,28 @@ class UserPricePreference extends Model
         if ($this->min_price) {
             return ($this->min_price + $this->max_price) / 2;
         }
-        
+
         return $this->max_price * 0.7; // Assume target is 70% of max if no min
     }
 
     /**
      * Clone preference for different sport/category
      */
-    public function cloneFor(string $sportType = null, string $eventCategory = null): self
+    public function cloneFor(?string $sportType = NULL, ?string $eventCategory = NULL): self
     {
         $clone = $this->replicate();
         $clone->preference_name = $this->preference_name . ' (Copy)';
-        
+
         if ($sportType) {
             $clone->sport_type = $sportType;
         }
-        
+
         if ($eventCategory) {
             $clone->event_category = $eventCategory;
         }
-        
+
         $clone->save();
+
         return $clone;
     }
 
@@ -320,32 +333,32 @@ class UserPricePreference extends Model
     public static function getPriceStats(int $userId): array
     {
         $preferences = self::where('user_id', $userId)->get();
-        
-        $activePref = $preferences->where('is_active', true);
+
+        $activePref = $preferences->where('is_active', TRUE);
         $avgMaxPrice = $activePref->avg('max_price') ?? 0;
         $avgMinPrice = $activePref->where('min_price', '>', 0)->avg('min_price') ?? 0;
-        
+
         return [
-            'total_preferences' => $preferences->count(),
-            'active_preferences' => $activePref->count(),
-            'auto_purchase_enabled' => $preferences->where('auto_purchase_enabled', true)->count(),
-            'average_max_price' => round($avgMaxPrice, 2),
-            'average_min_price' => round($avgMinPrice, 2),
-            'total_budget' => round($activePref->sum('max_price'), 2),
-            'by_sport' => $preferences->groupBy('sport_type')->map(function ($group) {
+            'total_preferences'     => $preferences->count(),
+            'active_preferences'    => $activePref->count(),
+            'auto_purchase_enabled' => $preferences->where('auto_purchase_enabled', TRUE)->count(),
+            'average_max_price'     => round($avgMaxPrice, 2),
+            'average_min_price'     => round($avgMinPrice, 2),
+            'total_budget'          => round($activePref->sum('max_price'), 2),
+            'by_sport'              => $preferences->groupBy('sport_type')->map(function ($group) {
                 return [
-                    'count' => $group->count(),
-                    'avg_max_price' => round($group->avg('max_price'), 2)
+                    'count'         => $group->count(),
+                    'avg_max_price' => round($group->avg('max_price'), 2),
                 ];
             })->toArray(),
             'by_category' => $preferences->groupBy('event_category')->map(function ($group) {
                 return $group->count();
             })->toArray(),
             'alert_methods' => [
-                'email' => $preferences->where('email_alerts', true)->count(),
-                'push' => $preferences->where('push_alerts', true)->count(),
-                'sms' => $preferences->where('sms_alerts', true)->count()
-            ]
+                'email' => $preferences->where('email_alerts', TRUE)->count(),
+                'push'  => $preferences->where('push_alerts', TRUE)->count(),
+                'sms'   => $preferences->where('sms_alerts', TRUE)->count(),
+            ],
         ];
     }
 
@@ -355,18 +368,18 @@ class UserPricePreference extends Model
     public function getSimilarPreferences(int $limit = 5): array
     {
         return self::where('user_id', $this->user_id)
-                  ->where('id', '!=', $this->id)
-                  ->where(function ($query) {
-                      $query->where('sport_type', $this->sport_type)
-                            ->orWhere('event_category', $this->event_category)
-                            ->orWhereBetween('max_price', [
-                                $this->max_price * 0.8,
-                                $this->max_price * 1.2
-                            ]);
-                  })
-                  ->limit($limit)
-                  ->get()
-                  ->toArray();
+            ->where('id', '!=', $this->id)
+            ->where(function ($query): void {
+                $query->where('sport_type', $this->sport_type)
+                    ->orWhere('event_category', $this->event_category)
+                    ->orWhereBetween('max_price', [
+                        $this->max_price * 0.8,
+                        $this->max_price * 1.2,
+                    ]);
+            })
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -388,8 +401,8 @@ class UserPricePreference extends Model
             $errors[] = 'Preferred quantity must be at least 1';
         }
 
-        if (isset($data['auto_purchase_max_price'], $data['max_price']) && 
-            $data['auto_purchase_max_price'] > $data['max_price']) {
+        if (isset($data['auto_purchase_max_price'], $data['max_price'])
+            && $data['auto_purchase_max_price'] > $data['max_price']) {
             $errors[] = 'Auto-purchase maximum cannot exceed the general maximum price';
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
@@ -12,16 +12,16 @@ class AgentMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param Closure(Request): (Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('login');
         }
 
         $user = Auth::user();
-        if (!$user->isAgent() && !$user->isAdmin()) {
+        if (! $user->isAgent() && ! $user->isAdmin()) {
             abort(403, 'Access denied. Agent role required.');
         }
 

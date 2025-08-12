@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Log Channel
@@ -32,7 +31,7 @@ return [
 
     'deprecations' => [
         'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
-        'trace' => false,
+        'trace'   => FALSE,
     ],
 
     /*
@@ -52,65 +51,65 @@ return [
 
     'channels' => [
         'stack' => [
-            'driver' => 'stack',
-            'channels' => ['single'],
-            'ignore_exceptions' => false,
+            'driver'            => 'stack',
+            'channels'          => ['single'],
+            'ignore_exceptions' => FALSE,
         ],
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/laravel.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'path'   => storage_path('logs/laravel.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 14,
         ],
 
         'slack' => [
-            'driver' => 'slack',
-            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+            'driver'   => 'slack',
+            'url'      => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => 'HDTickets Monitor',
-            'emoji' => ':warning:',
-            'level' => env('LOG_LEVEL', 'critical'),
+            'emoji'    => ':warning:',
+            'level'    => env('LOG_LEVEL', 'critical'),
         ],
 
         'papertrail' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
+            'driver'       => 'monolog',
+            'level'        => env('LOG_LEVEL', 'debug'),
+            'handler'      => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
             'handler_with' => [
-                'host' => env('PAPERTRAIL_URL'),
-                'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'host'             => env('PAPERTRAIL_URL'),
+                'port'             => env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
         ],
 
         'stderr' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => StreamHandler::class,
+            'driver'    => 'monolog',
+            'level'     => env('LOG_LEVEL', 'debug'),
+            'handler'   => StreamHandler::class,
             'formatter' => env('LOG_STDERR_FORMATTER'),
-            'with' => [
+            'with'      => [
                 'stream' => 'php://stderr',
             ],
         ],
 
         'syslog' => [
             'driver' => 'syslog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
         'errorlog' => [
             'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
         'null' => [
-            'driver' => 'monolog',
+            'driver'  => 'monolog',
             'handler' => NullHandler::class,
         ],
 
@@ -129,10 +128,10 @@ return [
         */
         'ticket_apis' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/ticket_apis.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 30, // Keep logs for 30 days
-            'tap' => [App\Logging\TicketApiFormatter::class],
+            'path'   => storage_path('logs/ticket_apis.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 30, // Keep logs for 30 days
+            'tap'    => [App\Logging\TicketApiFormatter::class],
         ],
 
         /*
@@ -145,9 +144,9 @@ return [
         */
         'monitoring' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/monitoring.log'),
-            'level' => env('LOG_LEVEL', 'info'),
-            'days' => 60, // Keep monitoring logs longer
+            'path'   => storage_path('logs/monitoring.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 60, // Keep monitoring logs longer
         ],
 
         /*
@@ -160,9 +159,9 @@ return [
         */
         'performance' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/performance.log'),
-            'level' => env('LOG_LEVEL', 'info'),
-            'days' => 14,
+            'path'   => storage_path('logs/performance.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 14,
         ],
 
         /*
@@ -175,9 +174,9 @@ return [
         */
         'security' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/security.log'),
-            'level' => env('LOG_LEVEL', 'info'),
-            'days' => 90, // Keep security logs for 90 days
+            'path'   => storage_path('logs/security.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 90, // Keep security logs for 90 days
         ],
 
         /*
@@ -190,9 +189,9 @@ return [
         |
         */
         'critical_alerts' => [
-            'driver' => 'stack',
-            'channels' => ['daily', 'slack'],
-            'ignore_exceptions' => false,
+            'driver'            => 'stack',
+            'channels'          => ['daily', 'slack'],
+            'ignore_exceptions' => FALSE,
         ],
 
         /*
@@ -205,9 +204,9 @@ return [
         */
         'audit' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/audit.log'),
-            'level' => 'info',
-            'days' => 180, // Keep audit logs for 6 months
+            'path'   => storage_path('logs/audit.log'),
+            'level'  => 'info',
+            'days'   => 180, // Keep audit logs for 6 months
         ],
 
         /*
@@ -221,10 +220,9 @@ return [
         */
         'auth_debug' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/auth_debug.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 7, // Keep auth debug logs for 7 days
+            'path'   => storage_path('logs/auth_debug.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 7, // Keep auth debug logs for 7 days
         ],
     ],
-
 ];

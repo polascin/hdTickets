@@ -1,66 +1,42 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use DateTime;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
+
+use function count;
+use function is_array;
 
 class StubHubClient extends BaseWebScrapingClient
 {
     public function __construct(array $config)
     {
         parent::__construct($config);
-        $sandbox = $config['sandbox'] ?? false;
+        $sandbox = $config['sandbox'] ?? FALSE;
         $this->baseUrl = $sandbox ? 'https://api.stubhub.com/sellers/search/events/v3' : 'https://api.stubhub.com/sellers/search/events/v3';
         $this->respectRateLimit('stubhub');
-    }
-
-
-    protected function getHeaders(): array
-    {
-        $headers = [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ];
-
-        if (!empty($this->config['api_key'])) {
-            $headers['Authorization'] = 'Bearer ' . $this->config['api_key'];
-        }
-
-        if (!empty($this->config['app_token'])) {
-            $headers['X-SH-Application-Token'] = $this->config['app_token'];
-        }
-
-        return $headers;
     }
 
     public function searchEvents(array $criteria): array
     {
         // Try API first if credentials are available
-        if (!empty($this->config['api_key']) && !empty($this->config['app_token'])) {
+        if (! empty($this->config['api_key']) && ! empty($this->config['app_token'])) {
             try {
                 return $this->searchEventsViaApi($criteria);
             } catch (Exception $e) {
                 Log::warning('StubHub API search failed, falling back to scraping', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         // Fallback to web scraping
         return $this->scrapeSearchResults($criteria['q'] ?? '', $criteria['city'] ?? '', $criteria['per_page'] ?? 50);
-    }
-
-    protected function searchEventsViaApi(array $criteria): array
-    {
-        $params = $this->buildApiSearchParams($criteria);
-        $response = $this->makeRequest('GET', '', $params);
-        
-        return $response['events'] ?? [];
     }
 
     /**
@@ -71,17 +47,121 @@ class StubHubClient extends BaseWebScrapingClient
         try {
             $criteria = ['q' => $keyword, 'city' => $location, 'per_page' => $maxResults];
             $searchUrl = $this->buildScrapingSearchUrl($criteria);
-            
+
             $html = $this->makeScrapingRequest($searchUrl);
+
             return $this->parseSearchResultsHtml($html);
         } catch (Exception $e) {
             Log::error('StubHub scraping search failed', [
-                'keyword' => $keyword,
+                'keyword'  => $keyword,
                 'location' => $location,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             return [];
         }
+    }
+
+    public function getEvent(string $eventId): array
+    {
+        // Try API first if available
+        if (! empty($this->config['api_key'])) {
+            try {
+                return $this->getEventViaApi($eventId);
+            } catch (Exception $e) {
+                Log::warning('StubHub API event fetch failed, falling back to scraping', [
+                    'event_id' => $eventId,
+                    'error'    => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Fallback to scraping
+        return $this->getEventViaScraping($eventId);
+    }
+
+    /**
+     * Scrape event details from URL
+     */
+    public function scrapeEventDetails(string $url): array
+    {
+        try {
+            $html = $this->makeScrapingRequest($url, ['referer' => $this->baseUrl]);
+            $crawler = new Crawler($html);
+
+            return $this->extractEventDetails($crawler, $url);
+        } catch (Exception $e) {
+            Log::error('Failed to scrape StubHub event details', [
+                'url'   => $url,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    public function getVenue(string $venueId): array
+    {
+        // StubHub doesn't have a direct venue API, we'll return basic info
+        return [
+            'id'      => $venueId,
+            'name'    => 'Unknown Venue',
+            'city'    => 'Unknown City',
+            'country' => 'Unknown Country',
+        ];
+    }
+
+    /**
+     * Get available tickets with detailed pricing
+     */
+    public function getEventTickets(string $eventId, array $filters = []): array
+    {
+        try {
+            $eventDetails = $this->getEvent($eventId);
+
+            return [
+                'event_id'       => $eventId,
+                'total_listings' => $eventDetails['available_listings'] ?? 0,
+                'price_range'    => [
+                    'min' => $eventDetails['price_min'] ?? NULL,
+                    'max' => $eventDetails['price_max'] ?? NULL,
+                ],
+                'prices' => $eventDetails['prices'] ?? [],
+            ];
+        } catch (Exception $e) {
+            Log::error('Failed to get StubHub event tickets', [
+                'event_id' => $eventId,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    protected function getHeaders(): array
+    {
+        $headers = [
+            'Accept'       => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+
+        if (! empty($this->config['api_key'])) {
+            $headers['Authorization'] = 'Bearer ' . $this->config['api_key'];
+        }
+
+        if (! empty($this->config['app_token'])) {
+            $headers['X-SH-Application-Token'] = $this->config['app_token'];
+        }
+
+        return $headers;
+    }
+
+    protected function searchEventsViaApi(array $criteria): array
+    {
+        $params = $this->buildApiSearchParams($criteria);
+        $response = $this->makeRequest('GET', '', $params);
+
+        return $response['events'] ?? [];
     }
 
     protected function buildScrapingSearchUrl(array $criteria): string
@@ -118,44 +198,46 @@ class StubHubClient extends BaseWebScrapingClient
     {
         $events = [];
         $count = 0;
-        
+
         try {
             // StubHub event selectors
             $eventSelectors = [
                 '.EventCard',
                 '.event-card',
                 '.SearchResultCard',
-                '.search-result'
+                '.search-result',
             ];
-            
+
             foreach ($eventSelectors as $selector) {
                 if ($crawler->filter($selector)->count() > 0) {
                     $crawler->filter($selector)->each(function (Crawler $node) use (&$events, &$count, $maxResults) {
                         if ($count >= $maxResults) {
-                            return false;
+                            return FALSE;
                         }
-                        
+
                         $event = $this->extractEventFromNode($node);
-                        if (!empty($event['name'])) {
+                        if (! empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
                     });
+
                     break;
                 }
             }
         } catch (Exception $e) {
             Log::error('Failed to extract StubHub search results', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $events;
     }
-    
+
     protected function parseSearchResultsHtml(string $html): array
     {
         $crawler = new Crawler($html);
+
         return $this->extractSearchResults($crawler, 50);
     }
 
@@ -165,7 +247,7 @@ class StubHubClient extends BaseWebScrapingClient
     protected function extractEventFromNode(Crawler $node): array
     {
         $event = [
-            'platform' => 'stubhub',
+            'platform'   => 'stubhub',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -176,13 +258,13 @@ class StubHubClient extends BaseWebScrapingClient
                 'h3',
                 'h4',
                 '.title',
-                'a'
+                'a',
             ]);
             $event['name'] = $name;
 
             // Event URL
             $url = $this->trySelectors($node, [
-                'a[href*="/event/"]'
+                'a[href*="/event/"]',
             ], 'href');
             if ($url) {
                 $event['url'] = $this->normalizeUrl($url);
@@ -193,7 +275,7 @@ class StubHubClient extends BaseWebScrapingClient
             $date = $this->trySelectors($node, [
                 '.date',
                 'time',
-                '.event-date'
+                '.event-date',
             ]);
             if ($date) {
                 $event['date'] = $date;
@@ -204,33 +286,32 @@ class StubHubClient extends BaseWebScrapingClient
             $venue = $this->trySelectors($node, [
                 '.venue',
                 '.venue-name',
-                '.location'
+                '.location',
             ]);
             $event['venue'] = $venue;
 
             // Price information using enhanced extraction
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
-            
-            if (!empty($prices)) {
+
+            if (! empty($prices)) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
             }
-
         } catch (Exception $e) {
             Log::warning('Failed to extract StubHub event from node', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
-    
+
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
-            'platform' => 'stubhub',
+            'platform'   => 'stubhub',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -271,7 +352,7 @@ class StubHubClient extends BaseWebScrapingClient
                 }
             }
             $event['prices'] = $prices;
-            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = ! empty($prices) ? implode(' - ', $prices) : '';
 
             // Extract min/max prices
             $this->extractPriceRange($event, $prices);
@@ -281,40 +362,22 @@ class StubHubClient extends BaseWebScrapingClient
             if ($availabilityNode) {
                 $availText = trim($availabilityNode->textContent);
                 if (preg_match('/(\d+)\s*(?:ticket|listing)s?\s*available/i', $availText, $matches)) {
-                    $event['ticket_count'] = intval($matches[1]);
+                    $event['ticket_count'] = (int) ($matches[1]);
                 }
             }
-
         } catch (Exception $e) {
             Log::warning('Failed to parse StubHub event card', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
 
-    public function getEvent(string $eventId): array
-    {
-        // Try API first if available
-        if (!empty($this->config['api_key'])) {
-            try {
-                return $this->getEventViaApi($eventId);
-            } catch (Exception $e) {
-                Log::warning('StubHub API event fetch failed, falling back to scraping', [
-                    'event_id' => $eventId,
-                    'error' => $e->getMessage()
-                ]);
-            }
-        }
-
-        // Fallback to scraping
-        return $this->getEventViaScraping($eventId);
-    }
-
     protected function getEventViaApi(string $eventId): array
     {
         $endpoint = "events/{$eventId}";
+
         return $this->makeRequest('GET', $endpoint);
     }
 
@@ -322,33 +385,16 @@ class StubHubClient extends BaseWebScrapingClient
     {
         try {
             $eventUrl = "https://www.stubhub.com/event/{$eventId}";
-            
+
             $html = $this->makeScrapingRequest($eventUrl, ['referer' => 'https://www.stubhub.com']);
+
             return $this->parseEventDetailsHtml($html, $eventId);
         } catch (Exception $e) {
             Log::error('StubHub event scraping failed', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
-            return [];
-        }
-    }
-    
-    /**
-     * Scrape event details from URL
-     */
-    public function scrapeEventDetails(string $url): array
-    {
-        try {
-            $html = $this->makeScrapingRequest($url, ['referer' => $this->baseUrl]);
-            $crawler = new Crawler($html);
-            
-            return $this->extractEventDetails($crawler, $url);
-        } catch (Exception $e) {
-            Log::error('Failed to scrape StubHub event details', [
-                'url' => $url,
-                'error' => $e->getMessage()
-            ]);
+
             return [];
         }
     }
@@ -356,8 +402,8 @@ class StubHubClient extends BaseWebScrapingClient
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
         $event = [
-            'id' => $eventId,
-            'platform' => 'stubhub',
+            'id'         => $eventId,
+            'platform'   => 'stubhub',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -402,26 +448,14 @@ class StubHubClient extends BaseWebScrapingClient
             // Event description
             $descNode = $xpath->query('//div[contains(@class, "description")] | //div[contains(@class, "event-info")]')->item(0);
             $event['description'] = $descNode ? trim($descNode->textContent) : '';
-
         } catch (Exception $e) {
             Log::error('Failed to parse StubHub event details HTML', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
         }
 
         return $event;
-    }
-
-    public function getVenue(string $venueId): array
-    {
-        // StubHub doesn't have a direct venue API, we'll return basic info
-        return [
-            'id' => $venueId,
-            'name' => 'Unknown Venue',
-            'city' => 'Unknown City',
-            'country' => 'Unknown Country',
-        ];
     }
 
     protected function buildApiSearchParams(array $criteria): array
@@ -454,28 +488,28 @@ class StubHubClient extends BaseWebScrapingClient
     {
         return [
             // Standard Fields
-            'id' => $eventData['id'] ?? null,
-            'name' => $eventData['name'] ?? 'Unnamed Event',
-            'date' => $eventData['parsed_date'] ? $eventData['parsed_date']->format('Y-m-d') : null,
-            'time' => $eventData['parsed_date'] ? $eventData['parsed_date']->format('H:i:s') : null,
-            'venue' => $eventData['venue'] ?? 'Unknown Venue',
-            'city' => $this->extractCity($eventData['location'] ?? ''),
-            'country' => $this->determineCountry($eventData['location'] ?? ''),
-            'url' => $eventData['url'] ?? '',
-            'price_min' => $eventData['price_min'] ?? null,
-            'price_max' => $eventData['price_max'] ?? null,
-            'currency' => 'USD', // StubHub primarily uses USD
+            'id'                  => $eventData['id'] ?? NULL,
+            'name'                => $eventData['name'] ?? 'Unnamed Event',
+            'date'                => $eventData['parsed_date'] ? $eventData['parsed_date']->format('Y-m-d') : NULL,
+            'time'                => $eventData['parsed_date'] ? $eventData['parsed_date']->format('H:i:s') : NULL,
+            'venue'               => $eventData['venue'] ?? 'Unknown Venue',
+            'city'                => $this->extractCity($eventData['location'] ?? ''),
+            'country'             => $this->determineCountry($eventData['location'] ?? ''),
+            'url'                 => $eventData['url'] ?? '',
+            'price_min'           => $eventData['price_min'] ?? NULL,
+            'price_max'           => $eventData['price_max'] ?? NULL,
+            'currency'            => 'USD', // StubHub primarily uses USD
             'availability_status' => $this->mapAvailabilityStatus($this->determineStatus($eventData)),
-            'ticket_count' => $eventData['ticket_count'] ?? $eventData['available_listings'] ?? null,
-            'image_url' => $eventData['image_url'] ?? null,
-            'description' => $eventData['description'] ?? '',
-            
+            'ticket_count'        => $eventData['ticket_count'] ?? $eventData['available_listings'] ?? NULL,
+            'image_url'           => $eventData['image_url'] ?? NULL,
+            'description'         => $eventData['description'] ?? '',
+
             // StubHub Platform-Specific Mappings
-            'ticket_classes' => $this->extractTicketClasses($eventData),
-            'zones' => $this->extractZones($eventData),
+            'ticket_classes'   => $this->extractTicketClasses($eventData),
+            'zones'            => $this->extractZones($eventData),
             'section_mappings' => $this->mapSections($eventData),
-            'listing_count' => $eventData['available_listings'] ?? null,
-            
+            'listing_count'    => $eventData['available_listings'] ?? NULL,
+
             // Metadata
             'platform' => 'stubhub',
             'raw_data' => $eventData, // Store original data for debugging
@@ -487,8 +521,8 @@ class StubHubClient extends BaseWebScrapingClient
         if (empty($eventData['prices']) && empty($eventData['ticket_count'])) {
             return 'soldout';
         }
-        
-        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+
+        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
@@ -501,15 +535,16 @@ class StubHubClient extends BaseWebScrapingClient
         if (preg_match('/^([^,]+),?\s*[A-Z]{2}?/', $location, $matches)) {
             return trim($matches[1]);
         }
-        
+
         return $location ?: 'Unknown City';
     }
 
-    protected function normalizeUrl(string $url, ?string $baseUrl = null): string
+    protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
         if (strpos($url, 'http') !== 0) {
             return 'https://www.stubhub.com' . $url;
         }
+
         return $url;
     }
 
@@ -518,7 +553,8 @@ class StubHubClient extends BaseWebScrapingClient
         if (preg_match('/\/event\/(\d+)/', $url, $matches)) {
             return $matches[1];
         }
-        return null;
+
+        return NULL;
     }
 
     protected function extractPriceRange(array &$event, array $prices): void
@@ -530,25 +566,25 @@ class StubHubClient extends BaseWebScrapingClient
         $numericPrices = [];
         foreach ($prices as $price) {
             if (preg_match('/\$?([\d,]+(?:\.\d{2})?)/', $price, $matches)) {
-                $numericPrices[] = floatval(str_replace(',', '', $matches[1]));
+                $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if (! empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
     }
 
-    protected function parseEventDate(string $dateString): ?\DateTime
+    protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
-            return null;
+            return NULL;
         }
 
         // Clean up the date string
         $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
-        
+
         $formats = [
             'M j, Y \a\t g:i A',
             'F j, Y \a\t g:i A',
@@ -563,7 +599,7 @@ class StubHubClient extends BaseWebScrapingClient
 
         foreach ($formats as $format) {
             try {
-                $date = \DateTime::createFromFormat($format, $dateString);
+                $date = DateTime::createFromFormat($format, $dateString);
                 if ($date) {
                     return $date;
                 }
@@ -573,167 +609,141 @@ class StubHubClient extends BaseWebScrapingClient
         }
 
         try {
-            return new \DateTime($dateString);
+            return new DateTime($dateString);
         } catch (Exception $e) {
-            return null;
+            return NULL;
         }
     }
 
-    /**
-     * Get available tickets with detailed pricing
-     */
-    public function getEventTickets(string $eventId, array $filters = []): array
-    {
-        try {
-            $eventDetails = $this->getEvent($eventId);
-            
-            return [
-                'event_id' => $eventId,
-                'total_listings' => $eventDetails['available_listings'] ?? 0,
-                'price_range' => [
-                    'min' => $eventDetails['price_min'] ?? null,
-                    'max' => $eventDetails['price_max'] ?? null,
-                ],
-                'prices' => $eventDetails['prices'] ?? [],
-            ];
-        } catch (Exception $e) {
-            Log::error('Failed to get StubHub event tickets', [
-                'event_id' => $eventId,
-                'error' => $e->getMessage()
-            ]);
-            return [];
-        }
-    }
-    
     /**
      * Extract detailed event information
      */
     protected function extractEventDetails(Crawler $crawler, string $url): array
     {
         $event = [
-            'url' => $url,
-            'platform' => 'stubhub',
+            'url'        => $url,
+            'platform'   => 'stubhub',
             'scraped_at' => now()->toISOString(),
         ];
 
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (!empty($jsonLdData)) {
+            if (! empty($jsonLdData)) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
                 if (isset($eventData['startDate'])) {
-                    $event['parsed_date'] = new \DateTime($eventData['startDate']);
+                    $event['parsed_date'] = new DateTime($eventData['startDate']);
                 }
                 if (isset($eventData['location']['name'])) {
                     $event['venue'] = $eventData['location']['name'];
                 }
             }
-            
+
             // Fallback to selectors if JSON-LD not available
             if (empty($event['name'])) {
                 $event['name'] = $this->trySelectors($crawler, [
                     'h1[class*="event-title"]',
                     'h1',
-                    '.event-title'
+                    '.event-title',
                 ]);
             }
-            
+
             if (empty($event['venue'])) {
                 $event['venue'] = $this->trySelectors($crawler, [
                     '.venue-name',
                     '.venue',
-                    '.location'
+                    '.location',
                 ]);
             }
-            
+
             // Extract prices
             $event['prices'] = $this->extractPrices($crawler);
-            
+
             return $event;
-            
         } catch (Exception $e) {
             Log::error('Failed to extract StubHub event details', [
-                'url' => $url,
-                'error' => $e->getMessage()
+                'url'   => $url,
+                'error' => $e->getMessage(),
             ]);
+
             return $event;
         }
     }
-    
+
     /**
      * Extract prices from page
      */
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
-        
+
         try {
             // Try different price selectors
             $priceSelectors = [
                 '.price',
                 '.ticket-price',
                 '.listing-price',
-                '[data-price]'
+                '[data-price]',
             ];
-            
+
             foreach ($priceSelectors as $selector) {
-                $crawler->filter($selector)->each(function (Crawler $node) use (&$prices) {
+                $crawler->filter($selector)->each(function (Crawler $node) use (&$prices): void {
                     $text = $node->text();
                     if (preg_match('/\$([0-9,]+(?:\.[0-9]{2})?)/', $text, $matches)) {
                         $prices[] = [
-                            'price' => floatval(str_replace(',', '', $matches[1])),
+                            'price'    => (float) (str_replace(',', '', $matches[1])),
                             'currency' => 'USD',
-                            'section' => 'General'
+                            'section'  => 'General',
                         ];
                     }
                 });
-                
-                if (!empty($prices)) {
+
+                if (! empty($prices)) {
                     break;
                 }
             }
         } catch (Exception $e) {
             Log::debug('Failed to extract StubHub prices', ['error' => $e->getMessage()]);
         }
-        
+
         return $prices;
     }
-    
+
     /**
      * Extract ticket classes from StubHub data
      */
     protected function extractTicketClasses(array $eventData): array
     {
         $classes = [];
-        
+
         if (isset($eventData['prices']) && is_array($eventData['prices'])) {
             foreach ($eventData['prices'] as $price) {
                 if (is_array($price) && isset($price['section'])) {
                     $classes[] = [
-                        'class' => $price['section'],
-                        'price' => $price['price'] ?? null,
-                        'currency' => $price['currency'] ?? 'USD'
+                        'class'    => $price['section'],
+                        'price'    => $price['price'] ?? NULL,
+                        'currency' => $price['currency'] ?? 'USD',
                     ];
                 }
             }
         }
-        
+
         return array_unique($classes, SORT_REGULAR);
     }
-    
+
     /**
      * Extract zone information from StubHub data
      */
     protected function extractZones(array $eventData): array
     {
         $zones = [];
-        
+
         if (isset($eventData['venue_zones'])) {
             return $eventData['venue_zones'];
         }
-        
+
         // Try to extract from ticket data
         if (isset($eventData['prices']) && is_array($eventData['prices'])) {
             foreach ($eventData['prices'] as $price) {
@@ -742,79 +752,79 @@ class StubHubClient extends BaseWebScrapingClient
                 }
             }
         }
-        
+
         return array_unique($zones);
     }
-    
+
     /**
      * Map sections for StubHub venue seating
      */
     protected function mapSections(array $eventData): array
     {
         $sections = [];
-        
+
         if (isset($eventData['prices']) && is_array($eventData['prices'])) {
             foreach ($eventData['prices'] as $price) {
                 if (is_array($price) && isset($price['section'])) {
                     $sections[$price['section']] = [
-                        'name' => $price['section'],
-                        'type' => $this->determineSectionType($price['section']),
+                        'name'        => $price['section'],
+                        'type'        => $this->determineSectionType($price['section']),
                         'price_range' => [
-                            'min' => $price['price'] ?? null,
-                            'max' => $price['price'] ?? null
-                        ]
+                            'min' => $price['price'] ?? NULL,
+                            'max' => $price['price'] ?? NULL,
+                        ],
                     ];
                 }
             }
         }
-        
+
         return $sections;
     }
-    
+
     /**
      * Determine section type based on section name
      */
     protected function determineSectionType(string $sectionName): string
     {
         $sectionName = strtolower($sectionName);
-        
-        if (strpos($sectionName, 'vip') !== false || strpos($sectionName, 'premium') !== false) {
+
+        if (strpos($sectionName, 'vip') !== FALSE || strpos($sectionName, 'premium') !== FALSE) {
             return 'premium';
         }
-        
-        if (strpos($sectionName, 'floor') !== false || strpos($sectionName, 'pit') !== false) {
+
+        if (strpos($sectionName, 'floor') !== FALSE || strpos($sectionName, 'pit') !== FALSE) {
             return 'floor';
         }
-        
-        if (strpos($sectionName, 'upper') !== false || strpos($sectionName, 'balcony') !== false) {
+
+        if (strpos($sectionName, 'upper') !== FALSE || strpos($sectionName, 'balcony') !== FALSE) {
             return 'upper';
         }
-        
-        if (strpos($sectionName, 'lower') !== false || strpos($sectionName, 'orchestra') !== false) {
+
+        if (strpos($sectionName, 'lower') !== FALSE || strpos($sectionName, 'orchestra') !== FALSE) {
             return 'lower';
         }
-        
+
         return 'general';
     }
-    
+
     /**
      * Map internal status to standardized availability status
      */
     protected function mapAvailabilityStatus(string $internalStatus): string
     {
         $statusMap = [
-            'onsale' => 'available',
-            'soldout' => 'sold_out',
-            'presale' => 'presale',
-            'offsale' => 'not_available',
+            'onsale'    => 'available',
+            'soldout'   => 'sold_out',
+            'presale'   => 'presale',
+            'offsale'   => 'not_available',
             'cancelled' => 'cancelled',
             'postponed' => 'postponed',
-            'unknown' => 'unknown'
+            'unknown'   => 'unknown',
         ];
-        
+
         return $statusMap[$internalStatus] ?? 'unknown';
     }
-    
+
     /**
      * Determine country from location string
      */
@@ -823,18 +833,18 @@ class StubHubClient extends BaseWebScrapingClient
         if (empty($location)) {
             return 'United States'; // StubHub default
         }
-        
+
         // Extract country from location string
         $parts = array_map('trim', explode(',', $location));
-        
+
         if (count($parts) >= 2) {
             $lastPart = end($parts);
-            
+
             // State codes indicate US
             if (preg_match('/^[A-Z]{2}$/', $lastPart)) {
                 return 'United States';
             }
-            
+
             // Country code mappings
             $countryCodes = [
                 'CA' => 'Canada',
@@ -843,12 +853,12 @@ class StubHubClient extends BaseWebScrapingClient
                 'DE' => 'Germany',
                 'FR' => 'France',
                 'IT' => 'Italy',
-                'ES' => 'Spain'
+                'ES' => 'Spain',
             ];
-            
+
             return $countryCodes[$lastPart] ?? $lastPart;
         }
-        
+
         return 'United States';
     }
 }

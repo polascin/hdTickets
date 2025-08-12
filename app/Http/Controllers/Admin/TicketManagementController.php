@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -67,20 +67,20 @@ class TicketManagementController extends Controller
 
         // Get statistics for the dashboard cards
         $stats = [
-            'total' => Ticket::count(),
-            'open' => Ticket::where('status', 'open')->count(),
+            'total'       => Ticket::count(),
+            'open'        => Ticket::where('status', 'open')->count(),
             'in_progress' => Ticket::where('status', 'in_progress')->count(),
-            'resolved' => Ticket::where('status', 'resolved')->count(),
-            'closed' => Ticket::where('status', 'closed')->count(),
+            'resolved'    => Ticket::where('status', 'resolved')->count(),
+            'closed'      => Ticket::where('status', 'closed')->count(),
         ];
 
         return view('admin.tickets.index', compact(
-            'tickets', 
-            'agents', 
-            'categories', 
-            'statuses', 
+            'tickets',
+            'agents',
+            'categories',
+            'statuses',
             'priorities',
-            'stats'
+            'stats',
         ));
     }
 
@@ -96,10 +96,10 @@ class TicketManagementController extends Controller
         // Verify the user is an agent or admin
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
+            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'User must be an agent or admin to be assigned tickets.'
+                    'success' => FALSE,
+                    'message' => 'User must be an agent or admin to be assigned tickets.',
                 ], 422);
             }
         }
@@ -107,21 +107,21 @@ class TicketManagementController extends Controller
         $oldAssignee = $ticket->assignedTo;
         $ticket->update([
             'assigned_to' => $request->assigned_to,
-            'status' => $ticket->status === Ticket::STATUS_OPEN ? Ticket::STATUS_IN_PROGRESS : $ticket->status
+            'status'      => $ticket->status === Ticket::STATUS_OPEN ? Ticket::STATUS_IN_PROGRESS : $ticket->status,
         ]);
 
         // Log the assignment change
         $ticket->comments()->create([
-            'user_id' => auth()->id(),
-            'content' => $this->getAssignmentMessage($oldAssignee, $ticket->assignedTo),
-            'is_internal' => true,
+            'user_id'     => auth()->id(),
+            'content'     => $this->getAssignmentMessage($oldAssignee, $ticket->assignedTo),
+            'is_internal' => TRUE,
         ]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Ticket assigned successfully.',
-                'assigned_to' => $ticket->assignedTo ? $ticket->assignedTo->name : 'Unassigned'
+                'success'     => TRUE,
+                'message'     => 'Ticket assigned successfully.',
+                'assigned_to' => $ticket->assignedTo ? $ticket->assignedTo->name : 'Unassigned',
             ]);
         }
 
@@ -134,18 +134,18 @@ class TicketManagementController extends Controller
     public function bulkAssign(Request $request)
     {
         $request->validate([
-            'ticket_ids' => ['required', 'array'],
+            'ticket_ids'   => ['required', 'array'],
             'ticket_ids.*' => ['exists:tickets,id'],
-            'assigned_to' => ['nullable', 'exists:users,id'],
+            'assigned_to'  => ['nullable', 'exists:users,id'],
         ]);
 
         // Verify the user is an agent or admin if assigning
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
+            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'User must be an agent or admin to be assigned tickets.'
+                    'success' => FALSE,
+                    'message' => 'User must be an agent or admin to be assigned tickets.',
                 ], 422);
             }
         }
@@ -153,20 +153,20 @@ class TicketManagementController extends Controller
         $tickets = Ticket::whereIn('id', $request->ticket_ids)->get();
         $assignedCount = 0;
 
-        DB::transaction(function () use ($tickets, $request, &$assignedCount) {
+        DB::transaction(function () use ($tickets, $request, &$assignedCount): void {
             foreach ($tickets as $ticket) {
                 $oldAssignee = $ticket->assignedTo;
-                
+
                 $ticket->update([
                     'assigned_to' => $request->assigned_to,
-                    'status' => $ticket->status === Ticket::STATUS_OPEN ? Ticket::STATUS_IN_PROGRESS : $ticket->status
+                    'status'      => $ticket->status === Ticket::STATUS_OPEN ? Ticket::STATUS_IN_PROGRESS : $ticket->status,
                 ]);
 
                 // Log the assignment change
                 $ticket->comments()->create([
-                    'user_id' => auth()->id(),
-                    'content' => $this->getAssignmentMessage($oldAssignee, $ticket->assignedTo) . ' (Bulk Assignment)',
-                    'is_internal' => true,
+                    'user_id'     => auth()->id(),
+                    'content'     => $this->getAssignmentMessage($oldAssignee, $ticket->assignedTo) . ' (Bulk Assignment)',
+                    'is_internal' => TRUE,
                 ]);
 
                 $assignedCount++;
@@ -174,8 +174,8 @@ class TicketManagementController extends Controller
         });
 
         return response()->json([
-            'success' => true,
-            'message' => "Successfully assigned {$assignedCount} tickets."
+            'success' => TRUE,
+            'message' => "Successfully assigned {$assignedCount} tickets.",
         ]);
     }
 
@@ -185,12 +185,12 @@ class TicketManagementController extends Controller
     public function updateStatus(Request $request, Ticket $ticket)
     {
         $request->validate([
-            'status' => ['required', Rule::in(Ticket::getStatuses())],
+            'status'  => ['required', Rule::in(Ticket::getStatuses())],
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $oldStatus = $ticket->status;
-        
+
         // If resolving, set resolved_at timestamp
         if ($request->status === Ticket::STATUS_RESOLVED && $oldStatus !== Ticket::STATUS_RESOLVED) {
             $ticket->resolved_at = now();
@@ -198,7 +198,7 @@ class TicketManagementController extends Controller
 
         // If reopening a resolved ticket, clear resolved_at
         if ($oldStatus === Ticket::STATUS_RESOLVED && $request->status !== Ticket::STATUS_RESOLVED) {
-            $ticket->resolved_at = null;
+            $ticket->resolved_at = NULL;
         }
 
         $ticket->update(['status' => $request->status]);
@@ -206,24 +206,24 @@ class TicketManagementController extends Controller
         // Add comment if provided
         if ($request->filled('comment')) {
             $ticket->comments()->create([
-                'user_id' => auth()->id(),
-                'content' => $request->comment,
-                'is_internal' => false,
+                'user_id'     => auth()->id(),
+                'content'     => $request->comment,
+                'is_internal' => FALSE,
             ]);
         }
 
         // Log status change
         $ticket->comments()->create([
-            'user_id' => auth()->id(),
-            'content' => "Status changed from " . ucfirst(str_replace('_', ' ', $oldStatus)) . " to " . ucfirst(str_replace('_', ' ', $request->status)),
-            'is_internal' => true,
+            'user_id'     => auth()->id(),
+            'content'     => 'Status changed from ' . ucfirst(str_replace('_', ' ', $oldStatus)) . ' to ' . ucfirst(str_replace('_', ' ', $request->status)),
+            'is_internal' => TRUE,
         ]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Ticket status updated successfully.',
-                'status' => $ticket->status
+                'status'  => $ticket->status,
             ]);
         }
 
@@ -244,16 +244,16 @@ class TicketManagementController extends Controller
 
         // Log priority change
         $ticket->comments()->create([
-            'user_id' => auth()->id(),
-            'content' => "Priority changed from " . ucfirst($oldPriority) . " to " . ucfirst($request->priority),
-            'is_internal' => true,
+            'user_id'     => auth()->id(),
+            'content'     => 'Priority changed from ' . ucfirst($oldPriority) . ' to ' . ucfirst($request->priority),
+            'is_internal' => TRUE,
         ]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Ticket priority updated successfully.',
-                'priority' => $ticket->priority
+                'success'  => TRUE,
+                'message'  => 'Ticket priority updated successfully.',
+                'priority' => $ticket->priority,
             ]);
         }
 
@@ -266,18 +266,18 @@ class TicketManagementController extends Controller
     public function bulkUpdateStatus(Request $request)
     {
         $request->validate([
-            'ticket_ids' => ['required', 'array'],
+            'ticket_ids'   => ['required', 'array'],
             'ticket_ids.*' => ['exists:tickets,id'],
-            'status' => ['required', Rule::in(Ticket::getStatuses())],
+            'status'       => ['required', Rule::in(Ticket::getStatuses())],
         ]);
 
         $tickets = Ticket::whereIn('id', $request->ticket_ids)->get();
         $updatedCount = 0;
 
-        DB::transaction(function () use ($tickets, $request, &$updatedCount) {
+        DB::transaction(function () use ($tickets, $request, &$updatedCount): void {
             foreach ($tickets as $ticket) {
                 $oldStatus = $ticket->status;
-                
+
                 // Skip if status is the same
                 if ($oldStatus === $request->status) {
                     continue;
@@ -290,16 +290,16 @@ class TicketManagementController extends Controller
 
                 // If reopening a resolved ticket, clear resolved_at
                 if ($oldStatus === Ticket::STATUS_RESOLVED && $request->status !== Ticket::STATUS_RESOLVED) {
-                    $ticket->resolved_at = null;
+                    $ticket->resolved_at = NULL;
                 }
 
                 $ticket->update(['status' => $request->status]);
 
                 // Log status change
                 $ticket->comments()->create([
-                    'user_id' => auth()->id(),
-                    'content' => "Status changed from " . ucfirst(str_replace('_', ' ', $oldStatus)) . " to " . ucfirst(str_replace('_', ' ', $request->status)) . " (Bulk Update)",
-                    'is_internal' => true,
+                    'user_id'     => auth()->id(),
+                    'content'     => 'Status changed from ' . ucfirst(str_replace('_', ' ', $oldStatus)) . ' to ' . ucfirst(str_replace('_', ' ', $request->status)) . ' (Bulk Update)',
+                    'is_internal' => TRUE,
                 ]);
 
                 $updatedCount++;
@@ -307,8 +307,8 @@ class TicketManagementController extends Controller
         });
 
         return response()->json([
-            'success' => true,
-            'message' => "Successfully updated status for {$updatedCount} tickets."
+            'success' => TRUE,
+            'message' => "Successfully updated status for {$updatedCount} tickets.",
         ]);
     }
 
@@ -325,51 +325,31 @@ class TicketManagementController extends Controller
         $ticket->update(['due_date' => $request->due_date]);
 
         // Log due date change
-        $message = $request->due_date 
-            ? "Due date set to " . $request->due_date
-            : "Due date removed";
+        $message = $request->due_date
+            ? 'Due date set to ' . $request->due_date
+            : 'Due date removed';
 
         if ($oldDueDate) {
-            $message = $request->due_date 
+            $message = $request->due_date
                 ? "Due date changed from {$oldDueDate->format('M j, Y')} to {$ticket->due_date->format('M j, Y')}"
                 : "Due date removed (was {$oldDueDate->format('M j, Y')})";
         }
 
         $ticket->comments()->create([
-            'user_id' => auth()->id(),
-            'content' => $message,
-            'is_internal' => true,
+            'user_id'     => auth()->id(),
+            'content'     => $message,
+            'is_internal' => TRUE,
         ]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Due date updated successfully.',
-                'due_date' => $ticket->due_date ? $ticket->due_date->format('M j, Y') : null
+                'success'  => TRUE,
+                'message'  => 'Due date updated successfully.',
+                'due_date' => $ticket->due_date ? $ticket->due_date->format('M j, Y') : NULL,
             ]);
         }
 
         return redirect()->back()->with('success', 'Due date updated successfully.');
-    }
-
-    /**
-     * Get assignment message for comments
-     */
-    private function getAssignmentMessage($oldAssignee, $newAssignee)
-    {
-        if (!$oldAssignee && !$newAssignee) {
-            return "Ticket assignment unchanged";
-        }
-
-        if (!$oldAssignee && $newAssignee) {
-            return "Ticket assigned to {$newAssignee->name}";
-        }
-
-        if ($oldAssignee && !$newAssignee) {
-            return "Ticket unassigned from {$oldAssignee->name}";
-        }
-
-        return "Ticket reassigned from {$oldAssignee->name} to {$newAssignee->name}";
     }
 
     /**
@@ -378,16 +358,39 @@ class TicketManagementController extends Controller
     public function getStatistics()
     {
         $stats = [
-            'total' => Ticket::count(),
-            'open' => Ticket::open()->count(),
-            'in_progress' => Ticket::byStatus(Ticket::STATUS_IN_PROGRESS)->count(),
-            'pending' => Ticket::byStatus(Ticket::STATUS_PENDING)->count(),
-            'resolved' => Ticket::byStatus(Ticket::STATUS_RESOLVED)->count(),
-            'overdue' => Ticket::overdue()->count(),
+            'total'         => Ticket::count(),
+            'open'          => Ticket::open()->count(),
+            'in_progress'   => Ticket::byStatus(Ticket::STATUS_IN_PROGRESS)->count(),
+            'pending'       => Ticket::byStatus(Ticket::STATUS_PENDING)->count(),
+            'resolved'      => Ticket::byStatus(Ticket::STATUS_RESOLVED)->count(),
+            'overdue'       => Ticket::overdue()->count(),
             'high_priority' => Ticket::highPriority()->count(),
-            'unassigned' => Ticket::whereNull('assigned_to')->open()->count(),
+            'unassigned'    => Ticket::whereNull('assigned_to')->open()->count(),
         ];
 
         return response()->json($stats);
+    }
+
+    /**
+     * Get assignment message for comments
+     *
+     * @param mixed $oldAssignee
+     * @param mixed $newAssignee
+     */
+    private function getAssignmentMessage($oldAssignee, $newAssignee)
+    {
+        if (! $oldAssignee && ! $newAssignee) {
+            return 'Ticket assignment unchanged';
+        }
+
+        if (! $oldAssignee && $newAssignee) {
+            return "Ticket assigned to {$newAssignee->name}";
+        }
+
+        if ($oldAssignee && ! $newAssignee) {
+            return "Ticket unassigned from {$oldAssignee->name}";
+        }
+
+        return "Ticket reassigned from {$oldAssignee->name} to {$newAssignee->name}";
     }
 }

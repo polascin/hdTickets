@@ -1,15 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class AccountDeletionRequest extends Model
 {
     use HasFactory;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_CONFIRMED = 'confirmed';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUS_EXPIRED = 'expired';
+
+    public const STATUS_COMPLETED = 'completed';
 
     protected $fillable = [
         'user_id',
@@ -25,20 +35,14 @@ class AccountDeletionRequest extends Model
     ];
 
     protected $casts = [
-        'user_data_snapshot' => 'array',
-        'metadata' => 'array',
-        'initiated_at' => 'datetime',
-        'email_confirmed_at' => 'datetime',
+        'user_data_snapshot'      => 'array',
+        'metadata'                => 'array',
+        'initiated_at'            => 'datetime',
+        'email_confirmed_at'      => 'datetime',
         'grace_period_expires_at' => 'datetime',
-        'deleted_at' => 'datetime',
-        'cancelled_at' => 'datetime',
+        'deleted_at'              => 'datetime',
+        'cancelled_at'            => 'datetime',
     ];
-
-    const STATUS_PENDING = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_EXPIRED = 'expired';
-    const STATUS_COMPLETED = 'completed';
 
     /**
      * Get the user that owns the deletion request
@@ -93,8 +97,8 @@ class AccountDeletionRequest extends Model
      */
     public function isInGracePeriod(): bool
     {
-        return $this->isConfirmed() 
-               && $this->grace_period_expires_at 
+        return $this->isConfirmed()
+               && $this->grace_period_expires_at
                && $this->grace_period_expires_at->isFuture();
     }
 
@@ -103,8 +107,8 @@ class AccountDeletionRequest extends Model
      */
     public function isGracePeriodExpired(): bool
     {
-        return $this->isConfirmed() 
-               && $this->grace_period_expires_at 
+        return $this->isConfirmed()
+               && $this->grace_period_expires_at
                && $this->grace_period_expires_at->isPast();
     }
 
@@ -113,8 +117,8 @@ class AccountDeletionRequest extends Model
      */
     public function getRemainingGraceTime(): ?Carbon
     {
-        if (!$this->isInGracePeriod()) {
-            return null;
+        if (! $this->isInGracePeriod()) {
+            return NULL;
         }
 
         return $this->grace_period_expires_at;
@@ -125,8 +129,8 @@ class AccountDeletionRequest extends Model
      */
     public function getTimeRemainingAttribute(): ?string
     {
-        if (!$this->isInGracePeriod()) {
-            return null;
+        if (! $this->isInGracePeriod()) {
+            return NULL;
         }
 
         return $this->grace_period_expires_at->diffForHumans();
@@ -135,23 +139,23 @@ class AccountDeletionRequest extends Model
     /**
      * Cancel the deletion request
      */
-    public function cancel(?string $reason = null): bool
+    public function cancel(?string $reason = NULL): bool
     {
-        if (!$this->isPending() && !$this->isConfirmed()) {
-            return false;
+        if (! $this->isPending() && ! $this->isConfirmed()) {
+            return FALSE;
         }
 
         $this->update([
-            'status' => self::STATUS_CANCELLED,
+            'status'       => self::STATUS_CANCELLED,
             'cancelled_at' => now(),
-            'metadata' => array_merge($this->metadata ?? [], [
-                'cancellation_reason' => $reason,
-                'cancelled_by_ip' => request()->ip(),
+            'metadata'     => array_merge($this->metadata ?? [], [
+                'cancellation_reason'     => $reason,
+                'cancelled_by_ip'         => request()->ip(),
                 'cancelled_by_user_agent' => request()->userAgent(),
             ]),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -159,23 +163,23 @@ class AccountDeletionRequest extends Model
      */
     public function confirm(): bool
     {
-        if (!$this->isPending()) {
-            return false;
+        if (! $this->isPending()) {
+            return FALSE;
         }
 
         $gracePeriodEnd = now()->addHours(24); // 24-hour grace period
 
         $this->update([
-            'status' => self::STATUS_CONFIRMED,
-            'email_confirmed_at' => now(),
+            'status'                  => self::STATUS_CONFIRMED,
+            'email_confirmed_at'      => now(),
             'grace_period_expires_at' => $gracePeriodEnd,
-            'metadata' => array_merge($this->metadata ?? [], [
-                'confirmed_by_ip' => request()->ip(),
+            'metadata'                => array_merge($this->metadata ?? [], [
+                'confirmed_by_ip'         => request()->ip(),
                 'confirmed_by_user_agent' => request()->userAgent(),
             ]),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -183,16 +187,16 @@ class AccountDeletionRequest extends Model
      */
     public function markCompleted(): bool
     {
-        if (!$this->isConfirmed()) {
-            return false;
+        if (! $this->isConfirmed()) {
+            return FALSE;
         }
 
         $this->update([
-            'status' => self::STATUS_COMPLETED,
+            'status'     => self::STATUS_COMPLETED,
             'deleted_at' => now(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -204,11 +208,13 @@ class AccountDeletionRequest extends Model
             'status' => self::STATUS_EXPIRED,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Scope to get active requests (pending or confirmed)
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -217,20 +223,24 @@ class AccountDeletionRequest extends Model
 
     /**
      * Scope to get requests in grace period
+     *
+     * @param mixed $query
      */
     public function scopeInGracePeriod($query)
     {
         return $query->where('status', self::STATUS_CONFIRMED)
-                    ->where('grace_period_expires_at', '>', now());
+            ->where('grace_period_expires_at', '>', now());
     }
 
     /**
      * Scope to get expired grace period requests
+     *
+     * @param mixed $query
      */
     public function scopeGracePeriodExpired($query)
     {
         return $query->where('status', self::STATUS_CONFIRMED)
-                    ->where('grace_period_expires_at', '<=', now());
+            ->where('grace_period_expires_at', '<=', now());
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
@@ -11,9 +11,11 @@ use Illuminate\Queue\SerializesModels;
 
 class PasswordChangedNotification extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public $user;
+
     public $changeDetails;
 
     /**
@@ -26,7 +28,7 @@ class PasswordChangedNotification extends Mailable
             'changed_at' => now(),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
-            'location' => $this->getLocationFromIP(request()->ip()),
+            'location'   => $this->getLocationFromIP(request()->ip()),
         ];
     }
 
@@ -70,7 +72,7 @@ class PasswordChangedNotification extends Mailable
         // - MaxMind GeoLite2
         // - IP-API
         // - ipinfo.io
-        
+
         if ($ip === '127.0.0.1' || $ip === '::1') {
             return 'Local Development';
         }

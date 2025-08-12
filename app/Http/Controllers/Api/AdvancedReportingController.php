@@ -1,13 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\AdvancedReportingService;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class AdvancedReportingController extends Controller
 {
@@ -24,46 +25,45 @@ class AdvancedReportingController extends Controller
     public function generateReport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:ticket_availability_trends,price_fluctuation_analysis,platform_performance_comparison,user_engagement_metrics',
-            'format' => 'sometimes|in:pdf,xlsx,csv',
-            'start_date' => 'sometimes|date',
-            'end_date' => 'sometimes|date|after_or_equal:start_date',
+            'type'           => 'required|in:ticket_availability_trends,price_fluctuation_analysis,platform_performance_comparison,user_engagement_metrics',
+            'format'         => 'sometimes|in:pdf,xlsx,csv',
+            'start_date'     => 'sometimes|date',
+            'end_date'       => 'sometimes|date|after_or_equal:start_date',
             'include_charts' => 'sometimes|boolean',
-            'parameters' => 'sometimes|array'
+            'parameters'     => 'sometimes|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $parameters = array_merge($request->get('parameters', []), [
-                'start_date' => $request->get('start_date') ? \Carbon\Carbon::parse($request->get('start_date')) : null,
-                'end_date' => $request->get('end_date') ? \Carbon\Carbon::parse($request->get('end_date')) : null,
-                'format' => $request->get('format', 'pdf'),
-                'include_charts' => $request->get('include_charts', true)
+                'start_date'     => $request->get('start_date') ? \Carbon\Carbon::parse($request->get('start_date')) : NULL,
+                'end_date'       => $request->get('end_date') ? \Carbon\Carbon::parse($request->get('end_date')) : NULL,
+                'format'         => $request->get('format', 'pdf'),
+                'include_charts' => $request->get('include_charts', TRUE),
             ]);
 
             $result = $this->reportingService->generateAdvancedReport(
                 $request->get('type'),
-                array_filter($parameters)
+                array_filter($parameters),
             );
 
             return response()->json([
-                'success' => true,
-                'data' => $result,
-                'message' => 'Report generated successfully'
+                'success' => TRUE,
+                'data'    => $result,
+                'message' => 'Report generated successfully',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to generate report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -75,61 +75,61 @@ class AdvancedReportingController extends Controller
     {
         $reportTypes = [
             [
-                'type' => 'ticket_availability_trends',
-                'name' => 'Ticket Availability Trends',
+                'type'        => 'ticket_availability_trends',
+                'name'        => 'Ticket Availability Trends',
                 'description' => 'Analyze ticket availability patterns across platforms and time periods',
-                'parameters' => [
+                'parameters'  => [
                     'start_date' => 'optional',
-                    'end_date' => 'optional',
-                    'platforms' => 'optional array',
-                    'categories' => 'optional array'
+                    'end_date'   => 'optional',
+                    'platforms'  => 'optional array',
+                    'categories' => 'optional array',
                 ],
-                'formats' => ['pdf', 'xlsx', 'csv'],
-                'estimated_time' => '2-5 minutes'
+                'formats'        => ['pdf', 'xlsx', 'csv'],
+                'estimated_time' => '2-5 minutes',
             ],
             [
-                'type' => 'price_fluctuation_analysis',
-                'name' => 'Price Fluctuation Analysis',
+                'type'        => 'price_fluctuation_analysis',
+                'name'        => 'Price Fluctuation Analysis',
                 'description' => 'Track price changes and volatility patterns for events',
-                'parameters' => [
-                    'start_date' => 'optional',
-                    'end_date' => 'optional',
-                    'event_types' => 'optional array',
-                    'min_volatility' => 'optional number'
+                'parameters'  => [
+                    'start_date'     => 'optional',
+                    'end_date'       => 'optional',
+                    'event_types'    => 'optional array',
+                    'min_volatility' => 'optional number',
                 ],
-                'formats' => ['pdf', 'xlsx', 'csv'],
-                'estimated_time' => '3-7 minutes'
+                'formats'        => ['pdf', 'xlsx', 'csv'],
+                'estimated_time' => '3-7 minutes',
             ],
             [
-                'type' => 'platform_performance_comparison',
-                'name' => 'Platform Performance Comparison',
+                'type'        => 'platform_performance_comparison',
+                'name'        => 'Platform Performance Comparison',
                 'description' => 'Compare performance metrics across ticket platforms',
-                'parameters' => [
+                'parameters'  => [
                     'start_date' => 'optional',
-                    'end_date' => 'optional',
-                    'platforms' => 'optional array',
-                    'metrics' => 'optional array'
+                    'end_date'   => 'optional',
+                    'platforms'  => 'optional array',
+                    'metrics'    => 'optional array',
                 ],
-                'formats' => ['pdf', 'xlsx', 'csv'],
-                'estimated_time' => '1-3 minutes'
+                'formats'        => ['pdf', 'xlsx', 'csv'],
+                'estimated_time' => '1-3 minutes',
             ],
             [
-                'type' => 'user_engagement_metrics',
-                'name' => 'User Engagement Metrics',
+                'type'        => 'user_engagement_metrics',
+                'name'        => 'User Engagement Metrics',
                 'description' => 'Analyze user behavior and engagement patterns',
-                'parameters' => [
-                    'start_date' => 'optional',
-                    'end_date' => 'optional',
-                    'user_segments' => 'optional array'
+                'parameters'  => [
+                    'start_date'    => 'optional',
+                    'end_date'      => 'optional',
+                    'user_segments' => 'optional array',
                 ],
-                'formats' => ['pdf', 'xlsx', 'csv'],
-                'estimated_time' => '2-4 minutes'
-            ]
+                'formats'        => ['pdf', 'xlsx', 'csv'],
+                'estimated_time' => '2-4 minutes',
+            ],
         ];
 
         return response()->json([
-            'success' => true,
-            'data' => $reportTypes
+            'success' => TRUE,
+            'data'    => $reportTypes,
         ]);
     }
 
@@ -139,55 +139,54 @@ class AdvancedReportingController extends Controller
     public function scheduleReport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:ticket_availability_trends,price_fluctuation_analysis,platform_performance_comparison,user_engagement_metrics',
-            'frequency' => 'required|in:daily,weekly,monthly',
-            'format' => 'sometimes|in:pdf,xlsx,csv',
-            'recipients' => 'required|array|min:1',
+            'name'         => 'required|string|max:255',
+            'type'         => 'required|in:ticket_availability_trends,price_fluctuation_analysis,platform_performance_comparison,user_engagement_metrics',
+            'frequency'    => 'required|in:daily,weekly,monthly',
+            'format'       => 'sometimes|in:pdf,xlsx,csv',
+            'recipients'   => 'required|array|min:1',
             'recipients.*' => 'email',
-            'parameters' => 'sometimes|array',
-            'description' => 'sometimes|string|max:1000'
+            'parameters'   => 'sometimes|array',
+            'description'  => 'sometimes|string|max:1000',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $config = [
-                'name' => $request->get('name'),
-                'type' => $request->get('type'),
-                'frequency' => $request->get('frequency'),
-                'format' => $request->get('format', 'pdf'),
-                'recipients' => $request->get('recipients'),
-                'parameters' => $request->get('parameters', []),
+                'name'        => $request->get('name'),
+                'type'        => $request->get('type'),
+                'frequency'   => $request->get('frequency'),
+                'format'      => $request->get('format', 'pdf'),
+                'recipients'  => $request->get('recipients'),
+                'parameters'  => $request->get('parameters', []),
                 'description' => $request->get('description'),
-                'created_by' => auth()->id()
+                'created_by'  => auth()->id(),
             ];
 
             $success = $this->reportingService->scheduleReport($config);
 
             if ($success) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Report scheduled successfully'
+                    'success' => TRUE,
+                    'message' => 'Report scheduled successfully',
                 ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to schedule report'
-                ], 500);
             }
 
-        } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to schedule report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Failed to schedule report',
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -209,53 +208,54 @@ class AdvancedReportingController extends Controller
                     'last_run',
                     'is_active',
                     'description',
-                    'created_at'
+                    'created_at',
                 ])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
             return response()->json([
-                'success' => true,
-                'data' => $reports
+                'success' => TRUE,
+                'data'    => $reports,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to retrieve scheduled reports',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
 
     /**
      * Update scheduled report
+     *
+     * @param mixed $id
      */
     public function updateScheduledReport(Request $request, $id): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'frequency' => 'sometimes|in:daily,weekly,monthly',
-            'format' => 'sometimes|in:pdf,xlsx,csv',
-            'recipients' => 'sometimes|array|min:1',
+            'name'         => 'sometimes|string|max:255',
+            'frequency'    => 'sometimes|in:daily,weekly,monthly',
+            'format'       => 'sometimes|in:pdf,xlsx,csv',
+            'recipients'   => 'sometimes|array|min:1',
             'recipients.*' => 'email',
-            'parameters' => 'sometimes|array',
-            'description' => 'sometimes|string|max:1000',
-            'is_active' => 'sometimes|boolean'
+            'parameters'   => 'sometimes|array',
+            'description'  => 'sometimes|string|max:1000',
+            'is_active'    => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         try {
             $updateData = $request->only([
-                'name', 'frequency', 'format', 'recipients', 
-                'parameters', 'description', 'is_active'
+                'name', 'frequency', 'format', 'recipients',
+                'parameters', 'description', 'is_active',
             ]);
             $updateData['updated_at'] = now();
 
@@ -265,27 +265,28 @@ class AdvancedReportingController extends Controller
 
             if ($updated) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Scheduled report updated successfully'
+                    'success' => TRUE,
+                    'message' => 'Scheduled report updated successfully',
                 ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Scheduled report not found'
-                ], 404);
             }
 
-        } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
+                'message' => 'Scheduled report not found',
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => FALSE,
                 'message' => 'Failed to update scheduled report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
 
     /**
      * Delete scheduled report
+     *
+     * @param mixed $id
      */
     public function deleteScheduledReport($id): JsonResponse
     {
@@ -296,21 +297,20 @@ class AdvancedReportingController extends Controller
 
             if ($deleted) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Scheduled report deleted successfully'
+                    'success' => TRUE,
+                    'message' => 'Scheduled report deleted successfully',
                 ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Scheduled report not found'
-                ], 404);
             }
 
-        } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
+                'message' => 'Scheduled report not found',
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => FALSE,
                 'message' => 'Failed to delete scheduled report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -321,23 +321,25 @@ class AdvancedReportingController extends Controller
     public function getReportStatus(Request $request): JsonResponse
     {
         $reportId = $request->get('report_id');
-        
+
         // This would typically check a job queue or cache for status
         // For now, we'll return a mock response
         return response()->json([
-            'success' => true,
-            'data' => [
-                'report_id' => $reportId,
-                'status' => 'completed', // pending, processing, completed, failed
-                'progress' => 100,
-                'estimated_completion' => null,
-                'download_url' => $reportId ? "/api/reports/download/{$reportId}" : null
-            ]
+            'success' => TRUE,
+            'data'    => [
+                'report_id'            => $reportId,
+                'status'               => 'completed', // pending, processing, completed, failed
+                'progress'             => 100,
+                'estimated_completion' => NULL,
+                'download_url'         => $reportId ? "/api/reports/download/{$reportId}" : NULL,
+            ],
         ]);
     }
 
     /**
      * Download generated report
+     *
+     * @param mixed $reportId
      */
     public function downloadReport($reportId)
     {
@@ -346,21 +348,20 @@ class AdvancedReportingController extends Controller
         try {
             // Mock implementation - in reality, you'd retrieve from storage
             $filePath = storage_path("app/reports/pdf/report_{$reportId}.pdf");
-            
-            if (!file_exists($filePath)) {
+
+            if (! file_exists($filePath)) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Report file not found'
+                    'success' => FALSE,
+                    'message' => 'Report file not found',
                 ], 404);
             }
 
             return response()->download($filePath);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to download report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -373,46 +374,46 @@ class AdvancedReportingController extends Controller
         $config = [
             'data_sources' => [
                 'scraped_tickets' => [
-                    'name' => 'Scraped Tickets',
-                    'fields' => ['platform', 'status', 'price', 'event_date', 'venue', 'category'],
-                    'aggregations' => ['count', 'sum', 'avg', 'min', 'max']
+                    'name'         => 'Scraped Tickets',
+                    'fields'       => ['platform', 'status', 'price', 'event_date', 'venue', 'category'],
+                    'aggregations' => ['count', 'sum', 'avg', 'min', 'max'],
                 ],
                 'price_history' => [
-                    'name' => 'Price History',
-                    'fields' => ['price', 'quantity', 'recorded_at', 'source'],
-                    'aggregations' => ['count', 'sum', 'avg', 'min', 'max', 'stddev']
+                    'name'         => 'Price History',
+                    'fields'       => ['price', 'quantity', 'recorded_at', 'source'],
+                    'aggregations' => ['count', 'sum', 'avg', 'min', 'max', 'stddev'],
                 ],
                 'users' => [
-                    'name' => 'Users',
-                    'fields' => ['role', 'created_at', 'last_activity_at', 'email_verified_at'],
-                    'aggregations' => ['count', 'distinct_count']
+                    'name'         => 'Users',
+                    'fields'       => ['role', 'created_at', 'last_activity_at', 'email_verified_at'],
+                    'aggregations' => ['count', 'distinct_count'],
                 ],
                 'activities' => [
-                    'name' => 'User Activities',
-                    'fields' => ['event', 'created_at', 'properties'],
-                    'aggregations' => ['count', 'distinct_count']
-                ]
+                    'name'         => 'User Activities',
+                    'fields'       => ['event', 'created_at', 'properties'],
+                    'aggregations' => ['count', 'distinct_count'],
+                ],
             ],
             'chart_types' => [
-                'line' => 'Line Chart',
-                'bar' => 'Bar Chart',
-                'pie' => 'Pie Chart',
-                'area' => 'Area Chart',
-                'scatter' => 'Scatter Plot'
+                'line'    => 'Line Chart',
+                'bar'     => 'Bar Chart',
+                'pie'     => 'Pie Chart',
+                'area'    => 'Area Chart',
+                'scatter' => 'Scatter Plot',
             ],
             'time_ranges' => [
-                '7d' => 'Last 7 days',
-                '30d' => 'Last 30 days',
-                '90d' => 'Last 90 days',
-                '1y' => 'Last year',
-                'custom' => 'Custom range'
+                '7d'     => 'Last 7 days',
+                '30d'    => 'Last 30 days',
+                '90d'    => 'Last 90 days',
+                '1y'     => 'Last year',
+                'custom' => 'Custom range',
             ],
-            'export_formats' => ['pdf', 'xlsx', 'csv', 'png', 'jpg']
+            'export_formats' => ['pdf', 'xlsx', 'csv', 'png', 'jpg'],
         ];
 
         return response()->json([
-            'success' => true,
-            'data' => $config
+            'success' => TRUE,
+            'data'    => $config,
         ]);
     }
 
@@ -422,21 +423,21 @@ class AdvancedReportingController extends Controller
     public function buildCustomReport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'data_source' => 'required|string',
-            'fields' => 'required|array|min:1',
+            'name'         => 'required|string|max:255',
+            'data_source'  => 'required|string',
+            'fields'       => 'required|array|min:1',
             'aggregations' => 'sometimes|array',
-            'filters' => 'sometimes|array',
-            'chart_type' => 'sometimes|string',
-            'time_range' => 'sometimes|string',
-            'format' => 'sometimes|in:pdf,xlsx,csv'
+            'filters'      => 'sometimes|array',
+            'chart_type'   => 'sometimes|string',
+            'time_range'   => 'sometimes|string',
+            'format'       => 'sometimes|in:pdf,xlsx,csv',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -444,20 +445,19 @@ class AdvancedReportingController extends Controller
             // This would implement the custom report building logic
             // For now, we'll return a success response
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Custom report built successfully',
-                'data' => [
+                'data'    => [
                     'report_id' => uniqid('custom_'),
-                    'name' => $request->get('name'),
-                    'status' => 'processing'
-                ]
+                    'name'      => $request->get('name'),
+                    'status'    => 'processing',
+                ],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to build custom report',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error'   => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }

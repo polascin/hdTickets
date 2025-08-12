@@ -1,13 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Traits;
 
 use App\Services\EncryptionService;
 use Illuminate\Database\Eloquent\Model;
 
+use function array_key_exists;
+use function in_array;
+
 /**
  * Trait for models that need AES-256 encryption
- * 
+ *
  * This trait provides a standardized way to handle encrypted attributes
  * across multiple models with minimal code duplication.
  */
@@ -16,38 +19,11 @@ trait HasEncryptedAttributes
     protected $encryptionService;
 
     /**
-     * Define which attributes should be encrypted
-     * Override this in your model to specify encrypted fields
-     *
-     * @return array
-     */
-    abstract protected function getEncryptedAttributes(): array;
-
-    /**
-     * Boot the trait
-     */
-    protected static function bootHasEncryptedAttributes()
-    {
-        // Ensure encryption service is available after model is constructed
-        static::retrieved(function ($model) {
-            $model->initializeEncryptionService();
-        });
-
-        static::creating(function ($model) {
-            $model->initializeEncryptionService();
-        });
-
-        static::updating(function ($model) {
-            $model->initializeEncryptionService();
-        });
-    }
-
-    /**
      * Initialize the encryption service
      */
-    public function initializeEncryptionService()
+    public function initializeEncryptionService(): void
     {
-        if (!$this->encryptionService) {
+        if (! $this->encryptionService) {
             $this->encryptionService = app(EncryptionService::class);
         }
     }
@@ -56,6 +32,7 @@ trait HasEncryptedAttributes
      * Get an encrypted attribute
      *
      * @param string $key
+     *
      * @return mixed
      */
     public function getAttributeValue($key)
@@ -63,14 +40,14 @@ trait HasEncryptedAttributes
         $value = parent::getAttributeValue($key);
 
         // If this attribute should be encrypted and we have a value
-        if ($this->shouldEncryptAttribute($key) && $value !== null) {
+        if ($this->shouldEncryptAttribute($key) && $value !== NULL) {
             $this->initializeEncryptionService();
-            
+
             // Handle JSON encrypted data
             if ($this->isJsonEncryptedAttribute($key)) {
                 return $this->encryptionService->decryptJsonData($value);
             }
-            
+
             // Handle regular encrypted data
             return $this->encryptionService->decrypt($value);
         }
@@ -82,15 +59,16 @@ trait HasEncryptedAttributes
      * Set an encrypted attribute
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return mixed
      */
     public function setAttribute($key, $value)
     {
         // If this attribute should be encrypted
-        if ($this->shouldEncryptAttribute($key) && $value !== null) {
+        if ($this->shouldEncryptAttribute($key) && $value !== NULL) {
             $this->initializeEncryptionService();
-            
+
             // Handle JSON encrypted data
             if ($this->isJsonEncryptedAttribute($key)) {
                 $value = $this->encryptionService->encryptJsonData($value);
@@ -104,55 +82,23 @@ trait HasEncryptedAttributes
     }
 
     /**
-     * Check if an attribute should be encrypted
-     *
-     * @param string $key
-     * @return bool
-     */
-    protected function shouldEncryptAttribute(string $key): bool
-    {
-        return in_array($key, $this->getEncryptedAttributes());
-    }
-
-    /**
-     * Check if an attribute should be encrypted as JSON
-     *
-     * @param string $key
-     * @return bool
-     */
-    protected function isJsonEncryptedAttribute(string $key): bool
-    {
-        $casts = $this->getCasts();
-        return isset($casts[$key]) && 
-               (
-                   $casts[$key] === 'encrypted:array' || 
-                   $casts[$key] === 'encrypted:json' ||
-                   $casts[$key] === 'encrypted:object'
-               );
-    }
-
-    /**
      * Create a searchable hash for encrypted data (useful for searching)
      *
-     * @param string $attribute
      * @param mixed $value
-     * @return string
      */
     public function createSearchableHash(string $attribute, $value): string
     {
         $this->initializeEncryptionService();
+
         return $this->encryptionService->generateSearchableHash($value);
     }
 
     /**
      * Get decrypted attributes for a given set of fields
-     *
-     * @param array $fields
-     * @return array
      */
-    public function getDecryptedAttributes(array $fields = null): array
+    public function getDecryptedAttributes(?array $fields = NULL): array
     {
-        $fields = $fields ?? $this->getEncryptedAttributes();
+        $fields ??= $this->getEncryptedAttributes();
         $decrypted = [];
 
         foreach ($fields as $field) {
@@ -167,24 +113,21 @@ trait HasEncryptedAttributes
     /**
      * Rotate encryption for this model's encrypted fields
      * Useful when rotating encryption keys
-     *
-     * @param string|null $oldKey
-     * @return bool
      */
-    public function rotateEncryption(?string $oldKey = null): bool
+    public function rotateEncryption(?string $oldKey = NULL): bool
     {
         $this->initializeEncryptionService();
         $encryptedFields = $this->getEncryptedAttributes();
-        $rotated = false;
+        $rotated = FALSE;
 
         foreach ($encryptedFields as $field) {
             if ($this->hasAttribute($field)) {
                 $oldValue = $this->getOriginal($field);
                 if ($oldValue) {
                     $newValue = $this->encryptionService->rotateEncryption($oldValue, $oldKey);
-                    if ($newValue !== null) {
+                    if ($newValue !== NULL) {
                         $this->attributes[$field] = $newValue;
-                        $rotated = true;
+                        $rotated = TRUE;
                     }
                 }
             }
@@ -194,14 +137,59 @@ trait HasEncryptedAttributes
             return $this->save();
         }
 
-        return true;
+        return TRUE;
+    }
+
+    /**
+     * Define which attributes should be encrypted
+     * Override this in your model to specify encrypted fields
+     */
+    abstract protected function getEncryptedAttributes(): array;
+
+    /**
+     * Boot the trait
+     */
+    protected static function bootHasEncryptedAttributes(): void
+    {
+        // Ensure encryption service is available after model is constructed
+        static::retrieved(function ($model): void {
+            $model->initializeEncryptionService();
+        });
+
+        static::creating(function ($model): void {
+            $model->initializeEncryptionService();
+        });
+
+        static::updating(function ($model): void {
+            $model->initializeEncryptionService();
+        });
+    }
+
+    /**
+     * Check if an attribute should be encrypted
+     */
+    protected function shouldEncryptAttribute(string $key): bool
+    {
+        return in_array($key, $this->getEncryptedAttributes(), TRUE);
+    }
+
+    /**
+     * Check if an attribute should be encrypted as JSON
+     */
+    protected function isJsonEncryptedAttribute(string $key): bool
+    {
+        $casts = $this->getCasts();
+
+        return isset($casts[$key])
+               && (
+                   $casts[$key] === 'encrypted:array'
+                   || $casts[$key] === 'encrypted:json'
+                   || $casts[$key] === 'encrypted:object'
+               );
     }
 
     /**
      * Check if the model has an attribute
-     *
-     * @param string $attribute
-     * @return bool
      */
     protected function hasAttribute(string $attribute): bool
     {

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
@@ -32,44 +32,33 @@ class TicketAlert extends Model
         'auto_purchase',
         'last_checked_at',
         'triggered_at',
-        'matches_found'
+        'matches_found',
     ];
 
     protected $casts = [
-        'max_price' => 'decimal:2',
-        'min_price' => 'decimal:2',
-        'min_quantity' => 'integer',
-        'preferred_sections' => 'array',
-        'platforms' => 'array',
-        'priority_score' => 'integer',
-        'ml_prediction_data' => 'array',
-        'escalation_level' => 'integer',
-        'success_rate' => 'decimal:4',
+        'max_price'           => 'decimal:2',
+        'min_price'           => 'decimal:2',
+        'min_quantity'        => 'integer',
+        'preferred_sections'  => 'array',
+        'platforms'           => 'array',
+        'priority_score'      => 'integer',
+        'ml_prediction_data'  => 'array',
+        'escalation_level'    => 'integer',
+        'success_rate'        => 'decimal:4',
         'channel_preferences' => 'array',
         'email_notifications' => 'boolean',
-        'sms_notifications' => 'boolean',
-        'auto_purchase' => 'boolean',
-        'last_escalated_at' => 'datetime',
-        'last_checked_at' => 'datetime',
-        'triggered_at' => 'datetime'
+        'sms_notifications'   => 'boolean',
+        'auto_purchase'       => 'boolean',
+        'last_escalated_at'   => 'datetime',
+        'last_checked_at'     => 'datetime',
+        'triggered_at'        => 'datetime',
     ];
 
     protected $dates = [
         'last_escalated_at',
         'last_checked_at',
-        'triggered_at'
+        'triggered_at',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        // static::creating(function ($alert) {
-        //     if (empty($alert->uuid)) {
-        //         $alert->uuid = (string) Str::uuid();
-        //     }
-        // });
-    }
 
     // Relationships
     public function user(): BelongsTo
@@ -96,10 +85,10 @@ class TicketAlert extends Model
     public function scopeNeedsCheck($query, $minutes = 15)
     {
         return $query->active()
-                    ->where(function($q) use ($minutes) {
-                        $q->whereNull('last_checked_at')
-                          ->orWhere('last_checked_at', '<=', now()->subMinutes($minutes));
-                    });
+            ->where(function ($q) use ($minutes): void {
+                $q->whereNull('last_checked_at')
+                    ->orWhere('last_checked_at', '<=', now()->subMinutes($minutes));
+            });
     }
 
     // Methods
@@ -108,19 +97,19 @@ class TicketAlert extends Model
         // Check keywords match
         $keywords = strtolower($this->keywords);
         $eventTitle = strtolower($ticket->event_title);
-        
-        if (!str_contains($eventTitle, $keywords)) {
-            return false;
+
+        if (! str_contains($eventTitle, $keywords)) {
+            return FALSE;
         }
 
         // Check platform filter
         if ($this->platform && $this->platform !== $ticket->platform) {
-            return false;
+            return FALSE;
         }
 
         // Check price limit
         if ($this->max_price && $ticket->total_price > $this->max_price) {
-            return false;
+            return FALSE;
         }
 
         // Check additional filters if any
@@ -128,25 +117,28 @@ class TicketAlert extends Model
             foreach ($this->filters as $key => $value) {
                 switch ($key) {
                     case 'venue':
-                        if (!str_contains(strtolower($ticket->venue), strtolower($value))) {
-                            return false;
+                        if (! str_contains(strtolower($ticket->venue), strtolower($value))) {
+                            return FALSE;
                         }
+
                         break;
                     case 'min_quantity':
                         if ($ticket->quantity_available < $value) {
-                            return false;
+                            return FALSE;
                         }
+
                         break;
                     case 'section':
-                        if ($ticket->section && !str_contains(strtolower($ticket->section), strtolower($value))) {
-                            return false;
+                        if ($ticket->section && ! str_contains(strtolower($ticket->section), strtolower($value))) {
+                            return FALSE;
                         }
+
                         break;
                 }
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     public function incrementMatches(): void
@@ -158,7 +150,7 @@ class TicketAlert extends Model
 
     public function getFormattedMaxPriceAttribute(): ?string
     {
-        return $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : null;
+        return $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : NULL;
     }
 
     public function getLastCheckedAttribute(): ?string
@@ -168,15 +160,26 @@ class TicketAlert extends Model
 
     public function getPlatformDisplayNameAttribute(): string
     {
-        if (!$this->platform) {
+        if (! $this->platform) {
             return 'All Platforms';
         }
-        
-        return match($this->platform) {
-            'stubhub' => 'StubHub',
+
+        return match ($this->platform) {
+            'stubhub'      => 'StubHub',
             'ticketmaster' => 'Ticketmaster',
-            'viagogo' => 'Viagogo',
-            default => ucfirst($this->platform)
+            'viagogo'      => 'Viagogo',
+            default        => ucfirst($this->platform),
         };
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // static::creating(function ($alert) {
+        //     if (empty($alert->uuid)) {
+        //         $alert->uuid = (string) Str::uuid();
+        //     }
+        // });
     }
 }

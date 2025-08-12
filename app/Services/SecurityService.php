@@ -1,37 +1,46 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\LoginHistory;
+use App\Models\User;
 use App\Models\UserSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-use Spatie\Activitylog\Facades\LogActivity;
-use Spatie\Activitylog\Models\Activity;
 use Jenssegers\Agent\Agent;
+use Spatie\Activitylog\Models\Activity;
+
+use function array_slice;
+use function count;
+use function in_array;
 
 class SecurityService
 {
+    // ===== LOGIN HISTORY & SESSION MANAGEMENT =====
+
+    protected $agent;
+
     /**
      * Log security-related activities with enhanced context
+     *
+     * @param mixed|null $subject
      */
-    public function logSecurityActivity(string $description, array $properties = [], $subject = null): void
+    public function logSecurityActivity(string $description, array $properties = [], $subject = NULL): void
     {
         $user = Auth::user();
         $request = request();
-        
+
         $enhancedProperties = array_merge([
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'timestamp' => now()->toISOString(),
+            'timestamp'  => now()->toISOString(),
             'session_id' => session()->getId(),
-            'url' => $request->fullUrl(),
-            'method' => $request->method(),
-            'user_id' => $user?->id,
-            'user_role' => $user?->role,
+            'url'        => $request->fullUrl(),
+            'method'     => $request->method(),
+            'user_id'    => $user?->id,
+            'user_role'  => $user?->role,
             'risk_level' => $this->calculateRiskLevel($description, $properties),
         ], $properties);
 
@@ -44,19 +53,21 @@ class SecurityService
 
     /**
      * Log user actions with context
+     *
+     * @param mixed|null $subject
      */
-    public function logUserActivity(string $action, array $context = [], $subject = null): void
+    public function logUserActivity(string $action, array $context = [], $subject = NULL): void
     {
         $user = Auth::user();
         $request = request();
-        
+
         $properties = array_merge([
-            'action' => $action,
+            'action'     => $action,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'timestamp' => now()->toISOString(),
+            'timestamp'  => now()->toISOString(),
             'session_id' => session()->getId(),
-            'user_role' => $user?->role,
+            'user_role'  => $user?->role,
         ], $context);
 
         activity('user_actions')
@@ -72,22 +83,22 @@ class SecurityService
     public function logBulkOperation(string $operation, array $items, array $results = []): void
     {
         $user = Auth::user();
-        
+
         $properties = [
-            'operation' => $operation,
-            'item_count' => count($items),
-            'item_ids' => array_slice($items, 0, 100), // Limit to prevent too large logs
-            'success_count' => $results['success'] ?? 0,
-            'failure_count' => $results['failure'] ?? 0,
-            'errors' => $results['errors'] ?? [],
-            'execution_time' => $results['execution_time'] ?? null,
-            'user_role' => $user?->role,
+            'operation'      => $operation,
+            'item_count'     => count($items),
+            'item_ids'       => array_slice($items, 0, 100), // Limit to prevent too large logs
+            'success_count'  => $results['success'] ?? 0,
+            'failure_count'  => $results['failure'] ?? 0,
+            'errors'         => $results['errors'] ?? [],
+            'execution_time' => $results['execution_time'] ?? NULL,
+            'user_role'      => $user?->role,
         ];
 
         activity('bulk_operations')
             ->causedBy($user)
             ->withProperties($properties)
-            ->log("Bulk operation performed: {$operation} on " . count($items) . " items");
+            ->log("Bulk operation performed: {$operation} on " . count($items) . ' items');
     }
 
     /**
@@ -96,12 +107,12 @@ class SecurityService
     public function logAuthEvent(string $event, array $context = []): void
     {
         $request = request();
-        
+
         $properties = array_merge([
-            'event' => $event,
+            'event'      => $event,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'timestamp' => now()->toISOString(),
+            'timestamp'  => now()->toISOString(),
             'session_id' => session()->getId(),
         ], $context);
 
@@ -115,29 +126,29 @@ class SecurityService
      */
     public function checkPermission(User $user, string $permission, array $context = []): bool
     {
-        $hasPermission = match($permission) {
-            'manage_users' => $user->canManageUsers(),
-            'manage_system' => $user->canManageSystem(),
-            'manage_platforms' => $user->canManagePlatforms(),
-            'access_financials' => $user->canAccessFinancials(),
-            'delete_any_data' => $user->canDeleteAnyData(),
+        $hasPermission = match ($permission) {
+            'manage_users'            => $user->canManageUsers(),
+            'manage_system'           => $user->canManageSystem(),
+            'manage_platforms'        => $user->canManagePlatforms(),
+            'access_financials'       => $user->canAccessFinancials(),
+            'delete_any_data'         => $user->canDeleteAnyData(),
             'select_purchase_tickets' => $user->canSelectAndPurchaseTickets(),
             'make_purchase_decisions' => $user->canMakePurchaseDecisions(),
-            'manage_monitoring' => $user->canManageMonitoring(),
-            'view_scraping_metrics' => $user->canViewScrapingMetrics(),
-            'access_system' => $user->canAccessSystem(),
-            'bulk_operations' => $this->canPerformBulkOperations($user),
-            default => false
+            'manage_monitoring'       => $user->canManageMonitoring(),
+            'view_scraping_metrics'   => $user->canViewScrapingMetrics(),
+            'access_system'           => $user->canAccessSystem(),
+            'bulk_operations'         => $this->canPerformBulkOperations($user),
+            default                   => FALSE,
         };
 
-        if (!$hasPermission) {
+        if (! $hasPermission) {
             $this->logSecurityActivity(
                 'Permission denied',
                 array_merge([
-                    'permission' => $permission,
-                    'user_role' => $user->role,
+                    'permission'       => $permission,
+                    'user_role'        => $user->role,
                     'attempted_action' => $context['action'] ?? 'unknown',
-                ], $context)
+                ], $context),
             );
         }
 
@@ -158,30 +169,30 @@ class SecurityService
     public function validateBulkOperation(array $items, string $operation, User $user): array
     {
         $validation = [
-            'valid' => true,
-            'errors' => [],
+            'valid'    => TRUE,
+            'errors'   => [],
             'warnings' => [],
         ];
 
         // Check item count limits
         $maxItems = $this->getMaxBulkItems($user, $operation);
         if (count($items) > $maxItems) {
-            $validation['valid'] = false;
+            $validation['valid'] = FALSE;
             $validation['errors'][] = "Bulk operation exceeds maximum limit of {$maxItems} items";
         }
 
         // Check for destructive operations
-        if (in_array($operation, ['delete', 'disable', 'remove'])) {
-            if (!$user->canDeleteAnyData() && count($items) > 10) {
-                $validation['valid'] = false;
-                $validation['errors'][] = "Destructive bulk operations limited to 10 items for non-root users";
+        if (in_array($operation, ['delete', 'disable', 'remove'], TRUE)) {
+            if (! $user->canDeleteAnyData() && count($items) > 10) {
+                $validation['valid'] = FALSE;
+                $validation['errors'][] = 'Destructive bulk operations limited to 10 items for non-root users';
             }
         }
 
         // Rate limiting check
         if ($this->isBulkOperationRateLimited($user)) {
-            $validation['valid'] = false;
-            $validation['errors'][] = "Bulk operation rate limit exceeded. Please wait before trying again.";
+            $validation['valid'] = FALSE;
+            $validation['errors'][] = 'Bulk operation rate limit exceeded. Please wait before trying again.';
         }
 
         return $validation;
@@ -193,11 +204,11 @@ class SecurityService
     public function generateBulkOperationToken(string $operation, array $items): string
     {
         $payload = [
-            'operation' => $operation,
+            'operation'  => $operation,
             'item_count' => count($items),
-            'user_id' => Auth::id(),
-            'timestamp' => now()->timestamp,
-            'nonce' => bin2hex(random_bytes(16)),
+            'user_id'    => Auth::id(),
+            'timestamp'  => now()->timestamp,
+            'nonce'      => bin2hex(random_bytes(16)),
         ];
 
         return Hash::make(json_encode($payload));
@@ -209,23 +220,23 @@ class SecurityService
     public function validateBulkOperationToken(string $token, string $operation, array $items): bool
     {
         $payload = [
-            'operation' => $operation,
+            'operation'  => $operation,
             'item_count' => count($items),
-            'user_id' => Auth::id(),
-            'timestamp' => now()->timestamp,
+            'user_id'    => Auth::id(),
+            'timestamp'  => now()->timestamp,
         ];
 
         // Allow 5 minute window for token validity
         for ($i = 0; $i < 5; $i++) {
             $testPayload = $payload;
             $testPayload['timestamp'] -= ($i * 60);
-            
+
             if (Hash::check(json_encode($testPayload), $token)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -250,82 +261,18 @@ class SecurityService
             ->get();
 
         return [
-            'total_activities' => $activities->count(),
-            'security_events' => $activities->where('log_name', 'security')->count(),
-            'user_actions' => $activities->where('log_name', 'user_actions')->count(),
-            'bulk_operations' => $activities->where('log_name', 'bulk_operations')->count(),
+            'total_activities'      => $activities->count(),
+            'security_events'       => $activities->where('log_name', 'security')->count(),
+            'user_actions'          => $activities->where('log_name', 'user_actions')->count(),
+            'bulk_operations'       => $activities->where('log_name', 'bulk_operations')->count(),
             'authentication_events' => $activities->where('log_name', 'authentication')->count(),
-            'recent_activities' => $activities->sortByDesc('created_at')->take(10)->values(),
+            'recent_activities'     => $activities->sortByDesc('created_at')->take(10)->values(),
         ];
     }
 
-    /**
-     * Calculate risk level based on activity
-     */
-    private function calculateRiskLevel(string $description, array $properties): string
-    {
-        $highRiskKeywords = ['delete', 'disable', 'permission', 'admin', 'bulk', 'failed'];
-        $mediumRiskKeywords = ['update', 'modify', 'change', 'access'];
-
-        $description = strtolower($description);
-        
-        foreach ($highRiskKeywords as $keyword) {
-            if (str_contains($description, $keyword)) {
-                return 'high';
-            }
-        }
-
-        foreach ($mediumRiskKeywords as $keyword) {
-            if (str_contains($description, $keyword)) {
-                return 'medium';
-            }
-        }
-
-        return 'low';
-    }
-
-    /**
-     * Get maximum bulk items based on user role and operation
-     */
-    private function getMaxBulkItems(User $user, string $operation): int
-    {
-        if ($user->isRootAdmin()) {
-            return 1000;
-        }
-
-        if ($user->isAdmin()) {
-            return in_array($operation, ['delete', 'disable']) ? 100 : 500;
-        }
-
-        if ($user->isAgent()) {
-            return in_array($operation, ['delete', 'disable']) ? 10 : 100;
-        }
-
-        return 10;
-    }
-
-    /**
-     * Check if user is rate limited for bulk operations
-     */
-    private function isBulkOperationRateLimited(User $user): bool
-    {
-        $recentBulkOps = Activity::where('causer_id', $user->id)
-            ->where('log_name', 'bulk_operations')
-            ->where('created_at', '>=', now()->subMinutes(10))
-            ->count();
-
-        $limit = $user->isAdmin() ? 10 : 3;
-        
-        return $recentBulkOps >= $limit;
-    }
-
-    // ===== LOGIN HISTORY & SESSION MANAGEMENT =====
-    
-    protected $agent;
-
     public function initAgent(): void
     {
-        if (!$this->agent) {
+        if (! $this->agent) {
             $this->agent = new Agent();
         }
     }
@@ -333,7 +280,7 @@ class SecurityService
     /**
      * Log login attempt and track security information
      */
-    public function logLoginAttempt(User $user, Request $request, bool $success, ?string $failureReason = null): LoginHistory
+    public function logLoginAttempt(User $user, Request $request, bool $success, ?string $failureReason = NULL): LoginHistory
     {
         $this->initAgent();
         $deviceInfo = $this->getDeviceInfo($request);
@@ -341,22 +288,22 @@ class SecurityService
         $suspiciousFlags = $this->analyzeSuspiciousActivity($user, $request, $deviceInfo, $locationInfo);
 
         return LoginHistory::create([
-            'user_id' => $user->id,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'device_type' => $deviceInfo['device_type'],
-            'browser' => $deviceInfo['browser'],
+            'user_id'          => $user->id,
+            'ip_address'       => $request->ip(),
+            'user_agent'       => $request->userAgent(),
+            'device_type'      => $deviceInfo['device_type'],
+            'browser'          => $deviceInfo['browser'],
             'operating_system' => $deviceInfo['os'],
-            'country' => $locationInfo['country'],
-            'city' => $locationInfo['city'],
-            'latitude' => $locationInfo['latitude'],
-            'longitude' => $locationInfo['longitude'],
-            'success' => $success,
-            'failure_reason' => $failureReason,
-            'is_suspicious' => count($suspiciousFlags) > 0,
+            'country'          => $locationInfo['country'],
+            'city'             => $locationInfo['city'],
+            'latitude'         => $locationInfo['latitude'],
+            'longitude'        => $locationInfo['longitude'],
+            'success'          => $success,
+            'failure_reason'   => $failureReason,
+            'is_suspicious'    => count($suspiciousFlags) > 0,
             'suspicious_flags' => $suspiciousFlags,
-            'session_id' => Session::getId(),
-            'attempted_at' => now(),
+            'session_id'       => Session::getId(),
+            'attempted_at'     => now(),
         ]);
     }
 
@@ -371,24 +318,24 @@ class SecurityService
         $locationInfo = $this->getLocationInfo($request->ip());
 
         // Mark all previous sessions as non-current for this user
-        UserSession::where('user_id', $user->id)->update(['is_current' => false]);
+        UserSession::where('user_id', $user->id)->update(['is_current' => FALSE]);
 
         return UserSession::updateOrCreate(
             ['id' => $sessionId],
             [
-                'user_id' => $user->id,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'device_type' => $deviceInfo['device_type'],
-                'browser' => $deviceInfo['browser'],
+                'user_id'          => $user->id,
+                'ip_address'       => $request->ip(),
+                'user_agent'       => $request->userAgent(),
+                'device_type'      => $deviceInfo['device_type'],
+                'browser'          => $deviceInfo['browser'],
                 'operating_system' => $deviceInfo['os'],
-                'country' => $locationInfo['country'],
-                'city' => $locationInfo['city'],
-                'is_current' => true,
-                'is_trusted' => $this->isDeviceTrusted($user, $deviceInfo, $request->ip()),
-                'last_activity' => now(),
-                'expires_at' => now()->addMinutes(config('session.lifetime')),
-            ]
+                'country'          => $locationInfo['country'],
+                'city'             => $locationInfo['city'],
+                'is_current'       => TRUE,
+                'is_trusted'       => $this->isDeviceTrusted($user, $deviceInfo, $request->ip()),
+                'last_activity'    => now(),
+                'expires_at'       => now()->addMinutes(config('session.lifetime')),
+            ],
         );
     }
 
@@ -399,7 +346,7 @@ class SecurityService
     {
         UserSession::where('id', $sessionId)->update([
             'last_activity' => now(),
-            'expires_at' => now()->addMinutes(config('session.lifetime')),
+            'expires_at'    => now()->addMinutes(config('session.lifetime')),
         ]);
     }
 
@@ -414,136 +361,15 @@ class SecurityService
     /**
      * Revoke all sessions for user except current
      */
-    public function revokeAllOtherSessions(User $user, ?string $exceptSessionId = null): int
+    public function revokeAllOtherSessions(User $user, ?string $exceptSessionId = NULL): int
     {
         $query = UserSession::where('user_id', $user->id);
-        
+
         if ($exceptSessionId) {
             $query->where('id', '!=', $exceptSessionId);
         }
 
         return $query->delete();
-    }
-
-    /**
-     * Get device information from request
-     */
-    protected function getDeviceInfo(Request $request): array
-    {
-        $this->initAgent();
-        $this->agent->setUserAgent($request->userAgent());
-
-        $deviceType = 'desktop';
-        if ($this->agent->isMobile()) {
-            $deviceType = 'mobile';
-        } elseif ($this->agent->isTablet()) {
-            $deviceType = 'tablet';
-        }
-
-        return [
-            'device_type' => $deviceType,
-            'browser' => $this->agent->browser(),
-            'os' => $this->agent->platform(),
-        ];
-    }
-
-    /**
-     * Get location information from IP address
-     */
-    protected function getLocationInfo(string $ipAddress): array
-    {
-        // For localhost/development, return default values
-        if (in_array($ipAddress, ['127.0.0.1', '::1', 'localhost'])) {
-            return [
-                'country' => 'Local',
-                'city' => 'Development',
-                'latitude' => null,
-                'longitude' => null,
-            ];
-        }
-
-        // In production, you would integrate with a GeoIP service
-        // For now, return default values
-        return [
-            'country' => null,
-            'city' => null,
-            'latitude' => null,
-            'longitude' => null,
-        ];
-    }
-
-    /**
-     * Analyze suspicious activity patterns
-     */
-    protected function analyzeSuspiciousActivity(User $user, Request $request, array $deviceInfo, array $locationInfo): array
-    {
-        $flags = [];
-
-        // Check for rapid login attempts
-        $recentFailedAttempts = LoginHistory::where('user_id', $user->id)
-            ->where('success', false)
-            ->where('attempted_at', '>=', now()->subHour())
-            ->count();
-
-        if ($recentFailedAttempts >= 3) {
-            $flags[] = 'rapid_failed_attempts';
-        }
-
-        // Check for new location
-        $hasLoginFromLocation = LoginHistory::where('user_id', $user->id)
-            ->where('success', true)
-            ->where('country', $locationInfo['country'])
-            ->exists();
-
-        if ($locationInfo['country'] && !$hasLoginFromLocation) {
-            $flags[] = 'new_location';
-        }
-
-        // Check for new device
-        $hasLoginFromDevice = LoginHistory::where('user_id', $user->id)
-            ->where('success', true)
-            ->where('browser', $deviceInfo['browser'])
-            ->where('operating_system', $deviceInfo['os'])
-            ->exists();
-
-        if (!$hasLoginFromDevice) {
-            $flags[] = 'new_device';
-        }
-
-        // Check for unusual time
-        $currentHour = now()->hour;
-        $usualLoginTimes = LoginHistory::where('user_id', $user->id)
-            ->where('success', true)
-            ->get()
-            ->map(fn($record) => $record->attempted_at->hour)
-            ->unique();
-
-        if ($usualLoginTimes->isNotEmpty() && !$usualLoginTimes->contains($currentHour)) {
-            $timeDifference = $usualLoginTimes->map(fn($hour) => abs($hour - $currentHour))->min();
-            if ($timeDifference >= 6) {
-                $flags[] = 'unusual_time';
-            }
-        }
-
-        return $flags;
-    }
-
-    /**
-     * Check if device is trusted
-     */
-    protected function isDeviceTrusted(User $user, array $deviceInfo, string $ipAddress): bool
-    {
-        $trustedDevices = $user->trusted_devices ?? [];
-
-        foreach ($trustedDevices as $device) {
-            if ($device['browser'] === $deviceInfo['browser'] &&
-                $device['os'] === $deviceInfo['os'] &&
-                $device['ip_address'] === $ipAddress) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -556,22 +382,22 @@ class SecurityService
         $trustedDevices = $user->trusted_devices ?? [];
 
         $newDevice = [
-            'browser' => $deviceInfo['browser'],
-            'os' => $deviceInfo['os'],
-            'ip_address' => $request->ip(),
+            'browser'     => $deviceInfo['browser'],
+            'os'          => $deviceInfo['os'],
+            'ip_address'  => $request->ip(),
             'device_type' => $deviceInfo['device_type'],
-            'trusted_at' => now()->toISOString(),
-            'name' => $this->generateDeviceName($deviceInfo),
+            'trusted_at'  => now()->toISOString(),
+            'name'        => $this->generateDeviceName($deviceInfo),
         ];
 
         // Check if device is already trusted
         $exists = collect($trustedDevices)->contains(function ($device) use ($newDevice) {
-            return $device['browser'] === $newDevice['browser'] &&
-                   $device['os'] === $newDevice['os'] &&
-                   $device['ip_address'] === $newDevice['ip_address'];
+            return $device['browser'] === $newDevice['browser']
+                   && $device['os'] === $newDevice['os']
+                   && $device['ip_address'] === $newDevice['ip_address'];
         });
 
-        if (!$exists) {
+        if (! $exists) {
             $trustedDevices[] = $newDevice;
             $user->update(['trusted_devices' => $trustedDevices]);
         }
@@ -587,22 +413,11 @@ class SecurityService
         if (isset($trustedDevices[$deviceIndex])) {
             unset($trustedDevices[$deviceIndex]);
             $user->update(['trusted_devices' => array_values($trustedDevices)]);
-            return true;
+
+            return TRUE;
         }
 
-        return false;
-    }
-
-    /**
-     * Generate a friendly name for the device
-     */
-    protected function generateDeviceName(array $deviceInfo): string
-    {
-        $deviceType = ucfirst($deviceInfo['device_type']);
-        $browser = $deviceInfo['browser'];
-        $os = $deviceInfo['os'];
-
-        return "{$deviceType} - {$browser} on {$os}";
+        return FALSE;
     }
 
     /**
@@ -618,17 +433,17 @@ class SecurityService
 
         $successfulLogins = LoginHistory::where('user_id', $user->id)
             ->where('attempted_at', '>=', $startDate)
-            ->where('success', true)
+            ->where('success', TRUE)
             ->count();
 
         $failedAttempts = LoginHistory::where('user_id', $user->id)
             ->where('attempted_at', '>=', $startDate)
-            ->where('success', false)
+            ->where('success', FALSE)
             ->count();
 
         $suspiciousAttempts = LoginHistory::where('user_id', $user->id)
             ->where('attempted_at', '>=', $startDate)
-            ->where('is_suspicious', true)
+            ->where('is_suspicious', TRUE)
             ->count();
 
         $uniqueLocations = LoginHistory::where('user_id', $user->id)
@@ -643,14 +458,14 @@ class SecurityService
             ->count();
 
         return [
-            'total_attempts' => $totalAttempts,
-            'successful_logins' => $successfulLogins,
-            'failed_attempts' => $failedAttempts,
+            'total_attempts'      => $totalAttempts,
+            'successful_logins'   => $successfulLogins,
+            'failed_attempts'     => $failedAttempts,
             'suspicious_attempts' => $suspiciousAttempts,
-            'unique_locations' => $uniqueLocations,
-            'unique_devices' => $uniqueDevices,
-            'success_rate' => $totalAttempts > 0 ? round(($successfulLogins / $totalAttempts) * 100, 2) : 0,
-            'period_days' => $days,
+            'unique_locations'    => $uniqueLocations,
+            'unique_devices'      => $uniqueDevices,
+            'success_rate'        => $totalAttempts > 0 ? round(($successfulLogins / $totalAttempts) * 100, 2) : 0,
+            'period_days'         => $days,
         ];
     }
 
@@ -685,40 +500,40 @@ class SecurityService
         $recommendations = [];
 
         // Check 2FA status
-        if (!$user->two_factor_enabled) {
+        if (! $user->two_factor_enabled) {
             $issues[] = [
-                'type' => 'critical',
-                'title' => 'Two-Factor Authentication Disabled',
+                'type'        => 'critical',
+                'title'       => 'Two-Factor Authentication Disabled',
                 'description' => 'Your account is not protected with two-factor authentication.',
-                'action' => 'Enable 2FA',
-                'url' => route('2fa.setup')
+                'action'      => 'Enable 2FA',
+                'url'         => route('2fa.setup'),
             ];
         }
 
         // Check password age
         if ($user->password_changed_at && $user->password_changed_at < now()->subMonths(6)) {
             $issues[] = [
-                'type' => 'warning',
-                'title' => 'Password is Old',
+                'type'        => 'warning',
+                'title'       => 'Password is Old',
                 'description' => 'Your password hasn\'t been changed in over 6 months.',
-                'action' => 'Change Password',
-                'url' => route('profile.edit')
+                'action'      => 'Change Password',
+                'url'         => route('profile.edit'),
             ];
         }
 
         // Check for suspicious activity
         $suspiciousCount = LoginHistory::where('user_id', $user->id)
-            ->where('is_suspicious', true)
+            ->where('is_suspicious', TRUE)
             ->where('attempted_at', '>=', now()->subDays(7))
             ->count();
 
         if ($suspiciousCount > 0) {
             $issues[] = [
-                'type' => 'warning',
-                'title' => 'Suspicious Activity Detected',
+                'type'        => 'warning',
+                'title'       => 'Suspicious Activity Detected',
                 'description' => "{$suspiciousCount} suspicious login attempts in the last 7 days.",
-                'action' => 'Review Activity',
-                'url' => route('profile.security')
+                'action'      => 'Review Activity',
+                'url'         => route('profile.security'),
             ];
         }
 
@@ -726,11 +541,11 @@ class SecurityService
         $activeSessions = $this->getActiveSessions($user)->count();
         if ($activeSessions > 5) {
             $recommendations[] = [
-                'type' => 'info',
-                'title' => 'Multiple Active Sessions',
+                'type'        => 'info',
+                'title'       => 'Multiple Active Sessions',
                 'description' => "You have {$activeSessions} active sessions. Consider logging out unused sessions.",
-                'action' => 'Manage Sessions',
-                'url' => route('profile.security')
+                'action'      => 'Manage Sessions',
+                'url'         => route('profile.security'),
             ];
         }
 
@@ -738,23 +553,156 @@ class SecurityService
         $trustedDeviceCount = count($user->trusted_devices ?? []);
         if ($trustedDeviceCount === 0) {
             $recommendations[] = [
-                'type' => 'info',
-                'title' => 'No Trusted Devices',
+                'type'        => 'info',
+                'title'       => 'No Trusted Devices',
                 'description' => 'Consider marking frequently used devices as trusted for convenience.',
-                'action' => 'Manage Devices',
-                'url' => route('profile.security')
+                'action'      => 'Manage Devices',
+                'url'         => route('profile.security'),
             ];
         }
 
         $score = $this->calculateSecurityScore($user, $issues);
 
         return [
-            'score' => $score,
-            'issues' => $issues,
+            'score'           => $score,
+            'issues'          => $issues,
             'recommendations' => $recommendations,
-            'total_issues' => count($issues),
-            'critical_issues' => count(array_filter($issues, fn($i) => $i['type'] === 'critical')),
+            'total_issues'    => count($issues),
+            'critical_issues' => count(array_filter($issues, fn ($i) => $i['type'] === 'critical')),
         ];
+    }
+
+    /**
+     * Get device information from request
+     */
+    protected function getDeviceInfo(Request $request): array
+    {
+        $this->initAgent();
+        $this->agent->setUserAgent($request->userAgent());
+
+        $deviceType = 'desktop';
+        if ($this->agent->isMobile()) {
+            $deviceType = 'mobile';
+        } elseif ($this->agent->isTablet()) {
+            $deviceType = 'tablet';
+        }
+
+        return [
+            'device_type' => $deviceType,
+            'browser'     => $this->agent->browser(),
+            'os'          => $this->agent->platform(),
+        ];
+    }
+
+    /**
+     * Get location information from IP address
+     */
+    protected function getLocationInfo(string $ipAddress): array
+    {
+        // For localhost/development, return default values
+        if (in_array($ipAddress, ['127.0.0.1', '::1', 'localhost'], TRUE)) {
+            return [
+                'country'   => 'Local',
+                'city'      => 'Development',
+                'latitude'  => NULL,
+                'longitude' => NULL,
+            ];
+        }
+
+        // In production, you would integrate with a GeoIP service
+        // For now, return default values
+        return [
+            'country'   => NULL,
+            'city'      => NULL,
+            'latitude'  => NULL,
+            'longitude' => NULL,
+        ];
+    }
+
+    /**
+     * Analyze suspicious activity patterns
+     */
+    protected function analyzeSuspiciousActivity(User $user, Request $request, array $deviceInfo, array $locationInfo): array
+    {
+        $flags = [];
+
+        // Check for rapid login attempts
+        $recentFailedAttempts = LoginHistory::where('user_id', $user->id)
+            ->where('success', FALSE)
+            ->where('attempted_at', '>=', now()->subHour())
+            ->count();
+
+        if ($recentFailedAttempts >= 3) {
+            $flags[] = 'rapid_failed_attempts';
+        }
+
+        // Check for new location
+        $hasLoginFromLocation = LoginHistory::where('user_id', $user->id)
+            ->where('success', TRUE)
+            ->where('country', $locationInfo['country'])
+            ->exists();
+
+        if ($locationInfo['country'] && ! $hasLoginFromLocation) {
+            $flags[] = 'new_location';
+        }
+
+        // Check for new device
+        $hasLoginFromDevice = LoginHistory::where('user_id', $user->id)
+            ->where('success', TRUE)
+            ->where('browser', $deviceInfo['browser'])
+            ->where('operating_system', $deviceInfo['os'])
+            ->exists();
+
+        if (! $hasLoginFromDevice) {
+            $flags[] = 'new_device';
+        }
+
+        // Check for unusual time
+        $currentHour = now()->hour;
+        $usualLoginTimes = LoginHistory::where('user_id', $user->id)
+            ->where('success', TRUE)
+            ->get()
+            ->map(fn ($record) => $record->attempted_at->hour)
+            ->unique();
+
+        if ($usualLoginTimes->isNotEmpty() && ! $usualLoginTimes->contains($currentHour)) {
+            $timeDifference = $usualLoginTimes->map(fn ($hour) => abs($hour - $currentHour))->min();
+            if ($timeDifference >= 6) {
+                $flags[] = 'unusual_time';
+            }
+        }
+
+        return $flags;
+    }
+
+    /**
+     * Check if device is trusted
+     */
+    protected function isDeviceTrusted(User $user, array $deviceInfo, string $ipAddress): bool
+    {
+        $trustedDevices = $user->trusted_devices ?? [];
+
+        foreach ($trustedDevices as $device) {
+            if ($device['browser'] === $deviceInfo['browser']
+                && $device['os'] === $deviceInfo['os']
+                && $device['ip_address'] === $ipAddress) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Generate a friendly name for the device
+     */
+    protected function generateDeviceName(array $deviceInfo): string
+    {
+        $deviceType = ucfirst($deviceInfo['device_type']);
+        $browser = $deviceInfo['browser'];
+        $os = $deviceInfo['os'];
+
+        return "{$deviceType} - {$browser} on {$os}";
     }
 
     /**
@@ -768,9 +716,9 @@ class SecurityService
         foreach ($issues as $issue) {
             $score -= match ($issue['type']) {
                 'critical' => 30,
-                'warning' => 15,
-                'info' => 5,
-                default => 0
+                'warning'  => 15,
+                'info'     => 5,
+                default    => 0,
             };
         }
 
@@ -792,5 +740,65 @@ class SecurityService
         }
 
         return max(0, min(100, $score));
+    }
+
+    /**
+     * Calculate risk level based on activity
+     */
+    private function calculateRiskLevel(string $description, array $properties): string
+    {
+        $highRiskKeywords = ['delete', 'disable', 'permission', 'admin', 'bulk', 'failed'];
+        $mediumRiskKeywords = ['update', 'modify', 'change', 'access'];
+
+        $description = strtolower($description);
+
+        foreach ($highRiskKeywords as $keyword) {
+            if (str_contains($description, $keyword)) {
+                return 'high';
+            }
+        }
+
+        foreach ($mediumRiskKeywords as $keyword) {
+            if (str_contains($description, $keyword)) {
+                return 'medium';
+            }
+        }
+
+        return 'low';
+    }
+
+    /**
+     * Get maximum bulk items based on user role and operation
+     */
+    private function getMaxBulkItems(User $user, string $operation): int
+    {
+        if ($user->isRootAdmin()) {
+            return 1000;
+        }
+
+        if ($user->isAdmin()) {
+            return in_array($operation, ['delete', 'disable'], TRUE) ? 100 : 500;
+        }
+
+        if ($user->isAgent()) {
+            return in_array($operation, ['delete', 'disable'], TRUE) ? 10 : 100;
+        }
+
+        return 10;
+    }
+
+    /**
+     * Check if user is rate limited for bulk operations
+     */
+    private function isBulkOperationRateLimited(User $user): bool
+    {
+        $recentBulkOps = Activity::where('causer_id', $user->id)
+            ->where('log_name', 'bulk_operations')
+            ->where('created_at', '>=', now()->subMinutes(10))
+            ->count();
+
+        $limit = $user->isAdmin() ? 10 : 3;
+
+        return $recentBulkOps >= $limit;
     }
 }

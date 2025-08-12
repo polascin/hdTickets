@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class EventbriteClient extends BaseWebScrapingClient
 {
@@ -13,19 +13,6 @@ class EventbriteClient extends BaseWebScrapingClient
         parent::__construct($config);
         $this->baseUrl = 'https://www.eventbrite.com';
         $this->respectRateLimit('eventbrite');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language' => 'en-US,en;q=0.5',
-            'Accept-Encoding' => 'gzip, deflate, br',
-            'DNT' => '1',
-            'Connection' => 'keep-alive',
-            'Upgrade-Insecure-Requests' => '1',
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        ];
     }
 
     public function searchEvents(array $criteria): array
@@ -49,7 +36,7 @@ class EventbriteClient extends BaseWebScrapingClient
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
         $searchUrl = $this->buildSearchUrl($keyword, $location);
-        
+
         try {
             $html = $this->makeScrapingRequest($searchUrl);
             $crawler = new Crawler($html);
@@ -57,6 +44,7 @@ class EventbriteClient extends BaseWebScrapingClient
             return $this->extractSearchResults($crawler, $maxResults);
         } catch (Exception $e) {
             Log::error('Eventbrite scraping failed: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -73,28 +61,28 @@ class EventbriteClient extends BaseWebScrapingClient
             return $this->extractEventDetails($crawler, $url);
         } catch (Exception $e) {
             Log::error('Failed to scrape Eventbrite event details: ' . $e->getMessage());
+
             return [];
         }
     }
 
-    /**
-     * Build search URL for Eventbrite
-     */
-    private function buildSearchUrl(string $keyword, string $location = ''): string
+    public function getBaseUrl(): string
     {
-        $baseUrl = 'https://www.eventbrite.com/d';
-        $params = [
-            'q' => $keyword,
-            'page' => 1
-        ];
-
-        if (!empty($location)) {
-            $params['location'] = $location;
-        }
-
-        return $baseUrl . '/' . urlencode($location ?: 'online') . '/' . urlencode($keyword) . '/?' . http_build_query($params);
+        return $this->baseUrl;
     }
 
+    protected function getHeaders(): array
+    {
+        return [
+            'Accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language'           => 'en-US,en;q=0.5',
+            'Accept-Encoding'           => 'gzip, deflate, br',
+            'DNT'                       => '1',
+            'Connection'                => 'keep-alive',
+            'Upgrade-Insecure-Requests' => '1',
+            'User-Agent'                => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        ];
+    }
 
     /**
      * Extract search results from HTML (BaseWebScrapingClient requirement)
@@ -110,22 +98,23 @@ class EventbriteClient extends BaseWebScrapingClient
             '.search-event-card',
             '.event-card',
             '.structured-content-card',
-            '[data-testid="event-card"]'
+            '[data-testid="event-card"]',
         ];
 
         foreach ($eventSelectors as $selector) {
             if ($crawler->filter($selector)->count() > 0) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$events, &$count, $maxResults) {
                     if ($count >= $maxResults) {
-                        return false;
+                        return FALSE;
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
                 });
+
                 break; // Use first selector that works
             }
         }
@@ -139,37 +128,37 @@ class EventbriteClient extends BaseWebScrapingClient
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
-        
+
         try {
             $ticketNodes = $crawler->filter('.ticket-card, [data-testid="ticket-card"], .ticket-option');
-            $ticketNodes->each(function (Crawler $node) use (&$prices) {
+            $ticketNodes->each(function (Crawler $node) use (&$prices): void {
                 $priceText = $node->filter('.ticket-price, [data-testid="ticket-price"], .price')->text('');
-                
+
                 // Extract price from text
                 $price = 0;
                 $currency = 'USD';
                 if (preg_match('/\$([\d\.]+)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
+                    $price = (float) ($matches[1]);
                 } elseif (preg_match('/£([\d\.]+)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
+                    $price = (float) ($matches[1]);
                     $currency = 'GBP';
                 } elseif (preg_match('/€([\d\.]+)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
+                    $price = (float) ($matches[1]);
                     $currency = 'EUR';
                 }
-                
+
                 if ($price > 0) {
                     $prices[] = [
-                        'price' => $price,
+                        'price'    => $price,
                         'currency' => $currency,
-                        'section' => 'General'
+                        'section'  => 'General',
                     ];
                 }
             });
         } catch (Exception $e) {
             Log::debug('Failed to extract Eventbrite prices', ['error' => $e->getMessage()]);
         }
-        
+
         return $prices;
     }
 
@@ -186,7 +175,7 @@ class EventbriteClient extends BaseWebScrapingClient
                 '.event-title a',
                 '[data-testid="event-title"] a',
                 'a[href*="/e/"]',
-                '.card-title a'
+                '.card-title a',
             ]);
 
             // Extract event URL
@@ -199,7 +188,7 @@ class EventbriteClient extends BaseWebScrapingClient
                 '[data-testid="event-date"]',
                 '.date-display',
                 'time',
-                '.structured-content-date'
+                '.structured-content-date',
             ]);
 
             // Parse date
@@ -211,51 +200,140 @@ class EventbriteClient extends BaseWebScrapingClient
                 '[data-testid="event-venue"]',
                 '.venue-name',
                 '.location-display',
-                '.event-location'
+                '.event-location',
             ]);
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
-            
+            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+
             $price = $this->trySelectors($node, [
                 '.event-price',
                 '[data-testid="event-price"]',
                 '.ticket-price',
-                '.price-display'
+                '.price-display',
             ]) ?: $priceRange;
 
             // Extract organizer
             $organizer = $this->trySelectors($node, [
                 '.event-organizer',
                 '[data-testid="organizer"]',
-                '.organizer-name'
+                '.organizer-name',
             ]);
 
             // Extract category
             $category = $this->trySelectors($node, [
                 '.event-category',
                 '[data-testid="category"]',
-                '.category-display'
+                '.category-display',
             ]);
 
             return [
-                'name' => trim($name),
-                'url' => $url,
-                'date' => trim($dateTime),
+                'name'        => trim($name),
+                'url'         => $url,
+                'date'        => trim($dateTime),
                 'parsed_date' => $parsedDate,
-                'venue' => trim($venue),
+                'venue'       => trim($venue),
                 'price_range' => trim($price),
-                'prices' => $priceData,
-                'organizer' => trim($organizer),
-                'category' => trim($category),
-                'source' => 'eventbrite_scrape',
-                'scraped_at' => now()->toISOString()
+                'prices'      => $priceData,
+                'organizer'   => trim($organizer),
+                'category'    => trim($category),
+                'source'      => 'eventbrite_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::debug('Failed to extract event from node', ['error' => $e->getMessage()]);
+
             return [];
         }
+    }
+
+    /**
+     * Extract ticket information from the event page
+     */
+    protected function extractTicketInfo(Crawler $crawler): array
+    {
+        $ticketInfo = [
+            'available' => FALSE,
+            'tickets'   => [],
+        ];
+
+        try {
+            // Check ticket availability
+            $ticketSection = $crawler->filter('[data-testid="ticket-section"], .ticket-selection, .tickets-widget');
+            if ($ticketSection->count() > 0) {
+                $ticketInfo['available'] = TRUE;
+            }
+
+            // Extract ticket types and prices
+            $ticketNodes = $crawler->filter('.ticket-card, [data-testid="ticket-card"], .ticket-option');
+            $ticketNodes->each(function (Crawler $node) use (&$ticketInfo): void {
+                $ticketName = $node->filter('.ticket-name, [data-testid="ticket-name"], h3')->text('');
+                $priceText = $node->filter('.ticket-price, [data-testid="ticket-price"], .price')->text('');
+                $availability = $node->filter('.ticket-availability, [data-testid="availability"]')->text('');
+
+                // Extract price from text
+                $price = 0;
+                $currency = 'USD';
+                if (preg_match('/\$(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                } elseif (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                    $currency = 'GBP';
+                } elseif (preg_match('/€(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                    $currency = 'EUR';
+                }
+
+                if (! empty($ticketName)) {
+                    $ticketInfo['tickets'][] = [
+                        'name'         => trim($ticketName),
+                        'price'        => $price,
+                        'currency'     => $currency,
+                        'availability' => trim($availability),
+                        'is_free'      => stripos($priceText, 'free') !== FALSE || $price === 0,
+                    ];
+                }
+            });
+        } catch (Exception $e) {
+            Log::debug('Failed to extract ticket info', ['error' => $e->getMessage()]);
+        }
+
+        return $ticketInfo;
+    }
+
+    protected function transformEventData(array $eventData): array
+    {
+        return [
+            'id'        => $eventData['id'] ?? uniqid('eventbrite_'),
+            'name'      => $eventData['name'] ?? 'Unnamed Event',
+            'date'      => $eventData['date'] ?? NULL,
+            'time'      => $eventData['time'] ?? NULL,
+            'venue'     => $eventData['venue'] ?? 'TBD',
+            'city'      => $eventData['city'] ?? '',
+            'country'   => $eventData['country'] ?? '',
+            'url'       => $eventData['url'] ?? '',
+            'organizer' => $eventData['organizer'] ?? '',
+            'category'  => $eventData['category'] ?? '',
+        ];
+    }
+
+    /**
+     * Build search URL for Eventbrite
+     */
+    private function buildSearchUrl(string $keyword, string $location = ''): string
+    {
+        $baseUrl = 'https://www.eventbrite.com/d';
+        $params = [
+            'q'    => $keyword,
+            'page' => 1,
+        ];
+
+        if (! empty($location)) {
+            $params['location'] = $location;
+        }
+
+        return $baseUrl . '/' . urlencode($location ?: 'online') . '/' . urlencode($keyword) . '/?' . http_build_query($params);
     }
 
     /**
@@ -268,41 +346,41 @@ class EventbriteClient extends BaseWebScrapingClient
                 'h1[data-testid="event-title"]',
                 'h1.event-title',
                 'h1',
-                '.event-name'
+                '.event-name',
             ]);
 
             $description = $this->trySelectors($crawler, [
                 '[data-testid="event-description"]',
                 '.event-description',
                 '.structured-content-rich-text',
-                '.description-content'
+                '.description-content',
             ]);
 
             $dateTime = $this->trySelectors($crawler, [
                 '[data-testid="event-date-time"]',
                 '.event-datetime',
                 '.date-time-display',
-                'time'
+                'time',
             ]);
 
             $venue = $this->trySelectors($crawler, [
                 '[data-testid="venue-name"]',
                 '.venue-name',
                 '.event-venue',
-                '.location-info h2'
+                '.location-info h2',
             ]);
 
             $address = $this->trySelectors($crawler, [
                 '[data-testid="venue-address"]',
                 '.venue-address',
                 '.location-address',
-                '.address-display'
+                '.address-display',
             ]);
 
             $organizer = $this->trySelectors($crawler, [
                 '[data-testid="organizer-name"]',
                 '.organizer-name',
-                '.event-organizer'
+                '.event-organizer',
             ]);
 
             // Extract ticket information
@@ -316,77 +394,23 @@ class EventbriteClient extends BaseWebScrapingClient
             }
 
             return [
-                'name' => trim($name),
+                'name'        => trim($name),
                 'description' => trim($description),
-                'date_time' => trim($dateTime),
-                'venue' => trim($venue),
-                'address' => trim($address),
-                'organizer' => trim($organizer),
+                'date_time'   => trim($dateTime),
+                'venue'       => trim($venue),
+                'address'     => trim($address),
+                'organizer'   => trim($organizer),
                 'ticket_info' => $ticketInfo,
-                'image' => $image,
-                'url' => $url,
-                'source' => 'eventbrite_scrape',
-                'scraped_at' => now()->toISOString()
+                'image'       => $image,
+                'url'         => $url,
+                'source'      => 'eventbrite_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::error('Error extracting Eventbrite event details: ' . $e->getMessage());
+
             return [];
         }
-    }
-
-    /**
-     * Extract ticket information from the event page
-     */
-    protected function extractTicketInfo(Crawler $crawler): array
-    {
-        $ticketInfo = [
-            'available' => false,
-            'tickets' => []
-        ];
-
-        try {
-            // Check ticket availability
-            $ticketSection = $crawler->filter('[data-testid="ticket-section"], .ticket-selection, .tickets-widget');
-            if ($ticketSection->count() > 0) {
-                $ticketInfo['available'] = true;
-            }
-
-            // Extract ticket types and prices
-            $ticketNodes = $crawler->filter('.ticket-card, [data-testid="ticket-card"], .ticket-option');
-            $ticketNodes->each(function (Crawler $node) use (&$ticketInfo) {
-                $ticketName = $node->filter('.ticket-name, [data-testid="ticket-name"], h3')->text('');
-                $priceText = $node->filter('.ticket-price, [data-testid="ticket-price"], .price')->text('');
-                $availability = $node->filter('.ticket-availability, [data-testid="availability"]')->text('');
-
-                // Extract price from text
-                $price = 0;
-                $currency = 'USD';
-                if (preg_match('/\$(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                } elseif (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                    $currency = 'GBP';
-                } elseif (preg_match('/€(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                    $currency = 'EUR';
-                }
-
-                if (!empty($ticketName)) {
-                    $ticketInfo['tickets'][] = [
-                        'name' => trim($ticketName),
-                        'price' => $price,
-                        'currency' => $currency,
-                        'availability' => trim($availability),
-                        'is_free' => stripos($priceText, 'free') !== false || $price == 0
-                    ];
-                }
-            });
-
-        } catch (Exception $e) {
-            Log::debug('Failed to extract ticket info', ['error' => $e->getMessage()]);
-        }
-
-        return $ticketInfo;
     }
 
     /**
@@ -397,28 +421,7 @@ class EventbriteClient extends BaseWebScrapingClient
         if (strpos($url, 'http') === 0) {
             return $url;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
-    }
-
-    protected function transformEventData(array $eventData): array
-    {
-        return [
-            'id' => $eventData['id'] ?? uniqid('eventbrite_'),
-            'name' => $eventData['name'] ?? 'Unnamed Event',
-            'date' => $eventData['date'] ?? null,
-            'time' => $eventData['time'] ?? null,
-            'venue' => $eventData['venue'] ?? 'TBD',
-            'city' => $eventData['city'] ?? '',
-            'country' => $eventData['country'] ?? '',
-            'url' => $eventData['url'] ?? '',
-            'organizer' => $eventData['organizer'] ?? '',
-            'category' => $eventData['category'] ?? ''
-        ];
-    }
-
-    public function getBaseUrl(): string
-    {
-        return $this->baseUrl;
     }
 }

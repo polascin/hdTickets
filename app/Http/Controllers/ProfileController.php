@@ -1,13 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Services\TwoFactorAuthService;
 use App\Services\SecurityService;
+use App\Services\TwoFactorAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
@@ -15,6 +14,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     protected $twoFactorService;
+
     protected $securityService;
 
     public function __construct(TwoFactorAuthService $twoFactorService, SecurityService $securityService)
@@ -50,33 +50,33 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $validated = $request->validated();
-        
+
         // Fill the user with validated data
         $user->fill($validated);
 
         if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
+            $user->email_verified_at = NULL;
         }
 
         $user->save();
-        
+
         // Handle AJAX requests
         if ($request->ajax()) {
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Profile updated successfully!',
-                'user' => [
-                    'name' => $user->name,
-                    'surname' => $user->surname,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'phone' => $user->phone,
-                    'bio' => $user->bio,
-                    'timezone' => $user->timezone,
-                    'language' => $user->language,
-                    'full_name' => $user->getFullNameAttribute(),
+                'user'    => [
+                    'name'            => $user->name,
+                    'surname'         => $user->surname,
+                    'username'        => $user->username,
+                    'email'           => $user->email,
+                    'phone'           => $user->phone,
+                    'bio'             => $user->bio,
+                    'timezone'        => $user->timezone,
+                    'language'        => $user->language,
+                    'full_name'       => $user->getFullNameAttribute(),
                     'profile_display' => $user->getProfileDisplay(),
-                ]
+                ],
             ]);
         }
 
@@ -100,31 +100,31 @@ class ProfileController extends Controller
         $user = $request->user();
         $twoFactorEnabled = $this->twoFactorService->isEnabled($user);
         $remainingRecoveryCodes = $this->twoFactorService->getRemainingRecoveryCodesCount($user);
-        
+
         // Get comprehensive security data
         $loginStatistics = $this->securityService->getLoginStatistics($user);
         $recentLoginHistory = $this->securityService->getRecentLoginHistory($user, 15);
         $activeSessions = $this->securityService->getActiveSessions($user);
         $securityCheckup = $this->securityService->performSecurityCheckup($user);
-        
+
         // Generate new QR code if setting up 2FA
-        $qrCodeSvg = null;
+        $qrCodeSvg = NULL;
         $setupSecret = Session::get('2fa_setup_secret');
         if ($setupSecret) {
             $qrCodeSvg = $this->twoFactorService->getQRCodeSvg($user, $setupSecret);
         }
 
         return view('profile.security', [
-            'user' => $user,
-            'twoFactorEnabled' => $twoFactorEnabled,
+            'user'                   => $user,
+            'twoFactorEnabled'       => $twoFactorEnabled,
             'remainingRecoveryCodes' => $remainingRecoveryCodes,
-            'qrCodeSvg' => $qrCodeSvg,
-            'setupSecret' => $setupSecret,
-            'loginStatistics' => $loginStatistics,
-            'recentLoginHistory' => $recentLoginHistory,
-            'activeSessions' => $activeSessions,
-            'securityCheckup' => $securityCheckup,
-            'trustedDevices' => $user->trusted_devices ?? [],
+            'qrCodeSvg'              => $qrCodeSvg,
+            'setupSecret'            => $setupSecret,
+            'loginStatistics'        => $loginStatistics,
+            'recentLoginHistory'     => $recentLoginHistory,
+            'activeSessions'         => $activeSessions,
+            'securityCheckup'        => $securityCheckup,
+            'trustedDevices'         => $user->trusted_devices ?? [],
         ]);
     }
 
@@ -134,29 +134,29 @@ class ProfileController extends Controller
     public function downloadBackupCodes(Request $request)
     {
         $user = $request->user();
-        
-        if (!$this->twoFactorService->isEnabled($user)) {
+
+        if (! $this->twoFactorService->isEnabled($user)) {
             return back()->withErrors(['error' => 'Two-factor authentication is not enabled.']);
         }
 
         $recoveryCodes = $this->twoFactorService->getRecoveryCodes($user);
-        
+
         if (empty($recoveryCodes)) {
             return back()->withErrors(['error' => 'No backup codes available.']);
         }
 
         $content = "HD Tickets - Two-Factor Authentication Backup Codes\n";
-        $content .= "Generated on: " . now()->format('Y-m-d H:i:s') . "\n";
+        $content .= 'Generated on: ' . now()->format('Y-m-d H:i:s') . "\n";
         $content .= "Account: {$user->email}\n\n";
         $content .= "IMPORTANT: Keep these codes safe and secure!\n";
         $content .= "Each code can only be used once.\n\n";
         $content .= "Backup Codes:\n";
         $content .= "=============\n";
-        
+
         foreach ($recoveryCodes as $index => $code) {
             $content .= ($index + 1) . ". {$code}\n";
         }
-        
+
         $content .= "\n" . str_repeat('=', 50) . "\n";
         $content .= "Store these codes in a safe place.\n";
         $content .= "If you lose access to your authenticator app,\n";
@@ -176,7 +176,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $this->securityService->trustDevice($user, $request);
-        
+
         return back()->with('success', 'Device has been marked as trusted.');
     }
 
@@ -186,11 +186,11 @@ class ProfileController extends Controller
     public function removeTrustedDevice(Request $request, int $deviceIndex): RedirectResponse
     {
         $user = $request->user();
-        
+
         if ($this->securityService->untrustDevice($user, $deviceIndex)) {
             return back()->with('success', 'Trusted device has been removed.');
         }
-        
+
         return back()->withErrors(['error' => 'Device not found.']);
     }
 
@@ -202,7 +202,7 @@ class ProfileController extends Controller
         if ($this->securityService->revokeSession($sessionId)) {
             return back()->with('success', 'Session has been revoked.');
         }
-        
+
         return back()->withErrors(['error' => 'Session not found.']);
     }
 
@@ -213,13 +213,13 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $currentSessionId = Session::getId();
-        
+
         $revokedCount = $this->securityService->revokeAllOtherSessions($user, $currentSessionId);
-        
+
         if ($revokedCount > 0) {
             return back()->with('success', "Revoked {$revokedCount} other sessions.");
         }
-        
+
         return back()->with('info', 'No other sessions to revoke.');
     }
 }

@@ -1,30 +1,38 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 class RealTimeSystemUpdate implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
-    public $type;
-    public $message;
-    public $data;
-    public $level;
-    public $timestamp;
+    public string $type;
+
+    public string $message;
+
+    public mixed $data;
+
+    public string $level;
+
+    public string $timestamp;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($type, $message, $data = null, $level = 'info')
-    {
+    public function __construct(
+        string $type,
+        string $message,
+        mixed $data = NULL,
+        string $level = 'info',
+    ) {
         $this->type = $type;
         $this->message = $message;
         $this->data = $data;
@@ -35,7 +43,7 @@ class RealTimeSystemUpdate implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
@@ -61,10 +69,10 @@ class RealTimeSystemUpdate implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'type' => $this->type,
-            'message' => $this->message,
-            'data' => $this->data,
-            'level' => $this->level,
+            'type'      => $this->type,
+            'message'   => $this->message,
+            'data'      => $this->data,
+            'level'     => $this->level,
             'timestamp' => $this->timestamp,
         ];
     }

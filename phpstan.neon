@@ -1,0 +1,75 @@
+# PHPStan Configuration for HD Tickets
+# Static Analysis Configuration with Laravel Support
+
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    
+    paths:
+        - app/
+        - bootstrap/
+        - config/
+        - database/
+        - routes/
+        - tests/
+    
+    excludePaths:
+        - app/helpers.php
+        - bootstrap/cache/
+        - node_modules/ (?)
+        - storage/
+        - vendor/
+    
+    # Laravel specific configurations
+    scanDirectories:
+        - vendor/
+    
+    # Ignore common Laravel patterns
+    ignoreErrors:
+        # Laravel facades
+        - '#Call to an undefined static method Illuminate\\[a-zA-Z\\]+::[a-zA-Z]+\(\)#'
+        
+        # Eloquent model dynamic properties
+        - '#Access to an undefined property [a-zA-Z\\]+::\$[a-zA-Z_]+#'
+        - '#Call to an undefined method [a-zA-Z\\]+::[a-zA-Z_]+\(\)#'
+        
+        # Laravel request validation
+        - '#Method [a-zA-Z\\]+::validate\(\) invoked with [0-9]+ parameters, 0-[0-9]+ required#'
+        
+        # Laravel collections
+        - '#Call to an undefined method Illuminate\\Support\\Collection::[a-zA-Z_]+\(\)#'
+        
+        # Laravel config helper
+        - '#Cannot call function config\(\) with [0-9]+ parameters#'
+        
+        # Laravel view helpers
+        - '#Cannot call function view\(\) with [0-9]+ parameters#'
+        
+        # Laravel route helpers
+        - '#Cannot call function route\(\) with [0-9]+ parameters#'
+        
+        # Laravel auth helpers
+        - '#Cannot call function auth\(\) with [0-9]+ parameters#'
+    
+    # Rule configuration
+    reportUnmatchedIgnoredErrors: false
+    checkUninitializedProperties: true
+        
+    # Error formatting
+    errorFormat: table
+    
+    # Cache configuration
+    tmpDir: storage/phpstan
+    
+    # Bootstrap file for Laravel
+    bootstrapFiles:
+        - bootstrap/app.php
+    
+    # Additional extensions
+    scanFiles:
+        - app/helpers.php
+    
+    # Custom rules
+    customRulesetUsed: true

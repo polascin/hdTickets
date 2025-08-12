@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Sentry Error Tracking Configuration
@@ -12,7 +11,7 @@ return [
     |
     */
 
-    'enabled' => env('SENTRY_ENABLED', false),
+    'enabled' => env('SENTRY_ENABLED', FALSE),
 
     'dsn' => env('SENTRY_LARAVEL_DSN', ''),
 
@@ -36,13 +35,13 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'capture_unhandled_rejections' => true,
+    'capture_unhandled_rejections' => TRUE,
 
-    'capture_silenced_errors' => false,
+    'capture_silenced_errors' => FALSE,
 
     'max_breadcrumbs' => 50,
 
-    'attach_stacktrace' => true,
+    'attach_stacktrace' => TRUE,
 
     'context_lines' => 5,
 
@@ -53,15 +52,15 @@ return [
     */
 
     'breadcrumbs' => [
-        'logs' => true,
-        'cache' => true,
-        'livewire' => true,
-        'sql_queries' => true,
-        'sql_bindings' => true,
-        'sql_transactions' => true,
-        'queue_info' => true,
-        'command_info' => true,
-        'http_client_requests' => true,
+        'logs'                 => TRUE,
+        'cache'                => TRUE,
+        'livewire'             => TRUE,
+        'sql_queries'          => TRUE,
+        'sql_bindings'         => TRUE,
+        'sql_transactions'     => TRUE,
+        'queue_info'           => TRUE,
+        'command_info'         => TRUE,
+        'http_client_requests' => TRUE,
     ],
 
     /*
@@ -113,7 +112,7 @@ return [
     | Custom event processing should be handled in a service provider.
     */
 
-    'before_send' => null,
+    'before_send' => NULL,
 
     /*
     |--------------------------------------------------------------------------
@@ -123,7 +122,7 @@ return [
     | Custom transaction processing should be handled in a service provider.
     */
 
-    'before_send_transaction' => null,
+    'before_send_transaction' => NULL,
 
     /*
     |--------------------------------------------------------------------------
@@ -132,8 +131,8 @@ return [
     */
 
     'tags' => [
-        'php_version' => PHP_VERSION,
-        'server_name' => gethostname(),
+        'php_version'   => PHP_VERSION,
+        'server_name'   => gethostname(),
         'deployment_id' => env('DEPLOYMENT_ID', ''),
     ],
 
@@ -143,13 +142,13 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'send_default_pii' => false,
+    'send_default_pii' => FALSE,
 
     'user_context' => [
-        'id' => true,
-        'username' => true,
-        'email' => false, // Don't send email for privacy
-        'ip_address' => false, // Don't send IP for privacy
+        'id'         => TRUE,
+        'username'   => TRUE,
+        'email'      => FALSE, // Don't send email for privacy
+        'ip_address' => FALSE, // Don't send IP for privacy
     ],
 
     /*
@@ -160,20 +159,20 @@ return [
 
     'custom_context' => [
         'ticket_scraping' => [
-            'active_scrapers' => true,
-            'last_scrape_time' => true,
-            'platform_health' => true,
+            'active_scrapers'  => TRUE,
+            'last_scrape_time' => TRUE,
+            'platform_health'  => TRUE,
         ],
         'user_activity' => [
-            'current_alerts' => true,
-            'subscription_status' => true,
-            'last_login' => true,
+            'current_alerts'      => TRUE,
+            'subscription_status' => TRUE,
+            'last_login'          => TRUE,
         ],
         'system_metrics' => [
-            'memory_usage' => true,
-            'cpu_usage' => true,
-            'active_connections' => true,
-            'queue_depth' => true,
+            'memory_usage'       => TRUE,
+            'cpu_usage'          => TRUE,
+            'active_connections' => TRUE,
+            'queue_depth'        => TRUE,
         ],
     ],
 
@@ -184,9 +183,9 @@ return [
     */
 
     'sampling' => [
-        'error_sample_rate' => 1.0, // Capture all errors
+        'error_sample_rate'       => 1.0, // Capture all errors
         'transaction_sample_rate' => 0.1, // Sample 10% of transactions
-        'profiling_sample_rate' => 0.01, // Profile 1% of transactions
+        'profiling_sample_rate'   => 0.01, // Profile 1% of transactions
     ],
 
     /*
@@ -201,13 +200,13 @@ return [
             'Illuminate\Database\QueryException',
             'PDOException',
         ],
-        
+
         // Group scraping-related errors
         '{{ error.type }}:{{ tags.platform }}' => [
             'App\Exceptions\TicketPlatformException',
             'GuzzleHttp\Exception\RequestException',
         ],
-        
+
         // Group rate limiting errors
         '{{ error.type }}:rate_limit' => [
             'Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException',
@@ -221,13 +220,13 @@ return [
     */
 
     'performance' => [
-        'auto_finishing_transactions' => true,
-        'continue_from_headers' => true,
-        'trace_propagation_targets' => [
+        'auto_finishing_transactions' => TRUE,
+        'continue_from_headers'       => TRUE,
+        'trace_propagation_targets'   => [
             'hdtickets.polascin.net',
             'api.hdtickets.polascin.net',
         ],
-        'idle_timeout' => 30,
+        'idle_timeout'  => 30,
         'final_timeout' => 300,
     ],
 
@@ -256,5 +255,4 @@ return [
             '/\b\d{3}-\d{2}-\d{4}\b/', // SSN pattern
         ],
     ],
-
 ];

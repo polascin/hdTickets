@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
@@ -23,7 +23,7 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         // Check permissions
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to view activity logs.');
         }
 
@@ -66,14 +66,21 @@ class ActivityLogController extends Controller
 
         // Get filter options
         $logNames = Activity::distinct()->pluck('log_name');
-        $users = User::where('is_active', true)->select('id', 'name', 'surname', 'email')->get();
+        $users = User::where('is_active', TRUE)->select('id', 'name', 'surname', 'email')->get();
 
         // Get summary statistics
         $stats = $this->getActivityStats();
 
         return view('admin.activity-logs.index', compact(
-            'activities', 'logNames', 'users', 'stats', 
-            'logName', 'userId', 'startDate', 'endDate', 'riskLevel'
+            'activities',
+            'logNames',
+            'users',
+            'stats',
+            'logName',
+            'userId',
+            'startDate',
+            'endDate',
+            'riskLevel',
         ));
     }
 
@@ -82,12 +89,12 @@ class ActivityLogController extends Controller
      */
     public function show(Activity $activity)
     {
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to view activity log details.');
         }
 
         $this->securityService->logUserActivity('view_activity_log_details', [
-            'activity_id' => $activity->id
+            'activity_id' => $activity->id,
         ]);
 
         return view('admin.activity-logs.show', compact('activity'));
@@ -98,7 +105,7 @@ class ActivityLogController extends Controller
      */
     public function getSecurityActivities(Request $request)
     {
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -108,15 +115,15 @@ class ActivityLogController extends Controller
         return response()->json([
             'activities' => $activities->map(function ($activity) {
                 return [
-                    'id' => $activity->id,
-                    'description' => $activity->description,
-                    'causer' => $activity->causer ? $activity->causer->name : 'System',
-                    'properties' => $activity->properties,
-                    'created_at' => $activity->created_at->format('M j, Y H:i:s'),
+                    'id'               => $activity->id,
+                    'description'      => $activity->description,
+                    'causer'           => $activity->causer ? $activity->causer->name : 'System',
+                    'properties'       => $activity->properties,
+                    'created_at'       => $activity->created_at->format('M j, Y H:i:s'),
                     'created_at_human' => $activity->created_at->diffForHumans(),
-                    'risk_level' => $activity->properties['risk_level'] ?? 'low',
+                    'risk_level'       => $activity->properties['risk_level'] ?? 'low',
                 ];
-            })
+            }),
         ]);
     }
 
@@ -125,7 +132,7 @@ class ActivityLogController extends Controller
      */
     public function getUserActivitySummary(Request $request, User $user)
     {
-        if (!auth()->user()->canManageUsers()) {
+        if (! auth()->user()->canManageUsers()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -142,16 +149,16 @@ class ActivityLogController extends Controller
     {
         $request->validate([
             'operation' => 'required|string',
-            'items' => 'required|array',
+            'items'     => 'required|array',
         ]);
 
-        if (!$this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
+        if (! $this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $token = $this->securityService->generateBulkOperationToken(
             $request->input('operation'),
-            $request->input('items')
+            $request->input('items'),
         );
 
         return response()->json(['token' => $token]);
@@ -162,7 +169,7 @@ class ActivityLogController extends Controller
      */
     public function export(Request $request)
     {
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to export activity logs.');
         }
 
@@ -190,15 +197,15 @@ class ActivityLogController extends Controller
         $activities = $query->limit(10000)->get(); // Limit for performance
 
         $filename = 'activity_logs_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($activities) {
+        $callback = function () use ($activities): void {
             $file = fopen('php://output', 'w');
-            
+
             // Add CSV headers
             fputcsv($file, [
                 'ID',
@@ -211,13 +218,13 @@ class ActivityLogController extends Controller
                 'Properties',
                 'Risk Level',
                 'IP Address',
-                'Created At'
+                'Created At',
             ]);
 
             // Add activity data
             foreach ($activities as $activity) {
                 $properties = $activity->properties ?? [];
-                
+
                 fputcsv($file, [
                     $activity->id,
                     $activity->log_name,
@@ -229,7 +236,7 @@ class ActivityLogController extends Controller
                     json_encode($properties),
                     $properties['risk_level'] ?? 'unknown',
                     $properties['ip_address'] ?? 'unknown',
-                    $activity->created_at->format('Y-m-d H:i:s')
+                    $activity->created_at->format('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -244,12 +251,12 @@ class ActivityLogController extends Controller
      */
     public function cleanup(Request $request)
     {
-        if (!auth()->user()->isRootAdmin()) {
+        if (! auth()->user()->isRootAdmin()) {
             abort(403, 'Only root admin can perform log cleanup.');
         }
 
         $request->validate([
-            'older_than_days' => 'required|integer|min:30|max:365'
+            'older_than_days' => 'required|integer|min:30|max:365',
         ]);
 
         $days = $request->input('older_than_days');
@@ -258,15 +265,15 @@ class ActivityLogController extends Controller
         $deletedCount = Activity::where('created_at', '<', $cutoffDate)->delete();
 
         $this->securityService->logSecurityActivity('Activity log cleanup performed', [
-            'deleted_count' => $deletedCount,
+            'deleted_count'   => $deletedCount,
             'older_than_days' => $days,
-            'cutoff_date' => $cutoffDate->toDateString()
+            'cutoff_date'     => $cutoffDate->toDateString(),
         ]);
 
         return response()->json([
-            'success' => true,
-            'message' => "Successfully deleted {$deletedCount} old activity log entries.",
-            'deleted_count' => $deletedCount
+            'success'       => TRUE,
+            'message'       => "Successfully deleted {$deletedCount} old activity log entries.",
+            'deleted_count' => $deletedCount,
         ]);
     }
 
@@ -281,21 +288,21 @@ class ActivityLogController extends Controller
 
         return [
             'total_activities' => Activity::count(),
-            'today' => Activity::where('created_at', '>=', $today)->count(),
-            'this_week' => Activity::where('created_at', '>=', $thisWeek)->count(),
-            'this_month' => Activity::where('created_at', '>=', $thisMonth)->count(),
-            'security_events' => Activity::where('log_name', 'security')->count(),
-            'user_actions' => Activity::where('log_name', 'user_actions')->count(),
-            'bulk_operations' => Activity::where('log_name', 'bulk_operations')->count(),
+            'today'            => Activity::where('created_at', '>=', $today)->count(),
+            'this_week'        => Activity::where('created_at', '>=', $thisWeek)->count(),
+            'this_month'       => Activity::where('created_at', '>=', $thisMonth)->count(),
+            'security_events'  => Activity::where('log_name', 'security')->count(),
+            'user_actions'     => Activity::where('log_name', 'user_actions')->count(),
+            'bulk_operations'  => Activity::where('log_name', 'bulk_operations')->count(),
             'high_risk_events' => Activity::whereJsonContains('properties->risk_level', 'high')->count(),
-            'by_log_name' => Activity::selectRaw('log_name, COUNT(*) as count')
+            'by_log_name'      => Activity::selectRaw('log_name, COUNT(*) as count')
                 ->groupBy('log_name')
                 ->pluck('count', 'log_name')
                 ->toArray(),
             'recent_high_risk' => Activity::whereJsonContains('properties->risk_level', 'high')
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
-                ->get()
+                ->get(),
         ];
     }
 }

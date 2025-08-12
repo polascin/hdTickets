@@ -1,8 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
+
+use function count;
 
 trait CurrencyHandlingTrait
 {
@@ -11,8 +14,8 @@ trait CurrencyHandlingTrait
      */
     protected function parsePriceInfo(string $priceText): array
     {
-        $priceInfo = ['min' => null, 'max' => null];
-        
+        $priceInfo = ['min' => NULL, 'max' => NULL];
+
         if (empty($priceText)) {
             return $priceInfo;
         }
@@ -20,16 +23,16 @@ trait CurrencyHandlingTrait
         // Detect currency from the text
         $detectedCurrency = $this->detectCurrency($priceText);
         if ($detectedCurrency && $detectedCurrency !== $this->currency) {
-            Log::info("Currency mismatch detected", [
-                'expected' => $this->currency,
-                'detected' => $detectedCurrency,
-                'price_text' => $priceText
+            Log::info('Currency mismatch detected', [
+                'expected'   => $this->currency,
+                'detected'   => $detectedCurrency,
+                'price_text' => $priceText,
             ]);
         }
 
         // Clean text and extract prices
         $cleanText = $this->cleanPriceText($priceText);
-        
+
         // Extract numeric prices (handle European decimal formats)
         $pricePatterns = [
             // European format: 1.234,56 or 1 234,56
@@ -45,18 +48,19 @@ trait CurrencyHandlingTrait
             if (preg_match_all($pattern, $cleanText, $matches)) {
                 foreach ($matches[1] as $price) {
                     $normalizedPrice = $this->normalizePriceValue($price);
-                    if ($normalizedPrice !== null) {
+                    if ($normalizedPrice !== NULL) {
                         $prices[] = $normalizedPrice;
                     }
                 }
+
                 break; // Use first successful pattern
             }
         }
 
-        if (!empty($prices)) {
+        if (! empty($prices)) {
             $priceInfo['min'] = min($prices);
             $priceInfo['max'] = max($prices);
-            
+
             // If only one price found, set both min and max to same value
             if (count($prices) === 1) {
                 $priceInfo['max'] = $priceInfo['min'];
@@ -104,7 +108,7 @@ trait CurrencyHandlingTrait
             }
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -145,33 +149,35 @@ trait CurrencyHandlingTrait
                 // Remove thousands separators and convert comma to dot
                 $normalized = str_replace(['.', ' '], '', $price);
                 $normalized = str_replace(',', '.', $normalized);
-                return floatval($normalized);
+
+                return (float) $normalized;
             }
-            
+
             // Handle US/UK decimal format (1,234.56 -> 1234.56)
             if (preg_match('/^\d{1,3}(?:,\d{3})*\.\d{2}$/', $price)) {
                 // Remove thousands separators
                 $normalized = str_replace(',', '', $price);
-                return floatval($normalized);
+
+                return (float) $normalized;
             }
-            
+
             // Handle simple formats
             $normalized = str_replace(',', '.', $price);
-            $value = floatval($normalized);
-            
+            $value = (float) $normalized;
+
             // Validate reasonable price range
             if ($value >= 0 && $value <= 10000) {
                 return $value;
             }
-            
-            return null;
-            
-        } catch (\Exception $e) {
-            Log::warning("Failed to normalize price value", [
+
+            return NULL;
+        } catch (Exception $e) {
+            Log::warning('Failed to normalize price value', [
                 'price' => $price,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
@@ -202,31 +208,31 @@ trait CurrencyHandlingTrait
 
         $rate = $exchangeRates[$fromCurrency][$toCurrency] ?? 1.0;
 
-        Log::info("Converting currency", [
-            'from' => $fromCurrency,
-            'to' => $toCurrency,
-            'rate' => $rate,
+        Log::info('Converting currency', [
+            'from'         => $fromCurrency,
+            'to'           => $toCurrency,
+            'rate'         => $rate,
             'original_min' => $priceInfo['min'],
-            'original_max' => $priceInfo['max']
+            'original_max' => $priceInfo['max'],
         ]);
 
         return [
-            'min' => $priceInfo['min'] ? round($priceInfo['min'] * $rate, 2) : null,
-            'max' => $priceInfo['max'] ? round($priceInfo['max'] * $rate, 2) : null,
+            'min' => $priceInfo['min'] ? round($priceInfo['min'] * $rate, 2) : NULL,
+            'max' => $priceInfo['max'] ? round($priceInfo['max'] * $rate, 2) : NULL,
         ];
     }
 
     /**
      * Format price for display
      */
-    protected function formatPrice(float $price, string $currency = null): string
+    protected function formatPrice(float $price, ?string $currency = NULL): string
     {
-        $currency = $currency ?? $this->currency;
-        
-        return match($currency) {
-            'EUR' => '€' . number_format($price, 2, ',', '.'),
-            'GBP' => '£' . number_format($price, 2, '.', ','),
-            'USD' => '$' . number_format($price, 2, '.', ','),
+        $currency ??= $this->currency;
+
+        return match ($currency) {
+            'EUR'   => '€' . number_format($price, 2, ',', '.'),
+            'GBP'   => '£' . number_format($price, 2, '.', ','),
+            'USD'   => '$' . number_format($price, 2, '.', ','),
             default => $currency . ' ' . number_format($price, 2),
         };
     }
@@ -234,14 +240,14 @@ trait CurrencyHandlingTrait
     /**
      * Get currency symbol
      */
-    protected function getCurrencySymbol(string $currency = null): string
+    protected function getCurrencySymbol(?string $currency = NULL): string
     {
-        $currency = $currency ?? $this->currency;
-        
-        return match($currency) {
-            'EUR' => '€',
-            'GBP' => '£',
-            'USD' => '$',
+        $currency ??= $this->currency;
+
+        return match ($currency) {
+            'EUR'   => '€',
+            'GBP'   => '£',
+            'USD'   => '$',
             default => $currency,
         };
     }
@@ -249,10 +255,10 @@ trait CurrencyHandlingTrait
     /**
      * Validate price range for the currency
      */
-    protected function isValidPriceRange(float $price, string $currency = null): bool
+    protected function isValidPriceRange(float $price, ?string $currency = NULL): bool
     {
-        $currency = $currency ?? $this->currency;
-        
+        $currency ??= $this->currency;
+
         // Define reasonable price ranges per currency
         $ranges = [
             'EUR' => ['min' => 1, 'max' => 5000],
@@ -261,7 +267,7 @@ trait CurrencyHandlingTrait
         ];
 
         $range = $ranges[$currency] ?? ['min' => 0, 'max' => 10000];
-        
+
         return $price >= $range['min'] && $price <= $range['max'];
     }
 }

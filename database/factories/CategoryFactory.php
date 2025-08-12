@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Factories;
 
@@ -17,12 +17,12 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(2, true);
-        
+        $name = fake()->words(2, TRUE);
+
         // Category names related to sports events
         $sportCategories = [
             'Football Events',
-            'Basketball Games', 
+            'Basketball Games',
             'Baseball Matches',
             'Soccer Championships',
             'Tennis Tournaments',
@@ -35,53 +35,55 @@ class CategoryFactory extends Factory
             'Olympics',
             'Swimming Competitions',
             'Track and Field',
-            'Volleyball Games'
+            'Volleyball Games',
         ];
-        
+
         $categoryName = fake()->randomElement($sportCategories);
-        
+
         // Color palette for categories
         $colors = [
             '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
             '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
-            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D2B4DE'
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D2B4DE',
         ];
-        
+
         // Icon options for categories
         $icons = [
             'fas fa-football-ball', 'fas fa-basketball-ball', 'fas fa-baseball-ball',
             'fas fa-table-tennis', 'fas fa-hockey-puck', 'fas fa-golf-ball',
             'fas fa-car', 'fas fa-swimmer', 'fas fa-running', 'fas fa-volleyball-ball',
             'fas fa-medal', 'fas fa-trophy', 'fas fa-award', 'fas fa-crown',
-            'fas fa-star'
+            'fas fa-star',
         ];
 
         return [
-            'uuid' => Str::uuid(),
-            'parent_id' => null, // Default to root category, can be overridden
-            'name' => $categoryName,
-            'slug' => Str::slug($categoryName),
+            'uuid'        => Str::uuid(),
+            'parent_id'   => NULL, // Default to root category, can be overridden
+            'name'        => $categoryName,
+            'slug'        => Str::slug($categoryName),
             'description' => fake()->sentence(10),
-            'color' => fake()->randomElement($colors),
-            'icon' => fake()->randomElement($icons),
-            'is_active' => fake()->boolean(90), // 90% chance of being active
-            'sort_order' => fake()->numberBetween(1, 100),
-            'metadata' => [
-                'tags' => fake()->words(3),
+            'color'       => fake()->randomElement($colors),
+            'icon'        => fake()->randomElement($icons),
+            'is_active'   => fake()->boolean(90), // 90% chance of being active
+            'sort_order'  => fake()->numberBetween(1, 100),
+            'metadata'    => [
+                'tags'     => fake()->words(3),
                 'priority' => fake()->randomElement(['high', 'medium', 'low']),
-                'region' => fake()->randomElement(['North America', 'Europe', 'Asia', 'Global'])
-            ]
+                'region'   => fake()->randomElement(['North America', 'Europe', 'Asia', 'Global']),
+            ],
         ];
     }
 
     /**
      * Create a subcategory (with parent)
+     *
+     * @param mixed|null $parentId
      */
-    public function subcategory($parentId = null): static
+    public function subcategory($parentId = NULL): static
     {
         return $this->state(fn (array $attributes) => [
-            'parent_id' => $parentId ?: \App\Models\Category::factory()->create()->id,
-            'sort_order' => fake()->numberBetween(1, 50)
+            'parent_id'  => $parentId ?: \App\Models\Category::factory()->create()->id,
+            'sort_order' => fake()->numberBetween(1, 50),
         ]);
     }
 
@@ -91,7 +93,7 @@ class CategoryFactory extends Factory
     public function inactive(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_active' => false,
+            'is_active' => FALSE,
         ]);
     }
 

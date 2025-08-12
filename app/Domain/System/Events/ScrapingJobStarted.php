@@ -1,0 +1,58 @@
+<?php declare(strict_types=1);
+
+namespace App\Domain\System\Events;
+
+use App\Domain\Shared\Events\AbstractDomainEvent;
+use DateTimeImmutable;
+
+final class ScrapingJobStarted extends AbstractDomainEvent
+{
+    public function __construct(
+        public string $jobId,
+        public string $platform,
+        /** @var array<string, mixed> */
+        public array $configuration,
+        public DateTimeImmutable $startedAt,
+        public int $expectedTargets = 0,
+        /** @var array<string, mixed> */
+        array $metadata = [],
+    ) {
+        parent::__construct($metadata);
+    }
+
+    public function getAggregateRootId(): string
+    {
+        return $this->jobId;
+    }
+
+    public function getAggregateType(): string
+    {
+        return 'scraping_job';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getPayload(): array
+    {
+        return [
+            'job_id'           => $this->jobId,
+            'platform'         => $this->platform,
+            'configuration'    => $this->configuration,
+            'started_at'       => $this->startedAt->format('Y-m-d H:i:s'),
+            'expected_targets' => $this->expectedTargets,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    protected function populateFromPayload(array $payload): void
+    {
+        $this->jobId = $payload['job_id'];
+        $this->platform = $payload['platform'];
+        $this->configuration = $payload['configuration'];
+        $this->startedAt = new DateTimeImmutable($payload['started_at']);
+        $this->expectedTargets = $payload['expected_targets'];
+    }
+}

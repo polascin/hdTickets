@@ -1,15 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use PDO;
+
+use function array_slice;
+use function count;
 
 class SystemController extends Controller
 {
@@ -30,7 +34,10 @@ class SystemController extends Controller
         $services = $this->getServiceStatus();
 
         return view('admin.system.index', compact(
-            'systemHealth', 'systemConfig', 'logs', 'services'
+            'systemHealth',
+            'systemConfig',
+            'logs',
+            'services',
         ));
     }
 
@@ -56,40 +63,40 @@ class SystemController extends Controller
     public function updateConfiguration(Request $request)
     {
         $request->validate([
-            'app_timezone' => 'required|string|max:50',
-            'app_locale' => 'required|string|max:10',
-            'mail_from_address' => 'required|email',
-            'mail_from_name' => 'required|string|max:100',
-            'queue_connection' => 'required|string|in:sync,database,redis',
-            'cache_store' => 'required|string|in:file,database,redis',
-            'session_lifetime' => 'required|integer|min:1|max:10080',
-            'pagination_per_page' => 'required|integer|min:10|max:100',
-            'auto_assign_tickets' => 'required|boolean',
+            'app_timezone'         => 'required|string|max:50',
+            'app_locale'           => 'required|string|max:10',
+            'mail_from_address'    => 'required|email',
+            'mail_from_name'       => 'required|string|max:100',
+            'queue_connection'     => 'required|string|in:sync,database,redis',
+            'cache_store'          => 'required|string|in:file,database,redis',
+            'session_lifetime'     => 'required|integer|min:1|max:10080',
+            'pagination_per_page'  => 'required|integer|min:10|max:100',
+            'auto_assign_tickets'  => 'required|boolean',
             'enable_notifications' => 'required|boolean',
-            'maintenance_mode' => 'required|boolean'
+            'maintenance_mode'     => 'required|boolean',
         ]);
 
         $config = $request->only([
             'app_timezone', 'app_locale', 'mail_from_address', 'mail_from_name',
-            'queue_connection', 'cache_store', 'session_lifetime', 
+            'queue_connection', 'cache_store', 'session_lifetime',
             'pagination_per_page', 'auto_assign_tickets', 'enable_notifications',
-            'maintenance_mode'
+            'maintenance_mode',
         ]);
 
         // Store in cache and database
         Cache::put('system_config', $config, now()->addDays(30));
-        
+
         // Update environment variables if needed
         if ($request->has('maintenance_mode') && $request->maintenance_mode) {
             Artisan::call('down', ['--secret' => 'hdtickets-admin']);
-        } elseif ($request->has('maintenance_mode') && !$request->maintenance_mode) {
+        } elseif ($request->has('maintenance_mode') && ! $request->maintenance_mode) {
             Artisan::call('up');
         }
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'System configuration updated successfully',
-            'config' => $config
+            'config'  => $config,
         ]);
     }
 
@@ -100,14 +107,14 @@ class SystemController extends Controller
     {
         $request->validate([
             'level' => 'nullable|string|in:emergency,alert,critical,error,warning,notice,info,debug',
-            'date' => 'nullable|date',
-            'limit' => 'nullable|integer|min:10|max:1000'
+            'date'  => 'nullable|date',
+            'limit' => 'nullable|integer|min:10|max:1000',
         ]);
 
         $logs = $this->getRecentLogs(
             $request->get('level'),
             $request->get('date'),
-            $request->get('limit', 100)
+            $request->get('limit', 100),
         );
 
         return response()->json($logs);
@@ -119,8 +126,8 @@ class SystemController extends Controller
     public function clearCache(Request $request)
     {
         $request->validate([
-            'types' => 'required|array',
-            'types.*' => 'string|in:config,route,view,cache,compiled'
+            'types'   => 'required|array',
+            'types.*' => 'string|in:config,route,view,cache,compiled',
         ]);
 
         $results = [];
@@ -132,33 +139,38 @@ class SystemController extends Controller
                     case 'config':
                         Artisan::call('config:clear');
                         $results[$type] = 'Configuration cache cleared';
+
                         break;
                     case 'route':
                         Artisan::call('route:clear');
                         $results[$type] = 'Route cache cleared';
+
                         break;
                     case 'view':
                         Artisan::call('view:clear');
                         $results[$type] = 'View cache cleared';
+
                         break;
                     case 'cache':
                         Artisan::call('cache:clear');
                         $results[$type] = 'Application cache cleared';
+
                         break;
                     case 'compiled':
                         Artisan::call('clear-compiled');
                         $results[$type] = 'Compiled classes cleared';
+
                         break;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[$type] = 'Failed: ' . $e->getMessage();
             }
         }
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Cache clearing completed',
-            'results' => $results
+            'results' => $results,
         ]);
     }
 
@@ -168,8 +180,8 @@ class SystemController extends Controller
     public function runMaintenance(Request $request)
     {
         $request->validate([
-            'tasks' => 'required|array',
-            'tasks.*' => 'string|in:optimize,queue_restart,migrate,seed,backup'
+            'tasks'   => 'required|array',
+            'tasks.*' => 'string|in:optimize,queue_restart,migrate,seed,backup',
         ]);
 
         $results = [];
@@ -181,33 +193,38 @@ class SystemController extends Controller
                     case 'optimize':
                         Artisan::call('optimize');
                         $results[$task] = 'Application optimized';
+
                         break;
                     case 'queue_restart':
                         Artisan::call('queue:restart');
                         $results[$task] = 'Queue workers restarted';
+
                         break;
                     case 'migrate':
-                        Artisan::call('migrate', ['--force' => true]);
+                        Artisan::call('migrate', ['--force' => TRUE]);
                         $results[$task] = 'Database migrations completed';
+
                         break;
                     case 'seed':
-                        Artisan::call('db:seed', ['--force' => true]);
+                        Artisan::call('db:seed', ['--force' => TRUE]);
                         $results[$task] = 'Database seeding completed';
+
                         break;
                     case 'backup':
                         // Custom backup logic would go here
                         $results[$task] = 'System backup initiated';
+
                         break;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[$task] = 'Failed: ' . $e->getMessage();
             }
         }
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Maintenance tasks completed',
-            'results' => $results
+            'results' => $results,
         ]);
     }
 
@@ -226,16 +243,16 @@ class SystemController extends Controller
                 $usedSpace = $totalSpace - $freeSpace;
 
                 $usage[$disk] = [
-                    'name' => ucfirst($disk),
-                    'total' => $this->formatBytes($totalSpace),
-                    'used' => $this->formatBytes($usedSpace),
-                    'free' => $this->formatBytes($freeSpace),
-                    'percentage' => round(($usedSpace / $totalSpace) * 100, 2)
+                    'name'       => ucfirst($disk),
+                    'total'      => $this->formatBytes($totalSpace),
+                    'used'       => $this->formatBytes($usedSpace),
+                    'free'       => $this->formatBytes($freeSpace),
+                    'percentage' => round(($usedSpace / $totalSpace) * 100, 2),
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $usage[$disk] = [
-                    'name' => ucfirst($disk),
-                    'error' => 'Unable to get disk usage: ' . $e->getMessage()
+                    'name'  => ucfirst($disk),
+                    'error' => 'Unable to get disk usage: ' . $e->getMessage(),
                 ];
             }
         }
@@ -251,12 +268,12 @@ class SystemController extends Controller
         try {
             $connection = DB::connection();
             $pdo = $connection->getPdo();
-            
+
             $info = [
-                'driver' => $connection->getDriverName(),
-                'version' => $pdo->getAttribute(\PDO::ATTR_SERVER_VERSION),
+                'driver'   => $connection->getDriverName(),
+                'version'  => $pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
                 'database' => $connection->getDatabaseName(),
-                'charset' => $pdo->getAttribute(\PDO::ATTR_CLIENT_VERSION)
+                'charset'  => $pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
             ];
 
             // Get table sizes
@@ -267,22 +284,21 @@ class SystemController extends Controller
             foreach ($tables as $table) {
                 $size = $table->Data_length + $table->Index_length;
                 $totalSize += $size;
-                
+
                 $tableInfo[] = [
-                    'name' => $table->Name,
-                    'rows' => $table->Rows,
-                    'size' => $this->formatBytes($size),
-                    'engine' => $table->Engine
+                    'name'   => $table->Name,
+                    'rows'   => $table->Rows,
+                    'size'   => $this->formatBytes($size),
+                    'engine' => $table->Engine,
                 ];
             }
 
             $info['tables'] = $tableInfo;
             $info['total_size'] = $this->formatBytes($totalSize);
             $info['table_count'] = count($tableInfo);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'error' => 'Unable to get database information: ' . $e->getMessage()
+                'error' => 'Unable to get database information: ' . $e->getMessage(),
             ], 500);
         }
 
@@ -296,21 +312,21 @@ class SystemController extends Controller
     {
         $health = [
             'status' => 'healthy',
-            'checks' => []
+            'checks' => [],
         ];
 
         // Database check
         try {
             DB::connection()->getPdo();
             $health['checks']['database'] = [
-                'status' => 'healthy',
-                'message' => 'Database connection successful',
-                'response_time' => $this->measureDatabaseResponseTime()
+                'status'        => 'healthy',
+                'message'       => 'Database connection successful',
+                'response_time' => $this->measureDatabaseResponseTime(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $health['checks']['database'] = [
-                'status' => 'unhealthy',
-                'message' => 'Database connection failed: ' . $e->getMessage()
+                'status'  => 'unhealthy',
+                'message' => 'Database connection failed: ' . $e->getMessage(),
             ];
             $health['status'] = 'unhealthy';
         }
@@ -320,13 +336,13 @@ class SystemController extends Controller
             Cache::put('health_check', 'ok', 60);
             $result = Cache::get('health_check');
             $health['checks']['cache'] = [
-                'status' => $result === 'ok' ? 'healthy' : 'unhealthy',
-                'message' => $result === 'ok' ? 'Cache is working' : 'Cache test failed'
+                'status'  => $result === 'ok' ? 'healthy' : 'unhealthy',
+                'message' => $result === 'ok' ? 'Cache is working' : 'Cache test failed',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $health['checks']['cache'] = [
-                'status' => 'unhealthy',
-                'message' => 'Cache error: ' . $e->getMessage()
+                'status'  => 'unhealthy',
+                'message' => 'Cache error: ' . $e->getMessage(),
             ];
         }
 
@@ -335,15 +351,15 @@ class SystemController extends Controller
             Storage::put('health_check.txt', 'test');
             $content = Storage::get('health_check.txt');
             Storage::delete('health_check.txt');
-            
+
             $health['checks']['storage'] = [
-                'status' => $content === 'test' ? 'healthy' : 'unhealthy',
-                'message' => $content === 'test' ? 'Storage is working' : 'Storage test failed'
+                'status'  => $content === 'test' ? 'healthy' : 'unhealthy',
+                'message' => $content === 'test' ? 'Storage is working' : 'Storage test failed',
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $health['checks']['storage'] = [
-                'status' => 'unhealthy',
-                'message' => 'Storage error: ' . $e->getMessage()
+                'status'  => 'unhealthy',
+                'message' => 'Storage error: ' . $e->getMessage(),
             ];
         }
 
@@ -353,48 +369,50 @@ class SystemController extends Controller
     private function getSystemConfig()
     {
         $defaultConfig = [
-            'app_timezone' => config('app.timezone'),
-            'app_locale' => config('app.locale'),
-            'mail_from_address' => config('mail.from.address'),
-            'mail_from_name' => config('mail.from.name'),
-            'queue_connection' => config('queue.default'),
-            'cache_store' => config('cache.default'),
-            'session_lifetime' => config('session.lifetime'),
-            'pagination_per_page' => 20,
-            'auto_assign_tickets' => true,
-            'enable_notifications' => true,
-            'maintenance_mode' => app()->isDownForMaintenance()
+            'app_timezone'         => config('app.timezone'),
+            'app_locale'           => config('app.locale'),
+            'mail_from_address'    => config('mail.from.address'),
+            'mail_from_name'       => config('mail.from.name'),
+            'queue_connection'     => config('queue.default'),
+            'cache_store'          => config('cache.default'),
+            'session_lifetime'     => config('session.lifetime'),
+            'pagination_per_page'  => 20,
+            'auto_assign_tickets'  => TRUE,
+            'enable_notifications' => TRUE,
+            'maintenance_mode'     => app()->isDownForMaintenance(),
         ];
 
         return Cache::get('system_config', $defaultConfig);
     }
 
-    private function getRecentLogs($level = null, $date = null, $limit = 100)
+    private function getRecentLogs($level = NULL, $date = NULL, $limit = 100)
     {
         // This is a simplified implementation
         // In a real application, you'd parse actual log files
         $logs = collect();
-        
+
         try {
             $logPath = storage_path('logs/laravel.log');
             if (file_exists($logPath)) {
                 $content = file_get_contents($logPath);
                 $lines = explode("\n", $content);
                 $lines = array_reverse(array_slice($lines, -$limit));
-                
+
                 foreach ($lines as $index => $line) {
-                    if (empty($line)) continue;
-                    
+                    if (empty($line)) {
+                        continue;
+                    }
+
                     $logs->push([
-                        'id' => $index,
-                        'timestamp' => now()->subMinutes($index),
-                        'level' => $this->extractLogLevel($line),
-                        'message' => $line,
-                        'formatted_time' => now()->subMinutes($index)->diffForHumans()
+                        'id'             => $index,
+                        'timestamp'      => now()->subMinutes($index),
+                        'level'          => $this->extractLogLevel($line),
+                        'message'        => $line,
+                        'formatted_time' => now()->subMinutes($index)->diffForHumans(),
                     ]);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to read log files: ' . $e->getMessage());
         }
 
@@ -408,40 +426,40 @@ class SystemController extends Controller
             ['name' => 'Database', 'status' => 'running', 'uptime' => '99.8%'],
             ['name' => 'Cache', 'status' => 'running', 'uptime' => '99.7%'],
             ['name' => 'Queue', 'status' => 'running', 'uptime' => '99.5%'],
-            ['name' => 'Scheduler', 'status' => 'running', 'uptime' => '99.9%']
+            ['name' => 'Scheduler', 'status' => 'running', 'uptime' => '99.9%'],
         ];
     }
 
     private function measureDatabaseResponseTime()
     {
-        $start = microtime(true);
+        $start = microtime(TRUE);
         DB::select('SELECT 1');
-        $end = microtime(true);
-        
+        $end = microtime(TRUE);
+
         return round(($end - $start) * 1000, 2) . 'ms';
     }
 
     private function formatBytes($bytes, $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
+
         return round($bytes, $precision) . ' ' . $units[$i];
     }
 
     private function extractLogLevel($logLine)
     {
         $levels = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
-        
+
         foreach ($levels as $level) {
-            if (stripos($logLine, $level) !== false) {
+            if (stripos($logLine, $level) !== FALSE) {
                 return $level;
             }
         }
-        
+
         return 'info';
     }
 }

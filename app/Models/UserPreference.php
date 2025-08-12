@@ -1,10 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
 
 class UserPreference extends Model
 {
@@ -16,11 +22,11 @@ class UserPreference extends Model
         'preference_key',
         'preference_value',
         'data_type',
-        'is_default'
+        'is_default',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean'
+        'is_default' => 'boolean',
     ];
 
     /**
@@ -33,6 +39,8 @@ class UserPreference extends Model
 
     /**
      * Scope for specific preference key
+     *
+     * @param mixed $query
      */
     public function scopeForKey($query, string $key)
     {
@@ -41,6 +49,8 @@ class UserPreference extends Model
 
     /**
      * Scope for specific category
+     *
+     * @param mixed $query
      */
     public function scopeForCategory($query, string $category)
     {
@@ -49,15 +59,17 @@ class UserPreference extends Model
 
     /**
      * Get user preference value with default
+     *
+     * @param mixed|null $default
      */
-    public static function getValue(int $userId, string $category, string $key, $default = null)
+    public static function getValue(int $userId, string $category, string $key, $default = NULL)
     {
         $preference = static::where('user_id', $userId)
             ->where('preference_category', $category)
             ->where('preference_key', $key)
             ->first();
 
-        if (!$preference) {
+        if (! $preference) {
             return $default;
         }
 
@@ -67,19 +79,21 @@ class UserPreference extends Model
 
     /**
      * Set user preference value
+     *
+     * @param mixed $value
      */
     public static function setValue(int $userId, string $category, string $key, $value, string $dataType = 'string'): void
     {
         static::updateOrCreate(
             [
-                'user_id' => $userId, 
+                'user_id'             => $userId,
                 'preference_category' => $category,
-                'preference_key' => $key
+                'preference_key'      => $key,
             ],
             [
                 'preference_value' => static::processValue($value, $dataType),
-                'data_type' => $dataType
-            ]
+                'data_type'        => $dataType,
+            ],
         );
     }
 
@@ -98,55 +112,6 @@ class UserPreference extends Model
     }
 
     /**
-     * Process value for storage based on data type
-     */
-    private static function processValue($value, string $dataType)
-    {
-        switch ($dataType) {
-            case 'boolean':
-                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null 
-                    ? (bool) $value : false;
-            
-            case 'integer':
-                return is_numeric($value) ? (int) $value : 0;
-            
-            case 'array':
-            case 'json':
-                if (is_string($value)) {
-                    $decoded = json_decode($value, true);
-                    return json_last_error() === JSON_ERROR_NONE ? json_encode($decoded) : $value;
-                }
-                return json_encode($value);
-            
-            case 'string':
-            default:
-                return (string) $value;
-        }
-    }
-
-    /**
-     * Cast value from storage based on data type
-     */
-    private static function castValue($value, string $dataType)
-    {
-        switch ($dataType) {
-            case 'boolean':
-                return (bool) $value;
-            
-            case 'integer':
-                return (int) $value;
-            
-            case 'array':
-            case 'json':
-                return json_decode($value, true);
-            
-            case 'string':
-            default:
-                return (string) $value;
-        }
-    }
-
-    /**
      * Get default preference structure
      */
     public static function getDefaultPreferences(): array
@@ -154,40 +119,40 @@ class UserPreference extends Model
         return [
             'notification_channels' => [
                 'critical' => 'slack',
-                'high' => 'discord',
-                'medium' => 'telegram',
-                'normal' => 'push',
-                'disabled' => []
+                'high'     => 'discord',
+                'medium'   => 'telegram',
+                'normal'   => 'push',
+                'disabled' => [],
             ],
-            'favorite_teams' => [],
+            'favorite_teams'   => [],
             'preferred_venues' => [],
-            'event_types' => [
+            'event_types'      => [
                 'concert' => 3,
-                'sports' => 4,
+                'sports'  => 4,
                 'theater' => 2,
-                'comedy' => 2
+                'comedy'  => 2,
             ],
             'alert_timing' => [
                 'quiet_hours_start' => '23:00',
-                'quiet_hours_end' => '07:00',
-                'timezone' => 'UTC'
+                'quiet_hours_end'   => '07:00',
+                'timezone'          => 'UTC',
             ],
             'price_thresholds' => [
-                'max_budget' => 500,
+                'max_budget'                  => 500,
                 'significant_drop_percentage' => 20,
-                'price_alert_threshold' => 10
+                'price_alert_threshold'       => 10,
             ],
             'ml_settings' => [
-                'enable_predictions' => true,
+                'enable_predictions'              => TRUE,
                 'prediction_confidence_threshold' => 0.7,
-                'enable_recommendations' => true
+                'enable_recommendations'          => TRUE,
             ],
             'escalation_settings' => [
-                'enable_escalation' => true,
-                'emergency_contact_phone' => null,
-                'emergency_contact_email' => null,
-                'escalation_delay_minutes' => 5
-            ]
+                'enable_escalation'        => TRUE,
+                'emergency_contact_phone'  => NULL,
+                'emergency_contact_email'  => NULL,
+                'escalation_delay_minutes' => 5,
+            ],
         ];
     }
 
@@ -204,66 +169,48 @@ class UserPreference extends Model
     }
 
     /**
-     * Get category for a preference key
-     */
-    protected static function getCategoryForKey(string $key): string
-    {
-        $categoryMap = [
-            'notification_channels' => 'notifications',
-            'favorite_teams' => 'preferences',
-            'preferred_venues' => 'preferences',
-            'event_types' => 'preferences',
-            'alert_timing' => 'notifications',
-            'price_thresholds' => 'alerts',
-            'ml_settings' => 'system',
-            'escalation_settings' => 'notifications'
-        ];
-
-        return $categoryMap[$key] ?? 'general';
-    }
-
-    /**
      * Validate preference value based on key
+     *
+     * @param mixed $value
      */
     public static function validatePreference(string $key, $value): bool
     {
         switch ($key) {
             case 'notification_channels':
-                return is_array($value) && 
-                       isset($value['critical'], $value['high'], $value['medium'], $value['normal']);
+                return is_array($value)
+                       && isset($value['critical'], $value['high'], $value['medium'], $value['normal']);
 
             case 'favorite_teams':
             case 'preferred_venues':
                 return is_array($value);
-
             case 'event_types':
-                return is_array($value) && 
-                       collect($value)->every(function($priority) {
+                return is_array($value)
+                       && collect($value)->every(function ($priority) {
                            return is_int($priority) && $priority >= 1 && $priority <= 5;
                        });
 
             case 'alert_timing':
-                return is_array($value) && 
-                       isset($value['quiet_hours_start'], $value['quiet_hours_end'], $value['timezone']);
+                return is_array($value)
+                       && isset($value['quiet_hours_start'], $value['quiet_hours_end'], $value['timezone']);
 
             case 'price_thresholds':
-                return is_array($value) && 
-                       isset($value['max_budget']) && 
-                       is_numeric($value['max_budget']) && 
-                       $value['max_budget'] > 0;
+                return is_array($value)
+                       && isset($value['max_budget'])
+                       && is_numeric($value['max_budget'])
+                       && $value['max_budget'] > 0;
 
             case 'ml_settings':
-                return is_array($value) && 
-                       isset($value['enable_predictions']) && 
-                       is_bool($value['enable_predictions']);
+                return is_array($value)
+                       && isset($value['enable_predictions'])
+                       && is_bool($value['enable_predictions']);
 
             case 'escalation_settings':
-                return is_array($value) && 
-                       isset($value['enable_escalation']) && 
-                       is_bool($value['enable_escalation']);
+                return is_array($value)
+                       && isset($value['enable_escalation'])
+                       && is_bool($value['enable_escalation']);
 
             default:
-                return true;
+                return TRUE;
         }
     }
 
@@ -285,11 +232,11 @@ class UserPreference extends Model
     public static function getAlertPreferences(int $userId): array
     {
         return [
-            'favorite_teams' => static::getValue($userId, 'favorite_teams', []),
+            'favorite_teams'   => static::getValue($userId, 'favorite_teams', []),
             'preferred_venues' => static::getValue($userId, 'preferred_venues', []),
-            'event_types' => static::getValue($userId, 'event_types', []),
+            'event_types'      => static::getValue($userId, 'event_types', []),
             'price_thresholds' => static::getValue($userId, 'price_thresholds', []),
-            'ml_settings' => static::getValue($userId, 'ml_settings', [])
+            'ml_settings'      => static::getValue($userId, 'ml_settings', []),
         ];
     }
 
@@ -312,14 +259,14 @@ class UserPreference extends Model
 
         return [
             'updated' => $updated,
-            'errors' => $errors
+            'errors'  => $errors,
         ];
     }
 
     /**
      * Reset preferences to defaults
      */
-    public static function resetToDefaults(int $userId, array $keys = null): void
+    public static function resetToDefaults(int $userId, ?array $keys = NULL): void
     {
         $defaults = static::getDefaultPreferences();
         $keysToReset = $keys ?? array_keys($defaults);
@@ -340,10 +287,10 @@ class UserPreference extends Model
             ->get()
             ->mapWithKeys(function ($preference) {
                 return [$preference->key => [
-                    'value' => $preference->value,
-                    'type' => $preference->type,
-                    'category' => $preference->category,
-                    'updated_at' => $preference->updated_at
+                    'value'      => $preference->value,
+                    'type'       => $preference->type,
+                    'category'   => $preference->category,
+                    'updated_at' => $preference->updated_at,
                 ]];
             })
             ->toArray();
@@ -375,14 +322,83 @@ class UserPreference extends Model
                 } else {
                     $errors[] = "Invalid preference data for: {$key}";
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Error importing preference {$key}: " . $e->getMessage();
             }
         }
 
         return [
             'imported' => $imported,
-            'errors' => $errors
+            'errors'   => $errors,
         ];
+    }
+
+    /**
+     * Get category for a preference key
+     */
+    protected static function getCategoryForKey(string $key): string
+    {
+        $categoryMap = [
+            'notification_channels' => 'notifications',
+            'favorite_teams'        => 'preferences',
+            'preferred_venues'      => 'preferences',
+            'event_types'           => 'preferences',
+            'alert_timing'          => 'notifications',
+            'price_thresholds'      => 'alerts',
+            'ml_settings'           => 'system',
+            'escalation_settings'   => 'notifications',
+        ];
+
+        return $categoryMap[$key] ?? 'general';
+    }
+
+    /**
+     * Process value for storage based on data type
+     *
+     * @param mixed $value
+     */
+    private static function processValue($value, string $dataType)
+    {
+        switch ($dataType) {
+            case 'boolean':
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL
+                    ? (bool) $value : FALSE;
+
+            case 'integer':
+                return is_numeric($value) ? (int) $value : 0;
+            case 'array':
+            case 'json':
+                if (is_string($value)) {
+                    $decoded = json_decode($value, TRUE);
+
+                    return json_last_error() === JSON_ERROR_NONE ? json_encode($decoded) : $value;
+                }
+
+                return json_encode($value);
+            case 'string':
+            default:
+                return (string) $value;
+        }
+    }
+
+    /**
+     * Cast value from storage based on data type
+     *
+     * @param mixed $value
+     */
+    private static function castValue($value, string $dataType)
+    {
+        switch ($dataType) {
+            case 'boolean':
+                return (bool) $value;
+            case 'integer':
+                return (int) $value;
+            case 'array':
+            case 'json':
+                return json_decode($value, TRUE);
+            case 'string':
+            default:
+                return (string) $value;
+        }
     }
 }

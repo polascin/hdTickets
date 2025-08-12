@@ -1,15 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\TicketAlert;
 use App\Models\ScrapedTicket;
+use App\Models\TicketAlert;
 use App\Services\EnhancedAlertSystem;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Log;
 
 class AlertController extends Controller
 {
@@ -42,9 +44,9 @@ class AlertController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('name', 'LIKE', '%' . $search . '%')
-                  ->orWhere('keywords', 'LIKE', '%' . $search . '%');
+                    ->orWhere('keywords', 'LIKE', '%' . $search . '%');
             });
         }
 
@@ -53,22 +55,22 @@ class AlertController extends Controller
         $alerts = $query->paginate($perPage);
 
         return response()->json([
-            'success' => true,
-            'data' => $alerts->items(),
-            'meta' => [
+            'success' => TRUE,
+            'data'    => $alerts->items(),
+            'meta'    => [
                 'current_page' => $alerts->currentPage(),
-                'from' => $alerts->firstItem(),
-                'last_page' => $alerts->lastPage(),
-                'per_page' => $alerts->perPage(),
-                'to' => $alerts->lastItem(),
-                'total' => $alerts->total(),
+                'from'         => $alerts->firstItem(),
+                'last_page'    => $alerts->lastPage(),
+                'per_page'     => $alerts->perPage(),
+                'to'           => $alerts->lastItem(),
+                'total'        => $alerts->total(),
             ],
             'links' => [
                 'first' => $alerts->url(1),
-                'last' => $alerts->url($alerts->lastPage()),
-                'prev' => $alerts->previousPageUrl(),
-                'next' => $alerts->nextPageUrl(),
-            ]
+                'last'  => $alerts->url($alerts->lastPage()),
+                'prev'  => $alerts->previousPageUrl(),
+                'next'  => $alerts->nextPageUrl(),
+            ],
         ]);
     }
 
@@ -78,38 +80,38 @@ class AlertController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'keywords' => 'required|string|max:500',
-            'platform' => 'sometimes|string|in:stubhub,ticketmaster,viagogo,tickpick,seatgeek,axs,eventbrite,livenation',
-            'max_price' => 'sometimes|numeric|min:0|max:99999',
-            'currency' => 'sometimes|string|in:USD,EUR,GBP,CAD,AUD',
-            'filters' => 'sometimes|array',
-            'filters.venue' => 'sometimes|string|max:255',
-            'filters.location' => 'sometimes|string|max:255',
-            'filters.min_quantity' => 'sometimes|integer|min:1',
-            'filters.section' => 'sometimes|string|max:100',
+            'name'                    => 'required|string|max:255',
+            'keywords'                => 'required|string|max:500',
+            'platform'                => 'sometimes|string|in:stubhub,ticketmaster,viagogo,tickpick,seatgeek,axs,eventbrite,livenation',
+            'max_price'               => 'sometimes|numeric|min:0|max:99999',
+            'currency'                => 'sometimes|string|in:USD,EUR,GBP,CAD,AUD',
+            'filters'                 => 'sometimes|array',
+            'filters.venue'           => 'sometimes|string|max:255',
+            'filters.location'        => 'sometimes|string|max:255',
+            'filters.min_quantity'    => 'sometimes|integer|min:1',
+            'filters.section'         => 'sometimes|string|max:100',
             'filters.event_date_from' => 'sometimes|date',
-            'filters.event_date_to' => 'sometimes|date',
-            'email_notifications' => 'sometimes|boolean',
-            'sms_notifications' => 'sometimes|boolean',
-            'is_active' => 'sometimes|boolean'
+            'filters.event_date_to'   => 'sometimes|date',
+            'email_notifications'     => 'sometimes|boolean',
+            'sms_notifications'       => 'sometimes|boolean',
+            'is_active'               => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         $data = $validator->validated();
         $data['user_id'] = auth()->id();
         $data['uuid'] = (string) Str::uuid();
-        $data['currency'] = $data['currency'] ?? 'USD';
-        $data['email_notifications'] = $data['email_notifications'] ?? true;
-        $data['sms_notifications'] = $data['sms_notifications'] ?? false;
-        
+        $data['currency'] ??= 'USD';
+        $data['email_notifications'] ??= TRUE;
+        $data['sms_notifications'] ??= FALSE;
+
         // Convert is_active boolean to status enum
         if (isset($data['is_active'])) {
             $data['status'] = $data['is_active'] ? 'active' : 'paused';
@@ -121,9 +123,9 @@ class AlertController extends Controller
         $alert = TicketAlert::create($data);
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Alert created successfully',
-            'data' => $alert->load('user')
+            'data'    => $alert->load('user'),
         ], 201);
     }
 
@@ -137,16 +139,16 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
-                'success' => false,
-                'message' => 'Alert not found'
+                'success' => FALSE,
+                'message' => 'Alert not found',
             ], 404);
         }
 
         return response()->json([
-            'success' => true,
-            'data' => $alert
+            'success' => TRUE,
+            'data'    => $alert,
         ]);
     }
 
@@ -159,54 +161,54 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
-                'success' => false,
-                'message' => 'Alert not found'
+                'success' => FALSE,
+                'message' => 'Alert not found',
             ], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'keywords' => 'sometimes|string|max:500',
-            'platform' => 'sometimes|string|in:stubhub,ticketmaster,viagogo,tickpick,seatgeek,axs,eventbrite,livenation',
-            'max_price' => 'sometimes|numeric|min:0|max:99999',
-            'currency' => 'sometimes|string|in:USD,EUR,GBP,CAD,AUD',
-            'filters' => 'sometimes|array',
-            'filters.venue' => 'sometimes|string|max:255',
-            'filters.location' => 'sometimes|string|max:255',
-            'filters.min_quantity' => 'sometimes|integer|min:1',
-            'filters.section' => 'sometimes|string|max:100',
+            'name'                    => 'sometimes|string|max:255',
+            'keywords'                => 'sometimes|string|max:500',
+            'platform'                => 'sometimes|string|in:stubhub,ticketmaster,viagogo,tickpick,seatgeek,axs,eventbrite,livenation',
+            'max_price'               => 'sometimes|numeric|min:0|max:99999',
+            'currency'                => 'sometimes|string|in:USD,EUR,GBP,CAD,AUD',
+            'filters'                 => 'sometimes|array',
+            'filters.venue'           => 'sometimes|string|max:255',
+            'filters.location'        => 'sometimes|string|max:255',
+            'filters.min_quantity'    => 'sometimes|integer|min:1',
+            'filters.section'         => 'sometimes|string|max:100',
             'filters.event_date_from' => 'sometimes|date',
-            'filters.event_date_to' => 'sometimes|date',
-            'email_notifications' => 'sometimes|boolean',
-            'sms_notifications' => 'sometimes|boolean',
-            'is_active' => 'sometimes|boolean'
+            'filters.event_date_to'   => 'sometimes|date',
+            'email_notifications'     => 'sometimes|boolean',
+            'sms_notifications'       => 'sometimes|boolean',
+            'is_active'               => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         $data = $validator->validated();
-        
+
         // Convert is_active boolean to status enum if present
         if (isset($data['is_active'])) {
             $data['status'] = $data['is_active'] ? 'active' : 'paused';
             unset($data['is_active']); // Remove is_active as it doesn't exist in the table
         }
-        
+
         $alert->update($data);
         $alert->load('user');
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Alert updated successfully',
-            'data' => $alert
+            'data'    => $alert,
         ]);
     }
 
@@ -219,18 +221,18 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
-                'success' => false,
-                'message' => 'Alert not found'
+                'success' => FALSE,
+                'message' => 'Alert not found',
             ], 404);
         }
 
         $alert->delete();
 
         return response()->json([
-            'success' => true,
-            'message' => 'Alert deleted successfully'
+            'success' => TRUE,
+            'message' => 'Alert deleted successfully',
         ]);
     }
 
@@ -243,10 +245,10 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
-                'success' => false,
-                'message' => 'Alert not found'
+                'success' => FALSE,
+                'message' => 'Alert not found',
             ], 404);
         }
 
@@ -254,13 +256,13 @@ class AlertController extends Controller
         $alert->update(['status' => $newStatus]);
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Alert status updated successfully',
-            'data' => [
-                'uuid' => $alert->uuid,
-                'status' => $alert->status,
-                'is_active' => $alert->status === 'active' // Backward compatibility
-            ]
+            'data'    => [
+                'uuid'      => $alert->uuid,
+                'status'    => $alert->status,
+                'is_active' => $alert->status === 'active', // Backward compatibility
+            ],
         ]);
     }
 
@@ -273,15 +275,15 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
-                'success' => false,
-                'message' => 'Alert not found'
+                'success' => FALSE,
+                'message' => 'Alert not found',
             ], 404);
         }
 
         // Get recent tickets that match the alert criteria
-        $query = ScrapedTicket::where('is_available', true)
+        $query = ScrapedTicket::where('is_available', TRUE)
             ->where('scraped_at', '>=', now()->subHours(24));
 
         // Apply alert filters
@@ -290,9 +292,9 @@ class AlertController extends Controller
         }
 
         if ($alert->max_price) {
-            $query->where(function($q) use ($alert) {
+            $query->where(function ($q) use ($alert): void {
                 $q->where('min_price', '<=', $alert->max_price)
-                  ->orWhere('max_price', '<=', $alert->max_price);
+                    ->orWhere('max_price', '<=', $alert->max_price);
             });
         }
 
@@ -306,15 +308,19 @@ class AlertController extends Controller
                 switch ($key) {
                     case 'venue':
                         $query->where('venue', 'LIKE', '%' . $value . '%');
+
                         break;
                     case 'location':
                         $query->where('location', 'LIKE', '%' . $value . '%');
+
                         break;
                     case 'event_date_from':
                         $query->where('event_date', '>=', $value);
+
                         break;
                     case 'event_date_to':
                         $query->where('event_date', '<=', $value);
+
                         break;
                 }
             }
@@ -323,32 +329,32 @@ class AlertController extends Controller
         $matchingTickets = $query->limit(10)->get();
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Alert test completed',
-            'data' => [
+            'data'    => [
                 'alert' => [
-                    'uuid' => $alert->uuid,
-                    'name' => $alert->name,
-                    'keywords' => $alert->keywords,
-                    'platform' => $alert->platform,
-                    'max_price' => $alert->max_price
+                    'uuid'      => $alert->uuid,
+                    'name'      => $alert->name,
+                    'keywords'  => $alert->keywords,
+                    'platform'  => $alert->platform,
+                    'max_price' => $alert->max_price,
                 ],
                 'matching_tickets' => $matchingTickets->count(),
-                'sample_matches' => $matchingTickets->map(function($ticket) {
+                'sample_matches'   => $matchingTickets->map(function ($ticket) {
                     return [
-                        'uuid' => $ticket->uuid,
-                        'title' => $ticket->title,
-                        'platform' => $ticket->platform,
-                        'venue' => $ticket->venue,
-                        'min_price' => $ticket->min_price,
-                        'max_price' => $ticket->max_price,
-                        'currency' => $ticket->currency,
+                        'uuid'       => $ticket->uuid,
+                        'title'      => $ticket->title,
+                        'platform'   => $ticket->platform,
+                        'venue'      => $ticket->venue,
+                        'min_price'  => $ticket->min_price,
+                        'max_price'  => $ticket->max_price,
+                        'currency'   => $ticket->currency,
                         'event_date' => $ticket->event_date,
-                        'ticket_url' => $ticket->ticket_url
+                        'ticket_url' => $ticket->ticket_url,
                     ];
                 }),
-                'tested_at' => now()->toISOString()
-            ]
+                'tested_at' => now()->toISOString(),
+            ],
         ]);
     }
 
@@ -358,17 +364,17 @@ class AlertController extends Controller
     public function statistics(): JsonResponse
     {
         $userId = auth()->id();
-        
+
         $stats = [
-            'total_alerts' => TicketAlert::forUser($userId)->count(),
-            'active_alerts' => TicketAlert::forUser($userId)->active()->count(),
-            'inactive_alerts' => TicketAlert::forUser($userId)->where('status', '!=', 'active')->count(),
+            'total_alerts'        => TicketAlert::forUser($userId)->count(),
+            'active_alerts'       => TicketAlert::forUser($userId)->active()->count(),
+            'inactive_alerts'     => TicketAlert::forUser($userId)->where('status', '!=', 'active')->count(),
             'total_matches_found' => TicketAlert::forUser($userId)->sum('matches_found'),
-            'platform_breakdown' => TicketAlert::forUser($userId)
+            'platform_breakdown'  => TicketAlert::forUser($userId)
                 ->selectRaw('platform, COUNT(*) as count')
                 ->groupBy('platform')
                 ->get()
-                ->mapWithKeys(function($item) {
+                ->mapWithKeys(function ($item) {
                     return [$item->platform ?? 'all_platforms' => $item->count];
                 }),
             'recent_activity' => TicketAlert::forUser($userId)
@@ -376,19 +382,19 @@ class AlertController extends Controller
                 ->orderBy('triggered_at', 'desc')
                 ->limit(5)
                 ->get(['uuid', 'name', 'triggered_at'])
-                ->map(function($alert) {
+                ->map(function ($alert) {
                     return [
-                        'uuid' => $alert->uuid,
-                        'name' => $alert->name,
-                        'triggered' => $alert->triggered_at ? true : false,
-                        'last_triggered' => $alert->triggered_at?->diffForHumans()
+                        'uuid'           => $alert->uuid,
+                        'name'           => $alert->name,
+                        'triggered'      => $alert->triggered_at ? TRUE : FALSE,
+                        'last_triggered' => $alert->triggered_at?->diffForHumans(),
                     ];
-                })
+                }),
         ];
 
         return response()->json([
-            'success' => true,
-            'data' => $stats
+            'success' => TRUE,
+            'data'    => $stats,
         ]);
     }
 
@@ -403,12 +409,12 @@ class AlertController extends Controller
 
         if ($activeAlerts->isEmpty()) {
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'No active alerts to check',
-                'data' => [
+                'data'    => [
                     'alerts_checked' => 0,
-                    'matches_found' => 0
-                ]
+                    'matches_found'  => 0,
+                ],
             ]);
         }
 
@@ -420,24 +426,24 @@ class AlertController extends Controller
                 $matches = $this->alertSystem->checkAlert($alert);
                 $totalMatches += $matches;
                 $checkedAlerts++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Log error but continue with other alerts
-                \Log::error('Alert check failed: ' . $e->getMessage(), [
+                Log::error('Alert check failed: ' . $e->getMessage(), [
                     'alert_uuid' => $alert->uuid,
-                    'user_id' => auth()->id()
+                    'user_id'    => auth()->id(),
                 ]);
             }
         }
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Alert check completed',
-            'data' => [
-                'total_alerts' => $activeAlerts->count(),
-                'alerts_checked' => $checkedAlerts,
+            'data'    => [
+                'total_alerts'        => $activeAlerts->count(),
+                'alerts_checked'      => $checkedAlerts,
                 'total_matches_found' => $totalMatches,
-                'check_completed_at' => now()->toISOString()
-            ]
+                'check_completed_at'  => now()->toISOString(),
+            ],
         ]);
     }
 }

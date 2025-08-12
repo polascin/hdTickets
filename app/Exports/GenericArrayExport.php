@@ -1,19 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class GenericArrayExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
     protected $data;
-    protected $headings;
 
+    /** @var array<int, string> */
+    protected array $headings;
+
+    /**
+     * @param mixed              $data
+     * @param array<int, string> $headings
+     */
     public function __construct($data, array $headings = [])
     {
         $this->data = collect($data);
@@ -25,20 +31,26 @@ class GenericArrayExport implements FromCollection, WithHeadings, WithStyles, Sh
         return $this->data;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function headings(): array
     {
         return $this->headings;
     }
 
-    public function styles(Worksheet $sheet)
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'font' => ['bold' => TRUE, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '059669']
-                ]
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '059669'],
+                ],
             ],
         ];
     }

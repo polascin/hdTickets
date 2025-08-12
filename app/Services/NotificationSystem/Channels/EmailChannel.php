@@ -1,51 +1,52 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\NotificationSystem\Channels;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 use App\Mail\TicketNotificationMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class EmailChannel implements NotificationChannelInterface
 {
     public function send(User $user, array $notification): bool
     {
         try {
-            if (!$user->email || !$user->email_verified_at) {
+            if (! $user->email || ! $user->email_verified_at) {
                 Log::info('Skipping email notification for unverified user', [
                     'user_id' => $user->id,
-                    'type' => $notification['type'],
+                    'type'    => $notification['type'],
                 ]);
-                return false;
+
+                return FALSE;
             }
 
             $mailable = new TicketNotificationMail($user, $notification);
-            
+
             Mail::to($user->email)->send($mailable);
 
             Log::info('Email notification sent successfully', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'type' => $notification['type'],
+                'email'   => $user->email,
+                'type'    => $notification['type'],
             ]);
 
-            return true;
-
-        } catch (\Throwable $e) {
+            return TRUE;
+        } catch (Throwable $e) {
             Log::error('Failed to send email notification', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'type' => $notification['type'],
-                'error' => $e->getMessage(),
+                'email'   => $user->email,
+                'type'    => $notification['type'],
+                'error'   => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
     }
 
     public function isAvailable(): bool
     {
-        return !empty(config('mail.default'));
+        return ! empty(config('mail.default'));
     }
 }

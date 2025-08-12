@@ -1,13 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\UserPricePreference;
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class UserPricePreferenceController extends Controller
 {
@@ -28,11 +29,11 @@ class UserPricePreferenceController extends Controller
             $query->byCategory($request->event_category);
         }
 
-        if ($request->is_active !== null) {
+        if ($request->is_active !== NULL) {
             if ($request->boolean('is_active')) {
                 $query->active();
             } else {
-                $query->where('is_active', false);
+                $query->where('is_active', FALSE);
             }
         }
 
@@ -41,27 +42,27 @@ class UserPricePreferenceController extends Controller
         }
 
         $preferences = $query->orderBy('is_active', 'desc')
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(20);
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         $stats = UserPricePreference::getPriceStats($user->id);
         $eventCategories = UserPricePreference::getEventCategories();
         $seatPreferences = UserPricePreference::getSeatPreferences();
-        
+
         if ($request->wantsJson()) {
             return response()->json([
-                'preferences' => $preferences,
-                'stats' => $stats,
+                'preferences'      => $preferences,
+                'stats'            => $stats,
                 'event_categories' => $eventCategories,
-                'seat_preferences' => $seatPreferences
+                'seat_preferences' => $seatPreferences,
             ]);
         }
 
         return view('preferences.prices.index', compact(
-            'preferences', 
-            'stats', 
+            'preferences',
+            'stats',
             'eventCategories',
-            'seatPreferences'
+            'seatPreferences',
         ));
     }
 
@@ -73,11 +74,11 @@ class UserPricePreferenceController extends Controller
         $eventCategories = UserPricePreference::getEventCategories();
         $seatPreferences = UserPricePreference::getSeatPreferences();
         $alertFrequencies = UserPricePreference::getAlertFrequencies();
-        
+
         return view('preferences.prices.create', compact(
             'eventCategories',
             'seatPreferences',
-            'alertFrequencies'
+            'alertFrequencies',
         ));
     }
 
@@ -87,55 +88,55 @@ class UserPricePreferenceController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'preference_name' => 'required|string|max:255',
-            'sport_type' => 'nullable|string|max:100',
-            'event_category' => 'nullable|string|in:' . implode(',', array_keys(UserPricePreference::getEventCategories())),
-            'min_price' => 'nullable|numeric|min:0',
-            'max_price' => 'required|numeric|min:0',
-            'preferred_quantity' => 'integer|min:1|max:20',
-            'seat_preferences' => 'nullable|array',
-            'seat_preferences.*' => 'string|in:' . implode(',', array_keys(UserPricePreference::getSeatPreferences())),
-            'section_preferences' => 'nullable|array',
-            'section_preferences.*' => 'string|max:100',
-            'price_drop_threshold' => 'nullable|numeric|min:0|max:100',
+            'preference_name'          => 'required|string|max:255',
+            'sport_type'               => 'nullable|string|max:100',
+            'event_category'           => 'nullable|string|in:' . implode(',', array_keys(UserPricePreference::getEventCategories())),
+            'min_price'                => 'nullable|numeric|min:0',
+            'max_price'                => 'required|numeric|min:0',
+            'preferred_quantity'       => 'integer|min:1|max:20',
+            'seat_preferences'         => 'nullable|array',
+            'seat_preferences.*'       => 'string|in:' . implode(',', array_keys(UserPricePreference::getSeatPreferences())),
+            'section_preferences'      => 'nullable|array',
+            'section_preferences.*'    => 'string|max:100',
+            'price_drop_threshold'     => 'nullable|numeric|min:0|max:100',
             'price_increase_threshold' => 'nullable|numeric|min:0|max:100',
-            'auto_purchase_enabled' => 'boolean',
-            'auto_purchase_max_price' => 'nullable|numeric|min:0',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'alert_frequency' => 'required|string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
-            'is_active' => 'boolean'
+            'auto_purchase_enabled'    => 'boolean',
+            'auto_purchase_max_price'  => 'nullable|numeric|min:0',
+            'email_alerts'             => 'boolean',
+            'push_alerts'              => 'boolean',
+            'sms_alerts'               => 'boolean',
+            'alert_frequency'          => 'required|string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
+            'is_active'                => 'boolean',
         ]);
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (!empty($validationErrors)) {
+        if (! empty($validationErrors)) {
             if ($request->wantsJson()) {
                 return response()->json([
-                    'errors' => $validationErrors
+                    'errors' => $validationErrors,
                 ], 422);
             }
-            
+
             return back()->withErrors($validationErrors)->withInput();
         }
 
         $validated['user_id'] = $user->id;
-        $validated['email_alerts'] = $request->boolean('email_alerts', true);
-        $validated['push_alerts'] = $request->boolean('push_alerts', false);
-        $validated['sms_alerts'] = $request->boolean('sms_alerts', false);
-        $validated['auto_purchase_enabled'] = $request->boolean('auto_purchase_enabled', false);
-        $validated['is_active'] = $request->boolean('is_active', true);
-        $validated['preferred_quantity'] = $validated['preferred_quantity'] ?? 2;
+        $validated['email_alerts'] = $request->boolean('email_alerts', TRUE);
+        $validated['push_alerts'] = $request->boolean('push_alerts', FALSE);
+        $validated['sms_alerts'] = $request->boolean('sms_alerts', FALSE);
+        $validated['auto_purchase_enabled'] = $request->boolean('auto_purchase_enabled', FALSE);
+        $validated['is_active'] = $request->boolean('is_active', TRUE);
+        $validated['preferred_quantity'] ??= 2;
 
         $preference = UserPricePreference::create($validated);
 
         if ($request->wantsJson()) {
             return response()->json([
                 'preference' => $preference,
-                'message' => 'Price preference created successfully!'
+                'message'    => 'Price preference created successfully!',
             ], 201);
         }
 
@@ -149,7 +150,7 @@ class UserPricePreferenceController extends Controller
     public function show(UserPricePreference $preference): View|JsonResponse
     {
         $this->authorize('view', $preference);
-        
+
         if (request()->wantsJson()) {
             return response()->json(['preference' => $preference]);
         }
@@ -163,16 +164,16 @@ class UserPricePreferenceController extends Controller
     public function edit(UserPricePreference $preference): View
     {
         $this->authorize('update', $preference);
-        
+
         $eventCategories = UserPricePreference::getEventCategories();
         $seatPreferences = UserPricePreference::getSeatPreferences();
         $alertFrequencies = UserPricePreference::getAlertFrequencies();
-        
+
         return view('preferences.prices.edit', compact(
             'preference',
             'eventCategories',
             'seatPreferences',
-            'alertFrequencies'
+            'alertFrequencies',
         ));
     }
 
@@ -182,38 +183,38 @@ class UserPricePreferenceController extends Controller
     public function update(Request $request, UserPricePreference $preference): RedirectResponse|JsonResponse
     {
         $this->authorize('update', $preference);
-        
+
         $validated = $request->validate([
-            'preference_name' => 'required|string|max:255',
-            'sport_type' => 'nullable|string|max:100',
-            'event_category' => 'nullable|string|in:' . implode(',', array_keys(UserPricePreference::getEventCategories())),
-            'min_price' => 'nullable|numeric|min:0',
-            'max_price' => 'required|numeric|min:0',
-            'preferred_quantity' => 'integer|min:1|max:20',
-            'seat_preferences' => 'nullable|array',
-            'seat_preferences.*' => 'string|in:' . implode(',', array_keys(UserPricePreference::getSeatPreferences())),
-            'section_preferences' => 'nullable|array',
-            'section_preferences.*' => 'string|max:100',
-            'price_drop_threshold' => 'nullable|numeric|min:0|max:100',
+            'preference_name'          => 'required|string|max:255',
+            'sport_type'               => 'nullable|string|max:100',
+            'event_category'           => 'nullable|string|in:' . implode(',', array_keys(UserPricePreference::getEventCategories())),
+            'min_price'                => 'nullable|numeric|min:0',
+            'max_price'                => 'required|numeric|min:0',
+            'preferred_quantity'       => 'integer|min:1|max:20',
+            'seat_preferences'         => 'nullable|array',
+            'seat_preferences.*'       => 'string|in:' . implode(',', array_keys(UserPricePreference::getSeatPreferences())),
+            'section_preferences'      => 'nullable|array',
+            'section_preferences.*'    => 'string|max:100',
+            'price_drop_threshold'     => 'nullable|numeric|min:0|max:100',
             'price_increase_threshold' => 'nullable|numeric|min:0|max:100',
-            'auto_purchase_enabled' => 'boolean',
-            'auto_purchase_max_price' => 'nullable|numeric|min:0',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'alert_frequency' => 'required|string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
-            'is_active' => 'boolean'
+            'auto_purchase_enabled'    => 'boolean',
+            'auto_purchase_max_price'  => 'nullable|numeric|min:0',
+            'email_alerts'             => 'boolean',
+            'push_alerts'              => 'boolean',
+            'sms_alerts'               => 'boolean',
+            'alert_frequency'          => 'required|string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
+            'is_active'                => 'boolean',
         ]);
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (!empty($validationErrors)) {
+        if (! empty($validationErrors)) {
             if ($request->wantsJson()) {
                 return response()->json([
-                    'errors' => $validationErrors
+                    'errors' => $validationErrors,
                 ], 422);
             }
-            
+
             return back()->withErrors($validationErrors)->withInput();
         }
 
@@ -228,7 +229,7 @@ class UserPricePreferenceController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'preference' => $preference->fresh(),
-                'message' => 'Price preference updated successfully!'
+                'message'    => 'Price preference updated successfully!',
             ]);
         }
 
@@ -242,13 +243,13 @@ class UserPricePreferenceController extends Controller
     public function destroy(UserPricePreference $preference): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $preference);
-        
+
         $preferenceName = $preference->preference_name;
         $preference->delete();
 
         if (request()->wantsJson()) {
             return response()->json([
-                'message' => "Deleted price preference: {$preferenceName}"
+                'message' => "Deleted price preference: {$preferenceName}",
             ]);
         }
 
@@ -262,12 +263,12 @@ class UserPricePreferenceController extends Controller
     public function toggleActive(UserPricePreference $preference): JsonResponse
     {
         $this->authorize('update', $preference);
-        
-        $preference->update(['is_active' => !$preference->is_active]);
+
+        $preference->update(['is_active' => ! $preference->is_active]);
 
         return response()->json([
             'is_active' => $preference->is_active,
-            'message' => $preference->is_active ? 'Preference activated' : 'Preference deactivated'
+            'message'   => $preference->is_active ? 'Preference activated' : 'Preference deactivated',
         ]);
     }
 
@@ -277,19 +278,19 @@ class UserPricePreferenceController extends Controller
     public function updateNotifications(Request $request, UserPricePreference $preference): JsonResponse
     {
         $this->authorize('update', $preference);
-        
+
         $validated = $request->validate([
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'alert_frequency' => 'string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies()))
+            'email_alerts'    => 'boolean',
+            'push_alerts'     => 'boolean',
+            'sms_alerts'      => 'boolean',
+            'alert_frequency' => 'string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
         ]);
 
         $preference->updateNotificationSettings($validated);
 
         return response()->json([
-            'message' => 'Notification settings updated',
-            'settings' => $preference->getNotificationSettings()
+            'message'  => 'Notification settings updated',
+            'settings' => $preference->getNotificationSettings(),
         ]);
     }
 
@@ -299,21 +300,21 @@ class UserPricePreferenceController extends Controller
     public function clone(Request $request, UserPricePreference $preference): RedirectResponse|JsonResponse
     {
         $this->authorize('view', $preference);
-        
+
         $validated = $request->validate([
-            'sport_type' => 'nullable|string|max:100',
-            'event_category' => 'nullable|string'
+            'sport_type'     => 'nullable|string|max:100',
+            'event_category' => 'nullable|string',
         ]);
 
         $clonedPreference = $preference->cloneFor(
-            $validated['sport_type'] ?? null,
-            $validated['event_category'] ?? null
+            $validated['sport_type'] ?? NULL,
+            $validated['event_category'] ?? NULL,
         );
 
         if ($request->wantsJson()) {
             return response()->json([
                 'preference' => $clonedPreference,
-                'message' => 'Price preference cloned successfully!'
+                'message'    => 'Price preference cloned successfully!',
             ]);
         }
 
@@ -327,29 +328,29 @@ class UserPricePreferenceController extends Controller
     public function test(Request $request, UserPricePreference $preference): JsonResponse
     {
         $this->authorize('view', $preference);
-        
+
         $validated = $request->validate([
             'ticket_price' => 'required|numeric|min:0',
-            'old_price' => 'nullable|numeric|min:0',
-            'seat_info' => 'nullable|array',
-            'section' => 'nullable|string'
+            'old_price'    => 'nullable|numeric|min:0',
+            'seat_info'    => 'nullable|array',
+            'section'      => 'nullable|string',
         ]);
 
         $results = [
-            'matches_price' => $preference->matchesPrice($validated['ticket_price']),
+            'matches_price'         => $preference->matchesPrice($validated['ticket_price']),
             'formatted_price_range' => $preference->getFormattedPriceRange(),
-            'average_target_price' => $preference->getAverageTargetPrice(),
-            'should_auto_purchase' => $preference->shouldAutoPurchase($validated['ticket_price'])
+            'average_target_price'  => $preference->getAverageTargetPrice(),
+            'should_auto_purchase'  => $preference->shouldAutoPurchase($validated['ticket_price']),
         ];
 
         if (isset($validated['old_price'])) {
             $results['significant_price_drop'] = $preference->isPriceDropSignificant(
-                $validated['old_price'], 
-                $validated['ticket_price']
+                $validated['old_price'],
+                $validated['ticket_price'],
             );
             $results['significant_price_increase'] = $preference->isPriceIncreaseSignificant(
-                $validated['old_price'], 
-                $validated['ticket_price']
+                $validated['old_price'],
+                $validated['ticket_price'],
             );
         }
 
@@ -362,8 +363,8 @@ class UserPricePreferenceController extends Controller
         }
 
         return response()->json([
-            'test_results' => $results,
-            'recommendation' => $this->generateRecommendation($preference, $results)
+            'test_results'   => $results,
+            'recommendation' => $this->generateRecommendation($preference, $results),
         ]);
     }
 
@@ -373,13 +374,13 @@ class UserPricePreferenceController extends Controller
     public function import(Request $request): RedirectResponse|JsonResponse
     {
         $user = Auth::user();
-        
+
         $request->validate([
-            'preferences' => 'required|array',
+            'preferences'                   => 'required|array',
             'preferences.*.preference_name' => 'required|string',
-            'preferences.*.max_price' => 'required|numeric|min:0',
-            'preferences.*.sport_type' => 'nullable|string',
-            'preferences.*.event_category' => 'nullable|string',
+            'preferences.*.max_price'       => 'required|numeric|min:0',
+            'preferences.*.sport_type'      => 'nullable|string',
+            'preferences.*.event_category'  => 'nullable|string',
         ]);
 
         $imported = 0;
@@ -395,26 +396,26 @@ class UserPricePreferenceController extends Controller
 
                 if ($existing) {
                     $skipped++;
+
                     continue;
                 }
 
                 UserPricePreference::create([
-                    'user_id' => $user->id,
-                    'preference_name' => $prefData['preference_name'],
-                    'max_price' => $prefData['max_price'],
-                    'sport_type' => $prefData['sport_type'] ?? null,
-                    'event_category' => $prefData['event_category'] ?? null,
+                    'user_id'            => $user->id,
+                    'preference_name'    => $prefData['preference_name'],
+                    'max_price'          => $prefData['max_price'],
+                    'sport_type'         => $prefData['sport_type'] ?? NULL,
+                    'event_category'     => $prefData['event_category'] ?? NULL,
                     'preferred_quantity' => 2,
-                    'email_alerts' => true,
-                    'push_alerts' => false,
-                    'sms_alerts' => false,
-                    'alert_frequency' => 'immediate',
-                    'is_active' => true
+                    'email_alerts'       => TRUE,
+                    'push_alerts'        => FALSE,
+                    'sms_alerts'         => FALSE,
+                    'alert_frequency'    => 'immediate',
+                    'is_active'          => TRUE,
                 ]);
 
                 $imported++;
-                
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $errors[] = "Failed to import {$prefData['preference_name']}: " . $e->getMessage();
             }
         }
@@ -426,17 +427,17 @@ class UserPricePreferenceController extends Controller
 
         if ($request->wantsJson()) {
             return response()->json([
-                'message' => $message,
+                'message'  => $message,
                 'imported' => $imported,
-                'skipped' => $skipped,
-                'errors' => $errors
+                'skipped'  => $skipped,
+                'errors'   => $errors,
             ]);
         }
 
         $redirectResponse = redirect()->route('preferences.prices.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 
@@ -458,18 +459,18 @@ class UserPricePreferenceController extends Controller
 
         if ($format === 'csv') {
             $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="price_preferences.csv"'
+                'Content-Type'        => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="price_preferences.csv"',
             ];
 
-            $callback = function() use ($preferences) {
+            $callback = function () use ($preferences): void {
                 $file = fopen('php://output', 'w');
                 fputcsv($file, [
-                    'Preference Name', 'Sport Type', 'Event Category', 'Min Price', 'Max Price', 
-                    'Preferred Quantity', 'Email Alerts', 'Push Alerts', 'SMS Alerts', 
-                    'Alert Frequency', 'Auto Purchase', 'Auto Purchase Max Price', 'Is Active'
+                    'Preference Name', 'Sport Type', 'Event Category', 'Min Price', 'Max Price',
+                    'Preferred Quantity', 'Email Alerts', 'Push Alerts', 'SMS Alerts',
+                    'Alert Frequency', 'Auto Purchase', 'Auto Purchase Max Price', 'Is Active',
                 ]);
-                
+
                 foreach ($preferences as $pref) {
                     fputcsv($file, [
                         $pref->preference_name,
@@ -487,7 +488,7 @@ class UserPricePreferenceController extends Controller
                         $pref->is_active ? 'Yes' : 'No',
                     ]);
                 }
-                
+
                 fclose($file);
             };
 
@@ -498,7 +499,7 @@ class UserPricePreferenceController extends Controller
         return response()->json([
             'preferences' => $preferences,
             'exported_at' => now()->toISOString(),
-            'total_count' => $preferences->count()
+            'total_count' => $preferences->count(),
         ]);
     }
 
@@ -508,15 +509,15 @@ class UserPricePreferenceController extends Controller
     public function bulkUpdate(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
-            'preference_ids' => 'required|array',
+            'preference_ids'   => 'required|array',
             'preference_ids.*' => 'exists:user_price_preferences,id',
-            'action' => 'required|in:activate,deactivate,update_notifications,delete',
-            'email_alerts' => 'boolean',
-            'push_alerts' => 'boolean',
-            'sms_alerts' => 'boolean',
-            'alert_frequency' => 'string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies()))
+            'action'           => 'required|in:activate,deactivate,update_notifications,delete',
+            'email_alerts'     => 'boolean',
+            'push_alerts'      => 'boolean',
+            'sms_alerts'       => 'boolean',
+            'alert_frequency'  => 'string|in:' . implode(',', array_keys(UserPricePreference::getAlertFrequencies())),
         ]);
 
         $preferences = UserPricePreference::whereIn('id', $validated['preference_ids'])
@@ -528,35 +529,36 @@ class UserPricePreferenceController extends Controller
         foreach ($preferences as $pref) {
             switch ($validated['action']) {
                 case 'activate':
-                    $pref->update(['is_active' => true]);
+                    $pref->update(['is_active' => TRUE]);
                     $updated++;
+
                     break;
-                
                 case 'deactivate':
-                    $pref->update(['is_active' => false]);
+                    $pref->update(['is_active' => FALSE]);
                     $updated++;
+
                     break;
-                
                 case 'update_notifications':
                     $pref->updateNotificationSettings([
-                        'email' => $request->boolean('email_alerts'),
-                        'push' => $request->boolean('push_alerts'),
-                        'sms' => $request->boolean('sms_alerts'),
-                        'frequency' => $request->get('alert_frequency')
+                        'email'     => $request->boolean('email_alerts'),
+                        'push'      => $request->boolean('push_alerts'),
+                        'sms'       => $request->boolean('sms_alerts'),
+                        'frequency' => $request->get('alert_frequency'),
                     ]);
                     $updated++;
+
                     break;
-                
                 case 'delete':
                     $pref->delete();
                     $updated++;
+
                     break;
             }
         }
 
         return response()->json([
-            'message' => "Updated {$updated} price preferences",
-            'updated_count' => $updated
+            'message'       => "Updated {$updated} price preferences",
+            'updated_count' => $updated,
         ]);
     }
 
@@ -566,16 +568,16 @@ class UserPricePreferenceController extends Controller
     public function getSimilar(UserPricePreference $preference): JsonResponse
     {
         $this->authorize('view', $preference);
-        
+
         $similarPreferences = $preference->getSimilarPreferences(10);
-        
+
         return response()->json([
             'similar_preferences' => $similarPreferences,
-            'base_preference' => [
-                'id' => $preference->id,
-                'name' => $preference->preference_name,
-                'max_price' => $preference->max_price
-            ]
+            'base_preference'     => [
+                'id'        => $preference->id,
+                'name'      => $preference->preference_name,
+                'max_price' => $preference->max_price,
+            ],
         ]);
     }
 
@@ -586,30 +588,30 @@ class UserPricePreferenceController extends Controller
     {
         $recommendations = [];
 
-        if (!$results['matches_price']) {
+        if (! $results['matches_price']) {
             if (isset($results['ticket_price'])) {
-                $recommendations[] = "This ticket price is outside your preferred range of " . $preference->getFormattedPriceRange();
+                $recommendations[] = 'This ticket price is outside your preferred range of ' . $preference->getFormattedPriceRange();
             }
         }
 
         if ($results['should_auto_purchase']) {
-            $recommendations[] = "This ticket meets your auto-purchase criteria";
+            $recommendations[] = 'This ticket meets your auto-purchase criteria';
         }
 
         if (isset($results['significant_price_drop']) && $results['significant_price_drop']) {
-            $recommendations[] = "This ticket has experienced a significant price drop";
+            $recommendations[] = 'This ticket has experienced a significant price drop';
         }
 
-        if (isset($results['matches_seat_preferences']) && !$results['matches_seat_preferences']) {
-            $recommendations[] = "This ticket does not match your seat preferences";
+        if (isset($results['matches_seat_preferences']) && ! $results['matches_seat_preferences']) {
+            $recommendations[] = 'This ticket does not match your seat preferences';
         }
 
-        if (isset($results['matches_section_preferences']) && !$results['matches_section_preferences']) {
-            $recommendations[] = "This ticket is not in your preferred sections";
+        if (isset($results['matches_section_preferences']) && ! $results['matches_section_preferences']) {
+            $recommendations[] = 'This ticket is not in your preferred sections';
         }
 
         if (empty($recommendations)) {
-            $recommendations[] = "This ticket matches your preferences";
+            $recommendations[] = 'This ticket matches your preferences';
         }
 
         return implode('. ', $recommendations) . '.';

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Notifications;
 
@@ -24,6 +24,8 @@ class TicketAssigned extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
+     *
+     * @param mixed $notifiable
      */
     public function via($notifiable): array
     {
@@ -32,10 +34,12 @@ class TicketAssigned extends Notification implements ShouldQueue
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage)
+        return new MailMessage()
             ->subject('Ticket Assigned to You: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('A ticket has been assigned to you:')
@@ -51,18 +55,20 @@ class TicketAssigned extends Notification implements ShouldQueue
 
     /**
      * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toArray($notifiable): array
     {
         return [
-            'type' => 'ticket_assigned',
-            'ticket_id' => $this->ticket->id,
-            'ticket_uuid' => $this->ticket->uuid,
-            'ticket_title' => $this->ticket->title,
+            'type'            => 'ticket_assigned',
+            'ticket_id'       => $this->ticket->id,
+            'ticket_uuid'     => $this->ticket->uuid,
+            'ticket_title'    => $this->ticket->title,
             'ticket_priority' => $this->ticket->priority,
-            'ticket_status' => $this->ticket->status,
-            'assigned_by' => auth()->user()->username ?? 'System',
-            'message' => 'Ticket assigned to you: ' . $this->ticket->title,
+            'ticket_status'   => $this->ticket->status,
+            'assigned_by'     => auth()->user()->username ?? 'System',
+            'message'         => 'Ticket assigned to you: ' . $this->ticket->title,
         ];
     }
 }

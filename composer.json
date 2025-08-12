@@ -35,7 +35,9 @@
         "paypal/paypal-server-sdk": "^1.1",
         "laravel/horizon": "^5.33",
         "intervention/image": "^3.0",
-        "jenssegers/agent": "^2.6"
+        "jenssegers/agent": "^2.6",
+        "maatwebsite/excel": "^3.1",
+        "phpoffice/phpspreadsheet": "^1.30"
     },
     "require-dev": {
         "laravel/breeze": "^2.3",
@@ -48,7 +50,13 @@
         "spatie/laravel-ignition": "^2.8",
         "symfony/var-dumper": "^7.3",
         "laravel/telescope": "^5.10",
-        "brianium/paratest": "^7.8"
+        "brianium/paratest": "^7.8",
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "phpstan/phpstan": "^2.0",
+        "phpmd/phpmd": "^2.15",
+        "squizlabs/php_codesniffer": "^3.10",
+        "phpmetrics/phpmetrics": "^2.9",
+        "rector/rector": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -80,6 +88,36 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
+        ],
+        "code-style": [
+            "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --verbose --show-progress=dots"
+        ],
+        "code-style-check": [
+            "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --verbose --show-progress=dots"
+        ],
+        "static-analysis": [
+            "./vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=512M"
+        ],
+        "code-quality": [
+            "@code-style-check",
+            "@static-analysis"
+        ],
+        "fix-code": [
+            "@code-style"
+        ],
+        "quality-metrics": [
+            "./vendor/bin/phpmetrics --report-html=storage/quality/metrics app/"
+        ],
+        "test-coverage": [
+            "./vendor/bin/phpunit --coverage-html storage/quality/coverage"
+        ],
+        "test": [
+            "./vendor/bin/phpunit --no-coverage"
+        ],
+        "full-quality-check": [
+            "@code-quality",
+            "@test",
+            "@quality-metrics"
         ]
     },
     "extra": {

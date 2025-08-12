@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\TicketSource;
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class RssFeedService
 {
@@ -17,7 +17,7 @@ class RssFeedService
         'news_feeds' => [
             // Add event news RSS feeds
             // 'https://news-site.com/events.rss',
-        ]
+        ],
     ];
 
     /**
@@ -27,9 +27,9 @@ class RssFeedService
     {
         try {
             $response = Http::timeout(30)->get($feedUrl);
-            
-            if (!$response->successful()) {
-                throw new Exception("Failed to fetch RSS feed: " . $response->status());
+
+            if (! $response->successful()) {
+                throw new Exception('Failed to fetch RSS feed: ' . $response->status());
             }
 
             $xml = simplexml_load_string($response->body());
@@ -37,20 +37,21 @@ class RssFeedService
 
             foreach ($xml->channel->item as $item) {
                 $events[] = [
-                    'title' => (string) $item->title,
+                    'title'       => (string) $item->title,
                     'description' => (string) $item->description,
-                    'link' => (string) $item->link,
-                    'pub_date' => (string) $item->pubDate,
-                    'category' => (string) $item->category,
+                    'link'        => (string) $item->link,
+                    'pub_date'    => (string) $item->pubDate,
+                    'category'    => (string) $item->category,
                 ];
             }
 
             return $events;
         } catch (Exception $e) {
             Log::error('RSS feed parsing failed', [
-                'url' => $feedUrl,
-                'error' => $e->getMessage()
+                'url'   => $feedUrl,
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
@@ -68,16 +69,16 @@ class RssFeedService
                     $events = $this->parseFeed($url);
                     $processed = $this->saveEventsFromFeed($events, $category);
                     $totalEvents += $processed;
-                    
-                    Log::info("Processed RSS feed", [
-                        'url' => $url,
-                        'category' => $category,
-                        'events_count' => $processed
+
+                    Log::info('Processed RSS feed', [
+                        'url'          => $url,
+                        'category'     => $category,
+                        'events_count' => $processed,
                     ]);
                 } catch (Exception $e) {
-                    Log::error("Failed to process RSS feed", [
-                        'url' => $url,
-                        'error' => $e->getMessage()
+                    Log::error('Failed to process RSS feed', [
+                        'url'   => $url,
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
@@ -100,23 +101,23 @@ class RssFeedService
 
                 TicketSource::updateOrCreate([
                     'platform' => 'rss_feed',
-                    'url' => $eventData['link'],
+                    'url'      => $eventData['link'],
                 ], [
-                    'name' => $eventData['title'],
-                    'event_name' => $eventData['title'],
-                    'event_date' => $eventDate ?: now()->addDays(30),
-                    'venue' => $venue ?: 'TBD',
+                    'name'                => $eventData['title'],
+                    'event_name'          => $eventData['title'],
+                    'event_date'          => $eventDate ?: now()->addDays(30),
+                    'venue'               => $venue ?: 'TBD',
                     'availability_status' => TicketSource::STATUS_UNKNOWN,
-                    'description' => $eventData['description'],
-                    'last_checked' => now(),
-                    'is_active' => true,
+                    'description'         => $eventData['description'],
+                    'last_checked'        => now(),
+                    'is_active'           => TRUE,
                 ]);
 
                 $saved++;
             } catch (Exception $e) {
-                Log::warning("Failed to save RSS event", [
+                Log::warning('Failed to save RSS event', [
                     'event' => $eventData,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -135,7 +136,7 @@ class RssFeedService
             return $matches[1] . ' 00:00:00';
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -149,6 +150,6 @@ class RssFeedService
             return trim($matches[1]);
         }
 
-        return null;
+        return NULL;
     }
 }

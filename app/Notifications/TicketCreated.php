@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Notifications;
 
@@ -24,6 +24,8 @@ class TicketCreated extends Notification implements ShouldQueue
 
     /**
      * Get the notification's delivery channels.
+     *
+     * @param mixed $notifiable
      */
     public function via($notifiable): array
     {
@@ -32,10 +34,12 @@ class TicketCreated extends Notification implements ShouldQueue
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage)
+        return new MailMessage()
             ->subject('New Ticket Created: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('A new ticket has been created:')
@@ -49,17 +53,19 @@ class TicketCreated extends Notification implements ShouldQueue
 
     /**
      * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
      */
     public function toArray($notifiable): array
     {
         return [
-            'type' => 'ticket_created',
-            'ticket_id' => $this->ticket->id,
-            'ticket_uuid' => $this->ticket->uuid,
-            'ticket_title' => $this->ticket->title,
+            'type'            => 'ticket_created',
+            'ticket_id'       => $this->ticket->id,
+            'ticket_uuid'     => $this->ticket->uuid,
+            'ticket_title'    => $this->ticket->title,
             'ticket_priority' => $this->ticket->priority,
-            'created_by' => $this->ticket->user->username ?? 'System',
-            'message' => 'New ticket created: ' . $this->ticket->title,
+            'created_by'      => $this->ticket->user->username ?? 'System',
+            'message'         => 'New ticket created: ' . $this->ticket->title,
         ];
     }
 }

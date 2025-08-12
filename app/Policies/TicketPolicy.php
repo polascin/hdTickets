@@ -1,10 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Policies;
 
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+
+use function in_array;
 
 class TicketPolicy
 {
@@ -15,7 +17,7 @@ class TicketPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true; // All authenticated users can view tickets list
+        return TRUE; // All authenticated users can view tickets list
     }
 
     /**
@@ -25,12 +27,12 @@ class TicketPolicy
     {
         // Admins can view all tickets
         if ($user->isAdmin()) {
-            return true;
+            return TRUE;
         }
 
         // Agents can view all tickets
         if ($user->isAgent()) {
-            return true;
+            return TRUE;
         }
 
         // Customers can only view their own tickets
@@ -42,7 +44,7 @@ class TicketPolicy
      */
     public function create(User $user): bool
     {
-        return true; // All authenticated users can create tickets
+        return TRUE; // All authenticated users can create tickets
     }
 
     /**
@@ -52,20 +54,20 @@ class TicketPolicy
     {
         // Admins can update all tickets
         if ($user->isAdmin()) {
-            return true;
+            return TRUE;
         }
 
         // Agents can update all tickets
         if ($user->isAgent()) {
-            return true;
+            return TRUE;
         }
 
         // Customers can update their own tickets if they're not closed
         if ($user->id === $ticket->user_id) {
-            return !$ticket->isClosed();
+            return ! $ticket->isClosed();
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -75,7 +77,7 @@ class TicketPolicy
     {
         // Only admins can delete tickets
         if ($user->isAdmin()) {
-            return true;
+            return TRUE;
         }
 
         // Customers can delete their own tickets only if they're open and have no comments
@@ -83,7 +85,7 @@ class TicketPolicy
             return $ticket->comments()->count() === 0;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -118,18 +120,18 @@ class TicketPolicy
     {
         // Admins and agents can update status
         if ($user->isAdmin() || $user->isAgent()) {
-            return true;
+            return TRUE;
         }
 
         // Customers can close their own tickets
         if ($user->id === $ticket->user_id) {
             return in_array($ticket->status, [
                 Ticket::STATUS_OPEN,
-                Ticket::STATUS_RESOLVED
-            ]);
+                Ticket::STATUS_RESOLVED,
+            ], TRUE);
         }
 
-        return false;
+        return FALSE;
     }
 
     /**

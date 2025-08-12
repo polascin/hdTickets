@@ -1,20 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
-use App\Models\Category;
-use App\Services\TicketScrapingService;
 use App\Services\Scraping\PluginBasedScraperManager;
+use App\Services\TicketScrapingService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
+use function count;
+
 class ScrapingController extends Controller
 {
     protected $scrapingService;
+
     protected $scraperManager;
 
     public function __construct(TicketScrapingService $scrapingService, PluginBasedScraperManager $scraperManager)
@@ -29,32 +32,32 @@ class ScrapingController extends Controller
     public function tickets(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'platform' => 'sometimes|string',
-            'status' => 'sometimes|string|in:active,sold_out,expired,cancelled,pending_verification,invalid',
-            'sport' => 'sometimes|string',
-            'team' => 'sometimes|string',
-            'venue' => 'sometimes|string',
-            'location' => 'sometimes|string',
-            'min_price' => 'sometimes|numeric|min:0',
-            'max_price' => 'sometimes|numeric|min:0',
-            'is_available' => 'sometimes|boolean',
-            'is_high_demand' => 'sometimes|boolean',
-            'event_date_from' => 'sometimes|date',
-            'event_date_to' => 'sometimes|date',
+            'platform'          => 'sometimes|string',
+            'status'            => 'sometimes|string|in:active,sold_out,expired,cancelled,pending_verification,invalid',
+            'sport'             => 'sometimes|string',
+            'team'              => 'sometimes|string',
+            'venue'             => 'sometimes|string',
+            'location'          => 'sometimes|string',
+            'min_price'         => 'sometimes|numeric|min:0',
+            'max_price'         => 'sometimes|numeric|min:0',
+            'is_available'      => 'sometimes|boolean',
+            'is_high_demand'    => 'sometimes|boolean',
+            'event_date_from'   => 'sometimes|date',
+            'event_date_to'     => 'sometimes|date',
             'scraped_date_from' => 'sometimes|date',
-            'scraped_date_to' => 'sometimes|date',
-            'search' => 'sometimes|string|max:255',
-            'category_id' => 'sometimes|integer|exists:categories,id',
-            'sort' => 'sometimes|string|in:event_date,min_price,max_price,scraped_at,title,platform',
-            'direction' => 'sometimes|string|in:asc,desc',
-            'per_page' => 'sometimes|integer|min:1|max:100'
+            'scraped_date_to'   => 'sometimes|date',
+            'search'            => 'sometimes|string|max:255',
+            'category_id'       => 'sometimes|integer|exists:categories,id',
+            'sort'              => 'sometimes|string|in:event_date,min_price,max_price,scraped_at,title,platform',
+            'direction'         => 'sometimes|string|in:asc,desc',
+            'per_page'          => 'sometimes|integer|min:1|max:100',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -90,7 +93,7 @@ class ScrapingController extends Controller
         } elseif ($request->has('min_price')) {
             $query->priceRange($request->min_price);
         } elseif ($request->has('max_price')) {
-            $query->priceRange(null, $request->max_price);
+            $query->priceRange(NULL, $request->max_price);
         }
 
         if ($request->has('is_available')) {
@@ -123,11 +126,11 @@ class ScrapingController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search): void {
                 $q->where('title', 'LIKE', '%' . $search . '%')
-                  ->orWhere('search_keyword', 'LIKE', '%' . $search . '%')
-                  ->orWhere('team', 'LIKE', '%' . $search . '%')
-                  ->orWhere('venue', 'LIKE', '%' . $search . '%');
+                    ->orWhere('search_keyword', 'LIKE', '%' . $search . '%')
+                    ->orWhere('team', 'LIKE', '%' . $search . '%')
+                    ->orWhere('venue', 'LIKE', '%' . $search . '%');
             });
         }
 
@@ -141,22 +144,22 @@ class ScrapingController extends Controller
         $tickets = $query->paginate($perPage);
 
         return response()->json([
-            'success' => true,
-            'data' => $tickets->items(),
-            'meta' => [
+            'success' => TRUE,
+            'data'    => $tickets->items(),
+            'meta'    => [
                 'current_page' => $tickets->currentPage(),
-                'from' => $tickets->firstItem(),
-                'last_page' => $tickets->lastPage(),
-                'per_page' => $tickets->perPage(),
-                'to' => $tickets->lastItem(),
-                'total' => $tickets->total(),
+                'from'         => $tickets->firstItem(),
+                'last_page'    => $tickets->lastPage(),
+                'per_page'     => $tickets->perPage(),
+                'to'           => $tickets->lastItem(),
+                'total'        => $tickets->total(),
             ],
             'links' => [
                 'first' => $tickets->url(1),
-                'last' => $tickets->url($tickets->lastPage()),
-                'prev' => $tickets->previousPageUrl(),
-                'next' => $tickets->nextPageUrl(),
-            ]
+                'last'  => $tickets->url($tickets->lastPage()),
+                'prev'  => $tickets->previousPageUrl(),
+                'next'  => $tickets->nextPageUrl(),
+            ],
         ]);
     }
 
@@ -169,16 +172,16 @@ class ScrapingController extends Controller
             ->where('uuid', $uuid)
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             return response()->json([
-                'success' => false,
-                'message' => 'Ticket not found'
+                'success' => FALSE,
+                'message' => 'Ticket not found',
             ], 404);
         }
 
         return response()->json([
-            'success' => true,
-            'data' => $ticket
+            'success' => TRUE,
+            'data'    => $ticket,
         ]);
     }
 
@@ -188,20 +191,20 @@ class ScrapingController extends Controller
     public function startScraping(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'platforms' => 'required|array|min:1',
+            'platforms'   => 'required|array|min:1',
             'platforms.*' => 'string|in:stubhub,ticketmaster,viagogo,tickpick,seatgeek,axs,eventbrite,livenation',
-            'keywords' => 'required|string|max:255',
-            'location' => 'sometimes|string|max:255',
-            'max_price' => 'sometimes|numeric|min:0',
-            'priority' => 'sometimes|string|in:low,normal,high',
-            'limit' => 'sometimes|integer|min:1|max:500'
+            'keywords'    => 'required|string|max:255',
+            'location'    => 'sometimes|string|max:255',
+            'max_price'   => 'sometimes|numeric|min:0',
+            'priority'    => 'sometimes|string|in:low,normal,high',
+            'limit'       => 'sometimes|integer|min:1|max:500',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -209,35 +212,34 @@ class ScrapingController extends Controller
             $results = [];
             foreach ($request->platforms as $platform) {
                 $searchParams = [
-                    'keyword' => $request->keywords,
-                    'location' => $request->get('location'),
+                    'keyword'   => $request->keywords,
+                    'location'  => $request->get('location'),
                     'max_price' => $request->get('max_price'),
-                    'limit' => $request->get('limit', 50)
+                    'limit'     => $request->get('limit', 50),
                 ];
 
                 $platformResults = $this->scraperManager->scrapeByPlatform($platform, $searchParams);
                 $results[$platform] = [
-                    'success' => $platformResults['success'] ?? false,
+                    'success'       => $platformResults['success'] ?? FALSE,
                     'tickets_found' => count($platformResults['tickets'] ?? []),
-                    'message' => $platformResults['message'] ?? 'Scraping completed'
+                    'message'       => $platformResults['message'] ?? 'Scraping completed',
                 ];
             }
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Scraping initiated successfully',
-                'data' => [
-                    'job_id' => uniqid('scrape_'),
-                    'platforms' => $results,
+                'data'    => [
+                    'job_id'          => uniqid('scrape_'),
+                    'platforms'       => $results,
                     'total_platforms' => count($request->platforms),
-                    'started_at' => now()->toISOString()
-                ]
+                    'started_at'      => now()->toISOString(),
+                ],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to start scraping: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to start scraping: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -248,12 +250,12 @@ class ScrapingController extends Controller
     public function statistics(): JsonResponse
     {
         $cacheKey = 'scraping_statistics_' . now()->format('Y-m-d-H');
-        
+
         $stats = Cache::remember($cacheKey, 3600, function () {
             $totalTickets = ScrapedTicket::count();
-            $availableTickets = ScrapedTicket::where('is_available', true)->count();
-            $highDemandTickets = ScrapedTicket::where('is_high_demand', true)->count();
-            
+            $availableTickets = ScrapedTicket::where('is_available', TRUE)->count();
+            $highDemandTickets = ScrapedTicket::where('is_high_demand', TRUE)->count();
+
             $platformStats = ScrapedTicket::selectRaw('platform, COUNT(*) as total, 
                 COUNT(CASE WHEN is_available = 1 THEN 1 END) as available,
                 AVG(min_price) as avg_min_price,
@@ -275,38 +277,38 @@ class ScrapingController extends Controller
 
             return [
                 'overview' => [
-                    'total_tickets' => $totalTickets,
-                    'available_tickets' => $availableTickets,
+                    'total_tickets'       => $totalTickets,
+                    'available_tickets'   => $availableTickets,
                     'high_demand_tickets' => $highDemandTickets,
-                    'availability_rate' => $totalTickets > 0 ? round(($availableTickets / $totalTickets) * 100, 2) : 0
+                    'availability_rate'   => $totalTickets > 0 ? round(($availableTickets / $totalTickets) * 100, 2) : 0,
                 ],
                 'today' => [
-                    'total_scraped' => $todayStats->today_total ?? 0,
-                    'available_found' => $todayStats->today_available ?? 0,
-                    'high_demand_found' => $todayStats->today_high_demand ?? 0
+                    'total_scraped'     => $todayStats->today_total ?? 0,
+                    'available_found'   => $todayStats->today_available ?? 0,
+                    'high_demand_found' => $todayStats->today_high_demand ?? 0,
                 ],
                 'platforms' => $platformStats->map(function ($platform) {
                     return [
-                        'name' => $platform->platform,
-                        'total_tickets' => $platform->total,
+                        'name'              => $platform->platform,
+                        'total_tickets'     => $platform->total,
                         'available_tickets' => $platform->available,
-                        'avg_min_price' => round($platform->avg_min_price ?? 0, 2),
-                        'avg_max_price' => round($platform->avg_max_price ?? 0, 2)
+                        'avg_min_price'     => round($platform->avg_min_price ?? 0, 2),
+                        'avg_max_price'     => round($platform->avg_max_price ?? 0, 2),
                     ];
                 }),
                 'recent_activity' => $recentActivity->map(function ($activity) {
                     return [
-                        'platform' => $activity->platform,
-                        'tickets_scraped_24h' => $activity->count
+                        'platform'            => $activity->platform,
+                        'tickets_scraped_24h' => $activity->count,
                     ];
                 }),
-                'last_updated' => now()->toISOString()
+                'last_updated' => now()->toISOString(),
             ];
         });
 
         return response()->json([
-            'success' => true,
-            'data' => $stats
+            'success' => TRUE,
+            'data'    => $stats,
         ]);
     }
 
@@ -317,38 +319,38 @@ class ScrapingController extends Controller
     {
         $platforms = [
             'stubhub' => [
-                'name' => 'StubHub',
-                'status' => 'active',
-                'last_scrape' => ScrapedTicket::where('platform', 'stubhub')->latest('scraped_at')->value('scraped_at'),
-                'total_tickets' => ScrapedTicket::where('platform', 'stubhub')->count(),
-                'available_tickets' => ScrapedTicket::where('platform', 'stubhub')->where('is_available', true)->count()
+                'name'              => 'StubHub',
+                'status'            => 'active',
+                'last_scrape'       => ScrapedTicket::where('platform', 'stubhub')->latest('scraped_at')->value('scraped_at'),
+                'total_tickets'     => ScrapedTicket::where('platform', 'stubhub')->count(),
+                'available_tickets' => ScrapedTicket::where('platform', 'stubhub')->where('is_available', TRUE)->count(),
             ],
             'ticketmaster' => [
-                'name' => 'Ticketmaster',
-                'status' => 'active',
-                'last_scrape' => ScrapedTicket::where('platform', 'ticketmaster')->latest('scraped_at')->value('scraped_at'),
-                'total_tickets' => ScrapedTicket::where('platform', 'ticketmaster')->count(),
-                'available_tickets' => ScrapedTicket::where('platform', 'ticketmaster')->where('is_available', true)->count()
+                'name'              => 'Ticketmaster',
+                'status'            => 'active',
+                'last_scrape'       => ScrapedTicket::where('platform', 'ticketmaster')->latest('scraped_at')->value('scraped_at'),
+                'total_tickets'     => ScrapedTicket::where('platform', 'ticketmaster')->count(),
+                'available_tickets' => ScrapedTicket::where('platform', 'ticketmaster')->where('is_available', TRUE)->count(),
             ],
             'viagogo' => [
-                'name' => 'Viagogo',
-                'status' => 'active',
-                'last_scrape' => ScrapedTicket::where('platform', 'viagogo')->latest('scraped_at')->value('scraped_at'),
-                'total_tickets' => ScrapedTicket::where('platform', 'viagogo')->count(),
-                'available_tickets' => ScrapedTicket::where('platform', 'viagogo')->where('is_available', true)->count()
+                'name'              => 'Viagogo',
+                'status'            => 'active',
+                'last_scrape'       => ScrapedTicket::where('platform', 'viagogo')->latest('scraped_at')->value('scraped_at'),
+                'total_tickets'     => ScrapedTicket::where('platform', 'viagogo')->count(),
+                'available_tickets' => ScrapedTicket::where('platform', 'viagogo')->where('is_available', TRUE)->count(),
             ],
             'tickpick' => [
-                'name' => 'TickPick',
-                'status' => 'active',
-                'last_scrape' => ScrapedTicket::where('platform', 'tickpick')->latest('scraped_at')->value('scraped_at'),
-                'total_tickets' => ScrapedTicket::where('platform', 'tickpick')->count(),
-                'available_tickets' => ScrapedTicket::where('platform', 'tickpick')->where('is_available', true)->count()
-            ]
+                'name'              => 'TickPick',
+                'status'            => 'active',
+                'last_scrape'       => ScrapedTicket::where('platform', 'tickpick')->latest('scraped_at')->value('scraped_at'),
+                'total_tickets'     => ScrapedTicket::where('platform', 'tickpick')->count(),
+                'available_tickets' => ScrapedTicket::where('platform', 'tickpick')->where('is_available', TRUE)->count(),
+            ],
         ];
 
         return response()->json([
-            'success' => true,
-            'data' => $platforms
+            'success' => TRUE,
+            'data'    => $platforms,
         ]);
     }
 
@@ -359,17 +361,17 @@ class ScrapingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'older_than_days' => 'required|integer|min:1|max:365',
-            'status' => 'sometimes|array',
-            'status.*' => 'string|in:sold_out,expired,cancelled,invalid',
-            'platform' => 'sometimes|string',
-            'dry_run' => 'sometimes|boolean'
+            'status'          => 'sometimes|array',
+            'status.*'        => 'string|in:sold_out,expired,cancelled,invalid',
+            'platform'        => 'sometimes|string',
+            'dry_run'         => 'sometimes|boolean',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -385,27 +387,27 @@ class ScrapingController extends Controller
 
         $count = $query->count();
 
-        if ($request->boolean('dry_run', false)) {
+        if ($request->boolean('dry_run', FALSE)) {
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Dry run completed',
-                'data' => [
+                'data'    => [
                     'tickets_to_delete' => $count,
-                    'criteria' => $request->only(['older_than_days', 'status', 'platform'])
-                ]
+                    'criteria'          => $request->only(['older_than_days', 'status', 'platform']),
+                ],
             ]);
         }
 
         $deleted = $query->delete();
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'message' => 'Cleanup completed successfully',
-            'data' => [
-                'tickets_deleted' => $deleted,
+            'data'    => [
+                'tickets_deleted'  => $deleted,
                 'cleanup_criteria' => $request->only(['older_than_days', 'status', 'platform']),
-                'completed_at' => now()->toISOString()
-            ]
+                'completed_at'     => now()->toISOString(),
+            ],
         ]);
     }
 }

@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * HD Tickets Manchester United Official App Client
- * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ *
  * @version 2025.07.v4.0
  */
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class ManchesterUnitedClient extends BaseWebScrapingClient
 {
@@ -19,19 +19,6 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         parent::__construct($config);
         $this->baseUrl = 'https://www.manutd.com';
         $this->respectRateLimit('manchester_united');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language' => 'en-US,en;q=0.5',
-            'Accept-Encoding' => 'gzip, deflate, br',
-            'DNT' => '1',
-            'Connection' => 'keep-alive',
-            'Upgrade-Insecure-Requests' => '1',
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        ];
     }
 
     public function searchEvents(array $criteria): array
@@ -47,12 +34,12 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     public function getVenue(string $venueId): array
     {
         return [
-            'id' => $venueId,
-            'name' => 'Old Trafford',
-            'address' => 'Sir Matt Busby Way, Old Trafford, Manchester M16 0RA, UK',
+            'id'       => $venueId,
+            'name'     => 'Old Trafford',
+            'address'  => 'Sir Matt Busby Way, Old Trafford, Manchester M16 0RA, UK',
             'capacity' => 74879,
-            'city' => 'Manchester',
-            'country' => 'United Kingdom'
+            'city'     => 'Manchester',
+            'country'  => 'United Kingdom',
         ];
     }
 
@@ -64,13 +51,14 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         try {
             // Manchester United fixtures page
             $fixturesUrl = $this->baseUrl . '/fixtures-and-results';
-            
+
             $html = $this->makeScrapingRequest($fixturesUrl);
             $crawler = new Crawler($html);
 
             return $this->extractFixtures($crawler, $maxResults, $keyword);
         } catch (Exception $e) {
             Log::error('Manchester United scraping failed: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -87,8 +75,27 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             return $this->extractMatchDetails($crawler, $url);
         } catch (Exception $e) {
             Log::error('Failed to scrape Manchester United match details: ' . $e->getMessage());
+
             return [];
         }
+    }
+
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    protected function getHeaders(): array
+    {
+        return [
+            'Accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language'           => 'en-US,en;q=0.5',
+            'Accept-Encoding'           => 'gzip, deflate, br',
+            'DNT'                       => '1',
+            'Connection'                => 'keep-alive',
+            'Upgrade-Insecure-Requests' => '1',
+            'User-Agent'                => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        ];
     }
 
     /**
@@ -113,26 +120,27 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             '.match-list .match-item',
             '[data-testid="fixture"]',
             '.fixture-card',
-            '.upcoming-fixtures .fixture'
+            '.upcoming-fixtures .fixture',
         ];
 
         foreach ($fixtureSelectors as $selector) {
             if ($crawler->filter($selector)->count() > 0) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$fixtures, &$count, $maxResults, $keyword) {
                     if ($count >= $maxResults) {
-                        return false;
+                        return FALSE;
                     }
 
                     $fixture = $this->extractFixtureFromNode($node);
-                    if (!empty($fixture['name'])) {
+                    if (! empty($fixture['name'])) {
                         // Filter by keyword if provided
-                        if (empty($keyword) || stripos($fixture['name'], $keyword) !== false || 
-                            stripos($fixture['opponent'], $keyword) !== false) {
+                        if (empty($keyword) || stripos($fixture['name'], $keyword) !== FALSE
+                            || stripos($fixture['opponent'], $keyword) !== FALSE) {
                             $fixtures[] = $fixture;
                             $count++;
                         }
                     }
                 });
+
                 break;
             }
         }
@@ -154,24 +162,24 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
-        
+
         try {
             $priceNodes = $crawler->filter('.ticket-price, .price-category, [data-testid="ticket-price"]');
-            $priceNodes->each(function (Crawler $node) use (&$prices) {
+            $priceNodes->each(function (Crawler $node) use (&$prices): void {
                 $priceText = $node->text();
-                
+
                 if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
                     $prices[] = [
-                        'price' => floatval($matches[1]),
+                        'price'    => (float) ($matches[1]),
                         'currency' => 'GBP',
-                        'section' => 'General'
+                        'section'  => 'General',
                     ];
                 }
             });
         } catch (Exception $e) {
             Log::debug('Failed to extract Manchester United prices', ['error' => $e->getMessage()]);
         }
-        
+
         return $prices;
     }
 
@@ -188,7 +196,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.vs-team',
                 'h3',
                 '.team-name:not(.home-team)',
-                '[data-testid="opponent"]'
+                '[data-testid="opponent"]',
             ]);
 
             // Extract match date and time
@@ -197,7 +205,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.fixture-date',
                 'time',
                 '.date-time',
-                '[data-testid="match-date"]'
+                '[data-testid="match-date"]',
             ]);
 
             // Parse date
@@ -209,7 +217,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.league',
                 '.tournament',
                 '[data-testid="competition"]',
-                '.match-competition'
+                '.match-competition',
             ]);
 
             // Extract venue (home/away)
@@ -217,11 +225,11 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.venue',
                 '.match-venue',
                 '.location',
-                '[data-testid="venue"]'
+                '[data-testid="venue"]',
             ]);
 
             // If no venue specified, assume Old Trafford for home games
-            if (empty($venue) || stripos($venue, 'home') !== false) {
+            if (empty($venue) || stripos($venue, 'home') !== FALSE) {
                 $venue = 'Old Trafford, Manchester';
             }
 
@@ -238,26 +246,27 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.match-status',
                 '.status',
                 '[data-testid="status"]',
-                '.fixture-status'
+                '.fixture-status',
             ]) ?: 'scheduled';
 
             return [
-                'name' => 'Manchester United vs ' . trim($opponent),
-                'opponent' => trim($opponent),
-                'url' => $ticketLink ?: $this->baseUrl . '/tickets',
-                'date' => trim($dateTime),
-                'parsed_date' => $parsedDate,
-                'venue' => trim($venue),
-                'competition' => trim($competition),
-                'status' => trim($status),
-                'home_team' => 'Manchester United',
-                'away_team' => trim($opponent),
-                'ticket_availability' => !empty($ticketLink) ? 'available' : 'check_website',
-                'source' => 'manchester_united_scrape',
-                'scraped_at' => now()->toISOString()
+                'name'                => 'Manchester United vs ' . trim($opponent),
+                'opponent'            => trim($opponent),
+                'url'                 => $ticketLink ?: $this->baseUrl . '/tickets',
+                'date'                => trim($dateTime),
+                'parsed_date'         => $parsedDate,
+                'venue'               => trim($venue),
+                'competition'         => trim($competition),
+                'status'              => trim($status),
+                'home_team'           => 'Manchester United',
+                'away_team'           => trim($opponent),
+                'ticket_availability' => ! empty($ticketLink) ? 'available' : 'check_website',
+                'source'              => 'manchester_united_scrape',
+                'scraped_at'          => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::debug('Failed to extract fixture from node', ['error' => $e->getMessage()]);
+
             return [];
         }
     }
@@ -272,32 +281,32 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 'h1.match-title',
                 'h1',
                 '.event-title',
-                '[data-testid="match-title"]'
+                '[data-testid="match-title"]',
             ]);
 
             $opponent = $this->trySelectors($crawler, [
                 '.opponent-team',
                 '.away-team-name',
-                '.visiting-team'
+                '.visiting-team',
             ]);
 
             $dateTime = $this->trySelectors($crawler, [
                 '.match-datetime',
                 '.kick-off-time',
                 'time',
-                '.event-date'
+                '.event-date',
             ]);
 
             $venue = $this->trySelectors($crawler, [
                 '.venue-name',
                 '.stadium',
-                '.match-venue'
+                '.match-venue',
             ]) ?: 'Old Trafford';
 
             $competition = $this->trySelectors($crawler, [
                 '.competition-name',
                 '.tournament',
-                '.league-name'
+                '.league-name',
             ]);
 
             // Extract ticket information
@@ -308,25 +317,26 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 '.match-preview',
                 '.event-description',
                 '.match-info p',
-                '.description'
+                '.description',
             ]);
 
             return [
-                'name' => trim($matchTitle) ?: ('Manchester United vs ' . trim($opponent)),
-                'opponent' => trim($opponent),
+                'name'        => trim($matchTitle) ?: ('Manchester United vs ' . trim($opponent)),
+                'opponent'    => trim($opponent),
                 'description' => trim($description),
-                'date_time' => trim($dateTime),
-                'venue' => trim($venue),
+                'date_time'   => trim($dateTime),
+                'venue'       => trim($venue),
                 'competition' => trim($competition),
-                'home_team' => 'Manchester United',
-                'away_team' => trim($opponent),
+                'home_team'   => 'Manchester United',
+                'away_team'   => trim($opponent),
                 'ticket_info' => $ticketInfo,
-                'url' => $url,
-                'source' => 'manchester_united_scrape',
-                'scraped_at' => now()->toISOString()
+                'url'         => $url,
+                'source'      => 'manchester_united_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::error('Error extracting Manchester United match details: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -337,9 +347,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     protected function extractTicketInfo(Crawler $crawler): array
     {
         $ticketInfo = [
-            'available' => false,
-            'prices' => [],
-            'categories' => []
+            'available'  => FALSE,
+            'prices'     => [],
+            'categories' => [],
         ];
 
         try {
@@ -347,39 +357,54 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             $ticketAvailability = $crawler->filter('.ticket-availability, .on-sale, [data-testid="ticket-status"]');
             if ($ticketAvailability->count() > 0) {
                 $availabilityText = $ticketAvailability->text();
-                $ticketInfo['available'] = stripos($availabilityText, 'on sale') !== false || 
-                                          stripos($availabilityText, 'available') !== false;
+                $ticketInfo['available'] = stripos($availabilityText, 'on sale') !== FALSE
+                                          || stripos($availabilityText, 'available') !== FALSE;
             }
 
             // Extract ticket categories and prices
             $priceNodes = $crawler->filter('.ticket-price, .price-category, [data-testid="ticket-price"]');
-            $priceNodes->each(function (Crawler $node) use (&$ticketInfo) {
+            $priceNodes->each(function (Crawler $node) use (&$ticketInfo): void {
                 $priceText = $node->text();
                 $categoryText = $node->closest('.ticket-category, .seat-type')->filter('.category-name')->text('');
 
                 if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
                     $ticketInfo['prices'][] = [
                         'category' => trim($categoryText) ?: 'General',
-                        'price' => floatval($matches[1]),
-                        'currency' => 'GBP'
+                        'price'    => (float) ($matches[1]),
+                        'currency' => 'GBP',
                     ];
                 }
             });
 
             // Extract seating categories
             $categoryNodes = $crawler->filter('.seating-category, .ticket-type, [data-testid="seat-category"]');
-            $categoryNodes->each(function (Crawler $node) use (&$ticketInfo) {
+            $categoryNodes->each(function (Crawler $node) use (&$ticketInfo): void {
                 $categoryName = $node->filter('.category-name, h3, .title')->text('');
-                if (!empty($categoryName)) {
+                if (! empty($categoryName)) {
                     $ticketInfo['categories'][] = trim($categoryName);
                 }
             });
-
         } catch (Exception $e) {
             Log::debug('Failed to extract ticket info', ['error' => $e->getMessage()]);
         }
 
         return $ticketInfo;
+    }
+
+    protected function transformEventData(array $eventData): array
+    {
+        return [
+            'id'          => $eventData['id'] ?? uniqid('manutd_'),
+            'name'        => $eventData['name'] ?? 'Manchester United Match',
+            'date'        => $eventData['date'] ?? NULL,
+            'time'        => $eventData['time'] ?? NULL,
+            'venue'       => $eventData['venue'] ?? 'Old Trafford',
+            'city'        => 'Manchester',
+            'country'     => 'United Kingdom',
+            'url'         => $eventData['url'] ?? $this->baseUrl . '/tickets',
+            'competition' => $eventData['competition'] ?? '',
+            'opponent'    => $eventData['opponent'] ?? '',
+        ];
     }
 
     /**
@@ -390,28 +415,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         if (strpos($url, 'http') === 0) {
             return $url;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
-    }
-
-    protected function transformEventData(array $eventData): array
-    {
-        return [
-            'id' => $eventData['id'] ?? uniqid('manutd_'),
-            'name' => $eventData['name'] ?? 'Manchester United Match',
-            'date' => $eventData['date'] ?? null,
-            'time' => $eventData['time'] ?? null,
-            'venue' => $eventData['venue'] ?? 'Old Trafford',
-            'city' => 'Manchester',
-            'country' => 'United Kingdom',
-            'url' => $eventData['url'] ?? $this->baseUrl . '/tickets',
-            'competition' => $eventData['competition'] ?? '',
-            'opponent' => $eventData['opponent'] ?? '',
-        ];
-    }
-
-    public function getBaseUrl(): string
-    {
-        return $this->baseUrl;
     }
 }

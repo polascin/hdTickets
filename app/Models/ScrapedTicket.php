@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class ScrapedTicket extends Model
@@ -11,12 +11,17 @@ class ScrapedTicket extends Model
     use HasFactory;
 
     // Status constants
-    const STATUS_ACTIVE = 'active';
-    const STATUS_SOLD_OUT = 'sold_out';
-    const STATUS_EXPIRED = 'expired';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_PENDING_VERIFICATION = 'pending_verification';
-    const STATUS_INVALID = 'invalid';
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_SOLD_OUT = 'sold_out';
+
+    public const STATUS_EXPIRED = 'expired';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const STATUS_PENDING_VERIFICATION = 'pending_verification';
+
+    public const STATUS_INVALID = 'invalid';
 
     protected $fillable = [
         'uuid',
@@ -40,37 +45,23 @@ class ScrapedTicket extends Model
         'search_keyword',
         'metadata',
         'scraped_at',
-        'category_id'
+        'category_id',
     ];
 
     protected $casts = [
-        'event_date' => 'datetime',
-        'min_price' => 'decimal:2',
-        'max_price' => 'decimal:2',
-        'is_available' => 'boolean',
+        'event_date'     => 'datetime',
+        'min_price'      => 'decimal:2',
+        'max_price'      => 'decimal:2',
+        'is_available'   => 'boolean',
         'is_high_demand' => 'boolean',
-        'scraped_at' => 'datetime',
-        'metadata' => 'array'
+        'scraped_at'     => 'datetime',
+        'metadata'       => 'array',
     ];
 
     protected $dates = [
         'event_date',
-        'scraped_at'
+        'scraped_at',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-        
-        static::creating(function ($ticket) {
-            if (empty($ticket->uuid)) {
-                $ticket->uuid = (string) Str::uuid();
-            }
-            if (empty($ticket->scraped_at)) {
-                $ticket->scraped_at = now();
-            }
-        });
-    }
 
     // Relationships
     public function category()
@@ -81,7 +72,7 @@ class ScrapedTicket extends Model
     // Optimized Scopes for better performance
     public function scopeHighDemand($query)
     {
-        return $query->where('is_high_demand', true);
+        return $query->where('is_high_demand', TRUE);
     }
 
     public function scopeByPlatform($query, $platform)
@@ -91,19 +82,19 @@ class ScrapedTicket extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('is_available', true);
+        return $query->where('is_available', TRUE);
     }
 
     public function scopeForEvent($query, $keywords)
     {
-        return $query->where(function($q) use ($keywords) {
+        return $query->where(function ($q) use ($keywords): void {
             $q->where('title', 'LIKE', '%' . $keywords . '%')
-              ->orWhere('search_keyword', 'LIKE', '%' . $keywords . '%')
-              ->orWhere('venue', 'LIKE', '%' . $keywords . '%');
+                ->orWhere('search_keyword', 'LIKE', '%' . $keywords . '%')
+                ->orWhere('venue', 'LIKE', '%' . $keywords . '%');
         });
     }
 
-    public function scopePriceRange($query, $minPrice = null, $maxPrice = null)
+    public function scopePriceRange($query, $minPrice = NULL, $maxPrice = NULL)
     {
         if ($minPrice) {
             $query->where('min_price', '>=', $minPrice);
@@ -111,6 +102,7 @@ class ScrapedTicket extends Model
         if ($maxPrice) {
             $query->where('max_price', '<=', $maxPrice);
         }
+
         return $query;
     }
 
@@ -130,7 +122,7 @@ class ScrapedTicket extends Model
         return $query->where('event_date', '>=', now());
     }
 
-    public function scopeByDateRange($query, $from = null, $to = null)
+    public function scopeByDateRange($query, $from = NULL, $to = NULL)
     {
         if ($from) {
             $query->where('event_date', '>=', $from);
@@ -138,6 +130,7 @@ class ScrapedTicket extends Model
         if ($to) {
             $query->where('event_date', '<=', $to);
         }
+
         return $query;
     }
 
@@ -160,8 +153,8 @@ class ScrapedTicket extends Model
     public function scopeFullTextSearch($query, $searchTerm)
     {
         return $query->whereRaw(
-            "MATCH(title, venue, search_keyword, location) AGAINST(? IN BOOLEAN MODE)",
-            [$searchTerm]
+            'MATCH(title, venue, search_keyword, location) AGAINST(? IN BOOLEAN MODE)',
+            [$searchTerm],
         );
     }
 
@@ -170,7 +163,7 @@ class ScrapedTicket extends Model
     {
         return $query->whereBetween('created_at', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ]);
     }
 
@@ -178,7 +171,7 @@ class ScrapedTicket extends Model
     {
         return $query->whereBetween('created_at', [
             now()->startOfMonth(),
-            now()->endOfMonth()
+            now()->endOfMonth(),
         ]);
     }
 
@@ -186,9 +179,10 @@ class ScrapedTicket extends Model
     public function getFormattedPriceAttribute()
     {
         $price = $this->max_price ?? $this->min_price ?? 0;
+
         return ($this->currency ?? 'USD') . ' ' . number_format($price, 2);
     }
-    
+
     public function getTotalPriceAttribute()
     {
         return $this->max_price ?? $this->min_price ?? 0;
@@ -201,11 +195,25 @@ class ScrapedTicket extends Model
 
     public function getPlatformDisplayNameAttribute()
     {
-        return match($this->platform) {
-            'stubhub' => 'StubHub',
+        return match ($this->platform) {
+            'stubhub'      => 'StubHub',
             'ticketmaster' => 'Ticketmaster',
-            'viagogo' => 'Viagogo',
-            default => ucfirst($this->platform)
+            'viagogo'      => 'Viagogo',
+            default        => ucfirst($this->platform),
         };
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($ticket): void {
+            if (empty($ticket->uuid)) {
+                $ticket->uuid = (string) Str::uuid();
+            }
+            if (empty($ticket->scraped_at)) {
+                $ticket->scraped_at = now();
+            }
+        });
     }
 }

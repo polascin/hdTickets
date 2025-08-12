@@ -4,6 +4,449 @@
  */
 
 class MobileTouchUtils {
+    constructor() {
+        // Touch state management
+        this.state = {
+            isTouch: false,
+            gestureInProgress: false,
+            activeElement: null,
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0,
+            touchStartTime: 0,
+            touchEndTime: 0,
+            longPressTimer: null,
+            swipeThreshold: 50,
+            longPressDelay: 500,
+            maxTapDistance: 10
+        };
+        
+        // Device capabilities
+        this.capabilities = {
+            hasTouch: this.detectTouchSupport(),
+            hasHaptics: 'vibrate' in navigator,
+            isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent),
+            isAndroid: /Android/.test(navigator.userAgent),
+            supportsPointerEvents: 'PointerEvent' in window,
+            supportsPassiveListeners: this.detectPassiveSupport()
+        };
+        
+        // Event handlers storage
+        this.handlers = new Map();
+        this.activeSwipeHandlers = new Map();
+        this.activePullToRefreshHandlers = new Map();
+        
+        // Initialize if touch is supported
+        if (this.capabilities.hasTouch) {
+            this.init();
+        }
+    }
+    
+    /**
+     * Initialize touch utilities
+     */
+    init() {
+        this.setupGlobalTouchHandlers();
+        this.setupHapticFeedback();
+        this.setupTouchFeedback();
+        this.setupKeyboardDetection();
+        this.setupOrientationHandling();
+        this.injectMobileStyles();
+        
+        console.log('Mobile Touch Utils initialized with capabilities:', this.capabilities);
+    }
+    
+    /**
+     * Detect touch support
+     */
+    detectTouchSupport() {
+        return ('ontouchstart' in window) ||
+               (navigator.maxTouchPoints > 0) ||
+               (navigator.msMaxTouchPoints > 0);
+    }
+    
+    /**
+     * Detect passive event listener support
+     */
+    detectPassiveSupport() {
+        let supportsPassive = false;
+        try {
+            const opts = Object.defineProperty({}, 'passive', {
+                get: function() {
+                    supportsPassive = true;
+                }
+            });
+            window.addEventListener('testPassive', null, opts);
+            window.removeEventListener('testPassive', null, opts);
+        } catch (e) {}
+        return supportsPassive;
+    }
+    
+    /**
+     * Setup global touch event handlers
+     */
+    setupGlobalTouchHandlers() {
+        const options = this.capabilities.supportsPassiveListeners ? { passive: false } : false;
+        
+        this.handleTouchStart = this.handleTouchStart.bind(this);
+        this.handleTouchMove = this.handleTouchMove.bind(this);
+        this.handleTouchEnd = this.handleTouchEnd.bind(this);
+        this.handleTouchCancel = this.handleTouchCancel.bind(this);
+        
+        document.addEventListener('touchstart', this.handleTouchStart, options);
+        document.addEventListener('touchmove', this.handleTouchMove, options);
+        document.addEventListener('touchend', this.handleTouchEnd, options);
+        document.addEventListener('touchcancel', this.handleTouchCancel, options);
+    }
+    
+    /**
+     * Handle touch start
+     */
+    handleTouchStart(e) {
+        const touch = e.touches[0];
+        if (!touch) return;
+        
+        this.state.isTouch = true;
+        this.state.activeElement = e.target;
+        this.state.startX = touch.clientX;
+        this.state.startY = touch.clientY;
+        this.state.touchStartTime = Date.now();
+        this.state.gestureInProgress = true;
+        
+        // Clear any existing long press timer
+        if (this.state.longPressTimer) {
+            clearTimeout(this.state.longPressTimer);
+        }
+        
+        // Set up long press detection
+        this.state.longPressTimer = setTimeout(() => {
+            if (this.state.gestureInProgress) {
+                this.triggerCustomEvent('longpress', e, {
+                    x: this.state.startX,
+                    y: this.state.startY
+                });
+                this.triggerHapticFeedback('medium');
+            }
+        }, this.state.longPressDelay);
+        
+        // Add visual touch feedback
+        this.addTouchFeedback(e.target);
+        
+        // Trigger touch start event
+        this.triggerCustomEvent('touchstart', e);
+    }
+    
+    /**
+     * Handle touch move
+     */
+    handleTouchMove(e) {
+        if (!this.state.gestureInProgress) return;
+        
+        const touch = e.touches[0];
+        if (!touch) return;
+        
+        this.state.endX = touch.clientX;
+        this.state.endY = touch.clientY;
+        
+        const deltaX = this.state.endX - this.state.startX;
+        const deltaY = this.state.endY - this.state.startY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Cancel long press if moved too much
+        if (distance > this.state.maxTapDistance && this.state.longPressTimer) {
+            clearTimeout(this.state.longPressTimer);
+            this.state.longPressTimer = null;
+        }
+        
+        // Trigger touch move event
+        this.triggerCustomEvent('touchmove', e, {
+            deltaX,
+            deltaY,
+            distance
+        });
+    }
+    
+    /**
+     * Handle touch end
+     */
+    handleTouchEnd(e) {
+        if (!this.state.gestureInProgress) return;
+        
+        const touch = e.changedTouches[0];
+        if (!touch) return;
+        
+        this.state.endX = touch.clientX;
+        this.state.endY = touch.clientY;
+        this.state.touchEndTime = Date.now();
+        
+        const deltaX = this.state.endX - this.state.startX;
+        const deltaY = this.state.endY - this.state.startY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const duration = this.state.touchEndTime - this.state.touchStartTime;
+        
+        // Clear long press timer
+        if (this.state.longPressTimer) {
+            clearTimeout(this.state.longPressTimer);
+            this.state.longPressTimer = null;
+        }
+        
+        // Determine gesture type
+        if (distance <= this.state.maxTapDistance) {
+            // Tap gesture
+            this.triggerCustomEvent('tap', e, { duration });
+            this.triggerHapticFeedback('light');
+        } else if (distance >= this.state.swipeThreshold) {
+            // Swipe gesture
+            const direction = this.getSwipeDirection(deltaX, deltaY);
+            const velocity = distance / duration;
+            
+            this.triggerCustomEvent('swipe', e, {
+                direction,
+                distance,
+                velocity,
+                deltaX,
+                deltaY
+            });
+            
+            this.triggerHapticFeedback('medium');
+        }
+        
+        // Remove visual feedback
+        this.removeTouchFeedback(this.state.activeElement);
+        
+        // Trigger touch end event
+        this.triggerCustomEvent('touchend', e, {
+            deltaX,
+            deltaY,
+            distance,
+            duration
+        });
+        
+        // Reset state
+        this.resetState();
+    }
+    
+    /**
+     * Handle touch cancel
+     */
+    handleTouchCancel(e) {
+        if (this.state.longPressTimer) {
+            clearTimeout(this.state.longPressTimer);
+            this.state.longPressTimer = null;
+        }
+        
+        this.removeTouchFeedback(this.state.activeElement);
+        this.triggerCustomEvent('touchcancel', e);
+        this.resetState();
+    }
+    
+    /**
+     * Get swipe direction from delta values
+     */
+    getSwipeDirection(deltaX, deltaY) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            return deltaX > 0 ? 'right' : 'left';
+        } else {
+            return deltaY > 0 ? 'down' : 'up';
+        }
+    }
+    
+    /**
+     * Setup haptic feedback
+     */
+    setupHapticFeedback() {
+        if (!this.capabilities.hasHaptics) {
+            // Fallback to visual feedback
+            this.triggerHapticFeedback = this.triggerVisualFeedback.bind(this);
+            return;
+        }
+        
+        this.hapticPatterns = {
+            light: [10],
+            medium: [20],
+            heavy: [30],
+            selection: [5],
+            success: [10, 100, 10],
+            error: [100, 50, 100, 50, 100],
+            warning: [50, 50, 50]
+        };
+    }
+    
+    /**
+     * Trigger haptic feedback
+     */
+    triggerHapticFeedback(type = 'light') {
+        if (!this.capabilities.hasHaptics) {
+            this.triggerVisualFeedback(type);
+            return;
+        }
+        
+        const pattern = this.hapticPatterns[type] || this.hapticPatterns.light;
+        navigator.vibrate(pattern);
+    }
+    
+    /**
+     * Trigger visual feedback as haptic fallback
+     */
+    triggerVisualFeedback(type) {
+        if (this.state.activeElement) {
+            this.state.activeElement.classList.add('haptic-visual-feedback');
+            setTimeout(() => {
+                if (this.state.activeElement) {
+                    this.state.activeElement.classList.remove('haptic-visual-feedback');
+                }
+            }, 200);
+        }
+    }
+    
+    /**
+     * Setup touch visual feedback
+     */
+    setupTouchFeedback() {
+        this.touchFeedbackClass = 'touch-active';
+    }
+    
+    /**
+     * Add visual touch feedback
+     */
+    addTouchFeedback(element) {
+        if (!element) return;
+        
+        // Find the appropriate element for feedback
+        const feedbackElement = element.closest('[data-touch-feedback="true"], button, a, .clickable');
+        if (feedbackElement) {
+            feedbackElement.classList.add(this.touchFeedbackClass);
+        }
+    }
+    
+    /**
+     * Remove visual touch feedback
+     */
+    removeTouchFeedback(element) {
+        if (!element) return;
+        
+        // Find the appropriate element for feedback
+        const feedbackElement = element.closest('[data-touch-feedback="true"], button, a, .clickable');
+        if (feedbackElement) {
+            setTimeout(() => {
+                feedbackElement.classList.remove(this.touchFeedbackClass);
+            }, 150);
+        }
+    }
+    
+    /**
+     * Setup keyboard detection for better accessibility
+     */
+    setupKeyboardDetection() {
+        let keyboardHeight = 0;
+        const initialViewportHeight = window.innerHeight;
+        
+        const handleResize = () => {
+            const currentHeight = window.innerHeight;
+            const heightDiff = initialViewportHeight - currentHeight;
+            
+            if (heightDiff > 150) {
+                // Keyboard likely open
+                keyboardHeight = heightDiff;
+                document.body.classList.add('keyboard-visible');
+                this.triggerCustomEvent('keyboardshow', null, { height: keyboardHeight });
+            } else {
+                // Keyboard likely closed
+                keyboardHeight = 0;
+                document.body.classList.remove('keyboard-visible');
+                this.triggerCustomEvent('keyboardhide', null);
+            }
+        };
+        
+        window.addEventListener('resize', handleResize);
+        
+        // Handle input focus for better keyboard UX
+        document.addEventListener('focusin', (e) => {
+            if (e.target.matches('input, textarea, select')) {
+                setTimeout(() => {
+                    if (keyboardHeight > 0) {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+            }
+        });
+    }
+    
+    /**
+     * Setup orientation handling
+     */
+    setupOrientationHandling() {
+        const handleOrientationChange = () => {
+            setTimeout(() => {
+                this.recalculateViewport();
+            }, 100);
+        };
+        
+        window.addEventListener('orientationchange', handleOrientationChange);
+        window.addEventListener('resize', () => {
+            this.recalculateViewport();
+        });
+    }
+    
+    /**
+     * Inject mobile-specific CSS styles
+     */
+    injectMobileStyles() {
+        if (document.getElementById('mobile-touch-feedback')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'mobile-touch-feedback';
+        style.textContent = `
+            .touch-active {
+                background-color: rgba(0, 0, 0, 0.05) !important;
+                transform: scale(0.98);
+                transition: all 0.1s ease;
+            }
+            
+            .haptic-visual-feedback {
+                animation: haptic-pulse 0.2s ease;
+            }
+            
+            @keyframes haptic-pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+            
+            .keyboard-visible .mobile-fab,
+            .keyboard-visible .mobile-bottom-nav {
+                transform: translateY(-100px);
+                transition: transform 0.3s ease;
+            }
+            
+            .touch-target {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .touch-target::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.3s ease, height 0.3s ease;
+                pointer-events: none;
+                opacity: 0;
+            }
+            
+            .touch-target.touch-active::before {
+                width: 100%;
+                height: 100%;
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+    }
     constructor(options = {}) {
         this.config = {
             swipeThreshold: 50,

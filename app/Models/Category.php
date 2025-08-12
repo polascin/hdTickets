@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'uuid',
@@ -23,40 +24,17 @@ class Category extends Model
         'icon',
         'is_active',
         'sort_order',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'metadata' => 'array',
+        'metadata'  => 'array',
     ];
 
     protected $dates = [
-        'deleted_at'
+        'deleted_at',
     ];
-
-    /**
-     * Boot the model
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($category) {
-            if (empty($category->uuid)) {
-                $category->uuid = Str::uuid();
-            }
-            if (empty($category->slug)) {
-                $category->slug = Str::slug($category->name);
-            }
-        });
-
-        static::updating(function ($category) {
-            if ($category->isDirty('name') && empty($category->slug)) {
-                $category->slug = Str::slug($category->name);
-            }
-        });
-    }
 
     /**
      * Get the route key for the model
@@ -71,7 +49,7 @@ class Category extends Model
      */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     /**
@@ -79,7 +57,7 @@ class Category extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
+        return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order');
     }
 
     /**
@@ -99,7 +77,7 @@ class Category extends Model
     }
 
     /**
-     * Relationship: Ticket sources in this category  
+     * Relationship: Ticket sources in this category
      */
     public function ticketSources(): HasMany
     {
@@ -108,14 +86,18 @@ class Category extends Model
 
     /**
      * Scope: Active categories
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
      * Scope: Root categories (no parent)
+     *
+     * @param mixed $query
      */
     public function scopeRoot($query)
     {
@@ -124,6 +106,8 @@ class Category extends Model
 
     /**
      * Scope: Child categories (has parent)
+     *
+     * @param mixed $query
      */
     public function scopeChild($query)
     {
@@ -132,6 +116,9 @@ class Category extends Model
 
     /**
      * Scope: Filter by parent
+     *
+     * @param mixed $query
+     * @param mixed $parentId
      */
     public function scopeByParent($query, $parentId)
     {
@@ -140,17 +127,22 @@ class Category extends Model
 
     /**
      * Scope: Search categories
+     *
+     * @param mixed $query
+     * @param mixed $search
      */
     public function scopeSearch($query, $search)
     {
-        return $query->where(function ($q) use ($search) {
+        return $query->where(function ($q) use ($search): void {
             $q->where('name', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
+                ->orWhere('description', 'like', "%{$search}%");
         });
     }
 
     /**
      * Scope: Ordered by sort order and name
+     *
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {
@@ -170,7 +162,7 @@ class Category extends Model
      */
     public function isRoot(): bool
     {
-        return is_null($this->parent_id);
+        return NULL === $this->parent_id;
     }
 
     /**
@@ -234,7 +226,7 @@ class Category extends Model
      */
     public function getAvailableTicketsCountAttribute(): int
     {
-        return $this->scrapedTickets()->where('is_available', true)->count();
+        return $this->scrapedTickets()->where('is_available', TRUE)->count();
     }
 
     /**
@@ -251,5 +243,28 @@ class Category extends Model
     public function getTicketSourcesCountAttribute(): int
     {
         return $this->ticketSources()->count();
+    }
+
+    /**
+     * Boot the model
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($category): void {
+            if (empty($category->uuid)) {
+                $category->uuid = Str::uuid();
+            }
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
+        static::updating(function ($category): void {
+            if ($category->isDirty('name') && empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
     }
 }

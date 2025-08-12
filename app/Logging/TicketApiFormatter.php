@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Logging;
 
-use Monolog\Logger;
 use Monolog\Formatter\LineFormatter;
+use Monolog\Logger;
 
 class TicketApiFormatter
 {
@@ -16,8 +16,8 @@ class TicketApiFormatter
             $handler->setFormatter(new LineFormatter(
                 "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n",
                 'Y-m-d H:i:s',
-                true, // Allow inline line breaks
-                true  // Ignore empty context and extra
+                TRUE, // Allow inline line breaks
+                TRUE,  // Ignore empty context and extra
             ));
         }
     }

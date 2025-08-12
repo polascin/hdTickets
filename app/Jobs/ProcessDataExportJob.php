@@ -1,19 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Jobs;
 
 use App\Models\DataExportRequest;
 use App\Services\AccountDeletionProtectionService;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessDataExportJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected DataExportRequest $exportRequest;
 
@@ -32,7 +37,7 @@ class ProcessDataExportJob implements ShouldQueue
     {
         Log::info('Processing data export request', [
             'export_request_id' => $this->exportRequest->id,
-            'user_id' => $this->exportRequest->user_id,
+            'user_id'           => $this->exportRequest->user_id,
         ]);
 
         try {
@@ -47,16 +52,15 @@ class ProcessDataExportJob implements ShouldQueue
                     'export_request_id' => $this->exportRequest->id,
                 ]);
             }
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error processing data export', [
                 'export_request_id' => $this->exportRequest->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'             => $e->getMessage(),
+                'trace'             => $e->getTraceAsString(),
             ]);
 
             $this->exportRequest->markAsFailed($e->getMessage());
-            
+
             throw $e;
         }
     }
@@ -64,11 +68,11 @@ class ProcessDataExportJob implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::error('Data export job failed', [
             'export_request_id' => $this->exportRequest->id,
-            'error' => $exception->getMessage(),
+            'error'             => $exception->getMessage(),
         ]);
 
         $this->exportRequest->markAsFailed($exception->getMessage());

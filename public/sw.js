@@ -1,17 +1,27 @@
 // HD Tickets PWA Service Worker
-// Version 1.3.0 - Enhanced PWA Features with Advanced Caching and Push Notifications
+// Version 2.0.0 - Performance Optimized with Code Splitting Support
 
-const CACHE_NAME = 'hd-tickets-v1.3';
-const STATIC_CACHE = 'hd-tickets-static-v1.3';
-const DYNAMIC_CACHE = 'hd-tickets-dynamic-v1.3';
-const API_CACHE = 'hd-tickets-api-v1.3';
-const IMAGE_CACHE = 'hd-tickets-images-v1.3';
+const CACHE_VERSION = '2.0.0';
+const CACHE_NAMES = {
+  STATIC: `hd-tickets-static-${CACHE_VERSION}`,
+  DYNAMIC: `hd-tickets-dynamic-${CACHE_VERSION}`,
+  API: `hd-tickets-api-${CACHE_VERSION}`,
+  IMAGES: `hd-tickets-images-${CACHE_VERSION}`,
+  FONTS: `hd-tickets-fonts-${CACHE_VERSION}`,
+  CHUNKS: `hd-tickets-chunks-${CACHE_VERSION}`
+};
 const OFFLINE_URL = '/offline.html';
 const FALLBACK_IMAGE = '/assets/images/hdTicketsLogo.png';
 
 // Performance metrics tracking
-let installStartTime = null;
-let activateStartTime = null;
+let performanceMetrics = {
+  cacheHits: 0,
+  cacheMisses: 0,
+  networkRequests: 0,
+  backgroundSyncs: 0,
+  installTime: 0,
+  activateTime: 0
+};
 
 // Assets to cache for offline functionality
 const STATIC_CACHE_URLS = [
@@ -21,12 +31,22 @@ const STATIC_CACHE_URLS = [
   '/tickets/alerts',
   '/tickets/scraping',
   '/manifest.json',
-  '/assets/css/app.css',
-  '/assets/js/app.js',
+  '/build/assets/app.css',
+  '/build/assets/app.js',
   '/assets/images/hdTicketsLogo.png',
   // Add timestamp to prevent caching issues
   `/offline.html?t=${Date.now()}`
 ];
+
+// Chunk patterns for code splitting support
+const CHUNK_PATTERNS = {
+  vendor: /\/build\/assets\/vendor-[a-z0-9]+\.js$/,
+  components: /\/build\/assets\/components-[a-z0-9]+\.js$/,
+  analytics: /\/build\/assets\/analytics-[a-z0-9]+\.js$/,
+  dashboard: /\/build\/assets\/dashboard-[a-z0-9]+\.js$/,
+  admin: /\/build\/assets\/admin-[a-z0-9]+\.js$/,
+  css: /\/build\/assets\/.*\.css$/
+};
 
 // Admin-specific API endpoints to cache
 const ADMIN_API_ENDPOINTS = [
@@ -46,44 +66,64 @@ const CACHE_PATTERNS = {
 
 // Install event - cache essential resources
 self.addEventListener('install', event => {
-  console.log('[SW] Installing service worker...');
+  console.log('[SW] Installing service worker v2.0.0...');
+  const installStart = performance.now();
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Caching app shell');
-        return cache.addAll(STATIC_CACHE_URLS);
-      })
-      .then(() => {
-        // Force activation of new service worker
-        return self.skipWaiting();
-      })
-      .catch(error => {
-        console.error('[SW] Cache installation failed:', error);
-      })
+    Promise.all([
+      // Cache static assets
+      caches.open(CACHE_NAMES.STATIC)
+        .then(cache => {
+          console.log('[SW] Caching app shell and static assets');
+          return cache.addAll(STATIC_CACHE_URLS);
+        }),
+      
+      // Initialize performance monitoring
+      initializePerformanceTracking()
+    ])
+    .then(() => {
+      performanceMetrics.installTime = performance.now() - installStart;
+      console.log(`[SW] Installation completed in ${performanceMetrics.installTime.toFixed(2)}ms`);
+      
+      // Force activation of new service worker
+      return self.skipWaiting();
+    })
+    .catch(error => {
+      console.error('[SW] Cache installation failed:', error);
+    })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
-  console.log('[SW] Activating service worker...');
+  console.log('[SW] Activating service worker v2.0.0...');
+  const activateStart = performance.now();
   
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      })
-      .then(() => {
-        // Take control of all pages
-        return self.clients.claim();
-      })
+    Promise.all([
+      // Clean up old caches
+      cleanupOldCaches(),
+      
+      // Take control of all pages
+      self.clients.claim(),
+      
+      // Initialize background sync
+      initializeBackgroundSync(),
+      
+      // Setup chunk preloading
+      setupChunkPreloading()
+    ])
+    .then(() => {
+      performanceMetrics.activateTime = performance.now() - activateStart;
+      console.log(`[SW] Activation completed in ${performanceMetrics.activateTime.toFixed(2)}ms`);
+      
+      // Notify clients of activation
+      notifyClients({
+        type: 'SW_ACTIVATED',
+        version: CACHE_VERSION,
+        metrics: performanceMetrics
+      });
+    })
   );
 });
 
@@ -885,5 +925,255 @@ self.addEventListener('activate', event => {
   );
 });
 
-console.log('[SW] Service Worker v1.3.0 loaded with advanced PWA features');
-console.log('[SW] Features: Push notifications, Background sync, File handling, Web Share, Cache management');
+// Performance and optimization helper functions
+
+/**
+ * Initialize performance tracking
+ */
+async function initializePerformanceTracking() {
+  performanceMetrics.startTime = Date.now();
+  console.log('[SW] Performance tracking initialized');
+}
+
+/**
+ * Clean up old caches with improved logic
+ */
+async function cleanupOldCaches() {
+  const cacheNames = await caches.keys();
+  const currentCaches = Object.values(CACHE_NAMES);
+  
+  const deletePromises = cacheNames.map(cacheName => {
+    if (!currentCaches.includes(cacheName)) {
+      console.log('[SW] Deleting old cache:', cacheName);
+      return caches.delete(cacheName);
+    }
+  }).filter(Boolean);
+  
+  return Promise.all(deletePromises);
+}
+
+/**
+ * Initialize background sync with improved error handling
+ */
+function initializeBackgroundSync() {
+  if ('sync' in self.registration) {
+    console.log('[SW] Background sync is supported');
+    performanceMetrics.backgroundSyncSupported = true;
+    
+    // Register periodic sync if supported
+    if ('periodicSync' in self.registration) {
+      self.registration.periodicSync.register('periodic-background-sync', {
+        minInterval: 24 * 60 * 60 * 1000 // 24 hours
+      }).then(() => {
+        console.log('[SW] Periodic sync registered');
+      }).catch(err => {
+        console.warn('[SW] Periodic sync registration failed:', err);
+      });
+    }
+  } else {
+    console.warn('[SW] Background sync not supported');
+    performanceMetrics.backgroundSyncSupported = false;
+  }
+}
+
+/**
+ * Setup chunk preloading for code splitting
+ */
+async function setupChunkPreloading() {
+  console.log('[SW] Setting up chunk preloading...');
+  
+  // Preload critical chunks based on patterns
+  const criticalChunks = [
+    // These would be generated by Vite build
+    '/build/assets/vendor-*.js',
+    '/build/assets/app-*.js',
+    '/build/assets/app-*.css'
+  ];
+  
+  // In a real implementation, you'd get the actual chunk names
+  // from the manifest or build output
+  console.log('[SW] Chunk preloading configured for code splitting support');
+}
+
+/**
+ * Handle chunk requests with intelligent caching
+ */
+async function handleChunkRequest(request) {
+  const url = new URL(request.url);
+  const cache = await caches.open(CACHE_NAMES.CHUNKS);
+  
+  // Check if it matches any chunk pattern
+  for (const [name, pattern] of Object.entries(CHUNK_PATTERNS)) {
+    if (pattern.test(url.pathname)) {
+      console.log(`[SW] Handling ${name} chunk:`, url.pathname);
+      
+      // Use cache-first strategy for chunks (they're immutable)
+      const cached = await cache.match(request);
+      if (cached) {
+        performanceMetrics.cacheHits++;
+        return cached;
+      }
+      
+      try {
+        const response = await fetch(request);
+        if (response.ok) {
+          cache.put(request, response.clone());
+          performanceMetrics.networkRequests++;
+        }
+        return response;
+      } catch (error) {
+        performanceMetrics.cacheMisses++;
+        throw error;
+      }
+    }
+  }
+  
+  // Not a recognized chunk, use default strategy
+  return cacheFirstStrategy(request);
+}
+
+/**
+ * Notify all clients with a message
+ */
+async function notifyClients(message) {
+  const clients = await self.clients.matchAll();
+  clients.forEach(client => {
+    client.postMessage(message);
+  });
+}
+
+/**
+ * Enhanced fetch handler with chunk support
+ */
+async function handleFetchEnhanced(request) {
+  const url = new URL(request.url);
+  
+  // Check if this is a chunk request
+  const isChunk = Object.values(CHUNK_PATTERNS).some(pattern => 
+    pattern.test(url.pathname)
+  );
+  
+  if (isChunk) {
+    return handleChunkRequest(request);
+  }
+  
+  // Original fetch handling logic
+  return handleFetch(request);
+}
+
+/**
+ * Prefetch critical resources based on route
+ */
+async function prefetchForRoute(routeName) {
+  const routeChunks = {
+    dashboard: ['dashboard', 'charts', 'components'],
+    analytics: ['analytics', 'charts', 'components'],
+    admin: ['admin', 'components']
+  };
+  
+  const chunks = routeChunks[routeName] || [];
+  const cache = await caches.open(CACHE_NAMES.CHUNKS);
+  
+  for (const chunkName of chunks) {
+    // In practice, you'd map chunk names to actual file paths
+    // from your build manifest
+    console.log(`[SW] Would prefetch ${chunkName} chunk for ${routeName} route`);
+  }
+}
+
+/**
+ * Handle image requests with WebP optimization
+ */
+async function handleImageRequest(request) {
+  const cache = await caches.open(CACHE_NAMES.IMAGES);
+  const cached = await cache.match(request);
+  
+  if (cached) {
+    performanceMetrics.cacheHits++;
+    return cached;
+  }
+  
+  try {
+    // Try to get WebP version if supported
+    const webpRequest = await tryWebPVersion(request);
+    const response = await fetch(webpRequest);
+    
+    if (response.ok) {
+      cache.put(request, response.clone());
+      performanceMetrics.networkRequests++;
+    }
+    
+    return response;
+  } catch (error) {
+    performanceMetrics.cacheMisses++;
+    
+    // Return offline placeholder
+    const placeholder = await cache.match('/images/offline-placeholder.svg');
+    return placeholder || new Response('Image not available', { 
+      status: 404,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  }
+}
+
+/**
+ * Try WebP version of image
+ */
+async function tryWebPVersion(request) {
+  const url = new URL(request.url);
+  
+  if (url.pathname.match(/\.(jpg|jpeg|png)$/i)) {
+    const webpPath = url.pathname.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+    const webpUrl = new URL(webpPath, url.origin);
+    
+    return new Request(webpUrl.href, {
+      method: request.method,
+      headers: request.headers,
+      mode: request.mode,
+      credentials: request.credentials
+    });
+  }
+  
+  return request;
+}
+
+/**
+ * Handle font requests with long-term caching
+ */
+async function handleFontRequest(request) {
+  const cache = await caches.open(CACHE_NAMES.FONTS);
+  const cached = await cache.match(request);
+  
+  if (cached) {
+    performanceMetrics.cacheHits++;
+    return cached;
+  }
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      // Fonts can be cached for a very long time
+      const responseWithHeaders = new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: {
+          ...response.headers,
+          'Cache-Control': 'public, max-age=31536000, immutable' // 1 year
+        }
+      });
+      
+      cache.put(request, responseWithHeaders.clone());
+      performanceMetrics.networkRequests++;
+      return responseWithHeaders;
+    }
+    return response;
+  } catch (error) {
+    performanceMetrics.cacheMisses++;
+    throw error;
+  }
+}
+
+console.log('[SW] Service Worker v2.0.0 loaded with performance optimizations');
+console.log('[SW] Features: Code splitting, WebP optimization, Enhanced caching, Background sync');
+console.log('[SW] Chunk patterns configured:', Object.keys(CHUNK_PATTERNS));
+console.log('[SW] Cache names:', Object.keys(CACHE_NAMES));

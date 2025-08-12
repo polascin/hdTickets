@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -10,9 +10,10 @@ class UserSession extends Model
 {
     use HasFactory;
 
+    public $incrementing = FALSE;
+
     protected $table = 'user_sessions';
 
-    public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -32,10 +33,10 @@ class UserSession extends Model
     ];
 
     protected $casts = [
-        'is_current' => 'boolean',
-        'is_trusted' => 'boolean',
+        'is_current'    => 'boolean',
+        'is_trusted'    => 'boolean',
         'last_activity' => 'datetime',
-        'expires_at' => 'datetime',
+        'expires_at'    => 'datetime',
     ];
 
     /**
@@ -48,17 +49,21 @@ class UserSession extends Model
 
     /**
      * Scope to get active sessions.
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 
     /**
      * Scope to get expired sessions.
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
@@ -67,18 +72,22 @@ class UserSession extends Model
 
     /**
      * Scope to get trusted sessions.
+     *
+     * @param mixed $query
      */
     public function scopeTrusted($query)
     {
-        return $query->where('is_trusted', true);
+        return $query->where('is_trusted', TRUE);
     }
 
     /**
      * Scope to get current session.
+     *
+     * @param mixed $query
      */
     public function scopeCurrent($query)
     {
-        return $query->where('is_current', true);
+        return $query->where('is_current', TRUE);
     }
 
     /**
@@ -105,7 +114,7 @@ class UserSession extends Model
         $parts = array_filter([
             $this->browser,
             $this->operating_system,
-            $this->device_type ? "({$this->device_type})" : null
+            $this->device_type ? "({$this->device_type})" : NULL,
         ]);
 
         return implode(' on ', $parts) ?: 'Unknown Device';
@@ -117,10 +126,10 @@ class UserSession extends Model
     public function getDeviceIconAttribute(): string
     {
         return match (strtolower($this->device_type ?? '')) {
-            'mobile' => 'device-mobile',
-            'tablet' => 'device-tablet',
+            'mobile'  => 'device-mobile',
+            'tablet'  => 'device-tablet',
             'desktop' => 'computer-desktop',
-            default => 'device-desktop'
+            default   => 'device-desktop',
         };
     }
 
@@ -137,7 +146,7 @@ class UserSession extends Model
      */
     public function isActive(): bool
     {
-        return !$this->isExpired();
+        return ! $this->isExpired();
     }
 
     /**
@@ -154,10 +163,10 @@ class UserSession extends Model
     public function getSessionDurationAttribute(): string
     {
         if ($this->expires_at) {
-            return $this->created_at->diffForHumans($this->expires_at, true);
+            return $this->created_at->diffForHumans($this->expires_at, TRUE);
         }
 
-        return $this->created_at->diffForHumans(now(), true);
+        return $this->created_at->diffForHumans(now(), TRUE);
     }
 
     /**
@@ -165,7 +174,7 @@ class UserSession extends Model
      */
     public function markAsTrusted(): void
     {
-        $this->update(['is_trusted' => true]);
+        $this->update(['is_trusted' => TRUE]);
     }
 
     /**

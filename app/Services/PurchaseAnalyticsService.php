@@ -1,32 +1,33 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\PurchaseAttempt;
 use App\Models\PurchaseQueue;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseAnalyticsService
 {
     /**
      * Get comprehensive purchase analytics for a given time period
      */
-    public function getPurchaseAnalytics(string $period = '24h', ?string $platform = null): array
+    public function getPurchaseAnalytics(string $period = '24h', ?string $platform = NULL): array
     {
         $cacheKey = "purchase_analytics_{$period}_" . ($platform ?? 'all');
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($period, $platform) {
             $dateRange = $this->getDateRange($period);
-            
+
             return [
-                'summary' => $this->getSummaryStats($dateRange, $platform),
-                'success_rates' => $this->getSuccessRates($dateRange, $platform),
+                'summary'              => $this->getSummaryStats($dateRange, $platform),
+                'success_rates'        => $this->getSuccessRates($dateRange, $platform),
                 'platform_performance' => $this->getPlatformPerformance($dateRange),
-                'time_series' => $this->getTimeSeriesData($dateRange, $platform),
-                'failure_analysis' => $this->getFailureAnalysis($dateRange, $platform),
-                'performance_metrics' => $this->getPerformanceMetrics($dateRange, $platform),
+                'time_series'          => $this->getTimeSeriesData($dateRange, $platform),
+                'failure_analysis'     => $this->getFailureAnalysis($dateRange, $platform),
+                'performance_metrics'  => $this->getPerformanceMetrics($dateRange, $platform),
             ];
         });
     }
@@ -37,12 +38,12 @@ class PurchaseAnalyticsService
     public function getRealTimeData(): array
     {
         return [
-            'current_processing' => $this->getCurrentProcessingCount(),
-            'queue_status' => $this->getQueueStatus(),
-            'recent_attempts' => $this->getRecentAttempts(),
+            'current_processing'     => $this->getCurrentProcessingCount(),
+            'queue_status'           => $this->getQueueStatus(),
+            'recent_attempts'        => $this->getRecentAttempts(),
             'success_rate_last_hour' => $this->getRecentSuccessRate('1h'),
-            'alerts' => $this->getActiveAlerts(),
-            'system_health' => $this->getSystemHealthMetrics(),
+            'alerts'                 => $this->getActiveAlerts(),
+            'system_health'          => $this->getSystemHealthMetrics(),
         ];
     }
 
@@ -52,7 +53,7 @@ class PurchaseAnalyticsService
     public function getSuccessRateTrends(string $period = '7d'): array
     {
         $dateRange = $this->getDateRange($period);
-        
+
         $query = PurchaseAttempt::selectRaw('
                 DATE(created_at) as date,
                 COUNT(*) as total_attempts,
@@ -66,10 +67,10 @@ class PurchaseAnalyticsService
 
         return $query->map(function ($item) {
             return [
-                'date' => $item->date,
-                'total_attempts' => $item->total_attempts,
+                'date'                => $item->date,
+                'total_attempts'      => $item->total_attempts,
                 'successful_attempts' => $item->successful_attempts,
-                'success_rate' => $item->success_rate ?? 0,
+                'success_rate'        => $item->success_rate ?? 0,
             ];
         })->toArray();
     }
@@ -95,13 +96,13 @@ class PurchaseAnalyticsService
     /**
      * Get purchase attempt failure reasons analysis
      */
-    public function getFailureAnalysis(array $dateRange, ?string $platform = null): array
+    public function getFailureAnalysis(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::select([
-                'failure_reason',
-                DB::raw('COUNT(*) as count'),
-                DB::raw('ROUND((COUNT(*) / (SELECT COUNT(*) FROM purchase_attempts WHERE status = "failed")) * 100, 2) as percentage')
-            ])
+            'failure_reason',
+            DB::raw('COUNT(*) as count'),
+            DB::raw('ROUND((COUNT(*) / (SELECT COUNT(*) FROM purchase_attempts WHERE status = "failed")) * 100, 2) as percentage'),
+        ])
             ->where('status', 'failed')
             ->whereBetween('created_at', $dateRange);
 
@@ -128,11 +129,11 @@ class PurchaseAnalyticsService
         $avgProcessingTime = $this->getAverageProcessingTime();
         if ($avgProcessingTime > 300) { // More than 5 minutes
             $recommendations[] = [
-                'type' => 'performance',
-                'priority' => 'high',
-                'title' => 'High Queue Processing Time',
-                'description' => "Average processing time is {$avgProcessingTime} seconds. Consider optimizing purchase flow.",
-                'suggested_action' => 'Review and optimize purchase automation workflow'
+                'type'             => 'performance',
+                'priority'         => 'high',
+                'title'            => 'High Queue Processing Time',
+                'description'      => "Average processing time is {$avgProcessingTime} seconds. Consider optimizing purchase flow.",
+                'suggested_action' => 'Review and optimize purchase automation workflow',
             ];
         }
 
@@ -141,11 +142,11 @@ class PurchaseAnalyticsService
         foreach ($platformMetrics as $platform => $metrics) {
             if ($metrics['success_rate'] < 70) {
                 $recommendations[] = [
-                    'type' => 'platform_performance',
-                    'priority' => 'medium',
-                    'title' => "Low Success Rate for {$platform}",
-                    'description' => "Success rate for {$platform} is {$metrics['success_rate']}%",
-                    'suggested_action' => "Review and improve {$platform} purchase implementation"
+                    'type'             => 'platform_performance',
+                    'priority'         => 'medium',
+                    'title'            => "Low Success Rate for {$platform}",
+                    'description'      => "Success rate for {$platform} is {$metrics['success_rate']}%",
+                    'suggested_action' => "Review and improve {$platform} purchase implementation",
                 ];
             }
         }
@@ -157,11 +158,11 @@ class PurchaseAnalyticsService
 
         if ($highRetryAttempts > 10) {
             $recommendations[] = [
-                'type' => 'reliability',
-                'priority' => 'medium',
-                'title' => 'High Retry Rate',
-                'description' => "{$highRetryAttempts} attempts required multiple retries today",
-                'suggested_action' => 'Investigate common failure points and improve error handling'
+                'type'             => 'reliability',
+                'priority'         => 'medium',
+                'title'            => 'High Retry Rate',
+                'description'      => "{$highRetryAttempts} attempts required multiple retries today",
+                'suggested_action' => 'Investigate common failure points and improve error handling',
             ];
         }
 
@@ -178,19 +179,19 @@ class PurchaseAnalyticsService
         $recommendations = $this->getOptimizationRecommendations();
 
         return [
-            'report_period' => $period,
-            'generated_at' => now()->toISOString(),
-            'summary' => $analytics['summary'],
+            'report_period'      => $period,
+            'generated_at'       => now()->toISOString(),
+            'summary'            => $analytics['summary'],
             'performance_trends' => $trends,
             'platform_breakdown' => $analytics['platform_performance'],
-            'failure_analysis' => $analytics['failure_analysis'],
-            'recommendations' => $recommendations,
-            'kpis' => [
-                'overall_success_rate' => $analytics['summary']['success_rate'],
+            'failure_analysis'   => $analytics['failure_analysis'],
+            'recommendations'    => $recommendations,
+            'kpis'               => [
+                'overall_success_rate'    => $analytics['summary']['success_rate'],
                 'average_processing_time' => $this->getAverageProcessingTime(),
-                'total_revenue' => $this->getTotalRevenue($period),
-                'cost_per_success' => $this->getCostPerSuccess($period),
-            ]
+                'total_revenue'           => $this->getTotalRevenue($period),
+                'cost_per_success'        => $this->getCostPerSuccess($period),
+            ],
         ];
     }
 
@@ -199,23 +200,23 @@ class PurchaseAnalyticsService
     private function getDateRange(string $period): array
     {
         $end = Carbon::now();
-        
-        $start = match($period) {
+
+        $start = match ($period) {
             '1h' => $end->copy()->subHour(),
             '24h', '1d' => $end->copy()->subDay(),
-            '7d' => $end->copy()->subDays(7),
-            '30d' => $end->copy()->subDays(30),
-            '90d' => $end->copy()->subDays(90),
+            '7d'    => $end->copy()->subDays(7),
+            '30d'   => $end->copy()->subDays(30),
+            '90d'   => $end->copy()->subDays(90),
             default => $end->copy()->subDay(),
         };
 
         return [$start, $end];
     }
 
-    private function getSummaryStats(array $dateRange, ?string $platform = null): array
+    private function getSummaryStats(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
-        
+
         if ($platform) {
             $query->where('platform', $platform);
         }
@@ -229,25 +230,25 @@ class PurchaseAnalyticsService
             SUM(CASE WHEN status = "success" THEN total_paid ELSE 0 END) as total_revenue
         ')->first();
 
-        $successRate = $stats->total_attempts > 0 
-            ? round(($stats->successful_attempts / $stats->total_attempts) * 100, 2) 
+        $successRate = $stats->total_attempts > 0
+            ? round(($stats->successful_attempts / $stats->total_attempts) * 100, 2)
             : 0;
 
         return [
-            'total_attempts' => $stats->total_attempts,
-            'successful_attempts' => $stats->successful_attempts,
-            'failed_attempts' => $stats->failed_attempts,
+            'total_attempts'       => $stats->total_attempts,
+            'successful_attempts'  => $stats->successful_attempts,
+            'failed_attempts'      => $stats->failed_attempts,
             'in_progress_attempts' => $stats->in_progress_attempts,
-            'success_rate' => $successRate,
-            'avg_purchase_amount' => round($stats->avg_purchase_amount ?? 0, 2),
-            'total_revenue' => round($stats->total_revenue ?? 0, 2),
+            'success_rate'         => $successRate,
+            'avg_purchase_amount'  => round($stats->avg_purchase_amount ?? 0, 2),
+            'total_revenue'        => round($stats->total_revenue ?? 0, 2),
         ];
     }
 
-    private function getSuccessRates(array $dateRange, ?string $platform = null): array
+    private function getSuccessRates(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
-        
+
         if ($platform) {
             $query->where('platform', $platform);
         }
@@ -258,10 +259,10 @@ class PurchaseAnalyticsService
             SUM(CASE WHEN status = "success" THEN 1 ELSE 0 END) as successful_attempts,
             ROUND((SUM(CASE WHEN status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate
         ')
-        ->groupBy('platform')
-        ->orderByDesc('success_rate')
-        ->get()
-        ->toArray();
+            ->groupBy('platform')
+            ->orderByDesc('success_rate')
+            ->get()
+            ->toArray();
     }
 
     private function getPlatformPerformance(array $dateRange): array
@@ -277,21 +278,21 @@ class PurchaseAnalyticsService
                 THEN TIMESTAMPDIFF(SECOND, started_at, completed_at) 
                 ELSE NULL END) as avg_processing_time_seconds
         ')
-        ->whereBetween('created_at', $dateRange)
-        ->groupBy('platform')
-        ->orderByDesc('success_rate')
-        ->get()
-        ->toArray();
+            ->whereBetween('created_at', $dateRange)
+            ->groupBy('platform')
+            ->orderByDesc('success_rate')
+            ->get()
+            ->toArray();
     }
 
-    private function getTimeSeriesData(array $dateRange, ?string $platform = null): array
+    private function getTimeSeriesData(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::selectRaw('
             DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
             COUNT(*) as total_attempts,
             SUM(CASE WHEN status = "success" THEN 1 ELSE 0 END) as successful_attempts
         ')
-        ->whereBetween('created_at', $dateRange);
+            ->whereBetween('created_at', $dateRange);
 
         if ($platform) {
             $query->where('platform', $platform);
@@ -302,21 +303,21 @@ class PurchaseAnalyticsService
             ->get()
             ->map(function ($item) {
                 return [
-                    'timestamp' => $item->hour,
-                    'total_attempts' => $item->total_attempts,
+                    'timestamp'           => $item->hour,
+                    'total_attempts'      => $item->total_attempts,
                     'successful_attempts' => $item->successful_attempts,
-                    'success_rate' => $item->total_attempts > 0 
-                        ? round(($item->successful_attempts / $item->total_attempts) * 100, 2) 
-                        : 0
+                    'success_rate'        => $item->total_attempts > 0
+                        ? round(($item->successful_attempts / $item->total_attempts) * 100, 2)
+                        : 0,
                 ];
             })
             ->toArray();
     }
 
-    private function getPerformanceMetrics(array $dateRange, ?string $platform = null): array
+    private function getPerformanceMetrics(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
-        
+
         if ($platform) {
             $query->where('platform', $platform);
         }
@@ -338,7 +339,7 @@ class PurchaseAnalyticsService
             'avg_processing_time_seconds' => round($metrics->avg_processing_time ?? 0, 2),
             'min_processing_time_seconds' => $metrics->min_processing_time ?? 0,
             'max_processing_time_seconds' => $metrics->max_processing_time ?? 0,
-            'avg_retry_count' => round($metrics->avg_retry_count ?? 0, 2),
+            'avg_retry_count'             => round($metrics->avg_retry_count ?? 0, 2),
         ];
     }
 
@@ -350,8 +351,8 @@ class PurchaseAnalyticsService
     private function getQueueStatus(): array
     {
         return [
-            'queued' => PurchaseQueue::where('status', 'queued')->count(),
-            'processing' => PurchaseQueue::where('status', 'processing')->count(),
+            'queued'        => PurchaseQueue::where('status', 'queued')->count(),
+            'processing'    => PurchaseQueue::where('status', 'processing')->count(),
             'high_priority' => PurchaseQueue::whereIn('priority', ['high', 'urgent', 'critical'])
                 ->whereIn('status', ['queued', 'processing'])
                 ->count(),
@@ -367,16 +368,16 @@ class PurchaseAnalyticsService
             ->get()
             ->map(function ($attempt) {
                 return [
-                    'id' => $attempt->id,
-                    'uuid' => $attempt->uuid,
-                    'platform' => $attempt->platform,
-                    'status' => $attempt->status,
+                    'id'              => $attempt->id,
+                    'uuid'            => $attempt->uuid,
+                    'platform'        => $attempt->platform,
+                    'status'          => $attempt->status,
                     'attempted_price' => $attempt->attempted_price,
-                    'total_paid' => $attempt->total_paid,
-                    'created_at' => $attempt->created_at->toISOString(),
-                    'processing_time' => $attempt->completed_at && $attempt->started_at 
-                        ? $attempt->started_at->diffInSeconds($attempt->completed_at) 
-                        : null,
+                    'total_paid'      => $attempt->total_paid,
+                    'created_at'      => $attempt->created_at->toISOString(),
+                    'processing_time' => $attempt->completed_at && $attempt->started_at
+                        ? $attempt->started_at->diffInSeconds($attempt->completed_at)
+                        : NULL,
                 ];
             })
             ->toArray();
@@ -386,6 +387,7 @@ class PurchaseAnalyticsService
     {
         $dateRange = $this->getDateRange($period);
         $stats = $this->getSummaryStats($dateRange);
+
         return $stats['success_rate'];
     }
 
@@ -397,9 +399,9 @@ class PurchaseAnalyticsService
         $recentFailureRate = 100 - $this->getRecentSuccessRate('1h');
         if ($recentFailureRate > 50) {
             $alerts[] = [
-                'type' => 'high_failure_rate',
-                'severity' => 'warning',
-                'message' => "High failure rate detected: {$recentFailureRate}% in the last hour",
+                'type'      => 'high_failure_rate',
+                'severity'  => 'warning',
+                'message'   => "High failure rate detected: {$recentFailureRate}% in the last hour",
                 'timestamp' => now()->toISOString(),
             ];
         }
@@ -411,9 +413,9 @@ class PurchaseAnalyticsService
 
         if ($stuckProcesses > 0) {
             $alerts[] = [
-                'type' => 'stuck_processes',
-                'severity' => 'error',
-                'message' => "{$stuckProcesses} purchase attempts have been processing for over 30 minutes",
+                'type'      => 'stuck_processes',
+                'severity'  => 'error',
+                'message'   => "{$stuckProcesses} purchase attempts have been processing for over 30 minutes",
                 'timestamp' => now()->toISOString(),
             ];
         }
@@ -426,15 +428,15 @@ class PurchaseAnalyticsService
         return [
             'database_connection' => $this->checkDatabaseConnection(),
             'queue_worker_status' => $this->checkQueueWorkerStatus(),
-            'memory_usage' => $this->getMemoryUsage(),
-            'response_time' => $this->getAverageResponseTime(),
+            'memory_usage'        => $this->getMemoryUsage(),
+            'response_time'       => $this->getAverageResponseTime(),
         ];
     }
 
     private function getPlatformSpecificMetrics(string $platform): array
     {
         $dateRange = $this->getDateRange('7d');
-        
+
         $stats = PurchaseAttempt::where('platform', $platform)
             ->whereBetween('created_at', $dateRange)
             ->selectRaw('
@@ -448,10 +450,10 @@ class PurchaseAnalyticsService
             ->first();
 
         return [
-            'platform' => $platform,
-            'total_attempts' => $stats->total_attempts ?? 0,
+            'platform'            => $platform,
+            'total_attempts'      => $stats->total_attempts ?? 0,
             'successful_attempts' => $stats->successful_attempts ?? 0,
-            'success_rate' => $stats->success_rate ?? 0,
+            'success_rate'        => $stats->success_rate ?? 0,
             'avg_processing_time' => round($stats->avg_processing_time ?? 0, 2),
         ];
     }
@@ -470,7 +472,7 @@ class PurchaseAnalyticsService
     private function getTotalRevenue(string $period): float
     {
         $dateRange = $this->getDateRange($period);
-        
+
         return PurchaseAttempt::where('status', 'success')
             ->whereBetween('created_at', $dateRange)
             ->sum('total_paid') ?? 0;
@@ -495,9 +497,10 @@ class PurchaseAnalyticsService
     {
         try {
             DB::connection()->getPdo();
-            return true;
-        } catch (\Exception $e) {
-            return false;
+
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
         }
     }
 
@@ -511,8 +514,8 @@ class PurchaseAnalyticsService
     private function getMemoryUsage(): array
     {
         return [
-            'used_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            'peak_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
+            'used_mb' => round(memory_get_usage(TRUE) / 1024 / 1024, 2),
+            'peak_mb' => round(memory_get_peak_usage(TRUE) / 1024 / 1024, 2),
         ];
     }
 

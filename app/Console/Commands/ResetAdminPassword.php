@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
@@ -8,43 +8,35 @@ use Illuminate\Support\Facades\Hash;
 
 class ResetAdminPassword extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'admin:reset-password {email} {password}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    /** The console command description. */
     protected $description = 'Reset admin user password';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
-        $email = $this->argument('email');
-        $password = $this->argument('password');
-        
+        $email = (string) $this->argument('email');
+        $password = (string) $this->argument('password');
+
         $user = User::where('email', $email)->first();
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->error("User with email {$email} not found.");
-            return 1;
+
+            return Command::FAILURE;
         }
-        
+
         $user->password = Hash::make($password);
         $user->save();
-        
+
         $this->info("Password reset successfully for {$email}");
         $this->info("New password: {$password}");
         $this->info("Role: {$user->role}");
-        $this->info("Is Admin: " . ($user->isAdmin() ? 'Yes' : 'No'));
-        
-        return 0;
+        $this->info('Is Admin: ' . ($user->isAdmin() ? 'Yes' : 'No'));
+
+        return Command::SUCCESS;
     }
 }

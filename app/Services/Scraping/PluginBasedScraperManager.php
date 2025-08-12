@@ -1,94 +1,27 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping;
 
 use App\Services\ProxyRotationService;
-use App\Services\TicketApis\BaseWebScrapingClient;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use Exception;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
+use function count;
+use function in_array;
 
 class PluginBasedScraperManager
 {
     protected $plugins = [];
+
     protected $proxyService;
+
     protected $enabledPlugins = [];
 
     public function __construct(ProxyRotationService $proxyService)
     {
         $this->proxyService = $proxyService;
         $this->loadPlugins();
-    }
-
-    /**
-     * Load and register scraper plugins
-     */
-    protected function loadPlugins(): void
-    {
-        $this->enabledPlugins = config('scraping.enabled_plugins', [
-            'ticketmaster',
-            'manchester_united',
-            'stubhub',
-            'seatgeek',
-            'viagogo',
-            'tickpick'
-        ]);
-
-        // Auto-discover plugins
-        $this->discoverPlugins();
-        
-        // Load plugin configurations
-        $this->loadPluginConfigurations();
-    }
-
-    /**
-     * Auto-discover scraper plugins
-     */
-    protected function discoverPlugins(): void
-    {
-        $pluginPath = app_path('Services/Scraping/Plugins');
-        
-        if (!is_dir($pluginPath)) {
-            return;
-        }
-
-        $pluginFiles = glob($pluginPath . '/*Plugin.php');
-        
-        foreach ($pluginFiles as $file) {
-            $className = 'App\\Services\\Scraping\\Plugins\\' . basename($file, '.php');
-            
-            if (class_exists($className)) {
-                $pluginName = strtolower(str_replace('Plugin', '', basename($file, '.php')));
-                
-                if (in_array($pluginName, $this->enabledPlugins)) {
-                    try {
-                        $this->plugins[$pluginName] = new $className($this->proxyService);
-                        Log::info("Loaded scraper plugin: {$pluginName}");
-                    } catch (Exception $e) {
-                        Log::error("Failed to load scraper plugin {$pluginName}: " . $e->getMessage());
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Load plugin configurations from cache/config
-     */
-    protected function loadPluginConfigurations(): void
-    {
-        foreach ($this->plugins as $name => $plugin) {
-            try {
-                $config = Cache::get("plugin_config_{$name}", config("scraping.plugins.{$name}", []));
-            } catch (\Exception $e) {
-                // Fallback to config if cache is not available (e.g., during migration)
-                $config = config("scraping.plugins.{$name}", []);
-            }
-            
-            if (method_exists($plugin, 'configure')) {
-                $plugin->configure($config);
-            }
-        }
     }
 
     /**
@@ -113,7 +46,7 @@ class PluginBasedScraperManager
      */
     public function getPlugin(string $name): ?ScraperPluginInterface
     {
-        return $this->plugins[$name] ?? null;
+        return $this->plugins[$name] ?? NULL;
     }
 
     /**
@@ -126,58 +59,57 @@ class PluginBasedScraperManager
         $errors = [];
 
         foreach ($this->plugins as $name => $plugin) {
-            if (!$plugin->isEnabled()) {
+            if (! $plugin->isEnabled()) {
                 continue;
             }
 
             try {
                 Log::info("Starting scraping with plugin: {$name}", $criteria);
-                
+
                 $pluginResults = $plugin->scrape($criteria);
-                
+
                 $results[$name] = [
-                    'status' => 'success',
-                    'results' => $pluginResults,
-                    'count' => count($pluginResults),
-                    'plugin_info' => $plugin->getInfo()
+                    'status'      => 'success',
+                    'results'     => $pluginResults,
+                    'count'       => count($pluginResults),
+                    'plugin_info' => $plugin->getInfo(),
                 ];
-                
+
                 $totalResults += count($pluginResults);
-                
+
                 Log::info("Plugin {$name} scraping completed", [
-                    'results_found' => count($pluginResults)
+                    'results_found' => count($pluginResults),
                 ]);
-                
             } catch (Exception $e) {
                 $errors[] = [
                     'plugin' => $name,
-                    'error' => $e->getMessage(),
-                    'code' => $e->getCode()
+                    'error'  => $e->getMessage(),
+                    'code'   => $e->getCode(),
                 ];
-                
+
                 $results[$name] = [
-                    'status' => 'error',
-                    'error' => $e->getMessage(),
+                    'status'  => 'error',
+                    'error'   => $e->getMessage(),
                     'results' => [],
-                    'count' => 0
+                    'count'   => 0,
                 ];
-                
+
                 Log::error("Plugin {$name} scraping failed", [
-                    'error' => $e->getMessage(),
-                    'criteria' => $criteria
+                    'error'    => $e->getMessage(),
+                    'criteria' => $criteria,
                 ]);
             }
         }
 
         return [
             'summary' => [
-                'total_plugins' => count($this->plugins),
+                'total_plugins'      => count($this->plugins),
                 'successful_plugins' => count($results) - count($errors),
-                'failed_plugins' => count($errors),
-                'total_results' => $totalResults
+                'failed_plugins'     => count($errors),
+                'total_results'      => $totalResults,
             ],
             'results' => $results,
-            'errors' => $errors
+            'errors'  => $errors,
         ];
     }
 
@@ -187,12 +119,12 @@ class PluginBasedScraperManager
     public function scrapeWithPlugin(string $pluginName, array $criteria): array
     {
         $plugin = $this->getPlugin($pluginName);
-        
-        if (!$plugin) {
+
+        if (! $plugin) {
             throw new Exception("Plugin '{$pluginName}' not found");
         }
 
-        if (!$plugin->isEnabled()) {
+        if (! $plugin->isEnabled()) {
             throw new Exception("Plugin '{$pluginName}' is disabled");
         }
 
@@ -227,18 +159,18 @@ class PluginBasedScraperManager
     public function getPluginStats(): array
     {
         $stats = [];
-        
+
         foreach ($this->plugins as $name => $plugin) {
             $stats[$name] = [
-                'info' => $plugin->getInfo(),
-                'enabled' => $plugin->isEnabled(),
-                'last_run' => Cache::get("plugin_last_run_{$name}"),
+                'info'         => $plugin->getInfo(),
+                'enabled'      => $plugin->isEnabled(),
+                'last_run'     => Cache::get("plugin_last_run_{$name}"),
                 'success_rate' => Cache::get("plugin_success_rate_{$name}", 0),
-                'total_runs' => Cache::get("plugin_total_runs_{$name}", 0),
-                'avg_results' => Cache::get("plugin_avg_results_{$name}", 0)
+                'total_runs'   => Cache::get("plugin_total_runs_{$name}", 0),
+                'avg_results'  => Cache::get("plugin_avg_results_{$name}", 0),
             ];
         }
-        
+
         return $stats;
     }
 
@@ -250,10 +182,10 @@ class PluginBasedScraperManager
         $totalRuns = Cache::get("plugin_total_runs_{$name}", 0) + 1;
         $successCount = Cache::get("plugin_success_count_{$name}", 0) + ($success ? 1 : 0);
         $totalResults = Cache::get("plugin_total_results_{$name}", 0) + $resultCount;
-        
+
         $successRate = ($successCount / $totalRuns) * 100;
         $avgResults = $totalResults / $totalRuns;
-        
+
         Cache::put("plugin_last_run_{$name}", now()->toISOString(), 3600 * 24);
         Cache::put("plugin_total_runs_{$name}", $totalRuns, 3600 * 24 * 30);
         Cache::put("plugin_success_count_{$name}", $successCount, 3600 * 24 * 30);
@@ -282,38 +214,37 @@ class PluginBasedScraperManager
     public function testPlugin(string $name): array
     {
         $plugin = $this->getPlugin($name);
-        
-        if (!$plugin) {
+
+        if (! $plugin) {
             return [
-                'status' => 'error',
-                'message' => "Plugin '{$name}' not found"
+                'status'  => 'error',
+                'message' => "Plugin '{$name}' not found",
             ];
         }
 
         try {
             $testCriteria = [
-                'keyword' => 'test',
-                'max_results' => 1
+                'keyword'     => 'test',
+                'max_results' => 1,
             ];
-            
-            $startTime = microtime(true);
+
+            $startTime = microtime(TRUE);
             $results = $plugin->scrape($testCriteria);
-            $duration = (microtime(true) - $startTime) * 1000;
-            
+            $duration = (microtime(TRUE) - $startTime) * 1000;
+
             return [
-                'status' => 'success',
-                'plugin_info' => $plugin->getInfo(),
+                'status'       => 'success',
+                'plugin_info'  => $plugin->getInfo(),
                 'test_results' => count($results),
-                'duration_ms' => round($duration, 2),
-                'enabled' => $plugin->isEnabled()
+                'duration_ms'  => round($duration, 2),
+                'enabled'      => $plugin->isEnabled(),
             ];
-            
         } catch (Exception $e) {
             return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
+                'status'      => 'error',
+                'message'     => $e->getMessage(),
                 'plugin_info' => $plugin->getInfo(),
-                'enabled' => $plugin->isEnabled()
+                'enabled'     => $plugin->isEnabled(),
             ];
         }
     }
@@ -324,26 +255,26 @@ class PluginBasedScraperManager
     public function getPluginMetrics(string $name): array
     {
         $plugin = $this->getPlugin($name);
-        
-        if (!$plugin) {
+
+        if (! $plugin) {
             return [];
         }
 
         return [
-            'info' => $plugin->getInfo(),
-            'enabled' => $plugin->isEnabled(),
+            'info'       => $plugin->getInfo(),
+            'enabled'    => $plugin->isEnabled(),
             'statistics' => [
-                'last_run' => Cache::get("plugin_last_run_{$name}"),
-                'total_runs' => Cache::get("plugin_total_runs_{$name}", 0),
-                'success_rate' => Cache::get("plugin_success_rate_{$name}", 0),
-                'avg_results' => Cache::get("plugin_avg_results_{$name}", 0),
-                'total_results' => Cache::get("plugin_total_results_{$name}", 0)
+                'last_run'      => Cache::get("plugin_last_run_{$name}"),
+                'total_runs'    => Cache::get("plugin_total_runs_{$name}", 0),
+                'success_rate'  => Cache::get("plugin_success_rate_{$name}", 0),
+                'avg_results'   => Cache::get("plugin_avg_results_{$name}", 0),
+                'total_results' => Cache::get("plugin_total_results_{$name}", 0),
             ],
             'recent_errors' => Cache::get("plugin_recent_errors_{$name}", []),
-            'performance' => [
-                'avg_response_time' => Cache::get("plugin_avg_response_time_{$name}", 0),
-                'last_response_time' => Cache::get("plugin_last_response_time_{$name}", 0)
-            ]
+            'performance'   => [
+                'avg_response_time'  => Cache::get("plugin_avg_response_time_{$name}", 0),
+                'last_response_time' => Cache::get("plugin_last_response_time_{$name}", 0),
+            ],
         ];
     }
 
@@ -362,13 +293,13 @@ class PluginBasedScraperManager
             "plugin_avg_results_{$name}",
             "plugin_recent_errors_{$name}",
             "plugin_avg_response_time_{$name}",
-            "plugin_last_response_time_{$name}"
+            "plugin_last_response_time_{$name}",
         ];
-        
+
         foreach ($cacheKeys as $key) {
             Cache::forget($key);
         }
-        
+
         Log::info("Cleared cache for plugin: {$name}");
     }
 
@@ -385,27 +316,98 @@ class PluginBasedScraperManager
         foreach ($this->plugins as $name => $plugin) {
             if ($plugin->isEnabled()) {
                 $enabledPlugins++;
-                
+
                 $successRate = Cache::get("plugin_success_rate_{$name}", 0);
                 if ($successRate > 70) { // Consider healthy if success rate > 70%
                     $healthyPlugins++;
                 }
-                
+
                 $errors = Cache::get("plugin_recent_errors_{$name}", []);
                 $recentErrors += count($errors);
             }
         }
 
         $healthPercentage = $enabledPlugins > 0 ? ($healthyPlugins / $enabledPlugins) * 100 : 0;
-        
+
         return [
-            'overall_health' => $healthPercentage,
-            'status' => $healthPercentage > 80 ? 'healthy' : ($healthPercentage > 50 ? 'warning' : 'critical'),
-            'total_plugins' => $totalPlugins,
+            'overall_health'  => $healthPercentage,
+            'status'          => $healthPercentage > 80 ? 'healthy' : ($healthPercentage > 50 ? 'warning' : 'critical'),
+            'total_plugins'   => $totalPlugins,
             'enabled_plugins' => $enabledPlugins,
             'healthy_plugins' => $healthyPlugins,
-            'recent_errors' => $recentErrors,
-            'timestamp' => now()->toISOString()
+            'recent_errors'   => $recentErrors,
+            'timestamp'       => now()->toISOString(),
         ];
+    }
+
+    /**
+     * Load and register scraper plugins
+     */
+    protected function loadPlugins(): void
+    {
+        $this->enabledPlugins = config('scraping.enabled_plugins', [
+            'ticketmaster',
+            'manchester_united',
+            'stubhub',
+            'seatgeek',
+            'viagogo',
+            'tickpick',
+        ]);
+
+        // Auto-discover plugins
+        $this->discoverPlugins();
+
+        // Load plugin configurations
+        $this->loadPluginConfigurations();
+    }
+
+    /**
+     * Auto-discover scraper plugins
+     */
+    protected function discoverPlugins(): void
+    {
+        $pluginPath = app_path('Services/Scraping/Plugins');
+
+        if (! is_dir($pluginPath)) {
+            return;
+        }
+
+        $pluginFiles = glob($pluginPath . '/*Plugin.php');
+
+        foreach ($pluginFiles as $file) {
+            $className = 'App\\Services\\Scraping\\Plugins\\' . basename($file, '.php');
+
+            if (class_exists($className)) {
+                $pluginName = strtolower(str_replace('Plugin', '', basename($file, '.php')));
+
+                if (in_array($pluginName, $this->enabledPlugins, TRUE)) {
+                    try {
+                        $this->plugins[$pluginName] = new $className($this->proxyService);
+                        Log::info("Loaded scraper plugin: {$pluginName}");
+                    } catch (Exception $e) {
+                        Log::error("Failed to load scraper plugin {$pluginName}: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Load plugin configurations from cache/config
+     */
+    protected function loadPluginConfigurations(): void
+    {
+        foreach ($this->plugins as $name => $plugin) {
+            try {
+                $config = Cache::get("plugin_config_{$name}", config("scraping.plugins.{$name}", []));
+            } catch (Exception $e) {
+                // Fallback to config if cache is not available (e.g., during migration)
+                $config = config("scraping.plugins.{$name}", []);
+            }
+
+            if (method_exists($plugin, 'configure')) {
+                $plugin->configure($config);
+            }
+        }
     }
 }

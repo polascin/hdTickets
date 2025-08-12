@@ -1,0 +1,229 @@
+/* HD Tickets - Utility Classes */
+/* ============================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* =======================================
+   GENERAL UTILITIES
+   ======================================= */
+
+/* Screen reader only */
+.hd-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Hide element completely */
+.hd-hidden {
+  display: none !important;
+}
+
+/* Force GPU acceleration */
+.hd-gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* =======================================
+   LAYOUT & CONTAINER UTILITIES
+   ======================================= */
+
+/* Container utility */
+.hd-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--hd-spacing-4);
+  padding-right: var(--hd-spacing-4);
+}
+
+@media (min-width: 640px) {
+  .hd-container {
+    max-width: var(--hd-screen-sm);
+    padding-left: var(--hd-spacing-6);
+    padding-right: var(--hd-spacing-6);
+  }
+}
+@media (min-width: 768px) {
+  .hd-container { max-width: var(--hd-screen-md); }
+}
+@media (min-width: 1024px) {
+  .hd-container {
+    max-width: var(--hd-screen-lg);
+    padding-left: var(--hd-spacing-8);
+    padding-right: var(--hd-spacing-8);
+  }
+}
+@media (min-width: 1280px) {
+  .hd-container { max-width: var(--hd-screen-xl); }
+}
+@media (min-width: 1536px) {
+  .hd-container { max-width: var(--hd-screen-2xl); }
+}
+
+/* =======================================
+   TYPOGRAPHY UTILITIES
+   ======================================= */
+
+.hd-font-sans { font-family: var(--hd-font-sans); }
+.hd-font-serif { font-family: var(--hd-font-serif); }
+.hd-font-mono { font-family: var(--hd-font-mono); }
+
+/* Text sizing */
+.hd-text-xs { font-size: var(--hd-text-xs); }
+.hd-text-sm { font-size: var(--hd-text-sm); }
+.hd-text-base { font-size: var(--hd-text-base); }
+.hd-text-lg { font-size: var(--hd-text-lg); }
+.hd-text-xl { font-size: var(--hd-text-xl); }
+/* ... up to 9xl */
+.hd-text-9xl { font-size: var(--hd-text-9xl); }
+
+/* Font weights */
+.hd-font-light { font-weight: var(--hd-font-light); }
+.hd-font-normal { font-weight: var(--hd-font-normal); }
+.hd-font-medium { font-weight: var(--hd-font-medium); }
+.hd-font-semibold { font-weight: var(--hd-font-semibold); }
+.hd-font-bold { font-weight: var(--hd-font-bold); }
+
+/* Text alignment */
+.hd-text-left { text-align: left; }
+.hd-text-center { text-align: center; }
+.hd-text-right { text-align: right; }
+.hd-text-justify { text-align: justify; }
+
+/* Text colors */
+.hd-text-primary { color: var(--hd-text-primary); }
+.hd-text-secondary { color: var(--hd-text-secondary); }
+.hd-text-muted { color: var(--hd-text-muted); }
+.hd-text-white { color: white; }
+.hd-text-black { color: black; }
+.hd-text-error { color: var(--hd-error); }
+.hd-text-success { color: var(--hd-success); }
+.hd-text-warning { color: var(--hd-warning); }
+
+/* =======================================
+   SPACING UTILITIES (MARGIN & PADDING)
+   ======================================= */
+
+/* Margin utilities */
+.hd-m-0 { margin: 0; }
+.hd-m-1 { margin: var(--hd-spacing-1); }
+.hd-m-2 { margin: var(--hd-spacing-2); }
+/* ... and so on for all spacing variables */
+
+/* Margin axis */
+.hd-mx-auto { margin-left: auto; margin-right: auto; }
+.hd-my-4 { margin-top: var(--hd-spacing-4); margin-bottom: var(--hd-spacing-4); }
+/* ... etc. */
+
+/* Padding utilities */
+.hd-p-0 { padding: 0; }
+.hd-p-1 { padding: var(--hd-spacing-1); }
+.hd-p-2 { padding: var(--hd-spacing-2); }
+/* ... and so on for all spacing variables */
+
+/* =======================================
+   FLEXBOX & GRID UTILITIES
+   ======================================= */
+
+/* Flexbox */
+.hd-flex { display: flex; }
+.hd-inline-flex { display: inline-flex; }
+.hd-flex-row { flex-direction: row; }
+.hd-flex-col { flex-direction: column; }
+.hd-items-center { align-items: center; }
+.hd-justify-center { justify-content: center; }
+.hd-justify-between { justify-content: space-between; }
+.hd-gap-2 { gap: var(--hd-spacing-2); }
+/* ... etc. */
+
+/* Grid */
+.hd-grid { display: grid; }
+.hd-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hd-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hd-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* ... etc. */
+
+/* =======================================
+   PERFORMANCE UTILITIES
+   ======================================= */
+
+/* Content visibility */
+.hd-content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 400px; /* Adjust as needed */
+}
+
+/* CSS Containment */
+.hd-contain-strict { contain: strict; }
+.hd-contain-content { contain: content; }
+.hd-contain-layout { contain: layout; }
+.hd-contain-paint { contain: paint; }
+
+/* =======================================
+   RESPONSIVE UTILITIES
+   ======================================= */
+
+/* Hide based on breakpoint */
+@media (max-width: 639px) { .hd-hidden-sm-down { display: none !important; } }
+@media (min-width: 640px) { .hd-hidden-sm-up { display: none !important; } }
+@media (max-width: 767px) { .hd-hidden-md-down { display: none !important; } }
+@media (min-width: 768px) { .hd-hidden-md-up { display: none !important; } }
+/* ... and so on for lg, xl, 2xl */
+
+/* =======================================
+   ACCESSIBILITY & USER PREFERENCE
+   ======================================= */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hd-motion-safe {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High contrast */
+@media (prefers-contrast: more) {
+  .hd-contrast-more-border {
+    border: 2px solid transparent;
+  }
+}
+
+/* Print styles */
+@media print {
+  .hd-print-hidden {
+    display: none !important;
+  }
+}
+
+/* =======================================
+   CRITICAL CSS
+   ======================================= */
+
+/* Styles essential for immediate rendering of above-the-fold content */
+.hd-critical-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hd-critical-header {
+    height: var(--hd-header-height);
+    position: sticky;
+    top: 0;
+    z-index: var(--hd-z-sticky);
+    background-color: var(--hd-bg-card);
+    border-bottom: 1px solid var(--hd-border-primary);
+}
+
+.hd-critical-main {
+    flex: 1;
+    min-height: calc(100vh - var(--hd-header-height));
+}

@@ -1,17 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('login_history', function (Blueprint $table) {
+        Schema::create('login_history', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->ipAddress('ip_address');
@@ -23,9 +22,9 @@ return new class extends Migration
             $table->string('city', 100)->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
-            $table->boolean('success')->default(false);
+            $table->boolean('success')->default(FALSE);
             $table->string('failure_reason')->nullable(); // invalid_password, invalid_2fa, account_locked, etc.
-            $table->boolean('is_suspicious')->default(false);
+            $table->boolean('is_suspicious')->default(FALSE);
             $table->text('suspicious_flags')->nullable(); // JSON array of suspicious behavior indicators
             $table->string('session_id', 100)->nullable();
             $table->timestamp('attempted_at');

@@ -1,14 +1,72 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class StubHubPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get events by specific sport category
+     */
+    public function getEventsBySport(string $sport, array $criteria = []): array
+    {
+        $sportUrls = [
+            'football'   => '/nfl-tickets',
+            'basketball' => '/nba-tickets',
+            'baseball'   => '/mlb-tickets',
+            'hockey'     => '/nhl-tickets',
+            'soccer'     => '/mls-tickets',
+            'tennis'     => '/tennis-tickets',
+            'golf'       => '/golf-tickets',
+        ];
+
+        $sport = strtolower($sport);
+        if (isset($sportUrls[$sport])) {
+            $criteria['custom_url'] = $this->baseUrl . $sportUrls[$sport];
+        } else {
+            $criteria['keyword'] = $sport;
+        }
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get popular sports events
+     */
+    public function getPopularSportsEvents(array $criteria = []): array
+    {
+        $criteria['sort'] = 'popularity';
+        $criteria['custom_url'] = $this->baseUrl . '/sports';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by city
+     */
+    public function getEventsByCity(string $city, array $criteria = []): array
+    {
+        $criteria['keyword'] = $city;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events within price range
+     */
+    public function getEventsByPriceRange(int $minPrice, int $maxPrice, array $criteria = []): array
+    {
+        $criteria['price_min'] = $minPrice;
+        $criteria['price_max'] = $maxPrice;
+
+        return $this->scrape($criteria);
+    }
+
     protected function initializePlugin(): void
     {
         $this->pluginName = 'StubHub';
@@ -31,7 +89,7 @@ class StubHubPlugin extends BaseScraperPlugin
             'price_comparison',
             'seat_selection',
             'instant_download',
-            'mobile_delivery'
+            'mobile_delivery',
         ];
     }
 
@@ -46,7 +104,7 @@ class StubHubPlugin extends BaseScraperPlugin
             'date_to',
             'price_min',
             'price_max',
-            'sort'
+            'sort',
         ];
     }
 
@@ -61,31 +119,31 @@ class StubHubPlugin extends BaseScraperPlugin
         $params = [];
 
         // Add keyword search
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $searchUrl = $this->baseUrl . '/find/s/' . urlencode($criteria['keyword']);
         }
 
         // Add price range
-        if (!empty($criteria['price_min'])) {
+        if (! empty($criteria['price_min'])) {
             $params['priceMin'] = $criteria['price_min'];
         }
 
-        if (!empty($criteria['price_max'])) {
+        if (! empty($criteria['price_max'])) {
             $params['priceMax'] = $criteria['price_max'];
         }
 
         // Add sort parameter
-        if (!empty($criteria['sort'])) {
+        if (! empty($criteria['sort'])) {
             $sortMap = [
-                'price_low' => 'price_asc',
+                'price_low'  => 'price_asc',
                 'price_high' => 'price_desc',
-                'date' => 'event_date_asc',
-                'popularity' => 'popularity_desc'
+                'date'       => 'event_date_asc',
+                'popularity' => 'popularity_desc',
             ];
             $params['sort'] = $sortMap[$criteria['sort']] ?? 'event_date_asc';
         }
 
-        if (!empty($params)) {
+        if (! empty($params)) {
             $searchUrl .= '?' . http_build_query($params);
         }
 
@@ -102,22 +160,22 @@ class StubHubPlugin extends BaseScraperPlugin
             '.SearchResultsGrid-container .SearchResultsGrid-item',
             '.events-list .event-item',
             '.search-results .result-item',
-            '[data-testid="event-card"]'
+            '[data-testid="event-card"]',
         ];
 
         foreach ($eventSelectors as $selector) {
             $eventNodes = $crawler->filter($selector);
-            
+
             if ($eventNodes->count() > 0) {
                 Log::info("Found {$eventNodes->count()} events using selector: {$selector}");
-                
-                $eventNodes->each(function (Crawler $node) use (&$events) {
+
+                $eventNodes->each(function (Crawler $node) use (&$events): void {
                     $event = $this->parseEventNode($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 });
-                
+
                 break; // Use the first selector that finds results
             }
         }
@@ -131,7 +189,7 @@ class StubHubPlugin extends BaseScraperPlugin
             // Extract event name
             $eventName = $this->extractText($node, $this->getEventNameSelectors());
             if (empty($eventName)) {
-                return null;
+                return NULL;
             }
 
             // Extract venue
@@ -147,7 +205,7 @@ class StubHubPlugin extends BaseScraperPlugin
 
             // Extract URL
             $url = $this->extractUrl($node);
-            if ($url && !filter_var($url, FILTER_VALIDATE_URL)) {
+            if ($url && ! filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $this->baseUrl . $url;
             }
 
@@ -160,26 +218,26 @@ class StubHubPlugin extends BaseScraperPlugin
             $subcategory = $this->getEventSubcategory($eventName);
 
             return [
-                'event_name' => trim($eventName),
-                'venue' => $venue ?: 'Various',
-                'date' => $date,
-                'price_min' => $priceInfo['min'],
-                'price_max' => $priceInfo['max'],
-                'currency' => $this->currency,
-                'url' => $url,
-                'platform' => $this->platform,
+                'event_name'          => trim($eventName),
+                'venue'               => $venue ?: 'Various',
+                'date'                => $date,
+                'price_min'           => $priceInfo['min'],
+                'price_max'           => $priceInfo['max'],
+                'currency'            => $this->currency,
+                'url'                 => $url,
+                'platform'            => $this->platform,
                 'availability_status' => $availability,
-                'category' => $category,
-                'subcategory' => $subcategory,
-                'ticket_type' => 'Secondary Market',
-                'scraped_at' => now()->toISOString(),
+                'category'            => $category,
+                'subcategory'         => $subcategory,
+                'ticket_type'         => 'Secondary Market',
+                'scraped_at'          => now()->toISOString(),
             ];
-
-        } catch (\Exception $e) {
-            Log::warning("Failed to parse StubHub event node", [
+        } catch (Exception $e) {
+            Log::warning('Failed to parse StubHub event node', [
                 'error' => $e->getMessage(),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
@@ -208,10 +266,45 @@ class StubHubPlugin extends BaseScraperPlugin
         return '.availability, .ticket-count, [data-testid="availability"], .tickets-available, .inventory-status';
     }
 
+    /**
+     * Enhanced filtering for StubHub-specific criteria
+     */
+    protected function filterResults(array $events, array $criteria): array
+    {
+        $filteredEvents = parent::filterResults($events, $criteria);
+
+        // Additional StubHub-specific filtering
+        return array_filter($filteredEvents, function ($event) use ($criteria) {
+            // Price range filtering
+            if (! empty($criteria['price_min'])
+                && ! empty($event['price_min'])
+                && $event['price_min'] < $criteria['price_min']) {
+                return FALSE;
+            }
+
+            if (! empty($criteria['price_max'])
+                && ! empty($event['price_max'])
+                && $event['price_max'] > $criteria['price_max']) {
+                return FALSE;
+            }
+
+            // Venue filtering
+            if (! empty($criteria['venue'])) {
+                $venueKeyword = strtolower($criteria['venue']);
+                $eventVenue = strtolower($event['venue'] ?? '');
+                if (strpos($eventVenue, $venueKeyword) === FALSE) {
+                    return FALSE;
+                }
+            }
+
+            return TRUE;
+        });
+    }
+
     private function parseStubHubDate(string $dateText): ?string
     {
         if (empty($dateText)) {
-            return null;
+            return NULL;
         }
 
         try {
@@ -220,11 +313,11 @@ class StubHubPlugin extends BaseScraperPlugin
             $dateText = preg_replace('/\s+/', ' ', $dateText);
 
             // Handle relative dates
-            if (stripos($dateText, 'today') !== false) {
+            if (stripos($dateText, 'today') !== FALSE) {
                 return now()->toISOString();
             }
 
-            if (stripos($dateText, 'tomorrow') !== false) {
+            if (stripos($dateText, 'tomorrow') !== FALSE) {
                 return now()->addDay()->toISOString();
             }
 
@@ -244,42 +337,44 @@ class StubHubPlugin extends BaseScraperPlugin
                     $parsed = Carbon::createFromFormat($format, $dateText);
                     if ($parsed) {
                         // If year is not specified, assume current year
-                        if (!preg_match('/\d{4}/', $dateText)) {
+                        if (! preg_match('/\d{4}/', $dateText)) {
                             $parsed->year(now()->year);
                         }
+
                         return $parsed->toISOString();
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }
 
             // Fallback to Carbon's natural parsing
             return Carbon::parse($dateText)->toISOString();
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to parse StubHub date', [
                 'date_text' => $dateText,
-                'error' => $e->getMessage()
+                'error'     => $e->getMessage(),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
     private function parseStubHubPrice(string $priceText): array
     {
-        $priceInfo = ['min' => null, 'max' => null];
-        
+        $priceInfo = ['min' => NULL, 'max' => NULL];
+
         if (empty($priceText)) {
             return $priceInfo;
         }
 
         // Clean price text
         $priceText = trim($priceText);
-        
+
         // Handle "from $X" format
         if (preg_match('/from\s*\$(\d+(?:,\d{3})*(?:\.\d{2})?)/i', $priceText, $matches)) {
             $priceInfo['min'] = (float) str_replace(',', '', $matches[1]);
+
             return $priceInfo;
         }
 
@@ -287,6 +382,7 @@ class StubHubPlugin extends BaseScraperPlugin
         if (preg_match('/\$(\d+(?:,\d{3})*(?:\.\d{2})?)\s*-\s*\$(\d+(?:,\d{3})*(?:\.\d{2})?)/i', $priceText, $matches)) {
             $priceInfo['min'] = (float) str_replace(',', '', $matches[1]);
             $priceInfo['max'] = (float) str_replace(',', '', $matches[2]);
+
             return $priceInfo;
         }
 
@@ -295,12 +391,14 @@ class StubHubPlugin extends BaseScraperPlugin
             $price = (float) str_replace(',', '', $matches[1]);
             $priceInfo['min'] = $price;
             $priceInfo['max'] = $price;
+
             return $priceInfo;
         }
 
         // Handle "starting at $X"
         if (preg_match('/starting\s+at\s*\$(\d+(?:,\d{3})*(?:\.\d{2})?)/i', $priceText, $matches)) {
             $priceInfo['min'] = (float) str_replace(',', '', $matches[1]);
+
             return $priceInfo;
         }
 
@@ -315,113 +413,23 @@ class StubHubPlugin extends BaseScraperPlugin
             return 'unknown';
         }
 
-        if (strpos($availability, 'sold out') !== false || 
-            strpos($availability, 'no tickets') !== false) {
+        if (strpos($availability, 'sold out') !== FALSE
+            || strpos($availability, 'no tickets') !== FALSE) {
             return 'sold_out';
         }
 
-        if (strpos($availability, 'low inventory') !== false || 
-            strpos($availability, 'few left') !== false ||
-            preg_match('/\d+\s*left/i', $availability)) {
+        if (strpos($availability, 'low inventory') !== FALSE
+            || strpos($availability, 'few left') !== FALSE
+            || preg_match('/\d+\s*left/i', $availability)) {
             return 'low_inventory';
         }
 
-        if (strpos($availability, 'available') !== false || 
-            strpos($availability, 'in stock') !== false ||
-            preg_match('/\d+\s*tickets?/i', $availability)) {
+        if (strpos($availability, 'available') !== FALSE
+            || strpos($availability, 'in stock') !== FALSE
+            || preg_match('/\d+\s*tickets?/i', $availability)) {
             return 'available';
         }
 
         return 'unknown';
-    }
-
-    /**
-     * Enhanced filtering for StubHub-specific criteria
-     */
-    protected function filterResults(array $events, array $criteria): array
-    {
-        $filteredEvents = parent::filterResults($events, $criteria);
-
-        // Additional StubHub-specific filtering
-        return array_filter($filteredEvents, function($event) use ($criteria) {
-            // Price range filtering
-            if (!empty($criteria['price_min']) && 
-                !empty($event['price_min']) && 
-                $event['price_min'] < $criteria['price_min']) {
-                return false;
-            }
-
-            if (!empty($criteria['price_max']) && 
-                !empty($event['price_max']) && 
-                $event['price_max'] > $criteria['price_max']) {
-                return false;
-            }
-
-            // Venue filtering
-            if (!empty($criteria['venue'])) {
-                $venueKeyword = strtolower($criteria['venue']);
-                $eventVenue = strtolower($event['venue'] ?? '');
-                if (strpos($eventVenue, $venueKeyword) === false) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-    }
-
-    /**
-     * Get events by specific sport category
-     */
-    public function getEventsBySport(string $sport, array $criteria = []): array
-    {
-        $sportUrls = [
-            'football' => '/nfl-tickets',
-            'basketball' => '/nba-tickets', 
-            'baseball' => '/mlb-tickets',
-            'hockey' => '/nhl-tickets',
-            'soccer' => '/mls-tickets',
-            'tennis' => '/tennis-tickets',
-            'golf' => '/golf-tickets'
-        ];
-
-        $sport = strtolower($sport);
-        if (isset($sportUrls[$sport])) {
-            $criteria['custom_url'] = $this->baseUrl . $sportUrls[$sport];
-        } else {
-            $criteria['keyword'] = $sport;
-        }
-
-        return $this->scrape($criteria);
-    }
-
-
-    /**
-     * Get popular sports events
-     */
-    public function getPopularSportsEvents(array $criteria = []): array
-    {
-        $criteria['sort'] = 'popularity';
-        $criteria['custom_url'] = $this->baseUrl . '/sports';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by city
-     */
-    public function getEventsByCity(string $city, array $criteria = []): array
-    {
-        $criteria['keyword'] = $city;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events within price range
-     */
-    public function getEventsByPriceRange(int $minPrice, int $maxPrice, array $criteria = []): array
-    {
-        $criteria['price_min'] = $minPrice;
-        $criteria['price_max'] = $maxPrice;
-        return $this->scrape($criteria);
     }
 }

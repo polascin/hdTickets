@@ -1,10 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function in_array;
 
 class AnalyticsDashboard extends Model
 {
@@ -21,18 +23,18 @@ class AnalyticsDashboard extends Model
         'is_public',
         'is_default',
         'shared_with',
-        'last_accessed_at'
+        'last_accessed_at',
     ];
 
     protected $casts = [
-        'configuration' => 'array',
-        'widgets' => 'array',
-        'filters' => 'array',
-        'shared_with' => 'array',
-        'is_public' => 'boolean',
-        'is_default' => 'boolean',
+        'configuration'    => 'array',
+        'widgets'          => 'array',
+        'filters'          => 'array',
+        'shared_with'      => 'array',
+        'is_public'        => 'boolean',
+        'is_default'       => 'boolean',
         'last_accessed_at' => 'datetime',
-        'refresh_interval' => 'integer'
+        'refresh_interval' => 'integer',
     ];
 
     /**
@@ -45,103 +47,114 @@ class AnalyticsDashboard extends Model
 
     /**
      * Scope for public dashboards
+     *
+     * @param mixed $query
      */
     public function scopePublic($query)
     {
-        return $query->where('is_public', true);
+        return $query->where('is_public', TRUE);
     }
 
     /**
      * Scope for user's accessible dashboards
+     *
+     * @param mixed $query
+     * @param mixed $userId
      */
     public function scopeAccessibleBy($query, $userId)
     {
-        return $query->where(function($q) use ($userId) {
+        return $query->where(function ($q) use ($userId): void {
             $q->where('user_id', $userId)
-              ->orWhere('is_public', true)
-              ->orWhereJsonContains('shared_with', $userId);
+                ->orWhere('is_public', TRUE)
+                ->orWhereJsonContains('shared_with', $userId);
         });
     }
 
     /**
      * Get default dashboard for user
+     *
+     * @param mixed $userId
      */
     public static function getDefaultForUser($userId)
     {
         return static::where('user_id', $userId)
-                    ->where('is_default', true)
-                    ->first();
+            ->where('is_default', TRUE)
+            ->first();
     }
 
     /**
      * Create default dashboard for user
+     *
+     * @param mixed $userId
      */
     public static function createDefaultForUser($userId)
     {
         return static::create([
-            'user_id' => $userId,
-            'name' => 'Default Dashboard',
-            'description' => 'Default analytics dashboard',
+            'user_id'       => $userId,
+            'name'          => 'Default Dashboard',
+            'description'   => 'Default analytics dashboard',
             'configuration' => [
-                'layout' => 'grid',
+                'layout'  => 'grid',
                 'columns' => 3,
-                'theme' => 'light'
+                'theme'   => 'light',
             ],
             'widgets' => [
                 'price_trends',
                 'demand_patterns',
                 'success_rates',
                 'platform_comparison',
-                'real_time_metrics'
+                'real_time_metrics',
             ],
             'filters' => [
                 'time_range' => '30d',
-                'platforms' => [],
-                'categories' => []
+                'platforms'  => [],
+                'categories' => [],
             ],
             'refresh_interval' => 300, // 5 minutes
-            'is_default' => true,
-            'is_public' => false
+            'is_default'       => TRUE,
+            'is_public'        => FALSE,
         ]);
     }
 
     /**
      * Update last accessed timestamp
      */
-    public function markAccessed()
+    public function markAccessed(): void
     {
         $this->update(['last_accessed_at' => now()]);
     }
 
     /**
      * Check if user can access this dashboard
+     *
+     * @param mixed $userId
      */
     public function canAccess($userId)
     {
-        return $this->user_id === $userId || 
-               $this->is_public || 
-               in_array($userId, $this->shared_with ?? []);
+        return $this->user_id === $userId
+               || $this->is_public
+               || in_array($userId, $this->shared_with ?? [], TRUE);
     }
 
     /**
      * Share dashboard with users
      */
-    public function shareWith(array $userIds)
+    public function shareWith(array $userIds): void
     {
         $currentSharedWith = $this->shared_with ?? [];
         $newSharedWith = array_unique(array_merge($currentSharedWith, $userIds));
-        
+
         $this->update(['shared_with' => $newSharedWith]);
     }
 
     /**
      * Remove sharing from users
      */
-    public function removeSharing(array $userIds)
+    public function removeSharing(array $userIds): void
     {
         $currentSharedWith = $this->shared_with ?? [];
         $newSharedWith = array_diff($currentSharedWith, $userIds);
-        
+
         $this->update(['shared_with' => array_values($newSharedWith)]);
     }
 }

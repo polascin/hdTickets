@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Traits;
 
 use Illuminate\Support\Facades\Log;
+
+use function strlen;
 
 trait AntiDetectionTrait
 {
@@ -11,19 +13,19 @@ trait AntiDetectionTrait
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-        
+
         // Mac Chrome
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-        
+
         // Mac Safari
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
-        
+
         // Windows Firefox
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0',
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0',
-        
+
         // Linux Chrome (for European servers)
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
@@ -43,14 +45,14 @@ trait AntiDetectionTrait
     protected function rotateHeaders(): array
     {
         $baseHeaders = [
-            'User-Agent' => $this->getRandomUserAgent(),
-            'Accept' => $this->getRandomAcceptHeader(),
-            'Accept-Language' => $this->getAcceptLanguageHeader(),
-            'Accept-Encoding' => 'gzip, deflate, br',
-            'DNT' => mt_rand(0, 1) ? '1' : null,
-            'Connection' => 'keep-alive',
+            'User-Agent'                => $this->getRandomUserAgent(),
+            'Accept'                    => $this->getRandomAcceptHeader(),
+            'Accept-Language'           => $this->getAcceptLanguageHeader(),
+            'Accept-Encoding'           => 'gzip, deflate, br',
+            'DNT'                       => mt_rand(0, 1) ? '1' : NULL,
+            'Connection'                => 'keep-alive',
             'Upgrade-Insecure-Requests' => '1',
-            'Cache-Control' => mt_rand(0, 1) ? 'max-age=0' : 'no-cache',
+            'Cache-Control'             => mt_rand(0, 1) ? 'max-age=0' : 'no-cache',
         ];
 
         // Randomly add optional headers
@@ -58,12 +60,12 @@ trait AntiDetectionTrait
             'Sec-Fetch-Dest' => ['document', 'empty'],
             'Sec-Fetch-Mode' => ['navigate', 'cors', 'same-origin'],
             'Sec-Fetch-Site' => ['none', 'same-origin', 'cross-site'],
-            'Sec-CH-UA' => [
+            'Sec-CH-UA'      => [
                 '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
                 '"Not_A Brand";v="99", "Google Chrome";v="119", "Chromium";v="119"',
             ],
             'Sec-CH-UA-Platform' => ['"Windows"', '"macOS"', '"Linux"'],
-            'Sec-CH-UA-Mobile' => ['?0'],
+            'Sec-CH-UA-Mobile'   => ['?0'],
         ];
 
         foreach ($optionalHeaders as $header => $values) {
@@ -78,7 +80,7 @@ trait AntiDetectionTrait
         }
 
         // Filter out null values
-        return array_filter($baseHeaders, fn($value) => $value !== null);
+        return array_filter($baseHeaders, fn ($value) => $value !== NULL);
     }
 
     /**
@@ -104,16 +106,16 @@ trait AntiDetectionTrait
         // European sites are more sensitive, add longer delays
         $minDelay = $this->isEuropeanPlatform() ? 2 : 1;
         $maxDelay = $this->isEuropeanPlatform() ? 6 : 4;
-        
+
         $delay = mt_rand($minDelay * 1000, $maxDelay * 1000) / 1000; // Random delay between min-max seconds
-        
-        Log::debug("Random delay applied", [
+
+        Log::debug('Random delay applied', [
             'delay_seconds' => $delay,
-            'platform' => $this->platform ?? 'unknown',
-            'is_european' => $this->isEuropeanPlatform()
+            'platform'      => $this->platform ?? 'unknown',
+            'is_european'   => $this->isEuropeanPlatform(),
         ]);
-        
-        usleep((int)($delay * 1000000));
+
+        usleep((int) ($delay * 1000000));
     }
 
     /**
@@ -124,9 +126,9 @@ trait AntiDetectionTrait
         // Occasionally add longer pauses (simulate reading)
         if (mt_rand(1, 10) === 1) {
             $readingDelay = mt_rand(3, 8);
-            Log::debug("Simulating reading behavior", [
+            Log::debug('Simulating reading behavior', [
                 'delay_seconds' => $readingDelay,
-                'platform' => $this->platform ?? 'unknown'
+                'platform'      => $this->platform ?? 'unknown',
             ]);
             sleep($readingDelay);
         }
@@ -175,18 +177,19 @@ trait AntiDetectionTrait
         ];
 
         $html = strtolower($html);
-        
+
         foreach ($botDetectionPatterns as $pattern) {
             if (str_contains($html, $pattern)) {
-                Log::warning("Bot detection mechanism detected", [
-                    'pattern' => $pattern,
-                    'platform' => $this->platform ?? 'unknown'
+                Log::warning('Bot detection mechanism detected', [
+                    'pattern'  => $pattern,
+                    'platform' => $this->platform ?? 'unknown',
                 ]);
-                return true;
+
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -195,9 +198,9 @@ trait AntiDetectionTrait
     protected function initializeSession(): array
     {
         return [
-            'session_id' => $this->generateSessionId(),
-            'start_time' => microtime(true),
-            'page_views' => 0,
+            'session_id'  => $this->generateSessionId(),
+            'start_time'  => microtime(TRUE),
+            'page_views'  => 0,
             'total_delay' => 0,
         ];
     }
@@ -217,19 +220,20 @@ trait AntiDetectionTrait
     {
         $rotationKey = "ip_rotation_{$this->platform}";
         $requestCount = cache()->get($rotationKey, 0);
-        
+
         // Rotate IP every 50 requests for European sites, 100 for others
         $rotationThreshold = $this->isEuropeanPlatform() ? 50 : 100;
-        
+
         if ($requestCount >= $rotationThreshold) {
             cache()->put($rotationKey, 0, 3600);
-            return true;
+
+            return TRUE;
         }
-        
+
         cache()->increment($rotationKey, 1);
         cache()->expire($rotationKey, 3600);
-        
-        return false;
+
+        return FALSE;
     }
 
     /**

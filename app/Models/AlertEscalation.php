@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -23,15 +23,15 @@ class AlertEscalation extends Model
         'escalation_config',
         'last_attempted_at',
         'next_retry_at',
-        'cancellation_reason'
+        'cancellation_reason',
     ];
 
     protected $casts = [
-        'scheduled_at' => 'datetime',
+        'scheduled_at'      => 'datetime',
         'last_attempted_at' => 'datetime',
-        'next_retry_at' => 'datetime',
-        'alert_data' => 'array',
-        'escalation_config' => 'array'
+        'next_retry_at'     => 'datetime',
+        'alert_data'        => 'array',
+        'escalation_config' => 'array',
     ];
 
     /**
@@ -52,6 +52,8 @@ class AlertEscalation extends Model
 
     /**
      * Scope for active escalations
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -60,6 +62,8 @@ class AlertEscalation extends Model
 
     /**
      * Scope for failed escalations
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
@@ -68,6 +72,8 @@ class AlertEscalation extends Model
 
     /**
      * Scope for completed escalations
+     *
+     * @param mixed $query
      */
     public function scopeCompleted($query)
     {
@@ -99,6 +105,6 @@ class AlertEscalation extends Model
             return 0;
         }
 
-        return min(100, intval(($this->attempts / $this->max_attempts) * 100));
+        return min(100, (int) (($this->attempts / $this->max_attempts) * 100));
     }
 }

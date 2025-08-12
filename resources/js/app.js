@@ -17,10 +17,19 @@ import { ChartJS } from '@utils/chartConfig';
 import pwaManager from '@utils/pwaManager';
 import websocketManager from '@utils/websocketManager';
 import errorReporter from '@utils/errorReporting';
+import ResourceHints from '@utils/resourceHints';
+
+// Import router
+import router from './router/index.js';
+
+// Import skeleton components
+import SkeletonScreen from '@components/ui/SkeletonScreen.vue';
 
 // Import performance optimizations
 import '@utils/performanceMonitoring';
 import '@utils/lazyImageLoader';
+import '@utils/resourceHints';
+import '@utils/renderOptimization';
 
 // Import WebSocket testing utility
 import '@utils/websocketTest';
@@ -39,12 +48,21 @@ import {
     accordion
 } from './alpine/components/index.js';
 
-// Vue Components (lazy loaded)
-const RealTimeMonitoringDashboard = () => import('@components/RealTimeMonitoringDashboard.vue');
-const AnalyticsDashboard = () => import('@components/AnalyticsDashboard.vue');
-const UserPreferencesPanel = () => import('@components/UserPreferencesPanel.vue');
-const TicketDashboard = () => import('@components/TicketDashboard.vue');
-const AdminDashboard = () => import('@components/admin/AdminDashboard.vue');
+// Vue Components (lazy loaded with route-based code splitting)
+const RealTimeMonitoringDashboard = () => import(/* webpackChunkName: "monitoring" */ '@components/RealTimeMonitoringDashboard.vue');
+const AnalyticsDashboard = () => import(/* webpackChunkName: "analytics" */ '@components/AnalyticsDashboard.vue');
+const UserPreferencesPanel = () => import(/* webpackChunkName: "preferences" */ '@components/UserPreferencesPanel.vue');
+const TicketDashboard = () => import(/* webpackChunkName: "tickets" */ '@components/TicketDashboard.vue');
+const AdminDashboard = () => import(/* webpackChunkName: "admin" */ '@components/admin/AdminDashboard.vue');
+
+// Skeleton screen configurations for different views
+const SKELETON_CONFIGS = {
+  dashboard: { variant: 'card', items: 3 },
+  tickets: { variant: 'table', rows: 5, columns: 4 },
+  analytics: { variant: 'chart', height: 300 },
+  admin: { variant: 'list', items: 5 },
+  profile: { variant: 'profile' }
+};
 
 // Setup Alpine.js plugins
 Alpine.plugin(focus);
@@ -573,8 +591,77 @@ try {
     }, 1000);
 }
 
+// Initialize Component Architecture System
+try {
+    // Create global component registry instance
+    window.ComponentRegistry = {
+        register: function(name, type, config = {}) {
+            console.log(`🔧 Registering ${type} component: ${name}`);
+            // This would interact with the Laravel ComponentRegistry service via AJAX
+        },
+        get: function(name) {
+            console.log(`🔍 Getting component: ${name}`);
+        },
+        lazyLoad: function(name) {
+            console.log(`⚡ Lazy loading component: ${name}`);
+        }
+    };
+    
+    // Register Vue components for lazy loading
+    const vueComponents = {
+        'AdvancedEventAnalytics': () => import('./components/analytics/AdvancedEventAnalytics.vue'),
+        'AdminDashboard': () => import('./components/dashboards/AdminDashboard.vue'),
+        'AgentDashboard': () => import('./components/dashboards/AgentDashboard.vue'),
+        'CustomerDashboard': () => import('./components/dashboards/CustomerDashboard.vue'),
+        'ScraperDashboard': () => import('./components/dashboards/ScraperDashboard.vue'),
+        'EventList': () => import('./components/EventList.vue'),
+        'FilterPanel': () => import('./components/FilterPanel.vue'),
+        'AnalyticsDashboard': () => import('./components/AnalyticsDashboard.vue')
+    };
+    
+    // Register each Vue component
+    Object.entries(vueComponents).forEach(([name, loader]) => {
+        window.ComponentRegistry.register(name, 'vue', {
+            lazy: true,
+            loader: loader,
+            category: name.includes('Dashboard') ? 'dashboard' : 
+                     name.includes('Analytics') ? 'analytics' : 'general',
+            description: `Vue.js ${name} component`
+        });
+    });
+    
+    console.log('✅ Component Architecture System initialized');
+    moduleStatus.componentArchitecture = true;
+} catch (error) {
+    console.error('❌ Failed to initialize Component Architecture System:', error);
+    moduleStatus.componentArchitecture = false;
+}
+
 // Initialize AppCore and dependent functionality
 (async () => {
+    // Initialize performance optimizations
+    try {
+        // Initialize resource hints for preloading
+        console.log('⚡ Initializing resource hints...');
+        
+        // Preload critical route resources
+        if (window.resourceHints) {
+            // Preconnect to critical origins
+            window.resourceHints.preconnectCriticalOrigins();
+            
+            // Preload critical fonts
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(() => {
+                    window.resourceHints.preloadCriticalFonts();
+                });
+            }
+        }
+        
+        console.log('✅ Performance optimizations initialized');
+    } catch (error) {
+        console.error('❌ Failed to initialize performance optimizations:', error);
+    }
+    
     // Initialize AppCore early to ensure modules are available
     try {
         await AppCore.init({
@@ -636,10 +723,16 @@ try {
     console.log('🎯 App Core available:', !!window.AppCore);
 })();
 
-// Vue 3 Composition API app factory with error handling
-function createVueApp(rootComponent, props = {}) {
+// Vue 3 Composition API app factory with error handling and router
+function createVueApp(rootComponent, props = {}, useRouter = false) {
     try {
         const app = createApp(rootComponent, props);
+        
+        // Add router if requested
+        if (useRouter && router) {
+            app.use(router);
+            console.log('✅ Vue Router installed');
+        }
         
         // Global properties available in all components with fallbacks
         try {
@@ -647,8 +740,18 @@ function createVueApp(rootComponent, props = {}) {
             app.config.globalProperties.$responsive = AppCore.getModule('responsive') || window.responsiveUtils || null;
             app.config.globalProperties.$cssTimestamp = cssTimestamp || null;
             app.config.globalProperties.$charts = ChartJS || null;
+            app.config.globalProperties.$resourceHints = window.resourceHints || null;
+            app.config.globalProperties.$skeletonConfigs = SKELETON_CONFIGS;
         } catch (error) {
             console.error('❌ Failed to set Vue global properties:', error);
+        }
+        
+        // Register global components
+        try {
+            app.component('SkeletonScreen', SkeletonScreen);
+            console.log('✅ Skeleton screen component registered globally');
+        } catch (error) {
+            console.error('❌ Failed to register global components:', error);
         }
         
         // Global error handler

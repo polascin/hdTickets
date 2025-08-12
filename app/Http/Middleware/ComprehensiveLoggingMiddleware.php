@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
@@ -9,11 +9,19 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
+use Throwable;
+
+use function count;
+use function in_array;
+use function is_array;
+use function strlen;
 
 class ComprehensiveLoggingMiddleware
 {
     protected $activityLogger;
+
     protected $startTime;
+
     protected $queries = [];
 
     public function __construct(ActivityLogger $activityLogger)
@@ -27,37 +35,37 @@ class ComprehensiveLoggingMiddleware
     public function handle(Request $request, Closure $next): BaseResponse
     {
         // Start timing
-        $this->startTime = microtime(true);
-        
+        $this->startTime = microtime(TRUE);
+
         // Start database query logging
         $this->startDatabaseLogging();
-        
+
         // Log API access
         $this->activityLogger->logApiAccess($request, [
             'request_headers' => $this->getSafeHeaders($request),
-            'content_type' => $request->header('content-type'),
+            'content_type'    => $request->header('content-type'),
         ]);
 
         try {
             $response = $next($request);
-            
+
             // Log successful response
             $this->logResponse($request, $response, 'success');
-            
+
             return $response;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Log error response
             $this->activityLogger->logCriticalError($e, [
                 'request_method' => $request->method(),
-                'request_url' => $request->fullUrl(),
+                'request_url'    => $request->fullUrl(),
                 'request_params' => $request->all(),
             ]);
-            
+
             throw $e;
         } finally {
             // Stop database query logging
             $this->stopDatabaseLogging();
-            
+
             // Log performance metrics
             $this->logPerformanceMetrics($request);
         }
@@ -69,12 +77,12 @@ class ComprehensiveLoggingMiddleware
     protected function startDatabaseLogging(): void
     {
         $this->queries = [];
-        
-        DB::listen(function ($query) {
+
+        DB::listen(function ($query): void {
             $this->queries[] = [
-                'sql' => $query->sql,
+                'sql'      => $query->sql,
                 'bindings' => $query->bindings,
-                'time' => $query->time / 1000, // Convert to seconds
+                'time'     => $query->time / 1000, // Convert to seconds
             ];
         });
     }
@@ -89,7 +97,7 @@ class ComprehensiveLoggingMiddleware
                 $query['sql'],
                 $query['bindings'],
                 $query['time'],
-                ['query_context' => 'api_request']
+                ['query_context' => 'api_request'],
             );
         }
     }
@@ -100,19 +108,19 @@ class ComprehensiveLoggingMiddleware
     protected function logResponse(Request $request, BaseResponse $response, string $status): void
     {
         $context = [
-            'status' => $status,
-            'status_code' => $response->getStatusCode(),
+            'status'              => $status,
+            'status_code'         => $response->getStatusCode(),
             'response_size_bytes' => strlen($response->getContent()),
-            'content_type' => $response->headers->get('content-type'),
-            'cache_control' => $response->headers->get('cache-control'),
+            'content_type'        => $response->headers->get('content-type'),
+            'cache_control'       => $response->headers->get('cache-control'),
         ];
 
         // Log based on status code
         if ($response->getStatusCode() >= 400) {
             Log::channel('monitoring')->warning('API Error Response', array_merge([
                 'request_method' => $request->method(),
-                'request_url' => $request->fullUrl(),
-                'user_id' => auth()->id(),
+                'request_url'    => $request->fullUrl(),
+                'user_id'        => auth()->id(),
             ], $context));
         } else {
             Log::channel('ticket_apis')->info('API Success Response', $context);
@@ -124,21 +132,21 @@ class ComprehensiveLoggingMiddleware
      */
     protected function logPerformanceMetrics(Request $request): void
     {
-        $endTime = microtime(true);
+        $endTime = microtime(TRUE);
         $duration = $endTime - $this->startTime;
-        $memoryUsage = memory_get_peak_usage(true);
+        $memoryUsage = memory_get_peak_usage(TRUE);
         $queryCount = count($this->queries);
         $totalQueryTime = array_sum(array_column($this->queries, 'time'));
 
         $metrics = [
-            'request_duration_ms' => round($duration * 1000, 2),
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
-            'query_count' => $queryCount,
-            'total_query_time_ms' => round($totalQueryTime * 1000, 2),
+            'request_duration_ms'   => round($duration * 1000, 2),
+            'memory_usage_mb'       => round($memoryUsage / 1024 / 1024, 2),
+            'query_count'           => $queryCount,
+            'total_query_time_ms'   => round($totalQueryTime * 1000, 2),
             'average_query_time_ms' => $queryCount > 0 ? round(($totalQueryTime / $queryCount) * 1000, 2) : 0,
-            'request_method' => $request->method(),
-            'request_path' => $request->path(),
-            'user_id' => auth()->id(),
+            'request_method'        => $request->method(),
+            'request_path'          => $request->path(),
+            'user_id'               => auth()->id(),
         ];
 
         // Determine if performance is concerning
@@ -168,7 +176,7 @@ class ComprehensiveLoggingMiddleware
 
         $headers = [];
         foreach ($request->headers->all() as $key => $values) {
-            if (!in_array(strtolower($key), $excludeHeaders)) {
+            if (! in_array(strtolower($key), $excludeHeaders, TRUE)) {
                 $headers[$key] = is_array($values) ? implode(', ', $values) : $values;
             }
         }

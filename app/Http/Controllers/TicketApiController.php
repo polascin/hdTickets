@@ -1,11 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Services\TicketApiManager;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Exception;
+
+use function count;
 
 class TicketApiController extends Controller
 {
@@ -22,7 +24,7 @@ class TicketApiController extends Controller
     public function index()
     {
         $availablePlatforms = $this->apiManager->getAvailablePlatforms();
-        
+
         return view('ticket-api.index', compact('availablePlatforms'));
     }
 
@@ -32,11 +34,11 @@ class TicketApiController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'query' => 'required|string|max:255',
-            'city' => 'nullable|string|max:100',
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'platforms' => 'nullable|array',
+            'query'       => 'required|string|max:255',
+            'city'        => 'nullable|string|max:100',
+            'date_from'   => 'nullable|date',
+            'date_to'     => 'nullable|date|after_or_equal:date_from',
+            'platforms'   => 'nullable|array',
             'platforms.*' => 'string|in:' . implode(',', $this->apiManager->getAvailablePlatforms()),
         ]);
 
@@ -45,21 +47,21 @@ class TicketApiController extends Controller
 
         try {
             $results = $this->apiManager->searchEvents($criteria, $platforms);
-            
+
             return response()->json([
-                'success' => true,
-                'data' => $results,
-                'summary' => $this->generateSearchSummary($results)
+                'success' => TRUE,
+                'data'    => $results,
+                'summary' => $this->generateSearchSummary($results),
             ]);
         } catch (Exception $e) {
             Log::error('API search failed', [
                 'criteria' => $criteria,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Search failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Search failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -72,27 +74,27 @@ class TicketApiController extends Controller
         try {
             $event = $this->apiManager->getEvent($platform, $eventId);
 
-            if (!$event) {
+            if (! $event) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Event not found'
+                    'success' => FALSE,
+                    'message' => 'Event not found',
                 ], 404);
             }
 
             return response()->json([
-                'success' => true,
-                'data' => $event
+                'success' => TRUE,
+                'data'    => $event,
             ]);
         } catch (Exception $e) {
             Log::error('Failed to get event details', [
                 'platform' => $platform,
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to get event details: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to get event details: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -103,10 +105,10 @@ class TicketApiController extends Controller
     public function importEvents(Request $request)
     {
         $request->validate([
-            'query' => 'required|string|max:255',
-            'platforms' => 'required|array|min:1',
+            'query'       => 'required|string|max:255',
+            'platforms'   => 'required|array|min:1',
             'platforms.*' => 'string|in:' . implode(',', $this->apiManager->getAvailablePlatforms()),
-            'save_to_db' => 'boolean'
+            'save_to_db'  => 'boolean',
         ]);
 
         $criteria = $this->buildSearchCriteria($request);
@@ -114,9 +116,9 @@ class TicketApiController extends Controller
 
         try {
             // Enable auto-save temporarily if requested
-            $originalAutoSave = config('ticket_apis.auto_save', false);
+            $originalAutoSave = config('ticket_apis.auto_save', FALSE);
             if ($request->boolean('save_to_db')) {
-                config(['ticket_apis.auto_save' => true]);
+                config(['ticket_apis.auto_save' => TRUE]);
             }
 
             $results = $this->apiManager->searchEvents($criteria, $platforms);
@@ -130,22 +132,52 @@ class TicketApiController extends Controller
             }
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => "Successfully imported {$importedCount} events",
-                'data' => $results,
-                'summary' => $this->generateSearchSummary($results)
+                'data'    => $results,
+                'summary' => $this->generateSearchSummary($results),
             ]);
         } catch (Exception $e) {
             Log::error('Event import failed', [
                 'criteria' => $criteria,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Import failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Import failed: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Test API connections
+     */
+    public function testConnections()
+    {
+        $platforms = $this->apiManager->getAvailablePlatforms();
+        $results = [];
+
+        foreach ($platforms as $platform) {
+            try {
+                // Try a simple search to test the connection
+                $testResults = $this->apiManager->searchEvents(['q' => 'test', 'per_page' => 1], [$platform]);
+                $results[$platform] = [
+                    'status'  => 'connected',
+                    'message' => 'API connection successful',
+                ];
+            } catch (Exception $e) {
+                $results[$platform] = [
+                    'status'  => 'error',
+                    'message' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => TRUE,
+            'data'    => $results,
+        ]);
     }
 
     /**
@@ -185,8 +217,8 @@ class TicketApiController extends Controller
     {
         $summary = [
             'total_events' => 0,
-            'platforms' => [],
-            'price_range' => ['min' => null, 'max' => null]
+            'platforms'    => [],
+            'price_range'  => ['min' => NULL, 'max' => NULL],
         ];
 
         foreach ($results as $platform => $events) {
@@ -196,50 +228,20 @@ class TicketApiController extends Controller
 
             // Calculate price range
             foreach ($events as $event) {
-                if (isset($event['price_min']) && $event['price_min'] !== null) {
-                    $summary['price_range']['min'] = $summary['price_range']['min'] === null 
-                        ? $event['price_min'] 
+                if (isset($event['price_min']) && $event['price_min'] !== NULL) {
+                    $summary['price_range']['min'] = $summary['price_range']['min'] === NULL
+                        ? $event['price_min']
                         : min($summary['price_range']['min'], $event['price_min']);
                 }
 
-                if (isset($event['price_max']) && $event['price_max'] !== null) {
-                    $summary['price_range']['max'] = $summary['price_range']['max'] === null 
-                        ? $event['price_max'] 
+                if (isset($event['price_max']) && $event['price_max'] !== NULL) {
+                    $summary['price_range']['max'] = $summary['price_range']['max'] === NULL
+                        ? $event['price_max']
                         : max($summary['price_range']['max'], $event['price_max']);
                 }
             }
         }
 
         return $summary;
-    }
-
-    /**
-     * Test API connections
-     */
-    public function testConnections()
-    {
-        $platforms = $this->apiManager->getAvailablePlatforms();
-        $results = [];
-
-        foreach ($platforms as $platform) {
-            try {
-                // Try a simple search to test the connection
-                $testResults = $this->apiManager->searchEvents(['q' => 'test', 'per_page' => 1], [$platform]);
-                $results[$platform] = [
-                    'status' => 'connected',
-                    'message' => 'API connection successful'
-                ];
-            } catch (Exception $e) {
-                $results[$platform] = [
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ];
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $results
-        ]);
     }
 }

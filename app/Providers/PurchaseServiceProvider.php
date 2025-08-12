@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\AdvancedAnalyticsDashboard;
 use App\Services\AutomatedPurchaseEngine;
 use App\Services\PurchaseAnalyticsService;
-use App\Services\AdvancedAnalyticsDashboard;
 use App\Services\PurchaseService;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,7 +26,7 @@ class PurchaseServiceProvider extends ServiceProvider
         $this->app->singleton(AutomatedPurchaseEngine::class, function ($app) {
             return new AutomatedPurchaseEngine(
                 $app->make(PurchaseAnalyticsService::class),
-                $app->make(AdvancedAnalyticsDashboard::class)
+                $app->make(AdvancedAnalyticsDashboard::class),
             );
         });
 
@@ -40,6 +40,5 @@ class PurchaseServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
     }
 }

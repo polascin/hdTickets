@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class ScrapingStats extends Model
 {
@@ -30,15 +30,17 @@ class ScrapingStats extends Model
     ];
 
     protected $casts = [
-        'search_criteria' => 'array',
-        'selectors_used' => 'array',
+        'search_criteria'        => 'array',
+        'selectors_used'         => 'array',
         'selector_effectiveness' => 'array',
-        'started_at' => 'datetime',
-        'completed_at' => 'datetime',
+        'started_at'             => 'datetime',
+        'completed_at'           => 'datetime',
     ];
 
     /**
      * Scope for successful operations
+     *
+     * @param mixed $query
      */
     public function scopeSuccessful($query)
     {
@@ -47,6 +49,8 @@ class ScrapingStats extends Model
 
     /**
      * Scope for failed operations
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
@@ -55,6 +59,8 @@ class ScrapingStats extends Model
 
     /**
      * Scope for specific platform
+     *
+     * @param mixed $query
      */
     public function scopePlatform($query, string $platform)
     {
@@ -63,6 +69,8 @@ class ScrapingStats extends Model
 
     /**
      * Scope for specific method (api or scraping)
+     *
+     * @param mixed $query
      */
     public function scopeMethod($query, string $method)
     {
@@ -71,6 +79,8 @@ class ScrapingStats extends Model
 
     /**
      * Scope for recent operations (within last N hours)
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $hours = 24)
     {
@@ -83,13 +93,13 @@ class ScrapingStats extends Model
     public static function getSuccessRate(string $platform, int $hours = 24): float
     {
         $total = static::platform($platform)->recent($hours)->count();
-        
+
         if ($total === 0) {
             return 0.0;
         }
 
         $successful = static::platform($platform)->recent($hours)->successful()->count();
-        
+
         return round(($successful / $total) * 100, 2);
     }
 
@@ -111,6 +121,7 @@ class ScrapingStats extends Model
     public static function getPlatformAvailability(string $platform, int $hours = 1): bool
     {
         $successRate = static::getSuccessRate($platform, $hours);
+
         return $successRate >= 70.0; // Consider platform available if success rate is >= 70%
     }
 
@@ -147,10 +158,10 @@ class ScrapingStats extends Model
             })
             ->map(function ($group) {
                 return [
-                    'total_uses' => $group->sum('uses'),
+                    'total_uses'      => $group->sum('uses'),
                     'successful_uses' => $group->sum('successful'),
-                    'success_rate' => $group->sum('uses') > 0 ? 
-                        round(($group->sum('successful') / $group->sum('uses')) * 100, 2) : 0
+                    'success_rate'    => $group->sum('uses') > 0 ?
+                        round(($group->sum('successful') / $group->sum('uses')) * 100, 2) : 0,
                 ];
             })
             ->toArray();

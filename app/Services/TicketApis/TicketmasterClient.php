@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class TicketmasterClient extends BaseWebScrapingClient
 {
@@ -13,14 +13,6 @@ class TicketmasterClient extends BaseWebScrapingClient
         parent::__construct($config);
         $this->baseUrl = 'https://www.ticketmaster.com';
         $this->respectRateLimit('ticketmaster');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            'Accept' => 'application/json',
-            'User-Agent' => 'Laravel Ticker Manager/1.0'
-        ];
     }
 
     public function searchEvents(array $criteria): array
@@ -44,7 +36,7 @@ class TicketmasterClient extends BaseWebScrapingClient
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
         $searchUrl = $this->buildSearchUrl($keyword, $location);
-        
+
         try {
             $html = $this->makeScrapingRequest($searchUrl);
             $crawler = new Crawler($html);
@@ -52,6 +44,7 @@ class TicketmasterClient extends BaseWebScrapingClient
             return $this->extractSearchResults($crawler, $maxResults);
         } catch (Exception $e) {
             Log::error('Ticketmaster scraping failed: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -68,26 +61,17 @@ class TicketmasterClient extends BaseWebScrapingClient
             return $this->extractEventDetails($crawler, $url);
         } catch (Exception $e) {
             Log::error('Failed to scrape event details: ' . $e->getMessage());
+
             return [];
         }
     }
 
-    /**
-     * Build search URL for Ticketmaster
-     */
-    private function buildSearchUrl(string $keyword, string $location = ''): string
+    protected function getHeaders(): array
     {
-        $baseUrl = 'https://www.ticketmaster.com/search';
-        $params = [
-            'q' => $keyword,
-            'sort' => 'date,asc',
+        return [
+            'Accept'     => 'application/json',
+            'User-Agent' => 'Laravel Ticker Manager/1.0',
         ];
-
-        if (!empty($location)) {
-            $params['city'] = $location;
-        }
-
-        return $baseUrl . '?' . http_build_query($params);
     }
 
     /**
@@ -103,22 +87,23 @@ class TicketmasterClient extends BaseWebScrapingClient
             '[data-testid="event-tile"]',
             '.event-tile',
             '.search-result-item',
-            '.event-card'
+            '.event-card',
         ];
 
         foreach ($eventSelectors as $selector) {
             if ($crawler->filter($selector)->count() > 0) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$events, &$count, $maxResults) {
                     if ($count >= $maxResults) {
-                        return false;
+                        return FALSE;
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
                 });
+
                 break; // Use first selector that works
             }
         }
@@ -140,7 +125,7 @@ class TicketmasterClient extends BaseWebScrapingClient
                 'h2 a',
                 'a[href*="/event/"]',
                 '.EventDetails-eventName',
-                '.eds-text-bm'
+                '.eds-text-bm',
             ]);
 
             $link = $node->filter('a[href*="/event/"]')->first();
@@ -152,9 +137,9 @@ class TicketmasterClient extends BaseWebScrapingClient
                 '.date',
                 'time',
                 '.EventDetails-eventDate',
-                '.eds-text-bs'
+                '.eds-text-bs',
             ]);
-            
+
             // Parse date with enhanced parsing
             $parsedDate = $this->parseEventDate($date);
 
@@ -164,36 +149,130 @@ class TicketmasterClient extends BaseWebScrapingClient
                 '.event-venue',
                 '.venue',
                 '.EventDetails-venueName',
-                '.eds-text-bm'
+                '.eds-text-bm',
             ]);
 
             // Extract prices using enhanced methods
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
-            
+            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+
             $price = $this->trySelectors($node, [
                 '.price-range',
                 '[data-testid="price-range"]',
                 '.event-price',
                 '.price',
-                '.PriceRange-value'
+                '.PriceRange-value',
             ]) ?: $priceRange;
 
             return [
-                'name' => trim($name),
-                'url' => $url,
-                'date' => trim($date),
+                'name'        => trim($name),
+                'url'         => $url,
+                'date'        => trim($date),
                 'parsed_date' => $parsedDate,
-                'venue' => trim($venue),
+                'venue'       => trim($venue),
                 'price_range' => trim($price),
-                'prices' => $priceData,
-                'source' => 'ticketmaster_scrape',
-                'scraped_at' => now()->toISOString()
+                'prices'      => $priceData,
+                'source'      => 'ticketmaster_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::debug('Failed to extract event from node', ['error' => $e->getMessage()]);
+
             return [];
         }
+    }
+
+    /**
+     * Extract ticket prices from the page
+     */
+    protected function extractPrices(Crawler $crawler): array
+    {
+        $prices = [];
+
+        try {
+            $priceNodes = $crawler->filter('.ticket-price, .price-level, [data-testid="price-level"]');
+
+            $priceNodes->each(function (Crawler $node) use (&$prices): void {
+                $priceText = $node->text();
+                $sectionText = $node->closest('tr, .section')->filter('.section-name, .seat-type')->text('');
+
+                if (preg_match('/\$([\d,]+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $prices[] = [
+                        'section'  => trim($sectionText) ?: 'General',
+                        'price'    => (float) (str_replace(',', '', $matches[1])),
+                        'currency' => 'USD',
+                    ];
+                }
+            });
+        } catch (Exception $e) {
+            // Ignore price extraction errors
+        }
+
+        return $prices;
+    }
+
+    /**
+     * Format price range from price data array
+     */
+    protected function formatPriceRange(array $prices): string
+    {
+        if (empty($prices)) {
+            return '';
+        }
+
+        $numericPrices = [];
+        foreach ($prices as $price) {
+            if (isset($price['price']) && is_numeric($price['price'])) {
+                $numericPrices[] = $price['price'];
+            }
+        }
+
+        if (empty($numericPrices)) {
+            return '';
+        }
+
+        $min = min($numericPrices);
+        $max = max($numericPrices);
+        $currency = $prices[0]['currency'] ?? 'USD';
+
+        if ($min === $max) {
+            return '$' . number_format($min, 2);
+        }
+
+        return '$' . number_format($min, 2) . ' - $' . number_format($max, 2);
+    }
+
+    protected function transformEventData(array $eventData): array
+    {
+        return [
+            'id'      => $eventData['id'] ?? NULL,
+            'name'    => $eventData['name'] ?? 'Unnamed Event',
+            'date'    => $eventData['dates']['start']['localDate'] ?? NULL,
+            'time'    => $eventData['dates']['start']['localTime'] ?? NULL,
+            'status'  => $eventData['dates']['status']['code'] ?? 'unknown',
+            'venue'   => $eventData['_embedded']['venues'][0]['name'] ?? 'Unknown Venue',
+            'city'    => $eventData['_embedded']['venues'][0]['city']['name'] ?? 'Unknown City',
+            'country' => $eventData['_embedded']['venues'][0]['country']['name'] ?? 'Unknown Country',
+            'url'     => $eventData['url'] ?? '',
+        ];
+    }
+
+    /**
+     * Build search URL for Ticketmaster
+     */
+    private function buildSearchUrl(string $keyword, string $location = ''): string
+    {
+        $baseUrl = 'https://www.ticketmaster.com/search';
+        $params = [
+            'q'    => $keyword,
+            'sort' => 'date,asc',
+        ];
+
+        if (! empty($location)) {
+            $params['city'] = $location;
+        }
+
+        return $baseUrl . '?' . http_build_query($params);
     }
 
     /**
@@ -206,42 +285,42 @@ class TicketmasterClient extends BaseWebScrapingClient
                 'h1[data-testid="event-name"]',
                 'h1.event-name',
                 'h1.event-title',
-                'h1'
+                'h1',
             ]);
 
             $description = $this->trySelectors($crawler, [
                 '[data-testid="event-description"]',
                 '.event-description',
                 '.event-info p',
-                '.description'
+                '.description',
             ]);
 
             $dateTime = $this->trySelectors($crawler, [
                 '[data-testid="event-date-time"]',
                 '.event-datetime',
                 '.date-time',
-                'time'
+                'time',
             ]);
 
             $venue = $this->trySelectors($crawler, [
                 '[data-testid="venue-name"]',
                 '.venue-name',
                 '.event-venue h2',
-                '.venue h2'
+                '.venue h2',
             ]);
 
             $address = $this->trySelectors($crawler, [
                 '[data-testid="venue-address"]',
                 '.venue-address',
                 '.address',
-                '.event-venue .address'
+                '.event-venue .address',
             ]);
 
             $priceRange = $this->trySelectors($crawler, [
                 '[data-testid="price-range"]',
                 '.price-range',
                 '.ticket-prices',
-                '.price-info'
+                '.price-info',
             ]);
 
             // Extract ticket prices
@@ -255,96 +334,22 @@ class TicketmasterClient extends BaseWebScrapingClient
             }
 
             return [
-                'name' => trim($name),
+                'name'        => trim($name),
                 'description' => trim($description),
-                'date_time' => trim($dateTime),
-                'venue' => trim($venue),
-                'address' => trim($address),
+                'date_time'   => trim($dateTime),
+                'venue'       => trim($venue),
+                'address'     => trim($address),
                 'price_range' => trim($priceRange),
-                'prices' => $prices,
-                'image' => $image,
-                'url' => $url,
-                'source' => 'ticketmaster_scrape',
-                'scraped_at' => now()->toISOString()
+                'prices'      => $prices,
+                'image'       => $image,
+                'url'         => $url,
+                'source'      => 'ticketmaster_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::error('Error extracting event details: ' . $e->getMessage());
+
             return [];
         }
-    }
-
-    /**
-     * Extract ticket prices from the page
-     */
-    protected function extractPrices(Crawler $crawler): array
-    {
-        $prices = [];
-        
-        try {
-            $priceNodes = $crawler->filter('.ticket-price, .price-level, [data-testid="price-level"]');
-            
-            $priceNodes->each(function (Crawler $node) use (&$prices) {
-                $priceText = $node->text();
-                $sectionText = $node->closest('tr, .section')->filter('.section-name, .seat-type')->text('');
-                
-                if (preg_match('/\$([\d,]+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $prices[] = [
-                        'section' => trim($sectionText) ?: 'General',
-                        'price' => floatval(str_replace(',', '', $matches[1])),
-                        'currency' => 'USD'
-                    ];
-                }
-            });
-        } catch (Exception $e) {
-            // Ignore price extraction errors
-        }
-        
-        return $prices;
-    }
-
-    /**
-     * Format price range from price data array
-     */
-    protected function formatPriceRange(array $prices): string
-    {
-        if (empty($prices)) {
-            return '';
-        }
-        
-        $numericPrices = [];
-        foreach ($prices as $price) {
-            if (isset($price['price']) && is_numeric($price['price'])) {
-                $numericPrices[] = $price['price'];
-            }
-        }
-        
-        if (empty($numericPrices)) {
-            return '';
-        }
-        
-        $min = min($numericPrices);
-        $max = max($numericPrices);
-        $currency = $prices[0]['currency'] ?? 'USD';
-        
-        if ($min == $max) {
-            return '$' . number_format($min, 2);
-        }
-        
-        return '$' . number_format($min, 2) . ' - $' . number_format($max, 2);
-    }
-
-    protected function transformEventData(array $eventData): array
-    {
-        return [
-            'id' => $eventData['id'] ?? null,
-            'name' => $eventData['name'] ?? 'Unnamed Event',
-            'date' => $eventData['dates']['start']['localDate'] ?? null,
-            'time' => $eventData['dates']['start']['localTime'] ?? null,
-            'status' => $eventData['dates']['status']['code'] ?? 'unknown',
-            'venue' => $eventData['_embedded']['venues'][0]['name'] ?? 'Unknown Venue',
-            'city' => $eventData['_embedded']['venues'][0]['city']['name'] ?? 'Unknown City',
-            'country' => $eventData['_embedded']['venues'][0]['country']['name'] ?? 'Unknown Country',
-            'url' => $eventData['url'] ?? '',
-        ];
     }
 }

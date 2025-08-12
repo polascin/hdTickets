@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class DeletedUser extends Model
 {
@@ -22,12 +22,12 @@ class DeletedUser extends Model
     ];
 
     protected $casts = [
-        'user_data' => 'array',
-        'related_data' => 'array',
-        'deleted_at' => 'datetime',
+        'user_data'         => 'array',
+        'related_data'      => 'array',
+        'deleted_at'        => 'datetime',
         'recoverable_until' => 'datetime',
-        'is_recovered' => 'boolean',
-        'recovered_at' => 'datetime',
+        'is_recovered'      => 'boolean',
+        'recovered_at'      => 'datetime',
     ];
 
     /**
@@ -35,7 +35,7 @@ class DeletedUser extends Model
      */
     public function isRecoverable(): bool
     {
-        return !$this->is_recovered && $this->recoverable_until->isFuture();
+        return ! $this->is_recovered && $this->recoverable_until->isFuture();
     }
 
     /**
@@ -43,7 +43,7 @@ class DeletedUser extends Model
      */
     public function isRecoveryExpired(): bool
     {
-        return !$this->is_recovered && $this->recoverable_until->isPast();
+        return ! $this->is_recovered && $this->recoverable_until->isPast();
     }
 
     /**
@@ -51,8 +51,8 @@ class DeletedUser extends Model
      */
     public function getRemainingRecoveryTime(): ?Carbon
     {
-        if (!$this->isRecoverable()) {
-            return null;
+        if (! $this->isRecoverable()) {
+            return NULL;
         }
 
         return $this->recoverable_until;
@@ -63,8 +63,8 @@ class DeletedUser extends Model
      */
     public function getRecoveryTimeRemainingAttribute(): ?string
     {
-        if (!$this->isRecoverable()) {
-            return null;
+        if (! $this->isRecoverable()) {
+            return NULL;
         }
 
         return $this->recoverable_until->diffForHumans();
@@ -75,41 +75,47 @@ class DeletedUser extends Model
      */
     public function markRecovered(): bool
     {
-        if (!$this->isRecoverable()) {
-            return false;
+        if (! $this->isRecoverable()) {
+            return FALSE;
         }
 
         $this->update([
-            'is_recovered' => true,
+            'is_recovered' => TRUE,
             'recovered_at' => now(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Scope to get recoverable users
+     *
+     * @param mixed $query
      */
     public function scopeRecoverable($query)
     {
-        return $query->where('is_recovered', false)
-                    ->where('recoverable_until', '>', now());
+        return $query->where('is_recovered', FALSE)
+            ->where('recoverable_until', '>', now());
     }
 
     /**
      * Scope to get expired recovery users
+     *
+     * @param mixed $query
      */
     public function scopeRecoveryExpired($query)
     {
-        return $query->where('is_recovered', false)
-                    ->where('recoverable_until', '<=', now());
+        return $query->where('is_recovered', FALSE)
+            ->where('recoverable_until', '<=', now());
     }
 
     /**
      * Scope to get recovered users
+     *
+     * @param mixed $query
      */
     public function scopeRecovered($query)
     {
-        return $query->where('is_recovered', true);
+        return $query->where('is_recovered', TRUE);
     }
 }

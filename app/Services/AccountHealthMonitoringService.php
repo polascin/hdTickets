@@ -1,27 +1,31 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
-use App\Services\SecurityService;
-use App\Services\EncryptionService;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+use function count;
+use function in_array;
+use function strlen;
 
 /**
  * Account Health Monitoring Service
- * 
+ *
  * Monitors account health, validates credentials, detects suspicious activities,
  * and manages account security for the sports events monitoring system.
  */
 class AccountHealthMonitoringService
 {
     protected $securityService;
+
     protected $encryptionService;
-    
+
     public function __construct(SecurityService $securityService, EncryptionService $encryptionService)
     {
         $this->securityService = $securityService;
@@ -31,56 +35,121 @@ class AccountHealthMonitoringService
     /**
      * Perform comprehensive account health check
      *
-     * @param User $user
      * @return array Health status report
      */
     public function performHealthCheck(User $user): array
     {
         $healthReport = [
-            'user_id' => $user->id,
-            'username' => $user->username,
-            'overall_status' => 'healthy',
-            'risk_level' => 'low',
-            'checks' => [],
-            'issues' => [],
+            'user_id'         => $user->id,
+            'username'        => $user->username,
+            'overall_status'  => 'healthy',
+            'risk_level'      => 'low',
+            'checks'          => [],
+            'issues'          => [],
             'recommendations' => [],
-            'last_checked' => now(),
+            'last_checked'    => now(),
         ];
 
         // Basic account validation
         $healthReport['checks']['basic_validation'] = $this->validateBasicAccount($user);
-        
+
         // Login pattern analysis
         $healthReport['checks']['login_patterns'] = $this->analyzeLoginPatterns($user);
-        
+
         // Failed authentication attempts
         $healthReport['checks']['failed_attempts'] = $this->checkFailedAttempts($user);
-        
+
         // Account activity analysis
         $healthReport['checks']['activity_analysis'] = $this->analyzeAccountActivity($user);
-        
+
         // Session validation
         $healthReport['checks']['session_validation'] = $this->validateUserSessions($user);
-        
+
         // Permission consistency check
         $healthReport['checks']['permission_check'] = $this->checkPermissionConsistency($user);
-        
+
         // Security settings validation
         $healthReport['checks']['security_settings'] = $this->validateSecuritySettings($user);
-        
+
         // Data integrity check for encrypted fields
         $healthReport['checks']['data_integrity'] = $this->checkDataIntegrity($user);
 
         // Calculate overall health status
         $healthReport = $this->calculateOverallHealth($healthReport);
-        
+
         // Cache the health report
         $this->cacheHealthReport($user->id, $healthReport);
-        
+
         // Log health check
         $this->logHealthCheck($user, $healthReport);
-        
+
         return $healthReport;
+    }
+
+    /**
+     * Perform bulk health checks
+     */
+    public function performBulkHealthChecks(?Collection $users = NULL): array
+    {
+        if ($users === NULL) {
+            $users = User::where('is_active', TRUE)->get();
+        }
+
+        $results = [
+            'total_users'     => $users->count(),
+            'healthy'         => 0,
+            'at_risk'         => 0,
+            'unhealthy'       => 0,
+            'high_risk_users' => [],
+            'summary'         => [],
+        ];
+
+        foreach ($users as $user) {
+            $healthReport = $this->performHealthCheck($user);
+
+            switch ($healthReport['overall_status']) {
+                case 'healthy':
+                    $results['healthy']++;
+
+                    break;
+                case 'at_risk':
+                case 'cautionary':
+                    $results['at_risk']++;
+
+                    break;
+                case 'unhealthy':
+                    $results['unhealthy']++;
+                    if ($healthReport['risk_level'] === 'high') {
+                        $results['high_risk_users'][] = [
+                            'user_id'  => $user->id,
+                            'username' => $user->username,
+                            'issues'   => $healthReport['failed_checks'] + $healthReport['warning_checks'],
+                            'score'    => $healthReport['overall_score'],
+                        ];
+                    }
+
+                    break;
+            }
+        }
+
+        // Generate summary report
+        $results['summary'] = [
+            'health_percentage'            => ($results['healthy'] / $results['total_users']) * 100,
+            'risk_percentage'              => (($results['at_risk'] + $results['unhealthy']) / $results['total_users']) * 100,
+            'immediate_attention_required' => count($results['high_risk_users']),
+        ];
+
+        return $results;
+    }
+
+    /**
+     * Get cached health report
+     */
+    public function getCachedHealthReport(int $userId): ?array
+    {
+        $cacheKey = "account_health_{$userId}";
+
+        return Cache::get($cacheKey);
     }
 
     /**
@@ -89,20 +158,20 @@ class AccountHealthMonitoringService
     protected function validateBasicAccount(User $user): array
     {
         $checks = [
-            'email_valid' => filter_var($user->email, FILTER_VALIDATE_EMAIL) !== false,
-            'username_valid' => !empty($user->username) && strlen($user->username) >= 3,
+            'email_valid'      => filter_var($user->email, FILTER_VALIDATE_EMAIL) !== FALSE,
+            'username_valid'   => ! empty($user->username) && strlen($user->username) >= 3,
             'profile_complete' => $this->isProfileComplete($user),
-            'account_verified' => $user->email_verified_at !== null,
-            'account_active' => $user->is_active ?? true,
-            'role_valid' => in_array($user->role, ['root_admin', 'admin', 'agent', 'customer', 'scraper']),
+            'account_verified' => $user->email_verified_at !== NULL,
+            'account_active'   => $user->is_active ?? TRUE,
+            'role_valid'       => in_array($user->role, ['root_admin', 'admin', 'agent', 'customer', 'scraper'], TRUE),
         ];
 
         $status = array_sum($checks) === count($checks) ? 'passed' : 'warning';
-        
+
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => $checks,
-            'score' => (array_sum($checks) / count($checks)) * 100,
+            'score'   => (array_sum($checks) / count($checks)) * 100,
         ];
     }
 
@@ -120,18 +189,19 @@ class AccountHealthMonitoringService
             ->get();
 
         $patterns = [
-            'total_logins' => $recentLogins->count(),
-            'unique_ips' => $recentLogins->pluck('properties.ip_address')->unique()->count(),
-            'unusual_hours' => 0,
+            'total_logins'         => $recentLogins->count(),
+            'unique_ips'           => $recentLogins->pluck('properties.ip_address')->unique()->count(),
+            'unusual_hours'        => 0,
             'geographic_anomalies' => 0,
-            'device_changes' => 0,
+            'device_changes'       => 0,
         ];
 
         // Analyze login times
         $normalHours = collect(range(8, 18)); // 8 AM to 6 PM
         $patterns['unusual_hours'] = $recentLogins->filter(function ($login) use ($normalHours) {
             $hour = Carbon::parse($login->created_at)->hour;
-            return !$normalHours->contains($hour);
+
+            return ! $normalHours->contains($hour);
         })->count();
 
         // Check for multiple IPs (potential account sharing)
@@ -147,9 +217,9 @@ class AccountHealthMonitoringService
         }
 
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => $patterns,
-            'score' => max(0, 100 - ($patterns['unusual_hours'] * 2) - ($ipCount > 5 ? 20 : 0)),
+            'score'   => max(0, 100 - ($patterns['unusual_hours'] * 2) - ($ipCount > 5 ? 20 : 0)),
         ];
     }
 
@@ -173,7 +243,7 @@ class AccountHealthMonitoringService
             ->count();
 
         $threshold = config('security.failed_login_threshold', 5);
-        
+
         $status = 'passed';
         if ($failedAttempts >= $threshold) {
             $status = 'warning';
@@ -183,11 +253,11 @@ class AccountHealthMonitoringService
         }
 
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => [
                 'failed_attempts_week' => $failedAttempts,
                 'failed_attempts_hour' => $recentFailures,
-                'threshold' => $threshold,
+                'threshold'            => $threshold,
             ],
             'score' => max(0, 100 - ($failedAttempts * 10) - ($recentFailures * 20)),
         ];
@@ -205,16 +275,16 @@ class AccountHealthMonitoringService
 
         $analysis = [
             'total_activities' => $activities->count(),
-            'daily_average' => $activities->count() / 30,
-            'activity_types' => $activities->groupBy('log_name')->map->count()->toArray(),
-            'recent_activity' => $activities->where('created_at', '>=', now()->subDays(7))->count(),
-            'inactive_days' => $this->calculateInactiveDays($user),
+            'daily_average'    => $activities->count() / 30,
+            'activity_types'   => $activities->groupBy('log_name')->map->count()->toArray(),
+            'recent_activity'  => $activities->where('created_at', '>=', now()->subDays(7))->count(),
+            'inactive_days'    => $this->calculateInactiveDays($user),
         ];
 
         // Determine if activity patterns are normal
         $expectedDailyActivity = $this->getExpectedActivityLevel($user);
         $activityScore = min(100, ($analysis['daily_average'] / $expectedDailyActivity) * 100);
-        
+
         $status = 'passed';
         if ($analysis['inactive_days'] > 7 || $activityScore < 50) {
             $status = 'warning';
@@ -224,9 +294,9 @@ class AccountHealthMonitoringService
         }
 
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => $analysis,
-            'score' => $activityScore,
+            'score'   => $activityScore,
         ];
     }
 
@@ -255,7 +325,7 @@ class AccountHealthMonitoringService
         }
 
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => [
                 'active_sessions_24h' => $activeSessions,
                 'concurrent_sessions' => $concurrentSessions,
@@ -271,16 +341,16 @@ class AccountHealthMonitoringService
     {
         $permissionChecks = [
             'role_permissions_match' => $this->validateRolePermissions($user),
-            'elevated_permissions' => $this->checkElevatedPermissions($user),
-            'permission_changes' => $this->checkRecentPermissionChanges($user),
+            'elevated_permissions'   => $this->checkElevatedPermissions($user),
+            'permission_changes'     => $this->checkRecentPermissionChanges($user),
         ];
 
         $allPassed = array_sum($permissionChecks) === count($permissionChecks);
-        
+
         return [
-            'status' => $allPassed ? 'passed' : 'warning',
+            'status'  => $allPassed ? 'passed' : 'warning',
             'details' => $permissionChecks,
-            'score' => (array_sum($permissionChecks) / count($permissionChecks)) * 100,
+            'score'   => (array_sum($permissionChecks) / count($permissionChecks)) * 100,
         ];
     }
 
@@ -290,19 +360,19 @@ class AccountHealthMonitoringService
     protected function validateSecuritySettings(User $user): array
     {
         $securityChecks = [
-            'strong_password' => $this->hasStrongPassword($user),
-            'two_factor_enabled' => $user->two_factor_secret !== null,
-            'recent_password_change' => $this->hasRecentPasswordChange($user),
-            'secure_session_settings' => true, // Based on app configuration
+            'strong_password'         => $this->hasStrongPassword($user),
+            'two_factor_enabled'      => $user->two_factor_secret !== NULL,
+            'recent_password_change'  => $this->hasRecentPasswordChange($user),
+            'secure_session_settings' => TRUE, // Based on app configuration
         ];
 
         $score = (array_sum($securityChecks) / count($securityChecks)) * 100;
         $status = $score >= 75 ? 'passed' : ($score >= 50 ? 'warning' : 'failed');
 
         return [
-            'status' => $status,
+            'status'  => $status,
             'details' => $securityChecks,
-            'score' => $score,
+            'score'   => $score,
         ];
     }
 
@@ -312,31 +382,31 @@ class AccountHealthMonitoringService
     protected function checkDataIntegrity(User $user): array
     {
         $integrityChecks = [
-            'encrypted_fields_valid' => true,
-            'data_consistency' => true,
-            'backup_codes_valid' => true,
+            'encrypted_fields_valid' => TRUE,
+            'data_consistency'       => TRUE,
+            'backup_codes_valid'     => TRUE,
         ];
 
         // Try to decrypt encrypted fields to check integrity
         try {
             if ($user->hasEncryptedAttributes()) {
                 $decrypted = $user->getDecryptedAttributes();
-                $integrityChecks['encrypted_fields_valid'] = $decrypted !== null;
+                $integrityChecks['encrypted_fields_valid'] = $decrypted !== NULL;
             }
-        } catch (\Exception $e) {
-            $integrityChecks['encrypted_fields_valid'] = false;
+        } catch (Exception $e) {
+            $integrityChecks['encrypted_fields_valid'] = FALSE;
             Log::warning('Data integrity check failed for user', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
         }
 
         $score = (array_sum($integrityChecks) / count($integrityChecks)) * 100;
-        
+
         return [
-            'status' => $score === 100 ? 'passed' : 'warning',
+            'status'  => $score === 100 ? 'passed' : 'warning',
             'details' => $integrityChecks,
-            'score' => $score,
+            'score'   => $score,
         ];
     }
 
@@ -347,7 +417,7 @@ class AccountHealthMonitoringService
     {
         $scores = array_column($healthReport['checks'], 'score');
         $averageScore = collect($scores)->average();
-        
+
         $failedChecks = collect($healthReport['checks'])->where('status', 'failed')->count();
         $warningChecks = collect($healthReport['checks'])->where('status', 'warning')->count();
 
@@ -398,17 +468,17 @@ class AccountHealthMonitoringService
 
         switch ($checkName) {
             case 'basic_validation':
-                if (!$checkResult['details']['email_valid']) {
+                if (! $checkResult['details']['email_valid']) {
                     $recommendations[] = 'Update email address to a valid format';
                 }
-                if (!$checkResult['details']['account_verified']) {
+                if (! $checkResult['details']['account_verified']) {
                     $recommendations[] = 'Verify email address';
                 }
-                if (!$checkResult['details']['profile_complete']) {
+                if (! $checkResult['details']['profile_complete']) {
                     $recommendations[] = 'Complete user profile information';
                 }
-                break;
 
+                break;
             case 'login_patterns':
                 if ($checkResult['details']['unique_ips'] > 5) {
                     $recommendations[] = 'Review recent login locations for unauthorized access';
@@ -416,88 +486,36 @@ class AccountHealthMonitoringService
                 if ($checkResult['details']['unusual_hours'] > 10) {
                     $recommendations[] = 'Consider enabling login notifications for unusual access times';
                 }
-                break;
 
+                break;
             case 'failed_attempts':
                 if ($checkResult['details']['failed_attempts_week'] > 5) {
                     $recommendations[] = 'Consider enabling account lockout after failed attempts';
                     $recommendations[] = 'Review and strengthen password';
                 }
-                break;
 
+                break;
             case 'security_settings':
-                if (!$checkResult['details']['two_factor_enabled']) {
+                if (! $checkResult['details']['two_factor_enabled']) {
                     $recommendations[] = 'Enable two-factor authentication for additional security';
                 }
-                if (!$checkResult['details']['strong_password']) {
+                if (! $checkResult['details']['strong_password']) {
                     $recommendations[] = 'Update to a stronger password';
                 }
-                if (!$checkResult['details']['recent_password_change']) {
+                if (! $checkResult['details']['recent_password_change']) {
                     $recommendations[] = 'Consider changing password periodically';
                 }
-                break;
 
+                break;
             case 'session_validation':
                 if ($checkResult['details']['concurrent_sessions'] > 3) {
                     $recommendations[] = 'Review active sessions and log out unused sessions';
                 }
+
                 break;
         }
 
         return $recommendations;
-    }
-
-    /**
-     * Perform bulk health checks
-     */
-    public function performBulkHealthChecks(Collection $users = null): array
-    {
-        if ($users === null) {
-            $users = User::where('is_active', true)->get();
-        }
-
-        $results = [
-            'total_users' => $users->count(),
-            'healthy' => 0,
-            'at_risk' => 0,
-            'unhealthy' => 0,
-            'high_risk_users' => [],
-            'summary' => [],
-        ];
-
-        foreach ($users as $user) {
-            $healthReport = $this->performHealthCheck($user);
-            
-            switch ($healthReport['overall_status']) {
-                case 'healthy':
-                    $results['healthy']++;
-                    break;
-                case 'at_risk':
-                case 'cautionary':
-                    $results['at_risk']++;
-                    break;
-                case 'unhealthy':
-                    $results['unhealthy']++;
-                    if ($healthReport['risk_level'] === 'high') {
-                        $results['high_risk_users'][] = [
-                            'user_id' => $user->id,
-                            'username' => $user->username,
-                            'issues' => $healthReport['failed_checks'] + $healthReport['warning_checks'],
-                            'score' => $healthReport['overall_score'],
-                        ];
-                    }
-                    break;
-            }
-        }
-
-        // Generate summary report
-        $results['summary'] = [
-            'health_percentage' => ($results['healthy'] / $results['total_users']) * 100,
-            'risk_percentage' => (($results['at_risk'] + $results['unhealthy']) / $results['total_users']) * 100,
-            'immediate_attention_required' => count($results['high_risk_users']),
-        ];
-
-        return $results;
     }
 
     /**
@@ -510,15 +528,6 @@ class AccountHealthMonitoringService
     }
 
     /**
-     * Get cached health report
-     */
-    public function getCachedHealthReport(int $userId): ?array
-    {
-        $cacheKey = "account_health_{$userId}";
-        return Cache::get($cacheKey);
-    }
-
-    /**
      * Log health check
      */
     protected function logHealthCheck(User $user, array $healthReport): void
@@ -527,19 +536,19 @@ class AccountHealthMonitoringService
             'Account health check performed',
             [
                 'overall_status' => $healthReport['overall_status'],
-                'risk_level' => $healthReport['risk_level'],
-                'overall_score' => $healthReport['overall_score'],
-                'failed_checks' => $healthReport['failed_checks'],
+                'risk_level'     => $healthReport['risk_level'],
+                'overall_score'  => $healthReport['overall_score'],
+                'failed_checks'  => $healthReport['failed_checks'],
                 'warning_checks' => $healthReport['warning_checks'],
             ],
-            $user
+            $user,
         );
     }
 
     // Helper methods
     protected function isProfileComplete(User $user): bool
     {
-        return !empty($user->email) && !empty($user->username) && !empty($user->role);
+        return ! empty($user->email) && ! empty($user->username) && ! empty($user->role);
     }
 
     protected function calculateInactiveDays(User $user): int
@@ -549,7 +558,7 @@ class AccountHealthMonitoringService
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (!$lastActivity) {
+        if (! $lastActivity) {
             return 999; // Never active
         }
 
@@ -558,25 +567,25 @@ class AccountHealthMonitoringService
 
     protected function getExpectedActivityLevel(User $user): float
     {
-        return match($user->role) {
+        return match ($user->role) {
             'root_admin', 'admin' => 15.0,
-            'agent' => 10.0,
+            'agent'    => 10.0,
             'customer' => 5.0,
-            'scraper' => 20.0,
-            default => 5.0,
+            'scraper'  => 20.0,
+            default    => 5.0,
         };
     }
 
     protected function validateRolePermissions(User $user): bool
     {
         // Check if user's permissions match their role
-        return true; // Implement role-specific permission validation
+        return TRUE; // Implement role-specific permission validation
     }
 
     protected function checkElevatedPermissions(User $user): bool
     {
         // Check for any elevated permissions that shouldn't be there
-        return true; // Implement elevated permission check
+        return TRUE; // Implement elevated permission check
     }
 
     protected function checkRecentPermissionChanges(User $user): bool
@@ -593,12 +602,12 @@ class AccountHealthMonitoringService
     protected function hasStrongPassword(User $user): bool
     {
         // This would need access to password history or strength validation
-        return true; // Implement password strength validation
+        return TRUE; // Implement password strength validation
     }
 
     protected function hasRecentPasswordChange(User $user): bool
     {
-        return $user->password_changed_at === null || 
-               Carbon::parse($user->password_changed_at)->diffInDays(now()) <= 90;
+        return $user->password_changed_at === NULL
+               || Carbon::parse($user->password_changed_at)->diffInDays(now()) <= 90;
     }
 }

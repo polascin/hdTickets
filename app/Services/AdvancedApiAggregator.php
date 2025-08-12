@@ -1,18 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\TicketApis\TicketmasterClient;
 use App\Services\TicketApis\SeatGeekClient;
-use App\Models\TicketSource;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Queue;
+use App\Services\TicketApis\TicketmasterClient;
 use Exception;
+use Illuminate\Support\Facades\Log;
+
+use function count;
+use function in_array;
+use function strlen;
 
 class AdvancedApiAggregator
 {
     protected $rateLimiter;
+
     protected $clients = [];
 
     public function __construct(ApiRateLimiter $rateLimiter)
@@ -34,8 +36,8 @@ class AdvancedApiAggregator
             if ($this->rateLimiter->canMakeRequest($platform)) {
                 $tasks[] = [
                     'platform' => $platform,
-                    'client' => $client,
-                    'criteria' => $this->adaptCriteriaForPlatform($searchCriteria, $platform)
+                    'client'   => $client,
+                    'criteria' => $this->adaptCriteriaForPlatform($searchCriteria, $platform),
                 ];
             }
         }
@@ -64,13 +66,12 @@ class AdvancedApiAggregator
             try {
                 $data = $task['client']->searchEvents($task['criteria']);
                 $results[$task['platform']] = $this->processApiResponse($data, $task['platform']);
-                
+
                 $this->rateLimiter->recordRequest($task['platform']);
-                
             } catch (Exception $e) {
-                Log::warning("API call failed", [
+                Log::warning('API call failed', [
                     'platform' => $task['platform'],
-                    'error' => $e->getMessage()
+                    'error'    => $e->getMessage(),
                 ]);
                 $results[$task['platform']] = [];
             }
@@ -85,7 +86,7 @@ class AdvancedApiAggregator
     protected function deduplicateAndEnrich(array $results): array
     {
         $allEvents = [];
-        
+
         // Flatten all results
         foreach ($results as $platform => $events) {
             foreach ($events as $event) {
@@ -97,7 +98,7 @@ class AdvancedApiAggregator
 
         // Group similar events
         $groupedEvents = $this->groupSimilarEvents($allEvents);
-        
+
         // Merge and enrich grouped events
         $enrichedEvents = [];
         foreach ($groupedEvents as $group) {
@@ -116,7 +117,7 @@ class AdvancedApiAggregator
         $processed = [];
 
         foreach ($events as $index => $event) {
-            if (in_array($index, $processed)) {
+            if (in_array($index, $processed, TRUE)) {
                 continue;
             }
 
@@ -125,7 +126,7 @@ class AdvancedApiAggregator
 
             // Find similar events
             foreach ($events as $compareIndex => $compareEvent) {
-                if (in_array($compareIndex, $processed)) {
+                if (in_array($compareIndex, $processed, TRUE)) {
                     continue;
                 }
 
@@ -149,7 +150,7 @@ class AdvancedApiAggregator
         // Name similarity (using Levenshtein distance)
         $nameDistance = levenshtein(
             strtolower($event1['name'] ?? ''),
-            strtolower($event2['name'] ?? '')
+            strtolower($event2['name'] ?? ''),
         );
         $maxNameLength = max(strlen($event1['name'] ?? ''), strlen($event2['name'] ?? ''));
         $nameSimilarity = 1 - ($nameDistance / max($maxNameLength, 1));
@@ -162,10 +163,10 @@ class AdvancedApiAggregator
 
         // Venue similarity
         $venueSimilarity = 0;
-        if (isset($event1['venue']) && isset($event2['venue'])) {
+        if (isset($event1['venue'], $event2['venue'])) {
             $venueDistance = levenshtein(
                 strtolower($event1['venue']),
-                strtolower($event2['venue'])
+                strtolower($event2['venue']),
             );
             $maxVenueLength = max(strlen($event1['venue']), strlen($event2['venue']));
             $venueSimilarity = 1 - ($venueDistance / max($maxVenueLength, 1));
@@ -187,7 +188,7 @@ class AdvancedApiAggregator
         }
 
         // Find the event with highest confidence score as base
-        $baseEvent = array_reduce($eventGroup, function($carry, $event) {
+        $baseEvent = array_reduce($eventGroup, function ($carry, $event) {
             return ($event['confidence_score'] ?? 0) > ($carry['confidence_score'] ?? 0) ? $event : $carry;
         }, $eventGroup[0]);
 
@@ -203,13 +204,13 @@ class AdvancedApiAggregator
             if (isset($event['price_min']) || isset($event['price_max'])) {
                 $mergedEvent['price_variations'][] = [
                     'platform' => $event['source_platform'],
-                    'min' => $event['price_min'] ?? null,
-                    'max' => $event['price_max'] ?? null,
+                    'min'      => $event['price_min'] ?? NULL,
+                    'max'      => $event['price_max'] ?? NULL,
                 ];
             }
 
             // Take the best available URL
-            if (empty($mergedEvent['url']) && !empty($event['url'])) {
+            if (empty($mergedEvent['url']) && ! empty($event['url'])) {
                 $mergedEvent['url'] = $event['url'];
             }
         }
@@ -217,8 +218,12 @@ class AdvancedApiAggregator
         // Calculate aggregated price range
         $allPrices = [];
         foreach ($mergedEvent['price_variations'] as $priceInfo) {
-            if ($priceInfo['min']) $allPrices[] = $priceInfo['min'];
-            if ($priceInfo['max']) $allPrices[] = $priceInfo['max'];
+            if ($priceInfo['min']) {
+                $allPrices[] = $priceInfo['min'];
+            }
+            if ($priceInfo['max']) {
+                $allPrices[] = $priceInfo['max'];
+            }
         }
 
         if ($allPrices) {
@@ -240,20 +245,32 @@ class AdvancedApiAggregator
         $score = 0;
 
         // Base score for having essential fields
-        if (!empty($event['name'])) $score += 20;
-        if (!empty($event['date'])) $score += 20;
-        if (!empty($event['venue'])) $score += 15;
+        if (! empty($event['name'])) {
+            $score += 20;
+        }
+        if (! empty($event['date'])) {
+            $score += 20;
+        }
+        if (! empty($event['venue'])) {
+            $score += 15;
+        }
 
         // Additional points for extra data
-        if (!empty($event['url'])) $score += 10;
-        if (!empty($event['price_min'])) $score += 10;
-        if (!empty($event['description'])) $score += 5;
+        if (! empty($event['url'])) {
+            $score += 10;
+        }
+        if (! empty($event['price_min'])) {
+            $score += 10;
+        }
+        if (! empty($event['description'])) {
+            $score += 5;
+        }
 
         // Platform reliability bonus
         $platformBonus = [
             'ticketmaster' => 20,
-            'seatgeek' => 15,
-            'eventbrite' => 10,
+            'seatgeek'     => 15,
+            'eventbrite'   => 10,
         ];
         $score += $platformBonus[$event['source_platform']] ?? 5;
 
@@ -273,13 +290,14 @@ class AdvancedApiAggregator
                     $adapted['keyword'] = $criteria['q'];
                     $adapted['apikey'] = config('ticket_apis.ticketmaster.api_key');
                 }
-                break;
 
+                break;
             case 'seatgeek':
                 // SeatGeek specific adaptations
                 if (isset($criteria['date_from'])) {
                     $adapted['datetime_utc.gte'] = $criteria['date_from'] . 'T00:00:00Z';
                 }
+
                 break;
         }
 
@@ -293,11 +311,11 @@ class AdvancedApiAggregator
     {
         $configs = config('ticket_apis');
 
-        if ($configs['ticketmaster']['enabled'] ?? false) {
+        if ($configs['ticketmaster']['enabled'] ?? FALSE) {
             $this->clients['ticketmaster'] = new TicketmasterClient($configs['ticketmaster']);
         }
 
-        if ($configs['seatgeek']['enabled'] ?? false) {
+        if ($configs['seatgeek']['enabled'] ?? FALSE) {
             $this->clients['seatgeek'] = new SeatGeekClient($configs['seatgeek']);
         }
     }
@@ -311,9 +329,11 @@ class AdvancedApiAggregator
         switch ($platform) {
             case 'ticketmaster':
                 $eventData = $data['_embedded']['events'] ?? [];
+
                 break;
             case 'seatgeek':
                 $eventData = $data['events'] ?? [];
+
                 break;
             default:
                 $eventData = $data['events'] ?? $data['data'] ?? [];

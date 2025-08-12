@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Settings
@@ -11,14 +10,12 @@ return [
     | in dompdf_config.inc.php. You can also override the entire config file.
     |
     */
-    'show_warnings' => false,   // Throw an Exception on warnings from dompdf
+    'show_warnings' => FALSE,   // Throw an Exception on warnings from dompdf
 
-    'public_path' => null,  // Override the public path if needed
+    'public_path' => NULL,  // Override the public path if needed
 
-    /*
-     * Dejavu Sans font is missing glyphs for converted entities, turn it off if you need to show € and £.
-     */
-    'convert_entities' => true,
+    // Dejavu Sans font is missing glyphs for converted entities, turn it off if you need to show € and £.
+    'convert_entities' => TRUE,
 
     'options' => [
         /**
@@ -91,26 +88,26 @@ return [
          * @var array
          */
         'allowed_protocols' => [
-            'data://' => ['rules' => []],
-            'file://' => ['rules' => []],
-            'http://' => ['rules' => []],
+            'data://'  => ['rules' => []],
+            'file://'  => ['rules' => []],
+            'http://'  => ['rules' => []],
             'https://' => ['rules' => []],
         ],
 
         /**
          * Operational artifact (log files, temporary files) path validation
          */
-        'artifactPathValidation' => null,
+        'artifactPathValidation' => NULL,
 
         /**
          * @var string
          */
-        'log_output_file' => null,
+        'log_output_file' => NULL,
 
         /**
          * Whether to enable font subsetting or not.
          */
-        'enable_font_subsetting' => false,
+        'enable_font_subsetting' => FALSE,
 
         /**
          * The PDF rendering backend to use
@@ -136,9 +133,9 @@ return [
          * look at {@link GD_Adapter} for more information.  GD support is
          * experimental, so use it at your own risk.
          *
-         * @link http://www.pdflib.com
-         * @link http://www.ros.co.nz/pdf
-         * @link http://www.php.net/image
+         * @see http://www.pdflib.com
+         * @see http://www.ros.co.nz/pdf
+         * @see http://www.php.net/image
          */
         'pdf_backend' => 'CPDF',
 
@@ -233,7 +230,7 @@ return [
          *
          * @var bool
          */
-        'enable_php' => false,
+        'enable_php' => FALSE,
 
         /**
          * Rnable inline JavaScript
@@ -245,7 +242,7 @@ return [
          *
          * @var bool
          */
-        'enable_javascript' => true,
+        'enable_javascript' => TRUE,
 
         /**
          * Enable remote file access
@@ -267,7 +264,7 @@ return [
          *
          * @var bool
          */
-        'enable_remote' => false,
+        'enable_remote' => FALSE,
 
         /**
          * List of allowed remote hosts
@@ -281,7 +278,7 @@ return [
          *
          * @var array|null
          */
-        'allowed_remote_hosts' => null,
+        'allowed_remote_hosts' => NULL,
 
         /**
          * A ratio applied to the fonts height to be more like browsers' line height
@@ -295,7 +292,6 @@ return [
          *
          * @var bool
          */
-        'enable_html5_parser' => true,
+        'enable_html5_parser' => TRUE,
     ],
-
 ];

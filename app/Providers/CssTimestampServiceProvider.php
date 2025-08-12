@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\ServiceProvider;
 
 class CssTimestampServiceProvider extends ServiceProvider
 {
@@ -15,12 +15,9 @@ class CssTimestampServiceProvider extends ServiceProvider
     {
         // Register the CSS timestamp helper as a singleton
         $this->app->singleton('css.timestamp', function ($app) {
-            return new class {
+            return new class() {
                 /**
                  * Generate a timestamped CSS URL
-                 *
-                 * @param string $path
-                 * @return string
                  */
                 public function generate(string $path): string
                 {
@@ -31,7 +28,7 @@ class CssTimestampServiceProvider extends ServiceProvider
 
                     // Handle local assets
                     $fullPath = public_path($path);
-                    
+
                     // Check if file exists and get modification time using filemtime
                     if (File::exists($fullPath)) {
                         $timestamp = filemtime($fullPath) ?: File::lastModified($fullPath);
@@ -42,20 +39,17 @@ class CssTimestampServiceProvider extends ServiceProvider
 
                     // Use Laravel's asset helper for proper URL generation
                     $assetUrl = asset($path);
-                    
+
                     return $this->addTimestampToUrl($assetUrl, $timestamp);
                 }
 
                 /**
                  * Add timestamp parameter to URL
-                 *
-                 * @param string $url
-                 * @param int $timestamp
-                 * @return string
                  */
                 private function addTimestampToUrl(string $url, int $timestamp): string
                 {
-                    $separator = strpos($url, '?') !== false ? '&' : '?';
+                    $separator = strpos($url, '?') !== FALSE ? '&' : '?';
+
                     return $url . $separator . 'v=' . $timestamp;
                 }
             };
@@ -69,7 +63,7 @@ class CssTimestampServiceProvider extends ServiceProvider
     {
         // Register the custom Blade directive
         Blade::directive('cssWithTimestamp', function ($expression) {
-            return "<?php echo app('css.timestamp')->generate($expression); ?>";
+            return "<?php echo app('css.timestamp')->generate({$expression}); ?>";
         });
     }
 }

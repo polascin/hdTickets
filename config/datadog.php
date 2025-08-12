@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Datadog APM Configuration
@@ -12,7 +11,7 @@ return [
     |
     */
 
-    'enabled' => env('DATADOG_ENABLED', false),
+    'enabled' => env('DATADOG_ENABLED', FALSE),
 
     'api_key' => env('DATADOG_API_KEY', ''),
 
@@ -27,8 +26,8 @@ return [
     */
 
     'service' => [
-        'name' => 'hdtickets',
-        'version' => '2025.7.3',
+        'name'        => 'hdtickets',
+        'version'     => '2025.7.3',
         'environment' => env('APP_ENV', 'production'),
     ],
 
@@ -39,26 +38,26 @@ return [
     */
 
     'apm' => [
-        'enabled' => true,
+        'enabled'      => TRUE,
         'service_name' => 'hdtickets-web',
-        'version' => '2025.7.3',
-        'env' => env('APP_ENV', 'production'),
-        
+        'version'      => '2025.7.3',
+        'env'          => env('APP_ENV', 'production'),
+
         // Distributed tracing
-        'distributed_tracing' => true,
-        'priority_sampling' => true,
-        'trace_sample_rate' => 1.0,
-        
+        'distributed_tracing' => TRUE,
+        'priority_sampling'   => TRUE,
+        'trace_sample_rate'   => 1.0,
+
         // Performance monitoring
-        'profiling_enabled' => true,
-        'resource_names_as_service_names' => false,
-        
+        'profiling_enabled'               => TRUE,
+        'resource_names_as_service_names' => FALSE,
+
         // Database tracing
-        'trace_laravel_view' => true,
-        'trace_laravel_queue' => true,
-        'trace_eloquent' => true,
-        'trace_cache' => true,
-        'trace_redis' => true,
+        'trace_laravel_view'  => TRUE,
+        'trace_laravel_queue' => TRUE,
+        'trace_eloquent'      => TRUE,
+        'trace_cache'         => TRUE,
+        'trace_redis'         => TRUE,
     ],
 
     /*
@@ -68,10 +67,10 @@ return [
     */
 
     'logs' => [
-        'enabled' => true,
-        'level' => 'info',
-        'inject_trace_id' => true,
-        'channels' => [
+        'enabled'         => TRUE,
+        'level'           => 'info',
+        'inject_trace_id' => TRUE,
+        'channels'        => [
             'single',
             'daily',
             'slack',
@@ -86,8 +85,8 @@ return [
     */
 
     'metrics' => [
-        'enabled' => true,
-        'namespace' => 'hdtickets',
+        'enabled'        => TRUE,
+        'namespace'      => 'hdtickets',
         'custom_metrics' => [
             'ticket_scraping_duration' => [
                 'type' => 'histogram',
@@ -131,7 +130,7 @@ return [
     */
 
     'error_tracking' => [
-        'enabled' => true,
+        'enabled'           => TRUE,
         'ignore_exceptions' => [
             'Illuminate\Http\Exception\NotFoundHttpException',
             'Illuminate\Auth\AuthenticationException',
@@ -147,14 +146,14 @@ return [
     */
 
     'rum' => [
-        'enabled' => true,
-        'application_id' => env('DATADOG_RUM_APPLICATION_ID', ''),
-        'client_token' => env('DATADOG_RUM_CLIENT_TOKEN', ''),
-        'session_sample_rate' => 100,
+        'enabled'                    => TRUE,
+        'application_id'             => env('DATADOG_RUM_APPLICATION_ID', ''),
+        'client_token'               => env('DATADOG_RUM_CLIENT_TOKEN', ''),
+        'session_sample_rate'        => 100,
         'session_replay_sample_rate' => 20,
-        'track_user_interactions' => true,
-        'track_resources' => true,
-        'track_long_tasks' => true,
+        'track_user_interactions'    => TRUE,
+        'track_resources'            => TRUE,
+        'track_long_tasks'           => TRUE,
     ],
 
     /*
@@ -164,33 +163,33 @@ return [
     */
 
     'synthetics' => [
-        'enabled' => true,
-        'tests' => [
+        'enabled' => TRUE,
+        'tests'   => [
             'api_health_check' => [
-                'url' => env('APP_URL') . '/health',
-                'method' => 'GET',
-                'frequency' => 300, // 5 minutes
-                'locations' => ['aws:eu-central-1'],
+                'url'        => env('APP_URL') . '/health',
+                'method'     => 'GET',
+                'frequency'  => 300, // 5 minutes
+                'locations'  => ['aws:eu-central-1'],
                 'assertions' => [
                     ['type' => 'statusCode', 'operator' => 'is', 'value' => 200],
                     ['type' => 'responseTime', 'operator' => 'lessThan', 'value' => 1000],
                 ],
             ],
             'login_functionality' => [
-                'url' => env('APP_URL') . '/login',
-                'method' => 'GET',
-                'frequency' => 600, // 10 minutes
-                'locations' => ['aws:eu-central-1'],
-                'browser_test' => true,
+                'url'          => env('APP_URL') . '/login',
+                'method'       => 'GET',
+                'frequency'    => 600, // 10 minutes
+                'locations'    => ['aws:eu-central-1'],
+                'browser_test' => TRUE,
             ],
             'ticket_search' => [
-                'url' => env('APP_URL') . '/api/tickets/search',
-                'method' => 'POST',
+                'url'       => env('APP_URL') . '/api/tickets/search',
+                'method'    => 'POST',
                 'frequency' => 900, // 15 minutes
                 'locations' => ['aws:eu-central-1'],
-                'headers' => [
+                'headers'   => [
                     'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
+                    'Accept'       => 'application/json',
                 ],
             ],
         ],
@@ -203,25 +202,25 @@ return [
     */
 
     'infrastructure' => [
-        'enabled' => true,
-        'agent_version' => '7.x',
-        'collect_ec2_tags' => true,
-        'collect_custom_metrics' => true,
-        'integrations' => [
+        'enabled'                => TRUE,
+        'agent_version'          => '7.x',
+        'collect_ec2_tags'       => TRUE,
+        'collect_custom_metrics' => TRUE,
+        'integrations'           => [
             'mysql' => [
-                'enabled' => true,
-                'performance_schema' => true,
+                'enabled'            => TRUE,
+                'performance_schema' => TRUE,
             ],
             'redis' => [
-                'enabled' => true,
-                'command_stats' => true,
+                'enabled'       => TRUE,
+                'command_stats' => TRUE,
             ],
             'nginx' => [
-                'enabled' => true,
+                'enabled'    => TRUE,
                 'status_url' => 'http://localhost/nginx_status',
             ],
             'php_fpm' => [
-                'enabled' => true,
+                'enabled'    => TRUE,
                 'status_url' => 'http://localhost/fpm-status',
             ],
         ],
@@ -235,17 +234,17 @@ return [
 
     'alerts' => [
         'channels' => [
-            'slack' => env('DATADOG_SLACK_WEBHOOK', ''),
-            'email' => env('DATADOG_ALERT_EMAIL', 'alerts@hdtickets.polascin.net'),
+            'slack'     => env('DATADOG_SLACK_WEBHOOK', ''),
+            'email'     => env('DATADOG_ALERT_EMAIL', 'alerts@hdtickets.polascin.net'),
             'pagerduty' => env('DATADOG_PAGERDUTY_KEY', ''),
         ],
         'thresholds' => [
-            'error_rate' => 5, // 5% error rate threshold
+            'error_rate'        => 5, // 5% error rate threshold
             'response_time_p95' => 2000, // 2 seconds
             'response_time_p99' => 5000, // 5 seconds
-            'memory_usage' => 80, // 80% memory usage
-            'cpu_usage' => 85, // 85% CPU usage
-            'disk_usage' => 90, // 90% disk usage
+            'memory_usage'      => 80, // 80% memory usage
+            'cpu_usage'         => 85, // 85% CPU usage
+            'disk_usage'        => 90, // 90% disk usage
         ],
     ],
 
@@ -256,12 +255,12 @@ return [
     */
 
     'tags' => [
-        'service' => 'hdtickets',
-        'version' => '2025.7.3',
+        'service'     => 'hdtickets',
+        'version'     => '2025.7.3',
         'environment' => env('APP_ENV', 'production'),
-        'team' => 'platform',
+        'team'        => 'platform',
         'cost_center' => 'engineering',
-        'region' => 'eu-central-1',
+        'region'      => 'eu-central-1',
     ],
 
     /*
@@ -271,9 +270,9 @@ return [
     */
 
     'security' => [
-        'obfuscate_sql_values' => true,
-        'obfuscate_memcache_keys' => true,
-        'obfuscate_redis_commands' => true,
+        'obfuscate_sql_values'         => TRUE,
+        'obfuscate_memcache_keys'      => TRUE,
+        'obfuscate_redis_commands'     => TRUE,
         'obfuscate_http_query_strings' => [
             'password',
             'token',
@@ -282,5 +281,4 @@ return [
             'credit_card',
         ],
     ],
-
 ];

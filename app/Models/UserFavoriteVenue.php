@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -26,19 +26,19 @@ class UserFavoriteVenue extends Model
         'email_alerts',
         'push_alerts',
         'sms_alerts',
-        'priority'
+        'priority',
     ];
 
     protected $casts = [
-        'venue_types' => 'array',
-        'aliases' => 'array',
+        'venue_types'  => 'array',
+        'aliases'      => 'array',
         'email_alerts' => 'boolean',
-        'push_alerts' => 'boolean',
-        'sms_alerts' => 'boolean',
-        'priority' => 'integer',
-        'capacity' => 'integer',
-        'latitude' => 'decimal:7',
-        'longitude' => 'decimal:7'
+        'push_alerts'  => 'boolean',
+        'sms_alerts'   => 'boolean',
+        'priority'     => 'integer',
+        'capacity'     => 'integer',
+        'latitude'     => 'decimal:7',
+        'longitude'    => 'decimal:7',
     ];
 
     /**
@@ -51,6 +51,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope to filter by city
+     *
+     * @param mixed $query
      */
     public function scopeByCity($query, string $city)
     {
@@ -59,6 +61,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope to filter by state/province
+     *
+     * @param mixed $query
      */
     public function scopeByStateProvince($query, string $stateProvince)
     {
@@ -67,6 +71,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope to filter by country
+     *
+     * @param mixed $query
      */
     public function scopeByCountry($query, string $country)
     {
@@ -75,6 +81,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope to filter by venue type
+     *
+     * @param mixed $query
      */
     public function scopeByVenueType($query, string $venueType)
     {
@@ -83,6 +91,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope to filter by priority
+     *
+     * @param mixed $query
      */
     public function scopeByPriority($query, int $priority)
     {
@@ -91,6 +101,8 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope for high priority venues
+     *
+     * @param mixed $query
      */
     public function scopeHighPriority($query)
     {
@@ -99,35 +111,41 @@ class UserFavoriteVenue extends Model
 
     /**
      * Scope for venues with email alerts enabled
+     *
+     * @param mixed $query
      */
     public function scopeWithEmailAlerts($query)
     {
-        return $query->where('email_alerts', true);
+        return $query->where('email_alerts', TRUE);
     }
 
     /**
      * Search venues by name or city
+     *
+     * @param mixed $query
      */
     public function scopeSearch($query, string $term)
     {
-        return $query->where(function ($q) use ($term) {
+        return $query->where(function ($q) use ($term): void {
             $q->where('venue_name', 'LIKE', "%{$term}%")
-              ->orWhere('city', 'LIKE', "%{$term}%")
-              ->orWhere('state_province', 'LIKE', "%{$term}%")
-              ->orWhereJsonContains('aliases', $term);
+                ->orWhere('city', 'LIKE', "%{$term}%")
+                ->orWhere('state_province', 'LIKE', "%{$term}%")
+                ->orWhereJsonContains('aliases', $term);
         });
     }
 
     /**
      * Scope to find venues within a radius (miles)
+     *
+     * @param mixed $query
      */
     public function scopeWithinRadius($query, float $latitude, float $longitude, int $radiusMiles)
     {
         $radiusDegrees = $radiusMiles / 69; // Approximate conversion
-        
+
         return $query->whereRaw(
-            "SQRT(POW(69.1 * (latitude - ?), 2) + POW(69.1 * (? - longitude) * COS(latitude / 57.3), 2)) <= ?",
-            [$latitude, $longitude, $radiusMiles]
+            'SQRT(POW(69.1 * (latitude - ?), 2) + POW(69.1 * (? - longitude) * COS(latitude / 57.3), 2)) <= ?',
+            [$latitude, $longitude, $radiusMiles],
         );
     }
 
@@ -137,9 +155,9 @@ class UserFavoriteVenue extends Model
     public function getFullNameAttribute(): string
     {
         $location = collect([$this->city, $this->state_province, $this->country])
-                   ->filter()
-                   ->join(', ');
-                   
+            ->filter()
+            ->join(', ');
+
         return $this->venue_name . ($location ? " ({$location})" : '');
     }
 
@@ -149,13 +167,16 @@ class UserFavoriteVenue extends Model
     public function generateSlug(): string
     {
         $name = $this->venue_name . ' ' . $this->city;
+
         return strtolower(str_replace([' ', '&', '.'], ['-', 'and', ''], $name));
     }
 
     /**
      * Set venue slug automatically
+     *
+     * @param mixed $value
      */
-    public function setVenueSlugAttribute($value)
+    public function setVenueSlugAttribute($value): void
     {
         $this->attributes['venue_slug'] = $value ?: $this->generateSlug();
     }
@@ -166,48 +187,48 @@ class UserFavoriteVenue extends Model
     public static function getAvailableVenueTypes(): array
     {
         return [
-            'stadium' => 'Stadium',
-            'arena' => 'Arena',
-            'amphitheater' => 'Amphitheater',
-            'theater' => 'Theater',
-            'concert_hall' => 'Concert Hall',
+            'stadium'           => 'Stadium',
+            'arena'             => 'Arena',
+            'amphitheater'      => 'Amphitheater',
+            'theater'           => 'Theater',
+            'concert_hall'      => 'Concert Hall',
             'convention_center' => 'Convention Center',
-            'outdoor_venue' => 'Outdoor Venue',
-            'club' => 'Club/Bar',
-            'racetrack' => 'Racetrack',
-            'golf_course' => 'Golf Course',
-            'other' => 'Other'
+            'outdoor_venue'     => 'Outdoor Venue',
+            'club'              => 'Club/Bar',
+            'racetrack'         => 'Racetrack',
+            'golf_course'       => 'Golf Course',
+            'other'             => 'Other',
         ];
     }
 
     /**
      * Get popular venues for autocomplete
      */
-    public static function getPopularVenues(string $city = null): array
+    public static function getPopularVenues(?string $city = NULL): array
     {
         $query = self::select('venue_name', 'city', 'state_province', 'country', 'venue_types')
-                    ->selectRaw('COUNT(*) as popularity')
-                    ->groupBy(['venue_name', 'city', 'state_province', 'country', 'venue_types']);
+            ->selectRaw('COUNT(*) as popularity')
+            ->groupBy(['venue_name', 'city', 'state_province', 'country', 'venue_types']);
 
         if ($city) {
             $query->where('city', 'LIKE', "%{$city}%");
         }
 
         return $query->orderByDesc('popularity')
-                    ->limit(50)
-                    ->get()
-                    ->map(function ($venue) {
-                        return [
-                            'name' => $venue->venue_name,
-                            'city' => $venue->city,
-                            'state_province' => $venue->state_province,
-                            'country' => $venue->country,
-                            'full_name' => $venue->venue_name . " ({$venue->city})",
-                            'venue_types' => $venue->venue_types,
-                            'popularity' => $venue->popularity
-                        ];
-                    })
-                    ->toArray();
+            ->limit(50)
+            ->get()
+            ->map(function ($venue) {
+                return [
+                    'name'           => $venue->venue_name,
+                    'city'           => $venue->city,
+                    'state_province' => $venue->state_province,
+                    'country'        => $venue->country,
+                    'full_name'      => $venue->venue_name . " ({$venue->city})",
+                    'venue_types'    => $venue->venue_types,
+                    'popularity'     => $venue->popularity,
+                ];
+            })
+            ->toArray();
     }
 
     /**
@@ -216,11 +237,11 @@ class UserFavoriteVenue extends Model
     public function matchesSearch(string $term): bool
     {
         $term = strtolower($term);
-        
-        return str_contains(strtolower($this->venue_name), $term) ||
-               str_contains(strtolower($this->city), $term) ||
-               str_contains(strtolower($this->state_province ?? ''), $term) ||
-               collect($this->aliases ?? [])->contains(function ($alias) use ($term) {
+
+        return str_contains(strtolower($this->venue_name), $term)
+               || str_contains(strtolower($this->city), $term)
+               || str_contains(strtolower($this->state_province ?? ''), $term)
+               || collect($this->aliases ?? [])->contains(function ($alias) use ($term) {
                    return str_contains(strtolower($alias), $term);
                });
     }
@@ -232,8 +253,8 @@ class UserFavoriteVenue extends Model
     {
         return [
             'email' => $this->email_alerts,
-            'push' => $this->push_alerts,
-            'sms' => $this->sms_alerts
+            'push'  => $this->push_alerts,
+            'sms'   => $this->sms_alerts,
         ];
     }
 
@@ -244,8 +265,8 @@ class UserFavoriteVenue extends Model
     {
         $this->update([
             'email_alerts' => $settings['email'] ?? $this->email_alerts,
-            'push_alerts' => $settings['push'] ?? $this->push_alerts,
-            'sms_alerts' => $settings['sms'] ?? $this->sms_alerts
+            'push_alerts'  => $settings['push'] ?? $this->push_alerts,
+            'sms_alerts'   => $settings['sms'] ?? $this->sms_alerts,
         ]);
     }
 
@@ -254,8 +275,8 @@ class UserFavoriteVenue extends Model
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
-        if (!$this->latitude || !$this->longitude) {
-            return null;
+        if (! $this->latitude || ! $this->longitude) {
+            return NULL;
         }
 
         $earthRadius = 3959; // Miles
@@ -277,12 +298,20 @@ class UserFavoriteVenue extends Model
      */
     public function getCapacityTierAttribute(): string
     {
-        if (!$this->capacity) return 'unknown';
-        
-        if ($this->capacity >= 50000) return 'large';
-        if ($this->capacity >= 20000) return 'medium';
-        if ($this->capacity >= 5000) return 'small';
-        
+        if (! $this->capacity) {
+            return 'unknown';
+        }
+
+        if ($this->capacity >= 50000) {
+            return 'large';
+        }
+        if ($this->capacity >= 20000) {
+            return 'medium';
+        }
+        if ($this->capacity >= 5000) {
+            return 'small';
+        }
+
         return 'intimate';
     }
 
@@ -292,7 +321,8 @@ class UserFavoriteVenue extends Model
     public function isOutdoor(): bool
     {
         $outdoorTypes = ['stadium', 'amphitheater', 'outdoor_venue', 'racetrack', 'golf_course'];
-        return !empty(array_intersect($this->venue_types ?? [], $outdoorTypes));
+
+        return ! empty(array_intersect($this->venue_types ?? [], $outdoorTypes));
     }
 
     /**
@@ -301,7 +331,7 @@ class UserFavoriteVenue extends Model
     public static function getVenueStats(int $userId): array
     {
         $venues = self::where('user_id', $userId)->get();
-        
+
         $byCity = $venues->groupBy('city')->map(function ($group) {
             return $group->count();
         })->sortDesc();
@@ -311,17 +341,17 @@ class UserFavoriteVenue extends Model
         })->countBy()->sortDesc();
 
         return [
-            'total_venues' => $venues->count(),
-            'cities_count' => $venues->groupBy('city')->count(),
-            'countries_count' => $venues->groupBy('country')->count(),
+            'total_venues'        => $venues->count(),
+            'cities_count'        => $venues->groupBy('city')->count(),
+            'countries_count'     => $venues->groupBy('country')->count(),
             'high_priority_count' => $venues->where('priority', '>=', 4)->count(),
-            'email_alerts_count' => $venues->where('email_alerts', true)->count(),
-            'most_popular_city' => $byCity->keys()->first(),
-            'by_city' => $byCity->take(10)->toArray(),
-            'by_venue_type' => $byVenueType->take(5)->toArray(),
-            'outdoor_venues' => $venues->filter(function ($venue) {
+            'email_alerts_count'  => $venues->where('email_alerts', TRUE)->count(),
+            'most_popular_city'   => $byCity->keys()->first(),
+            'by_city'             => $byCity->take(10)->toArray(),
+            'by_venue_type'       => $byVenueType->take(5)->toArray(),
+            'outdoor_venues'      => $venues->filter(function ($venue) {
                 return $venue->isOutdoor();
-            })->count()
+            })->count(),
         ];
     }
 
@@ -331,17 +361,17 @@ class UserFavoriteVenue extends Model
     public function getSimilarVenues(int $limit = 5): array
     {
         return self::where('id', '!=', $this->id)
-                  ->where(function ($query) {
-                      $query->where('city', $this->city)
-                            ->orWhere('state_province', $this->state_province)
-                            ->orWhere(function ($q) {
-                                foreach ($this->venue_types ?? [] as $type) {
-                                    $q->orWhereJsonContains('venue_types', $type);
-                                }
-                            });
-                  })
-                  ->limit($limit)
-                  ->get()
-                  ->toArray();
+            ->where(function ($query): void {
+                $query->where('city', $this->city)
+                    ->orWhere('state_province', $this->state_province)
+                    ->orWhere(function ($q): void {
+                        foreach ($this->venue_types ?? [] as $type) {
+                            $q->orWhereJsonContains('venue_types', $type);
+                        }
+                    });
+            })
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 }

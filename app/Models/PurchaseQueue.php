@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -8,9 +8,33 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+use function in_array;
+
 class PurchaseQueue extends Model
 {
     use HasFactory;
+
+    // Status constants
+    public const STATUS_QUEUED = 'queued';
+
+    public const STATUS_PROCESSING = 'processing';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const STATUS_CANCELLED = 'cancelled';
+
+    // Priority constants
+    public const PRIORITY_LOW = 'low';
+
+    public const PRIORITY_MEDIUM = 'medium';
+
+    public const PRIORITY_HIGH = 'high';
+
+    public const PRIORITY_URGENT = 'urgent';
+
+    public const PRIORITY_CRITICAL = 'critical';
 
     protected $fillable = [
         'uuid',
@@ -32,39 +56,14 @@ class PurchaseQueue extends Model
     ];
 
     protected $casts = [
-        'purchase_criteria' => 'array',
-        'scheduled_for' => 'datetime',
-        'expires_at' => 'datetime',
+        'purchase_criteria'     => 'array',
+        'scheduled_for'         => 'datetime',
+        'expires_at'            => 'datetime',
         'started_processing_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'max_price' => 'decimal:2',
-        'metadata' => 'array', // Add metadata casting
+        'completed_at'          => 'datetime',
+        'max_price'             => 'decimal:2',
+        'metadata'              => 'array', // Add metadata casting
     ];
-
-    // Status constants
-    const STATUS_QUEUED = 'queued';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
-    const STATUS_CANCELLED = 'cancelled';
-
-    // Priority constants
-    const PRIORITY_LOW = 'low';
-    const PRIORITY_MEDIUM = 'medium';
-    const PRIORITY_HIGH = 'high';
-    const PRIORITY_URGENT = 'urgent';
-    const PRIORITY_CRITICAL = 'critical';
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($queue) {
-            if (empty($queue->uuid)) {
-                $queue->uuid = (string) Str::uuid();
-            }
-        });
-    }
 
     /**
      * Get the route key for the model
@@ -117,7 +116,7 @@ class PurchaseQueue extends Model
     {
         return $this->belongsTo(User::class, 'selected_by_user_id');
     }
-    
+
     /**
      * Relationship: User (alias for selectedByUser for compatibility)
      */
@@ -144,6 +143,9 @@ class PurchaseQueue extends Model
 
     /**
      * Scope: Filter by status
+     *
+     * @param mixed $query
+     * @param mixed $status
      */
     public function scopeByStatus($query, $status)
     {
@@ -152,6 +154,9 @@ class PurchaseQueue extends Model
 
     /**
      * Scope: Filter by priority
+     *
+     * @param mixed $query
+     * @param mixed $priority
      */
     public function scopeByPriority($query, $priority)
     {
@@ -160,39 +165,45 @@ class PurchaseQueue extends Model
 
     /**
      * Scope: Ready for processing
+     *
+     * @param mixed $query
      */
     public function scopeReadyForProcessing($query)
     {
         return $query->where('status', self::STATUS_QUEUED)
-                    ->where(function ($q) {
-                        $q->whereNull('scheduled_for')
-                          ->orWhere('scheduled_for', '<=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>', now());
-                    });
+            ->where(function ($q): void {
+                $q->whereNull('scheduled_for')
+                    ->orWhere('scheduled_for', '<=', now());
+            })
+            ->where(function ($q): void {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 
     /**
      * Scope: High priority items
+     *
+     * @param mixed $query
      */
     public function scopeHighPriority($query)
     {
         return $query->whereIn('priority', [
             self::PRIORITY_HIGH,
             self::PRIORITY_URGENT,
-            self::PRIORITY_CRITICAL
+            self::PRIORITY_CRITICAL,
         ]);
     }
 
     /**
      * Scope: Expired items
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
         return $query->whereNotNull('expires_at')
-                    ->where('expires_at', '<=', now());
+            ->where('expires_at', '<=', now());
     }
 
     /**
@@ -202,8 +213,8 @@ class PurchaseQueue extends Model
     {
         return in_array($this->status, [
             self::STATUS_QUEUED,
-            self::STATUS_PROCESSING
-        ]);
+            self::STATUS_PROCESSING,
+        ], TRUE);
     }
 
     /**
@@ -252,7 +263,7 @@ class PurchaseQueue extends Model
     public function markAsProcessing(): bool
     {
         return $this->update([
-            'status' => self::STATUS_PROCESSING,
+            'status'                => self::STATUS_PROCESSING,
             'started_processing_at' => now(),
         ]);
     }
@@ -263,7 +274,7 @@ class PurchaseQueue extends Model
     public function markAsCompleted(): bool
     {
         return $this->update([
-            'status' => self::STATUS_COMPLETED,
+            'status'       => self::STATUS_COMPLETED,
             'completed_at' => now(),
         ]);
     }
@@ -293,13 +304,13 @@ class PurchaseQueue extends Model
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
-            self::STATUS_QUEUED => 'blue',
+        return match ($this->status) {
+            self::STATUS_QUEUED     => 'blue',
             self::STATUS_PROCESSING => 'yellow',
-            self::STATUS_COMPLETED => 'green',
-            self::STATUS_FAILED => 'red',
-            self::STATUS_CANCELLED => 'gray',
-            default => 'gray',
+            self::STATUS_COMPLETED  => 'green',
+            self::STATUS_FAILED     => 'red',
+            self::STATUS_CANCELLED  => 'gray',
+            default                 => 'gray',
         };
     }
 
@@ -308,13 +319,13 @@ class PurchaseQueue extends Model
      */
     public function getPriorityColorAttribute(): string
     {
-        return match($this->priority) {
+        return match ($this->priority) {
             self::PRIORITY_CRITICAL => 'red',
-            self::PRIORITY_URGENT => 'orange',
-            self::PRIORITY_HIGH => 'yellow',
-            self::PRIORITY_MEDIUM => 'blue',
-            self::PRIORITY_LOW => 'gray',
-            default => 'gray',
+            self::PRIORITY_URGENT   => 'orange',
+            self::PRIORITY_HIGH     => 'yellow',
+            self::PRIORITY_MEDIUM   => 'blue',
+            self::PRIORITY_LOW      => 'gray',
+            default                 => 'gray',
         };
     }
 
@@ -329,6 +340,7 @@ class PurchaseQueue extends Model
         }
 
         $successfulAttempts = $this->purchaseAttempts()->where('status', PurchaseAttempt::STATUS_SUCCESS)->count();
+
         return ($successfulAttempts / $totalAttempts) * 100;
     }
 
@@ -341,6 +353,17 @@ class PurchaseQueue extends Model
             return $this->scheduled_for->diffForHumans();
         }
 
-        return null;
+        return NULL;
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($queue): void {
+            if (empty($queue->uuid)) {
+                $queue->uuid = (string) Str::uuid();
+            }
+        });
     }
 }

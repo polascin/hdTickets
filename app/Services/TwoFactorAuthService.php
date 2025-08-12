@@ -1,21 +1,27 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FA\Google2FA;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
+
+use function count;
+use function in_array;
+use function is_array;
+use function strlen;
 
 class TwoFactorAuthService
 {
     protected $google2fa;
-    
+
     public function __construct()
     {
         $this->google2fa = new Google2FA();
@@ -35,11 +41,11 @@ class TwoFactorAuthService
     public function getQRCodeUrl(User $user, string $secretKey): string
     {
         $companyName = config('app.name', 'HDTickets');
-        
+
         return $this->google2fa->getQRCodeUrl(
             $companyName,
             $user->email,
-            $secretKey
+            $secretKey,
         );
     }
 
@@ -49,14 +55,14 @@ class TwoFactorAuthService
     public function getQRCodeSvg(User $user, string $secretKey): string
     {
         $qrCodeUrl = $this->getQRCodeUrl($user, $secretKey);
-        
+
         $renderer = new ImageRenderer(
             new RendererStyle(200),
-            new SvgImageBackEnd()
+            new SvgImageBackEnd(),
         );
-        
+
         $writer = new Writer($renderer);
-        
+
         return $writer->writeString($qrCodeUrl);
     }
 
@@ -74,16 +80,16 @@ class TwoFactorAuthService
     public function enableTwoFactor(User $user, string $secretKey, string $verificationCode): bool
     {
         // Verify the code first
-        if (!$this->verifyCode($secretKey, $verificationCode)) {
-            return false;
+        if (! $this->verifyCode($secretKey, $verificationCode)) {
+            return FALSE;
         }
 
         // Enable 2FA and store the secret
         $user->update([
-            'two_factor_secret' => encrypt($secretKey),
-            'two_factor_enabled' => true,
-            'two_factor_confirmed_at' => now(),
-            'two_factor_recovery_codes' => encrypt(json_encode($this->generateRecoveryCodes()))
+            'two_factor_secret'         => encrypt($secretKey),
+            'two_factor_enabled'        => TRUE,
+            'two_factor_confirmed_at'   => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode($this->generateRecoveryCodes())),
         ]);
 
         // Log the 2FA activation
@@ -93,11 +99,11 @@ class TwoFactorAuthService
             ->withProperties([
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
-                'method' => 'authenticator_app'
+                'method'     => 'authenticator_app',
             ])
             ->log('Two-factor authentication enabled');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -106,10 +112,10 @@ class TwoFactorAuthService
     public function disableTwoFactor(User $user): bool
     {
         $user->update([
-            'two_factor_secret' => null,
-            'two_factor_enabled' => false,
-            'two_factor_confirmed_at' => null,
-            'two_factor_recovery_codes' => null
+            'two_factor_secret'         => NULL,
+            'two_factor_enabled'        => FALSE,
+            'two_factor_confirmed_at'   => NULL,
+            'two_factor_recovery_codes' => NULL,
         ]);
 
         // Log the 2FA deactivation
@@ -118,11 +124,11 @@ class TwoFactorAuthService
             ->causedBy($user)
             ->withProperties([
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'user_agent' => request()->userAgent(),
             ])
             ->log('Two-factor authentication disabled');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -134,6 +140,7 @@ class TwoFactorAuthService
         for ($i = 0; $i < 8; $i++) {
             $codes[] = strtoupper(Str::random(4) . '-' . Str::random(4));
         }
+
         return $codes;
     }
 
@@ -143,9 +150,9 @@ class TwoFactorAuthService
     public function regenerateRecoveryCodes(User $user): array
     {
         $newCodes = $this->generateRecoveryCodes();
-        
+
         $user->update([
-            'two_factor_recovery_codes' => encrypt(json_encode($newCodes))
+            'two_factor_recovery_codes' => encrypt(json_encode($newCodes)),
         ]);
 
         // Log recovery codes regeneration
@@ -154,7 +161,7 @@ class TwoFactorAuthService
             ->causedBy($user)
             ->withProperties([
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'user_agent' => request()->userAgent(),
             ])
             ->log('Two-factor recovery codes regenerated');
 
@@ -166,21 +173,21 @@ class TwoFactorAuthService
      */
     public function verifyRecoveryCode(User $user, string $code): bool
     {
-        if (!$user->two_factor_recovery_codes) {
-            return false;
+        if (! $user->two_factor_recovery_codes) {
+            return FALSE;
         }
 
-        $recoveryCodes = json_decode(decrypt($user->two_factor_recovery_codes), true);
-        
-        if (!is_array($recoveryCodes) || !in_array(strtoupper($code), $recoveryCodes)) {
-            return false;
+        $recoveryCodes = json_decode(decrypt($user->two_factor_recovery_codes), TRUE);
+
+        if (! is_array($recoveryCodes) || ! in_array(strtoupper($code), $recoveryCodes, TRUE)) {
+            return FALSE;
         }
 
         // Remove the used recovery code
         $updatedCodes = array_diff($recoveryCodes, [strtoupper($code)]);
-        
+
         $user->update([
-            'two_factor_recovery_codes' => encrypt(json_encode(array_values($updatedCodes)))
+            'two_factor_recovery_codes' => encrypt(json_encode(array_values($updatedCodes))),
         ]);
 
         // Log recovery code usage
@@ -188,13 +195,13 @@ class TwoFactorAuthService
             ->performedOn($user)
             ->causedBy($user)
             ->withProperties([
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'remaining_codes' => count($updatedCodes)
+                'ip_address'      => request()->ip(),
+                'user_agent'      => request()->userAgent(),
+                'remaining_codes' => count($updatedCodes),
             ])
             ->log('Two-factor recovery code used');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -202,11 +209,12 @@ class TwoFactorAuthService
      */
     public function getRemainingRecoveryCodesCount(User $user): int
     {
-        if (!$user->two_factor_recovery_codes) {
+        if (! $user->two_factor_recovery_codes) {
             return 0;
         }
 
-        $recoveryCodes = json_decode(decrypt($user->two_factor_recovery_codes), true);
+        $recoveryCodes = json_decode(decrypt($user->two_factor_recovery_codes), TRUE);
+
         return is_array($recoveryCodes) ? count($recoveryCodes) : 0;
     }
 
@@ -215,17 +223,17 @@ class TwoFactorAuthService
      */
     public function sendSmsCode(User $user): bool
     {
-        if (!$user->phone) {
-            return false;
+        if (! $user->phone) {
+            return FALSE;
         }
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Store code in cache for 5 minutes
         Cache::put(
             "sms_2fa_code:{$user->id}",
             $code,
-            now()->addMinutes(5)
+            now()->addMinutes(5),
         );
 
         // In a real implementation, integrate with SMS service like Twilio
@@ -234,13 +242,13 @@ class TwoFactorAuthService
             ->performedOn($user)
             ->causedBy($user)
             ->withProperties([
-                'phone' => $user->phone,
+                'phone'      => $user->phone,
                 'ip_address' => request()->ip(),
-                'code' => $code // Remove this in production
+                'code'       => $code, // Remove this in production
             ])
             ->log('Two-factor SMS code sent');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -249,9 +257,9 @@ class TwoFactorAuthService
     public function verifySmsCode(User $user, string $code): bool
     {
         $storedCode = Cache::get("sms_2fa_code:{$user->id}");
-        
-        if (!$storedCode || $storedCode !== $code) {
-            return false;
+
+        if (! $storedCode || $storedCode !== $code) {
+            return FALSE;
         }
 
         // Remove the code after successful verification
@@ -263,11 +271,11 @@ class TwoFactorAuthService
             ->causedBy($user)
             ->withProperties([
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'user_agent' => request()->userAgent(),
             ])
             ->log('Two-factor SMS code verified');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -276,23 +284,23 @@ class TwoFactorAuthService
     public function sendEmailCode(User $user): bool
     {
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Store code in cache for 10 minutes
         Cache::put(
             "email_2fa_code:{$user->id}",
             $code,
-            now()->addMinutes(10)
+            now()->addMinutes(10),
         );
 
         try {
             // Send email with 2FA code
             Mail::send('emails.two-factor-code', [
-                'user' => $user,
-                'code' => $code,
-                'expiresIn' => 10
-            ], function ($message) use ($user) {
+                'user'      => $user,
+                'code'      => $code,
+                'expiresIn' => 10,
+            ], function ($message) use ($user): void {
                 $message->to($user->email)
-                        ->subject('[' . config('app.name') . '] Two-Factor Authentication Code');
+                    ->subject('[' . config('app.name') . '] Two-Factor Authentication Code');
             });
 
             // Log email sent
@@ -300,25 +308,25 @@ class TwoFactorAuthService
                 ->performedOn($user)
                 ->causedBy($user)
                 ->withProperties([
-                    'email' => $user->email,
-                    'ip_address' => request()->ip()
+                    'email'      => $user->email,
+                    'ip_address' => request()->ip(),
                 ])
                 ->log('Two-factor email code sent');
 
-            return true;
-        } catch (\Exception $e) {
+            return TRUE;
+        } catch (Exception $e) {
             // Log email sending failure
             activity('two_factor_email_failed')
                 ->performedOn($user)
                 ->causedBy($user)
                 ->withProperties([
-                    'email' => $user->email,
-                    'error' => $e->getMessage(),
-                    'ip_address' => request()->ip()
+                    'email'      => $user->email,
+                    'error'      => $e->getMessage(),
+                    'ip_address' => request()->ip(),
                 ])
                 ->log('Two-factor email code sending failed');
 
-            return false;
+            return FALSE;
         }
     }
 
@@ -328,9 +336,9 @@ class TwoFactorAuthService
     public function verifyEmailCode(User $user, string $code): bool
     {
         $storedCode = Cache::get("email_2fa_code:{$user->id}");
-        
-        if (!$storedCode || $storedCode !== $code) {
-            return false;
+
+        if (! $storedCode || $storedCode !== $code) {
+            return FALSE;
         }
 
         // Remove the code after successful verification
@@ -342,11 +350,11 @@ class TwoFactorAuthService
             ->causedBy($user)
             ->withProperties([
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'user_agent' => request()->userAgent(),
             ])
             ->log('Two-factor email code verified');
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -362,14 +370,14 @@ class TwoFactorAuthService
      */
     public function getSecret(User $user): ?string
     {
-        if (!$user->two_factor_secret) {
-            return null;
+        if (! $user->two_factor_secret) {
+            return NULL;
         }
 
         try {
             return decrypt($user->two_factor_secret);
-        } catch (\Exception $e) {
-            return null;
+        } catch (Exception $e) {
+            return NULL;
         }
     }
 
@@ -378,14 +386,15 @@ class TwoFactorAuthService
      */
     public function getRecoveryCodes(User $user): array
     {
-        if (!$user->two_factor_recovery_codes) {
+        if (! $user->two_factor_recovery_codes) {
             return [];
         }
 
         try {
-            $codes = json_decode(decrypt($user->two_factor_recovery_codes), true);
+            $codes = json_decode(decrypt($user->two_factor_recovery_codes), TRUE);
+
             return is_array($codes) ? $codes : [];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [];
         }
     }
@@ -396,15 +405,15 @@ class TwoFactorAuthService
     public function validateSetupRequirements(User $user): array
     {
         $requirements = [
-            'has_email' => !empty($user->email),
-            'email_verified' => !is_null($user->email_verified_at),
-            'has_phone' => !empty($user->phone),
-            'account_secure' => !is_null($user->password) && strlen($user->password) > 8,
+            'has_email'      => ! empty($user->email),
+            'email_verified' => NULL !== $user->email_verified_at,
+            'has_phone'      => ! empty($user->phone),
+            'account_secure' => NULL !== $user->password && strlen($user->password) > 8,
         ];
 
         $requirements['all_met'] = array_reduce($requirements, function ($carry, $item) {
             return $carry && $item;
-        }, true);
+        }, TRUE);
 
         return $requirements;
     }
@@ -415,16 +424,16 @@ class TwoFactorAuthService
     public function getTwoFactorStats(): array
     {
         $totalUsers = User::count();
-        $enabledUsers = User::where('two_factor_enabled', true)->count();
+        $enabledUsers = User::where('two_factor_enabled', TRUE)->count();
         $confirmedUsers = User::whereNotNull('two_factor_confirmed_at')->count();
-        
+
         return [
-            'total_users' => $totalUsers,
-            'enabled_users' => $enabledUsers,
-            'confirmed_users' => $confirmedUsers,
-            'enabled_percentage' => $totalUsers > 0 ? round(($enabledUsers / $totalUsers) * 100, 1) : 0,
+            'total_users'          => $totalUsers,
+            'enabled_users'        => $enabledUsers,
+            'confirmed_users'      => $confirmedUsers,
+            'enabled_percentage'   => $totalUsers > 0 ? round(($enabledUsers / $totalUsers) * 100, 1) : 0,
             'confirmed_percentage' => $totalUsers > 0 ? round(($confirmedUsers / $totalUsers) * 100, 1) : 0,
-            'adoption_rate' => $totalUsers > 0 ? round(($confirmedUsers / $totalUsers) * 100, 1) : 0,
+            'adoption_rate'        => $totalUsers > 0 ? round(($confirmedUsers / $totalUsers) * 100, 1) : 0,
         ];
     }
 
@@ -433,21 +442,21 @@ class TwoFactorAuthService
      */
     public function generateAdminBackupCodes(User $admin, User $targetUser): array
     {
-        if (!$admin->isAdmin()) {
-            throw new \Exception('Only administrators can generate backup codes.');
+        if (! $admin->isAdmin()) {
+            throw new Exception('Only administrators can generate backup codes.');
         }
 
         $backupCodes = $this->generateRecoveryCodes();
-        
+
         // Store backup codes with admin attribution
         Cache::put(
             "admin_backup_codes:{$targetUser->id}",
             [
-                'codes' => $backupCodes,
+                'codes'        => $backupCodes,
                 'generated_by' => $admin->id,
-                'generated_at' => now()
+                'generated_at' => now(),
             ],
-            now()->addHours(24) // Valid for 24 hours
+            now()->addHours(24), // Valid for 24 hours
         );
 
         // Log admin backup code generation
@@ -456,8 +465,8 @@ class TwoFactorAuthService
             ->causedBy($admin)
             ->withProperties([
                 'target_user_id' => $targetUser->id,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent()
+                'ip_address'     => request()->ip(),
+                'user_agent'     => request()->userAgent(),
             ])
             ->log('Admin backup codes generated for user 2FA');
 
@@ -470,19 +479,19 @@ class TwoFactorAuthService
     public function verifyAdminBackupCode(User $user, string $code): bool
     {
         $backupData = Cache::get("admin_backup_codes:{$user->id}");
-        
-        if (!$backupData || !isset($backupData['codes'])) {
-            return false;
+
+        if (! $backupData || ! isset($backupData['codes'])) {
+            return FALSE;
         }
 
-        if (!in_array(strtoupper($code), $backupData['codes'])) {
-            return false;
+        if (! in_array(strtoupper($code), $backupData['codes'], TRUE)) {
+            return FALSE;
         }
 
         // Remove the used code and update cache
         $updatedCodes = array_diff($backupData['codes'], [strtoupper($code)]);
         $backupData['codes'] = array_values($updatedCodes);
-        
+
         if (count($updatedCodes) > 0) {
             Cache::put("admin_backup_codes:{$user->id}", $backupData, now()->addHours(24));
         } else {
@@ -494,12 +503,12 @@ class TwoFactorAuthService
             ->performedOn($user)
             ->causedBy(User::find($backupData['generated_by']))
             ->withProperties([
-                'target_user_id' => $user->id,
+                'target_user_id'  => $user->id,
                 'remaining_codes' => count($updatedCodes),
-                'ip_address' => request()->ip()
+                'ip_address'      => request()->ip(),
             ])
             ->log('Admin backup code used for user 2FA');
 
-        return true;
+        return TRUE;
     }
 }

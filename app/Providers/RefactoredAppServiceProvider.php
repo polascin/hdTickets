@@ -1,15 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+
+use function get_class;
+use function in_array;
 
 class RefactoredAppServiceProvider extends ServiceProvider
 {
@@ -19,10 +22,10 @@ class RefactoredAppServiceProvider extends ServiceProvider
      * @var array
      */
     public $singletons = [
-        'App\Services\TicketScrapingService' => 'App\Services\TicketScrapingService',
+        'App\Services\TicketScrapingService'                  => 'App\Services\TicketScrapingService',
         'App\Services\NotificationSystem\NotificationManager' => 'App\Services\NotificationSystem\NotificationManager',
-        'App\Services\Enhanced\PerformanceMonitoringService' => 'App\Services\Enhanced\PerformanceMonitoringService',
-        'App\Services\Enhanced\AdvancedCacheService' => 'App\Services\Enhanced\AdvancedCacheService',
+        'App\Services\Enhanced\PerformanceMonitoringService'  => 'App\Services\Enhanced\PerformanceMonitoringService',
+        'App\Services\Enhanced\AdvancedCacheService'          => 'App\Services\Enhanced\AdvancedCacheService',
     ];
 
     /**
@@ -48,6 +51,25 @@ class RefactoredAppServiceProvider extends ServiceProvider
         $this->configureGates();
         $this->configureSecurity();
         $this->configurePerformance();
+    }
+
+    /**
+     * Get the services provided by the provider.
+     */
+    public function provides(): array
+    {
+        return [
+            'activity.logger',
+            'encryption.service',
+            'security.service',
+            'api.rate_limiter',
+            'scraping.manager',
+            'analytics.dashboard',
+            'purchase.automation',
+            'platform.manager',
+            'rate_limiter',
+            'cache.optimizer',
+        ];
     }
 
     /**
@@ -110,17 +132,18 @@ class RefactoredAppServiceProvider extends ServiceProvider
         if ($this->app->environment('local', 'testing')) {
             // Register development tools
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-            
+
             // Register debug services
             $this->app->singleton('debug.profiler', function ($app) {
-                return new class {
-                    public function profile($callback, $name = 'operation') {
-                        $start = microtime(true);
+                return new class() {
+                    public function profile($callback, $name = 'operation')
+                    {
+                        $start = microtime(TRUE);
                         $result = $callback();
-                        $end = microtime(true);
-                        
+                        $end = microtime(TRUE);
+
                         logger("Profile [{$name}]: " . round(($end - $start) * 1000, 2) . 'ms');
-                        
+
                         return $result;
                     }
                 };
@@ -134,18 +157,18 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureEloquent(): void
     {
         // Prevent lazy loading in non-production environments
-        Model::preventLazyLoading(!$this->app->isProduction());
+        Model::preventLazyLoading(! $this->app->isProduction());
 
         // Prevent silently discarding attributes
-        Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
+        Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
         // Prevent accessing missing attributes
-        Model::preventAccessingMissingAttributes(!$this->app->isProduction());
+        Model::preventAccessingMissingAttributes(! $this->app->isProduction());
 
         // Configure model event logging
-        if (config('app.log_model_events', false)) {
-            Model::creating(function ($model) {
-                logger("Model creating: " . get_class($model));
+        if (config('app.log_model_events', FALSE)) {
+            Model::creating(function ($model): void {
+                logger('Model creating: ' . get_class($model));
             });
         }
     }
@@ -176,7 +199,8 @@ class RefactoredAppServiceProvider extends ServiceProvider
         // Custom validation rule for platform names
         Validator::extend('platform_name', function ($attribute, $value, $parameters, $validator) {
             $allowedPlatforms = ['ticketmaster', 'stubhub', 'viagogo', 'tickpick', 'seatgeek'];
-            return in_array(strtolower($value), $allowedPlatforms);
+
+            return in_array(strtolower($value), $allowedPlatforms, TRUE);
         });
 
         // Custom validation rule for event dates
@@ -195,44 +219,44 @@ class RefactoredAppServiceProvider extends ServiceProvider
         View::share('appName', config('app.name', 'HD Tickets'));
 
         // Configure view composers
-        View::composer('layouts.*', function ($view) {
+        View::composer('layouts.*', function ($view): void {
             $view->with([
-                'currentUser' => auth()->user(),
+                'currentUser'         => auth()->user(),
                 'unreadNotifications' => auth()->check() ? auth()->user()->unreadNotifications()->count() : 0,
-                'systemStatus' => cache()->remember('system_status', 300, function () {
+                'systemStatus'        => cache()->remember('system_status', 300, function () {
                     return [
                         'scrapers_active' => random_int(5, 15),
-                        'alerts_today' => random_int(100, 500),
-                        'uptime' => '99.9%'
+                        'alerts_today'    => random_int(100, 500),
+                        'uptime'          => '99.9%',
                     ];
-                })
+                }),
             ]);
         });
 
         // Dashboard-specific data
-        View::composer('dashboard*', function ($view) {
+        View::composer('dashboard*', function ($view): void {
             if (auth()->check()) {
                 $view->with([
                     'userStats' => [
-                        'active_alerts' => auth()->user()->ticketAlerts()->active()->count(),
-                        'tickets_monitored' => auth()->user()->scrapedTickets()->count(),
-                        'successful_purchases' => auth()->user()->purchaseAttempts()->successful()->count()
-                    ]
+                        'active_alerts'        => auth()->user()->ticketAlerts()->active()->count(),
+                        'tickets_monitored'    => auth()->user()->scrapedTickets()->count(),
+                        'successful_purchases' => auth()->user()->purchaseAttempts()->successful()->count(),
+                    ],
                 ]);
             }
         });
 
         // Admin views
-        View::composer('admin.*', function ($view) {
+        View::composer('admin.*', function ($view): void {
             if (auth()->check() && auth()->user()->isAdmin()) {
                 $view->with([
                     'adminStats' => cache()->remember('admin_stats', 300, function () {
                         return [
-                            'total_users' => \App\Models\User::count(),
+                            'total_users'     => \App\Models\User::count(),
                             'active_scrapers' => \App\Models\ScrapingStats::active()->count(),
-                            'system_health' => 'excellent'
+                            'system_health'   => 'excellent',
                         ];
-                    })
+                    }),
                 ]);
             }
         });
@@ -245,12 +269,25 @@ class RefactoredAppServiceProvider extends ServiceProvider
     {
         // Directive for formatting prices
         Blade::directive('price', function ($expression) {
-            return "<?php echo number_format($expression, 2); ?>";
+            return "<?php echo number_format({$expression}, 2); ?>";
         });
 
         // Directive for user roles
         Blade::directive('role', function ($expression) {
-            return "<?php if(auth()->check() && auth()->user()->hasRole($expression)): ?>";
+            // Parse the role and use appropriate method
+            $role = trim($expression, "'\"");
+            switch ($role) {
+                case 'admin':
+                    return '<?php if(auth()->check() && auth()->user()->isAdmin()): ?>';
+                case 'agent':
+                    return '<?php if(auth()->check() && auth()->user()->isAgent()): ?>';
+                case 'customer':
+                    return '<?php if(auth()->check() && auth()->user()->isCustomer()): ?>';
+                case 'scraper':
+                    return '<?php if(auth()->check() && auth()->user()->isScraper()): ?>';
+                default:
+                    return "<?php if(auth()->check() && auth()->user()->hasRole({$expression})): ?>";
+            }
         });
 
         Blade::directive('endrole', function () {
@@ -259,7 +296,7 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
         // Directive for feature flags
         Blade::directive('feature', function ($expression) {
-            return "<?php if(config('features.' . $expression, false)): ?>";
+            return "<?php if(config('features.' . {$expression}, false)): ?>";
         });
 
         Blade::directive('endfeature', function () {
@@ -268,11 +305,11 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
         // Directive for performance timing
         Blade::directive('startTimer', function ($expression) {
-            return "<?php \$timer_$expression = microtime(true); ?>";
+            return "<?php \$timer_{$expression} = microtime(true); ?>";
         });
 
         Blade::directive('endTimer', function ($expression) {
-            return "<?php logger('Timer $expression: ' . round((microtime(true) - \$timer_$expression) * 1000, 2) . 'ms'); ?>";
+            return "<?php logger('Timer {$expression}: ' . round((microtime(true) - \$timer_{$expression}) * 1000, 2) . 'ms'); ?>";
         });
     }
 
@@ -332,8 +369,8 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configurePerformance(): void
     {
         // Configure query optimization
-        if (config('database.log_queries', false)) {
-            \Illuminate\Support\Facades\DB::listen(function ($query) {
+        if (config('database.log_queries', FALSE)) {
+            \Illuminate\Support\Facades\DB::listen(function ($query): void {
                 if ($query->time > 1000) { // Log slow queries (>1s)
                     logger("Slow query detected: {$query->sql} ({$query->time}ms)");
                 }
@@ -341,11 +378,11 @@ class RefactoredAppServiceProvider extends ServiceProvider
         }
 
         // Configure memory usage monitoring
-        if (config('app.monitor_memory', false)) {
-            register_shutdown_function(function () {
-                $memory = memory_get_peak_usage(true);
+        if (config('app.monitor_memory', FALSE)) {
+            register_shutdown_function(function (): void {
+                $memory = memory_get_peak_usage(TRUE);
                 if ($memory > 128 * 1024 * 1024) { // 128MB threshold
-                    logger("High memory usage detected: " . round($memory / 1024 / 1024, 2) . "MB");
+                    logger('High memory usage detected: ' . round($memory / 1024 / 1024, 2) . 'MB');
                 }
             });
         }
@@ -354,24 +391,5 @@ class RefactoredAppServiceProvider extends ServiceProvider
         $this->app->singleton('cache.optimizer', function ($app) {
             return new \App\Services\Enhanced\AdvancedCacheService();
         });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     */
-    public function provides(): array
-    {
-        return [
-            'activity.logger',
-            'encryption.service',
-            'security.service',
-            'api.rate_limiter',
-            'scraping.manager',
-            'analytics.dashboard',
-            'purchase.automation',
-            'platform.manager',
-            'rate_limiter',
-            'cache.optimizer'
-        ];
     }
 }

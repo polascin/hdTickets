@@ -1,10 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function count;
+use function is_array;
 
 class LoginHistory extends Model
 {
@@ -32,12 +35,12 @@ class LoginHistory extends Model
     ];
 
     protected $casts = [
-        'success' => 'boolean',
-        'is_suspicious' => 'boolean',
+        'success'          => 'boolean',
+        'is_suspicious'    => 'boolean',
         'suspicious_flags' => 'array',
-        'attempted_at' => 'datetime',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'attempted_at'     => 'datetime',
+        'latitude'         => 'decimal:8',
+        'longitude'        => 'decimal:8',
     ];
 
     /**
@@ -50,30 +53,39 @@ class LoginHistory extends Model
 
     /**
      * Scope to get successful login attempts.
+     *
+     * @param mixed $query
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('success', true);
+        return $query->where('success', TRUE);
     }
 
     /**
      * Scope to get failed login attempts.
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
-        return $query->where('success', false);
+        return $query->where('success', FALSE);
     }
 
     /**
      * Scope to get suspicious login attempts.
+     *
+     * @param mixed $query
      */
     public function scopeSuspicious($query)
     {
-        return $query->where('is_suspicious', true);
+        return $query->where('is_suspicious', TRUE);
     }
 
     /**
      * Scope to get recent login attempts.
+     *
+     * @param mixed $query
+     * @param mixed $days
      */
     public function scopeRecent($query, $days = 30)
     {
@@ -104,7 +116,7 @@ class LoginHistory extends Model
         $parts = array_filter([
             $this->browser,
             $this->operating_system,
-            $this->device_type ? "({$this->device_type})" : null
+            $this->device_type ? "({$this->device_type})" : NULL,
         ]);
 
         return implode(' on ', $parts) ?: 'Unknown Device';
@@ -115,7 +127,7 @@ class LoginHistory extends Model
      */
     public function getRiskLevelAttribute(): string
     {
-        if (!$this->is_suspicious) {
+        if (! $this->is_suspicious) {
             return 'low';
         }
 
@@ -138,10 +150,10 @@ class LoginHistory extends Model
     public function getRiskColorAttribute(): string
     {
         return match ($this->risk_level) {
-            'high' => 'red',
+            'high'   => 'red',
             'medium' => 'yellow',
-            'low' => 'green',
-            default => 'gray'
+            'low'    => 'green',
+            default  => 'gray',
         };
     }
 }

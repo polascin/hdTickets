@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\ScrapedTicket;
 use App\Models\Category;
+use App\Models\ScrapedTicket;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,58 +24,58 @@ class ScrapedTicketFactory extends Factory
         $currencies = ['USD', 'GBP', 'EUR', 'CZK', 'SKK'];
         $sports = ['football', 'basketball', 'tennis', 'hockey', 'baseball'];
         $availability = ['high', 'medium', 'low', 'sold_out'];
-        
+
         // Generate realistic team names
         $teams = [
             'Manchester United', 'Liverpool', 'Arsenal', 'Chelsea', 'Manchester City',
             'Tottenham', 'Barcelona', 'Real Madrid', 'Bayern Munich', 'Juventus',
-            'Slovan Bratislava', 'Sparta Praha', 'AC Milan', 'Inter Milan', 'PSG'
+            'Slovan Bratislava', 'Sparta Praha', 'AC Milan', 'Inter Milan', 'PSG',
         ];
-        
+
         $venues = [
             'Old Trafford', 'Anfield', 'Emirates Stadium', 'Stamford Bridge', 'Etihad Stadium',
             'Wembley Stadium', 'Camp Nou', 'Santiago Bernabéu', 'Allianz Arena', 'Juventus Stadium',
-            'Tehelné pole', 'Letná Stadium', 'San Siro', 'Parc des Princes'
+            'Tehelné pole', 'Letná Stadium', 'San Siro', 'Parc des Princes',
         ];
-        
+
         $cities = [
             'Manchester', 'Liverpool', 'London', 'Barcelona', 'Madrid', 'Munich', 'Turin',
-            'Bratislava', 'Praha', 'Milan', 'Paris', 'Rome', 'Amsterdam', 'Berlin'
+            'Bratislava', 'Praha', 'Milan', 'Paris', 'Rome', 'Amsterdam', 'Berlin',
         ];
-        
+
         $team1 = fake()->randomElement($teams);
         $team2 = fake()->randomElement(array_diff($teams, [$team1]));
         $title = $team1 . ' vs ' . $team2;
-        
+
         $minPrice = fake()->randomFloat(2, 25, 200);
         $maxPrice = fake()->randomFloat(2, $minPrice + 50, $minPrice * 3);
-        
+
         return [
-            'uuid' => fake()->uuid(),
-            'platform' => fake()->randomElement($platforms),
-            'title' => $title,
-            'venue' => fake()->randomElement($venues),
-            'location' => fake()->randomElement($cities),
-            'event_date' => fake()->dateTimeBetween('now', '+6 months'),
-            'min_price' => $minPrice,
-            'max_price' => $maxPrice,
-            'currency' => fake()->randomElement($currencies),
-            'availability' => fake()->randomElement($availability),
-            'is_available' => fake()->boolean(80), // 80% chance of being available
+            'uuid'           => fake()->uuid(),
+            'platform'       => fake()->randomElement($platforms),
+            'title'          => $title,
+            'venue'          => fake()->randomElement($venues),
+            'location'       => fake()->randomElement($cities),
+            'event_date'     => fake()->dateTimeBetween('now', '+6 months'),
+            'min_price'      => $minPrice,
+            'max_price'      => $maxPrice,
+            'currency'       => fake()->randomElement($currencies),
+            'availability'   => fake()->randomElement($availability),
+            'is_available'   => fake()->boolean(80), // 80% chance of being available
             'is_high_demand' => fake()->boolean(30), // 30% chance of high demand
-            'status' => fake()->randomElement(['active', 'sold_out', 'cancelled']),
-            'ticket_url' => fake()->url(),
+            'status'         => fake()->randomElement(['active', 'sold_out', 'cancelled']),
+            'ticket_url'     => fake()->url(),
             'search_keyword' => strtolower($team1),
-            'metadata' => [
-                'section' => fake()->randomElement(['Lower Tier', 'Upper Tier', 'VIP', 'General Admission']),
-                'row' => fake()->numberBetween(1, 40),
-                'seats' => fake()->numberBetween(1, 4),
-                'seller_type' => fake()->randomElement(['official', 'reseller', 'individual']),
+            'metadata'       => [
+                'section'        => fake()->randomElement(['Lower Tier', 'Upper Tier', 'VIP', 'General Admission']),
+                'row'            => fake()->numberBetween(1, 40),
+                'seats'          => fake()->numberBetween(1, 4),
+                'seller_type'    => fake()->randomElement(['official', 'reseller', 'individual']),
                 'original_price' => fake()->randomFloat(2, 50, 300),
-                'tags' => fake()->randomElements(['premium', 'discounted', 'limited', 'popular'], fake()->numberBetween(0, 3))
+                'tags'           => fake()->randomElements(['premium', 'discounted', 'limited', 'popular'], fake()->numberBetween(0, 3)),
             ],
-            'scraped_at' => fake()->dateTimeBetween('-1 week', 'now'),
-            'category_id' => null, // Will be set by relationship if needed
+            'scraped_at'  => fake()->dateTimeBetween('-1 week', 'now'),
+            'category_id' => NULL, // Will be set by relationship if needed
         ];
     }
 
@@ -85,10 +85,10 @@ class ScrapedTicketFactory extends Factory
     public function highDemand(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_high_demand' => true,
-            'availability' => 'low',
-            'min_price' => fake()->randomFloat(2, 200, 500),
-            'max_price' => fake()->randomFloat(2, 500, 1000),
+            'is_high_demand' => TRUE,
+            'availability'   => 'low',
+            'min_price'      => fake()->randomFloat(2, 200, 500),
+            'max_price'      => fake()->randomFloat(2, 500, 1000),
         ]);
     }
 
@@ -98,9 +98,9 @@ class ScrapedTicketFactory extends Factory
     public function soldOut(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_available' => false,
+            'is_available' => FALSE,
             'availability' => 'sold_out',
-            'status' => 'sold_out',
+            'status'       => 'sold_out',
         ]);
     }
 
@@ -117,11 +117,11 @@ class ScrapedTicketFactory extends Factory
     /**
      * Indicate that the ticket is for a specific event.
      */
-    public function forEvent(string $title, string $venue = null): static
+    public function forEvent(string $title, ?string $venue = NULL): static
     {
         return $this->state(fn (array $attributes) => [
-            'title' => $title,
-            'venue' => $venue ?? fake()->randomElement(['Old Trafford', 'Anfield', 'Emirates Stadium']),
+            'title'          => $title,
+            'venue'          => $venue ?? fake()->randomElement(['Old Trafford', 'Anfield', 'Emirates Stadium']),
             'search_keyword' => strtolower(explode(' vs ', $title)[0] ?? $title),
         ]);
     }

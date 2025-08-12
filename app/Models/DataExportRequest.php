@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -7,9 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
+use function count;
+
 class DataExportRequest extends Model
 {
     use HasFactory;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_PROCESSING = 'processing';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_FAILED = 'failed';
+
+    public const EXPORT_TYPE_FULL = 'full';
+
+    public const EXPORT_TYPE_PARTIAL = 'partial';
+
+    public const FORMAT_JSON = 'json';
+
+    public const FORMAT_CSV = 'csv';
 
     protected $fillable = [
         'user_id',
@@ -27,17 +45,6 @@ class DataExportRequest extends Model
         'data_types' => 'array',
         'expires_at' => 'datetime',
     ];
-
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_FAILED = 'failed';
-
-    const EXPORT_TYPE_FULL = 'full';
-    const EXPORT_TYPE_PARTIAL = 'partial';
-
-    const FORMAT_JSON = 'json';
-    const FORMAT_CSV = 'csv';
 
     /**
      * Get the user that owns the export request
@@ -92,9 +99,9 @@ class DataExportRequest extends Model
      */
     public function isAvailableForDownload(): bool
     {
-        return $this->isCompleted() 
-               && !$this->isExpired() 
-               && $this->file_path 
+        return $this->isCompleted()
+               && ! $this->isExpired()
+               && $this->file_path
                && Storage::exists($this->file_path);
     }
 
@@ -103,8 +110,8 @@ class DataExportRequest extends Model
      */
     public function getDownloadUrl(): ?string
     {
-        if (!$this->isAvailableForDownload()) {
-            return null;
+        if (! $this->isAvailableForDownload()) {
+            return NULL;
         }
 
         return Storage::url($this->file_path);
@@ -115,17 +122,17 @@ class DataExportRequest extends Model
      */
     public function getFormattedFileSizeAttribute(): ?string
     {
-        if (!$this->file_size) {
-            return null;
+        if (! $this->file_size) {
+            return NULL;
         }
 
         $units = ['B', 'KB', 'MB', 'GB'];
         $bytes = $this->file_size;
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
+
         return round($bytes, 2) . ' ' . $units[$i];
     }
 
@@ -134,15 +141,15 @@ class DataExportRequest extends Model
      */
     public function markAsProcessing(): bool
     {
-        if (!$this->isPending()) {
-            return false;
+        if (! $this->isPending()) {
+            return FALSE;
         }
 
         $this->update([
             'status' => self::STATUS_PROCESSING,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -150,18 +157,18 @@ class DataExportRequest extends Model
      */
     public function markAsCompleted(string $filePath, int $fileSize): bool
     {
-        if (!$this->isProcessing()) {
-            return false;
+        if (! $this->isProcessing()) {
+            return FALSE;
         }
 
         $this->update([
-            'status' => self::STATUS_COMPLETED,
-            'file_path' => $filePath,
-            'file_size' => $fileSize,
+            'status'     => self::STATUS_COMPLETED,
+            'file_path'  => $filePath,
+            'file_size'  => $fileSize,
             'expires_at' => now()->addDays(7), // File expires in 7 days
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -170,11 +177,11 @@ class DataExportRequest extends Model
     public function markAsFailed(string $errorMessage): bool
     {
         $this->update([
-            'status' => self::STATUS_FAILED,
+            'status'        => self::STATUS_FAILED,
             'error_message' => $errorMessage,
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -186,11 +193,13 @@ class DataExportRequest extends Model
             return Storage::delete($this->file_path);
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Scope to get active exports
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -199,6 +208,8 @@ class DataExportRequest extends Model
 
     /**
      * Scope to get completed exports
+     *
+     * @param mixed $query
      */
     public function scopeCompleted($query)
     {
@@ -207,6 +218,8 @@ class DataExportRequest extends Model
 
     /**
      * Scope to get expired exports
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
@@ -215,12 +228,14 @@ class DataExportRequest extends Model
 
     /**
      * Scope to get available exports
+     *
+     * @param mixed $query
      */
     public function scopeAvailable($query)
     {
         return $query->where('status', self::STATUS_COMPLETED)
-                    ->where('expires_at', '>', now())
-                    ->whereNotNull('file_path');
+            ->where('expires_at', '>', now())
+            ->whereNotNull('file_path');
     }
 
     /**

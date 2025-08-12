@@ -1,11 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\NotificationSystem\Channels;
 
 use App\Models\User;
-use Pusher\Pusher;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
+use Pusher\Pusher;
+use Throwable;
+
+use function in_array;
 
 class PusherChannel implements NotificationChannelInterface
 {
@@ -18,10 +20,10 @@ class PusherChannel implements NotificationChannelInterface
             config('broadcasting.connections.pusher.secret'),
             config('broadcasting.connections.pusher.app_id'),
             [
-                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
-                'useTLS' => true,
-                'encrypted' => true,
-            ]
+                'cluster'   => config('broadcasting.connections.pusher.options.cluster'),
+                'useTLS'    => TRUE,
+                'encrypted' => TRUE,
+            ],
         );
     }
 
@@ -33,16 +35,16 @@ class PusherChannel implements NotificationChannelInterface
             $eventName = "notification.{$notification['type']}";
 
             $data = [
-                'id' => uniqid('notif_'),
-                'type' => $notification['type'],
-                'title' => $notification['title'],
-                'message' => $notification['message'],
-                'data' => $notification['data'],
-                'priority' => $notification['priority'],
-                'timestamp' => now()->toISOString(),
-                'expires_at' => $notification['expires_at']->toISOString(),
+                'id'            => uniqid('notif_'),
+                'type'          => $notification['type'],
+                'title'         => $notification['title'],
+                'message'       => $notification['message'],
+                'data'          => $notification['data'],
+                'priority'      => $notification['priority'],
+                'timestamp'     => now()->toISOString(),
+                'expires_at'    => $notification['expires_at']->toISOString(),
                 'css_timestamp' => $notification['data']['css_timestamp'] ?? now()->timestamp,
-                'actions' => $this->buildActions($notification),
+                'actions'       => $this->buildActions($notification),
             ];
 
             // Send notification
@@ -50,33 +52,39 @@ class PusherChannel implements NotificationChannelInterface
 
             // Also send to general notification channel for desktop display
             $this->pusher->trigger($channalName, 'notification', [
-                'show_desktop' => true,
-                'priority' => $notification['priority'],
-                ...$data
+                'show_desktop' => TRUE,
+                'priority'     => $notification['priority'],
+                ...$data,
             ]);
 
             // Send system-wide notifications if needed
-            if (in_array($notification['type'], ['system_status'])) {
+            if (in_array($notification['type'], ['system_status'], TRUE)) {
                 $this->pusher->trigger('system-updates', 'notification', $data);
             }
 
             Log::info('Pusher notification sent successfully', [
                 'user_id' => $user->id,
-                'type' => $notification['type'],
+                'type'    => $notification['type'],
                 'channel' => $channelName,
             ]);
 
-            return true;
-
-        } catch (\Throwable $e) {
+            return TRUE;
+        } catch (Throwable $e) {
             Log::error('Failed to send Pusher notification', [
                 'user_id' => $user->id,
-                'type' => $notification['type'],
-                'error' => $e->getMessage(),
+                'type'    => $notification['type'],
+                'error'   => $e->getMessage(),
             ]);
 
-            return false;
+            return FALSE;
         }
+    }
+
+    public function isAvailable(): bool
+    {
+        return ! empty(config('broadcasting.connections.pusher.key'))
+               && ! empty(config('broadcasting.connections.pusher.secret'))
+               && ! empty(config('broadcasting.connections.pusher.app_id'));
     }
 
     protected function buildActions(array $notification): array
@@ -88,47 +96,41 @@ class PusherChannel implements NotificationChannelInterface
             case 'ticket_available':
                 $actions = [
                     [
-                        'label' => 'View Tickets',
-                        'url' => $notification['data']['ticket_url'] ?? '#',
-                        'style' => 'primary',
-                        'external' => true,
+                        'label'    => 'View Tickets',
+                        'url'      => $notification['data']['ticket_url'] ?? '#',
+                        'style'    => 'primary',
+                        'external' => TRUE,
                     ],
                     [
                         'label' => 'View Details',
-                        'url' => route('tickets.scraping.show', $notification['data']['ticket_id']),
+                        'url'   => route('tickets.scraping.show', $notification['data']['ticket_id']),
                         'style' => 'secondary',
                     ],
                 ];
-                break;
 
+                break;
             case 'system_status':
                 $actions = [
                     [
                         'label' => 'View Status',
-                        'url' => route('system.status'),
+                        'url'   => route('system.status'),
                         'style' => 'primary',
                     ],
                 ];
-                break;
 
+                break;
             case 'custom_alert':
                 $actions = [
                     [
                         'label' => 'View Alert',
-                        'url' => route('tickets.alerts.show', $notification['data']['rule_id']),
+                        'url'   => route('tickets.alerts.show', $notification['data']['rule_id']),
                         'style' => 'primary',
                     ],
                 ];
+
                 break;
         }
 
         return $actions;
-    }
-
-    public function isAvailable(): bool
-    {
-        return !empty(config('broadcasting.connections.pusher.key')) &&
-               !empty(config('broadcasting.connections.pusher.secret')) &&
-               !empty(config('broadcasting.connections.pusher.app_id'));
     }
 }

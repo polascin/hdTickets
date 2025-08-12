@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Requests;
 
 use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
+
+use function is_string;
 
 class StoreTicketRequest extends FormRequest
 {
@@ -12,7 +14,7 @@ class StoreTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return TRUE;
     }
 
     /**
@@ -21,13 +23,13 @@ class StoreTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
             'category_id' => 'required|exists:categories,id',
-            'priority' => 'nullable|in:' . implode(',', Ticket::getPriorities()),
-            'due_date' => 'nullable|date|after:today',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            'priority'    => 'nullable|in:' . implode(',', Ticket::getPriorities()),
+            'due_date'    => 'nullable|date|after:today',
+            'tags'        => 'nullable|array',
+            'tags.*'      => 'string|max:50',
         ];
     }
 
@@ -37,14 +39,14 @@ class StoreTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'The ticket title is required.',
-            'title.max' => 'The ticket title cannot exceed 255 characters.',
+            'title.required'       => 'The ticket title is required.',
+            'title.max'            => 'The ticket title cannot exceed 255 characters.',
             'category_id.required' => 'Please select a category for this ticket.',
-            'category_id.exists' => 'The selected category is invalid.',
-            'description.max' => 'The description cannot exceed 5,000 characters.',
-            'priority.in' => 'The selected priority is invalid.',
-            'due_date.after' => 'The due date must be a future date.',
-            'tags.*.max' => 'Each tag cannot exceed 50 characters.',
+            'category_id.exists'   => 'The selected category is invalid.',
+            'description.max'      => 'The description cannot exceed 5,000 characters.',
+            'priority.in'          => 'The selected priority is invalid.',
+            'due_date.after'       => 'The due date must be a future date.',
+            'tags.*.max'           => 'Each tag cannot exceed 50 characters.',
         ];
     }
 
@@ -55,7 +57,7 @@ class StoreTicketRequest extends FormRequest
     {
         return [
             'category_id' => 'category',
-            'due_date' => 'due date',
+            'due_date'    => 'due date',
         ];
     }
 
@@ -72,7 +74,7 @@ class StoreTicketRequest extends FormRequest
                 $tags = array_map('trim', explode(',', $tags));
             }
             // Remove empty tags and duplicates
-            $tags = array_unique(array_filter($tags, fn($tag) => !empty(trim($tag))));
+            $tags = array_unique(array_filter($tags, fn ($tag) => ! empty(trim($tag))));
             $this->merge(['tags' => array_values($tags)]);
         }
     }

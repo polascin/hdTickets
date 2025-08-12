@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Database\Factories;
 
@@ -23,17 +23,17 @@ class TicketAlertFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
-            'name' => $this->faker->sentence,
-            'keywords' => $this->faker->words(3, true),
-            'platform' => $this->faker->randomElement(['stubhub', 'ticketmaster', 'viagogo']),
-            'max_price' => $this->faker->randomFloat(2, 50, 500),
-            'currency' => 'USD',
-            'filters' => json_encode(['criteria' => 'example']),
-            'email_notifications' => true,
-            'sms_notifications' => false,
-            'status' => $this->faker->randomElement(['active', 'paused', 'triggered', 'expired']),
-            'triggered_at' => $this->faker->boolean(30) ? now()->subDays($this->faker->numberBetween(0, 30)) : null,
+            'user_id'             => \App\Models\User::factory(),
+            'name'                => $this->faker->sentence,
+            'keywords'            => $this->faker->words(3, TRUE),
+            'platform'            => $this->faker->randomElement(['stubhub', 'ticketmaster', 'viagogo']),
+            'max_price'           => $this->faker->randomFloat(2, 50, 500),
+            'currency'            => 'USD',
+            'filters'             => json_encode(['criteria' => 'example']),
+            'email_notifications' => TRUE,
+            'sms_notifications'   => FALSE,
+            'status'              => $this->faker->randomElement(['active', 'paused', 'triggered', 'expired']),
+            'triggered_at'        => $this->faker->boolean(30) ? now()->subDays($this->faker->numberBetween(0, 30)) : NULL,
         ];
     }
 }

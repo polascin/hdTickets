@@ -1,11 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
-    /*
-     * If set to false, no activities will be saved to the database.
-     */
-    'enabled' => env('ACTIVITY_LOGGER_ENABLED', true),
+    // If set to false, no activities will be saved to the database.
+    'enabled' => env('ACTIVITY_LOGGER_ENABLED', TRUE),
 
     /*
      * When the clean-command is executed, all recording activities older than
@@ -23,19 +20,17 @@ return [
      * You can specify an auth driver here that gets user models.
      * If this is null we'll use the default Laravel auth driver.
      */
-    'default_auth_driver' => null,
+    'default_auth_driver' => NULL,
 
-    /*
-     * If set to true, the subject returns soft deleted models.
-     */
-    'subject_returns_soft_deleted_models' => false,
+    // If set to true, the subject returns soft deleted models.
+    'subject_returns_soft_deleted_models' => FALSE,
 
     /*
      * This model will be used to log activity.
      * It should implement the Spatie\Activitylog\Contracts\Activity interface
      * and extend Illuminate\Database\Eloquent\Model.
      */
-    'activity_model' => \Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Spatie\Activitylog\Models\Activity::class,
 
     /*
      * This is the name of the table that will be created by the migration and
@@ -50,9 +45,7 @@ return [
      */
     'database_connection' => env('ACTIVITY_LOGGER_DB_CONNECTION'),
 
-    /*
-     * Activities for these events will be logged automatically.
-     */
+    // Activities for these events will be logged automatically.
     'log_events' => [
         'created',
         'updated',
@@ -73,18 +66,12 @@ return [
         'App\Models\Category',
     ],
 
-    /*
-     * Log additional model attributes when models are created, updated or deleted.
-     */
+    // Log additional model attributes when models are created, updated or deleted.
     'log_attributes' => '*',
 
-    /*
-     * When logging model changes, also log the old attribute values.
-     */
-    'log_old_attributes' => true,
+    // When logging model changes, also log the old attribute values.
+    'log_old_attributes' => TRUE,
 
-    /*
-     * Set the log name for activities.
-     */
+    // Set the log name for activities.
     'log_name' => 'hdtickets',
 ];

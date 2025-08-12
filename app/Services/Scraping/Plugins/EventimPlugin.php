@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Plugins;
 
 use App\Services\Scraping\BaseScraperPlugin;
+use Exception;
+use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class EventimPlugin extends BaseScraperPlugin
@@ -72,30 +74,30 @@ class EventimPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/suche';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['term'] = $criteria['keyword'];
         }
-        
-        if (!empty($criteria['city'])) {
+
+        if (! empty($criteria['city'])) {
             $params['city'] = $criteria['city'];
         }
-        
-        if (!empty($criteria['category'])) {
+
+        if (! empty($criteria['category'])) {
             $params['kategorie'] = $this->mapCategory($criteria['category']);
         }
-        
-        if (!empty($criteria['date_from'])) {
+
+        if (! empty($criteria['date_from'])) {
             $params['datum_von'] = $criteria['date_from'];
         }
-        
-        if (!empty($criteria['date_to'])) {
+
+        if (! empty($criteria['date_to'])) {
             $params['datum_bis'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -104,17 +106,17 @@ class EventimPlugin extends BaseScraperPlugin
     protected function mapCategory(string $category): string
     {
         $mapping = [
-            'football' => 'fussball',
-            'sports' => 'sport',
-            'concerts' => 'konzerte', 
-            'theater' => 'theater',
-            'comedy' => 'comedy',
+            'football'  => 'fussball',
+            'sports'    => 'sport',
+            'concerts'  => 'konzerte',
+            'theater'   => 'theater',
+            'comedy'    => 'comedy',
             'festivals' => 'festivals',
             'classical' => 'klassik',
-            'musical' => 'musical',
-            'family' => 'familie',
+            'musical'   => 'musical',
+            'family'    => 'familie',
         ];
-        
+
         return $mapping[strtolower($category)] ?? 'alle';
     }
 
@@ -128,38 +130,37 @@ class EventimPlugin extends BaseScraperPlugin
 
         try {
             // Parse Eventim specific event structure
-            $crawler->filter('.event-item, .search-result-item, .event-card, .result-item, '.
-                             '.event-entry, .ticket-item, .event-listing')->each(function (Crawler $node) use (&$events) {
-                try {
-                    $event = $this->parseEventNode($node);
-                    if ($event) {
-                        $events[] = $event;
-                    }
-                } catch (\Exception $e) {
-                    \Log::warning("Failed to parse Eventim event node", [
-                        'error' => $e->getMessage(),
-                        'html_snippet' => substr($node->html(), 0, 200)
-                    ]);
-                }
-            });
+            $crawler->filter('.event-item, .search-result-item, .event-card, .result-item, ' .
+                             '.event-entry, .ticket-item, .event-listing')->each(function (Crawler $node) use (&$events): void {
+                                 try {
+                                     $event = $this->parseEventNode($node);
+                                     if ($event) {
+                                         $events[] = $event;
+                                     }
+                                 } catch (Exception $e) {
+                                     Log::warning('Failed to parse Eventim event node', [
+                                         'error'        => $e->getMessage(),
+                                         'html_snippet' => substr($node->html(), 0, 200),
+                                     ]);
+                                 }
+                             });
 
             // Fallback: try to parse generic event structures
             if (empty($events)) {
-                $crawler->filter('.card, .item, .event-row, .listing-item')->each(function (Crawler $node) use (&$events) {
+                $crawler->filter('.card, .item, .event-row, .listing-item')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Silently continue for fallback parsing
                     }
                 });
             }
-
-        } catch (\Exception $e) {
-            \Log::error("Failed to parse Eventim events", [
-                'error' => $e->getMessage()
+        } catch (Exception $e) {
+            Log::error('Failed to parse Eventim events', [
+                'error' => $e->getMessage(),
             ]);
         }
 

@@ -1,28 +1,33 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\PriceAlertThreshold;
+use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
-use App\Models\ScrapedTicket;
 use App\Models\UserPreference;
-use App\Models\PriceAlertThreshold;
-use App\Models\PriceVolatilityAnalytics;
 use App\Notifications\SmartTicketAlert;
-use App\Notifications\HighDemandTicketAlert;
-use App\Services\NotificationChannels\SlackNotificationChannel;
 use App\Services\NotificationChannels\DiscordNotificationChannel;
+use App\Services\NotificationChannels\SlackNotificationChannel;
 use App\Services\NotificationChannels\TelegramNotificationChannel;
 use App\Services\NotificationChannels\WebhookNotificationChannel;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use Carbon\Carbon;
+
+use function count;
+use function in_array;
+use function strlen;
 
 class EnhancedAlertSystem
 {
     protected $mlPredictor;
+
     protected $escalationService;
+
     protected $customChannels;
 
     public function __construct()
@@ -30,10 +35,10 @@ class EnhancedAlertSystem
         $this->mlPredictor = new TicketAvailabilityPredictor();
         $this->escalationService = new AlertEscalationService();
         $this->customChannels = [
-            'slack' => new SlackNotificationChannel(),
-            'discord' => new DiscordNotificationChannel(),
+            'slack'    => new SlackNotificationChannel(),
+            'discord'  => new DiscordNotificationChannel(),
             'telegram' => new TelegramNotificationChannel(),
-            'webhook' => new WebhookNotificationChannel()
+            'webhook'  => new WebhookNotificationChannel(),
         ];
     }
 
@@ -52,29 +57,6 @@ class EnhancedAlertSystem
                 $this->triggerDynamicAlert($threshold, $currentPrice);
             }
         }
-    }
-
-    /**
-     * Trigger alert for a price condition
-     */
-    protected function triggerDynamicAlert(PriceAlertThreshold $threshold, float $currentPrice): void
-    {
-        $alertData = [
-            'ticket' => $threshold->ticket->toArray(),
-            'threshold' => $threshold->toArray(),
-            'current_price' => $currentPrice,
-            'actions' => [
-                'view_ticket' => route('tickets.scraping.show', $threshold->ticket_id),
-                'manage_alerts' => route('alerts.manage'),
-            ],
-            'metadata' => [
-                'triggered_at' => now()->toISOString()
-            ]
-        ];
-
-        $channels = $this->getOptimalNotificationChannels($threshold->user, AlertPriority::HIGH);
-        $this->sendMultiChannelNotification($threshold->user, $alertData, $channels);
-        $threshold->trigger();
     }
 
     /**
@@ -107,21 +89,43 @@ class EnhancedAlertSystem
             }
 
             Log::info('Smart alert processed successfully', [
-                'alert_id' => $alert->id,
-                'ticket_id' => $ticket->id,
-                'priority' => $priority,
-                'channels' => array_keys($channels),
-                'prediction' => $prediction
+                'alert_id'   => $alert->id,
+                'ticket_id'  => $ticket->id,
+                'priority'   => $priority,
+                'channels'   => array_keys($channels),
+                'prediction' => $prediction,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to process smart alert', [
-                'alert_id' => $alert->id,
+                'alert_id'  => $alert->id,
                 'ticket_id' => $ticket->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'     => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    /**
+     * Trigger alert for a price condition
+     */
+    protected function triggerDynamicAlert(PriceAlertThreshold $threshold, float $currentPrice): void
+    {
+        $alertData = [
+            'ticket'        => $threshold->ticket->toArray(),
+            'threshold'     => $threshold->toArray(),
+            'current_price' => $currentPrice,
+            'actions'       => [
+                'view_ticket'   => route('tickets.scraping.show', $threshold->ticket_id),
+                'manage_alerts' => route('alerts.manage'),
+            ],
+            'metadata' => [
+                'triggered_at' => now()->toISOString(),
+            ],
+        ];
+
+        $channels = $this->getOptimalNotificationChannels($threshold->user, AlertPriority::HIGH);
+        $this->sendMultiChannelNotification($threshold->user, $alertData, $channels);
+        $threshold->trigger();
     }
 
     /**
@@ -181,12 +185,12 @@ class EnhancedAlertSystem
 
         // User preference-based priority
         $userPrefs = $this->getUserEventPreferences($alert->user_id, $ticket);
-        if ($userPrefs['is_favorite_team'] ?? false) {
+        if ($userPrefs['is_favorite_team'] ?? FALSE) {
             $priority = max($priority, AlertPriority::HIGH);
             $factors[] = 'favorite_team';
         }
 
-        if ($userPrefs['is_preferred_venue'] ?? false) {
+        if ($userPrefs['is_preferred_venue'] ?? FALSE) {
             $priority = max($priority, AlertPriority::MEDIUM);
             $factors[] = 'preferred_venue';
         }
@@ -217,30 +221,30 @@ class EnhancedAlertSystem
     protected function buildEnhancedAlertData(ScrapedTicket $ticket, TicketAlert $alert, int $priority, array $prediction): array
     {
         return [
-            'ticket' => $ticket->toArray(),
-            'alert' => $alert->toArray(),
-            'priority' => $priority,
+            'ticket'         => $ticket->toArray(),
+            'alert'          => $alert->toArray(),
+            'priority'       => $priority,
             'priority_label' => AlertPriority::getLabel($priority),
-            'prediction' => $prediction,
-            'context' => [
-                'time_until_event' => Carbon::parse($ticket->event_date)->diffForHumans(),
-                'price_comparison' => $this->getPriceComparison($ticket),
+            'prediction'     => $prediction,
+            'context'        => [
+                'time_until_event'   => Carbon::parse($ticket->event_date)->diffForHumans(),
+                'price_comparison'   => $this->getPriceComparison($ticket),
                 'availability_trend' => $this->getAvailabilityTrend($ticket),
-                'similar_events' => $this->getSimilarEventsData($ticket),
-                'recommendation' => $this->generateRecommendation($ticket, $alert, $prediction)
+                'similar_events'     => $this->getSimilarEventsData($ticket),
+                'recommendation'     => $this->generateRecommendation($ticket, $alert, $prediction),
             ],
             'actions' => [
-                'view_ticket' => route('tickets.scraping.show', $ticket->id),
+                'view_ticket'  => route('tickets.scraping.show', $ticket->id),
                 'purchase_now' => route('tickets.scraping.purchase', $ticket->id),
                 'set_reminder' => route('alerts.create'),
-                'snooze_alert' => route('alerts.snooze', $alert->id)
+                'snooze_alert' => route('alerts.snooze', $alert->id),
             ],
             'metadata' => [
-                'alert_id' => $alert->id,
-                'ticket_id' => $ticket->id,
+                'alert_id'     => $alert->id,
+                'ticket_id'    => $ticket->id,
                 'generated_at' => now()->toISOString(),
-                'expires_at' => now()->addHours(2)->toISOString()
-            ]
+                'expires_at'   => now()->addHours(2)->toISOString(),
+            ],
         ];
     }
 
@@ -250,46 +254,47 @@ class EnhancedAlertSystem
     protected function getOptimalNotificationChannels(User $user, int $priority): array
     {
         $channels = ['database']; // Always include database channel
-        
+
         // Get user notification preferences
         $preferences = UserPreference::where('user_id', $user->id)
             ->where('key', 'notification_channels')
             ->first();
-        
-        $userChannels = $preferences ? json_decode($preferences->value, true) : [];
-        
+
+        $userChannels = $preferences ? json_decode($preferences->value, TRUE) : [];
+
         // Add channels based on priority level
         switch ($priority) {
             case AlertPriority::CRITICAL:
                 $channels = array_merge($channels, [
                     'mail', 'sms', 'push',
-                    $userChannels['critical'] ?? 'slack'
+                    $userChannels['critical'] ?? 'slack',
                 ]);
+
                 break;
-                
             case AlertPriority::HIGH:
                 $channels = array_merge($channels, [
                     'mail', 'push',
-                    $userChannels['high'] ?? 'discord'
+                    $userChannels['high'] ?? 'discord',
                 ]);
+
                 break;
-                
             case AlertPriority::MEDIUM:
                 $channels = array_merge($channels, [
                     'push',
-                    $userChannels['medium'] ?? 'telegram'
+                    $userChannels['medium'] ?? 'telegram',
                 ]);
+
                 break;
-                
             default:
                 $channels[] = $userChannels['normal'] ?? 'push';
+
                 break;
         }
-        
+
         // Remove disabled channels
         $disabledChannels = $userChannels['disabled'] ?? [];
         $channels = array_diff($channels, $disabledChannels);
-        
+
         return array_unique($channels);
     }
 
@@ -299,24 +304,24 @@ class EnhancedAlertSystem
     protected function sendMultiChannelNotification(User $user, array $alertData, array $channels): void
     {
         $notification = new SmartTicketAlert($alertData);
-        
+
         // Use Laravel's notification system for standard channels
         $standardChannels = array_intersect($channels, ['mail', 'database', 'sms', 'push']);
-        if (!empty($standardChannels)) {
+        if (! empty($standardChannels)) {
             $user->notify($notification);
         }
-        
+
         // Use custom channels for external integrations
         $customChannels = array_intersect($channels, ['slack', 'discord', 'telegram', 'webhook']);
         foreach ($customChannels as $channel) {
             if (isset($this->customChannels[$channel])) {
                 try {
                     $this->customChannels[$channel]->send($user, $alertData);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::warning("Failed to send notification via {$channel}", [
                         'user_id' => $user->id,
                         'channel' => $channel,
-                        'error' => $e->getMessage()
+                        'error'   => $e->getMessage(),
                     ]);
                 }
             }
@@ -332,7 +337,7 @@ class EnhancedAlertSystem
             ->when($eventDate, function ($query) use ($eventDate) {
                 return $query->whereDate('event_date', $eventDate);
             })
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->sum('quantity');
     }
 
@@ -346,18 +351,18 @@ class EnhancedAlertSystem
                 ->whereIn('key', ['favorite_teams', 'preferred_venues', 'event_types'])
                 ->pluck('value', 'key')
                 ->map(function ($value) {
-                    return json_decode($value, true);
+                    return json_decode($value, TRUE);
                 })
                 ->toArray();
         });
-        
+
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
         $preferredVenues = $preferences['preferred_venues'] ?? [];
-        
+
         return [
-            'is_favorite_team' => $this->isEventForFavoriteTeam($ticket, $favoriteTeams),
-            'is_preferred_venue' => in_array($ticket->venue, $preferredVenues),
-            'event_type_priority' => $this->getEventTypePriority($ticket, $preferences['event_types'] ?? [])
+            'is_favorite_team'    => $this->isEventForFavoriteTeam($ticket, $favoriteTeams),
+            'is_preferred_venue'  => in_array($ticket->venue, $preferredVenues, TRUE),
+            'event_type_priority' => $this->getEventTypePriority($ticket, $preferences['event_types'] ?? []),
         ];
     }
 
@@ -367,11 +372,12 @@ class EnhancedAlertSystem
     protected function isEventForFavoriteTeam(ScrapedTicket $ticket, array $favoriteTeams): bool
     {
         foreach ($favoriteTeams as $team) {
-            if (stripos($ticket->event_name, $team) !== false) {
-                return true;
+            if (stripos($ticket->event_name, $team) !== FALSE) {
+                return TRUE;
             }
         }
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -382,12 +388,12 @@ class EnhancedAlertSystem
         $totalAlerts = TicketAlert::where('user_id', $userId)->count();
         $successfulAlerts = TicketAlert::where('user_id', $userId)
             ->where('last_triggered_at', '>=', now()->subDays(30))
-            ->whereHas('user.purchaseAttempts', function ($query) {
+            ->whereHas('user.purchaseAttempts', function ($query): void {
                 $query->where('status', 'completed')
                     ->where('created_at', '>=', now()->subDays(30));
             })
             ->count();
-        
+
         return $totalAlerts > 0 ? $successfulAlerts / $totalAlerts : 0.5;
     }
 
@@ -396,11 +402,11 @@ class EnhancedAlertSystem
      */
     protected function getPlatformReliability(string $platform): float
     {
-        return Cache::remember("platform_reliability:{$platform}", 1800, function () use ($platform) {
+        return Cache::remember("platform_reliability:{$platform}", 1800, function () {
             // Calculate based on successful scraping attempts, response times, error rates
             $totalAttempts = 100; // Mock data - would come from actual metrics
             $successfulAttempts = rand(75, 95);
-            
+
             return $successfulAttempts / $totalAttempts;
         });
     }
@@ -411,28 +417,28 @@ class EnhancedAlertSystem
     protected function generateRecommendation(ScrapedTicket $ticket, TicketAlert $alert, array $prediction): string
     {
         $recommendations = [];
-        
+
         // Price-based recommendations
         if ($prediction['price_trend'] === 'decreasing') {
-            $recommendations[] = "Price is trending down. Consider waiting for better deals.";
+            $recommendations[] = 'Price is trending down. Consider waiting for better deals.';
         } elseif ($prediction['price_trend'] === 'increasing') {
-            $recommendations[] = "Price is rising. Consider purchasing soon.";
+            $recommendations[] = 'Price is rising. Consider purchasing soon.';
         }
-        
+
         // Availability-based recommendations
         if ($prediction['availability_trend'] === 'decreasing') {
-            $recommendations[] = "Availability is decreasing rapidly. Act quickly!";
+            $recommendations[] = 'Availability is decreasing rapidly. Act quickly!';
         }
-        
+
         // Time-based recommendations
         $daysUntilEvent = Carbon::parse($ticket->event_date)->diffInDays(now());
         if ($daysUntilEvent <= 7) {
-            $recommendations[] = "Event is within a week. Last chance to secure tickets!";
+            $recommendations[] = 'Event is within a week. Last chance to secure tickets!';
         }
-        
-        return !empty($recommendations) 
+
+        return ! empty($recommendations)
             ? implode(' ', $recommendations)
-            : "Good opportunity based on your preferences.";
+            : 'Good opportunity based on your preferences.';
     }
 
     /**
@@ -442,25 +448,25 @@ class EnhancedAlertSystem
     {
         $similarTickets = ScrapedTicket::where('event_name', 'LIKE', "%{$ticket->event_name}%")
             ->where('id', '!=', $ticket->id)
-            ->where('is_available', true)
+            ->where('is_available', TRUE)
             ->get();
-        
+
         if ($similarTickets->isEmpty()) {
             return ['status' => 'no_comparison_available'];
         }
-        
+
         $prices = $similarTickets->pluck('price')->toArray();
         $avgPrice = array_sum($prices) / count($prices);
         $minPrice = min($prices);
         $maxPrice = max($prices);
-        
+
         return [
             'current_price' => $ticket->price,
             'average_price' => round($avgPrice, 2),
-            'min_price' => $minPrice,
-            'max_price' => $maxPrice,
-            'comparison' => $ticket->price < $avgPrice ? 'below_average' : 'above_average',
-            'savings' => $ticket->price < $avgPrice ? round($avgPrice - $ticket->price, 2) : 0
+            'min_price'     => $minPrice,
+            'max_price'     => $maxPrice,
+            'comparison'    => $ticket->price < $avgPrice ? 'below_average' : 'above_average',
+            'savings'       => $ticket->price < $avgPrice ? round($avgPrice - $ticket->price, 2) : 0,
         ];
     }
 
@@ -471,10 +477,10 @@ class EnhancedAlertSystem
     {
         // Mock trend data - in real implementation, this would analyze historical data
         return [
-            'trend' => 'decreasing',
+            'trend'             => 'decreasing',
             'change_percentage' => -15,
-            'total_available' => rand(50, 200),
-            'platforms_count' => rand(3, 8)
+            'total_available'   => rand(50, 200),
+            'platforms_count'   => rand(3, 8),
         ];
     }
 
@@ -486,8 +492,8 @@ class EnhancedAlertSystem
         $alert->increment('times_triggered');
         $alert->update([
             'last_triggered_at' => now(),
-            'last_priority' => $priority,
-            'last_channels' => json_encode($channels)
+            'last_priority'     => $priority,
+            'last_channels'     => json_encode($channels),
         ]);
     }
 
@@ -498,23 +504,23 @@ class EnhancedAlertSystem
     {
         // Extract team names or key terms from event name
         $eventTerms = $this->extractEventTerms($ticket->event_name);
-        
-        $similarEvents = ScrapedTicket::where(function ($query) use ($eventTerms) {
+
+        $similarEvents = ScrapedTicket::where(function ($query) use ($eventTerms): void {
             foreach ($eventTerms as $term) {
                 $query->orWhere('event_name', 'LIKE', "%{$term}%");
             }
         })
-        ->where('id', '!=', $ticket->id)
-        ->where('event_date', '>=', now())
-        ->limit(5)
-        ->get(['event_name', 'price', 'platform', 'event_date']);
-        
+            ->where('id', '!=', $ticket->id)
+            ->where('event_date', '>=', now())
+            ->limit(5)
+            ->get(['event_name', 'price', 'platform', 'event_date']);
+
         return $similarEvents->map(function ($event) {
             return [
                 'event_name' => $event->event_name,
-                'price' => $event->price,
-                'platform' => $event->platform,
-                'event_date' => $event->event_date
+                'price'      => $event->price,
+                'platform'   => $event->platform,
+                'event_date' => $event->event_date,
             ];
         })->toArray();
     }
@@ -527,9 +533,9 @@ class EnhancedAlertSystem
         // Remove common words and extract meaningful terms
         $commonWords = ['vs', 'v', 'at', 'the', 'and', 'or', 'in', 'on', 'game', 'match', 'event'];
         $terms = explode(' ', strtolower($eventName));
-        
+
         return array_filter($terms, function ($term) use ($commonWords) {
-            return strlen($term) > 2 && !in_array($term, $commonWords);
+            return strlen($term) > 2 && ! in_array($term, $commonWords, TRUE);
         });
     }
 
@@ -539,10 +545,11 @@ class EnhancedAlertSystem
     protected function getEventTypePriority(ScrapedTicket $ticket, array $eventTypes): int
     {
         foreach ($eventTypes as $type => $priority) {
-            if (stripos($ticket->event_name, $type) !== false) {
+            if (stripos($ticket->event_name, $type) !== FALSE) {
                 return $priority;
             }
         }
+
         return 1; // Default priority
     }
 }
@@ -552,22 +559,26 @@ class EnhancedAlertSystem
  */
 class AlertPriority
 {
-    const CRITICAL = 5;
-    const HIGH = 4;
-    const MEDIUM = 3;
-    const NORMAL = 2;
-    const LOW = 1;
-    
+    public const CRITICAL = 5;
+
+    public const HIGH = 4;
+
+    public const MEDIUM = 3;
+
+    public const NORMAL = 2;
+
+    public const LOW = 1;
+
     public static function getLabel(int $priority): string
     {
         $labels = [
             self::CRITICAL => 'Critical',
-            self::HIGH => 'High',
-            self::MEDIUM => 'Medium',
-            self::NORMAL => 'Normal',
-            self::LOW => 'Low'
+            self::HIGH     => 'High',
+            self::MEDIUM   => 'Medium',
+            self::NORMAL   => 'Normal',
+            self::LOW      => 'Low',
         ];
-        
+
         return $labels[$priority] ?? 'Unknown';
     }
 }

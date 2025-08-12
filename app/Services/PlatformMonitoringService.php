@@ -1,18 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\ScrapingStats;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
+use Exception;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
+use function get_class;
+use function is_array;
 
 class PlatformMonitoringService
 {
     private const CRITICAL_SUCCESS_RATE_THRESHOLD = 50.0; // Below 50% is critical
+
     private const WARNING_SUCCESS_RATE_THRESHOLD = 80.0;  // Below 80% is warning
+
     private const HIGH_RESPONSE_TIME_THRESHOLD = 5000;    // Above 5 seconds is high
+
     private const MONITORING_INTERVAL_HOURS = 1;          // Check every hour
 
     /**
@@ -27,7 +33,7 @@ class PlatformMonitoringService
             $alerts = array_merge($alerts, $this->monitorPlatform($platform));
         }
 
-        if (!empty($alerts)) {
+        if (! empty($alerts)) {
             $this->processAlerts($alerts);
         }
 
@@ -81,21 +87,21 @@ class PlatformMonitoringService
     public function getPlatformStats(string $platform, int $hours = 24): array
     {
         $cacheKey = "platform_stats_{$platform}_{$hours}";
-        
+
         return Cache::remember($cacheKey, 600, function () use ($platform, $hours) {
             return [
-                'platform' => $platform,
-                'time_period_hours' => $hours,
-                'success_rate' => ScrapingStats::getSuccessRate($platform, $hours),
-                'avg_response_time' => ScrapingStats::getAverageResponseTime($platform, $hours),
-                'availability' => ScrapingStats::getPlatformAvailability($platform, 1),
-                'error_stats' => ScrapingStats::getErrorStats($platform, $hours),
-                'selector_stats' => ScrapingStats::getSelectorStats($platform, $hours),
-                'total_requests' => ScrapingStats::platform($platform)->recent($hours)->count(),
+                'platform'            => $platform,
+                'time_period_hours'   => $hours,
+                'success_rate'        => ScrapingStats::getSuccessRate($platform, $hours),
+                'avg_response_time'   => ScrapingStats::getAverageResponseTime($platform, $hours),
+                'availability'        => ScrapingStats::getPlatformAvailability($platform, 1),
+                'error_stats'         => ScrapingStats::getErrorStats($platform, $hours),
+                'selector_stats'      => ScrapingStats::getSelectorStats($platform, $hours),
+                'total_requests'      => ScrapingStats::platform($platform)->recent($hours)->count(),
                 'successful_requests' => ScrapingStats::platform($platform)->recent($hours)->successful()->count(),
-                'failed_requests' => ScrapingStats::platform($platform)->recent($hours)->failed()->count(),
-                'last_success' => ScrapingStats::platform($platform)->successful()->latest('created_at')->value('created_at'),
-                'last_failure' => ScrapingStats::platform($platform)->failed()->latest('created_at')->value('created_at'),
+                'failed_requests'     => ScrapingStats::platform($platform)->recent($hours)->failed()->count(),
+                'last_success'        => ScrapingStats::platform($platform)->successful()->latest('created_at')->value('created_at'),
+                'last_failure'        => ScrapingStats::platform($platform)->failed()->latest('created_at')->value('created_at'),
             ];
         });
     }
@@ -106,10 +112,76 @@ class PlatformMonitoringService
     public function getAllPlatformStats(int $hours = 24): Collection
     {
         $platforms = $this->getActivePlatforms();
-        
+
         return collect($platforms)->map(function ($platform) use ($hours) {
             return $this->getPlatformStats($platform, $hours);
         });
+    }
+
+    /**
+     * Record a successful scraping operation
+     */
+    public function recordSuccess(
+        string $platform,
+        string $method,
+        string $operation,
+        array $searchCriteria = [],
+        ?int $responseTime = NULL,
+        int $resultsCount = 0,
+        array $selectorsUsed = [],
+        ?string $url = NULL,
+    ): void {
+        ScrapingStats::create([
+            'platform'         => $platform,
+            'method'           => $method,
+            'operation'        => $operation,
+            'url'              => $url,
+            'search_criteria'  => $searchCriteria,
+            'status'           => 'success',
+            'response_time_ms' => $responseTime,
+            'results_count'    => $resultsCount,
+            'selectors_used'   => $selectorsUsed,
+            'started_at'       => now(),
+            'completed_at'     => now(),
+        ]);
+
+        // Clear platform stats cache
+        $this->clearPlatformStatsCache($platform);
+    }
+
+    /**
+     * Record a failed scraping operation
+     */
+    public function recordFailure(
+        string $platform,
+        string $method,
+        string $operation,
+        Exception $exception,
+        array $searchCriteria = [],
+        ?int $responseTime = NULL,
+        array $selectorsUsed = [],
+        ?string $url = NULL,
+    ): void {
+        $status = $this->determineFailureStatus($exception);
+
+        ScrapingStats::create([
+            'platform'         => $platform,
+            'method'           => $method,
+            'operation'        => $operation,
+            'url'              => $url,
+            'search_criteria'  => $searchCriteria,
+            'status'           => $status,
+            'response_time_ms' => $responseTime,
+            'results_count'    => 0,
+            'error_type'       => get_class($exception),
+            'error_message'    => $exception->getMessage(),
+            'selectors_used'   => $selectorsUsed,
+            'started_at'       => now(),
+            'completed_at'     => now(),
+        ]);
+
+        // Clear platform stats cache
+        $this->clearPlatformStatsCache($platform);
     }
 
     /**
@@ -119,27 +191,28 @@ class PlatformMonitoringService
     {
         if ($successRate < self::CRITICAL_SUCCESS_RATE_THRESHOLD) {
             return [
-                'type' => 'critical',
-                'platform' => $platform,
-                'metric' => 'success_rate',
-                'value' => $successRate,
+                'type'      => 'critical',
+                'platform'  => $platform,
+                'metric'    => 'success_rate',
+                'value'     => $successRate,
                 'threshold' => self::CRITICAL_SUCCESS_RATE_THRESHOLD,
-                'message' => "Critical: {$platform} success rate is {$successRate}% (below {self::CRITICAL_SUCCESS_RATE_THRESHOLD}%)",
-                'timestamp' => now()
+                'message'   => "Critical: {$platform} success rate is {$successRate}% (below {self::CRITICAL_SUCCESS_RATE_THRESHOLD}%)",
+                'timestamp' => now(),
             ];
-        } elseif ($successRate < self::WARNING_SUCCESS_RATE_THRESHOLD) {
+        }
+        if ($successRate < self::WARNING_SUCCESS_RATE_THRESHOLD) {
             return [
-                'type' => 'warning',
-                'platform' => $platform,
-                'metric' => 'success_rate',
-                'value' => $successRate,
+                'type'      => 'warning',
+                'platform'  => $platform,
+                'metric'    => 'success_rate',
+                'value'     => $successRate,
                 'threshold' => self::WARNING_SUCCESS_RATE_THRESHOLD,
-                'message' => "Warning: {$platform} success rate is {$successRate}% (below {self::WARNING_SUCCESS_RATE_THRESHOLD}%)",
-                'timestamp' => now()
+                'message'   => "Warning: {$platform} success rate is {$successRate}% (below {self::WARNING_SUCCESS_RATE_THRESHOLD}%)",
+                'timestamp' => now(),
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -149,17 +222,17 @@ class PlatformMonitoringService
     {
         if ($avgResponseTime > self::HIGH_RESPONSE_TIME_THRESHOLD) {
             return [
-                'type' => 'warning',
-                'platform' => $platform,
-                'metric' => 'response_time',
-                'value' => $avgResponseTime,
+                'type'      => 'warning',
+                'platform'  => $platform,
+                'metric'    => 'response_time',
+                'value'     => $avgResponseTime,
                 'threshold' => self::HIGH_RESPONSE_TIME_THRESHOLD,
-                'message' => "Warning: {$platform} average response time is {$avgResponseTime}ms (above {self::HIGH_RESPONSE_TIME_THRESHOLD}ms)",
-                'timestamp' => now()
+                'message'   => "Warning: {$platform} average response time is {$avgResponseTime}ms (above {self::HIGH_RESPONSE_TIME_THRESHOLD}ms)",
+                'timestamp' => now(),
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -169,7 +242,7 @@ class PlatformMonitoringService
     {
         $botDetectionErrors = [
             'App\Exceptions\ScrapingDetectedException',
-            'bot_detected'
+            'bot_detected',
         ];
 
         $botDetectionCount = 0;
@@ -179,17 +252,17 @@ class PlatformMonitoringService
 
         if ($botDetectionCount > 5) { // More than 5 bot detection errors in the time period
             return [
-                'type' => 'critical',
-                'platform' => $platform,
-                'metric' => 'bot_detection',
-                'value' => $botDetectionCount,
+                'type'      => 'critical',
+                'platform'  => $platform,
+                'metric'    => 'bot_detection',
+                'value'     => $botDetectionCount,
                 'threshold' => 5,
-                'message' => "Critical: {$platform} has {$botDetectionCount} bot detection instances (threshold: 5)",
-                'timestamp' => now()
+                'message'   => "Critical: {$platform} has {$botDetectionCount} bot detection instances (threshold: 5)",
+                'timestamp' => now(),
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -199,7 +272,7 @@ class PlatformMonitoringService
     {
         $rateLimitErrors = [
             'App\Exceptions\RateLimitException',
-            'rate_limited'
+            'rate_limited',
         ];
 
         $rateLimitCount = 0;
@@ -209,17 +282,17 @@ class PlatformMonitoringService
 
         if ($rateLimitCount > 10) { // More than 10 rate limit errors in the time period
             return [
-                'type' => 'warning',
-                'platform' => $platform,
-                'metric' => 'rate_limit',
-                'value' => $rateLimitCount,
+                'type'      => 'warning',
+                'platform'  => $platform,
+                'metric'    => 'rate_limit',
+                'value'     => $rateLimitCount,
                 'threshold' => 10,
-                'message' => "Warning: {$platform} has {$rateLimitCount} rate limit instances (threshold: 10)",
-                'timestamp' => now()
+                'message'   => "Warning: {$platform} has {$rateLimitCount} rate limit instances (threshold: 10)",
+                'timestamp' => now(),
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -228,27 +301,28 @@ class PlatformMonitoringService
     private function checkSelectorEffectiveness(string $platform, array $selectorStats): ?array
     {
         $lowEffectivenessSelectors = [];
-        
+
         foreach ($selectorStats as $selector => $stats) {
             if ($stats['total_uses'] >= 10 && $stats['success_rate'] < 70) {
                 $lowEffectivenessSelectors[$selector] = $stats['success_rate'];
             }
         }
 
-        if (!empty($lowEffectivenessSelectors)) {
+        if (! empty($lowEffectivenessSelectors)) {
             $selectorList = implode(', ', array_keys($lowEffectivenessSelectors));
+
             return [
-                'type' => 'warning',
-                'platform' => $platform,
-                'metric' => 'selector_effectiveness',
-                'value' => $lowEffectivenessSelectors,
+                'type'      => 'warning',
+                'platform'  => $platform,
+                'metric'    => 'selector_effectiveness',
+                'value'     => $lowEffectivenessSelectors,
                 'threshold' => 70,
-                'message' => "Warning: {$platform} has low-effectiveness selectors: {$selectorList}",
-                'timestamp' => now()
+                'message'   => "Warning: {$platform} has low-effectiveness selectors: {$selectorList}",
+                'timestamp' => now(),
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -258,7 +332,7 @@ class PlatformMonitoringService
     {
         foreach ($alerts as $alert) {
             $logLevel = $alert['type'] === 'critical' ? 'error' : 'warning';
-            
+
             Log::channel('ticket_apis')->{$logLevel}('Platform monitoring alert', $alert);
 
             // Store alert in cache for dashboard display
@@ -279,10 +353,10 @@ class PlatformMonitoringService
     {
         // Here you could send email, Slack notification, SMS, etc.
         // For now, we'll just log it as a critical error
-        
+
         Log::channel('ticket_apis')->critical('CRITICAL PLATFORM ALERT', [
-            'alert' => $alert,
-            'action_required' => true
+            'alert'           => $alert,
+            'action_required' => TRUE,
         ]);
 
         // You could also trigger events here for notification systems
@@ -298,7 +372,7 @@ class PlatformMonitoringService
         $activePlatforms = [];
 
         foreach ($platforms as $platform => $config) {
-            if (is_array($config) && ($config['enabled'] ?? false)) {
+            if (is_array($config) && ($config['enabled'] ?? FALSE)) {
                 $activePlatforms[] = $platform;
             }
         }
@@ -307,87 +381,23 @@ class PlatformMonitoringService
     }
 
     /**
-     * Record a successful scraping operation
-     */
-    public function recordSuccess(
-        string $platform,
-        string $method,
-        string $operation,
-        array $searchCriteria = [],
-        int $responseTime = null,
-        int $resultsCount = 0,
-        array $selectorsUsed = [],
-        string $url = null
-    ): void {
-        ScrapingStats::create([
-            'platform' => $platform,
-            'method' => $method,
-            'operation' => $operation,
-            'url' => $url,
-            'search_criteria' => $searchCriteria,
-            'status' => 'success',
-            'response_time_ms' => $responseTime,
-            'results_count' => $resultsCount,
-            'selectors_used' => $selectorsUsed,
-            'started_at' => now(),
-            'completed_at' => now(),
-        ]);
-
-        // Clear platform stats cache
-        $this->clearPlatformStatsCache($platform);
-    }
-
-    /**
-     * Record a failed scraping operation
-     */
-    public function recordFailure(
-        string $platform,
-        string $method,
-        string $operation,
-        \Exception $exception,
-        array $searchCriteria = [],
-        int $responseTime = null,
-        array $selectorsUsed = [],
-        string $url = null
-    ): void {
-        $status = $this->determineFailureStatus($exception);
-
-        ScrapingStats::create([
-            'platform' => $platform,
-            'method' => $method,
-            'operation' => $operation,
-            'url' => $url,
-            'search_criteria' => $searchCriteria,
-            'status' => $status,
-            'response_time_ms' => $responseTime,
-            'results_count' => 0,
-            'error_type' => get_class($exception),
-            'error_message' => $exception->getMessage(),
-            'selectors_used' => $selectorsUsed,
-            'started_at' => now(),
-            'completed_at' => now(),
-        ]);
-
-        // Clear platform stats cache
-        $this->clearPlatformStatsCache($platform);
-    }
-
-    /**
      * Determine failure status based on exception type
      */
-    private function determineFailureStatus(\Exception $exception): string
+    private function determineFailureStatus(Exception $exception): string
     {
         $className = get_class($exception);
 
         if (str_contains($className, 'ScrapingDetected')) {
             return 'bot_detected';
-        } elseif (str_contains($className, 'RateLimit')) {
-            return 'rate_limited';
-        } elseif (str_contains($className, 'Timeout')) {
-            return 'timeout';
-        } else {
-            return 'failed';
         }
+        if (str_contains($className, 'RateLimit')) {
+            return 'rate_limited';
+        }
+        if (str_contains($className, 'Timeout')) {
+            return 'timeout';
+        }
+
+        return 'failed';
     }
 
     /**

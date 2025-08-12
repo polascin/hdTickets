@@ -1,13 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,12 +13,20 @@ return new class extends Migration
     {
         // Clean up any orphaned records and optimize table structure
         $this->cleanupOrphanedRecords();
-        
+
         // Update table engine to InnoDB if not already (for better performance)
         $this->optimizeTableEngines();
-        
+
         // Configure Laravel for development mode optimizations
         $this->configureDevelopmentMode();
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        // This migration only optimizes existing tables, no schema changes to reverse
     }
 
     /**
@@ -32,14 +38,14 @@ return new class extends Migration
         if (config('database.default') !== 'mysql') {
             return;
         }
-        
+
         // Check existing indexes to avoid duplicates
         $existingIndexes = collect(DB::select('SHOW INDEXES FROM users'))
             ->pluck('Key_name')
             ->toArray();
-        
+
         // Add search index using raw SQL to handle TEXT column
-        if (!in_array('users_search_index', $existingIndexes)) {
+        if (! in_array('users_search_index', $existingIndexes, TRUE)) {
             DB::statement('CREATE INDEX users_search_index ON users (name, email(255), username)');
         }
     }
@@ -80,10 +86,10 @@ return new class extends Migration
         if (config('database.default') !== 'mysql') {
             return;
         }
-        
+
         $tables = [
-            'users', 'scraped_tickets', 'ticket_alerts', 'sessions', 
-            'cache', 'telescope_entries', 'migrations'
+            'users', 'scraped_tickets', 'ticket_alerts', 'sessions',
+            'cache', 'telescope_entries', 'migrations',
         ];
 
         foreach ($tables as $table) {
@@ -91,7 +97,7 @@ return new class extends Migration
                 try {
                     DB::statement("ALTER TABLE {$table} ENGINE=InnoDB");
                     DB::statement("OPTIMIZE TABLE {$table}");
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Log the error but continue with migration
                     Log::info("Could not optimize table {$table}: " . $e->getMessage());
                 }
@@ -105,21 +111,13 @@ return new class extends Migration
     private function configureDevelopmentMode(): void
     {
         // Clear all caches for development
-        \Illuminate\Support\Facades\Artisan::call('config:clear');
-        \Illuminate\Support\Facades\Artisan::call('route:clear');
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        
+        Illuminate\Support\Facades\Artisan::call('config:clear');
+        Illuminate\Support\Facades\Artisan::call('route:clear');
+        Illuminate\Support\Facades\Artisan::call('view:clear');
+
         // Enable query logging in development
         if (config('app.env') === 'local') {
             DB::enableQueryLog();
         }
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        // This migration only optimizes existing tables, no schema changes to reverse
     }
 };

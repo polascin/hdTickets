@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class LiveNationClient extends BaseWebScrapingClient
 {
@@ -13,19 +13,6 @@ class LiveNationClient extends BaseWebScrapingClient
         parent::__construct($config);
         $this->baseUrl = 'https://www.livenation.com';
         $this->respectRateLimit('livenation');
-    }
-
-    protected function getHeaders(): array
-    {
-        return [
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language' => 'en-US,en;q=0.5',
-            'Accept-Encoding' => 'gzip, deflate, br',
-            'DNT' => '1',
-            'Connection' => 'keep-alive',
-            'Upgrade-Insecure-Requests' => '1',
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        ];
     }
 
     public function searchEvents(array $criteria): array
@@ -49,7 +36,7 @@ class LiveNationClient extends BaseWebScrapingClient
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
         $searchUrl = $this->buildSearchUrl($keyword, $location);
-        
+
         try {
             $html = $this->makeScrapingRequest($searchUrl);
             $crawler = new Crawler($html);
@@ -57,6 +44,7 @@ class LiveNationClient extends BaseWebScrapingClient
             return $this->extractSearchResults($crawler, $maxResults);
         } catch (Exception $e) {
             Log::error('LiveNation scraping failed: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -73,28 +61,28 @@ class LiveNationClient extends BaseWebScrapingClient
             return $this->extractEventDetails($crawler, $url);
         } catch (Exception $e) {
             Log::error('Failed to scrape LiveNation event details: ' . $e->getMessage());
+
             return [];
         }
     }
 
-    /**
-     * Build search URL for LiveNation
-     */
-    private function buildSearchUrl(string $keyword, string $location = ''): string
+    public function getBaseUrl(): string
     {
-        $baseUrl = 'https://www.livenation.com/search';
-        $params = [
-            'q' => $keyword,
-            'sort' => 'eventdate_asc'
-        ];
-
-        if (!empty($location)) {
-            $params['location'] = $location;
-        }
-
-        return $baseUrl . '?' . http_build_query($params);
+        return $this->baseUrl;
     }
 
+    protected function getHeaders(): array
+    {
+        return [
+            'Accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language'           => 'en-US,en;q=0.5',
+            'Accept-Encoding'           => 'gzip, deflate, br',
+            'DNT'                       => '1',
+            'Connection'                => 'keep-alive',
+            'Upgrade-Insecure-Requests' => '1',
+            'User-Agent'                => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        ];
+    }
 
     /**
      * Extract search results from HTML (BaseWebScrapingClient requirement)
@@ -110,22 +98,23 @@ class LiveNationClient extends BaseWebScrapingClient
             '.event-card',
             '.event-item',
             '[data-testid="event-card"]',
-            '.ln-u-margin-bottom-xs'
+            '.ln-u-margin-bottom-xs',
         ];
 
         foreach ($eventSelectors as $selector) {
             if ($crawler->filter($selector)->count() > 0) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$events, &$count, $maxResults) {
                     if ($count >= $maxResults) {
-                        return false;
+                        return FALSE;
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
                 });
+
                 break; // Use first selector that works
             }
         }
@@ -139,37 +128,37 @@ class LiveNationClient extends BaseWebScrapingClient
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
-        
+
         try {
             $priceNodes = $crawler->filter('.price, .ticket-price, [data-testid="price"], .price-range');
-            $priceNodes->each(function (Crawler $node) use (&$prices) {
+            $priceNodes->each(function (Crawler $node) use (&$prices): void {
                 $priceText = $node->text('');
-                
+
                 // Extract price from text
                 $price = 0;
                 $currency = 'USD';
                 if (preg_match('/\$([\d,]+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval(str_replace(',', '', $matches[1]));
+                    $price = (float) (str_replace(',', '', $matches[1]));
                 } elseif (preg_match('/£([\d,]+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval(str_replace(',', '', $matches[1]));
+                    $price = (float) (str_replace(',', '', $matches[1]));
                     $currency = 'GBP';
                 } elseif (preg_match('/€([\d,]+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval(str_replace(',', '', $matches[1]));
+                    $price = (float) (str_replace(',', '', $matches[1]));
                     $currency = 'EUR';
                 }
-                
+
                 if ($price > 0) {
                     $prices[] = [
-                        'price' => $price,
+                        'price'    => $price,
                         'currency' => $currency,
-                        'section' => 'General'
+                        'section'  => 'General',
                     ];
                 }
             });
         } catch (Exception $e) {
             Log::debug('Failed to extract LiveNation prices', ['error' => $e->getMessage()]);
         }
-        
+
         return $prices;
     }
 
@@ -186,7 +175,7 @@ class LiveNationClient extends BaseWebScrapingClient
                 '.event-title a',
                 '.artist-name a',
                 'a[href*="/event/"]',
-                '.card-title a'
+                '.card-title a',
             ]);
 
             // Extract event URL
@@ -199,7 +188,7 @@ class LiveNationClient extends BaseWebScrapingClient
                 '.date-display',
                 'time',
                 '[data-testid="event-date"]',
-                '.concert-date'
+                '.concert-date',
             ]);
 
             // Parse date
@@ -211,7 +200,7 @@ class LiveNationClient extends BaseWebScrapingClient
                 '.event-venue',
                 '.location',
                 '[data-testid="venue"]',
-                '.concert-venue'
+                '.concert-venue',
             ]);
 
             // Extract city/location
@@ -219,44 +208,145 @@ class LiveNationClient extends BaseWebScrapingClient
                 '.event-city',
                 '.venue-city',
                 '.location-city',
-                '.city-name'
+                '.city-name',
             ]);
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
-            
+            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+
             $price = $this->trySelectors($node, [
                 '.ticket-price',
                 '.event-price',
                 '.price-range',
-                '[data-testid="price"]'
+                '[data-testid="price"]',
             ]) ?: $priceRange;
 
             // Extract genre/category
             $genre = $this->trySelectors($node, [
                 '.event-genre',
                 '.category',
-                '.music-genre'
+                '.music-genre',
             ]);
 
             return [
-                'name' => trim($name),
-                'url' => $url,
-                'date' => trim($dateTime),
+                'name'        => trim($name),
+                'url'         => $url,
+                'date'        => trim($dateTime),
                 'parsed_date' => $parsedDate,
-                'venue' => trim($venue),
-                'city' => trim($city),
+                'venue'       => trim($venue),
+                'city'        => trim($city),
                 'price_range' => trim($price),
-                'prices' => $priceData,
-                'genre' => trim($genre),
-                'source' => 'livenation_scrape',
-                'scraped_at' => now()->toISOString()
+                'prices'      => $priceData,
+                'genre'       => trim($genre),
+                'source'      => 'livenation_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::debug('Failed to extract event from node', ['error' => $e->getMessage()]);
+
             return [];
         }
+    }
+
+    /**
+     * Extract ticket information from the event page
+     */
+    protected function extractTicketInfo(Crawler $crawler): array
+    {
+        $ticketInfo = [
+            'available'    => FALSE,
+            'tickets'      => [],
+            'on_sale_date' => '',
+        ];
+
+        try {
+            // Check if tickets are on sale
+            $saleStatus = $crawler->filter('.ticket-status, .on-sale-status, [data-testid="sale-status"]');
+            if ($saleStatus->count() > 0) {
+                $statusText = $saleStatus->text();
+                $ticketInfo['available'] = stripos($statusText, 'on sale') !== FALSE
+                                          || stripos($statusText, 'available') !== FALSE;
+
+                // Extract on-sale date if tickets not yet available
+                if (preg_match('/on sale (.+?)(?:\s|$)/i', $statusText, $matches)) {
+                    $ticketInfo['on_sale_date'] = trim($matches[1]);
+                }
+            }
+
+            // Extract ticket types and prices
+            $ticketNodes = $crawler->filter('.ticket-option, .price-level, [data-testid="ticket-type"]');
+            $ticketNodes->each(function (Crawler $node) use (&$ticketInfo): void {
+                $sectionName = $node->filter('.section-name, .ticket-type-name, h3')->text('');
+                $priceText = $node->filter('.price, .ticket-price')->text('');
+
+                // Extract price from text
+                $price = 0;
+                $currency = 'USD';
+                if (preg_match('/\$(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                } elseif (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                    $currency = 'GBP';
+                } elseif (preg_match('/€(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+                    $price = (float) ($matches[1]);
+                    $currency = 'EUR';
+                }
+
+                if (! empty($sectionName)) {
+                    $ticketInfo['tickets'][] = [
+                        'section'       => trim($sectionName),
+                        'price'         => $price,
+                        'currency'      => $currency,
+                        'original_text' => trim($priceText),
+                    ];
+                }
+            });
+
+            // Check for presale information
+            $presaleInfo = $crawler->filter('.presale-info, .early-access, [data-testid="presale"]');
+            if ($presaleInfo->count() > 0) {
+                $ticketInfo['presale_available'] = TRUE;
+                $ticketInfo['presale_info'] = $presaleInfo->text();
+            }
+        } catch (Exception $e) {
+            Log::debug('Failed to extract ticket info', ['error' => $e->getMessage()]);
+        }
+
+        return $ticketInfo;
+    }
+
+    protected function transformEventData(array $eventData): array
+    {
+        return [
+            'id'      => $eventData['id'] ?? uniqid('livenation_'),
+            'name'    => $eventData['name'] ?? 'Unnamed Event',
+            'date'    => $eventData['date'] ?? NULL,
+            'time'    => $eventData['time'] ?? NULL,
+            'venue'   => $eventData['venue'] ?? 'TBD',
+            'city'    => $eventData['city'] ?? '',
+            'country' => $eventData['country'] ?? 'United States',
+            'url'     => $eventData['url'] ?? '',
+            'genre'   => $eventData['genre'] ?? '',
+        ];
+    }
+
+    /**
+     * Build search URL for LiveNation
+     */
+    private function buildSearchUrl(string $keyword, string $location = ''): string
+    {
+        $baseUrl = 'https://www.livenation.com/search';
+        $params = [
+            'q'    => $keyword,
+            'sort' => 'eventdate_asc',
+        ];
+
+        if (! empty($location)) {
+            $params['location'] = $location;
+        }
+
+        return $baseUrl . '?' . http_build_query($params);
     }
 
     /**
@@ -269,39 +359,39 @@ class LiveNationClient extends BaseWebScrapingClient
                 'h1.event-title',
                 'h1',
                 '.artist-name',
-                '[data-testid="event-title"]'
+                '[data-testid="event-title"]',
             ]);
 
             $description = $this->trySelectors($crawler, [
                 '.event-description',
                 '.artist-bio',
                 '.event-info',
-                '.description-content'
+                '.description-content',
             ]);
 
             $dateTime = $this->trySelectors($crawler, [
                 '.event-datetime',
                 '.date-time',
                 'time',
-                '[data-testid="event-date-time"]'
+                '[data-testid="event-date-time"]',
             ]);
 
             $venue = $this->trySelectors($crawler, [
                 '.venue-name',
                 '.event-venue h2',
-                '[data-testid="venue-name"]'
+                '[data-testid="venue-name"]',
             ]);
 
             $address = $this->trySelectors($crawler, [
                 '.venue-address',
                 '.event-address',
-                '.location-address'
+                '.location-address',
             ]);
 
             $city = $this->trySelectors($crawler, [
                 '.venue-city',
                 '.event-city',
-                '.location-city'
+                '.location-city',
             ]);
 
             // Extract ticket information
@@ -318,95 +408,28 @@ class LiveNationClient extends BaseWebScrapingClient
             $genre = $this->trySelectors($crawler, [
                 '.event-genre',
                 '.music-category',
-                '.genre-tag'
+                '.genre-tag',
             ]);
 
             return [
-                'name' => trim($name),
+                'name'        => trim($name),
                 'description' => trim($description),
-                'date_time' => trim($dateTime),
-                'venue' => trim($venue),
-                'address' => trim($address),
-                'city' => trim($city),
-                'genre' => trim($genre),
+                'date_time'   => trim($dateTime),
+                'venue'       => trim($venue),
+                'address'     => trim($address),
+                'city'        => trim($city),
+                'genre'       => trim($genre),
                 'ticket_info' => $ticketInfo,
-                'image' => $image,
-                'url' => $url,
-                'source' => 'livenation_scrape',
-                'scraped_at' => now()->toISOString()
+                'image'       => $image,
+                'url'         => $url,
+                'source'      => 'livenation_scrape',
+                'scraped_at'  => now()->toISOString(),
             ];
         } catch (Exception $e) {
             Log::error('Error extracting LiveNation event details: ' . $e->getMessage());
+
             return [];
         }
-    }
-
-    /**
-     * Extract ticket information from the event page
-     */
-    protected function extractTicketInfo(Crawler $crawler): array
-    {
-        $ticketInfo = [
-            'available' => false,
-            'tickets' => [],
-            'on_sale_date' => ''
-        ];
-
-        try {
-            // Check if tickets are on sale
-            $saleStatus = $crawler->filter('.ticket-status, .on-sale-status, [data-testid="sale-status"]');
-            if ($saleStatus->count() > 0) {
-                $statusText = $saleStatus->text();
-                $ticketInfo['available'] = stripos($statusText, 'on sale') !== false || 
-                                          stripos($statusText, 'available') !== false;
-                
-                // Extract on-sale date if tickets not yet available
-                if (preg_match('/on sale (.+?)(?:\s|$)/i', $statusText, $matches)) {
-                    $ticketInfo['on_sale_date'] = trim($matches[1]);
-                }
-            }
-
-            // Extract ticket types and prices
-            $ticketNodes = $crawler->filter('.ticket-option, .price-level, [data-testid="ticket-type"]');
-            $ticketNodes->each(function (Crawler $node) use (&$ticketInfo) {
-                $sectionName = $node->filter('.section-name, .ticket-type-name, h3')->text('');
-                $priceText = $node->filter('.price, .ticket-price')->text('');
-
-                // Extract price from text
-                $price = 0;
-                $currency = 'USD';
-                if (preg_match('/\$(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                } elseif (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                    $currency = 'GBP';
-                } elseif (preg_match('/€(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-                    $price = floatval($matches[1]);
-                    $currency = 'EUR';
-                }
-
-                if (!empty($sectionName)) {
-                    $ticketInfo['tickets'][] = [
-                        'section' => trim($sectionName),
-                        'price' => $price,
-                        'currency' => $currency,
-                        'original_text' => trim($priceText)
-                    ];
-                }
-            });
-
-            // Check for presale information
-            $presaleInfo = $crawler->filter('.presale-info, .early-access, [data-testid="presale"]');
-            if ($presaleInfo->count() > 0) {
-                $ticketInfo['presale_available'] = true;
-                $ticketInfo['presale_info'] = $presaleInfo->text();
-            }
-
-        } catch (Exception $e) {
-            Log::debug('Failed to extract ticket info', ['error' => $e->getMessage()]);
-        }
-
-        return $ticketInfo;
     }
 
     /**
@@ -417,27 +440,7 @@ class LiveNationClient extends BaseWebScrapingClient
         if (strpos($url, 'http') === 0) {
             return $url;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
-    }
-
-    protected function transformEventData(array $eventData): array
-    {
-        return [
-            'id' => $eventData['id'] ?? uniqid('livenation_'),
-            'name' => $eventData['name'] ?? 'Unnamed Event',
-            'date' => $eventData['date'] ?? null,
-            'time' => $eventData['time'] ?? null,
-            'venue' => $eventData['venue'] ?? 'TBD',
-            'city' => $eventData['city'] ?? '',
-            'country' => $eventData['country'] ?? 'United States',
-            'url' => $eventData['url'] ?? '',
-            'genre' => $eventData['genre'] ?? ''
-        ];
-    }
-
-    public function getBaseUrl(): string
-    {
-        return $this->baseUrl;
     }
 }

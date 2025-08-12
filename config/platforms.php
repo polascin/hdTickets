@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * HD Tickets Platform Configuration
- * @author Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+ *
  * @version 2025.07.v4.0
  */
 
@@ -20,52 +20,52 @@ return [
 
     'display_order' => [
         'ticketmaster' => [
-            'key' => 'ticketmaster',
-            'name' => 'Ticketmaster',
+            'key'          => 'ticketmaster',
+            'name'         => 'Ticketmaster',
             'display_name' => 'Ticketmaster',
-            'order' => 1,
+            'order'        => 1,
         ],
         'stubhub' => [
-            'key' => 'stubhub',
-            'name' => 'StubHub',
+            'key'          => 'stubhub',
+            'name'         => 'StubHub',
             'display_name' => 'StubHub',
-            'order' => 2,
+            'order'        => 2,
         ],
         'viagogo' => [
-            'key' => 'viagogo',
-            'name' => 'Viagogo',
+            'key'          => 'viagogo',
+            'name'         => 'Viagogo',
             'display_name' => 'Viagogo',
-            'order' => 3,
+            'order'        => 3,
         ],
         'seatgeek' => [
-            'key' => 'seatgeek',
-            'name' => 'SeatGeek',
+            'key'          => 'seatgeek',
+            'name'         => 'SeatGeek',
             'display_name' => 'SeatGeek',
-            'order' => 4,
+            'order'        => 4,
         ],
         'tickpick' => [
-            'key' => 'tickpick',
-            'name' => 'TickPick',
+            'key'          => 'tickpick',
+            'name'         => 'TickPick',
             'display_name' => 'TickPick',
-            'order' => 5,
+            'order'        => 5,
         ],
         'eventbrite' => [
-            'key' => 'eventbrite',
-            'name' => 'Eventbrite',
+            'key'          => 'eventbrite',
+            'name'         => 'Eventbrite',
             'display_name' => 'Eventbrite',
-            'order' => 6,
+            'order'        => 6,
         ],
         'bandsintown' => [
-            'key' => 'bandsintown',
-            'name' => 'Bandsintown',
+            'key'          => 'bandsintown',
+            'name'         => 'Bandsintown',
             'display_name' => 'Bandsintown',
-            'order' => 7,
+            'order'        => 7,
         ],
         'manchester_united' => [
-            'key' => 'manchester_united',
-            'name' => 'Manchester United Official App',
+            'key'          => 'manchester_united',
+            'name'         => 'Manchester United Official App',
             'display_name' => 'Manchester United Official App',
-            'order' => 8,
+            'order'        => 8,
         ],
     ],
 

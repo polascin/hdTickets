@@ -1,55 +1,130 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\TicketApis;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use DateTime;
 use DOMDocument;
+use DOMNode;
 use DOMXPath;
 use Exception;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+use function count;
 
 class ViagogoClient extends BaseApiClient
 {
+    /** @var array<string, string> */
     protected $scrapingHeaders = [
-        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language' => 'en-US,en;q=0.9',
-        'Accept-Encoding' => 'gzip, deflate, br',
-        'DNT' => '1',
-        'Connection' => 'keep-alive',
+        'User-Agent'                => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language'           => 'en-US,en;q=0.9',
+        'Accept-Encoding'           => 'gzip, deflate, br',
+        'DNT'                       => '1',
+        'Connection'                => 'keep-alive',
         'Upgrade-Insecure-Requests' => '1',
-        'Sec-Fetch-Dest' => 'document',
-        'Sec-Fetch-Mode' => 'navigate',
-        'Sec-Fetch-Site' => 'none',
-        'Cache-Control' => 'max-age=0',
+        'Sec-Fetch-Dest'            => 'document',
+        'Sec-Fetch-Mode'            => 'navigate',
+        'Sec-Fetch-Site'            => 'none',
+        'Cache-Control'             => 'max-age=0',
     ];
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config)
     {
         parent::__construct($config);
         $this->baseUrl = 'https://www.viagogo.com';
     }
 
-    protected function getHeaders(): array
-    {
-        return $this->scrapingHeaders;
-    }
-
+    /**
+     * @param array<string, mixed> $criteria
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->searchEventsViaScraping($criteria);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getEvent(string $eventId): array
+    {
+        return $this->getEventViaScraping($eventId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getVenue(string $venueId): array
+    {
+        // Viagogo doesn't have a direct venue endpoint, return basic info
+        return [
+            'id'      => $venueId,
+            'name'    => 'Unknown Venue',
+            'city'    => 'Unknown City',
+            'country' => 'Unknown Country',
+        ];
+    }
+
+    /**
+     * Get available tickets for an event
+     *
+     * @param array<string, mixed> $filters
+     *
+     * @return array<string, mixed>
+     */
+    public function getEventTickets(string $eventId, array $filters = []): array
+    {
+        try {
+            $eventDetails = $this->getEvent($eventId);
+
+            return [
+                'event_id'       => $eventId,
+                'total_listings' => $eventDetails['available_listings'] ?? 0,
+                'price_range'    => [
+                    'min' => $eventDetails['price_min'] ?? NULL,
+                    'max' => $eventDetails['price_max'] ?? NULL,
+                ],
+                'prices'       => $eventDetails['prices'] ?? [],
+                'availability' => $this->determineStatus($eventDetails),
+            ];
+        } catch (Exception $e) {
+            Log::error('Failed to get Viagogo event tickets', [
+                'event_id' => $eventId,
+                'error'    => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function getHeaders(): array
+    {
+        return $this->scrapingHeaders;
+    }
+
+    /**
+     * @param array<string, mixed> $criteria
+     *
+     * @return array<int, array<string, mixed>>
+     */
     protected function searchEventsViaScraping(array $criteria): array
     {
         try {
             $searchUrl = $this->buildScrapingSearchUrl($criteria);
-            
+
             $response = Http::withHeaders($this->scrapingHeaders)
                 ->timeout($this->timeout)
                 ->get($searchUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch search results from Viagogo');
             }
 
@@ -57,12 +132,16 @@ class ViagogoClient extends BaseApiClient
         } catch (Exception $e) {
             Log::error('Viagogo scraping search failed', [
                 'criteria' => $criteria,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             return [];
         }
     }
 
+    /**
+     * @param array<string, mixed> $criteria
+     */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
         $baseUrl = 'https://www.viagogo.com/secure/search';
@@ -95,10 +174,13 @@ class ViagogoClient extends BaseApiClient
         return $baseUrl . '?' . http_build_query($params);
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     protected function parseSearchResultsHtml(string $html): array
     {
         $events = [];
-        
+
         try {
             $doc = new DOMDocument();
             @$doc->loadHTML($html);
@@ -107,103 +189,124 @@ class ViagogoClient extends BaseApiClient
             // Viagogo event cards - they use various CSS classes
             $eventNodes = $xpath->query('//div[contains(@class, "event-card")] | //div[contains(@class, "search-result")] | //article[contains(@class, "event")] | //div[contains(@class, "listing-item")]');
 
-            foreach ($eventNodes as $eventNode) {
-                $event = $this->parseEventCard($xpath, $eventNode);
-                if (!empty($event['name'])) {
-                    $events[] = $event;
+            if ($eventNodes !== FALSE) {
+                foreach ($eventNodes as $eventNode) {
+                    $event = $this->parseEventCard($xpath, $eventNode);
+                    if (! empty($event['name'])) {
+                        $events[] = $event;
+                    }
                 }
             }
 
             // If no events found with above selectors, try alternative approach
             if (empty($events)) {
                 $linkNodes = $xpath->query('//a[contains(@href, "/event/")]');
-                foreach ($linkNodes as $linkNode) {
-                    $event = $this->parseEventFromLink($xpath, $linkNode);
-                    if (!empty($event['name'])) {
-                        $events[] = $event;
+                if ($linkNodes !== FALSE) {
+                    foreach ($linkNodes as $linkNode) {
+                        $event = $this->parseEventFromLink($xpath, $linkNode);
+                        if (! empty($event['name'])) {
+                            $events[] = $event;
+                        }
                     }
                 }
             }
         } catch (Exception $e) {
             Log::error('Failed to parse Viagogo search results HTML', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $events;
     }
 
+    /**
+     * @param DOMNode $eventNode
+     *
+     * @return array<string, mixed>
+     */
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
-            'platform' => 'viagogo',
+            'platform'   => 'viagogo',
             'scraped_at' => now()->toISOString(),
         ];
 
         try {
             // Event name - try multiple selectors
-            $nameNode = $xpath->query('.//h2 | .//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode)->item(0);
+            $nameNodes = $xpath->query('.//h2 | .//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode);
+            $nameNode = $nameNodes !== FALSE ? $nameNodes->item(0) : NULL;
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Event URL
-            $linkNode = $xpath->query('.//a[contains(@href, "/event/")] | .//a[contains(@href, "/tickets/")]', $eventNode)->item(0);
+            $linkNodes = $xpath->query('.//a[contains(@href, "/event/")] | .//a[contains(@href, "/tickets/")]', $eventNode);
+            $linkNode = $linkNodes !== FALSE ? $linkNodes->item(0) : NULL;
             if ($linkNode && $linkNode->hasAttribute('href')) {
                 $event['url'] = $this->normalizeUrl($linkNode->getAttribute('href'));
                 $event['id'] = $this->extractEventIdFromUrl($event['url']);
             }
 
             // Date and time
-            $dateNode = $xpath->query('.//span[contains(@class, "date")] | .//div[contains(@class, "date")] | .//time', $eventNode)->item(0);
+            $dateNodes = $xpath->query('.//span[contains(@class, "date")] | .//div[contains(@class, "date")] | .//time', $eventNode);
+            $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
             if ($dateNode) {
                 $event['date'] = trim($dateNode->textContent);
-                $event['parsed_date'] = $this->parseEventDate($event['date']);
+                $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
             }
 
             // Venue
-            $venueNode = $xpath->query('.//span[contains(@class, "venue")] | .//div[contains(@class, "venue")] | .//p[contains(@class, "venue")]', $eventNode)->item(0);
+            $venueNodes = $xpath->query('.//span[contains(@class, "venue")] | .//div[contains(@class, "venue")] | .//p[contains(@class, "venue")]', $eventNode);
+            $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
             $event['venue'] = $venueNode ? trim($venueNode->textContent) : '';
 
             // Location/City
-            $locationNode = $xpath->query('.//span[contains(@class, "location")] | .//div[contains(@class, "city")] | .//span[contains(@class, "city")]', $eventNode)->item(0);
+            $locationNodes = $xpath->query('.//span[contains(@class, "location")] | .//div[contains(@class, "city")] | .//span[contains(@class, "city")]', $eventNode);
+            $locationNode = $locationNodes !== FALSE ? $locationNodes->item(0) : NULL;
             $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
 
             // Price information
             $priceNodes = $xpath->query('.//span[contains(@class, "price")] | .//div[contains(@class, "price")] | .//*[contains(text(), "€")] | .//*[contains(text(), "$")] | .//*[contains(text(), "£")]', $eventNode);
             $prices = [];
-            foreach ($priceNodes as $priceNode) {
-                $priceText = trim($priceNode->textContent);
-                if (preg_match('/[€$£][\d,]+/', $priceText)) {
-                    $prices[] = $priceText;
+            if ($priceNodes !== FALSE) {
+                foreach ($priceNodes as $priceNode) {
+                    $priceText = trim($priceNode->textContent);
+                    if (preg_match('/[€$£][\d,]+/', $priceText)) {
+                        $prices[] = $priceText;
+                    }
                 }
             }
             $event['prices'] = array_unique($prices);
-            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = ! empty($prices) ? implode(' - ', $prices) : '';
 
             // Extract min/max prices
             $this->extractPriceRange($event, $prices);
 
             // Number of tickets available
-            $ticketCountNode = $xpath->query('.//span[contains(@class, "available")] | .//span[contains(text(), "ticket")] | .//span[contains(text(), "listing")]', $eventNode)->item(0);
+            $ticketCountNodes = $xpath->query('.//span[contains(@class, "available")] | .//span[contains(text(), "ticket")] | .//span[contains(text(), "listing")]', $eventNode);
+            $ticketCountNode = $ticketCountNodes !== FALSE ? $ticketCountNodes->item(0) : NULL;
             if ($ticketCountNode) {
                 $ticketText = trim($ticketCountNode->textContent);
                 if (preg_match('/(\d+)\s*(?:ticket|listing)s?\s*(?:available|from)?/i', $ticketText, $matches)) {
-                    $event['ticket_count'] = intval($matches[1]);
+                    $event['ticket_count'] = (int) ($matches[1]);
                 }
             }
-
         } catch (Exception $e) {
             Log::warning('Failed to parse Viagogo event card', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
 
+    /**
+     * @param DOMNode $linkNode
+     *
+     * @return array<string, mixed>
+     */
     protected function parseEventFromLink(DOMXPath $xpath, $linkNode): array
     {
         $event = [
-            'platform' => 'viagogo',
+            'platform'   => 'viagogo',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -223,42 +326,41 @@ class ViagogoClient extends BaseApiClient
             // Look for date/venue info in parent/sibling nodes
             $parentNode = $linkNode->parentNode;
             if ($parentNode) {
-                $dateNode = $xpath->query('.//span[contains(@class, "date")] | .//time', $parentNode)->item(0);
+                $dateNodes = $xpath->query('.//span[contains(@class, "date")] | .//time', $parentNode);
+                $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
                 if ($dateNode) {
                     $event['date'] = trim($dateNode->textContent);
-                    $event['parsed_date'] = $this->parseEventDate($event['date']);
+                    $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
                 }
 
-                $venueNode = $xpath->query('.//span[contains(@class, "venue")]', $parentNode)->item(0);
+                $venueNodes = $xpath->query('.//span[contains(@class, "venue")]', $parentNode);
+                $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
                 if ($venueNode) {
                     $event['venue'] = trim($venueNode->textContent);
                 }
             }
-
         } catch (Exception $e) {
             Log::warning('Failed to parse Viagogo event from link', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
 
-    public function getEvent(string $eventId): array
-    {
-        return $this->getEventViaScraping($eventId);
-    }
-
+    /**
+     * @return array<string, mixed>
+     */
     protected function getEventViaScraping(string $eventId): array
     {
         try {
             $eventUrl = "https://www.viagogo.com/event/{$eventId}";
-            
+
             $response = Http::withHeaders($this->scrapingHeaders)
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch event details from Viagogo');
             }
 
@@ -266,17 +368,21 @@ class ViagogoClient extends BaseApiClient
         } catch (Exception $e) {
             Log::error('Viagogo event scraping failed', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
+
             return [];
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
         $event = [
-            'id' => $eventId,
-            'platform' => 'viagogo',
+            'id'         => $eventId,
+            'platform'   => 'viagogo',
             'scraped_at' => now()->toISOString(),
         ];
 
@@ -286,99 +392,101 @@ class ViagogoClient extends BaseApiClient
             $xpath = new DOMXPath($doc);
 
             // Event name
-            $nameNode = $xpath->query('//h1 | //title')->item(0);
+            $nameNodes = $xpath->query('//h1 | //title');
+            $nameNode = $nameNodes !== FALSE ? $nameNodes->item(0) : NULL;
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Clean up the title if it contains site name
-            if (strpos($event['name'], '|') !== false) {
+            if (str_contains($event['name'], '|')) {
                 $event['name'] = trim(explode('|', $event['name'])[0]);
             }
 
             // Event date and time
-            $dateNode = $xpath->query('//span[contains(@class, "event-date")] | //div[contains(@class, "date")] | //time')->item(0);
+            $dateNodes = $xpath->query('//span[contains(@class, "event-date")] | //div[contains(@class, "date")] | //time');
+            $dateNode = $dateNodes !== FALSE ? $dateNodes->item(0) : NULL;
             if ($dateNode) {
                 $event['date'] = trim($dateNode->textContent);
-                $event['parsed_date'] = $this->parseEventDate($event['date']);
+                $event['parsed_date'] = $event['date'] ? $this->parseEventDate($event['date']) : NULL;
             }
 
             // Venue information
-            $venueNode = $xpath->query('//span[contains(@class, "venue")] | //div[contains(@class, "venue")] | //h2[contains(@class, "venue")]')->item(0);
+            $venueNodes = $xpath->query('//span[contains(@class, "venue")] | //div[contains(@class, "venue")] | //h2[contains(@class, "venue")]');
+            $venueNode = $venueNodes !== FALSE ? $venueNodes->item(0) : NULL;
             $event['venue'] = $venueNode ? trim($venueNode->textContent) : '';
 
             // Location
-            $locationNode = $xpath->query('//span[contains(@class, "location")] | //address | //div[contains(@class, "city")]')->item(0);
+            $locationNodes = $xpath->query('//span[contains(@class, "location")] | //address | //div[contains(@class, "city")]');
+            $locationNode = $locationNodes !== FALSE ? $locationNodes->item(0) : NULL;
             $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
 
             // Price data from ticket listings
             $listingNodes = $xpath->query('//div[contains(@class, "listing")] | //div[contains(@class, "ticket-row")] | //tr[contains(@class, "ticket")]');
             $prices = [];
-            foreach ($listingNodes as $listingNode) {
-                $priceNode = $xpath->query('.//*[contains(@class, "price")] | .//*[contains(text(), "€")] | .//*[contains(text(), "$")] | .//*[contains(text(), "£")]', $listingNode)->item(0);
-                if ($priceNode && preg_match('/[€$£][\d,]+/', $priceNode->textContent)) {
-                    $prices[] = trim($priceNode->textContent);
+            if ($listingNodes !== FALSE) {
+                foreach ($listingNodes as $listingNode) {
+                    $priceNodes = $xpath->query('.//*[contains(@class, "price")] | .//*[contains(text(), "€")] | .//*[contains(text(), "$")] | .//*[contains(text(), "£")]', $listingNode);
+                    $priceNode = $priceNodes !== FALSE ? $priceNodes->item(0) : NULL;
+                    if ($priceNode && preg_match('/[€$£][\d,]+/', $priceNode->textContent)) {
+                        $prices[] = trim($priceNode->textContent);
+                    }
                 }
             }
 
-            $event['available_listings'] = count($listingNodes);
+            $event['available_listings'] = $listingNodes !== FALSE ? count($listingNodes) : 0;
             $event['prices'] = array_unique($prices);
             $this->extractPriceRange($event, $prices);
 
             // Event description
-            $descNode = $xpath->query('//div[contains(@class, "description")] | //div[contains(@class, "event-info")] | //section[contains(@class, "about")]')->item(0);
+            $descNodes = $xpath->query('//div[contains(@class, "description")] | //div[contains(@class, "event-info")] | //section[contains(@class, "about")]');
+            $descNode = $descNodes !== FALSE ? $descNodes->item(0) : NULL;
             $event['description'] = $descNode ? trim($descNode->textContent) : '';
 
             // Category/genre
-            $categoryNode = $xpath->query('//span[contains(@class, "category")] | //div[contains(@class, "genre")]')->item(0);
+            $categoryNodes = $xpath->query('//span[contains(@class, "category")] | //div[contains(@class, "genre")]');
+            $categoryNode = $categoryNodes !== FALSE ? $categoryNodes->item(0) : NULL;
             $event['category'] = $categoryNode ? trim($categoryNode->textContent) : '';
-
         } catch (Exception $e) {
             Log::error('Failed to parse Viagogo event details HTML', [
                 'event_id' => $eventId,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
         }
 
         return $event;
     }
 
-    public function getVenue(string $venueId): array
-    {
-        // Viagogo doesn't have a direct venue endpoint, return basic info
-        return [
-            'id' => $venueId,
-            'name' => 'Unknown Venue',
-            'city' => 'Unknown City',
-            'country' => 'Unknown Country',
-        ];
-    }
-
+    /**
+     * @param array<string, mixed> $eventData
+     *
+     * @return array<string, mixed>
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
             // Standard Fields
-            'id' => $eventData['id'] ?? null,
-            'name' => $eventData['name'] ?? 'Unnamed Event',
-            'date' => $eventData['parsed_date'] ? $eventData['parsed_date']->format('Y-m-d') : null,
-            'time' => $eventData['parsed_date'] ? $eventData['parsed_date']->format('H:i:s') : null,
-            'venue' => $eventData['venue'] ?? 'Unknown Venue',
-            'city' => $this->extractCity($eventData['location'] ?? ''),
-            'country' => $this->extractCountry($eventData['location'] ?? ''),
-            'url' => $eventData['url'] ?? '',
-            'price_min' => $eventData['price_min'] ?? null,
-            'price_max' => $eventData['price_max'] ?? null,
-            'currency' => $this->determineCurrency($eventData),
+            'id'                  => $eventData['id'] ?? NULL,
+            'name'                => $eventData['name'] ?? 'Unnamed Event',
+            'date'                => $eventData['parsed_date'] ? $eventData['parsed_date']->format('Y-m-d') : NULL,
+            'time'                => $eventData['parsed_date'] ? $eventData['parsed_date']->format('H:i:s') : NULL,
+            'venue'               => $eventData['venue'] ?? 'Unknown Venue',
+            'city'                => $this->extractCity($eventData['location'] ?? ''),
+            'country'             => $this->extractCountry($eventData['location'] ?? ''),
+            'url'                 => $eventData['url'] ?? '',
+            'price_min'           => $eventData['price_min'] ?? NULL,
+            'price_max'           => $eventData['price_max'] ?? NULL,
+            'currency'            => $this->determineCurrency($eventData),
             'availability_status' => $this->mapAvailabilityStatus($this->determineStatus($eventData)),
-            'ticket_count' => $eventData['ticket_count'] ?? $eventData['available_listings'] ?? null,
-            'image_url' => $eventData['image_url'] ?? null,
-            'description' => $eventData['description'] ?? '',
-            
+            'ticket_count'        => $eventData['ticket_count'] ?? $eventData['available_listings'] ?? NULL,
+            'image_url'           => $eventData['image_url'] ?? NULL,
+            'description'         => $eventData['description'] ?? '',
+
             // Viagogo Platform-Specific Mappings
-            'guarantee_info' => $this->extractGuaranteeInfo($eventData),
-            'seller_type' => $eventData['seller_type'] ?? null,
-            'delivery_method' => $eventData['delivery_method'] ?? null,
-            'guarantee_coverage' => $eventData['guarantee_coverage'] ?? null,
-            'restrictions' => $eventData['restrictions'] ?? [],
-            
+            'guarantee_info'     => $this->extractGuaranteeInfo($eventData),
+            'seller_type'        => $eventData['seller_type'] ?? NULL,
+            'delivery_method'    => $eventData['delivery_method'] ?? NULL,
+            'guarantee_coverage' => $eventData['guarantee_coverage'] ?? NULL,
+            'restrictions'       => $eventData['restrictions'] ?? [],
+
             // Additional metadata
             'category' => $eventData['category'] ?? '',
             'platform' => 'viagogo',
@@ -386,17 +494,20 @@ class ViagogoClient extends BaseApiClient
         ];
     }
 
+    /**
+     * @param array<string, mixed> $eventData
+     */
     protected function determineStatus(array $eventData): string
     {
         if (empty($eventData['prices']) && empty($eventData['ticket_count'])) {
             return 'soldout';
         }
-        
-        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+
+        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
-        if (!empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
+        if (! empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
             return 'onsale';
         }
 
@@ -414,6 +525,7 @@ class ViagogoClient extends BaseApiClient
         // "London, UK" -> "London"
         // "New York, NY, USA" -> "New York"
         $parts = explode(',', $location);
+
         return trim($parts[0]) ?: 'Unknown City';
     }
 
@@ -425,7 +537,7 @@ class ViagogoClient extends BaseApiClient
 
         // Extract country from location string
         $parts = array_map('trim', explode(',', $location));
-        
+
         // If we have multiple parts, the last one is usually the country
         if (count($parts) >= 2) {
             $lastPart = end($parts);
@@ -442,18 +554,19 @@ class ViagogoClient extends BaseApiClient
                 'NL' => 'Netherlands',
                 'BE' => 'Belgium',
             ];
-            
+
             return $countryCodes[$lastPart] ?? $lastPart;
         }
-        
+
         return 'Unknown Country';
     }
 
     protected function normalizeUrl(string $url): string
     {
-        if (strpos($url, 'http') !== 0) {
+        if (! str_starts_with($url, 'http')) {
             return 'https://www.viagogo.com' . $url;
         }
+
         return $url;
     }
 
@@ -463,9 +576,14 @@ class ViagogoClient extends BaseApiClient
         if (preg_match('/\/(?:event|e)-?(\d+)/', $url, $matches)) {
             return $matches[1];
         }
-        return null;
+
+        return NULL;
     }
 
+    /**
+     * @param array<string, mixed> $event
+     * @param array<string>        $prices
+     */
     protected function extractPriceRange(array &$event, array $prices): void
     {
         if (empty($prices)) {
@@ -476,28 +594,32 @@ class ViagogoClient extends BaseApiClient
         foreach ($prices as $price) {
             // Support multiple currencies
             if (preg_match('/[€$£]?([,\d]+(?:\.\d{2})?)/', $price, $matches)) {
-                $numericPrices[] = floatval(str_replace(',', '', $matches[1]));
+                $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if (! empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
     }
 
-    protected function parseEventDate(string $dateString): ?\DateTime
+    protected function parseEventDate(?string $dateString): ?DateTime
     {
         if (empty($dateString)) {
-            return null;
+            return NULL;
         }
 
         // Clean up the date string
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
-        
+        $dateString = trim(preg_replace('/\s+/', ' ', $dateString) ?? '');
+
+        if (empty($dateString)) {
+            return NULL;
+        }
+
         // Remove common prefixes
-        $dateString = preg_replace('/^(Event\s+date:?\s*|Date:?\s*)/i', '', $dateString);
-        
+        $dateString = preg_replace('/^(Event\s+date:?\s*|Date:?\s*)/i', '', $dateString) ?? '';
+
         $formats = [
             'j M Y, H:i',
             'j F Y, H:i',
@@ -516,7 +638,7 @@ class ViagogoClient extends BaseApiClient
 
         foreach ($formats as $format) {
             try {
-                $date = \DateTime::createFromFormat($format, $dateString);
+                $date = DateTime::createFromFormat($format, $dateString ?: '');
                 if ($date) {
                     return $date;
                 }
@@ -526,81 +648,60 @@ class ViagogoClient extends BaseApiClient
         }
 
         try {
-            return new \DateTime($dateString);
+            return new DateTime($dateString ?: '');
         } catch (Exception $e) {
-            return null;
+            return NULL;
         }
     }
 
     /**
-     * Get available tickets for an event
-     */
-    public function getEventTickets(string $eventId, array $filters = []): array
-    {
-        try {
-            $eventDetails = $this->getEvent($eventId);
-            
-            return [
-                'event_id' => $eventId,
-                'total_listings' => $eventDetails['available_listings'] ?? 0,
-                'price_range' => [
-                    'min' => $eventDetails['price_min'] ?? null,
-                    'max' => $eventDetails['price_max'] ?? null,
-                ],
-                'prices' => $eventDetails['prices'] ?? [],
-                'availability' => $this->determineStatus($eventDetails),
-            ];
-        } catch (Exception $e) {
-            Log::error('Failed to get Viagogo event tickets', [
-                'event_id' => $eventId,
-                'error' => $e->getMessage()
-            ]);
-            return [];
-        }
-    }
-    
-    /**
      * Extract guarantee information specific to Viagogo
+     *
+     * @param array<string, mixed> $eventData
+     *
+     * @return array<string, mixed>
      */
     protected function extractGuaranteeInfo(array $eventData): array
     {
         $guaranteeInfo = [
-            'has_guarantee' => true, // Viagogo always provides guarantees
+            'has_guarantee'  => TRUE, // Viagogo always provides guarantees
             'guarantee_type' => 'full_guarantee',
-            'coverage' => []
+            'coverage'       => [],
         ];
-        
+
         // Extract specific guarantee coverage from event data
         if (isset($eventData['guarantee_coverage'])) {
             $guaranteeInfo['coverage'] = $eventData['guarantee_coverage'];
         } else {
             // Default Viagogo guarantees
             $guaranteeInfo['coverage'] = [
-                'authenticity' => 'Guaranteed authentic tickets',
-                'delivery' => 'Guaranteed delivery or full refund',
+                'authenticity'       => 'Guaranteed authentic tickets',
+                'delivery'           => 'Guaranteed delivery or full refund',
                 'event_cancellation' => 'Full refund if event is cancelled',
-                'replacement' => 'Replacement tickets if there are issues'
+                'replacement'        => 'Replacement tickets if there are issues',
             ];
         }
-        
+
         // Check for specific guarantee indicators
-        if (isset($eventData['description']) && !empty($eventData['description'])) {
+        if (isset($eventData['description']) && ! empty($eventData['description'])) {
             $description = strtolower($eventData['description']);
-            
-            if (strpos($description, '100% guarantee') !== false) {
+
+            if (str_contains($description, '100% guarantee')) {
                 $guaranteeInfo['guarantee_type'] = '100_percent_guarantee';
             }
-            
-            if (strpos($description, 'instant download') !== false) {
+
+            if (str_contains($description, 'instant download')) {
                 $guaranteeInfo['coverage']['instant_download'] = 'Instant download available';
             }
         }
-        
+
         return $guaranteeInfo;
     }
-    
+
     /**
      * Determine currency from price data
+     *
+     * @param array<string, mixed> $eventData
      */
     protected function determineCurrency(array $eventData): string
     {
@@ -608,59 +709,59 @@ class ViagogoClient extends BaseApiClient
         if (isset($eventData['currency'])) {
             return $eventData['currency'];
         }
-        
+
         // Extract currency from prices
-        if (isset($eventData['prices']) && !empty($eventData['prices'])) {
+        if (isset($eventData['prices']) && ! empty($eventData['prices'])) {
             foreach ($eventData['prices'] as $price) {
-                if (strpos($price, '€') !== false) {
+                if (str_contains($price, '€')) {
                     return 'EUR';
                 }
-                if (strpos($price, '$') !== false) {
+                if (str_contains($price, '$')) {
                     return 'USD';
                 }
-                if (strpos($price, '£') !== false) {
+                if (str_contains($price, '£')) {
                     return 'GBP';
                 }
-                if (strpos($price, 'Kč') !== false) {
+                if (str_contains($price, 'Kč')) {
                     return 'CZK';
                 }
             }
         }
-        
+
         // Default based on location
         $location = $eventData['location'] ?? '';
-        if (!empty($location)) {
+        if (! empty($location)) {
             $location = strtolower($location);
-            
-            if (strpos($location, 'uk') !== false || strpos($location, 'united kingdom') !== false) {
+
+            if (str_contains($location, 'uk') || str_contains($location, 'united kingdom')) {
                 return 'GBP';
             }
-            if (strpos($location, 'us') !== false || strpos($location, 'united states') !== false) {
+            if (str_contains($location, 'us') || str_contains($location, 'united states')) {
                 return 'USD';
             }
-            if (strpos($location, 'canada') !== false) {
+            if (str_contains($location, 'canada')) {
                 return 'CAD';
             }
         }
-        
+
         return 'EUR'; // Viagogo default
     }
-    
+
     /**
      * Map internal status to standardized availability status
      */
     protected function mapAvailabilityStatus(string $internalStatus): string
     {
         $statusMap = [
-            'onsale' => 'available',
-            'soldout' => 'sold_out',
-            'presale' => 'presale',
-            'offsale' => 'not_available',
+            'onsale'    => 'available',
+            'soldout'   => 'sold_out',
+            'presale'   => 'presale',
+            'offsale'   => 'not_available',
             'cancelled' => 'cancelled',
             'postponed' => 'postponed',
-            'unknown' => 'unknown'
+            'unknown'   => 'unknown',
         ];
-        
+
         return $statusMap[$internalStatus] ?? 'unknown';
     }
 }

@@ -1,38 +1,34 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+
+use function array_slice;
+use function count;
+use function strlen;
 
 class PasswordHistoryService
 {
-    /**
-     * Number of previous passwords to remember
-     */
-    const PASSWORD_HISTORY_COUNT = 5;
+    /** Number of previous passwords to remember */
+    public const PASSWORD_HISTORY_COUNT = 5;
 
-    /**
-     * Minimum days before password can be reused
-     */
-    const PASSWORD_REUSE_DAYS = 90;
+    /** Minimum days before password can be reused */
+    public const PASSWORD_REUSE_DAYS = 90;
 
     /**
      * Add a new password to user's history
-     *
-     * @param User $user
-     * @param string $password
-     * @return void
      */
     public function addPasswordToHistory(User $user, string $password): void
     {
         $passwordHistory = $user->password_history ?? [];
-        
+
         // Add new password with timestamp
         $newEntry = [
             'password_hash' => Hash::make($password),
-            'created_at' => now()->toISOString()
+            'created_at'    => now()->toISOString(),
         ];
 
         array_unshift($passwordHistory, $newEntry);
@@ -46,10 +42,6 @@ class PasswordHistoryService
 
     /**
      * Check if a password has been used recently
-     *
-     * @param User $user
-     * @param string $password
-     * @return bool
      */
     public function isPasswordRecentlyUsed(User $user, string $password): bool
     {
@@ -62,20 +54,16 @@ class PasswordHistoryService
                 // If it's within the reuse period, it's not allowed
                 $entryDate = Carbon::parse($historyEntry['created_at']);
                 if ($entryDate->isAfter($cutoffDate)) {
-                    return true;
+                    return TRUE;
                 }
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Check if password matches current password
-     *
-     * @param User $user
-     * @param string $password
-     * @return bool
      */
     public function isCurrentPassword(User $user, string $password): bool
     {
@@ -84,9 +72,6 @@ class PasswordHistoryService
 
     /**
      * Get password history validation rules
-     *
-     * @param User $user
-     * @return array
      */
     public function getPasswordHistoryValidationRules(User $user): array
     {
@@ -96,11 +81,11 @@ class PasswordHistoryService
                 'string',
                 'min:8',
                 'confirmed',
-                function ($attribute, $value, $fail) use ($user) {
+                function ($attribute, $value, $fail) use ($user): void {
                     if ($this->isCurrentPassword($user, $value)) {
                         $fail('The new password cannot be the same as your current password.');
                     }
-                    
+
                     if ($this->isPasswordRecentlyUsed($user, $value)) {
                         $fail('This password has been used recently. Please choose a different password.');
                     }
@@ -111,30 +96,24 @@ class PasswordHistoryService
 
     /**
      * Get password reuse information
-     *
-     * @param User $user
-     * @return array
      */
     public function getPasswordReuseInfo(User $user): array
     {
         $passwordHistory = $user->password_history ?? [];
-        
+
         return [
-            'history_count' => count($passwordHistory),
+            'history_count'     => count($passwordHistory),
             'max_history_count' => self::PASSWORD_HISTORY_COUNT,
-            'reuse_days' => self::PASSWORD_REUSE_DAYS,
-            'oldest_entry' => !empty($passwordHistory) ? 
-                Carbon::parse(end($passwordHistory)['created_at'])->format('M j, Y') : null,
-            'newest_entry' => !empty($passwordHistory) ? 
-                Carbon::parse($passwordHistory[0]['created_at'])->format('M j, Y') : null,
+            'reuse_days'        => self::PASSWORD_REUSE_DAYS,
+            'oldest_entry'      => ! empty($passwordHistory) ?
+                Carbon::parse(end($passwordHistory)['created_at'])->format('M j, Y') : NULL,
+            'newest_entry' => ! empty($passwordHistory) ?
+                Carbon::parse($passwordHistory[0]['created_at'])->format('M j, Y') : NULL,
         ];
     }
 
     /**
      * Clean up old password history entries
-     *
-     * @param User $user
-     * @return void
      */
     public function cleanupOldPasswords(User $user): void
     {
@@ -143,6 +122,7 @@ class PasswordHistoryService
 
         $cleanedHistory = array_filter($passwordHistory, function ($entry) use ($cutoffDate) {
             $entryDate = Carbon::parse($entry['created_at']);
+
             return $entryDate->isAfter($cutoffDate);
         });
 
@@ -157,38 +137,33 @@ class PasswordHistoryService
 
     /**
      * Get password strength requirements
-     *
-     * @return array
      */
     public function getPasswordRequirements(): array
     {
         return [
-            'min_length' => 8,
-            'recommended_length' => 12,
-            'require_lowercase' => true,
-            'require_uppercase' => true,
-            'require_numbers' => true,
-            'require_special_chars' => true,
-            'history_count' => self::PASSWORD_HISTORY_COUNT,
-            'reuse_days' => self::PASSWORD_REUSE_DAYS,
-            'requirements' => [
+            'min_length'            => 8,
+            'recommended_length'    => 12,
+            'require_lowercase'     => TRUE,
+            'require_uppercase'     => TRUE,
+            'require_numbers'       => TRUE,
+            'require_special_chars' => TRUE,
+            'history_count'         => self::PASSWORD_HISTORY_COUNT,
+            'reuse_days'            => self::PASSWORD_REUSE_DAYS,
+            'requirements'          => [
                 'At least 8 characters long',
                 'Contains at least one lowercase letter',
-                'Contains at least one uppercase letter', 
+                'Contains at least one uppercase letter',
                 'Contains at least one number',
                 'Contains at least one special character (!@#$%^&*)',
                 'Cannot be the same as your current password',
                 'Cannot be one of your last ' . self::PASSWORD_HISTORY_COUNT . ' passwords',
                 'Must be different from passwords used in the last ' . self::PASSWORD_REUSE_DAYS . ' days',
-            ]
+            ],
         ];
     }
 
     /**
      * Validate password strength
-     *
-     * @param string $password
-     * @return array
      */
     public function validatePasswordStrength(string $password): array
     {
@@ -208,25 +183,25 @@ class PasswordHistoryService
         }
 
         // Character type checks
-        if (!preg_match('/[a-z]/', $password)) {
+        if (! preg_match('/[a-z]/', $password)) {
             $errors[] = 'Password must contain at least one lowercase letter';
         } else {
             $score++;
         }
 
-        if (!preg_match('/[A-Z]/', $password)) {
+        if (! preg_match('/[A-Z]/', $password)) {
             $errors[] = 'Password must contain at least one uppercase letter';
         } else {
             $score++;
         }
 
-        if (!preg_match('/\d/', $password)) {
+        if (! preg_match('/\d/', $password)) {
             $errors[] = 'Password must contain at least one number';
         } else {
             $score++;
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $errors[] = 'Password must contain at least one special character';
         } else {
             $score++;
@@ -236,37 +211,39 @@ class PasswordHistoryService
         $strengthLabel = $this->getStrengthLabel($strengthPercentage);
 
         return [
-            'is_valid' => empty($errors),
-            'errors' => $errors,
-            'score' => $score,
-            'max_score' => $maxScore,
+            'is_valid'            => empty($errors),
+            'errors'              => $errors,
+            'score'               => $score,
+            'max_score'           => $maxScore,
             'strength_percentage' => $strengthPercentage,
-            'strength_label' => $strengthLabel,
-            'recommendations' => $this->getPasswordRecommendations($password, $score)
+            'strength_label'      => $strengthLabel,
+            'recommendations'     => $this->getPasswordRecommendations($password, $score),
         ];
     }
 
     /**
      * Get strength label based on percentage
-     *
-     * @param float $percentage
-     * @return string
      */
     private function getStrengthLabel(float $percentage): string
     {
-        if ($percentage >= 90) return 'Very Strong';
-        if ($percentage >= 75) return 'Strong';
-        if ($percentage >= 50) return 'Fair';
-        if ($percentage >= 25) return 'Weak';
+        if ($percentage >= 90) {
+            return 'Very Strong';
+        }
+        if ($percentage >= 75) {
+            return 'Strong';
+        }
+        if ($percentage >= 50) {
+            return 'Fair';
+        }
+        if ($percentage >= 25) {
+            return 'Weak';
+        }
+
         return 'Very Weak';
     }
 
     /**
      * Get password improvement recommendations
-     *
-     * @param string $password
-     * @param int $currentScore
-     * @return array
      */
     private function getPasswordRecommendations(string $password, int $currentScore): array
     {
@@ -280,7 +257,7 @@ class PasswordHistoryService
             $recommendations[] = 'Add a mix of uppercase, lowercase, numbers, and special characters';
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $recommendations[] = 'Include special characters like !@#$%^&*';
         }
 

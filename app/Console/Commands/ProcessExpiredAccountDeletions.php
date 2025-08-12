@@ -1,25 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
 use App\Services\AccountDeletionProtectionService;
+use Exception;
 use Illuminate\Console\Command;
 
 class ProcessExpiredAccountDeletions extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'account-deletion:process-expired
                            {--dry-run : Show what would be deleted without actually deleting}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    /** The console command description. */
     protected $description = 'Process expired account deletion requests after grace period';
 
     protected AccountDeletionProtectionService $deletionService;
@@ -48,14 +40,18 @@ class ProcessExpiredAccountDeletions extends Command
             if ($this->option('dry-run')) {
                 // Get expired requests without processing them
                 $expiredRequests = \App\Models\AccountDeletionRequest::gracePeriodExpired()->get();
-                
+
                 $this->info("Found {$expiredRequests->count()} expired deletion requests:");
-                
+
                 foreach ($expiredRequests as $request) {
                     $user = $request->user;
-                    $this->line("- User ID: {$user->id} ({$user->email}) - Grace period expired: {$request->grace_period_expires_at}");
+                    if ($user !== NULL) {
+                        $this->line("- User ID: {$user->id} ({$user->email}) - Grace period expired: {$request->grace_period_expires_at}");
+                    } else {
+                        $this->line("- Request ID: {$request->id} - User already deleted - Grace period expired: {$request->grace_period_expires_at}");
+                    }
                 }
-                
+
                 return self::SUCCESS;
             }
 
@@ -69,15 +65,15 @@ class ProcessExpiredAccountDeletions extends Command
 
             // Also clean up expired export files
             $cleanedExports = $this->deletionService->cleanupExpiredExports();
-            
+
             if ($cleanedExports > 0) {
                 $this->info("Cleaned up {$cleanedExports} expired data export files.");
             }
 
             return self::SUCCESS;
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Error processing expired deletions: ' . $e->getMessage());
+
             return self::FAILURE;
         }
     }

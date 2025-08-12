@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Requests;
 
 use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
+
+use function is_string;
 
 class UpdateTicketRequest extends FormRequest
 {
@@ -12,7 +14,7 @@ class UpdateTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return TRUE;
     }
 
     /**
@@ -21,14 +23,14 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'status' => 'required|in:' . implode(',', Ticket::getStatuses()),
-            'priority' => 'required|in:' . implode(',', Ticket::getPriorities()),
+            'status'      => 'required|in:' . implode(',', Ticket::getStatuses()),
+            'priority'    => 'required|in:' . implode(',', Ticket::getPriorities()),
             'assigned_to' => 'nullable|exists:users,id',
-            'due_date' => 'nullable|date',
-            'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            'due_date'    => 'nullable|date',
+            'tags'        => 'nullable|array',
+            'tags.*'      => 'string|max:50',
         ];
     }
 
@@ -38,16 +40,16 @@ class UpdateTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'The ticket title is required.',
-            'title.max' => 'The ticket title cannot exceed 255 characters.',
+            'title.required'       => 'The ticket title is required.',
+            'title.max'            => 'The ticket title cannot exceed 255 characters.',
             'category_id.required' => 'Please select a category for this ticket.',
-            'category_id.exists' => 'The selected category is invalid.',
-            'status.required' => 'Please select a status for this ticket.',
-            'status.in' => 'The selected status is invalid.',
-            'priority.required' => 'Please select a priority for this ticket.',
-            'priority.in' => 'The selected priority is invalid.',
-            'assigned_to.exists' => 'The selected assignee is invalid.',
-            'tags.*.max' => 'Each tag cannot exceed 50 characters.',
+            'category_id.exists'   => 'The selected category is invalid.',
+            'status.required'      => 'Please select a status for this ticket.',
+            'status.in'            => 'The selected status is invalid.',
+            'priority.required'    => 'Please select a priority for this ticket.',
+            'priority.in'          => 'The selected priority is invalid.',
+            'assigned_to.exists'   => 'The selected assignee is invalid.',
+            'tags.*.max'           => 'Each tag cannot exceed 50 characters.',
         ];
     }
 
@@ -59,7 +61,7 @@ class UpdateTicketRequest extends FormRequest
         return [
             'category_id' => 'category',
             'assigned_to' => 'assignee',
-            'due_date' => 'due date',
+            'due_date'    => 'due date',
         ];
     }
 
@@ -76,7 +78,7 @@ class UpdateTicketRequest extends FormRequest
                 $tags = array_map('trim', explode(',', $tags));
             }
             // Remove empty tags and duplicates
-            $tags = array_unique(array_filter($tags, fn($tag) => !empty(trim($tag))));
+            $tags = array_unique(array_filter($tags, fn ($tag) => ! empty(trim($tag))));
             $this->merge(['tags' => array_values($tags)]);
         }
     }

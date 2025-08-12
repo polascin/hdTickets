@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\PurchaseAttempt;
-use App\Models\PurchaseQueue;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseService
@@ -30,33 +30,33 @@ class PurchaseService
                     $response->confirmation_number,
                     $attempt->attempted_price,
                     $response->fees,
-                    $response->totalPrice
+                    $response->totalPrice,
                 );
                 $attempt->purchaseQueue->markAsCompleted();
 
                 return (object) [
-                    'success' => true,
-                    'transactionId' => $response->transaction_id,
+                    'success'          => TRUE,
+                    'transactionId'    => $response->transaction_id,
                     'confirmationCode' => $response->confirmation_number,
-                    'fees' => $response->fees,
-                    'totalPrice' => $response->totalPrice
+                    'fees'             => $response->fees,
+                    'totalPrice'       => $response->totalPrice,
                 ];
-            } else {
-                throw new \Exception($response->message);
             }
-        } catch (\Exception $e) {
+
+            throw new Exception($response->message);
+        } catch (Exception $e) {
             Log::error('Purchase failed', [
                 'platform' => $platform,
-                'error' => $e->getMessage()
+                'error'    => $e->getMessage(),
             ]);
 
             $attempt->markFailed('Purchase failed', $e->getMessage());
             $attempt->purchaseQueue->markAsFailed();
 
             return (object) [
-                'success' => false,
+                'success'      => FALSE,
                 'errorMessage' => $e->getMessage(),
-                'errorDetail' => 'Additional error details if available'
+                'errorDetail'  => 'Additional error details if available',
             ];
         }
     }
@@ -65,13 +65,12 @@ class PurchaseService
     {
         // Simulate API call to purchase
         return (object) [
-            'success' => true,
-            'transaction_id' => 'API-' . uniqid(),
+            'success'             => TRUE,
+            'transaction_id'      => 'API-' . uniqid(),
             'confirmation_number' => 'CONF-' . uniqid(),
-            'fees' => $attempt->attempted_price * 0.15,
-            'totalPrice' => $attempt->attempted_price * 1.15,
-            'message' => 'The purchase has been processed successfully'
+            'fees'                => $attempt->attempted_price * 0.15,
+            'totalPrice'          => $attempt->attempted_price * 1.15,
+            'message'             => 'The purchase has been processed successfully',
         ];
     }
 }
-

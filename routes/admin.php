@@ -1,21 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\SystemController;
-use App\Http\Controllers\Admin\ReportsController;
-use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryManagementController;
-use App\Http\Controllers\Admin\ScrapingController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RealTimeDashboardController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\ScrapingController;
+use App\Http\Controllers\Admin\SystemController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RegistrationWithPaymentController;
 use App\Http\Controllers\PaymentPlanController;
 use Illuminate\Support\Facades\Route;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use PayPal\Api\Payment;
-use PayPal\Api\PaymentExecution;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,8 +25,8 @@ use PayPal\Api\PaymentExecution;
 |
 */
 
-Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-    
+// Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function (): void {
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/stats.json', [DashboardController::class, 'getStats']);
@@ -38,32 +35,27 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::get('/chart/monthly-trend.json', [DashboardController::class, 'getMonthlyTrend']);
     Route::get('/chart/role-distribution.json', [DashboardController::class, 'getRoleDistributionChart']);
     Route::get('/activity/recent.json', [DashboardController::class, 'getRecentActivity']);
-    
+
     // Enhanced Analytics Routes
     Route::get('/scraping-stats.json', [DashboardController::class, 'getScrapingStats'])->name('scraping-stats');
     Route::get('/user-activity-heatmap.json', [DashboardController::class, 'getUserActivityHeatmap'])->name('user-activity-heatmap');
     Route::get('/revenue-analytics.json', [DashboardController::class, 'getRevenueAnalytics'])->name('revenue-analytics');
-    Route::get('/platform-performance.json', function() {
-        $controller = new DashboardController();
-        $method = new \ReflectionMethod($controller, 'getPlatformPerformance');
-        $method->setAccessible(true);
-        return response()->json($method->invoke($controller));
-    })->name('platform-performance');
+    Route::get('/platform-performance.json', [DashboardController::class, 'getPlatformPerformanceData'])->name('platform-performance');
 
     // User Management Routes (Admin Only)
-    Route::middleware('admin:manage_users')->group(function () {
+    Route::middleware('admin:manage_users')->group(function (): void {
         // User Roles Management (must be before resource routes to avoid conflicts)
         Route::get('users/roles', [UserManagementController::class, 'roles'])->name('users.roles');
         Route::patch('users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
         Route::post('users/bulk-role-assignment', [UserManagementController::class, 'bulkRoleAssignment'])->name('users.bulk-role-assignment');
-        
-        // User creation route (also before resource routes) 
+
+        // User creation route (also before resource routes)
         Route::get('users/create', [UserManagementController::class, 'create'])->name('users.create');
-        
+
         // Admin-only user registration routes
         Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
         Route::post('register', [RegisteredUserController::class, 'store']);
-        
+
         // Standard resource routes
         Route::resource('users', UserManagementController::class)->names('users');
         Route::patch('users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
@@ -75,22 +67,22 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     });
 
     // Reports and Export/Import Routes
-    Route::prefix('reports')->name('reports.')->middleware('admin:access_reports')->group(function () {
+    Route::prefix('reports')->name('reports.')->middleware('admin:access_reports')->group(function (): void {
         Route::get('/', [ReportsController::class, 'index'])->name('index');
         Route::get('/export', [ReportsController::class, 'export'])->name('export');
-        
+
         // Report Views
         Route::get('/ticket-volume', [ReportsController::class, 'ticketVolume'])->name('ticket-volume');
         Route::get('/agent-performance', [ReportsController::class, 'agentPerformance'])->name('agent-performance');
         Route::get('/category-analysis', [ReportsController::class, 'categoryAnalysis'])->name('category-analysis');
         Route::get('/response-time', [ReportsController::class, 'responseTime'])->name('response-time');
-        
+
         // Export Routes
         Route::get('/users/export', [ReportsController::class, 'exportUsers'])->name('users.export');
         Route::get('/tickets/export', [ReportsController::class, 'exportScrapedTickets'])->name('tickets.export');
         Route::get('/audit/export', [ReportsController::class, 'exportAuditTrail'])->name('audit.export');
         Route::post('/users/import', [ReportsController::class, 'importUsers'])->name('users.import');
-        
+
         // PDF Reports
         Route::get('/pdf/users', [ReportsController::class, 'generateUsersPDF'])->name('pdf.users');
         Route::get('/pdf/tickets', [ReportsController::class, 'generateTicketsPDF'])->name('pdf.tickets');
@@ -98,7 +90,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     });
 
     // Activity Log Management Routes (Admin Only)
-    Route::prefix('activity-logs')->name('activity-logs.')->middleware('admin:manage_system')->group(function () {
+    Route::prefix('activity-logs')->name('activity-logs.')->middleware('admin:manage_system')->group(function (): void {
         Route::get('/', [ActivityLogController::class, 'index'])->name('index');
         Route::get('/{activity}', [ActivityLogController::class, 'show'])->name('show');
         Route::get('/api/security-activities', [ActivityLogController::class, 'getSecurityActivities'])->name('security-activities');
@@ -114,7 +106,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     Route::post('categories/reorder', [CategoryManagementController::class, 'reorder'])->name('categories.reorder');
 
     // System Management Routes
-    Route::prefix('system')->name('system.')->middleware('admin:manage_system')->group(function () {
+    Route::prefix('system')->name('system.')->middleware('admin:manage_system')->group(function (): void {
         Route::get('/', [SystemController::class, 'index'])->name('index');
         Route::get('health', [SystemController::class, 'getHealth'])->name('health');
         Route::get('configuration', [SystemController::class, 'getConfiguration'])->name('configuration');
@@ -127,7 +119,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     });
 
     // Real-time Monitoring Dashboard Routes
-    Route::prefix('monitoring')->name('monitoring.')->middleware('admin:manage_system')->group(function () {
+    Route::prefix('monitoring')->name('monitoring.')->middleware('admin:manage_system')->group(function (): void {
         Route::get('/dashboard', [RealTimeDashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('/data', [RealTimeDashboardController::class, 'getDashboardData'])->name('data');
         Route::post('/start', [RealTimeDashboardController::class, 'startMonitoring'])->name('start');
@@ -142,7 +134,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     });
 
     // Scraping Management Routes
-    Route::prefix('scraping')->name('scraping.')->middleware('admin:access_scraping')->group(function () {
+    Route::prefix('scraping')->name('scraping.')->middleware('admin:access_scraping')->group(function (): void {
         Route::get('/', [ScrapingController::class, 'index'])->name('index');
         Route::get('stats', [ScrapingController::class, 'getStats'])->name('stats');
         Route::get('platforms', [ScrapingController::class, 'getPlatformStats'])->name('platforms');
@@ -151,7 +143,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
         Route::get('configuration', [ScrapingController::class, 'getConfig'])->name('configuration');
         Route::post('configuration', [ScrapingController::class, 'updateConfig'])->name('configuration.update');
         Route::get('performance', [ScrapingController::class, 'getPerformanceMetrics'])->name('performance');
-        
+
         // Advanced scraping features
         Route::get('advanced-logs', [ScrapingController::class, 'getAdvancedLogs'])->name('advanced-logs');
         Route::post('configure-anti-detection', [ScrapingController::class, 'configureAntiDetection'])->name('configure-anti-detection');
@@ -159,36 +151,11 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
     });
 
     // Activity and Health APIs
-    Route::get('activities/recent', function () {
-        $activities = [
-            [
-                'id' => 1,
-                'type' => 'user',
-                'message' => 'New user registered: john@example.com',
-                'status' => 'completed',
-                'timestamp' => now()->subMinutes(5)->toISOString()
-            ],
-            [
-                'id' => 2,
-                'type' => 'ticket',
-                'message' => 'Ticket #123 was assigned to Agent Smith',
-                'status' => 'completed',
-                'timestamp' => now()->subMinutes(15)->toISOString()
-            ],
-            [
-                'id' => 3,
-                'type' => 'config',
-                'message' => 'System configuration updated',
-                'status' => 'completed',
-                'timestamp' => now()->subHour()->toISOString()
-            ]
-        ];
-        return response()->json($activities);
-    })->name('activities.recent');
+    Route::get('activities/recent', [DashboardController::class, 'getRecentActivities'])->name('activities.recent');
 });
 
 // Stop impersonation route (global access)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::post('/admin/users/stop-impersonating', [UserManagementController::class, 'stopImpersonating'])->name('admin.users.stop-impersonating');
 });
 
@@ -199,4 +166,3 @@ Route::post('register-with-payment', [RegistrationWithPaymentController::class, 
 // Payment plan management
 Route::resource('payment-plans', PaymentPlanController::class)->except(['show']);
 Route::get('payment-plans/{paymentPlan}', [PaymentPlanController::class, 'show'])->name('payment-plans.show');
-

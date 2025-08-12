@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\User;
 use App\Models\AccountDeletionRequest;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -12,9 +12,11 @@ use Illuminate\Queue\SerializesModels;
 
 class AccountDeletionCompletedMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     public User $user;
+
     public AccountDeletionRequest $deletionRequest;
 
     /**
@@ -35,7 +37,7 @@ class AccountDeletionCompletedMail extends Mailable
             subject: 'Account Deletion Completed - HD Tickets',
             tags: ['account-deletion', 'completed'],
             metadata: [
-                'user_id' => $this->user->id,
+                'user_id'             => $this->user->id,
                 'deletion_request_id' => $this->deletionRequest->id,
             ],
         );

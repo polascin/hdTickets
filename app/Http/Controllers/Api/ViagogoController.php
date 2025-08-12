@@ -1,12 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\TicketApis\ViagogoClient;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
+use function count;
 
 class ViagogoController extends Controller
 {
@@ -24,16 +27,16 @@ class ViagogoController extends Controller
     public function search(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'keyword' => 'required|string|min:2|max:100',
+            'keyword'  => 'required|string|min:2|max:100',
             'location' => 'nullable|string|max:100',
-            'limit' => 'nullable|integer|min:1|max:100',
+            'limit'    => 'nullable|integer|min:1|max:100',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -43,7 +46,7 @@ class ViagogoController extends Controller
 
         try {
             $client = new ViagogoClient([
-                'enabled' => true,
+                'enabled' => TRUE,
                 'api_key' => config('services.viagogo.api_key'),
                 'timeout' => 30,
             ]);
@@ -51,20 +54,19 @@ class ViagogoController extends Controller
             $results = $client->scrapeSearchResults($keyword, $location, $limit);
 
             return response()->json([
-                'success' => true,
-                'data' => $results,
-                'meta' => [
-                    'keyword' => $keyword,
-                    'location' => $location,
+                'success' => TRUE,
+                'data'    => $results,
+                'meta'    => [
+                    'keyword'       => $keyword,
+                    'location'      => $location,
                     'total_results' => count($results),
-                    'limit' => $limit
-                ]
+                    'limit'         => $limit,
+                ],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Search failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Search failed: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -80,9 +82,9 @@ class ViagogoController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -90,7 +92,7 @@ class ViagogoController extends Controller
 
         try {
             $client = new ViagogoClient([
-                'enabled' => true,
+                'enabled' => TRUE,
                 'api_key' => config('services.viagogo.api_key'),
                 'timeout' => 30,
             ]);
@@ -99,20 +101,19 @@ class ViagogoController extends Controller
 
             if (empty($eventDetails)) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No event details found for the provided URL'
+                    'success' => FALSE,
+                    'message' => 'No event details found for the provided URL',
                 ], 404);
             }
 
             return response()->json([
-                'success' => true,
-                'data' => $eventDetails
+                'success' => TRUE,
+                'data'    => $eventDetails,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to get event details: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to get event details: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -123,16 +124,16 @@ class ViagogoController extends Controller
     public function import(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'keyword' => 'required|string|min:2|max:100',
+            'keyword'  => 'required|string|min:2|max:100',
             'location' => 'nullable|string|max:100',
-            'limit' => 'nullable|integer|min:1|max:50', // Lower limit for imports
+            'limit'    => 'nullable|integer|min:1|max:50', // Lower limit for imports
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
@@ -142,18 +143,18 @@ class ViagogoController extends Controller
 
         try {
             $client = new ViagogoClient([
-                'enabled' => true,
+                'enabled' => TRUE,
                 'api_key' => config('services.viagogo.api_key'),
                 'timeout' => 30,
             ]);
 
             $events = $client->scrapeSearchResults($keyword, $location, $limit);
-            
+
             if (empty($events)) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No events found for the search criteria',
-                    'imported' => 0
+                    'success'  => FALSE,
+                    'message'  => 'No events found for the search criteria',
+                    'imported' => 0,
                 ], 404);
             }
 
@@ -165,30 +166,28 @@ class ViagogoController extends Controller
                     if ($this->importEventAsTicket($event)) {
                         $imported++;
                     }
-                    
+
                     usleep(500000);
-                    
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = [
                         'event' => $event['name'] ?? 'Unknown',
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ];
                 }
             }
 
             return response()->json([
-                'success' => true,
+                'success'     => TRUE,
                 'total_found' => count($events),
-                'imported' => $imported,
-                'errors' => $errors,
-                'message' => "Successfully imported {$imported} out of " . count($events) . " events"
+                'imported'    => $imported,
+                'errors'      => $errors,
+                'message'     => "Successfully imported {$imported} out of " . count($events) . ' events',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Import failed: ' . $e->getMessage(),
-                'imported' => 0
+                'success'  => FALSE,
+                'message'  => 'Import failed: ' . $e->getMessage(),
+                'imported' => 0,
             ], 500);
         }
     }
@@ -199,23 +198,23 @@ class ViagogoController extends Controller
     public function importUrls(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'urls' => 'required|array|min:1|max:10',
+            'urls'   => 'required|array|min:1|max:10',
             'urls.*' => 'required|url|regex:/viagogo\.com/',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         $urls = $request->input('urls');
-        
+
         try {
             $client = new ViagogoClient([
-                'enabled' => true,
+                'enabled' => TRUE,
                 'api_key' => config('services.viagogo.api_key'),
                 'timeout' => 30,
             ]);
@@ -226,41 +225,39 @@ class ViagogoController extends Controller
             foreach ($urls as $url) {
                 try {
                     $eventDetails = $client->scrapeEventDetails($url);
-                    
-                    if (!empty($eventDetails)) {
+
+                    if (! empty($eventDetails)) {
                         if ($this->importEventAsTicket($eventDetails)) {
                             $imported++;
                         }
                     } else {
                         $errors[] = [
-                            'url' => $url,
-                            'error' => 'No event details found'
+                            'url'   => $url,
+                            'error' => 'No event details found',
                         ];
                     }
-                    
+
                     usleep(500000);
-                    
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $errors[] = [
-                        'url' => $url,
-                        'error' => $e->getMessage()
+                        'url'   => $url,
+                        'error' => $e->getMessage(),
                     ];
                 }
             }
 
             return response()->json([
-                'success' => true,
+                'success'    => TRUE,
                 'total_urls' => count($urls),
-                'imported' => $imported,
-                'errors' => $errors,
-                'message' => "Successfully imported {$imported} out of " . count($urls) . " events"
+                'imported'   => $imported,
+                'errors'     => $errors,
+                'message'    => "Successfully imported {$imported} out of " . count($urls) . ' events',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Import failed: ' . $e->getMessage(),
-                'imported' => 0
+                'success'  => FALSE,
+                'message'  => 'Import failed: ' . $e->getMessage(),
+                'imported' => 0,
             ], 500);
         }
     }
@@ -272,24 +269,23 @@ class ViagogoController extends Controller
     {
         try {
             $stats = [
-                'platform' => 'viagogo',
+                'platform'      => 'viagogo',
                 'total_scraped' => \App\Models\Ticket::where('platform', 'viagogo')->count(),
-                'last_scrape' => \App\Models\Ticket::where('platform', 'viagogo')
+                'last_scrape'   => \App\Models\Ticket::where('platform', 'viagogo')
                     ->latest('created_at')
                     ->value('created_at'),
-                'success_rate' => $this->calculateSuccessRate('viagogo'),
+                'success_rate'      => $this->calculateSuccessRate('viagogo'),
                 'avg_response_time' => $this->getAverageResponseTime('viagogo'),
             ];
 
             return response()->json([
-                'success' => true,
-                'data' => $stats
+                'success' => TRUE,
+                'data'    => $stats,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to get statistics: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to get statistics: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -301,34 +297,34 @@ class ViagogoController extends Controller
     {
         try {
             $existingTicket = \App\Models\Ticket::where('platform', 'viagogo')
-                ->where('external_id', $eventData['id'] ?? null)
+                ->where('external_id', $eventData['id'] ?? NULL)
                 ->first();
 
             if ($existingTicket) {
-                return false;
+                return FALSE;
             }
 
             $ticket = new \App\Models\Ticket();
             $ticket->title = $eventData['name'] ?? 'Unknown Event';
             $ticket->description = $eventData['description'] ?? '';
             $ticket->platform = 'viagogo';
-            $ticket->external_id = $eventData['id'] ?? null;
-            $ticket->external_url = $eventData['url'] ?? null;
-            $ticket->event_date = $eventData['parsed_date'] ?? null;
+            $ticket->external_id = $eventData['id'] ?? NULL;
+            $ticket->external_url = $eventData['url'] ?? NULL;
+            $ticket->event_date = $eventData['parsed_date'] ?? NULL;
             $ticket->location = $eventData['venue'] ?? '';
-            $ticket->price = $eventData['min_price'] ?? null;
+            $ticket->price = $eventData['min_price'] ?? NULL;
             $ticket->user_id = auth()->id();
             $ticket->status = 'active';
             $ticket->scraped_data = json_encode($eventData);
 
             return $ticket->save();
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to import Viagogo event as ticket', [
                 'event_data' => $eventData,
-                'error' => $e->getMessage()
+                'error'      => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 

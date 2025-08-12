@@ -1,31 +1,43 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Exports;
 
-use App\Models\TicketPriceHistory;
 use App\Models\ScrapedTicket;
+use App\Models\TicketPriceHistory;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCharts;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+
+use function count;
 
 class PriceFluctuationExport implements WithMultipleSheets
 {
+    /** @var mixed */
     protected $trends;
+
+    /** @var mixed */
     protected $startDate;
+
+    /** @var mixed */
     protected $endDate;
 
+    /**
+     * @param mixed $trends
+     * @param mixed $startDate
+     * @param mixed $endDate
+     */
     public function __construct($trends, $startDate, $endDate)
     {
         $this->trends = $trends;
@@ -33,6 +45,9 @@ class PriceFluctuationExport implements WithMultipleSheets
         $this->endDate = $endDate;
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function sheets(): array
     {
         return [
@@ -44,10 +59,20 @@ class PriceFluctuationExport implements WithMultipleSheets
 
 class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
 {
+    /** @var mixed */
     protected $trends;
+
+    /** @var mixed */
     protected $startDate;
+
+    /** @var mixed */
     protected $endDate;
 
+    /**
+     * @param mixed $trends
+     * @param mixed $startDate
+     * @param mixed $endDate
+     */
     public function __construct($trends, $startDate, $endDate)
     {
         $this->trends = $trends;
@@ -55,6 +80,9 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
         $this->endDate = $endDate;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return collect($this->trends)->map(function ($trend) {
@@ -70,19 +98,22 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
             $trendDirection = $this->calculateTrendDirection($priceHistory);
 
             return (object) [
-                'ticket_id' => $trend->ticket_id,
-                'title' => $ticket->title ?? 'Unknown Event',
-                'platform' => $ticket->platform ?? 'Unknown',
-                'avg_price' => round($trend->avg_price, 2),
-                'min_price' => $minPrice,
-                'max_price' => $maxPrice,
-                'volatility' => $volatility,
+                'ticket_id'       => $trend->ticket_id,
+                'title'           => $ticket->title ?? 'Unknown Event',
+                'platform'        => $ticket->platform ?? 'Unknown',
+                'avg_price'       => round($trend->avg_price, 2),
+                'min_price'       => $minPrice,
+                'max_price'       => $maxPrice,
+                'volatility'      => $volatility,
                 'trend_direction' => $trendDirection,
-                'data_points' => $priceHistory->count()
+                'data_points'     => $priceHistory->count(),
             ];
         });
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function headings(): array
     {
         return [
@@ -94,10 +125,15 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
             'Max Price ($)',
             'Price Volatility',
             'Trend Direction',
-            'Data Points'
+            'Data Points',
         ];
     }
 
+    /**
+     * @param mixed $item
+     *
+     * @return array<int, mixed>
+     */
     public function map($item): array
     {
         return [
@@ -109,61 +145,33 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
             $item->max_price,
             round($item->volatility, 2),
             $item->trend_direction,
-            $item->data_points
+            $item->data_points,
         ];
     }
 
-    private function calculateVolatility($priceHistory)
-    {
-        if ($priceHistory->count() < 2) {
-            return 0;
-        }
-
-        $prices = $priceHistory->pluck('price')->toArray();
-        $mean = array_sum($prices) / count($prices);
-        $variance = array_sum(array_map(function($price) use ($mean) {
-            return pow($price - $mean, 2);
-        }, $prices)) / count($prices);
-
-        return sqrt($variance);
-    }
-
-    private function calculateTrendDirection($priceHistory)
-    {
-        if ($priceHistory->count() < 2) {
-            return 'Stable';
-        }
-
-        $firstPrice = $priceHistory->first()->price;
-        $lastPrice = $priceHistory->last()->price;
-        $changePercent = (($lastPrice - $firstPrice) / $firstPrice) * 100;
-
-        if ($changePercent > 5) {
-            return 'Increasing';
-        } elseif ($changePercent < -5) {
-            return 'Decreasing';
-        } else {
-            return 'Stable';
-        }
-    }
-
-    public function styles(Worksheet $sheet)
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'font' => ['bold' => TRUE, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '059669']
-                ]
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '059669'],
+                ],
             ],
         ];
     }
 
-    public function charts()
+    /**
+     * @return array<Chart>
+     */
+    public function charts(): array
     {
         $data = $this->collection();
-        
+
         if ($data->isEmpty()) {
             return [];
         }
@@ -171,14 +179,14 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
         // Create column chart for average prices
         $labels = [];
         $avgPrices = [];
-        
+
         foreach ($data->take(10) as $index => $item) {
-            $labels[] = new DataSeriesValues('String', 'Worksheet!$B$' . ($index + 2), null, 1);
-            $avgPrices[] = new DataSeriesValues('Number', 'Worksheet!$D$' . ($index + 2), null, 1);
+            $labels[] = new DataSeriesValues('String', 'Worksheet!$B$' . ($index + 2), NULL, 1);
+            $avgPrices[] = new DataSeriesValues('Number', 'Worksheet!$D$' . ($index + 2), NULL, 1);
         }
 
         $dataSeriesLabels = [
-            new DataSeriesValues('String', 'Worksheet!$D$1', null, 1),
+            new DataSeriesValues('String', 'Worksheet!$D$1', NULL, 1),
         ];
 
         $xAxisTickValues = $labels;
@@ -190,18 +198,18 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
             range(0, count($dataSeriesValues) - 1),
             $dataSeriesLabels,
             $xAxisTickValues,
-            $dataSeriesValues
+            $dataSeriesValues,
         );
 
-        $plotArea = new PlotArea(null, [$series]);
-        $legend = new Legend(Legend::POSITION_RIGHT, null, false);
+        $plotArea = new PlotArea(NULL, [$series]);
+        $legend = new Legend(Legend::POSITION_RIGHT, NULL, FALSE);
         $title = new Title('Average Price Comparison (Top 10 Events)');
 
         $chart = new Chart(
             'priceChart',
             $title,
             $legend,
-            $plotArea
+            $plotArea,
         );
 
         $chart->setTopLeftPosition('K2');
@@ -209,14 +217,65 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
 
         return [$chart];
     }
+
+    /**
+     * @param mixed $priceHistory
+     */
+    private function calculateVolatility($priceHistory): float
+    {
+        if ($priceHistory->count() < 2) {
+            return 0;
+        }
+
+        $prices = $priceHistory->pluck('price')->toArray();
+        $mean = array_sum($prices) / count($prices);
+        $variance = array_sum(array_map(function ($price) use ($mean) {
+            return pow($price - $mean, 2);
+        }, $prices)) / count($prices);
+
+        return sqrt($variance);
+    }
+
+    /**
+     * @param mixed $priceHistory
+     */
+    private function calculateTrendDirection($priceHistory): string
+    {
+        if ($priceHistory->count() < 2) {
+            return 'Stable';
+        }
+
+        $firstPrice = $priceHistory->first()->price;
+        $lastPrice = $priceHistory->last()->price;
+        $changePercent = (($lastPrice - $firstPrice) / $firstPrice) * 100;
+
+        if ($changePercent > 5) {
+            return 'Increasing';
+        }
+        if ($changePercent < -5) {
+            return 'Decreasing';
+        }
+
+        return 'Stable';
+    }
 }
 
 class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
+    /** @var mixed */
     protected $trends;
+
+    /** @var mixed */
     protected $startDate;
+
+    /** @var mixed */
     protected $endDate;
 
+    /**
+     * @param mixed $trends
+     * @param mixed $startDate
+     * @param mixed $endDate
+     */
     public function __construct($trends, $startDate, $endDate)
     {
         $this->trends = $trends;
@@ -224,10 +283,13 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
         $this->endDate = $endDate;
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $detailData = collect();
-        
+
         foreach ($this->trends->take(5) as $trend) {
             $priceHistory = TicketPriceHistory::where('ticket_id', $trend->ticket_id)
                 ->betweenDates($this->startDate, $this->endDate)
@@ -236,12 +298,12 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
 
             foreach ($priceHistory as $record) {
                 $detailData->push([
-                    'ticket_id' => $trend->ticket_id,
-                    'recorded_at' => $record->recorded_at->format('Y-m-d H:i:s'),
-                    'price' => $record->price,
-                    'quantity' => $record->quantity,
-                    'source' => $record->source,
-                    'price_change' => $record->price_change ?? 0
+                    'ticket_id'    => $trend->ticket_id,
+                    'recorded_at'  => $record->recorded_at->format('Y-m-d H:i:s'),
+                    'price'        => $record->price,
+                    'quantity'     => $record->quantity,
+                    'source'       => $record->source,
+                    'price_change' => $record->price_change ?? 0,
                 ]);
             }
         }
@@ -249,6 +311,9 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
         return $detailData;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function headings(): array
     {
         return [
@@ -257,19 +322,22 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
             'Price ($)',
             'Quantity',
             'Source',
-            'Price Change ($)'
+            'Price Change ($)',
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'font' => ['bold' => TRUE, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '1f2937']
-                ]
+                    'fillType'   => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '1f2937'],
+                ],
             ],
         ];
     }

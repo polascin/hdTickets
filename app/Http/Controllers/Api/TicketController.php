@@ -1,15 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\TicketAvailabilityUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreTicketRequest;
 use App\Http\Requests\Api\UpdateTicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
-use App\Events\TicketAvailabilityUpdated;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
+use function in_array;
+use function is_array;
 
 class TicketController extends Controller
 {
@@ -89,8 +92,8 @@ class TicketController extends Controller
         $sortField = $request->get('sort', 'created_at');
         $sortDirection = $request->get('direction', 'desc');
         $allowedSorts = ['id', 'title', 'status', 'priority', 'created_at', 'updated_at', 'due_date', 'last_activity_at'];
-        
-        if (in_array($sortField, $allowedSorts)) {
+
+        if (in_array($sortField, $allowedSorts, TRUE)) {
             $query->orderBy($sortField, $sortDirection);
         } else {
             $query->orderBy('created_at', 'desc');
@@ -104,18 +107,18 @@ class TicketController extends Controller
             'data' => TicketResource::collection($tickets),
             'meta' => [
                 'current_page' => $tickets->currentPage(),
-                'from' => $tickets->firstItem(),
-                'last_page' => $tickets->lastPage(),
-                'per_page' => $tickets->perPage(),
-                'to' => $tickets->lastItem(),
-                'total' => $tickets->total(),
+                'from'         => $tickets->firstItem(),
+                'last_page'    => $tickets->lastPage(),
+                'per_page'     => $tickets->perPage(),
+                'to'           => $tickets->lastItem(),
+                'total'        => $tickets->total(),
             ],
             'links' => [
                 'first' => $tickets->url(1),
-                'last' => $tickets->url($tickets->lastPage()),
-                'prev' => $tickets->previousPageUrl(),
-                'next' => $tickets->nextPageUrl(),
-            ]
+                'last'  => $tickets->url($tickets->lastPage()),
+                'prev'  => $tickets->previousPageUrl(),
+                'next'  => $tickets->nextPageUrl(),
+            ],
         ]);
     }
 
@@ -126,12 +129,12 @@ class TicketController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = auth()->id();
-        
+
         $ticket = Ticket::create($data);
-        
+
         // Load relationships for response
         $ticket->load(['user', 'assignedTo', 'category']);
-        
+
         return response()->json(new TicketResource($ticket), 201);
     }
 
@@ -142,15 +145,15 @@ class TicketController extends Controller
     {
         // Load all relationships for detailed view
         $ticket->load([
-            'user', 
-            'assignedTo', 
-            'category', 
-            'comments' => function ($query) {
+            'user',
+            'assignedTo',
+            'category',
+            'comments' => function ($query): void {
                 $query->with(['user', 'attachments'])->orderBy('created_at', 'asc');
             },
-            'attachments.user'
+            'attachments.user',
         ]);
-        
+
         return response()->json(new TicketResource($ticket));
     }
 
@@ -160,22 +163,22 @@ class TicketController extends Controller
     public function update(UpdateTicketRequest $request, Ticket $ticket): JsonResponse
     {
         $oldStatus = $ticket->status;
-        
+
         $ticket->update($request->validated());
-        
+
         // Create system comment for status changes
         if (isset($request->validated()['status']) && $oldStatus !== $ticket->status) {
             \App\Models\Comment::createStatusChangeComment(
                 $ticket,
                 $oldStatus,
                 $ticket->status,
-                auth()->user()
+                auth()->user(),
             );
         }
-        
+
         // Load relationships for response
         $ticket->load(['user', 'assignedTo', 'category']);
-        
+
         return response()->json(new TicketResource($ticket));
     }
 
@@ -185,7 +188,8 @@ class TicketController extends Controller
     public function destroy(Ticket $ticket): JsonResponse
     {
         $ticket->delete();
-        return response()->json(null, 204);
+
+        return response()->json(NULL, 204);
     }
 
     /**
@@ -196,7 +200,7 @@ class TicketController extends Controller
         // Validate request
         $data = $request->validate([
             'ticket_uuid' => 'required|string|exists:tickets,uuid',
-            'status' => 'required|string',
+            'status'      => 'required|string',
         ]);
 
         // Broadcast the ticket update

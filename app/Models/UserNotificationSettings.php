@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,27 +25,27 @@ class UserNotificationSettings extends Model
         'auth_token',
         'api_key',
         'basic_username',
-        'basic_password', 
+        'basic_password',
         'webhook_secret',
         'custom_headers',
         'max_retries',
         'retry_delay',
-        'settings'
+        'settings',
     ];
 
     protected $casts = [
-        'is_enabled' => 'boolean',
-        'settings' => 'array',
+        'is_enabled'     => 'boolean',
+        'settings'       => 'array',
         'custom_headers' => 'array',
-        'max_retries' => 'integer',
-        'retry_delay' => 'integer'
+        'max_retries'    => 'integer',
+        'retry_delay'    => 'integer',
     ];
 
     protected $hidden = [
         'auth_token',
         'api_key',
         'basic_password',
-        'webhook_secret'
+        'webhook_secret',
     ];
 
     /**
@@ -57,14 +58,18 @@ class UserNotificationSettings extends Model
 
     /**
      * Scope for enabled settings
+     *
+     * @param mixed $query
      */
     public function scopeEnabled($query)
     {
-        return $query->where('is_enabled', true);
+        return $query->where('is_enabled', TRUE);
     }
 
     /**
      * Scope for specific channel
+     *
+     * @param mixed $query
      */
     public function scopeForChannel($query, string $channel)
     {
@@ -78,15 +83,15 @@ class UserNotificationSettings extends Model
     {
         switch ($this->channel) {
             case 'slack':
-                return !empty($this->webhook_url) || !empty($this->slack_user_id);
+                return ! empty($this->webhook_url) || ! empty($this->slack_user_id);
             case 'discord':
-                return !empty($this->webhook_url) || !empty($this->discord_user_id);
+                return ! empty($this->webhook_url) || ! empty($this->discord_user_id);
             case 'telegram':
-                return !empty($this->chat_id);
+                return ! empty($this->chat_id);
             case 'webhook':
-                return !empty($this->webhook_url);
+                return ! empty($this->webhook_url);
             default:
-                return false;
+                return FALSE;
         }
     }
 
@@ -97,37 +102,37 @@ class UserNotificationSettings extends Model
     {
         $baseSettings = [
             'is_enabled' => $this->is_enabled,
-            'channel' => $this->channel
+            'channel'    => $this->channel,
         ];
 
         switch ($this->channel) {
             case 'slack':
                 return array_merge($baseSettings, [
-                    'webhook_url' => $this->webhook_url,
-                    'channel' => $this->channel,
+                    'webhook_url'   => $this->webhook_url,
+                    'channel'       => $this->channel,
                     'slack_user_id' => $this->slack_user_id,
-                    'ping_role_id' => $this->ping_role_id
+                    'ping_role_id'  => $this->ping_role_id,
                 ]);
 
             case 'discord':
                 return array_merge($baseSettings, [
-                    'webhook_url' => $this->webhook_url,
+                    'webhook_url'     => $this->webhook_url,
                     'discord_user_id' => $this->discord_user_id,
-                    'ping_role_id' => $this->ping_role_id
+                    'ping_role_id'    => $this->ping_role_id,
                 ]);
 
             case 'telegram':
                 return array_merge($baseSettings, [
-                    'chat_id' => $this->chat_id
+                    'chat_id' => $this->chat_id,
                 ]);
 
             case 'webhook':
                 return array_merge($baseSettings, [
-                    'webhook_url' => $this->webhook_url,
-                    'auth_type' => $this->auth_type,
-                    'max_retries' => $this->max_retries,
-                    'retry_delay' => $this->retry_delay,
-                    'custom_headers' => $this->custom_headers
+                    'webhook_url'    => $this->webhook_url,
+                    'auth_type'      => $this->auth_type,
+                    'max_retries'    => $this->max_retries,
+                    'retry_delay'    => $this->retry_delay,
+                    'custom_headers' => $this->custom_headers,
                 ]);
 
             default:
@@ -141,6 +146,7 @@ class UserNotificationSettings extends Model
     public function updateChannelSettings(array $settings): bool
     {
         $fillableSettings = array_intersect_key($settings, array_flip($this->fillable));
+
         return $this->update($fillableSettings);
     }
 
@@ -149,17 +155,17 @@ class UserNotificationSettings extends Model
      */
     public function test(): array
     {
-        if (!$this->is_enabled) {
+        if (! $this->is_enabled) {
             return [
-                'success' => false,
-                'message' => 'Channel is disabled'
+                'success' => FALSE,
+                'message' => 'Channel is disabled',
             ];
         }
 
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             return [
-                'success' => false,
-                'message' => 'Channel is not properly configured'
+                'success' => FALSE,
+                'message' => 'Channel is not properly configured',
             ];
         }
 
@@ -167,30 +173,30 @@ class UserNotificationSettings extends Model
             switch ($this->channel) {
                 case 'slack':
                     $channel = new \App\Services\NotificationChannels\SlackNotificationChannel();
-                    return $channel->testConnection($this->user);
 
+                    return $channel->testConnection($this->user);
                 case 'discord':
                     $channel = new \App\Services\NotificationChannels\DiscordNotificationChannel();
-                    return $channel->testConnection($this->user);
 
+                    return $channel->testConnection($this->user);
                 case 'telegram':
                     $channel = new \App\Services\NotificationChannels\TelegramNotificationChannel();
-                    return $channel->testConnection($this->user);
 
+                    return $channel->testConnection($this->user);
                 case 'webhook':
                     $channel = new \App\Services\NotificationChannels\WebhookNotificationChannel();
-                    return $channel->testConnection($this->user);
 
+                    return $channel->testConnection($this->user);
                 default:
                     return [
-                        'success' => false,
-                        'message' => 'Unknown channel type'
+                        'success' => FALSE,
+                        'message' => 'Unknown channel type',
                     ];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'success' => false,
-                'message' => 'Test failed: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Test failed: ' . $e->getMessage(),
             ];
         }
     }
@@ -202,29 +208,29 @@ class UserNotificationSettings extends Model
     {
         return [
             'slack' => [
-                'name' => 'Slack',
-                'description' => 'Send notifications to Slack channels or direct messages',
+                'name'            => 'Slack',
+                'description'     => 'Send notifications to Slack channels or direct messages',
                 'required_fields' => ['webhook_url OR slack_user_id'],
-                'optional_fields' => ['channel', 'ping_role_id']
+                'optional_fields' => ['channel', 'ping_role_id'],
             ],
             'discord' => [
-                'name' => 'Discord',
-                'description' => 'Send notifications to Discord channels or direct messages',
+                'name'            => 'Discord',
+                'description'     => 'Send notifications to Discord channels or direct messages',
                 'required_fields' => ['webhook_url OR discord_user_id'],
-                'optional_fields' => ['ping_role_id']
+                'optional_fields' => ['ping_role_id'],
             ],
             'telegram' => [
-                'name' => 'Telegram',
-                'description' => 'Send notifications via Telegram bot',
+                'name'            => 'Telegram',
+                'description'     => 'Send notifications via Telegram bot',
                 'required_fields' => ['chat_id'],
-                'optional_fields' => []
+                'optional_fields' => [],
             ],
             'webhook' => [
-                'name' => 'Webhook',
-                'description' => 'Send notifications to custom webhook endpoints',
+                'name'            => 'Webhook',
+                'description'     => 'Send notifications to custom webhook endpoints',
                 'required_fields' => ['webhook_url'],
-                'optional_fields' => ['auth_type', 'auth_token', 'api_key', 'custom_headers', 'max_retries']
-            ]
+                'optional_fields' => ['auth_type', 'auth_token', 'api_key', 'custom_headers', 'max_retries'],
+            ],
         ];
     }
 }

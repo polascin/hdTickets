@@ -1,32 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\PerformanceOptimizationService;
+use Illuminate\Console\Command;
 
 class WarmCache extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'cache:warm';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    /** The console command description. */
     protected $description = 'Warm application cache for improved performance';
 
-    private $performanceService;
+    private PerformanceOptimizationService $performanceService;
 
     /**
      * Create a new command instance.
-     *
-     * @param PerformanceOptimizationService $performanceService
      */
     public function __construct(PerformanceOptimizationService $performanceService)
     {
@@ -37,7 +26,7 @@ class WarmCache extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Starting cache warming...');
 
@@ -45,9 +34,12 @@ class WarmCache extends Command
 
         if (isset($results['error'])) {
             $this->error('Cache warming encountered issues: ' . $results['error']);
-        } else {
-            $this->info('Cache warming completed successfully.');
-            $this->info('Details: ' . json_encode($results));
+
+            return Command::FAILURE;
         }
+        $this->info('Cache warming completed successfully.');
+        $this->info('Details: ' . json_encode($results));
+
+        return Command::SUCCESS;
     }
 }

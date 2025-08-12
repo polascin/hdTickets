@@ -1,13 +1,17 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
+
+use function ini_get;
+use function strlen;
 
 class HealthController extends Controller
 {
@@ -16,31 +20,31 @@ class HealthController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
         $checks = [];
         $overallStatus = 'healthy';
 
         // Basic application health
         $checks['app'] = $this->checkApplication();
-        
+
         // Database connectivity
         $checks['database'] = $this->checkDatabase();
-        
+
         // Redis connectivity
         $checks['redis'] = $this->checkRedis();
-        
+
         // Cache functionality
         $checks['cache'] = $this->checkCache();
-        
+
         // Queue system
         $checks['queue'] = $this->checkQueue();
-        
+
         // External services
         $checks['external_services'] = $this->checkExternalServices();
-        
+
         // System resources
         $checks['system'] = $this->checkSystemResources();
-        
+
         // Ticket scraping health
         $checks['ticket_scraping'] = $this->checkTicketScrapingHealth();
 
@@ -48,19 +52,20 @@ class HealthController extends Controller
         foreach ($checks as $service => $status) {
             if ($status['status'] !== 'healthy') {
                 $overallStatus = 'unhealthy';
+
                 break;
             }
         }
 
-        $responseTime = round((microtime(true) - $startTime) * 1000, 2);
+        $responseTime = round((microtime(TRUE) - $startTime) * 1000, 2);
 
         $response = [
-            'status' => $overallStatus,
-            'timestamp' => now()->toISOString(),
-            'version' => '2025.07.v4.0',
-            'environment' => app()->environment(),
+            'status'           => $overallStatus,
+            'timestamp'        => now()->toISOString(),
+            'version'          => '2025.07.v4.0',
+            'environment'      => app()->environment(),
             'response_time_ms' => $responseTime,
-            'checks' => $checks,
+            'checks'           => $checks,
         ];
 
         // Return appropriate HTTP status code
@@ -76,11 +81,11 @@ class HealthController extends Controller
     {
         $check = $this->checkDatabase();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
-        
+
         return response()->json([
-            'service' => 'database',
-            'status' => $check['status'],
-            'details' => $check,
+            'service'   => 'database',
+            'status'    => $check['status'],
+            'details'   => $check,
             'timestamp' => now()->toISOString(),
         ], $status);
     }
@@ -92,11 +97,43 @@ class HealthController extends Controller
     {
         $check = $this->checkRedis();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
-        
+
         return response()->json([
-            'service' => 'redis',
-            'status' => $check['status'],
-            'details' => $check,
+            'service'   => 'redis',
+            'status'    => $check['status'],
+            'details'   => $check,
+            'timestamp' => now()->toISOString(),
+        ], $status);
+    }
+
+    /**
+     * WebSocket health check
+     */
+    public function websockets(): JsonResponse
+    {
+        $check = $this->checkWebSocketHealth();
+        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
+
+        return response()->json([
+            'service'   => 'websockets',
+            'status'    => $check['status'],
+            'details'   => $check,
+            'timestamp' => now()->toISOString(),
+        ], $status);
+    }
+
+    /**
+     * Services health check
+     */
+    public function services(): JsonResponse
+    {
+        $check = $this->checkExternalServices();
+        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
+
+        return response()->json([
+            'service'   => 'external_services',
+            'status'    => $check['status'],
+            'details'   => $check,
             'timestamp' => now()->toISOString(),
         ], $status);
     }
@@ -108,23 +145,23 @@ class HealthController extends Controller
     {
         try {
             $checks = [
-                'php_version' => PHP_VERSION,
-                'laravel_version' => app()->version(),
-                'timezone' => config('app.timezone'),
-                'debug_mode' => config('app.debug'),
+                'php_version'      => PHP_VERSION,
+                'laravel_version'  => app()->version(),
+                'timezone'         => config('app.timezone'),
+                'debug_mode'       => config('app.debug'),
                 'maintenance_mode' => app()->isDownForMaintenance(),
             ];
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'Application is running normally',
                 'details' => $checks,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Application check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -135,40 +172,40 @@ class HealthController extends Controller
     private function checkDatabase(): array
     {
         try {
-            $startTime = microtime(true);
-            
+            $startTime = microtime(TRUE);
+
             // Test main database connection
             DB::connection()->getPdo();
-            $mainConnection = microtime(true) - $startTime;
+            $mainConnection = microtime(TRUE) - $startTime;
 
             // Test read replica if configured
-            $readConnection = null;
+            $readConnection = NULL;
             if (config('database.connections.mysql.read')) {
-                $startTime = microtime(true);
+                $startTime = microtime(TRUE);
                 DB::connection('mysql')->getPdo();
-                $readConnection = microtime(true) - $startTime;
+                $readConnection = microtime(TRUE) - $startTime;
             }
 
             // Simple query test
-            $startTime = microtime(true);
+            $startTime = microtime(TRUE);
             $userCount = DB::table('users')->count();
-            $queryTime = microtime(true) - $startTime;
+            $queryTime = microtime(TRUE) - $startTime;
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'Database connections are working',
                 'details' => [
                     'main_connection_time_ms' => round($mainConnection * 1000, 2),
-                    'read_connection_time_ms' => $readConnection ? round($readConnection * 1000, 2) : null,
-                    'query_time_ms' => round($queryTime * 1000, 2),
-                    'sample_query_result' => $userCount,
+                    'read_connection_time_ms' => $readConnection ? round($readConnection * 1000, 2) : NULL,
+                    'query_time_ms'           => round($queryTime * 1000, 2),
+                    'sample_query_result'     => $userCount,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Database connection failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -179,40 +216,40 @@ class HealthController extends Controller
     private function checkRedis(): array
     {
         try {
-            $startTime = microtime(true);
-            
+            $startTime = microtime(TRUE);
+
             // Test Redis ping
             $ping = Redis::ping();
-            $pingTime = microtime(true) - $startTime;
+            $pingTime = microtime(TRUE) - $startTime;
 
             // Test cache operations
-            $startTime = microtime(true);
+            $startTime = microtime(TRUE);
             $testKey = 'health_check_' . time();
             Redis::set($testKey, 'test_value', 'EX', 10);
             $getValue = Redis::get($testKey);
             Redis::del($testKey);
-            $operationTime = microtime(true) - $startTime;
+            $operationTime = microtime(TRUE) - $startTime;
 
             // Get Redis info
             $info = Redis::info();
             $memoryUsage = $info['used_memory_human'] ?? 'Unknown';
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'Redis is working normally',
                 'details' => [
-                    'ping_response' => $ping,
-                    'ping_time_ms' => round($pingTime * 1000, 2),
-                    'operation_time_ms' => round($operationTime * 1000, 2),
-                    'memory_usage' => $memoryUsage,
+                    'ping_response'          => $ping,
+                    'ping_time_ms'           => round($pingTime * 1000, 2),
+                    'operation_time_ms'      => round($operationTime * 1000, 2),
+                    'memory_usage'           => $memoryUsage,
                     'test_operation_success' => $getValue === 'test_value',
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Redis connection failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -223,32 +260,32 @@ class HealthController extends Controller
     private function checkCache(): array
     {
         try {
-            $startTime = microtime(true);
-            
+            $startTime = microtime(TRUE);
+
             $testKey = 'health_check_cache_' . time();
             $testValue = 'cache_test_' . uniqid();
-            
+
             // Test cache put and get
             Cache::put($testKey, $testValue, 10);
             $retrievedValue = Cache::get($testKey);
             Cache::forget($testKey);
-            
-            $operationTime = microtime(true) - $startTime;
+
+            $operationTime = microtime(TRUE) - $startTime;
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'Cache is working normally',
                 'details' => [
                     'operation_time_ms' => round($operationTime * 1000, 2),
-                    'cache_driver' => config('cache.default'),
-                    'test_success' => $retrievedValue === $testValue,
+                    'cache_driver'      => config('cache.default'),
+                    'test_success'      => $retrievedValue === $testValue,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Cache system failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -260,32 +297,32 @@ class HealthController extends Controller
     {
         try {
             $queueConnection = config('queue.default');
-            
+
             // Get queue size for monitoring
             $queueSize = 0;
             $failedJobs = 0;
-            
+
             try {
                 $queueSize = Redis::llen('queues:default');
                 $failedJobs = DB::table('failed_jobs')->count();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Queue size check failed, but don't fail the entire check
             }
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'Queue system is operational',
                 'details' => [
                     'queue_driver' => $queueConnection,
-                    'queue_size' => $queueSize,
-                    'failed_jobs' => $failedJobs,
+                    'queue_size'   => $queueSize,
+                    'failed_jobs'  => $failedJobs,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Queue system check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -296,7 +333,7 @@ class HealthController extends Controller
     private function checkExternalServices(): array
     {
         $services = [];
-        
+
         // Check New Relic (if enabled)
         if (config('newrelic.enabled')) {
             $services['new_relic'] = $this->checkNewRelic();
@@ -316,12 +353,13 @@ class HealthController extends Controller
         foreach ($services as $service) {
             if ($service['status'] !== 'healthy') {
                 $overallStatus = 'degraded'; // External services are not critical
+
                 break;
             }
         }
 
         return [
-            'status' => $overallStatus,
+            'status'  => $overallStatus,
             'message' => 'External services check completed',
             'details' => $services,
         ];
@@ -333,7 +371,7 @@ class HealthController extends Controller
     private function checkSystemResources(): array
     {
         try {
-            $memoryUsage = memory_get_usage(true);
+            $memoryUsage = memory_get_usage(TRUE);
             $memoryLimit = $this->parseSize(ini_get('memory_limit'));
             $memoryPercent = $memoryLimit > 0 ? ($memoryUsage / $memoryLimit) * 100 : 0;
 
@@ -347,22 +385,22 @@ class HealthController extends Controller
             }
 
             return [
-                'status' => $status,
+                'status'  => $status,
                 'message' => 'System resources monitored',
                 'details' => [
-                    'memory_usage_bytes' => $memoryUsage,
-                    'memory_limit_bytes' => $memoryLimit,
+                    'memory_usage_bytes'   => $memoryUsage,
+                    'memory_limit_bytes'   => $memoryLimit,
                     'memory_usage_percent' => round($memoryPercent, 2),
-                    'disk_free_bytes' => $diskFree,
-                    'disk_total_bytes' => $diskTotal,
-                    'disk_used_percent' => round($diskUsedPercent, 2),
+                    'disk_free_bytes'      => $diskFree,
+                    'disk_total_bytes'     => $diskTotal,
+                    'disk_used_percent'    => round($diskUsedPercent, 2),
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'System resources check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -391,25 +429,25 @@ class HealthController extends Controller
             $message = 'Ticket scraping system is operational';
 
             // Check if we haven't had successful scrapes recently
-            if (!$lastSuccessfulScrape || now()->diffInHours($lastSuccessfulScrape->created_at) > 2) {
+            if (! $lastSuccessfulScrape || now()->diffInHours($lastSuccessfulScrape->created_at) > 2) {
                 $status = 'warning';
                 $message = 'No recent successful scrapes detected';
             }
 
             return [
-                'status' => $status,
+                'status'  => $status,
                 'message' => $message,
                 'details' => [
-                    'recent_scrapes_count' => $recentScrapes,
+                    'recent_scrapes_count'   => $recentScrapes,
                     'last_successful_scrape' => $lastSuccessfulScrape?->created_at,
-                    'active_platforms' => $activePlatforms,
+                    'active_platforms'       => $activePlatforms,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'Ticket scraping health check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -422,9 +460,9 @@ class HealthController extends Controller
         // New Relic doesn't require a specific health check
         // We just verify it's configured
         return [
-            'status' => 'healthy',
-            'message' => 'New Relic monitoring configured',
-            'configured' => true,
+            'status'     => 'healthy',
+            'message'    => 'New Relic monitoring configured',
+            'configured' => TRUE,
         ];
     }
 
@@ -436,9 +474,9 @@ class HealthController extends Controller
         // Sentry doesn't require a specific health check
         // We just verify it's configured
         return [
-            'status' => 'healthy',
-            'message' => 'Sentry error tracking configured',
-            'configured' => !empty(config('sentry.dsn')),
+            'status'     => 'healthy',
+            'message'    => 'Sentry error tracking configured',
+            'configured' => ! empty(config('sentry.dsn')),
         ];
     }
 
@@ -450,52 +488,20 @@ class HealthController extends Controller
         try {
             // We can't easily test S3 without making actual requests
             // So we just verify configuration
-            $configured = !empty(config('filesystems.disks.s3.key'));
-            
+            $configured = ! empty(config('filesystems.disks.s3.key'));
+
             return [
-                'status' => $configured ? 'healthy' : 'warning',
-                'message' => $configured ? 'S3 storage configured' : 'S3 storage not configured',
+                'status'     => $configured ? 'healthy' : 'warning',
+                'message'    => $configured ? 'S3 storage configured' : 'S3 storage not configured',
                 'configured' => $configured,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'S3 check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
-    }
-
-    /**
-     * WebSocket health check
-     */
-    public function websockets(): JsonResponse
-    {
-        $check = $this->checkWebSocketHealth();
-        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
-        
-        return response()->json([
-            'service' => 'websockets',
-            'status' => $check['status'],
-            'details' => $check,
-            'timestamp' => now()->toISOString(),
-        ], $status);
-    }
-
-    /**
-     * Services health check
-     */
-    public function services(): JsonResponse
-    {
-        $check = $this->checkExternalServices();
-        $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
-        
-        return response()->json([
-            'service' => 'external_services',
-            'status' => $check['status'],
-            'details' => $check,
-            'timestamp' => now()->toISOString(),
-        ], $status);
     }
 
     /**
@@ -506,14 +512,14 @@ class HealthController extends Controller
         try {
             // Check if WebSocket server is configured
             $wsEnabled = config('broadcasting.default') !== 'null';
-            
-            if (!$wsEnabled) {
+
+            if (! $wsEnabled) {
                 return [
-                    'status' => 'disabled',
+                    'status'  => 'disabled',
                     'message' => 'WebSocket broadcasting is disabled',
                     'details' => [
-                        'driver' => config('broadcasting.default'),
-                        'pusher_configured' => !empty(config('broadcasting.connections.pusher.key')),
+                        'driver'            => config('broadcasting.default'),
+                        'pusher_configured' => ! empty(config('broadcasting.connections.pusher.key')),
                     ],
                 ];
             }
@@ -521,45 +527,45 @@ class HealthController extends Controller
             // Check recent WebSocket events
             $recentConnections = 0;
             $recentDisconnections = 0;
-            
+
             try {
                 // Try to get WebSocket stats from Redis if available
                 if (config('broadcasting.default') === 'pusher') {
                     // For Pusher, check configuration
-                    $pusherConfigured = !empty(config('broadcasting.connections.pusher.key')) &&
-                                       !empty(config('broadcasting.connections.pusher.secret')) &&
-                                       !empty(config('broadcasting.connections.pusher.app_id'));
-                    
+                    $pusherConfigured = ! empty(config('broadcasting.connections.pusher.key'))
+                                       && ! empty(config('broadcasting.connections.pusher.secret'))
+                                       && ! empty(config('broadcasting.connections.pusher.app_id'));
+
                     return [
-                        'status' => $pusherConfigured ? 'healthy' : 'warning',
+                        'status'  => $pusherConfigured ? 'healthy' : 'warning',
                         'message' => $pusherConfigured ? 'Pusher WebSocket configured' : 'Pusher WebSocket not properly configured',
                         'details' => [
-                            'driver' => 'pusher',
-                            'app_id_configured' => !empty(config('broadcasting.connections.pusher.app_id')),
-                            'key_configured' => !empty(config('broadcasting.connections.pusher.key')),
-                            'secret_configured' => !empty(config('broadcasting.connections.pusher.secret')),
-                            'cluster' => config('broadcasting.connections.pusher.options.cluster', 'not_set'),
+                            'driver'            => 'pusher',
+                            'app_id_configured' => ! empty(config('broadcasting.connections.pusher.app_id')),
+                            'key_configured'    => ! empty(config('broadcasting.connections.pusher.key')),
+                            'secret_configured' => ! empty(config('broadcasting.connections.pusher.secret')),
+                            'cluster'           => config('broadcasting.connections.pusher.options.cluster', 'not_set'),
                         ],
                     ];
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Fallback if we can't check stats
             }
 
             return [
-                'status' => 'healthy',
+                'status'  => 'healthy',
                 'message' => 'WebSocket system is configured',
                 'details' => [
-                    'driver' => config('broadcasting.default'),
-                    'recent_connections' => $recentConnections,
+                    'driver'                => config('broadcasting.default'),
+                    'recent_connections'    => $recentConnections,
                     'recent_disconnections' => $recentDisconnections,
                 ],
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
-                'status' => 'unhealthy',
+                'status'  => 'unhealthy',
                 'message' => 'WebSocket health check failed',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ];
         }
     }
@@ -571,13 +577,15 @@ class HealthController extends Controller
     {
         $size = trim($size);
         $last = strtolower($size[strlen($size) - 1]);
-        $size = (int)$size;
+        $size = (int) $size;
 
         switch ($last) {
             case 'g':
                 $size *= 1024;
+                // no break
             case 'm':
                 $size *= 1024;
+                // no break
             case 'k':
                 $size *= 1024;
         }

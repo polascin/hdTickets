@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | New Relic APM Configuration
@@ -12,7 +11,7 @@ return [
     |
     */
 
-    'enabled' => env('NEW_RELIC_ENABLED', false),
+    'enabled' => env('NEW_RELIC_ENABLED', FALSE),
 
     'app_name' => env('NEW_RELIC_APP_NAME', 'HDTickets-Production'),
 
@@ -25,15 +24,15 @@ return [
     */
 
     'transaction_tracer' => [
-        'enabled' => true,
-        'threshold' => 'apdex_f', // Trace transactions slower than Apdex frustrated
-        'detail' => 1,
-        'slow_sql' => true,
-        'stack_trace_threshold' => 0.5,
-        'explain_enabled' => true,
-        'explain_threshold' => 0.5,
-        'record_sql' => 'obfuscated',
-        'custom_instrumentation_editor' => true,
+        'enabled'                       => TRUE,
+        'threshold'                     => 'apdex_f', // Trace transactions slower than Apdex frustrated
+        'detail'                        => 1,
+        'slow_sql'                      => TRUE,
+        'stack_trace_threshold'         => 0.5,
+        'explain_enabled'               => TRUE,
+        'explain_threshold'             => 0.5,
+        'record_sql'                    => 'obfuscated',
+        'custom_instrumentation_editor' => TRUE,
     ],
 
     /*
@@ -43,17 +42,17 @@ return [
     */
 
     'error_collector' => [
-        'enabled' => true,
-        'record_database_errors' => true,
-        'prioritize_api_errors' => true,
-        'ignore_errors' => [
+        'enabled'                => TRUE,
+        'record_database_errors' => TRUE,
+        'prioritize_api_errors'  => TRUE,
+        'ignore_errors'          => [
             'Illuminate\Http\Exception\HttpResponseException',
             'Illuminate\Http\Exception\NotFoundHttpException',
             'Illuminate\Auth\AuthenticationException',
             'Illuminate\Validation\ValidationException',
         ],
         'ignore_status_codes' => [
-            '401', '403', '404', '405', '422'
+            '401', '403', '404', '405', '422',
         ],
     ],
 
@@ -64,9 +63,9 @@ return [
     */
 
     'browser_monitoring' => [
-        'auto_instrument' => true,
-        'capture_attributes' => true,
-        'include_response_headers' => true,
+        'auto_instrument'          => TRUE,
+        'capture_attributes'       => TRUE,
+        'include_response_headers' => TRUE,
     ],
 
     /*
@@ -76,16 +75,16 @@ return [
     */
 
     'application_logging' => [
-        'enabled' => true,
+        'enabled'    => TRUE,
         'forwarding' => [
-            'enabled' => true,
+            'enabled'            => TRUE,
             'max_samples_stored' => 10000,
         ],
         'metrics' => [
-            'enabled' => true,
+            'enabled' => TRUE,
         ],
         'local_decorating' => [
-            'enabled' => true,
+            'enabled' => TRUE,
         ],
     ],
 
@@ -96,10 +95,10 @@ return [
     */
 
     'custom_attributes' => [
-        'environment' => env('APP_ENV'),
-        'version' => '2025.7.3',
+        'environment'   => env('APP_ENV'),
+        'version'       => '2025.7.3',
         'deployment_id' => env('DEPLOYMENT_ID', ''),
-        'server_name' => gethostname(),
+        'server_name'   => gethostname(),
     ],
 
     /*
@@ -109,11 +108,11 @@ return [
     */
 
     'custom_events' => [
-        'ticket_scraping_events' => true,
-        'purchase_attempts' => true,
-        'api_response_times' => true,
-        'user_activities' => true,
-        'alert_notifications' => true,
+        'ticket_scraping_events' => TRUE,
+        'purchase_attempts'      => TRUE,
+        'api_response_times'     => TRUE,
+        'user_activities'        => TRUE,
+        'alert_notifications'    => TRUE,
     ],
 
     /*
@@ -123,8 +122,8 @@ return [
     */
 
     'distributed_tracing' => [
-        'enabled' => true,
-        'exclude_newrelic_header' => false,
+        'enabled'                 => TRUE,
+        'exclude_newrelic_header' => FALSE,
     ],
 
     /*
@@ -135,10 +134,10 @@ return [
 
     'datastore_tracer' => [
         'database_name_reporting' => [
-            'enabled' => true,
+            'enabled' => TRUE,
         ],
         'instance_reporting' => [
-            'enabled' => true,
+            'enabled' => TRUE,
         ],
     ],
 
@@ -149,8 +148,8 @@ return [
     */
 
     'performance' => [
-        'apdex_t' => 0.5, // 500ms target response time
-        'slow_query_threshold' => 1.0, // 1 second
+        'apdex_t'                   => 0.5, // 500ms target response time
+        'slow_query_threshold'      => 1.0, // 1 second
         'very_slow_query_threshold' => 5.0, // 5 seconds
     ],
 
@@ -192,5 +191,4 @@ return [
             ],
         ],
     ],
-
 ];

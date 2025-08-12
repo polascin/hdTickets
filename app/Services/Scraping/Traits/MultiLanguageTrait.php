@@ -1,8 +1,12 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Scraping\Traits;
 
+use DateTime;
+use Exception;
 use Illuminate\Support\Facades\Log;
+
+use function count;
 
 trait MultiLanguageTrait
 {
@@ -11,7 +15,7 @@ trait MultiLanguageTrait
      */
     protected function getAcceptLanguageHeader(): string
     {
-        return match($this->language) {
+        return match ($this->language) {
             'es-ES' => 'es-ES,es;q=0.9,en;q=0.8',
             'de-DE' => 'de-DE,de;q=0.9,en;q=0.8',
             'it-IT' => 'it-IT,it;q=0.9,en;q=0.8',
@@ -26,7 +30,7 @@ trait MultiLanguageTrait
     protected function parseDate(string $dateString): ?string
     {
         if (empty($dateString)) {
-            return null;
+            return NULL;
         }
 
         try {
@@ -48,12 +52,12 @@ trait MultiLanguageTrait
                         // DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY formats
                         $separator = str_contains($dateString, '.') ? '.' : (str_contains($dateString, '/') ? '/' : '-');
                         $actualFormat = str_replace(['.', '/', '-'], $separator, $format);
-                        $date = \DateTime::createFromFormat($actualFormat, "{$matches[1]}{$separator}{$matches[2]}{$separator}{$matches[3]}");
+                        $date = DateTime::createFromFormat($actualFormat, "{$matches[1]}{$separator}{$matches[2]}{$separator}{$matches[3]}");
                     } else {
                         // YYYY-MM-DD format
-                        $date = \DateTime::createFromFormat($format, $matches[1]);
+                        $date = DateTime::createFromFormat($format, $matches[1]);
                     }
-                    
+
                     if ($date) {
                         return $date->format('Y-m-d H:i:s');
                     }
@@ -62,15 +66,16 @@ trait MultiLanguageTrait
 
             // Try to parse with Carbon (handles many formats automatically)
             $parsed = \Carbon\Carbon::parse($dateString);
-            return $parsed->format('Y-m-d H:i:s');
 
-        } catch (\Exception $e) {
-            Log::warning("Failed to parse date", [
+            return $parsed->format('Y-m-d H:i:s');
+        } catch (Exception $e) {
+            Log::warning('Failed to parse date', [
                 'date_string' => $dateString,
-                'language' => $this->language ?? 'unknown',
-                'error' => $e->getMessage()
+                'language'    => $this->language ?? 'unknown',
+                'error'       => $e->getMessage(),
             ]);
-            return null;
+
+            return NULL;
         }
     }
 
@@ -80,52 +85,52 @@ trait MultiLanguageTrait
     protected function normalizeAvailability(string $availability): string
     {
         $availability = strtolower(trim($availability));
-        
+
         // Sold out detection (multi-language)
         $soldOutTerms = [
             'sold out', 'unavailable', 'not available',
             'agotado', 'no disponible', 'sin entradas',  // Spanish
             'ausverkauft', 'nicht verfügbar', 'vergriffen', // German
             'esaurito', 'non disponibile', 'terminato',     // Italian
-            'épuisé', 'indisponible', 'complet'            // French
+            'épuisé', 'indisponible', 'complet',            // French
         ];
-        
+
         foreach ($soldOutTerms as $term) {
             if (str_contains($availability, $term)) {
                 return 'sold_out';
             }
         }
-        
+
         // Available detection (multi-language)
         $availableTerms = [
             'available', 'on sale', 'in stock',
             'disponible', 'en venta', 'a la venta',        // Spanish
             'verfügbar', 'erhältlich', 'im verkauf',       // German
             'disponibile', 'in vendita', 'acquistabile',   // Italian
-            'disponible', 'en vente', 'à vendre'           // French
+            'disponible', 'en vente', 'à vendre',           // French
         ];
-        
+
         foreach ($availableTerms as $term) {
             if (str_contains($availability, $term)) {
                 return 'available';
             }
         }
-        
+
         // Coming soon detection (multi-language)
         $comingSoonTerms = [
             'coming soon', 'pre-sale', 'pre-order',
             'próximamente', 'preventa', 'pronto',          // Spanish
             'bald verfügbar', 'vorverkauf', 'demnächst',   // German
             'prossimamente', 'prevendita', 'in arrivo',    // Italian
-            'bientôt disponible', 'prévente', 'à venir'    // French
+            'bientôt disponible', 'prévente', 'à venir',    // French
         ];
-        
+
         foreach ($comingSoonTerms as $term) {
             if (str_contains($availability, $term)) {
                 return 'coming_soon';
             }
         }
-        
+
         return 'unknown';
     }
 
@@ -149,14 +154,14 @@ trait MultiLanguageTrait
             // French
             'foot', 'ligue 1', 'coupe de france', 'psg', 'paris', 'contre ',
         ];
-        
+
         foreach ($footballTerms as $term) {
             if (str_contains($eventName, $term)) {
-                return true;
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -176,14 +181,14 @@ trait MultiLanguageTrait
             // French
             'concert', 'musique', 'chanteur', 'groupe', 'festival',
         ];
-        
+
         foreach ($musicTerms as $term) {
             if (str_contains($eventName, $term)) {
-                return true;
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -203,14 +208,14 @@ trait MultiLanguageTrait
             // French
             'théâtre', 'pièce', 'musical', 'drame', 'comédie', 'spectacle',
         ];
-        
+
         foreach ($theaterTerms as $term) {
             if (str_contains($eventName, $term)) {
-                return true;
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -243,6 +248,7 @@ trait MultiLanguageTrait
         ];
 
         $langCode = substr($this->language ?? 'en', 0, 2);
+
         return $messages[$key][$langCode] ?? $messages[$key]['en'] ?? $key;
     }
 }

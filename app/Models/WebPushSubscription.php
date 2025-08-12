@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class WebPushSubscription extends Model
 {
@@ -21,7 +21,7 @@ class WebPushSubscription extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'    => 'boolean',
         'last_used_at' => 'datetime',
     ];
 
@@ -43,6 +43,6 @@ class WebPushSubscription extends Model
      */
     public function disable(): void
     {
-        $this->update(['is_active' => false]);
+        $this->update(['is_active' => FALSE]);
     }
 }
