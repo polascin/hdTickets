@@ -17,13 +17,15 @@ use function is_array;
 
 class OptimizePerformance extends Command
 {
-    protected $signature = 'hdtickets:optimize-performance 
+    /** The name and signature of the console command. */
+    protected string $signature = 'hdtickets:optimize-performance 
                             {--cache : Only run cache optimizations}
                             {--database : Only run database optimizations}
                             {--analyze : Analyze performance without making changes}
                             {--force : Force optimization even in production}';
 
-    protected $description = 'Run comprehensive performance optimizations for the Sports Events Ticket System';
+    /** The console command description. */
+    protected string $description = 'Run comprehensive performance optimizations for the Sports Events Ticket System';
 
     private AdvancedCacheService $advancedCache;
 
@@ -33,6 +35,9 @@ class OptimizePerformance extends Command
 
     private PlatformCachingService $platformCache;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -42,6 +47,9 @@ class OptimizePerformance extends Command
         $this->platformCache = new PlatformCachingService();
     }
 
+    /**
+     * Execute the console command.
+     */
     public function handle(): int
     {
         $this->info('🚀 Starting Performance Optimization for Sports Events Ticket System');
@@ -102,6 +110,9 @@ class OptimizePerformance extends Command
         }
     }
 
+    /**
+     * Run performance analysis without making changes.
+     */
     private function runAnalysis(): int
     {
         $this->info('📊 Running Performance Analysis...');

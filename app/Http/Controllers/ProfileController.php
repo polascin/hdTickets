@@ -13,9 +13,9 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    protected $twoFactorService;
+    protected TwoFactorAuthService $twoFactorService;
 
-    protected $securityService;
+    protected SecurityService $securityService;
 
     public function __construct(TwoFactorAuthService $twoFactorService, SecurityService $securityService)
     {
@@ -46,7 +46,7 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $user = $request->user();
         $validated = $request->validated();
@@ -95,7 +95,7 @@ class ProfileController extends Controller
     /**
      * Display comprehensive security settings
      */
-    public function security(Request $request): View
+    public function security(Request $request): \Illuminate\Contracts\View\View
     {
         $user = $request->user();
         $twoFactorEnabled = $this->twoFactorService->isEnabled($user);
@@ -131,7 +131,7 @@ class ProfileController extends Controller
     /**
      * Download backup codes as a text file
      */
-    public function downloadBackupCodes(Request $request)
+    public function downloadBackupCodes(Request $request): RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
         $user = $request->user();
 

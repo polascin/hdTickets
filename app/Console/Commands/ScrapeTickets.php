@@ -14,7 +14,7 @@ use function count;
 class ScrapeTickets extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'tickets:scrape-v2
+    protected string $signature = 'tickets:scrape-v2
                             {--plugin= : Specific plugin to run (optional)}
                             {--keyword= : Keyword to search for}
                             {--location= : Location to search in}
@@ -23,10 +23,13 @@ class ScrapeTickets extends Command
                             {--status : Show plugin status and health}';
 
     /** The console command description. */
-    protected $description = 'Scrape tickets from various platforms using plugin-based system';
+    protected string $description = 'Scrape tickets from various platforms using plugin-based system';
 
     private PluginBasedScraperManager $scraperManager;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -62,7 +65,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * List all available plugins
+     * List all available plugins.
      */
     private function listPlugins(): int
     {
@@ -98,7 +101,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Show plugin status and health
+     * Show plugin status and health.
      */
     private function showStatus(): int
     {
@@ -139,7 +142,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Test all or specific plugins
+     * Test all or specific plugins.
      */
     private function testPlugins(): int
     {
@@ -188,7 +191,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Test a single plugin
+     * Test a single plugin.
      */
     private function testSinglePlugin(string $pluginName): int
     {
@@ -231,7 +234,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Run actual scraping
+     * Run actual scraping operation.
      */
     private function runScraping(): int
     {
@@ -283,7 +286,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Display results from a single plugin
+     * Display results from a single plugin.
      *
      * @param array<int, array<string, mixed>> $results
      */
@@ -334,7 +337,7 @@ class ScrapeTickets extends Command
     }
 
     /**
-     * Display results from all plugins
+     * Display results from all plugins.
      *
      * @param array<string, mixed> $results
      */

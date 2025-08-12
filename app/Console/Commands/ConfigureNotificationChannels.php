@@ -8,14 +8,14 @@ use RuntimeException;
 class ConfigureNotificationChannels extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'analytics:setup-notifications 
+    protected string $signature = 'analytics:setup-notifications 
                             {--slack : Configure Slack notifications}
                             {--discord : Configure Discord notifications}
                             {--telegram : Configure Telegram notifications}
                             {--all : Configure all notification channels}';
 
     /** The console command description. */
-    protected $description = 'Configure notification channels for the Advanced Analytics Dashboard';
+    protected string $description = 'Configure notification channels for the Advanced Analytics Dashboard';
 
     /**
      * Execute the console command.
@@ -26,10 +26,10 @@ class ConfigureNotificationChannels extends Command
         $this->info('=' . str_repeat('=', 60));
         $this->newLine();
 
-        $setupAll = $this->option('all');
-        $setupSlack = $this->option('slack') || $setupAll;
-        $setupDiscord = $this->option('discord') || $setupAll;
-        $setupTelegram = $this->option('telegram') || $setupAll;
+        $setupAll = (bool) $this->option('all');
+        $setupSlack = (bool) $this->option('slack') || $setupAll;
+        $setupDiscord = (bool) $this->option('discord') || $setupAll;
+        $setupTelegram = (bool) $this->option('telegram') || $setupAll;
 
         if (! $setupSlack && ! $setupDiscord && ! $setupTelegram) {
             $this->info('📋 Available notification channels:');
@@ -61,6 +61,9 @@ class ConfigureNotificationChannels extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Configure Slack notification settings.
+     */
     private function configureSlack(): void
     {
         $this->info('📢 Configuring Slack Notifications');
@@ -85,6 +88,9 @@ class ConfigureNotificationChannels extends Command
         $this->newLine();
     }
 
+    /**
+     * Configure Discord notification settings.
+     */
     private function configureDiscord(): void
     {
         $this->info('🎮 Configuring Discord Notifications');
@@ -107,6 +113,9 @@ class ConfigureNotificationChannels extends Command
         $this->newLine();
     }
 
+    /**
+     * Configure Telegram notification settings.
+     */
     private function configureTelegram(): void
     {
         $this->info('📱 Configuring Telegram Notifications');
@@ -130,6 +139,8 @@ class ConfigureNotificationChannels extends Command
     }
 
     /**
+     * Update environment file with new values.
+     *
      * @param array<string, string> $values
      */
     private function updateEnvFile(array $values): void
@@ -158,6 +169,9 @@ class ConfigureNotificationChannels extends Command
         file_put_contents($envFile, $envContent);
     }
 
+    /**
+     * Display current notification configuration status.
+     */
     private function displayConfiguration(): void
     {
         $this->info('📋 Current Notification Configuration:');

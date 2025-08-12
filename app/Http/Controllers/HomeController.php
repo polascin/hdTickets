@@ -21,7 +21,7 @@ class HomeController extends Controller
      * - scraper: Technical users focused on ticket scraping operations
      * - customer/default: Regular users purchasing tickets
      */
-    public function index()
+    public function index(): \Illuminate\Http\RedirectResponse
     {
         // Ensure user is authenticated before proceeding with role-based routing
         $user = Auth::user();
@@ -65,7 +65,7 @@ class HomeController extends Controller
      * entry ticket monitoring and purchase system. It's typically accessed
      * before user authentication.
      */
-    public function welcome()
+    public function welcome(): \Illuminate\Contracts\View\View
     {
         Log::info('Welcome page accessed by unauthenticated user');
 

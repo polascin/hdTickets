@@ -3,10 +3,11 @@ import vue from '@vitejs/plugin-vue';
 import legacy from '@vitejs/plugin-legacy';
 import { VitePWA } from 'vite-plugin-pwa';
 import WindiCSS from 'vite-plugin-windicss';
-import eslint from '@vitejs/plugin-eslint';
+import eslint from 'vite-plugin-eslint';
 import { resolve } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { splitVendorChunkPlugin } from 'vite';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -243,6 +244,11 @@ export default defineConfig(({ command, mode }) => {
         }
       } : {},
       rollupOptions: {
+        // Laravel requires explicit input files
+        input: {
+          app: resolve(__dirname, 'resources/js/app.js'),
+          css: resolve(__dirname, 'resources/css/app.css')
+        },
         // External dependencies that shouldn't be bundled
         external: (id) => {
           // Keep all node_modules as internal for bundling
@@ -367,7 +373,7 @@ export default defineConfig(({ command, mode }) => {
       },
       postcss: {
         plugins: [
-          require('autoprefixer')
+          autoprefixer()
         ]
       }
     },

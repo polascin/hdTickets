@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Hash;
 
 class ResetAdminPassword extends Command
 {
-    protected $signature = 'admin:reset-password {email} {password}';
+    /** The name and signature of the console command. */
+    protected string $signature = 'admin:reset-password {email} {password}';
 
     /** The console command description. */
-    protected $description = 'Reset admin user password';
+    protected string $description = 'Reset admin user password';
 
     /**
      * Execute the console command.

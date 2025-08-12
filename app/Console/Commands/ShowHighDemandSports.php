@@ -11,10 +11,15 @@ use function sprintf;
 
 class ShowHighDemandSports extends Command
 {
-    protected $signature = 'tickets:show-high-demand-sports {--max-price=500} {--limit=20}';
+    /** The name and signature of the console command. */
+    protected string $signature = 'tickets:show-high-demand-sports {--max-price=500} {--limit=20}';
 
-    protected $description = 'Show high-demand sports tickets from all supported platforms';
+    /** The console command description. */
+    protected string $description = 'Show high-demand sports tickets from all supported platforms';
 
+    /**
+     * Execute the console command.
+     */
     public function handle(): int
     {
         $this->info('🏟️  High-Demand Sports Tickets from All Supported Platforms');

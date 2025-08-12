@@ -15,6 +15,7 @@ use function sprintf;
 
 class ImportFootballClubTickets extends Command
 {
+    /** The name and signature of the console command. */
     protected $signature = 'football:import-tickets
                             {--clubs=* : Specific club keys to import (e.g., arsenal,chelsea)}
                             {--all : Import from all supported clubs}
@@ -30,6 +31,9 @@ class ImportFootballClubTickets extends Command
 
     protected FootballClubStoresService $service;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct(FootballClubStoresService $service)
     {
         parent::__construct();
@@ -119,9 +123,8 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Determine which clubs to process based on options
-     */
-    /**
+     * Determine which clubs to process based on options.
+     *
      * @return array<int, string>
      */
     private function determineClubsToProcess(): array
@@ -131,7 +134,7 @@ class ImportFootballClubTickets extends Command
 
         // If specific clubs requested
         $clubs = $this->option('clubs');
-        if (! empty($clubs)) {
+        if (! empty($clubs) && is_array($clubs)) {
             $validClubs = array_intersect($clubs, $clubKeys);
 
             if (empty($validClubs)) {
@@ -145,19 +148,21 @@ class ImportFootballClubTickets extends Command
         }
 
         // If all clubs requested
-        if ($this->option('all')) {
+        if ((bool) $this->option('all')) {
             return $clubKeys;
         }
 
         // Filter by league
-        if ($league = $this->option('league')) {
+        $league = $this->option('league');
+        if ($league && is_string($league)) {
             return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $league) {
                 return strcasecmp($supportedClubs[$key]['league'], $league) === 0;
             }));
         }
 
         // Filter by country
-        if ($country = $this->option('country')) {
+        $country = $this->option('country');
+        if ($country && is_string($country)) {
             return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $country) {
                 return strcasecmp($supportedClubs[$key]['country'], $country) === 0;
             }));
@@ -168,9 +173,8 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Interactive club selection
-     */
-    /**
+     * Interactive club selection.
+     *
      * @param array<int, string> $clubKeys
      *
      * @return array<int, string>
@@ -216,24 +220,26 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Build filters from command options
-     */
-    /**
+     * Build filters from command options.
+     *
      * @return array<string, mixed>
      */
     private function buildFilters(): array
     {
         $filters = [];
 
-        if ($dateFrom = $this->option('date-from')) {
+        $dateFrom = $this->option('date-from');
+        if ($dateFrom && is_string($dateFrom)) {
             $filters['date_from'] = $dateFrom;
         }
 
-        if ($dateTo = $this->option('date-to')) {
+        $dateTo = $this->option('date-to');
+        if ($dateTo && is_string($dateTo)) {
             $filters['date_to'] = $dateTo;
         }
 
-        if ($competition = $this->option('competition')) {
+        $competition = $this->option('competition');
+        if ($competition && is_string($competition)) {
             $filters['competition'] = $competition;
         }
 
@@ -241,7 +247,7 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Display supported clubs information
+     * Display supported clubs information.
      */
     private function displaySupportedClubs(): void
     {
@@ -265,9 +271,8 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Display search results
-     */
-    /**
+     * Display search results.
+     *
      * @param array<string, mixed> $results
      */
     private function displaySearchResults(array $results): void
@@ -323,9 +328,8 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Display import results
-     */
-    /**
+     * Display import results.
+     *
      * @param array<string, mixed> $results
      */
     private function displayImportResults(array $results): void
@@ -348,7 +352,7 @@ class ImportFootballClubTickets extends Command
     }
 
     /**
-     * Display platform statistics
+     * Display platform statistics.
      */
     private function displayStatistics(): void
     {

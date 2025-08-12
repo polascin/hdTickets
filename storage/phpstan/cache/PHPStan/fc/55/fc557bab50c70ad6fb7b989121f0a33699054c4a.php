@@ -5327,7 +5327,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketScrapingService.php' => 
     array (
-      0 => 'b3373762369f1653b6b2be7e17ffc9c3388de68e',
+      0 => '1bf51456819bbdce419f70014ce8976996c5e219',
       1 => 
       array (
         0 => 'app\\services\\ticketscrapingservice',
@@ -5667,7 +5667,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketApis/ViagogoClient.php' => 
     array (
-      0 => '007b94d6b7e78fa001d7f9e63640f5f0022e3fb4',
+      0 => '8646a83a598d31a5e073a40dfeedeeabcfe6f6ad',
       1 => 
       array (
         0 => 'app\\services\\ticketapis\\viagogoclient',
@@ -5705,7 +5705,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/TicketApis/TickPickClient.php' => 
     array (
-      0 => '81be1b644c901239102b592e3d865b2c0352683c',
+      0 => 'ff5ad2face3e2d24d2b7067638fc01384d3fca60',
       1 => 
       array (
         0 => 'app\\services\\ticketapis\\tickpickclient',
@@ -8702,7 +8702,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Http/Controllers/DashboardController.php' => 
     array (
-      0 => '5ab3ca193c38f57107d21a6aadb101197195c4d7',
+      0 => '71bd41c5d5f974eeef3692b5b86e361ff4f3c971',
       1 => 
       array (
         0 => 'app\\http\\controllers\\dashboardcontroller',
@@ -8818,7 +8818,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Http/Controllers/HomeController.php' => 
     array (
-      0 => '1823f26a301a5e320d6f514b4fb653157a454804',
+      0 => '050930ac0e4d374417cca83a00aaa3836eff4f25',
       1 => 
       array (
         0 => 'app\\http\\controllers\\homecontroller',
@@ -9709,7 +9709,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ImportFootballClubTickets.php' => 
     array (
-      0 => '7431963f060a44787d0b55ed639ee450b6bf40a9',
+      0 => 'ff15bc233fef5628b6d32f9a34b23ecb388b7c83',
       1 => 
       array (
         0 => 'app\\console\\commands\\importfootballclubtickets',
@@ -9732,7 +9732,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php' => 
     array (
-      0 => '69eedc656a7a01471b3a3a24414f3a34e078d5f9',
+      0 => '62f8bdf1f382357f949d5f583dc09ac86000a23e',
       1 => 
       array (
         0 => 'app\\console\\commands\\scrapeticketmaster',
@@ -9748,7 +9748,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/WarmPerformanceCaches.php' => 
     array (
-      0 => '60e4cbddd4e4d28f9173aa74cad6797840df4543',
+      0 => '442577644d3cd50524fe0c26cb8f4a61ef728214',
       1 => 
       array (
         0 => 'app\\console\\commands\\warmperformancecaches',
@@ -9771,7 +9771,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/SearchMultiPlatform.php' => 
     array (
-      0 => 'a9949d730351f001e17e09493c7df153763f95d9',
+      0 => '6e8b5209376c6c408f605ebd05a2d29e34545d05',
       1 => 
       array (
         0 => 'app\\console\\commands\\searchmultiplatform',
@@ -9789,7 +9789,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/MonitorAnalyticsSystem.php' => 
     array (
-      0 => '3311343c4344ba593e937b91a7792d88458fd277',
+      0 => 'a0c4f9b8bc81c7f8dc2fc9d4f7690243efedd80f',
       1 => 
       array (
         0 => 'app\\console\\commands\\monitoranalyticssystem',
@@ -9810,7 +9810,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/Events/MonitorEventsCommand.php' => 
     array (
-      0 => 'c97b7db7e047282c54d975c1794f14ac26fda1f9',
+      0 => 'c0cb57dbecdc723ef931fe0160e38407e3e8586d',
       1 => 
       array (
         0 => 'app\\console\\commands\\events\\monitoreventscommand',
@@ -9834,7 +9834,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/Events/ReplayEventsCommand.php' => 
     array (
-      0 => 'ffa46dbaad34d1708c471cee66dc28140cb2bbdb',
+      0 => 'e1c00035b66b178524838f8144ade7210d89c1e1',
       1 => 
       array (
         0 => 'app\\console\\commands\\events\\replayeventscommand',
@@ -9851,7 +9851,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ScrapeTickets.php' => 
     array (
-      0 => '442bd1418ee4b6462a36d9717f5a4ee8eaf07508',
+      0 => '154266644470db4adb9f1904885c1000128d2a9e',
       1 => 
       array (
         0 => 'app\\console\\commands\\scrapetickets',
@@ -9874,7 +9874,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/OptimizeDatabase.php' => 
     array (
-      0 => '23f4f8bb7b324c17122318eeed24feb8627f2f27',
+      0 => '7e83f20e36efefab9bf90218dd2ab748d1942745',
       1 => 
       array (
         0 => 'app\\console\\commands\\optimizedatabase',
@@ -9890,7 +9890,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ValidateDatabase.php' => 
     array (
-      0 => 'fc0c3455248438320d1d121ba77cf8ef9418914b',
+      0 => '7fba6d9dbe718424e02ad8cd3b4fe86a56324ed7',
       1 => 
       array (
         0 => 'app\\console\\commands\\validatedatabase',
@@ -9909,7 +9909,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/WarmCache.php' => 
     array (
-      0 => 'e8ec0546e72c9777ebdf3263595d63ee8df6eae4',
+      0 => '28c26f62600b6de34ed10ed8c8addc8c156f8586',
       1 => 
       array (
         0 => 'app\\console\\commands\\warmcache',
@@ -9925,7 +9925,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/OptimizePerformance.php' => 
     array (
-      0 => 'f4180ee3323fae4794b01f507f5234bb6a86a6f2',
+      0 => 'b04ad6c16dc6756dc1869ea58ada52cd284a6932',
       1 => 
       array (
         0 => 'app\\console\\commands\\optimizeperformance',
@@ -9951,7 +9951,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/InitializeEnhancedAlertPreferences.php' => 
     array (
-      0 => 'b2436b810eadb9f3fca6e6bb94752413d62009e9',
+      0 => '1a9b3b6923bc6382d919976c72af273ad540bb46',
       1 => 
       array (
         0 => 'app\\console\\commands\\initializeenhancedalertpreferences',
@@ -9968,7 +9968,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ShowHighDemandSports.php' => 
     array (
-      0 => '2722350eac7eaea5f9212fe7a89f2eff144b293b',
+      0 => '2c72ee93863be17cb41929c8e1e02b56c3e0d754',
       1 => 
       array (
         0 => 'app\\console\\commands\\showhighdemandsports',
@@ -9983,7 +9983,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/CreateRootAdmin.php' => 
     array (
-      0 => '54b41cdeb23b0e8e629e342a61da93af32fbde9e',
+      0 => 'a3977baf31613ddc90165fe336c4ca1ff328e606',
       1 => 
       array (
         0 => 'app\\console\\commands\\createrootadmin',
@@ -9999,7 +9999,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ResetAdminPassword.php' => 
     array (
-      0 => '7fc0b6abc641071c8b994d78de9bc4bf9d20de5c',
+      0 => '3312fe86f20c44d111e27ce7cfb96b7ccdad4621',
       1 => 
       array (
         0 => 'app\\console\\commands\\resetadminpassword',
@@ -10014,7 +10014,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ProcessExpiredAccountDeletions.php' => 
     array (
-      0 => '7c6c9086e9ac077b53e39aeb1ea55f8860bed235',
+      0 => 'ca918c8c3c93e7973a8208c96212d00477c182ad',
       1 => 
       array (
         0 => 'app\\console\\commands\\processexpiredaccountdeletions',
@@ -10030,7 +10030,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/RunSecurityScan.php' => 
     array (
-      0 => '3fd0ff1f1903e1c63db671048a31ac83f6ac9a99',
+      0 => '76d2ac223f9bb5eb5c35355e035488c9230c968d',
       1 => 
       array (
         0 => 'app\\console\\commands\\runsecurityscan',
@@ -10056,7 +10056,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/TicketScrapingCommand.php' => 
     array (
-      0 => '7ec9017fb89fbff68dcfe49efcfd2f6ef0e1a6fd',
+      0 => '282f94cd5e7eac86943c7d1acb00f37b43aaf44a',
       1 => 
       array (
         0 => 'app\\console\\commands\\ticketscrapingcommand',
@@ -10077,7 +10077,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/ConfigureNotificationChannels.php' => 
     array (
-      0 => 'ed03a9874e47cbf8adc1865b2cf37fd9e4b325da',
+      0 => 'aaebb21ce31aece2de79c5d2d1ee6e8c4a83c79d',
       1 => 
       array (
         0 => 'app\\console\\commands\\configurenotificationchannels',
@@ -10097,7 +10097,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Console/Commands/InitializeAnalyticsDashboards.php' => 
     array (
-      0 => '689f621b24002c2e345a3e6a3906ddf2b3b208e0',
+      0 => '2a2ce51b85588a3e015d95b365dd570ea054441e',
       1 => 
       array (
         0 => 'app\\console\\commands\\initializeanalyticsdashboards',

@@ -14,19 +14,11 @@ use function function_exists;
 
 class MonitorAnalyticsSystem extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'analytics:monitor {--refresh=5 : Refresh interval in seconds}';
+    /** The name and signature of the console command. */
+    protected string $signature = 'analytics:monitor {--refresh=5 : Refresh interval in seconds}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Monitor the Advanced Analytics Dashboard system performance';
+    /** The console command description. */
+    protected string $description = 'Monitor the Advanced Analytics Dashboard system performance';
 
     /**
      * Execute the console command.
@@ -86,6 +78,9 @@ class MonitorAnalyticsSystem extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Display monitoring header information.
+     */
     private function displayHeader(): void
     {
         $this->info('🚀 HDTickets Analytics System Monitor');
@@ -94,6 +89,9 @@ class MonitorAnalyticsSystem extends Command
         $this->newLine();
     }
 
+    /**
+     * Display system metrics.
+     */
     private function displaySystemMetrics(): void
     {
         $totalUsers = User::count();
@@ -107,6 +105,9 @@ class MonitorAnalyticsSystem extends Command
         $this->newLine();
     }
 
+    /**
+     * Display queue status information.
+     */
     private function displayQueueStatus(): void
     {
         $this->info('⚡ QUEUE STATUS');
@@ -130,6 +131,9 @@ class MonitorAnalyticsSystem extends Command
         $this->newLine();
     }
 
+    /**
+     * Display database metrics.
+     */
     private function displayDatabaseMetrics(): void
     {
         $this->info('💾 DATABASE METRICS');
@@ -150,6 +154,9 @@ class MonitorAnalyticsSystem extends Command
         $this->newLine();
     }
 
+    /**
+     * Display cache metrics.
+     */
     private function displayCacheMetrics(): void
     {
         $this->info('⚡ CACHE METRICS');
@@ -170,6 +177,9 @@ class MonitorAnalyticsSystem extends Command
         $this->newLine();
     }
 
+    /**
+     * Display user activity statistics.
+     */
     private function displayUserActivity(): void
     {
         $this->info('👥 USER ACTIVITY');

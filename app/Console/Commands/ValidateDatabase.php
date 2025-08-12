@@ -12,10 +12,11 @@ use function count;
 
 class ValidateDatabase extends Command
 {
-    protected $signature = 'db:validate {--fix : Fix found issues}';
+    /** The name and signature of the console command. */
+    protected string $signature = 'db:validate {--fix : Fix found issues}';
 
     /** The console command description. */
-    protected $description = 'Validate database structure and content integrity';
+    protected string $description = 'Validate database structure and content integrity';
 
     /**
      * Execute the console command.
@@ -56,6 +57,11 @@ class ValidateDatabase extends Command
         return Command::FAILURE;
     }
 
+    /**
+     * Check required database table structures.
+     *
+     * @return array<int, string>
+     */
     private function checkTableStructures(): array
     {
         $issues = [];
@@ -85,6 +91,11 @@ class ValidateDatabase extends Command
         return $issues;
     }
 
+    /**
+     * Check data integrity across tables.
+     *
+     * @return array<int, string>
+     */
     private function checkDataIntegrity(): array
     {
         $issues = [];
@@ -112,6 +123,11 @@ class ValidateDatabase extends Command
         return $issues;
     }
 
+    /**
+     * Check database relationship integrity.
+     *
+     * @return array<int, string>
+     */
     private function checkRelationships(): array
     {
         $issues = [];
@@ -140,6 +156,9 @@ class ValidateDatabase extends Command
         return $issues;
     }
 
+    /**
+     * Attempt to fix identified issues.
+     */
     private function fixIssues(): void
     {
         $this->call('db:seed', ['--class' => 'DatabaseFixerSeeder']);

@@ -10,15 +10,18 @@ use Illuminate\Console\Command;
 class ReplayEventsCommand extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'events:replay 
+    protected string $signature = 'events:replay 
                            {--from=0 : Starting position to replay from}
                            {--to= : End position to replay to}
                            {--projection= : Specific projection to rebuild}
                            {--dry-run : Show what would be replayed without executing}';
 
     /** The console command description. */
-    protected $description = 'Replay events from the event store to rebuild projections or handle missed events';
+    protected string $description = 'Replay events from the event store to rebuild projections or handle missed events';
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct(
         private readonly EventStoreInterface $eventStore,
         private readonly ProjectionManagerInterface $projectionManager,
@@ -32,9 +35,11 @@ class ReplayEventsCommand extends Command
     public function handle(): int
     {
         $fromPosition = (int) $this->option('from');
-        $toPosition = $this->option('to') ? (int) $this->option('to') : NULL;
+        $toPositionOption = $this->option('to');
+        $toPosition = $toPositionOption ? (int) $toPositionOption : NULL;
         $specificProjection = $this->option('projection');
-        $dryRun = $this->option('dry-run');
+        $specificProjectionStr = $specificProjection ? (string) $specificProjection : NULL;
+        $dryRun = (bool) $this->option('dry-run');
 
         $this->info('Starting event replay...');
         $this->info("From position: {$fromPosition}");
@@ -43,8 +48,8 @@ class ReplayEventsCommand extends Command
             $this->info("To position: {$toPosition}");
         }
 
-        if ($specificProjection) {
-            $this->info("Rebuilding projection: {$specificProjection}");
+        if ($specificProjectionStr) {
+            $this->info("Rebuilding projection: {$specificProjectionStr}");
 
             if ($dryRun) {
                 $this->info('DRY RUN: Would rebuild projection');
@@ -53,8 +58,8 @@ class ReplayEventsCommand extends Command
             }
 
             try {
-                $this->projectionManager->rebuild($specificProjection, $fromPosition);
-                $this->info("Successfully rebuilt projection: {$specificProjection}");
+                $this->projectionManager->rebuild($specificProjectionStr, $fromPosition);
+                $this->info("Successfully rebuilt projection: {$specificProjectionStr}");
             } catch (Exception $e) {
                 $this->error("Failed to rebuild projection: {$e->getMessage()}");
 
@@ -86,6 +91,9 @@ class ReplayEventsCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * Display replay statistics.
+     */
     private function displayReplayStats(): void
     {
         $this->newLine();

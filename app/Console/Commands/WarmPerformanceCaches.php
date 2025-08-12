@@ -14,12 +14,12 @@ use function count;
 class WarmPerformanceCaches extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'cache:warm-performance 
+    protected string $signature = 'cache:warm-performance 
                             {--force : Force cache warming even if caches exist}
                             {--type=all : Type of cache to warm (all|tickets|views|fragments)}';
 
     /** The console command description. */
-    protected $description = 'Warm up all performance-related caches for optimal application speed';
+    protected string $description = 'Warm up all performance-related caches for optimal application speed';
 
     protected AdvancedTicketCachingService $ticketCache;
 
@@ -27,6 +27,9 @@ class WarmPerformanceCaches extends Command
 
     protected PerformanceCacheService $performanceCache;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct(
         AdvancedTicketCachingService $ticketCache,
         ViewFragmentCachingService $fragmentCache,
@@ -45,8 +48,8 @@ class WarmPerformanceCaches extends Command
     public function handle(): int
     {
         $startTime = microtime(TRUE);
-        $type = $this->option('type');
-        $force = $this->option('force');
+        $type = (string) ($this->option('type') ?: 'all');
+        $force = (bool) $this->option('force');
 
         $this->info('🚀 Starting performance cache warming...');
 
@@ -94,7 +97,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Warm all performance caches
+     * Warm all performance caches.
      */
     protected function warmAllCaches(): void
     {
@@ -108,7 +111,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Warm ticket-related caches
+     * Warm ticket-related caches.
      */
     protected function warmTicketCaches(): void
     {
@@ -133,7 +136,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Warm view-related caches
+     * Warm view-related caches.
      */
     protected function warmViewCaches(): void
     {
@@ -152,7 +155,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Warm view fragment caches
+     * Warm view fragment caches.
      */
     protected function warmViewFragments(): void
     {
@@ -178,7 +181,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Display cache statistics
+     * Display cache statistics.
      */
     protected function displayCacheStats(): void
     {
@@ -222,7 +225,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Execute a task with progress indicator
+     * Execute a task with progress indicator.
      */
     protected function executeWithProgress(string $description, callable $task): void
     {
@@ -236,7 +239,7 @@ class WarmPerformanceCaches extends Command
     }
 
     /**
-     * Format bytes to human readable format
+     * Format bytes to human readable format.
      */
     protected function formatBytes(int $bytes, int $precision = 2): string
     {

@@ -17,9 +17,9 @@ use Log;
 
 class PasswordController extends Controller
 {
-    protected $passwordHistoryService;
+    protected PasswordHistoryService $passwordHistoryService;
 
-    protected $compromiseCheckService;
+    protected PasswordCompromiseCheckService $compromiseCheckService;
 
     public function __construct(
         PasswordHistoryService $passwordHistoryService,

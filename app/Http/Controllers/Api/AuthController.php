@@ -13,6 +13,8 @@ class AuthController extends Controller
 {
     /**
      * Login user and create token
+     *
+     * @throws ValidationException
      */
     public function login(Request $request): JsonResponse
     {

@@ -13,18 +13,21 @@ use function dirname;
 class RunSecurityScan extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'security:scan 
+    protected string $signature = 'security:scan 
                           {--type=all : Type of scan to run (all, vulnerability, compliance, integrity)}
                           {--report=true : Generate detailed report}
                           {--email= : Email address to send report to}';
 
     /** The console command description. */
-    protected $description = 'Run comprehensive security scans and generate compliance reports';
+    protected string $description = 'Run comprehensive security scans and generate compliance reports';
 
     protected SecurityMonitoringService $securityMonitoring;
 
     protected DataSecurityService $dataSecurity;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct(
         SecurityMonitoringService $securityMonitoring,
         DataSecurityService $dataSecurity,
@@ -96,7 +99,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Run vulnerability scans
+     * Run vulnerability scans.
      *
      * @param array<string, mixed> $results
      */
@@ -167,7 +170,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Run compliance checks
+     * Run compliance checks.
      *
      * @param array<string, mixed> $results
      */
@@ -197,7 +200,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Run data integrity checks
+     * Run data integrity checks.
      *
      * @param array<string, mixed> $results
      */
@@ -230,7 +233,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Display scan summary
+     * Display scan summary.
      *
      * @param array<string, mixed> $results
      */
@@ -264,7 +267,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Generate detailed report
+     * Generate detailed report.
      *
      * @param array<string, mixed> $results
      *
@@ -295,7 +298,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Send report by email
+     * Send report by email.
      *
      * @param array<string, mixed> $report
      */
@@ -311,7 +314,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Calculate overall security status
+     * Calculate overall security status.
      *
      * @param array<string, mixed> $results
      */
@@ -355,7 +358,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Count vulnerabilities by severity
+     * Count vulnerabilities by severity.
      *
      * @param array<int, array{severity: string}> $vulnerabilities
      */
@@ -365,7 +368,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Get encrypted columns for a table
+     * Get encrypted columns for a table.
      *
      * @return array<int, string>
      */
@@ -381,7 +384,7 @@ class RunSecurityScan extends Command
     }
 
     /**
-     * Generate security recommendations
+     * Generate security recommendations.
      *
      * @param array<string, mixed> $results
      *

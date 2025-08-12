@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\DB;
 class InitializeEnhancedAlertPreferences extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'enhanced-alerts:init-preferences 
+    protected string $signature = 'enhanced-alerts:init-preferences 
                             {--user= : Specific user ID to initialize}
                             {--force : Force reinitialize existing preferences}
                             {--dry-run : Show what would be done without making changes}';
 
     /** The console command description. */
-    protected $description = 'Initialize enhanced alert preferences for users';
+    protected string $description = 'Initialize enhanced alert preferences for users';
 
     /**
      * Execute the console command.
@@ -26,9 +26,10 @@ class InitializeEnhancedAlertPreferences extends Command
     {
         $this->info('🚀 Initializing Enhanced Alert Preferences...');
 
-        $userId = $this->option('user');
-        $force = $this->option('force');
-        $dryRun = $this->option('dry-run');
+        $userIdOption = $this->option('user');
+        $userId = $userIdOption ? (int) $userIdOption : NULL;
+        $force = (bool) $this->option('force');
+        $dryRun = (bool) $this->option('dry-run');
 
         if ($dryRun) {
             $this->warn('🔍 DRY RUN MODE - No changes will be made');
@@ -109,7 +110,7 @@ class InitializeEnhancedAlertPreferences extends Command
     }
 
     /**
-     * Initialize preferences for a specific user
+     * Initialize preferences for a specific user.
      */
     protected function initializeUserPreferences(User $user, bool $force, bool $dryRun): string
     {
@@ -142,7 +143,7 @@ class InitializeEnhancedAlertPreferences extends Command
     }
 
     /**
-     * Show detailed help information
+     * Show detailed help information.
      */
     protected function showHelp(): void
     {

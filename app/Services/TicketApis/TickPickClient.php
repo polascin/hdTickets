@@ -13,6 +13,11 @@ use function count;
 
 class TickPickClient extends BaseApiClient
 {
+    /**
+     * Headers for scraping requests
+     *
+     * @var array<string,string>
+     */
     protected $scrapingHeaders = [
         'User-Agent'                => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept'                    => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -27,22 +32,44 @@ class TickPickClient extends BaseApiClient
         'Cache-Control'             => 'max-age=0',
     ];
 
+    /**
+     * Constructor
+     *
+     * @param array<string,mixed> $config
+     */
     public function __construct(array $config)
     {
         parent::__construct($config);
         $this->baseUrl = 'https://www.tickpick.com';
     }
 
+    /**
+     * Search for events
+     *
+     * @param array<string,mixed> $criteria
+     *
+     * @return array<int,array<string,mixed>>
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->searchEventsViaScraping($criteria);
     }
 
+    /**
+     * Get event details
+     *
+     * @return array<string,mixed>
+     */
     public function getEvent(string $eventId): array
     {
         return $this->getEventViaScraping($eventId);
     }
 
+    /**
+     * Get venue details
+     *
+     * @return array<string,mixed>
+     */
     public function getVenue(string $venueId): array
     {
         // TickPick doesn't have a direct venue endpoint, return basic info
@@ -56,6 +83,10 @@ class TickPickClient extends BaseApiClient
 
     /**
      * Get available tickets for an event with no-fee pricing information
+     *
+     * @param array<string,mixed> $filters
+     *
+     * @return array<int,array<string,mixed>>
      */
     public function getEventTickets(string $eventId, array $filters = []): array
     {
@@ -88,11 +119,23 @@ class TickPickClient extends BaseApiClient
         }
     }
 
+    /**
+     * Get scraping headers
+     *
+     * @return array<string,string>
+     */
     protected function getHeaders(): array
     {
         return $this->scrapingHeaders;
     }
 
+    /**
+     * Search events via scraping
+     *
+     * @param array<string,mixed> $criteria
+     *
+     * @return array<int,array<string,mixed>>
+     */
     protected function searchEventsViaScraping(array $criteria): array
     {
         try {
@@ -117,6 +160,11 @@ class TickPickClient extends BaseApiClient
         }
     }
 
+    /**
+     * Build scraping search URL
+     *
+     * @param array<string,mixed> $criteria
+     */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
         $baseUrl = 'https://www.tickpick.com/buy-tickets';
@@ -149,6 +197,11 @@ class TickPickClient extends BaseApiClient
         return $baseUrl . '?' . http_build_query($params);
     }
 
+    /**
+     * Parse search results from HTML
+     *
+     * @return array<int,array<string,mixed>>
+     */
     protected function parseSearchResultsHtml(string $html): array
     {
         $events = [];
@@ -161,10 +214,12 @@ class TickPickClient extends BaseApiClient
             // TickPick event cards - they use various CSS classes
             $eventNodes = $xpath->query('//div[contains(@class, "event-card")] | //div[contains(@class, "search-item")] | //article[contains(@class, "event")] | //div[contains(@class, "ticket-listing")]');
 
-            foreach ($eventNodes as $eventNode) {
-                $event = $this->parseEventCard($xpath, $eventNode);
-                if (! empty($event['name'])) {
-                    $events[] = $event;
+            if ($eventNodes !== FALSE) {
+                foreach ($eventNodes as $eventNode) {
+                    $event = $this->parseEventCard($xpath, $eventNode);
+                    if (! empty($event['name'])) {
+                        $events[] = $event;
+                    }
                 }
             }
 

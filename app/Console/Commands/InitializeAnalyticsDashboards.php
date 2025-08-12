@@ -13,13 +13,13 @@ use Illuminate\Support\Facades\DB;
 class InitializeAnalyticsDashboards extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'analytics:init-dashboards 
+    protected string $signature = 'analytics:init-dashboards 
                             {--force : Force initialization even if dashboards exist}
                             {--user= : Initialize for specific user ID}
                             {--clear-cache : Clear analytics cache}';
 
     /** The console command description. */
-    protected $description = 'Initialize default analytics dashboards for users';
+    protected string $description = 'Initialize default analytics dashboards for users';
 
     /**
      * Execute the console command.
@@ -32,11 +32,12 @@ class InitializeAnalyticsDashboards extends Command
             $this->clearAnalyticsCache();
         }
 
-        $userId = $this->option('user');
-        $force = $this->option('force');
+        $userIdOption = $this->option('user');
+        $userId = $userIdOption ? (int) $userIdOption : NULL;
+        $force = (bool) $this->option('force');
 
         if ($userId) {
-            $this->initializeForUser((int) $userId, $force);
+            $this->initializeForUser($userId, $force);
         } else {
             $this->initializeForAllUsers($force);
         }
@@ -50,7 +51,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Initialize dashboards for all users
+     * Initialize dashboards for all users.
      */
     private function initializeForAllUsers(bool $force = FALSE): void
     {
@@ -80,7 +81,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Initialize dashboard for specific user
+     * Initialize dashboard for specific user.
      */
     private function initializeForUser(int $userId, bool $force = FALSE): void
     {
@@ -102,7 +103,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Initialize dashboard for a user
+     * Initialize dashboard for a user.
      */
     private function initializeUserDashboard(User $user, bool $force = FALSE): bool
     {
@@ -134,7 +135,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Customize dashboard based on user characteristics
+     * Customize dashboard based on user characteristics.
      */
     private function customizeDashboardForUser(AnalyticsDashboard $dashboard, User $user): void
     {
@@ -167,7 +168,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Clear analytics cache
+     * Clear analytics cache.
      */
     private function clearAnalyticsCache(): void
     {
@@ -189,7 +190,7 @@ class InitializeAnalyticsDashboards extends Command
     }
 
     /**
-     * Validate analytics system health
+     * Validate analytics system health.
      */
     private function validateSystemHealth(): bool
     {
@@ -223,6 +224,9 @@ class InitializeAnalyticsDashboards extends Command
         return $allPassed;
     }
 
+    /**
+     * Check database connection status.
+     */
     private function checkDatabaseConnection(): bool
     {
         try {
@@ -234,6 +238,9 @@ class InitializeAnalyticsDashboards extends Command
         }
     }
 
+    /**
+     * Check cache system functionality.
+     */
     private function checkCacheSystem(): bool
     {
         try {
@@ -247,6 +254,9 @@ class InitializeAnalyticsDashboards extends Command
         }
     }
 
+    /**
+     * Check queue system configuration.
+     */
     private function checkQueueSystem(): bool
     {
         try {
@@ -257,6 +267,9 @@ class InitializeAnalyticsDashboards extends Command
         }
     }
 
+    /**
+     * Check required database tables exist.
+     */
     private function checkRequiredTables(): bool
     {
         $requiredTables = [
@@ -280,6 +293,9 @@ class InitializeAnalyticsDashboards extends Command
         }
     }
 
+    /**
+     * Check analytics service availability.
+     */
     private function checkAnalyticsService(): bool
     {
         try {

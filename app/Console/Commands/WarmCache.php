@@ -7,10 +7,11 @@ use Illuminate\Console\Command;
 
 class WarmCache extends Command
 {
-    protected $signature = 'cache:warm';
+    /** The name and signature of the console command. */
+    protected string $signature = 'cache:warm';
 
     /** The console command description. */
-    protected $description = 'Warm application cache for improved performance';
+    protected string $description = 'Warm application cache for improved performance';
 
     private PerformanceOptimizationService $performanceService;
 

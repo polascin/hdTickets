@@ -13,14 +13,14 @@ use function strlen;
 class ScrapeTicketmaster extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'ticketmaster:scrape 
+    protected string $signature = 'ticketmaster:scrape 
                             {keyword : Search keyword for events}
                             {--location= : Location to search for events}
                             {--limit=20 : Maximum number of events to scrape}
                             {--dry-run : Show what would be scraped without importing}';
 
     /** The console command description. */
-    protected $description = 'Scrape events from Ticketmaster and import them as tickets';
+    protected string $description = 'Scrape events from Ticketmaster and import them as tickets';
 
     /**
      * Execute the console command.
@@ -114,7 +114,7 @@ class ScrapeTicketmaster extends Command
     }
 
     /**
-     * Show scraping statistics
+     * Show scraping statistics.
      */
     private function showStats(TicketmasterScraper $scraper): void
     {

@@ -23,7 +23,7 @@ class DashboardController extends Controller
     /**
      * Display the main customer dashboard for Sports Tickets Monitoring System
      */
-    public function index()
+    public function index(): \Illuminate\Contracts\View\View
     {
         $user = Auth::user();
 
@@ -44,7 +44,7 @@ class DashboardController extends Controller
      * Get real-time available tickets with caching
      * Cache for 2 minutes to balance freshness with performance
      */
-    public function getRealtimeTickets(Request $request)
+    public function getRealtimeTickets(Request $request): array
     {
         $cacheKey = 'realtime_tickets:' . md5(json_encode($request->all()));
 
@@ -114,7 +114,7 @@ class DashboardController extends Controller
      * Get trending high-demand sports events
      * Cache for 5 minutes as trends change slower than availability
      */
-    public function getTrendingEvents(Request $request)
+    public function getTrendingEvents(Request $request): array
     {
         $cacheKey = 'trending_events:' . md5(json_encode($request->all()));
 
@@ -191,7 +191,7 @@ class DashboardController extends Controller
      * Get personalized ticket recommendations for user
      * Cache per user for 10 minutes
      */
-    public function getUserMetrics(Request $request)
+    public function getUserMetrics(Request $request): array
     {
         $user = Auth::user();
         if (! $user) {

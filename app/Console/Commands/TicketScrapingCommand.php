@@ -13,7 +13,7 @@ use function is_string;
 class TicketScrapingCommand extends Command
 {
     /** The name and signature of the console command. */
-    protected $signature = 'tickets:scrape 
+    protected string $signature = 'tickets:scrape 
                             {--platform= : Platform to scrape (stubhub, ticketmaster, viagogo)}
                             {--keywords= : Specific keywords to search for}
                             {--manchester-united : Search for Manchester United tickets}
@@ -23,10 +23,13 @@ class TicketScrapingCommand extends Command
                             {--limit=50 : Maximum number of tickets to process}';
 
     /** The console command description. */
-    protected $description = 'Scrape tickets from various platforms and check alerts';
+    protected string $description = 'Scrape tickets from various platforms and check alerts';
 
     protected TicketScrapingService $scrapingService;
 
+    /**
+     * Create a new command instance.
+     */
     public function __construct(TicketScrapingService $scrapingService)
     {
         parent::__construct();
@@ -94,7 +97,7 @@ class TicketScrapingCommand extends Command
     }
 
     /**
-     * Check ticket alerts
+     * Check ticket alerts.
      */
     protected function checkAlerts(): void
     {
@@ -107,7 +110,7 @@ class TicketScrapingCommand extends Command
     }
 
     /**
-     * Scrape Manchester United tickets
+     * Scrape Manchester United tickets.
      */
     protected function scrapeManchesterUnited(): void
     {
@@ -120,7 +123,7 @@ class TicketScrapingCommand extends Command
     }
 
     /**
-     * Scrape high-demand sports tickets
+     * Scrape high-demand sports tickets.
      */
     protected function scrapeHighDemandSports(): void
     {
@@ -137,7 +140,7 @@ class TicketScrapingCommand extends Command
     }
 
     /**
-     * Scrape by custom keywords
+     * Scrape by custom keywords.
      */
     protected function scrapeByKeywords(): void
     {
@@ -173,12 +176,11 @@ class TicketScrapingCommand extends Command
     }
 
     /**
-     * Display scraping results
+     * Display scraping results.
      *
-     * @param mixed $category
-     * @param mixed $results
+     * @param array<string, mixed> $results
      */
-    protected function displayResults($category, $results): void
+    protected function displayResults(string $category, array $results): void
     {
         $totalFound = $results['total_found'] ?? 0;
         $saved = $results['saved'] ?? 0;
