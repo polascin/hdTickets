@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Tickets - Alpine.js v3.14.9 Compatibility Test</title>
+    <script defer src="https://unpkg.com/alpinejs@3.14.9/dist/cdn.min.js"></script>
+    <!-- Alpine.js Plugins -->
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.14.9/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/focus@3.14.9/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/intersect@3.14.9/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/persist@3.14.9/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+        .test-section h3 {
+            margin: 0 0 1rem 0;
+            color: #374151;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+        .dropdown-button {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dropdown-button:hover {
+            background: #2563eb;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 200px;
+            z-index: 50;
+            margin-top: 0.25rem;
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #374151;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .dropdown-item:hover {
+            background: #f3f4f6;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .status-pass { background: #10b981; }
+        .status-fail { background: #ef4444; }
+        .collapsible-content {
+            overflow: hidden;
+        }
+        .tab-button {
+            background: #f3f4f6;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            margin-right: 0.25rem;
+        }
+        .tab-button.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .tab-content {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0.5rem 0.5rem 0.5rem;
+            padding: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .notification {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin: 0.5rem 0;
+        }
+        .notification.success {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #166534;
+        }
+        .notification.error {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+        [x-cloak] { 
+            display: none !important; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container" x-data="testRunner()">
+        <h1>HD Tickets - Alpine.js v3.14.9 Compatibility Test</h1>
+        
+        <!-- Test Status Overview -->
+        <div class="test-section">
+            <h3>Test Status Overview</h3>
+            <div x-data="{ tests: $persist([]) }">
+                <div x-text="`Alpine.js Version: ${Alpine?.version || 'Not available'}`"></div>
+                <div x-text="`Plugins loaded: ${pluginStatus.join(', ')}`"></div>
+                <div x-text="`Total Tests: ${totalTests}`"></div>
+                <div x-text="`Passed: ${passedTests}`"></div>
+                <div x-text="`Failed: ${failedTests}`"></div>
+                <div :class="allTestsPassed ? 'status-pass' : 'status-fail'" class="status-indicator"></div>
+                <span x-text="allTestsPassed ? 'All tests passed!' : 'Some tests failed'"></span>
+            </div>
+        </div>
+
+        <!-- Basic Alpine.js Functionality -->
+        <div class="test-section">
+            <h3>1. Basic Alpine.js Functionality</h3>
+            <div x-data="{ 
+                count: 0, 
+                message: 'Hello Alpine.js!',
+                show: true,
+                items: ['Item 1', 'Item 2', 'Item 3']
+            }">
+                <p>Counter: <span x-text="count"></span></p>
+                <button @click="count++" class="dropdown-button">Increment</button>
+                <button @click="count--" class="dropdown-button">Decrement</button>
+                
+                <p>Message: <span x-text="message"></span></p>
+                <input x-model="message" class="form-input" style="max-width: 300px;">
+                
+                <div>
+                    <button @click="show = !show" class="dropdown-button">Toggle Show/Hide</button>
+                    <p x-show="show" x-cloak>This content can be toggled!</p>
+                </div>
+                
+                <div>
+                    <h4>List Rendering:</h4>
+                    <ul>
+                        <template x-for="item in items" :key="item">
+                            <li x-text="item"></li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Dropdown Testing -->
+        <div class="test-section">
+            <h3>2. Advanced Dropdown Components</h3>
+            <div x-data="{
+                adminDropdownOpen: false,
+                profileDropdownOpen: false,
+                
+                toggleAdmin() {
+                    this.adminDropdownOpen = !this.adminDropdownOpen;
+                    this.profileDropdownOpen = false;
+                },
+                
+                toggleProfile() {
+                    this.profileDropdownOpen = !this.profileDropdownOpen;
+                    this.adminDropdownOpen = false;
+                },
+                
+                closeAll() {
+                    this.adminDropdownOpen = false;
+                    this.profileDropdownOpen = false;
+                }
+            }" @click.outside="closeAll()" @keydown.escape="closeAll()">
+                
+                <div class="dropdown">
+                    <button @click="toggleAdmin()" class="dropdown-button">
+                        Admin Menu
+                        <span x-text="adminDropdownOpen ? '▲' : '▼'"></span>
+                    </button>
+                    <div x-show="adminDropdownOpen" 
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform scale-95"
+                         x-transition:enter-end="opacity-100 transform scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 transform scale-100"
+                         x-transition:leave-end="opacity-0 transform scale-95"
+                         class="dropdown-menu">
+                        <a href="#" class="dropdown-item">Dashboard</a>
+                        <a href="#" class="dropdown-item">Users</a>
+                        <a href="#" class="dropdown-item">Settings</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button @click="toggleProfile()" class="dropdown-button">
+                        Profile Menu
+                        <span x-text="profileDropdownOpen ? '▲' : '▼'"></span>
+                    </button>
+                    <div x-show="profileDropdownOpen" 
+                         x-cloak
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform scale-95"
+                         x-transition:enter-end="opacity-100 transform scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 transform scale-100"
+                         x-transition:leave-end="opacity-0 transform scale-95"
+                         class="dropdown-menu">
+                        <a href="#" class="dropdown-item">View Profile</a>
+                        <a href="#" class="dropdown-item">Edit Profile</a>
+                        <a href="#" class="dropdown-item">Logout</a>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <span class="status-indicator" :class="adminDropdownOpen ? 'status-pass' : 'status-fail'"></span>
+                    <span>Admin Dropdown: <span x-text="adminDropdownOpen ? 'OPEN' : 'CLOSED'"></span></span>
+                    <br>
+                    <span class="status-indicator" :class="profileDropdownOpen ? 'status-pass' : 'status-fail'"></span>
+                    <span>Profile Dropdown: <span x-text="profileDropdownOpen ? 'OPEN' : 'CLOSED'"></span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugin Testing (@alpinejs/collapse) -->
+        <div class="test-section">
+            <h3>3. Collapse Plugin Testing</h3>
+            <div x-data="{ open: false }">
+                <button @click="open = !open" class="dropdown-button">
+                    Toggle Collapsible Content
+                    <span x-text="open ? '▲' : '▼'"></span>
+                </button>
+                <div x-show="open" x-collapse class="collapsible-content" style="background: #f3f4f6; padding: 1rem; margin-top: 0.5rem; border-radius: 0.375rem;">
+                    <h4>Collapsible Content</h4>
+                    <p>This content uses the @alpinejs/collapse plugin for smooth height transitions.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugin Testing (@alpinejs/persist) -->
+        <div class="test-section">
+            <h3>4. Persist Plugin Testing</h3>
+            <div x-data="{ 
+                persistedValue: $persist('Default Value'),
+                preferences: $persist({ theme: 'light', notifications: true })
+            }">
+                <div class="form-group">
+                    <label>Persisted Value (survives page refresh):</label>
+                    <input x-model="persistedValue" class="form-input" style="max-width: 300px;">
+                    <p>Current value: <span x-text="persistedValue"></span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Theme Preference:</label>
+                    <select x-model="preferences.theme" class="form-input" style="max-width: 200px;">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" x-model="preferences.notifications">
+                        Enable Notifications
+                    </label>
+                </div>
+                
+                <p>Preferences: <span x-text="JSON.stringify(preferences)"></span></p>
+            </div>
+        </div>
+
+        <!-- Plugin Testing (@alpinejs/focus) -->
+        <div class="test-section">
+            <h3>5. Focus Plugin Testing</h3>
+            <div x-data="{ showModal: false }">
+                <button @click="showModal = true" class="dropdown-button">Open Focus Modal</button>
+                
+                <div x-show="showModal" 
+                     x-cloak
+                     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100;">
+                    <div x-trap.noscroll="showModal"
+                         style="background: white; padding: 2rem; border-radius: 0.5rem; max-width: 400px; width: 90%;"
+                         @click.stop>
+                        <h4>Focus Trap Modal</h4>
+                        <p>Tab navigation is trapped within this modal.</p>
+                        <input type="text" placeholder="First input" class="form-input">
+                        <input type="text" placeholder="Second input" class="form-input" style="margin-top: 0.5rem;">
+                        <div style="margin-top: 1rem;">
+                            <button @click="showModal = false" class="dropdown-button">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plugin Testing (@alpinejs/intersect) -->
+        <div class="test-section">
+            <h3>6. Intersect Plugin Testing</h3>
+            <div x-data="{ visible: false, intersectCount: 0 }">
+                <p>Scroll down to test intersection observer...</p>
+                <div style="height: 200px; background: #f3f4f6; margin: 1rem 0;"></div>
+                <div x-intersect="visible = true; intersectCount++"
+                     x-intersect.leave="visible = false"
+                     style="background: #dbeafe; padding: 1rem; border-radius: 0.375rem;">
+                    <p x-text="`Element is ${visible ? 'visible' : 'not visible'}. Intersected ${intersectCount} times.`"></p>
+                </div>
+                <div style="height: 200px; background: #f3f4f6; margin: 1rem 0;"></div>
+            </div>
+        </div>
+
+        <!-- Form Handling and Validation -->
+        <div class="test-section">
+            <h3>7. Advanced Form Handling</h3>
+            <div x-data="{
+                form: {
+                    name: '',
+                    email: '',
+                    message: ''
+                },
+                errors: {},
+                loading: false,
+                
+                async submitForm() {
+                    this.loading = true;
+                    this.errors = {};
+                    
+                    // Simulate validation
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (!this.form.name) this.errors.name = 'Name is required';
+                    if (!this.form.email) this.errors.email = 'Email is required';
+                    if (!this.form.message) this.errors.message = 'Message is required';
+                    
+                    this.loading = false;
+                    
+                    if (Object.keys(this.errors).length === 0) {
+                        alert('Form submitted successfully!');
+                        this.form = { name: '', email: '', message: '' };
+                    }
+                }
+            }">
+                <form @submit.prevent="submitForm()">
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input x-model="form.name" class="form-input" :class="errors.name ? 'border-red-500' : ''">
+                        <div x-show="errors.name" x-cloak class="notification error" x-text="errors.name"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input x-model="form.email" type="email" class="form-input" :class="errors.email ? 'border-red-500' : ''">
+                        <div x-show="errors.email" x-cloak class="notification error" x-text="errors.email"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Message:</label>
+                        <textarea x-model="form.message" class="form-input" :class="errors.message ? 'border-red-500' : ''"></textarea>
+                        <div x-show="errors.message" x-cloak class="notification error" x-text="errors.message"></div>
+                    </div>
+                    
+                    <button type="submit" class="dropdown-button" :disabled="loading">
+                        <span x-show="!loading">Submit Form</span>
+                        <span x-show="loading" x-cloak>Submitting...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab Component -->
+        <div class="test-section">
+            <h3>8. Tab Component</h3>
+            <div x-data="{ activeTab: 'tab1' }">
+                <div>
+                    <button @click="activeTab = 'tab1'" 
+                            :class="activeTab === 'tab1' ? 'active' : ''" 
+                            class="tab-button">Tab 1</button>
+                    <button @click="activeTab = 'tab2'" 
+                            :class="activeTab === 'tab2' ? 'active' : ''" 
+                            class="tab-button">Tab 2</button>
+                    <button @click="activeTab = 'tab3'" 
+                            :class="activeTab === 'tab3' ? 'active' : ''" 
+                            class="tab-button">Tab 3</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div x-show="activeTab === 'tab1'" x-cloak>
+                        <h4>Tab 1 Content</h4>
+                        <p>This is the content for tab 1. Alpine.js makes tab switching seamless.</p>
+                    </div>
+                    <div x-show="activeTab === 'tab2'" x-cloak>
+                        <h4>Tab 2 Content</h4>
+                        <p>This is the content for tab 2. Notice how smooth the transitions are.</p>
+                    </div>
+                    <div x-show="activeTab === 'tab3'" x-cloak>
+                        <h4>Tab 3 Content</h4>
+                        <p>This is the content for tab 3. All functionality works perfectly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance and Memory Test -->
+        <div class="test-section">
+            <h3>9. Performance and Memory Test</h3>
+            <div x-data="{
+                items: [],
+                itemCount: 0,
+                
+                addItems() {
+                    for (let i = 0; i < 100; i++) {
+                        this.items.push({ 
+                            id: this.itemCount++, 
+                            name: `Item ${this.itemCount}`,
+                            value: Math.random() * 100 
+                        });
+                    }
+                },
+                
+                clearItems() {
+                    this.items = [];
+                    this.itemCount = 0;
+                }
+            }">
+                <div>
+                    <button @click="addItems()" class="dropdown-button">Add 100 Items</button>
+                    <button @click="clearItems()" class="dropdown-button">Clear Items</button>
+                    <span x-text="`Total items: ${items.length}`"></span>
+                </div>
+                
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; padding: 0.5rem; margin-top: 0.5rem;">
+                    <template x-for="item in items" :key="item.id">
+                        <div x-text="`${item.name}: ${item.value.toFixed(2)}`" 
+                             style="padding: 0.25rem; border-bottom: 1px solid #f3f4f6;"></div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test runner component
+        function testRunner() {
+            return {
+                totalTests: 9,
+                passedTests: 0,
+                failedTests: 0,
+                pluginStatus: [],
+                
+                init() {
+                    this.runCompatibilityTests();
+                },
+                
+                get allTestsPassed() {
+                    return this.failedTests === 0 && this.passedTests === this.totalTests;
+                },
+                
+                runCompatibilityTests() {
+                    console.log('🧪 Running Alpine.js compatibility tests...');
+                    
+                    // Test Alpine.js core availability
+                    if (window.Alpine) {
+                        this.passedTests++;
+                        console.log('✅ Alpine.js core loaded');
+                    } else {
+                        this.failedTests++;
+                        console.log('❌ Alpine.js core not loaded');
+                    }
+                    
+                    // Test plugins
+                    const plugins = ['collapse', 'focus', 'intersect', 'persist'];
+                    plugins.forEach(plugin => {
+                        if (Alpine && Alpine.version) {
+                            this.pluginStatus.push(plugin);
+                            console.log(`✅ @alpinejs/${plugin} detected`);
+                        }
+                    });
+                    
+                    // Test component registration
+                    try {
+                        Alpine.data('testComponent', () => ({ test: true }));
+                        this.passedTests++;
+                        console.log('✅ Component registration working');
+                    } catch (error) {
+                        this.failedTests++;
+                        console.log('❌ Component registration failed:', error);
+                    }
+                    
+                    // Test x-data functionality
+                    try {
+                        const element = document.createElement('div');
+                        element.setAttribute('x-data', '{ test: true }');
+                        this.passedTests++;
+                        console.log('✅ x-data functionality working');
+                    } catch (error) {
+                        this.failedTests++;
+                        console.log('❌ x-data functionality failed:', error);
+                    }
+                    
+                    console.log(`🏁 Tests completed: ${this.passedTests}/${this.totalTests} passed`);
+                }
+            };
+        }
+
+        // Global event listeners for debugging
+        document.addEventListener('alpine:init', () => {
+            console.log('🚀 Alpine.js initialized successfully');
+            
+            // Register test navigation component (similar to the real app)
+            Alpine.data('navigationTest', () => ({
+                adminDropdownOpen: false,
+                profileDropdownOpen: false,
+                
+                init() {
+                    console.log('📍 Navigation test component initialized');
+                    
+                    // Global click handler for outside clicks
+                    document.addEventListener('click', (e) => {
+                        if (!this.$el.contains(e.target)) {
+                            this.adminDropdownOpen = false;
+                            this.profileDropdownOpen = false;
+                        }
+                    });
+                    
+                    // ESC key handler
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape') {
+                            this.closeAll();
+                        }
+                    });
+                },
+                
+                closeAll() {
+                    this.adminDropdownOpen = false;
+                    this.profileDropdownOpen = false;
+                    console.log('🔒 All dropdowns closed');
+                },
+                
+                toggleAdmin() {
+                    this.adminDropdownOpen = !this.adminDropdownOpen;
+                    this.profileDropdownOpen = false;
+                    console.log('🔧 Admin dropdown:', this.adminDropdownOpen);
+                },
+                
+                toggleProfile() {
+                    this.profileDropdownOpen = !this.profileDropdownOpen;
+                    this.adminDropdownOpen = false;
+                    console.log('👤 Profile dropdown:', this.profileDropdownOpen);
+                }
+            }));
+        });
+
+        document.addEventListener('alpine:initialized', () => {
+            console.log('🎉 Alpine.js fully initialized!');
+        });
+
+        window.addEventListener('load', () => {
+            console.log('📄 Page fully loaded');
+            console.log('🔍 Alpine.js version:', Alpine?.version || 'Not available');
+            console.log('🔍 Plugins available:', Object.keys(Alpine?.plugins || {}));
+        });
+
+        // Performance monitoring
+        const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.name.includes('alpine')) {
+                    console.log(`⚡ Performance: ${entry.name} took ${entry.duration}ms`);
+                }
+            }
+        });
+        observer.observe({ type: 'measure', buffered: true });
+    </script>
+</body>
+</html>

@@ -46,14 +46,15 @@ HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monit
 ## 🏗️ Technical Architecture
 
 ### Technology Stack
-- **Backend**: Laravel 11.x with PHP 8.2+
-- **Frontend**: Vue.js 3 with Inertia.js and Alpine.js
-- **Database**: MySQL 8.4+ with Redis caching
-- **Queue System**: Laravel Horizon for background job processing
-- **Authentication**: Laravel Sanctum with 2FA support
-- **WebSockets**: Real-time updates using Laravel Echo and Pusher
-- **Styling**: Tailwind CSS with Bootstrap components
-- **Charts**: Chart.js for analytics visualization
+- **Backend**: Laravel 12.x with PHP 8.4+
+- **Frontend**: Vue.js 3.3.11 with Inertia.js 2.0.17 and Alpine.js 3.14.9
+- **Database**: MySQL 8.4+ with Redis caching (Predis 3.1)
+- **Queue System**: Laravel Horizon 5.33 for background job processing
+- **Authentication**: Laravel Sanctum 4.0 with Passport 13.0 and 2FA support
+- **WebSockets**: Real-time updates using Laravel Echo and Soketi 1.6.1
+- **Styling**: Tailwind CSS 4.1.11 with Bootstrap 5.3.2 components
+- **Charts**: Chart.js 4.4.1 for analytics visualization
+- **Node.js**: v22.18.0 (Required for frontend build process)
 
 ### System Components
 - **Scraping Engine**: Multi-platform scraping with anti-detection measures
@@ -81,11 +82,13 @@ HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monit
 ## 🚀 Installation & Setup
 
 ### Prerequisites
-- PHP 8.2 or higher
-- Node.js 18+ and npm
+- PHP 8.4 or higher (Laravel 12.x requirement)
+- Node.js v22.18.0 (Exact version required, specified in .nvmrc)
+- NPM (latest version compatible with Node.js 22.18.0)
 - MySQL 8.4+
 - Redis 6.0+
-- Composer
+- Composer 2.x
+- Ubuntu 24.04 LTS with Apache2 (Production environment)
 
 ### Installation Steps
 ```bash
@@ -93,11 +96,15 @@ HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monit
 git clone https://github.com/waltercsoelle/sports-ticket-monitor.git
 cd sports-ticket-monitor
 
+# Ensure correct Node.js version (CRITICAL)
+nvm use 22.18.0  # Uses .nvmrc file automatically
+node --version   # Must show v22.18.0
+
 # Install PHP dependencies
-composer install
+composer install --optimize-autoloader
 
 # Install Node.js dependencies
-npm install
+npm ci  # Uses package-lock.json for consistent builds
 
 # Copy environment configuration
 cp .env.example .env
@@ -106,14 +113,21 @@ cp .env.example .env
 php artisan key:generate
 
 # Configure database settings in .env file
-# Then run migrations
+# Then run migrations (includes new OAuth and monitoring tables)
 php artisan migrate
+
+# Install Passport OAuth clients
+php artisan passport:install
 
 # Seed database with initial data
 php artisan db:seed
 
-# Build frontend assets
+# Build production frontend assets
 npm run build
+
+# Clear and cache configuration
+php artisan config:cache
+php artisan route:cache
 
 # Start the application
 php artisan serve
@@ -144,10 +158,31 @@ REDIS_PORT=6379
 QUEUE_CONNECTION=redis
 HORIZON_PREFIX=sports_tickets
 
+# OAuth Configuration (Laravel Passport)
+PASSPORT_PERSONAL_ACCESS_CLIENT_ID=client_id
+PASSPORT_PERSONAL_ACCESS_CLIENT_SECRET=client_secret
+
+# PayPal Server SDK Configuration (v4.0.0)
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_MODE=sandbox  # or 'live' for production
+
+# Stripe Configuration
+STRIPE_KEY=your_stripe_key
+STRIPE_SECRET=your_stripe_secret
+
+# WebSocket Configuration (Soketi)
+SOKETI_APP_ID=your_app_id
+SOKETI_APP_KEY=your_app_key
+SOKETI_APP_SECRET=your_app_secret
+
 # Notification Services
 MAIL_MAILER=smtp
 TWILIO_SID=your_twilio_sid
 TWILIO_TOKEN=your_twilio_token
+
+# Application Monitoring (Optional)
+TELESCOPE_ENABLED=false  # Set to true for debugging
 ```
 
 ## 📱 Usage Guide
@@ -320,4 +355,34 @@ For support and questions:
 ---
 
 **Note**: This system is designed for personal use and ticket availability monitoring only. Please respect the terms of service of all ticket platforms and use responsibly.
-# Auto-sync configuration applied So 26. júl 2025, 14:45:56 CEST
+
+## 🔄 Version 4.0.0 Updates (August 2025)
+
+### Major Dependency Updates
+- **Laravel Framework**: Upgraded to 12.22.1
+- **PHP**: Updated to 8.4.11 for enhanced performance
+- **Node.js**: Requires exactly v22.18.0 (specified in .nvmrc)
+- **PayPal Integration**: Migrated to Server SDK v1.1
+- **Vue.js**: Updated to 3.3.11 with improved reactivity
+- **Vite**: Upgraded to 7.1.2 for faster build times
+- **Alpine.js**: Updated to 3.14.9 with new features
+
+### New Features
+- **OAuth Authentication**: Laravel Passport integration
+- **Enhanced Monitoring**: Laravel Telescope support
+- **WebSocket Server**: Soketi implementation for real-time updates
+- **Improved Charts**: Chart.js 4.4.1 with date-fns adapter
+- **Payment Integration**: Enhanced Stripe SDK support
+- **CSS Cache Prevention**: Timestamp-based CSS linking (per project rules)
+
+### Breaking Changes
+- PayPal REST SDK deprecated - migration to Server SDK required
+- Node.js version requirement strictly enforced
+- Database schema updates with new OAuth and monitoring tables
+
+### Migration Guide
+For detailed upgrade instructions, see:
+- `DEPLOYMENT_GUIDE_v4.0.0.md` - Complete technical migration guide
+- `TEAM_NOTIFICATION_v4.0.0.md` - Team communication and requirements
+
+# Auto-sync configuration applied So 26. júl 2025, 14:45:56 CEST

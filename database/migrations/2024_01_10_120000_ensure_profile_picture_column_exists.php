@@ -11,11 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'profile_picture')) {
-                $table->string('profile_picture')->nullable()->after('activity_score');
-            }
-        });
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
+                if (!Schema::hasColumn('users', 'profile_picture')) {
+                    if (Schema::hasColumn('users', 'activity_score')) {
+                        $table->string('profile_picture')->nullable()->after('activity_score');
+                    } else {
+                        $table->string('profile_picture')->nullable();
+                    }
+                }
+            });
+        }
     }
 
     /**

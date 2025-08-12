@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -141,14 +142,16 @@ return new class extends Migration
             });
         }
 
-        // Add indexes for better query performance
-        Schema::table('user_favorite_teams', function (Blueprint $table) {
-            $table->fullText(['team_name', 'team_city'], 'teams_search_fulltext');
-        });
+        // Add indexes for better query performance (only for MySQL)
+        if (DB::getDriverName() === 'mysql') {
+            Schema::table('user_favorite_teams', function (Blueprint $table) {
+                $table->fullText(['team_name', 'team_city'], 'teams_search_fulltext');
+            });
 
-        Schema::table('user_favorite_venues', function (Blueprint $table) {
-            $table->fullText(['venue_name', 'city'], 'venues_search_fulltext');
-        });
+            Schema::table('user_favorite_venues', function (Blueprint $table) {
+                $table->fullText(['venue_name', 'city'], 'venues_search_fulltext');
+            });
+        }
     }
 
     /**

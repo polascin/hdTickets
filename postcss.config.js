@@ -1,20 +1,26 @@
 export default {
     plugins: {
-        tailwindcss: {},
+        '@tailwindcss/postcss': {},
         autoprefixer: {
-            // Support the last 2 versions of all browsers
+            // Enhanced browser support for modern applications
             overrideBrowserslist: [
                 'last 2 versions',
                 '> 1%',
                 'not dead',
-                'not ie 11'
+                'not ie 11',
+                'not op_mini all',
+                'chrome >= 87',
+                'firefox >= 78',
+                'safari >= 14',
+                'edge >= 88'
             ],
-            // Enable grid support
+            // Enhanced autoprefixer options
             grid: true,
-            // Add vendor prefixes to flexbox
-            flexbox: 'no-2009'
+            flexbox: 'no-2009',
+            supports: true,
+            cascade: false // Better for development debugging
         },
-        // Add CSS Nano for production optimization
+        // Enhanced CSS Nano configuration for production optimization
         ...(process.env.NODE_ENV === 'production' ? {
             cssnano: {
                 preset: [
@@ -24,9 +30,26 @@ export default {
                             removeAll: true,
                         },
                         normalizeWhitespace: true,
+                        // Enhanced optimizations
+                        reduceIdents: false, // Preserve animation names
+                        zindex: false, // Preserve z-index values
+                        discardUnused: false, // Keep all CSS for dynamic content
+                        mergeIdents: false,
+                        // Better CSS optimization
+                        cssDeclarationSorter: {
+                            order: 'alphabetically'
+                        },
+                        calc: {
+                            precision: 2
+                        }
                     },
                 ],
             }
-        } : {}),
+        } : {
+            // Development-only plugins for better debugging
+            'postcss-reporter': {
+                clearReportedMessages: true
+            }
+        }),
     },
 };

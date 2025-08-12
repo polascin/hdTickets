@@ -11,40 +11,44 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Fix purchase_queues table
-        Schema::table('purchase_queues', function (Blueprint $table) {
-            if (!Schema::hasColumn('purchase_queues', 'user_id')) {
-                $table->foreignId('user_id')->nullable()->after('selected_by_user_id')->constrained()->onDelete('cascade');
-            }
-            if (!Schema::hasColumn('purchase_queues', 'transaction_id')) {
-                $table->string('transaction_id')->nullable()->after('priority');
-            }
-            if (!Schema::hasColumn('purchase_queues', 'metadata')) {
-                $table->json('metadata')->nullable()->after('notes');
-            }
-        });
+        // Fix purchase_queues table if it exists
+        if (Schema::hasTable('purchase_queues')) {
+            Schema::table('purchase_queues', function (Blueprint $table) {
+                if (!Schema::hasColumn('purchase_queues', 'user_id')) {
+                    $table->foreignId('user_id')->nullable()->after('selected_by_user_id')->constrained()->onDelete('cascade');
+                }
+                if (!Schema::hasColumn('purchase_queues', 'transaction_id')) {
+                    $table->string('transaction_id')->nullable()->after('priority');
+                }
+                if (!Schema::hasColumn('purchase_queues', 'metadata')) {
+                    $table->json('metadata')->nullable()->after('notes');
+                }
+            });
+        }
         
-        // Fix purchase_attempts table to ensure all needed fields exist
-        Schema::table('purchase_attempts', function (Blueprint $table) {
-            if (!Schema::hasColumn('purchase_attempts', 'user_id')) {
-                $table->foreignId('user_id')->nullable()->after('uuid')->constrained()->onDelete('cascade');
-            }
-            if (!Schema::hasColumn('purchase_attempts', 'platform')) {
-                $table->string('platform')->nullable()->after('scraped_ticket_id');
-            }
-            if (!Schema::hasColumn('purchase_attempts', 'transaction_id')) {
-                $table->string('transaction_id')->nullable()->after('status');
-            }
-            if (!Schema::hasColumn('purchase_attempts', 'total_paid')) {
-                $table->decimal('total_paid', 10, 2)->nullable()->after('final_price');
-            }
-            if (!Schema::hasColumn('purchase_attempts', 'platform_fee')) {
-                $table->decimal('platform_fee', 10, 2)->nullable()->after('fees');
-            }
-            if (!Schema::hasColumn('purchase_attempts', 'metadata')) {
-                $table->json('metadata')->nullable()->after('response_data');
-            }
-        });
+        // Fix purchase_attempts table to ensure all needed fields exist if it exists
+        if (Schema::hasTable('purchase_attempts')) {
+            Schema::table('purchase_attempts', function (Blueprint $table) {
+                if (!Schema::hasColumn('purchase_attempts', 'user_id')) {
+                    $table->foreignId('user_id')->nullable()->after('uuid')->constrained()->onDelete('cascade');
+                }
+                if (!Schema::hasColumn('purchase_attempts', 'platform')) {
+                    $table->string('platform')->nullable()->after('scraped_ticket_id');
+                }
+                if (!Schema::hasColumn('purchase_attempts', 'transaction_id')) {
+                    $table->string('transaction_id')->nullable()->after('status');
+                }
+                if (!Schema::hasColumn('purchase_attempts', 'total_paid')) {
+                    $table->decimal('total_paid', 10, 2)->nullable()->after('final_price');
+                }
+                if (!Schema::hasColumn('purchase_attempts', 'platform_fee')) {
+                    $table->decimal('platform_fee', 10, 2)->nullable()->after('fees');
+                }
+                if (!Schema::hasColumn('purchase_attempts', 'metadata')) {
+                    $table->json('metadata')->nullable()->after('response_data');
+                }
+            });
+        }
         
         // Create purchase tracking table for analytics
         if (!Schema::hasTable('purchase_tracking')) {
@@ -85,13 +89,17 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('purchase_queues', function (Blueprint $table) {
-            $table->dropColumn(['user_id', 'transaction_id', 'metadata']);
-        });
+        if (Schema::hasTable('purchase_queues')) {
+            Schema::table('purchase_queues', function (Blueprint $table) {
+                $table->dropColumn(['user_id', 'transaction_id', 'metadata']);
+            });
+        }
         
-        Schema::table('purchase_attempts', function (Blueprint $table) {
-            $table->dropColumn(['user_id', 'platform', 'transaction_id', 'total_paid', 'platform_fee', 'metadata']);
-        });
+        if (Schema::hasTable('purchase_attempts')) {
+            Schema::table('purchase_attempts', function (Blueprint $table) {
+                $table->dropColumn(['user_id', 'platform', 'transaction_id', 'total_paid', 'platform_fee', 'metadata']);
+            });
+        }
         
         Schema::dropIfExists('purchase_tracking');
         Schema::dropIfExists('automation_tracking');

@@ -242,20 +242,23 @@ return new class extends Migration
             });
         }
 
-        // Create indexes for better performance
+        // Create indexes for better performance only if columns exist
         if (Schema::hasTable('users')) {
             Schema::table('users', function (Blueprint $table) {
-                // Add composite indexes for common queries
-                // Laravel 12 doesn't have reliable index checking, so we'll use try/catch
-                try {
-                    $table->index(['timezone', 'language'], 'users_timezone_language_index');
-                } catch (Exception $e) {
-                    // Index likely already exists, ignore
+                // Add composite indexes for common queries only if columns exist
+                if (Schema::hasColumn('users', 'timezone') && Schema::hasColumn('users', 'language')) {
+                    try {
+                        $table->index(['timezone', 'language'], 'users_timezone_language_index');
+                    } catch (Exception $e) {
+                        // Index likely already exists, ignore
+                    }
                 }
-                try {
-                    $table->index(['theme_preference', 'display_density'], 'users_theme_density_index');
-                } catch (Exception $e) {
-                    // Index likely already exists, ignore
+                if (Schema::hasColumn('users', 'theme_preference') && Schema::hasColumn('users', 'display_density')) {
+                    try {
+                        $table->index(['theme_preference', 'display_density'], 'users_theme_density_index');
+                    } catch (Exception $e) {
+                        // Index likely already exists, ignore
+                    }
                 }
             });
         }

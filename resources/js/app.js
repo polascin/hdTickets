@@ -361,47 +361,193 @@ try {
         }
     }));
     
-    // Alpine.js global store for app state
+    // Enhanced Alpine.js global store for app state
     Alpine.store('app', {
+        // Core state
         loading: false,
         darkMode: Alpine.$persist(localStorage.getItem('darkMode') === 'true'),
         sidebarOpen: Alpine.$persist(true),
         notifications: [],
         
+        // App metadata
+        version: '4.0.0',
+        environment: import.meta.env.MODE || 'production',
+        
+        // Performance tracking
+        performanceMetrics: {
+            initTime: 0,
+            componentLoadTime: 0,
+            lastUpdate: Date.now()
+        },
+        
         init() {
-            // Initialize dark mode
+            const initStart = performance.now();
+            
+            // Initialize core features
             this.applyDarkMode();
+            this.initializePerformanceMonitoring();
+            this.setupGlobalEventListeners();
+            
+            this.performanceMetrics.initTime = performance.now() - initStart;
+            console.log(`✅ Alpine.js store initialized in ${this.performanceMetrics.initTime.toFixed(2)}ms`);
+        },
+        
+        initializePerformanceMonitoring() {
+            // Track Alpine.js component loading times
+            document.addEventListener('alpine:init', () => {
+                this.performanceMetrics.componentLoadTime = performance.now();
+            });
+            
+            document.addEventListener('alpine:initialized', () => {
+                this.performanceMetrics.componentLoadTime = 
+                    performance.now() - this.performanceMetrics.componentLoadTime;
+                console.log(`📊 Components loaded in ${this.performanceMetrics.componentLoadTime.toFixed(2)}ms`);
+            });
+        },
+        
+        setupGlobalEventListeners() {
+            // Handle visibility changes for performance optimization
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('📱 App hidden - pausing non-critical operations');
+                } else {
+                    console.log('📱 App visible - resuming operations');
+                    this.performanceMetrics.lastUpdate = Date.now();
+                }
+            });
+            
+            // Handle network status changes
+            window.addEventListener('online', () => {
+                this.notify('Network Status', 'Connection restored', 'success');
+            });
+            
+            window.addEventListener('offline', () => {
+                this.notify('Network Status', 'Connection lost', 'warning');
+            });
         },
         
         toggleDarkMode() {
             this.darkMode = !this.darkMode;
             this.applyDarkMode();
+            
+            // Emit theme change event for components that need to update
+            document.dispatchEvent(new CustomEvent('theme-changed', {
+                detail: { darkMode: this.darkMode }
+            }));
         },
         
         applyDarkMode() {
-            document.documentElement.classList.toggle('dark', this.darkMode);
+            const root = document.documentElement;
+            root.classList.toggle('dark', this.darkMode);
+            
+            // Update meta theme-color for mobile browsers
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                metaTheme.content = this.darkMode ? '#1f2937' : '#ffffff';
+            }
+            
+            // Store preference
+            localStorage.setItem('darkMode', this.darkMode);
         },
         
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
+            
+            // Emit sidebar change event
+            document.dispatchEvent(new CustomEvent('sidebar-toggled', {
+                detail: { open: this.sidebarOpen }
+            }));
         },
         
         setLoading(state, options = {}) {
-            this.loading = state;
-            if (state) {
-                window.dispatchEvent(new CustomEvent('show-loading', {
-                    detail: { show: true, message: options.message || 'Loading...', ...options }
-                }));
-            } else {
-                window.dispatchEvent(new CustomEvent('hide-loading'));
-            }
+            this.loading = !!state;
+            
+            const loadingEvent = state ? 'show-loading' : 'hide-loading';
+            const detail = state ? {
+                show: true,
+                message: options.message || 'Loading...',
+                progress: options.progress || null,
+                canCancel: options.canCancel || false,
+                ...options
+            } : {};
+            
+            window.dispatchEvent(new CustomEvent(loadingEvent, { detail }));
         },
         
         notify(title, message, type = 'info', options = {}) {
+            const notification = {
+                id: Date.now() + Math.random(),
+                title: title || '',
+                message: message || '',
+                type: type || 'info',
+                timestamp: Date.now(),
+                duration: options.duration || (type === 'error' ? 8000 : 5000),
+                persistent: options.persistent || false,
+                actions: options.actions || []
+            };
+            
+            // Add to notifications array
+            this.notifications.unshift(notification);
+            
+            // Keep only last 10 notifications
+            if (this.notifications.length > 10) {
+                this.notifications = this.notifications.slice(0, 10);
+            }
+            
+            // Emit notification event
             window.dispatchEvent(new CustomEvent('notify', {
-                detail: { title, message, type, ...options }
+                detail: notification
             }));
-        }
+            
+            // Auto-remove if not persistent
+            if (!notification.persistent) {
+                setTimeout(() => {
+                    this.removeNotification(notification.id);
+                }, notification.duration);
+            }
+            
+            return notification;
+        },
+        
+        removeNotification(id) {
+            this.notifications = this.notifications.filter(n => n.id !== id);
+        },
+        
+        clearAllNotifications() {
+            this.notifications = [];
+        },
+        
+        // Utility methods
+        getPerformanceReport() {
+            return {
+                ...this.performanceMetrics,
+                memory: performance.memory ? {
+                    used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
+                    total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
+                    limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
+                } : null,
+                uptime: Date.now() - this.performanceMetrics.lastUpdate
+            };
+        },
+        
+        // Debug helpers (only in development)
+        ...import.meta.env.DEV ? {
+            debugComponents() {
+                const components = Object.keys(Alpine.datas || {});
+                console.table(components.map(name => ({ component: name })));
+                return components;
+            },
+            
+            debugStores() {
+                const stores = Object.keys(Alpine.stores || {});
+                console.table(stores.map(name => ({ store: name })));
+                return stores;
+            },
+            
+            simulateNetworkError() {
+                this.notify('Debug', 'Simulated network error', 'error');
+            }
+        } : {}
     });
     console.log('✅ Alpine.js global store registered');
 } catch (error) {

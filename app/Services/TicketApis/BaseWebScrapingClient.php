@@ -6,10 +6,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\DomCrawler\Crawler;
+use App\Exceptions\TicketPlatformException;
 use App\Exceptions\ScrapingDetectedException;
 use App\Exceptions\RateLimitException;
 use App\Exceptions\TimeoutException;
-use App\Exceptions\TicketPlatformException;
 use Exception;
 
 abstract class BaseWebScrapingClient extends BaseApiClient
@@ -667,7 +667,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                 if (str_contains(strtolower($body), 'captcha') || 
                     str_contains(strtolower($body), 'cloudflare') ||
                     str_contains(strtolower($body), 'blocked')) {
-                    throw new ScrapingDetectedException(
+                    throw new \App\Exceptions\ScrapingDetectedException(
                         "Bot detection triggered for {$platform}: CAPTCHA or similar challenge detected",
                         $platform
                     );
@@ -687,7 +687,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                 );
 
             case 503:
-                throw new ScrapingDetectedException(
+                throw new \App\Exceptions\ScrapingDetectedException(
                     "Service temporarily unavailable for {$platform} - possible anti-bot measure",
                     $platform
                 );
@@ -721,7 +721,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
         foreach ($botDetectionPatterns as $pattern) {
             if (preg_match($pattern, $body)) {
-                throw new ScrapingDetectedException(
+                throw new \App\Exceptions\ScrapingDetectedException(
                     "Bot detection triggered for {$platform}: Anti-bot measure detected in response",
                     $platform
                 );
@@ -730,7 +730,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
         // Check for suspiciously short responses (likely redirects to captcha pages)
         if (strlen($body) < 500 && str_contains($body, '<script>')) {
-            throw new ScrapingDetectedException(
+            throw new \App\Exceptions\ScrapingDetectedException(
                 "Suspicious response detected for {$platform}: Possible redirect to challenge page",
                 $platform
             );
