@@ -147,7 +147,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { Chart } from 'chart.js/auto'
 import StatCard from './components/StatCard.vue'
 import PlatformHealthCard from './components/PlatformHealthCard.vue'
 import MonitorCard from './components/MonitorCard.vue'

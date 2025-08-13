@@ -170,7 +170,7 @@ export default function formHandler() {
                     const errorData = await response.json();
                     this.handleError(errorData);
                 }
-            } catch (error) {
+            } catch (_error) {
                 this.handleError({ message: 'Network error occurred' });
             } finally {
                 this.submitting = false;

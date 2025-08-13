@@ -57,10 +57,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import axios from 'axios';
-import cssTimestamp from '../utils/cssTimestamp.js';
 
 export default {
     name: 'NotificationCenter',

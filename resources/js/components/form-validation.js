@@ -181,14 +181,15 @@ export class FormValidator {
                     const [type, param] = rule.split(':');
                     
                     switch (type) {
-                        case 'maxsize':
+                        case 'maxsize': {
                             const maxSize = parseInt(param) * 1024 * 1024; // MB to bytes
                             if (file.size > maxSize) {
                                 this.setCustomError(element, `File size must be less than ${param}MB`);
                                 return false;
                             }
                             break;
-                        case 'types':
+                        }
+                        case 'types': {
                             const allowedTypes = param.split(',');
                             const fileExtension = file.name.split('.').pop().toLowerCase();
                             if (!allowedTypes.includes(fileExtension)) {
@@ -196,6 +197,7 @@ export class FormValidator {
                                 return false;
                             }
                             break;
+                        }
                     }
                 }
                 return true;
@@ -368,10 +370,11 @@ export class FormValidator {
         switch (field.type) {
             case 'checkbox':
                 return field.checked;
-            case 'radio':
+            case 'radio': {
                 const radioGroup = this.form.querySelectorAll(`[name="${field.name}"]`);
                 const checked = Array.from(radioGroup).find(radio => radio.checked);
                 return checked ? checked.value : '';
+            }
             case 'file':
                 return field.files && field.files.length > 0 ? field.files[0] : null;
             default:

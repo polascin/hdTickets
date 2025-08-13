@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import StatCard from '../components/StatCard.vue'
 import ManagementCard from '../components/ManagementCard.vue'

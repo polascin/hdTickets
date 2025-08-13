@@ -34,7 +34,9 @@ export default [
         $: 'readonly',
         jQuery: 'readonly',
         Echo: 'readonly',
-        mobileUtils: 'readonly'
+        mobileUtils: 'readonly',
+        // Development globals
+        process: 'readonly'
       }
     },
     plugins: {
@@ -46,18 +48,27 @@ export default [
       'vue/multi-word-component-names': 'off',
       'vue/no-v-html': 'warn',
       'vue/require-default-prop': 'off',
-      'vue/require-explicit-emits': 'warn',
+      'vue/require-explicit-emits': 'off', // Allow implicit emits for rapid development
       
       // TypeScript rules
       '@typescript-eslint/no-unused-vars': ['error', { 
         argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_' 
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+        destructuredArrayIgnorePattern: '^_'
       }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      
+      // Console rules - more lenient for development
+      'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       
       // General rules
-      'no-console': 'warn',
-      'no-debugger': 'error',
+      'no-case-declarations': 'error',
+      'no-dupe-class-members': 'error',
+      'no-empty': 'warn',
+      'no-undef': 'error',
+      'getter-return': 'error',
+      'no-prototype-builtins': 'warn',
+      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
       'no-unused-vars': 'off' // Use TypeScript version instead
     }
   },

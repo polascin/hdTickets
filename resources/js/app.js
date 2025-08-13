@@ -14,10 +14,7 @@ import AppCore from './core/AppCore.js';
 // Import utilities
 import cssTimestamp from '@utils/cssTimestamp';
 import { ChartJS } from '@utils/chartConfig';
-import pwaManager from '@utils/pwaManager';
 import websocketManager from '@utils/websocketManager';
-import errorReporter from '@utils/errorReporting';
-import ResourceHints from '@utils/resourceHints';
 
 // Import router
 import router from './router/index.js';
@@ -36,7 +33,6 @@ import '@utils/websocketTest';
 
 // Alpine.js component imports
 import { dashboardManager } from './components/dashboardManager.js';
-import { PasswordStrengthIndicator } from './components/password-strength.js';
 import { 
     formHandler, 
     tableManager, 
@@ -595,7 +591,7 @@ try {
 try {
     // Create global component registry instance
     window.ComponentRegistry = {
-        register: function(name, type, config = {}) {
+        register: function(name, type, _config = {}) {
             console.log(`🔧 Registering ${type} component: ${name}`);
             // This would interact with the Laravel ComponentRegistry service via AJAX
         },
@@ -704,7 +700,7 @@ try {
             // Show success message
             try {
                 AppCore.showSuccessMessage('Application loaded successfully');
-            } catch (error) {
+            } catch (_error) {
                 console.log('✅ Application loaded successfully (fallback message)');
             }
         });

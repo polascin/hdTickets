@@ -768,56 +768,9 @@ class WebSocketManager {
     /**
      * Override subscribe methods to work with polling fallback
      */
-    subscribeToTicketUpdates(callback) {
-        if (this.connectionType === 'fallback') {
-            this.on('ticket-updated', callback);
-            console.log('Subscribed to ticket updates via polling fallback');
-            return () => this.off('ticket-updated', callback);
-        }
-        
-        // Original WebSocket implementation
-        if (this.connectionType === 'pusher' && this.echo) {
-            const channel = this.echo.channel('ticket-updates');
-            channel.listen('TicketAvailabilityUpdated', callback);
-            this.channels.set('ticket-updates', channel);
-        } else if (this.connectionType === 'socketio' && this.socketIO) {
-            this.socketIO.on('ticket-availability-updated', callback);
-        }
-    }
-
-    subscribeToAnalytics(callback) {
-        if (this.connectionType === 'fallback') {
-            this.on('analytics-updated', callback);
-            console.log('Subscribed to analytics updates via polling fallback');
-            return () => this.off('analytics-updated', callback);
-        }
-        
-        // Original WebSocket implementation
-        if (this.connectionType === 'pusher' && this.echo) {
-            const channel = this.echo.channel('analytics-updates');
-            channel.listen('AnalyticsUpdated', callback);
-            this.channels.set('analytics-updates', channel);
-        } else if (this.connectionType === 'socketio' && this.socketIO) {
-            this.socketIO.on('analytics-updated', callback);
-        }
-    }
-
-    subscribeToPlatformMonitoring(callback) {
-        if (this.connectionType === 'fallback') {
-            this.on('platform-status-updated', callback);
-            console.log('Subscribed to platform monitoring via polling fallback');
-            return () => this.off('platform-status-updated', callback);
-        }
-        
-        // Original WebSocket implementation
-        if (this.connectionType === 'pusher' && this.echo) {
-            const channel = this.echo.channel('platform-monitoring');
-            channel.listen('PlatformStatusUpdated', callback);
-            this.channels.set('platform-monitoring', channel);
-        } else if (this.connectionType === 'socketio' && this.socketIO) {
-            this.socketIO.on('platform-status-updated', callback);
-        }
-    }
+    
+    // Note: Methods subscribeToTicketUpdates, subscribeToAnalytics, and subscribeToPlatformMonitoring
+    // are already defined above. Duplicate definitions removed to fix ESLint errors.
 }
 
 // Create and export singleton instance

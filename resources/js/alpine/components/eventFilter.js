@@ -13,6 +13,8 @@
  * @events filter-cleared: Emitted when filters are cleared
  */
 
+/* global Alpine */
+
 document.addEventListener('alpine:init', () => {
     Alpine.data('eventFilter', (initialFilters = {}, initialEvents = []) => ({
         // State management
@@ -86,7 +88,7 @@ document.addEventListener('alpine:init', () => {
             }, { deep: true });
             
             // Watch for events data changes
-            this.$watch('events', (newEvents) => {
+            this.$watch('events', (_newEvents) => {
                 this.extractFilterOptions();
                 this.applyFilters();
             });
@@ -203,32 +205,37 @@ document.addEventListener('alpine:init', () => {
                     case 'today':
                         return this.isSameDay(eventDate, today);
                     
-                    case 'tomorrow':
+                    case 'tomorrow': {
                         const tomorrow = new Date(today);
                         tomorrow.setDate(tomorrow.getDate() + 1);
                         return this.isSameDay(eventDate, tomorrow);
+                    }
                     
-                    case 'this_week':
+                    case 'this_week': {
                         const weekEnd = new Date(today);
                         weekEnd.setDate(today.getDate() + (7 - today.getDay()));
                         return eventDate >= today && eventDate <= weekEnd;
+                    }
                     
-                    case 'next_week':
+                    case 'next_week': {
                         const nextWeekStart = new Date(today);
                         nextWeekStart.setDate(today.getDate() + (7 - today.getDay() + 1));
                         const nextWeekEnd = new Date(nextWeekStart);
                         nextWeekEnd.setDate(nextWeekEnd.getDate() + 6);
                         return eventDate >= nextWeekStart && eventDate <= nextWeekEnd;
+                    }
                     
-                    case 'this_month':
+                    case 'this_month': {
                         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
                         const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                         return eventDate >= monthStart && eventDate <= monthEnd;
+                    }
                     
-                    case 'next_month':
+                    case 'next_month': {
                         const nextMonthStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
                         const nextMonthEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0);
                         return eventDate >= nextMonthStart && eventDate <= nextMonthEnd;
+                    }
                     
                     default:
                         return true;

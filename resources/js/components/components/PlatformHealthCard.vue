@@ -18,6 +18,8 @@
   </div>
 </template>
 <script setup>
+import { ref, computed } from 'vue'
+
 const props = defineProps({
   platform: {
     type: Object,
@@ -29,7 +31,7 @@ const loading = ref(false)
 
 const checkNow = async () => {
   loading.value = true
-  emits('check-now', platform.platform)
+  emits('check-now', props.platform)
   setTimeout(() => {
     loading.value = false
   }, 2000)
@@ -37,7 +39,7 @@ const checkNow = async () => {
 
 const statusClass = computed(() => {
   const baseClass = 'platform-health-card'
-  switch (platform.status) {
+  switch (props.platform.status) {
     case 'healthy':
       return `${baseClass} healthy`
     case 'warning':
@@ -50,12 +52,12 @@ const statusClass = computed(() => {
 })
 
 const details = computed(() => ({
-  'Success Rate': `${platform.success_rate}%`,
-  'Avg Response Time': `${platform.avg_response_time}ms`,
-  'Availability': `${platform.availability}%`,
-  'Last Check': platform.last_check || 'N/A',
-  'Requests': `${platform.total_requests}`,
-  'Failures': `${platform.failed_requests}`
+  'Success Rate': `${props.platform.success_rate}%`,
+  'Avg Response Time': `${props.platform.avg_response_time}ms`,
+  'Availability': `${props.platform.availability}%`,
+  'Last Check': props.platform.last_check || 'N/A',
+  'Requests': `${props.platform.total_requests}`,
+  'Failures': `${props.platform.failed_requests}`
 }))
 </script>
 <style scoped>

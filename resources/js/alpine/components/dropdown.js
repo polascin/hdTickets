@@ -150,7 +150,7 @@ export default function dropdown(options = {}) {
             });
         },
         
-        open() {
+        openDropdown() {
             this.open = true;
         },
         
