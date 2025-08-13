@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
+class Container_636ae66be8 extends _PHPStan_f9a2208af\Nette\DI\Container
 {
 	protected $tags = [
 		'phpstan.parser.richParserNodeVisitor' => [
@@ -32217,7 +32217,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -32277,7 +32277,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -32342,7 +32342,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -32400,7 +32400,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -32420,7 +32420,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -32443,7 +32443,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			private $container;
 
 
-			public function __construct(Container_ff990890ac $container)
+			public function __construct(Container_636ae66be8 $container)
 			{
 				$this->container = $container;
 			}
@@ -35505,7 +35505,7 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 	}
 
 
-	public function createServiceContainer(): Container_ff990890ac
+	public function createServiceContainer(): Container_636ae66be8
 	{
 		return $this;
 	}
@@ -63563,152 +63563,138 @@ class Container_ff990890ac extends _PHPStan_f9a2208af\Nette\DI\Container
 			'usedLevel' => '8',
 			'cliAutoloadFile' => null,
 			'env' => [
-				'GJS_DEBUG_TOPICS' => 'JS ERROR;JS LOG',
-				'LESSOPEN' => '| /usr/bin/lesspipe %s',
-				'GIT_AUTHOR_EMAIL' => 'lubomir@polascin.net',
-				'USER' => 'lubomir',
-				'PHP_INI_SCAN_DIR' => '',
-				'LOG_LEVEL' => 'error',
-				'DB_CONNECTION' => 'mysql',
+				'SHELL' => '/bin/bash',
+				'SESSION_MANAGER' => 'local/heroelpiu:@/tmp/.ICE-unix/5204,unix/heroelpiu:/tmp/.ICE-unix/5204',
+				'QT_ACCESSIBILITY' => '1',
+				'SNAP_REVISION' => '203',
+				'XDG_CONFIG_DIRS' => '/etc/xdg/xdg-ubuntu:/etc/xdg',
+				'GIT_CONFIG_PARAMETERS' => '\'user.useConfigOnly\'=\'true\'',
+				'XDG_MENU_PREFIX' => 'gnome-',
+				'XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG' => '/etc/xdg/xdg-ubuntu:/etc/xdg',
+				'GNOME_DESKTOP_SESSION_ID' => 'this-is-deprecated',
+				'SNAP_REAL_HOME' => '/home/lubomir',
+				'SNAP_USER_COMMON' => '/home/lubomir/snap/code/common',
 				'FONTCONFIG_PATH' => '/etc/fonts',
-				'GIT_EXEC_PATH' => '/usr/lib/git-core',
-				'GIT_EDITOR' => ':',
-				'GIO_MODULE_DIR' => '/home/lubomir/snap/code/common/.cache/gio-modules',
-				'APP_DEBUG' => 'true',
+				'GNOME_SHELL_SESSION_MODE' => 'ubuntu',
+				'VSCODE_GIT_EDITOR_EXTRA_ARGS' => '',
+				'SSH_AUTH_SOCK' => '/run/user/1000/keyring/ssh',
+				'XDG_DATA_HOME' => '/home/lubomir/snap/code/203/.local/share',
+				'MEMORY_PRESSURE_WRITE' => 'c29tZSAyMDAwMDAgMjAwMDAwMAA=',
+				'ELECTRON_RUN_AS_NODE' => '1',
+				'XMODIFIERS' => '@@im=ibus',
+				'DESKTOP_SESSION' => 'ubuntu',
+				'GDK_PIXBUF_MODULE_FILE' => '/home/lubomir/snap/code/common/.cache/gdk-pixbuf-loaders.cache',
+				'BAMF_DESKTOP_FILE_HINT' => '/var/lib/snapd/desktop/applications/code_code.desktop',
+				'VSCODE_GIT_EDITOR_MAIN' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/git-editor-main.js',
+				'VSCODE_GIT_EDITOR_NODE' => '/snap/code/203/usr/share/code/code',
+				'GTK_MODULES' => 'gail:atk-bridge:appmenu-gtk-module',
+				'GIT_INDEX_FILE' => '.git/index',
+				'SNAP_EUID' => '1000',
+				'PWD' => '/var/www/hdtickets',
+				'GSETTINGS_SCHEMA_DIR' => '/home/lubomir/snap/code/203/.local/share/glib-2.0/schemas',
+				'XDG_SESSION_DESKTOP' => 'ubuntu',
+				'LOGNAME' => 'lubomir',
+				'GTK_EXE_PREFIX' => '/snap/code/203/usr',
 				'XDG_SESSION_TYPE' => 'wayland',
-				'GIT_ASKPASS' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/askpass.sh',
-				'GTK_EXE_PREFIX_VSCODE_SNAP_ORIG' => '',
-				'APP_URL' => 'https://hdtickets.local',
-				'DB_PORT' => '3306',
-				'MAIL_FROM_ADDRESS' => 'noreply@hdtickets.com',
-				'GDK_BACKEND_VSCODE_SNAP_ORIG' => '',
+				'VSCODE_ESM_ENTRYPOINT' => 'vs/workbench/api/node/extensionHostProcess',
+				'SYSTEMD_EXEC_PID' => '5258',
+				'VSCODE_CODE_CACHE_PATH' => '/home/lubomir/.config/Code/CachedData/e3550cfac4b63ca4eafca7b601f0d2885817fd1f',
+				'XAUTHORITY' => '/run/user/1000/.mutter-Xwaylandauth.YDYUA3',
 				'TEMPDIR' => '/tmp/user/1000',
-				'CLUTTER_DISABLE_MIPMAPPED_TEXT' => '1',
-				'SHLVL' => '2',
-				'GIT_AUTHOR_DATE' => '@@1755079692 +0200',
+				'VSCODE_GIT_ASKPASS_NODE' => '/snap/code/203/usr/share/code/code',
+				'GIT_AUTHOR_DATE' => '@@1755079714 +0200',
+				'IM_CONFIG_CHECK_ENV' => '1',
+				'SNAP_CONTEXT' => 'rINnBQqwxE531uak5pb9TUX5TWhM1FBDA0JepTiJzAIpb_2_wuUb',
+				'GJS_DEBUG_TOPICS' => 'JS ERROR;JS LOG',
+				'GIT_EXEC_PATH' => '/usr/lib/git-core',
 				'HOME' => '/home/lubomir',
+				'USERNAME' => 'lubomir',
+				'IM_CONFIG_PHASE' => '1',
+				'SSH_ASKPASS' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/ssh-askpass.sh',
+				'LANG' => 'en_US.UTF-8',
+				'XDG_CURRENT_DESKTOP' => 'Unity',
+				'VSCODE_IPC_HOOK' => '/run/user/1000/vscode-cc408e41-1.10-main.sock',
+				'MEMORY_PRESSURE_WATCH' => '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure',
+				'WAYLAND_DISPLAY' => 'wayland-0',
+				'SNAP_ARCH' => 'amd64',
+				'SNAP_INSTANCE_NAME' => 'code',
+				'SNAP_USER_DATA' => '/home/lubomir/snap/code/203',
+				'VSCODE_CLI' => '1',
+				'TMPDIR' => '/tmp/user/1000',
+				'GIT_ASKPASS' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/askpass.sh',
+				'VSCODE_L10N_BUNDLE_LOCATION' => '',
+				'QTWEBENGINE_DICTIONARIES_PATH' => '/usr/share/hunspell-bdic/',
+				'INVOCATION_ID' => 'd6d748739745456faf79a7e684827951',
+				'SNAP_LAUNCHER_ARCH_TRIPLET' => 'x86_64-linux-gnu',
+				'MANAGERPID' => '4935',
+				'GIT_AUTHOR_EMAIL' => 'lubomir@polascin.net',
+				'SNAP_UID' => '1000',
+				'GIT_PREFIX' => '',
 				'CHROME_DESKTOP' => 'code.desktop',
-				'LOCPATH_VSCODE_SNAP_ORIG' => '',
+				'GJS_DEBUG_OUTPUT' => 'stderr',
+				'VSCODE_GIT_ASKPASS_EXTRA_ARGS' => '',
+				'GNOME_SETUP_DISPLAY' => ':1',
+				'LESSCLOSE' => '/usr/bin/lesspipe %s %s',
+				'XDG_SESSION_CLASS' => 'user',
+				'GTK_PATH' => '/snap/code/203/usr/lib/x86_64-linux-gnu/gtk-3.0',
+				'LESSOPEN' => '| /usr/bin/lesspipe %s',
+				'USER' => 'lubomir',
+				'GIT_PAGER' => 'cat',
+				'SSH_ASKPASS_REQUIRE' => 'force',
+				'VSCODE_GIT_IPC_HANDLE' => '/run/user/1000/vscode-git-bdc41fb5d1.sock',
+				'SNAP' => '/snap/code/203',
+				'VSCODE_GIT_COMMAND' => '-c',
+				'SNAP_COMMON' => '/var/snap/code/common',
+				'CLUTTER_DISABLE_MIPMAPPED_TEXT' => '1',
+				'TEMP' => '/tmp/user/1000',
+				'SNAP_VERSION' => 'e3550cfa',
+				'DISPLAY' => ':0',
+				'VSCODE_PID' => '381047',
+				'SHLVL' => '1',
+				'GDK_PIXBUF_MODULEDIR' => '/snap/code/203/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders',
+				'LOCPATH' => '/snap/code/203/usr/lib/locale',
+				'SNAP_LIBRARY_PATH' => '/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32:/var/lib/snapd/void',
+				'GSM_SKIP_SSH_AGENT_WORKAROUND' => 'true',
+				'GIT_EDITOR' => '"/snap/code/203/usr/share/code/resources/app/extensions/git/dist/git-editor.sh"',
+				'SNAP_COOKIE' => 'rINnBQqwxE531uak5pb9TUX5TWhM1FBDA0JepTiJzAIpb_2_wuUb',
+				'QT_IM_MODULE' => 'ibus',
+				'VSCODE_CWD' => '/home/lubomir',
+				'SNAP_DATA' => '/var/snap/code/203',
+				'VSCODE_CRASH_REPORTER_PROCESS_TYPE' => 'extensionHost',
+				'XDG_RUNTIME_DIR' => '/run/user/1000',
+				'XDG_DATA_DIRS_VSCODE_SNAP_ORIG' => '/usr/share/ubuntu:/usr/share/gnome:/home/lubomir/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop',
+				'DEBUGINFOD_URLS' => 'https://debuginfod.ubuntu.com ',
+				'LC_ALL' => 'en_US.UTF-8',
+				'SNAP_NAME' => 'code',
+				'FONTCONFIG_FILE' => '/etc/fonts/fonts.conf',
+				'ELECTRON_NO_ATTACH_CONSOLE' => '1',
+				'VSCODE_GIT_ASKPASS_MAIN' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/askpass-main.js',
+				'JOURNAL_STREAM' => '9:43392',
+				'XDG_DATA_DIRS' => '/home/lubomir/snap/code/203/.local/share/flatpak/exports/share:/home/lubomir/snap/code/203/.local/share:/home/lubomir/snap/code/203:/snap/code/203/usr/share:/usr/share/ubuntu:/usr/share/gnome:/home/lubomir/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop',
+				'GDK_BACKEND' => 'x11',
+				'GIT_AUTHOR_NAME' => 'Lubomir Polascin',
+				'TMP' => '/tmp/user/1000',
+				'PATH' => '/usr/lib/git-core:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin',
+				'GDMSESSION' => 'ubuntu',
+				'ORIGINAL_XDG_CURRENT_DESKTOP' => 'ubuntu:GNOME',
+				'APPLICATION_INSIGHTS_NO_STATSBEAT' => 'true',
+				'GTK_IM_MODULE_FILE' => '/home/lubomir/snap/code/common/.cache/immodules/immodules.cache',
+				'DBUS_SESSION_BUS_ADDRESS' => 'unix:path=/run/user/1000/bus',
+				'VSCODE_NLS_CONFIG' => '{"userLocale":"en-us","osLocale":"sk-sk","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/203/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}',
+				'GIO_MODULE_DIR' => '/home/lubomir/snap/code/common/.cache/gio-modules',
+				'GIO_LAUNCHED_DESKTOP_FILE_PID' => '380991',
+				'GIO_LAUNCHED_DESKTOP_FILE' => '/var/lib/snapd/desktop/applications/code_code.desktop',
+				'VSCODE_HANDLES_UNCAUGHT_ERRORS' => 'true',
+				'_' => './vendor/bin/phpstan',
 				'OLDPWD' => '/var/www/hdtickets',
 				'VIPSHOME' => '/usr',
-				'PUSHER_APP_ID' => 'hd-tickets-app',
-				'TERM_PROGRAM_VERSION' => '1.103.0',
-				'DESKTOP_SESSION' => 'ubuntu',
-				'GTK_PATH' => '/snap/code/203/usr/lib/x86_64-linux-gnu/gtk-3.0',
-				'PUSHER_APP_SECRET' => 'hd-tickets-secret',
-				'XDG_DATA_HOME_VSCODE_SNAP_ORIG' => '',
-				'GTK_IM_MODULE_FILE' => '/home/lubomir/snap/code/common/.cache/immodules/immodules.cache',
-				'GIO_LAUNCHED_DESKTOP_FILE' => '/var/lib/snapd/desktop/applications/code_code.desktop',
-				'GNOME_SHELL_SESSION_MODE' => 'ubuntu',
-				'GTK_MODULES' => 'gail:atk-bridge:appmenu-gtk-module',
-				'GSETTINGS_SCHEMA_DIR_VSCODE_SNAP_ORIG' => '',
-				'VSCODE_GIT_ASKPASS_MAIN' => '/snap/code/203/usr/share/code/resources/app/extensions/git/dist/askpass-main.js',
-				'GIT_AUTHOR_NAME' => 'Lubomir Polascin',
-				'MAIL_FROM_NAME' => 'HD Tickets',
-				'VSCODE_GIT_ASKPASS_NODE' => '/snap/code/203/usr/share/code/code',
-				'MANAGERPID' => '4935',
-				'GIT_PREFIX' => '',
-				'DB_DATABASE' => 'hdtickets',
-				'DEVELOPMENT_MODE' => 'false',
-				'SCRAPING_DELAY' => '5',
-				'SYSTEMD_EXEC_PID' => '5258',
-				'IM_CONFIG_CHECK_ENV' => '1',
-				'GSM_SKIP_SSH_AGENT_WORKAROUND' => 'true',
-				'DBUS_SESSION_BUS_ADDRESS' => 'unix:path=/run/user/1000/bus',
-				'APP_NAME' => 'HD Tickets',
-				'COLORTERM' => 'truecolor',
-				'GIO_LAUNCHED_DESKTOP_FILE_PID' => '380991',
-				'DEBUGINFOD_URLS' => 'https://debuginfod.ubuntu.com ',
-				'SESSION_DRIVER' => 'file',
-				'IM_CONFIG_PHASE' => '1',
-				'WAYLAND_DISPLAY' => 'wayland-0',
-				'TMPDIR' => '/tmp/user/1000',
-				'SHELL_VERBOSITY' => '-1',
-				'LOG_CHANNEL' => 'stack',
-				'DB_USERNAME' => 'hdtickets',
-				'MEMCACHED_HOST' => '127.0.0.1',
-				'LOGNAME' => 'lubomir',
-				'VITE_PUSHER_HOST' => '127.0.0.1',
-				'TEMP' => '/tmp/user/1000',
-				'JOURNAL_STREAM' => '9:43392',
-				'_' => './vendor/bin/phpstan',
-				'VITE_PUSHER_APP_KEY' => 'hd-tickets-key',
-				'XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG' => '/etc/xdg/xdg-ubuntu:/etc/xdg',
-				'MEMORY_PRESSURE_WATCH' => '/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/org.gnome.Shell@wayland.service/memory.pressure',
-				'XDG_SESSION_CLASS' => 'user',
-				'XDG_DATA_DIRS_VSCODE_SNAP_ORIG' => '/usr/share/ubuntu:/usr/share/gnome:/home/lubomir/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop',
-				'CACHE_DRIVER' => 'file',
-				'VITE_PUSHER_SCHEME' => 'http',
-				'VITE_PUSHER_APP_CLUSTER' => '',
-				'USERNAME' => 'lubomir',
-				'TERM' => 'xterm-256color',
-				'COLUMNS' => '80',
-				'GNOME_DESKTOP_SESSION_ID' => 'this-is-deprecated',
-				'PUSHER_HOST' => '127.0.0.1',
-				'PUSHER_APP_KEY' => 'hd-tickets-key',
-				'PATH' => '/usr/lib/git-core:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/lubomir/.config/Code/User/globalStorage/github.copilot-chat/debugCommand',
-				'SESSION_MANAGER' => 'local/heroelpiu:@/tmp/.ICE-unix/5204,unix/heroelpiu:/tmp/.ICE-unix/5204',
-				'GTK_EXE_PREFIX' => '/snap/code/203/usr',
-				'INVOCATION_ID' => 'd6d748739745456faf79a7e684827951',
-				'XDEBUG_HANDLER_SETTINGS' => '/tmp/user/1000/gvt6vd37us1h7y879GI|1|*|*|/etc/php/8.4/cli/php.ini:/etc/php/8.4/cli/conf.d/10-mysqlnd.ini:/etc/php/8.4/cli/conf.d/10-opcache.ini:/etc/php/8.4/cli/conf.d/10-pdo.ini:/etc/php/8.4/cli/conf.d/15-xml.ini:/etc/php/8.4/cli/conf.d/20-amqp.ini:/etc/php/8.4/cli/conf.d/20-ast.ini:/etc/php/8.4/cli/conf.d/20-bcmath.ini:/etc/php/8.4/cli/conf.d/20-bz2.ini:/etc/php/8.4/cli/conf.d/20-calendar.ini:/etc/php/8.4/cli/conf.d/20-ctype.ini:/etc/php/8.4/cli/conf.d/20-curl.ini:/etc/php/8.4/cli/conf.d/20-dba.ini:/etc/php/8.4/cli/conf.d/20-dom.ini:/etc/php/8.4/cli/conf.d/20-enchant.ini:/etc/php/8.4/cli/conf.d/20-exif.ini:/etc/php/8.4/cli/conf.d/20-ffi.ini:/etc/php/8.4/cli/conf.d/20-fileinfo.ini:/etc/php/8.4/cli/conf.d/20-ftp.ini:/etc/php/8.4/cli/conf.d/20-gd.ini:/etc/php/8.4/cli/conf.d/20-gearman.ini:/etc/php/8.4/cli/conf.d/20-gettext.ini:/etc/php/8.4/cli/conf.d/20-gmp.ini:/etc/php/8.4/cli/conf.d/20-iconv.ini:/etc/php/8.4/cli/conf.d/20-igbinary.ini:/etc/php/8.4/cli/conf.d/20-imagick.ini:/etc/php/8.4/cli/conf.d/20-imap.ini:/etc/php/8.4/cli/conf.d/20-intl.ini:/etc/php/8.4/cli/conf.d/20-ldap.ini:/etc/php/8.4/cli/conf.d/20-mbstring.ini:/etc/php/8.4/cli/conf.d/20-mcrypt.ini:/etc/php/8.4/cli/conf.d/20-memcache.ini:/etc/php/8.4/cli/conf.d/20-mongodb.ini:/etc/php/8.4/cli/conf.d/20-msgpack.ini:/etc/php/8.4/cli/conf.d/20-mysqli.ini:/etc/php/8.4/cli/conf.d/20-oauth.ini:/etc/php/8.4/cli/conf.d/20-odbc.ini:/etc/php/8.4/cli/conf.d/20-pcov.ini:/etc/php/8.4/cli/conf.d/20-pdo_mysql.ini:/etc/php/8.4/cli/conf.d/20-pdo_odbc.ini:/etc/php/8.4/cli/conf.d/20-pdo_pgsql.ini:/etc/php/8.4/cli/conf.d/20-pdo_sqlite.ini:/etc/php/8.4/cli/conf.d/20-pgsql.ini:/etc/php/8.4/cli/conf.d/20-phar.ini:/etc/php/8.4/cli/conf.d/20-posix.ini:/etc/php/8.4/cli/conf.d/20-pspell.ini:/etc/php/8.4/cli/conf.d/20-raphf.ini:/etc/php/8.4/cli/conf.d/20-readline.ini:/etc/php/8.4/cli/conf.d/20-rrd.ini:/etc/php/8.4/cli/conf.d/20-shmop.ini:/etc/php/8.4/cli/conf.d/20-simplexml.ini:/etc/php/8.4/cli/conf.d/20-snmp.ini:/etc/php/8.4/cli/conf.d/20-soap.ini:/etc/php/8.4/cli/conf.d/20-sockets.ini:/etc/php/8.4/cli/conf.d/20-sqlite3.ini:/etc/php/8.4/cli/conf.d/20-ssh2.ini:/etc/php/8.4/cli/conf.d/20-stomp.ini:/etc/php/8.4/cli/conf.d/20-sysvmsg.ini:/etc/php/8.4/cli/conf.d/20-sysvsem.ini:/etc/php/8.4/cli/conf.d/20-sysvshm.ini:/etc/php/8.4/cli/conf.d/20-tidy.ini:/etc/php/8.4/cli/conf.d/20-tokenizer.ini:/etc/php/8.4/cli/conf.d/20-uploadprogress.ini:/etc/php/8.4/cli/conf.d/20-uuid.ini:/etc/php/8.4/cli/conf.d/20-xdebug.ini:/etc/php/8.4/cli/conf.d/20-xhprof.ini:/etc/php/8.4/cli/conf.d/20-xlswriter.ini:/etc/php/8.4/cli/conf.d/20-xmlreader.ini:/etc/php/8.4/cli/conf.d/20-xmlrpc.ini:/etc/php/8.4/cli/conf.d/20-xmlwriter.ini:/etc/php/8.4/cli/conf.d/20-xsl.ini:/etc/php/8.4/cli/conf.d/20-yac.ini:/etc/php/8.4/cli/conf.d/20-yaml.ini:/etc/php/8.4/cli/conf.d/20-zip.ini:/etc/php/8.4/cli/conf.d/20-zmq.ini:/etc/php/8.4/cli/conf.d/25-http.ini:/etc/php/8.4/cli/conf.d/25-mailparse.ini:/etc/php/8.4/cli/conf.d/25-memcached.ini:/etc/php/8.4/cli/conf.d/25-redis.ini:/etc/php/8.4/cli/conf.d/30-decimal.ini:/etc/php/8.4/cli/conf.d/30-ds.ini:/etc/php/8.4/cli/conf.d/30-maxminddb.ini:/etc/php/8.4/cli/conf.d/30-protobuf.ini:/etc/php/8.4/cli/conf.d/30-rdkafka.ini:/etc/php/8.4/cli/conf.d/30-vips.ini:/etc/php/8.4/cli/conf.d/30-zstd.ini:/etc/php/8.4/cli/conf.d/99-security.ini|3.4.5',
-				'PUSHER_APP_CLUSTER' => '',
-				'PUSHER_SCHEME' => 'http',
-				'XDG_MENU_PREFIX' => 'gnome-',
-				'BAMF_DESKTOP_FILE_HINT' => '/var/lib/snapd/desktop/applications/code_code.desktop',
-				'GNOME_SETUP_DISPLAY' => ':1',
-				'XDG_RUNTIME_DIR' => '/run/user/1000',
-				'GDK_BACKEND' => 'x11',
-				'VITE_PUSHER_PORT' => '6001',
-				'DISPLAY' => ':0',
-				'LOCPATH' => '/snap/code/203/usr/lib/locale',
-				'PHPRC' => '/tmp/user/1000/gvt6vd37us1h7y879GI',
-				'LANG' => 'sk_SK.UTF-8',
-				'XDG_CURRENT_DESKTOP' => 'Unity',
-				'GIO_MODULE_DIR_VSCODE_SNAP_ORIG' => '',
-				'XDG_DATA_HOME' => '/home/lubomir/snap/code/203/.local/share',
-				'XMODIFIERS' => '@@im=ibus',
-				'XDG_SESSION_DESKTOP' => 'ubuntu',
-				'XAUTHORITY' => '/run/user/1000/.mutter-Xwaylandauth.YDYUA3',
-				'LS_COLORS' => 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:',
-				'VSCODE_GIT_IPC_HANDLE' => '/run/user/1000/vscode-git-bdc41fb5d1.sock',
-				'TMP' => '/tmp/user/1000',
-				'TERM_PROGRAM' => 'vscode',
-				'FILESYSTEM_DISK' => 'local',
-				'API_RATE_LIMIT' => '100',
-				'CSS_TIMESTAMP' => 'true',
-				'SSH_AUTH_SOCK' => '/run/user/1000/keyring/ssh',
-				'GSETTINGS_SCHEMA_DIR' => '/home/lubomir/snap/code/203/.local/share/glib-2.0/schemas',
-				'ORIGINAL_XDG_CURRENT_DESKTOP' => 'ubuntu:GNOME',
-				'PUSHER_PORT' => '6001',
-				'SHELL' => '/bin/bash',
-				'SESSION_LIFETIME' => '120',
-				'QT_ACCESSIBILITY' => '1',
-				'GDMSESSION' => 'ubuntu',
-				'LESSCLOSE' => '/usr/bin/lesspipe %s %s',
-				'GTK_PATH_VSCODE_SNAP_ORIG' => '',
-				'FONTCONFIG_FILE' => '/etc/fonts/fonts.conf',
-				'GTK_IM_MODULE_FILE_VSCODE_SNAP_ORIG' => '',
-				'PHPSTAN_ORIGINAL_INIS' => '/etc/php/8.4/cli/php.ini:/etc/php/8.4/cli/conf.d/10-mysqlnd.ini:/etc/php/8.4/cli/conf.d/10-opcache.ini:/etc/php/8.4/cli/conf.d/10-pdo.ini:/etc/php/8.4/cli/conf.d/15-xml.ini:/etc/php/8.4/cli/conf.d/20-amqp.ini:/etc/php/8.4/cli/conf.d/20-ast.ini:/etc/php/8.4/cli/conf.d/20-bcmath.ini:/etc/php/8.4/cli/conf.d/20-bz2.ini:/etc/php/8.4/cli/conf.d/20-calendar.ini:/etc/php/8.4/cli/conf.d/20-ctype.ini:/etc/php/8.4/cli/conf.d/20-curl.ini:/etc/php/8.4/cli/conf.d/20-dba.ini:/etc/php/8.4/cli/conf.d/20-dom.ini:/etc/php/8.4/cli/conf.d/20-enchant.ini:/etc/php/8.4/cli/conf.d/20-exif.ini:/etc/php/8.4/cli/conf.d/20-ffi.ini:/etc/php/8.4/cli/conf.d/20-fileinfo.ini:/etc/php/8.4/cli/conf.d/20-ftp.ini:/etc/php/8.4/cli/conf.d/20-gd.ini:/etc/php/8.4/cli/conf.d/20-gearman.ini:/etc/php/8.4/cli/conf.d/20-gettext.ini:/etc/php/8.4/cli/conf.d/20-gmp.ini:/etc/php/8.4/cli/conf.d/20-iconv.ini:/etc/php/8.4/cli/conf.d/20-igbinary.ini:/etc/php/8.4/cli/conf.d/20-imagick.ini:/etc/php/8.4/cli/conf.d/20-imap.ini:/etc/php/8.4/cli/conf.d/20-intl.ini:/etc/php/8.4/cli/conf.d/20-ldap.ini:/etc/php/8.4/cli/conf.d/20-mbstring.ini:/etc/php/8.4/cli/conf.d/20-mcrypt.ini:/etc/php/8.4/cli/conf.d/20-memcache.ini:/etc/php/8.4/cli/conf.d/20-mongodb.ini:/etc/php/8.4/cli/conf.d/20-msgpack.ini:/etc/php/8.4/cli/conf.d/20-mysqli.ini:/etc/php/8.4/cli/conf.d/20-oauth.ini:/etc/php/8.4/cli/conf.d/20-odbc.ini:/etc/php/8.4/cli/conf.d/20-pcov.ini:/etc/php/8.4/cli/conf.d/20-pdo_mysql.ini:/etc/php/8.4/cli/conf.d/20-pdo_odbc.ini:/etc/php/8.4/cli/conf.d/20-pdo_pgsql.ini:/etc/php/8.4/cli/conf.d/20-pdo_sqlite.ini:/etc/php/8.4/cli/conf.d/20-pgsql.ini:/etc/php/8.4/cli/conf.d/20-phar.ini:/etc/php/8.4/cli/conf.d/20-posix.ini:/etc/php/8.4/cli/conf.d/20-pspell.ini:/etc/php/8.4/cli/conf.d/20-raphf.ini:/etc/php/8.4/cli/conf.d/20-readline.ini:/etc/php/8.4/cli/conf.d/20-rrd.ini:/etc/php/8.4/cli/conf.d/20-shmop.ini:/etc/php/8.4/cli/conf.d/20-simplexml.ini:/etc/php/8.4/cli/conf.d/20-snmp.ini:/etc/php/8.4/cli/conf.d/20-soap.ini:/etc/php/8.4/cli/conf.d/20-sockets.ini:/etc/php/8.4/cli/conf.d/20-sqlite3.ini:/etc/php/8.4/cli/conf.d/20-ssh2.ini:/etc/php/8.4/cli/conf.d/20-stomp.ini:/etc/php/8.4/cli/conf.d/20-sysvmsg.ini:/etc/php/8.4/cli/conf.d/20-sysvsem.ini:/etc/php/8.4/cli/conf.d/20-sysvshm.ini:/etc/php/8.4/cli/conf.d/20-tidy.ini:/etc/php/8.4/cli/conf.d/20-tokenizer.ini:/etc/php/8.4/cli/conf.d/20-uploadprogress.ini:/etc/php/8.4/cli/conf.d/20-uuid.ini:/etc/php/8.4/cli/conf.d/20-xdebug.ini:/etc/php/8.4/cli/conf.d/20-xhprof.ini:/etc/php/8.4/cli/conf.d/20-xlswriter.ini:/etc/php/8.4/cli/conf.d/20-xmlreader.ini:/etc/php/8.4/cli/conf.d/20-xmlrpc.ini:/etc/php/8.4/cli/conf.d/20-xmlwriter.ini:/etc/php/8.4/cli/conf.d/20-xsl.ini:/etc/php/8.4/cli/conf.d/20-yac.ini:/etc/php/8.4/cli/conf.d/20-yaml.ini:/etc/php/8.4/cli/conf.d/20-zip.ini:/etc/php/8.4/cli/conf.d/20-zmq.ini:/etc/php/8.4/cli/conf.d/25-http.ini:/etc/php/8.4/cli/conf.d/25-mailparse.ini:/etc/php/8.4/cli/conf.d/25-memcached.ini:/etc/php/8.4/cli/conf.d/25-redis.ini:/etc/php/8.4/cli/conf.d/30-decimal.ini:/etc/php/8.4/cli/conf.d/30-ds.ini:/etc/php/8.4/cli/conf.d/30-maxminddb.ini:/etc/php/8.4/cli/conf.d/30-protobuf.ini:/etc/php/8.4/cli/conf.d/30-rdkafka.ini:/etc/php/8.4/cli/conf.d/30-vips.ini:/etc/php/8.4/cli/conf.d/30-zstd.ini:/etc/php/8.4/cli/conf.d/99-security.ini',
-				'GJS_DEBUG_OUTPUT' => 'stderr',
-				'LOG_DEPRECATIONS_CHANNEL' => 'null',
-				'VSCODE_GIT_ASKPASS_EXTRA_ARGS' => '',
-				'GIT_PAGER' => 'cat',
-				'QT_IM_MODULE' => 'ibus',
-				'TELESCOPE_ENABLED' => 'false',
-				'MAIL_MAILER' => 'smtp',
-				'PWD' => '/var/www/hdtickets',
-				'APP_ENV' => 'production',
-				'APP_KEY' => 'base64:vG9WEmjSthPG0M9IlotkjkLRpVajgEhN2GKw8Bu7Hok=',
-				'DB_PASSWORD' => 'hdtickets',
-				'XDG_CONFIG_DIRS' => '/etc/xdg/xdg-ubuntu:/etc/xdg',
-				'GIT_INDEX_FILE' => '.git/index',
-				'XDG_DATA_DIRS' => '/home/lubomir/snap/code/203/.local/share/flatpak/exports/share:/home/lubomir/snap/code/203/.local/share:/home/lubomir/snap/code/203:/snap/code/203/usr/share:/usr/share/ubuntu:/usr/share/gnome:/home/lubomir/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop',
-				'QTWEBENGINE_DICTIONARIES_PATH' => '/usr/share/hunspell-bdic/',
 				'LINES' => '50',
-				'DEBUG_SCRAPING' => 'false',
-				'DB_HOST' => '127.0.0.1',
-				'QUEUE_CONNECTION' => 'database',
-				'MEMORY_PRESSURE_WRITE' => 'c29tZSAyMDAwMDAgMjAwMDAwMAA=',
+				'COLUMNS' => '80',
+				'SHELL_VERBOSITY' => '-1',
+				'PHPSTAN_ORIGINAL_INIS' => '/etc/php/8.4/cli/php.ini:/etc/php/8.4/cli/conf.d/10-mysqlnd.ini:/etc/php/8.4/cli/conf.d/10-opcache.ini:/etc/php/8.4/cli/conf.d/10-pdo.ini:/etc/php/8.4/cli/conf.d/15-xml.ini:/etc/php/8.4/cli/conf.d/20-amqp.ini:/etc/php/8.4/cli/conf.d/20-ast.ini:/etc/php/8.4/cli/conf.d/20-bcmath.ini:/etc/php/8.4/cli/conf.d/20-bz2.ini:/etc/php/8.4/cli/conf.d/20-calendar.ini:/etc/php/8.4/cli/conf.d/20-ctype.ini:/etc/php/8.4/cli/conf.d/20-curl.ini:/etc/php/8.4/cli/conf.d/20-dba.ini:/etc/php/8.4/cli/conf.d/20-dom.ini:/etc/php/8.4/cli/conf.d/20-enchant.ini:/etc/php/8.4/cli/conf.d/20-exif.ini:/etc/php/8.4/cli/conf.d/20-ffi.ini:/etc/php/8.4/cli/conf.d/20-fileinfo.ini:/etc/php/8.4/cli/conf.d/20-ftp.ini:/etc/php/8.4/cli/conf.d/20-gd.ini:/etc/php/8.4/cli/conf.d/20-gearman.ini:/etc/php/8.4/cli/conf.d/20-gettext.ini:/etc/php/8.4/cli/conf.d/20-gmp.ini:/etc/php/8.4/cli/conf.d/20-iconv.ini:/etc/php/8.4/cli/conf.d/20-igbinary.ini:/etc/php/8.4/cli/conf.d/20-imagick.ini:/etc/php/8.4/cli/conf.d/20-imap.ini:/etc/php/8.4/cli/conf.d/20-intl.ini:/etc/php/8.4/cli/conf.d/20-ldap.ini:/etc/php/8.4/cli/conf.d/20-mbstring.ini:/etc/php/8.4/cli/conf.d/20-mcrypt.ini:/etc/php/8.4/cli/conf.d/20-memcache.ini:/etc/php/8.4/cli/conf.d/20-mongodb.ini:/etc/php/8.4/cli/conf.d/20-msgpack.ini:/etc/php/8.4/cli/conf.d/20-mysqli.ini:/etc/php/8.4/cli/conf.d/20-oauth.ini:/etc/php/8.4/cli/conf.d/20-odbc.ini:/etc/php/8.4/cli/conf.d/20-pcov.ini:/etc/php/8.4/cli/conf.d/20-pdo_mysql.ini:/etc/php/8.4/cli/conf.d/20-pdo_odbc.ini:/etc/php/8.4/cli/conf.d/20-pdo_pgsql.ini:/etc/php/8.4/cli/conf.d/20-pdo_sqlite.ini:/etc/php/8.4/cli/conf.d/20-pgsql.ini:/etc/php/8.4/cli/conf.d/20-phar.ini:/etc/php/8.4/cli/conf.d/20-posix.ini:/etc/php/8.4/cli/conf.d/20-pspell.ini:/etc/php/8.4/cli/conf.d/20-raphf.ini:/etc/php/8.4/cli/conf.d/20-readline.ini:/etc/php/8.4/cli/conf.d/20-rrd.ini:/etc/php/8.4/cli/conf.d/20-shmop.ini:/etc/php/8.4/cli/conf.d/20-simplexml.ini:/etc/php/8.4/cli/conf.d/20-snmp.ini:/etc/php/8.4/cli/conf.d/20-soap.ini:/etc/php/8.4/cli/conf.d/20-sockets.ini:/etc/php/8.4/cli/conf.d/20-sqlite3.ini:/etc/php/8.4/cli/conf.d/20-ssh2.ini:/etc/php/8.4/cli/conf.d/20-stomp.ini:/etc/php/8.4/cli/conf.d/20-sysvmsg.ini:/etc/php/8.4/cli/conf.d/20-sysvsem.ini:/etc/php/8.4/cli/conf.d/20-sysvshm.ini:/etc/php/8.4/cli/conf.d/20-tidy.ini:/etc/php/8.4/cli/conf.d/20-tokenizer.ini:/etc/php/8.4/cli/conf.d/20-uploadprogress.ini:/etc/php/8.4/cli/conf.d/20-uuid.ini:/etc/php/8.4/cli/conf.d/20-xdebug.ini:/etc/php/8.4/cli/conf.d/20-xhprof.ini:/etc/php/8.4/cli/conf.d/20-xlswriter.ini:/etc/php/8.4/cli/conf.d/20-xmlreader.ini:/etc/php/8.4/cli/conf.d/20-xmlrpc.ini:/etc/php/8.4/cli/conf.d/20-xmlwriter.ini:/etc/php/8.4/cli/conf.d/20-xsl.ini:/etc/php/8.4/cli/conf.d/20-yac.ini:/etc/php/8.4/cli/conf.d/20-yaml.ini:/etc/php/8.4/cli/conf.d/20-zip.ini:/etc/php/8.4/cli/conf.d/20-zmq.ini:/etc/php/8.4/cli/conf.d/25-http.ini:/etc/php/8.4/cli/conf.d/25-mailparse.ini:/etc/php/8.4/cli/conf.d/25-memcached.ini:/etc/php/8.4/cli/conf.d/25-redis.ini:/etc/php/8.4/cli/conf.d/30-decimal.ini:/etc/php/8.4/cli/conf.d/30-ds.ini:/etc/php/8.4/cli/conf.d/30-maxminddb.ini:/etc/php/8.4/cli/conf.d/30-protobuf.ini:/etc/php/8.4/cli/conf.d/30-rdkafka.ini:/etc/php/8.4/cli/conf.d/30-vips.ini:/etc/php/8.4/cli/conf.d/30-zstd.ini:/etc/php/8.4/cli/conf.d/99-security.ini',
+				'PHP_INI_SCAN_DIR' => '',
+				'PHPRC' => '/tmp/user/1000/3rof9ms5d26e5FEr89Y',
+				'XDEBUG_HANDLER_SETTINGS' => '/tmp/user/1000/3rof9ms5d26e5FEr89Y|1|*|*|/etc/php/8.4/cli/php.ini:/etc/php/8.4/cli/conf.d/10-mysqlnd.ini:/etc/php/8.4/cli/conf.d/10-opcache.ini:/etc/php/8.4/cli/conf.d/10-pdo.ini:/etc/php/8.4/cli/conf.d/15-xml.ini:/etc/php/8.4/cli/conf.d/20-amqp.ini:/etc/php/8.4/cli/conf.d/20-ast.ini:/etc/php/8.4/cli/conf.d/20-bcmath.ini:/etc/php/8.4/cli/conf.d/20-bz2.ini:/etc/php/8.4/cli/conf.d/20-calendar.ini:/etc/php/8.4/cli/conf.d/20-ctype.ini:/etc/php/8.4/cli/conf.d/20-curl.ini:/etc/php/8.4/cli/conf.d/20-dba.ini:/etc/php/8.4/cli/conf.d/20-dom.ini:/etc/php/8.4/cli/conf.d/20-enchant.ini:/etc/php/8.4/cli/conf.d/20-exif.ini:/etc/php/8.4/cli/conf.d/20-ffi.ini:/etc/php/8.4/cli/conf.d/20-fileinfo.ini:/etc/php/8.4/cli/conf.d/20-ftp.ini:/etc/php/8.4/cli/conf.d/20-gd.ini:/etc/php/8.4/cli/conf.d/20-gearman.ini:/etc/php/8.4/cli/conf.d/20-gettext.ini:/etc/php/8.4/cli/conf.d/20-gmp.ini:/etc/php/8.4/cli/conf.d/20-iconv.ini:/etc/php/8.4/cli/conf.d/20-igbinary.ini:/etc/php/8.4/cli/conf.d/20-imagick.ini:/etc/php/8.4/cli/conf.d/20-imap.ini:/etc/php/8.4/cli/conf.d/20-intl.ini:/etc/php/8.4/cli/conf.d/20-ldap.ini:/etc/php/8.4/cli/conf.d/20-mbstring.ini:/etc/php/8.4/cli/conf.d/20-mcrypt.ini:/etc/php/8.4/cli/conf.d/20-memcache.ini:/etc/php/8.4/cli/conf.d/20-mongodb.ini:/etc/php/8.4/cli/conf.d/20-msgpack.ini:/etc/php/8.4/cli/conf.d/20-mysqli.ini:/etc/php/8.4/cli/conf.d/20-oauth.ini:/etc/php/8.4/cli/conf.d/20-odbc.ini:/etc/php/8.4/cli/conf.d/20-pcov.ini:/etc/php/8.4/cli/conf.d/20-pdo_mysql.ini:/etc/php/8.4/cli/conf.d/20-pdo_odbc.ini:/etc/php/8.4/cli/conf.d/20-pdo_pgsql.ini:/etc/php/8.4/cli/conf.d/20-pdo_sqlite.ini:/etc/php/8.4/cli/conf.d/20-pgsql.ini:/etc/php/8.4/cli/conf.d/20-phar.ini:/etc/php/8.4/cli/conf.d/20-posix.ini:/etc/php/8.4/cli/conf.d/20-pspell.ini:/etc/php/8.4/cli/conf.d/20-raphf.ini:/etc/php/8.4/cli/conf.d/20-readline.ini:/etc/php/8.4/cli/conf.d/20-rrd.ini:/etc/php/8.4/cli/conf.d/20-shmop.ini:/etc/php/8.4/cli/conf.d/20-simplexml.ini:/etc/php/8.4/cli/conf.d/20-snmp.ini:/etc/php/8.4/cli/conf.d/20-soap.ini:/etc/php/8.4/cli/conf.d/20-sockets.ini:/etc/php/8.4/cli/conf.d/20-sqlite3.ini:/etc/php/8.4/cli/conf.d/20-ssh2.ini:/etc/php/8.4/cli/conf.d/20-stomp.ini:/etc/php/8.4/cli/conf.d/20-sysvmsg.ini:/etc/php/8.4/cli/conf.d/20-sysvsem.ini:/etc/php/8.4/cli/conf.d/20-sysvshm.ini:/etc/php/8.4/cli/conf.d/20-tidy.ini:/etc/php/8.4/cli/conf.d/20-tokenizer.ini:/etc/php/8.4/cli/conf.d/20-uploadprogress.ini:/etc/php/8.4/cli/conf.d/20-uuid.ini:/etc/php/8.4/cli/conf.d/20-xdebug.ini:/etc/php/8.4/cli/conf.d/20-xhprof.ini:/etc/php/8.4/cli/conf.d/20-xlswriter.ini:/etc/php/8.4/cli/conf.d/20-xmlreader.ini:/etc/php/8.4/cli/conf.d/20-xmlrpc.ini:/etc/php/8.4/cli/conf.d/20-xmlwriter.ini:/etc/php/8.4/cli/conf.d/20-xsl.ini:/etc/php/8.4/cli/conf.d/20-yac.ini:/etc/php/8.4/cli/conf.d/20-yaml.ini:/etc/php/8.4/cli/conf.d/20-zip.ini:/etc/php/8.4/cli/conf.d/20-zmq.ini:/etc/php/8.4/cli/conf.d/25-http.ini:/etc/php/8.4/cli/conf.d/25-mailparse.ini:/etc/php/8.4/cli/conf.d/25-memcached.ini:/etc/php/8.4/cli/conf.d/25-redis.ini:/etc/php/8.4/cli/conf.d/30-decimal.ini:/etc/php/8.4/cli/conf.d/30-ds.ini:/etc/php/8.4/cli/conf.d/30-maxminddb.ini:/etc/php/8.4/cli/conf.d/30-protobuf.ini:/etc/php/8.4/cli/conf.d/30-rdkafka.ini:/etc/php/8.4/cli/conf.d/30-vips.ini:/etc/php/8.4/cli/conf.d/30-zstd.ini:/etc/php/8.4/cli/conf.d/99-security.ini|3.4.5',
 			],
 		];
 	}
