@@ -441,7 +441,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php' => 
     array (
-      0 => 'ea9e80f5ad033d087517b5507f80ae8bb9dbfcf2',
+      0 => '42bb4c834d20af090a3058ba253025e96a714a80',
       1 => 
       array (
       ),
@@ -553,7 +553,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_01_30_140000_create_event_store_infrastructure.php' => 
     array (
-      0 => 'd090030783eefdcb728dd9c47b7b633b9cb2e8cb',
+      0 => '357273e7f827fe89c06f5d8f451e86d57704c9e5',
       1 => 
       array (
       ),

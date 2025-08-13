@@ -4,6 +4,7 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
 import accessibility from 'eslint-plugin-vuejs-accessibility';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -19,12 +20,21 @@ export default [
         extraFileExtensions: ['.vue']
       },
       globals: {
+        ...globals.browser,
+        ...globals.node,
         __VUE_OPTIONS_API__: 'readonly',
         __VUE_PROD_DEVTOOLS__: 'readonly',
         defineProps: 'readonly',
         defineEmits: 'readonly',
         defineExpose: 'readonly',
-        withDefaults: 'readonly'
+        withDefaults: 'readonly',
+        // Third-party library globals
+        axios: 'readonly',
+        Swal: 'readonly',
+        $: 'readonly',
+        jQuery: 'readonly',
+        Echo: 'readonly',
+        mobileUtils: 'readonly'
       }
     },
     plugins: {
@@ -55,7 +65,18 @@ export default [
     files: ['**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module'
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        // Third-party library globals
+        axios: 'readonly',
+        Swal: 'readonly',
+        $: 'readonly',
+        jQuery: 'readonly',
+        Echo: 'readonly',
+        mobileUtils: 'readonly'
+      }
     }
   },
   {

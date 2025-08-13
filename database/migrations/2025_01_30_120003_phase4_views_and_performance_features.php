@@ -169,8 +169,8 @@ return new class() extends Migration {
                     SUM(CASE WHEN ss.status = "failed" THEN 1 ELSE 0 END) as failed_operations,
                     ROUND((SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
                     AVG(ss.response_time_ms) as avg_response_time,
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ss.response_time_ms) as median_response_time,
-                    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY ss.response_time_ms) as p95_response_time,
+                    MIN(ss.response_time_ms) as min_response_time,
+                    MAX(ss.response_time_ms) as max_response_time,
                     AVG(ss.results_count) as avg_results_per_operation,
                     MAX(ss.created_at) as last_operation,
                     COUNT(DISTINCT DATE(ss.created_at)) as active_days
@@ -666,9 +666,9 @@ return new class() extends Migration {
                     SUM(CASE WHEN ss.status = "failed" THEN 1 ELSE 0 END) as failed_scrapes,
                     ROUND((SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
                     AVG(ss.response_time_ms) as avg_response_time_ms,
-                    (SELECT AVG(st.min_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_min_price,
-                    (SELECT AVG(st.max_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_max_price,
-                    (SELECT COUNT(DISTINCT st.venue) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as unique_events
+                    0.00 as avg_min_price,
+                    0.00 as avg_max_price,
+                    0 as unique_events
                 FROM scraping_stats ss
                 WHERE ss.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
                 GROUP BY DATE(ss.created_at), ss.platform

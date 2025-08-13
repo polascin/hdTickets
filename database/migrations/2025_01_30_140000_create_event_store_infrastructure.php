@@ -62,7 +62,7 @@ return new class() extends Migration {
             $table->json('aggregate_data');
             $table->timestamp('created_at');
 
-            $table->unique(['aggregate_root_id', 'aggregate_type', 'aggregate_version']);
+            $table->unique(['aggregate_root_id', 'aggregate_type', 'aggregate_version'], 'snapshots_unique_idx');
         });
 
         // Event subscriptions for read models and handlers

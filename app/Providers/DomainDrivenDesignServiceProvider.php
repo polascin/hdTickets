@@ -6,6 +6,7 @@ use App\Application\Commands\CreateSportsEventCommandHandler;
 // Domain Services
 use App\Application\Queries\GetUpcomingEventsQueryHandler;
 // Repository Interfaces
+use App\Contracts\Analytics\TicketMetricsInterface;
 use App\Domain\Event\Repositories\SportsEventRepositoryInterface;
 // Infrastructure Implementations
 use App\Domain\Event\Services\EventManagementService;
@@ -14,6 +15,7 @@ use App\Infrastructure\External\TicketmasterAntiCorruptionLayer;
 // Query Handlers
 use App\Infrastructure\Persistence\EloquentSportsEventRepository;
 // External Services
+use App\Services\Analytics\TicketMetricsService;
 use Illuminate\Support\ServiceProvider;
 
 class DomainDrivenDesignServiceProvider extends ServiceProvider
@@ -129,32 +131,14 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
 
         $this->app->bind('analytics.ticket_metrics', function ($app) {
             // Return analytics service for ticket metrics
-            return new class() {
-                /**
-                 * RecordPriceChange
-                 *
-                 * @param mixed $ticketId
-                 * @param mixed $oldPrice
-                 * @param mixed $newPrice
-                 */
-                public function recordPriceChange($ticketId, $oldPrice, $newPrice): void
-                {
-                    // Implementation for price change analytics
-                }
-
-                /**
-                 * RecordAvailabilityChange
-                 *
-                 * @param mixed $ticketId
-                 * @param mixed $oldStatus
-                 * @param mixed $newStatus
-                 */
-                public function recordAvailabilityChange($ticketId, $oldStatus, $newStatus): void
-                {
-                    // Implementation for availability change analytics
-                }
-            };
+            return $app->make(TicketMetricsService::class);
         });
+
+        // Bind the interface to the implementation
+        $this->app->bind(
+            TicketMetricsInterface::class,
+            TicketMetricsService::class,
+        );
     }
 
     /**

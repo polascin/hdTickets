@@ -223,7 +223,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Providers/DomainDrivenDesignServiceProvider.php' => 
     array (
-      0 => '245855996a519e5092898a9e94e7a657af508ce0',
+      0 => '3ff3dbe2274ba17c50fe36dce3e1b8b672d58a74',
       1 => 
       array (
         0 => 'app\\providers\\domaindrivendesignserviceprovider',
@@ -235,14 +235,12 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
         2 => 'app\\providers\\registerboundedcontexts',
         3 => 'app\\providers\\registereventsourcing',
         4 => 'app\\providers\\registeranalyticscomponents',
-        5 => 'app\\providers\\recordpricechange',
-        6 => 'app\\providers\\recordavailabilitychange',
-        7 => 'app\\providers\\registerdomaineventlisteners',
-        8 => 'app\\providers\\registerusermanagementcontext',
-        9 => 'app\\providers\\registerpurchasemanagementcontext',
-        10 => 'app\\providers\\registernotificationcontext',
-        11 => 'app\\providers\\registeranalyticscontext',
-        12 => 'app\\providers\\registerplatformintegrationcontext',
+        5 => 'app\\providers\\registerdomaineventlisteners',
+        6 => 'app\\providers\\registerusermanagementcontext',
+        7 => 'app\\providers\\registerpurchasemanagementcontext',
+        8 => 'app\\providers\\registernotificationcontext',
+        9 => 'app\\providers\\registeranalyticscontext',
+        10 => 'app\\providers\\registerplatformintegrationcontext',
       ),
       3 => 
       array (
@@ -10279,28 +10277,6 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
       ),
     ),
-    '/var/www/hdtickets/app/Http/Controllers/Admin/RealTimeDashboardController_clean.php' => 
-    array (
-      0 => 'a2ec3a72a7ce16af52914081200d46153525ac38',
-      1 => 
-      array (
-        0 => 'app\\http\\controllers\\admin\\realtimedashboardcontroller',
-      ),
-      2 => 
-      array (
-        0 => 'app\\http\\controllers\\admin\\__construct',
-        1 => 'app\\http\\controllers\\admin\\dashboard',
-        2 => 'app\\http\\controllers\\admin\\getdashboarddata',
-        3 => 'app\\http\\controllers\\admin\\startmonitoring',
-        4 => 'app\\http\\controllers\\admin\\stopmonitoring',
-        5 => 'app\\http\\controllers\\admin\\getmonitoringstats',
-        6 => 'app\\http\\controllers\\admin\\testplugin',
-        7 => 'app\\http\\controllers\\admin\\testproxies',
-      ),
-      3 => 
-      array (
-      ),
-    ),
     '/var/www/hdtickets/app/Mail/PaymentFailure.php' => 
     array (
       0 => '8019993d5e32f38717f3dd57a78c9093dcf03e73',
@@ -10676,6 +10652,38 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
         0 => 'app\\jobs\\__construct',
         1 => 'app\\jobs\\handle',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Services/Analytics/TicketMetricsService.php' => 
+    array (
+      0 => '481e1f02d46a97e5beb34be2ee05a5debede414d',
+      1 => 
+      array (
+        0 => 'app\\services\\analytics\\ticketmetricsservice',
+      ),
+      2 => 
+      array (
+        0 => 'app\\services\\analytics\\recordpricechange',
+        1 => 'app\\services\\analytics\\recordavailabilitychange',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Contracts/Analytics/TicketMetricsInterface.php' => 
+    array (
+      0 => 'db3a20a4c8c73f76f60cb3cb650b7a64c39ece09',
+      1 => 
+      array (
+        0 => 'app\\contracts\\analytics\\ticketmetricsinterface',
+      ),
+      2 => 
+      array (
+        0 => 'app\\contracts\\analytics\\recordpricechange',
+        1 => 'app\\contracts\\analytics\\recordavailabilitychange',
       ),
       3 => 
       array (

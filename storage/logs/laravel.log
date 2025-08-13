@@ -8536,3 +8536,1113 @@ Did you mean one of these?
 #25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
 #26 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
 #27 {main}"} 
+[2025-08-13 10:26:09] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(ORDER BY ss.response_time_ms) as median_response_time,
+                    PERC' at line 9 (Connection: mysql, SQL: 
+                CREATE VIEW v_platform_performance_metrics AS
+                SELECT 
+                    ss.platform,
+                    COUNT(*) as total_operations,
+                    SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) as successful_operations,
+                    SUM(CASE WHEN ss.status = "failed" THEN 1 ELSE 0 END) as failed_operations,
+                    ROUND((SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time,
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ss.response_time_ms) as median_response_time,
+                    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY ss.response_time_ms) as p95_response_time,
+                    AVG(ss.results_count) as avg_results_per_operation,
+                    MAX(ss.created_at) as last_operation,
+                    COUNT(DISTINCT DATE(ss.created_at)) as active_days
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY ss.platform
+                ORDER BY success_rate DESC, avg_response_time ASC
+            ) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(ORDER BY ss.response_time_ms) as median_response_time,
+                    PERC' at line 9 (Connection: mysql, SQL: 
+                CREATE VIEW v_platform_performance_metrics AS
+                SELECT 
+                    ss.platform,
+                    COUNT(*) as total_operations,
+                    SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) as successful_operations,
+                    SUM(CASE WHEN ss.status = \"failed\" THEN 1 ELSE 0 END) as failed_operations,
+                    ROUND((SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time,
+                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ss.response_time_ms) as median_response_time,
+                    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY ss.response_time_ms) as p95_response_time,
+                    AVG(ss.results_count) as avg_results_per_operation,
+                    MAX(ss.created_at) as last_operation,
+                    COUNT(DISTINCT DATE(ss.created_at)) as active_days
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY ss.platform
+                ORDER BY success_rate DESC, avg_response_time ASC
+            ) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#4 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(163): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#5 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->createDatabaseViews()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#25 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#27 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#31 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(ORDER BY ss.response_time_ms) as median_response_time,
+                    PERC' at line 9 at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:564)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(564): PDO->prepare()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(163): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->createDatabaseViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+"} 
+[2025-08-13 10:27:24] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(
+                            SELECT FLOOR(COUNT(*) * 0.5)
+                     ' at line 15 (Connection: mysql, SQL: 
+                CREATE VIEW v_platform_performance_metrics AS
+                SELECT 
+                    ss.platform,
+                    COUNT(*) as total_operations,
+                    SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) as successful_operations,
+                    SUM(CASE WHEN ss.status = "failed" THEN 1 ELSE 0 END) as failed_operations,
+                    ROUND((SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time,
+                    (
+                        SELECT response_time_ms
+                        FROM scraping_stats ss2
+                        WHERE ss2.platform = ss.platform 
+                        AND ss2.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        ORDER BY response_time_ms
+                        LIMIT 1 OFFSET (
+                            SELECT FLOOR(COUNT(*) * 0.5)
+                            FROM scraping_stats ss3
+                            WHERE ss3.platform = ss.platform 
+                            AND ss3.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        )
+                    ) as median_response_time,
+                    (
+                        SELECT response_time_ms
+                        FROM scraping_stats ss4
+                        WHERE ss4.platform = ss.platform 
+                        AND ss4.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        ORDER BY response_time_ms
+                        LIMIT 1 OFFSET (
+                            SELECT FLOOR(COUNT(*) * 0.95)
+                            FROM scraping_stats ss5
+                            WHERE ss5.platform = ss.platform 
+                            AND ss5.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        )
+                    ) as p95_response_time,
+                    AVG(ss.results_count) as avg_results_per_operation,
+                    MAX(ss.created_at) as last_operation,
+                    COUNT(DISTINCT DATE(ss.created_at)) as active_days
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY ss.platform
+                ORDER BY success_rate DESC, avg_response_time ASC
+            ) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(
+                            SELECT FLOOR(COUNT(*) * 0.5)
+                     ' at line 15 (Connection: mysql, SQL: 
+                CREATE VIEW v_platform_performance_metrics AS
+                SELECT 
+                    ss.platform,
+                    COUNT(*) as total_operations,
+                    SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) as successful_operations,
+                    SUM(CASE WHEN ss.status = \"failed\" THEN 1 ELSE 0 END) as failed_operations,
+                    ROUND((SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time,
+                    (
+                        SELECT response_time_ms
+                        FROM scraping_stats ss2
+                        WHERE ss2.platform = ss.platform 
+                        AND ss2.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        ORDER BY response_time_ms
+                        LIMIT 1 OFFSET (
+                            SELECT FLOOR(COUNT(*) * 0.5)
+                            FROM scraping_stats ss3
+                            WHERE ss3.platform = ss.platform 
+                            AND ss3.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        )
+                    ) as median_response_time,
+                    (
+                        SELECT response_time_ms
+                        FROM scraping_stats ss4
+                        WHERE ss4.platform = ss.platform 
+                        AND ss4.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        ORDER BY response_time_ms
+                        LIMIT 1 OFFSET (
+                            SELECT FLOOR(COUNT(*) * 0.95)
+                            FROM scraping_stats ss5
+                            WHERE ss5.platform = ss.platform 
+                            AND ss5.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                        )
+                    ) as p95_response_time,
+                    AVG(ss.results_count) as avg_results_per_operation,
+                    MAX(ss.created_at) as last_operation,
+                    COUNT(DISTINCT DATE(ss.created_at)) as active_days
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                GROUP BY ss.platform
+                ORDER BY success_rate DESC, avg_response_time ASC
+            ) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#4 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(163): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#5 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->createDatabaseViews()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#25 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#27 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#31 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(
+                            SELECT FLOOR(COUNT(*) * 0.5)
+                     ' at line 15 at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:564)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(564): PDO->prepare()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(163): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->createDatabaseViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+"} 
+[2025-08-13 10:27:52] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1055 Expression #9 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'hdtickets.ss.created_at' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by (Connection: mysql, SQL: 
+                INSERT INTO mv_daily_platform_stats (
+                    stats_date, platform, total_tickets_scraped, available_tickets,
+                    successful_scrapes, failed_scrapes, success_rate, avg_response_time_ms,
+                    avg_min_price, avg_max_price, unique_events
+                )
+                SELECT 
+                    DATE(ss.created_at) as stats_date,
+                    ss.platform,
+                    COUNT(*) as total_tickets_scraped,
+                    SUM(CASE WHEN ss.status = "success" THEN ss.results_count ELSE 0 END) as available_tickets,
+                    SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) as successful_scrapes,
+                    SUM(CASE WHEN ss.status = "failed" THEN 1 ELSE 0 END) as failed_scrapes,
+                    ROUND((SUM(CASE WHEN ss.status = "success" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time_ms,
+                    (SELECT AVG(st.min_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_min_price,
+                    (SELECT AVG(st.max_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_max_price,
+                    (SELECT COUNT(DISTINCT st.venue) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as unique_events
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                GROUP BY DATE(ss.created_at), ss.platform
+                ON DUPLICATE KEY UPDATE
+                    total_tickets_scraped = VALUES(total_tickets_scraped),
+                    available_tickets = VALUES(available_tickets),
+                    successful_scrapes = VALUES(successful_scrapes),
+                    failed_scrapes = VALUES(failed_scrapes),
+                    success_rate = VALUES(success_rate),
+                    avg_response_time_ms = VALUES(avg_response_time_ms),
+                    avg_min_price = VALUES(avg_min_price),
+                    avg_max_price = VALUES(avg_max_price),
+                    unique_events = VALUES(unique_events),
+                    last_updated = NOW()
+            ) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1055 Expression #9 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'hdtickets.ss.created_at' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by (Connection: mysql, SQL: 
+                INSERT INTO mv_daily_platform_stats (
+                    stats_date, platform, total_tickets_scraped, available_tickets,
+                    successful_scrapes, failed_scrapes, success_rate, avg_response_time_ms,
+                    avg_min_price, avg_max_price, unique_events
+                )
+                SELECT 
+                    DATE(ss.created_at) as stats_date,
+                    ss.platform,
+                    COUNT(*) as total_tickets_scraped,
+                    SUM(CASE WHEN ss.status = \"success\" THEN ss.results_count ELSE 0 END) as available_tickets,
+                    SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) as successful_scrapes,
+                    SUM(CASE WHEN ss.status = \"failed\" THEN 1 ELSE 0 END) as failed_scrapes,
+                    ROUND((SUM(CASE WHEN ss.status = \"success\" THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) as success_rate,
+                    AVG(ss.response_time_ms) as avg_response_time_ms,
+                    (SELECT AVG(st.min_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_min_price,
+                    (SELECT AVG(st.max_price) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as avg_max_price,
+                    (SELECT COUNT(DISTINCT st.venue) FROM scraped_tickets st WHERE st.platform = ss.platform AND DATE(st.created_at) = DATE(ss.created_at)) as unique_events
+                FROM scraping_stats ss
+                WHERE ss.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                GROUP BY DATE(ss.created_at), ss.platform
+                ON DUPLICATE KEY UPDATE
+                    total_tickets_scraped = VALUES(total_tickets_scraped),
+                    available_tickets = VALUES(available_tickets),
+                    successful_scrapes = VALUES(successful_scrapes),
+                    failed_scrapes = VALUES(failed_scrapes),
+                    success_rate = VALUES(success_rate),
+                    avg_response_time_ms = VALUES(avg_response_time_ms),
+                    avg_min_price = VALUES(avg_min_price),
+                    avg_max_price = VALUES(avg_max_price),
+                    unique_events = VALUES(unique_events),
+                    last_updated = NOW()
+            ) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#4 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(654): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#5 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(306): Illuminate\\Database\\Migrations\\Migration@anonymous->populateMaterializedViews()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#26 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#32 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1055 Expression #9 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'hdtickets.ss.created_at' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:564)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(564): PDO->prepare()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(654): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(306): Illuminate\\Database\\Migrations\\Migration@anonymous->populateMaterializedViews()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#28 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#34 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#35 {main}
+"} 
+[2025-08-13 10:28:25] production.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists (Connection: mysql, SQL: create table `mv_daily_platform_stats` (`id` bigint unsigned not null auto_increment primary key, `stats_date` date not null, `platform` varchar(100) not null, `total_tickets_scraped` int not null default '0', `available_tickets` int not null default '0', `successful_scrapes` int not null default '0', `failed_scrapes` int not null default '0', `success_rate` decimal(5, 2) not null default '0', `avg_response_time_ms` decimal(10, 2) not null default '0', `avg_min_price` decimal(10, 2) null, `avg_max_price` decimal(10, 2) null, `unique_events` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists (Connection: mysql, SQL: create table `mv_daily_platform_stats` (`id` bigint unsigned not null auto_increment primary key, `stats_date` date not null, `platform` varchar(100) not null, `total_tickets_scraped` int not null default '0', `available_tickets` int not null default '0', `successful_scrapes` int not null default '0', `failed_scrapes` int not null default '0', `success_rate` decimal(5, 2) not null default '0', `avg_response_time_ms` decimal(10, 2) not null default '0', `avg_min_price` decimal(10, 2) null, `avg_max_price` decimal(10, 2) null, `unique_events` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(247): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(247): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#29 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#33 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#34 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#35 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#36 {main}
+"} 
+[2025-08-13 10:29:31] production.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_weekly_user_activity' already exists (Connection: mysql, SQL: create table `mv_weekly_user_activity` (`id` bigint unsigned not null auto_increment primary key, `week_start` date not null, `user_id` bigint unsigned not null, `alerts_created` int not null default '0', `alerts_triggered` int not null default '0', `purchase_attempts` int not null default '0', `successful_purchases` int not null default '0', `total_spent` decimal(12, 2) not null default '0', `tickets_viewed` int not null default '0', `login_count` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_weekly_user_activity' already exists (Connection: mysql, SQL: create table `mv_weekly_user_activity` (`id` bigint unsigned not null auto_increment primary key, `week_start` date not null, `user_id` bigint unsigned not null, `alerts_created` int not null default '0', `alerts_triggered` int not null default '0', `purchase_attempts` int not null default '0', `successful_purchases` int not null default '0', `total_spent` decimal(12, 2) not null default '0', `tickets_viewed` int not null default '0', `login_count` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(268): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_weekly_user_activity' already exists at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(268): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#29 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#33 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#34 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#35 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#36 {main}
+"} 
+[2025-08-13 10:30:09] production.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists (Connection: mysql, SQL: create table `mv_daily_platform_stats` (`id` bigint unsigned not null auto_increment primary key, `stats_date` date not null, `platform` varchar(100) not null, `total_tickets_scraped` int not null default '0', `available_tickets` int not null default '0', `successful_scrapes` int not null default '0', `failed_scrapes` int not null default '0', `success_rate` decimal(5, 2) not null default '0', `avg_response_time_ms` decimal(10, 2) not null default '0', `avg_min_price` decimal(10, 2) null, `avg_max_price` decimal(10, 2) null, `unique_events` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists (Connection: mysql, SQL: create table `mv_daily_platform_stats` (`id` bigint unsigned not null auto_increment primary key, `stats_date` date not null, `platform` varchar(100) not null, `total_tickets_scraped` int not null default '0', `available_tickets` int not null default '0', `successful_scrapes` int not null default '0', `failed_scrapes` int not null default '0', `success_rate` decimal(5, 2) not null default '0', `avg_response_time_ms` decimal(10, 2) not null default '0', `avg_min_price` decimal(10, 2) null, `avg_max_price` decimal(10, 2) null, `unique_events` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(247): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_daily_platform_stats' already exists at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(247): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#29 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#33 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#34 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#35 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#36 {main}
+"} 
+[2025-08-13 10:30:44] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DEFAULT 1000,
+                    OUT p_result VARCHAR(255)
+                )
+  ' at line 4 (Connection: mysql, SQL: 
+                CREATE PROCEDURE SyncShadowTable(
+                    IN p_source_table VARCHAR(100),
+                    IN p_shadow_table VARCHAR(100),
+                    IN p_batch_size INT DEFAULT 1000,
+                    OUT p_result VARCHAR(255)
+                )
+                BEGIN
+                    DECLARE v_last_id BIGINT DEFAULT 0;
+                    DECLARE v_processed_rows BIGINT DEFAULT 0;
+                    DECLARE v_batch_count INT DEFAULT 0;
+                    
+                    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+                    BEGIN
+                        GET DIAGNOSTICS CONDITION 1 @p1 = MESSAGE_TEXT;
+                        SET p_result = CONCAT("Sync failed: ", @p1);
+                        ROLLBACK;
+                        RESIGNAL;
+                    END;
+                    
+                    -- Create operation record
+                    INSERT INTO shadow_table_operations (
+                        operation_name, source_table, shadow_table, operation_type,
+                        operation_status, started_at
+                    ) VALUES (
+                        CONCAT("SYNC_", p_source_table, "_TO_", p_shadow_table),
+                        p_source_table, p_shadow_table, "sync", "running", NOW()
+                    );
+                    
+                    SET @operation_id = LAST_INSERT_ID();
+                    
+                    -- Batch sync loop
+                    sync_loop: LOOP
+                        -- Dynamic SQL to sync batch
+                        SET @sql = CONCAT(
+                            "INSERT INTO ", p_shadow_table, " ",
+                            "SELECT * FROM ", p_source_table, " ",
+                            "WHERE id > ", v_last_id, " ",
+                            "ORDER BY id LIMIT ", p_batch_size,
+                            " ON DUPLICATE KEY UPDATE id = VALUES(id)"
+                        );
+                        
+                        PREPARE stmt FROM @sql;
+                        EXECUTE stmt;
+                        SET v_batch_count = ROW_COUNT();
+                        DEALLOCATE PREPARE stmt;
+                        
+                        IF v_batch_count = 0 THEN
+                            LEAVE sync_loop;
+                        END IF;
+                        
+                        SET v_processed_rows = v_processed_rows + v_batch_count;
+                        SET v_last_id = v_last_id + p_batch_size;
+                        
+                        -- Update progress
+                        UPDATE shadow_table_operations 
+                        SET rows_processed = v_processed_rows 
+                        WHERE id = @operation_id;
+                        
+                        -- Small delay to reduce system load
+                        SELECT SLEEP(0.01);
+                        
+                    END LOOP;
+                    
+                    -- Mark operation as completed
+                    UPDATE shadow_table_operations 
+                    SET operation_status = "completed", completed_at = NOW(),
+                        rows_processed = v_processed_rows
+                    WHERE id = @operation_id;
+                    
+                    SET p_result = CONCAT("Sync completed. Processed ", v_processed_rows, " rows.");
+                    
+                END
+            ) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DEFAULT 1000,
+                    OUT p_result VARCHAR(255)
+                )
+  ' at line 4 (Connection: mysql, SQL: 
+                CREATE PROCEDURE SyncShadowTable(
+                    IN p_source_table VARCHAR(100),
+                    IN p_shadow_table VARCHAR(100),
+                    IN p_batch_size INT DEFAULT 1000,
+                    OUT p_result VARCHAR(255)
+                )
+                BEGIN
+                    DECLARE v_last_id BIGINT DEFAULT 0;
+                    DECLARE v_processed_rows BIGINT DEFAULT 0;
+                    DECLARE v_batch_count INT DEFAULT 0;
+                    
+                    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+                    BEGIN
+                        GET DIAGNOSTICS CONDITION 1 @p1 = MESSAGE_TEXT;
+                        SET p_result = CONCAT(\"Sync failed: \", @p1);
+                        ROLLBACK;
+                        RESIGNAL;
+                    END;
+                    
+                    -- Create operation record
+                    INSERT INTO shadow_table_operations (
+                        operation_name, source_table, shadow_table, operation_type,
+                        operation_status, started_at
+                    ) VALUES (
+                        CONCAT(\"SYNC_\", p_source_table, \"_TO_\", p_shadow_table),
+                        p_source_table, p_shadow_table, \"sync\", \"running\", NOW()
+                    );
+                    
+                    SET @operation_id = LAST_INSERT_ID();
+                    
+                    -- Batch sync loop
+                    sync_loop: LOOP
+                        -- Dynamic SQL to sync batch
+                        SET @sql = CONCAT(
+                            \"INSERT INTO \", p_shadow_table, \" \",
+                            \"SELECT * FROM \", p_source_table, \" \",
+                            \"WHERE id > \", v_last_id, \" \",
+                            \"ORDER BY id LIMIT \", p_batch_size,
+                            \" ON DUPLICATE KEY UPDATE id = VALUES(id)\"
+                        );
+                        
+                        PREPARE stmt FROM @sql;
+                        EXECUTE stmt;
+                        SET v_batch_count = ROW_COUNT();
+                        DEALLOCATE PREPARE stmt;
+                        
+                        IF v_batch_count = 0 THEN
+                            LEAVE sync_loop;
+                        END IF;
+                        
+                        SET v_processed_rows = v_processed_rows + v_batch_count;
+                        SET v_last_id = v_last_id + p_batch_size;
+                        
+                        -- Update progress
+                        UPDATE shadow_table_operations 
+                        SET rows_processed = v_processed_rows 
+                        WHERE id = @operation_id;
+                        
+                        -- Small delay to reduce system load
+                        SELECT SLEEP(0.01);
+                        
+                    END LOOP;
+                    
+                    -- Mark operation as completed
+                    UPDATE shadow_table_operations 
+                    SET operation_status = \"completed\", completed_at = NOW(),
+                        rows_processed = v_processed_rows
+                    WHERE id = @operation_id;
+                    
+                    SET p_result = CONCAT(\"Sync completed. Processed \", v_processed_rows, \" rows.\");
+                    
+                END
+            ) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#4 /var/www/hdtickets/database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php(440): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#5 /var/www/hdtickets/database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php(25): Illuminate\\Database\\Migrations\\Migration@anonymous->implementZeroDowntimeMigrationHelpers()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#25 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#27 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#31 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#32 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'DEFAULT 1000,
+                    OUT p_result VARCHAR(255)
+                )
+  ' at line 4 at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:564)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(564): PDO->prepare()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/DatabaseManager.php(497): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\DatabaseManager->__call()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php(440): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php(25): Illuminate\\Database\\Migrations\\Migration@anonymous->implementZeroDowntimeMigrationHelpers()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+"} 
+[2025-08-13 10:31:04] production.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_monthly_revenue_analytics' already exists (Connection: mysql, SQL: create table `mv_monthly_revenue_analytics` (`id` bigint unsigned not null auto_increment primary key, `month_start` date not null, `platform` varchar(100) not null, `sport` varchar(100) not null, `total_purchases` int not null default '0', `total_revenue` decimal(15, 2) not null default '0', `avg_ticket_price` decimal(10, 2) not null default '0', `total_fees` decimal(12, 2) not null default '0', `unique_buyers` int not null default '0', `tickets_sold` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_monthly_revenue_analytics' already exists (Connection: mysql, SQL: create table `mv_monthly_revenue_analytics` (`id` bigint unsigned not null auto_increment primary key, `month_start` date not null, `platform` varchar(100) not null, `sport` varchar(100) not null, `total_purchases` int not null default '0', `total_revenue` decimal(15, 2) not null default '0', `avg_ticket_price` decimal(10, 2) not null default '0', `total_fees` decimal(12, 2) not null default '0', `unique_buyers` int not null default '0', `tickets_sold` int not null default '0', `last_updated` timestamp not null default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP) default character set utf8mb4 collate 'utf8mb4_unicode_ci') at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(287): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'mv_monthly_revenue_analytics' already exists at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(287): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/database/migrations/2025_01_30_120003_phase4_views_and_performance_features.php(18): Illuminate\\Database\\Migrations\\Migration@anonymous->createMaterializedViews()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#29 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#33 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#34 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#35 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#36 {main}
+"} 
+[2025-08-13 10:31:38] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1059 Identifier name 'event_snapshots_aggregate_root_id_aggregate_type_aggregate_version_unique' is too long (Connection: mysql, SQL: alter table `event_snapshots` add unique `event_snapshots_aggregate_root_id_aggregate_type_aggregate_version_unique`(`aggregate_root_id`, `aggregate_type`, `aggregate_version`)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1059 Identifier name 'event_snapshots_aggregate_root_id_aggregate_type_aggregate_version_unique' is too long (Connection: mysql, SQL: alter table `event_snapshots` add unique `event_snapshots_aggregate_root_id_aggregate_type_aggregate_version_unique`(`aggregate_root_id`, `aggregate_type`, `aggregate_version`)) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_140000_create_event_store_infrastructure.php(57): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#26 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#32 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1059 Identifier name 'event_snapshots_aggregate_root_id_aggregate_type_aggregate_version_unique' is too long at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_140000_create_event_store_infrastructure.php(57): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#28 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#34 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#35 {main}
+"} 
+[2025-08-13 10:32:15] production.ERROR: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'event_store' already exists (Connection: mysql, SQL: create table `event_store` (`id` bigint unsigned not null auto_increment primary key, `event_id` char(36) not null, `event_type` varchar(255) not null, `aggregate_root_id` varchar(255) not null, `aggregate_type` varchar(100) not null, `aggregate_version` int not null, `payload` json not null, `metadata` json null, `recorded_at` timestamp not null, `event_version` varchar(10) not null default '1.0') default character set utf8mb4 collate 'utf8mb4_unicode_ci') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'event_store' already exists (Connection: mysql, SQL: create table `event_store` (`id` bigint unsigned not null auto_increment primary key, `event_id` char(36) not null, `event_type` varchar(255) not null, `aggregate_root_id` varchar(255) not null, `aggregate_type` varchar(100) not null, `aggregate_version` int not null, `payload` json not null, `metadata` json null, `recorded_at` timestamp not null, `event_version` varchar(10) not null default '1.0') default character set utf8mb4 collate 'utf8mb4_unicode_ci') at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_140000_create_event_store_infrastructure.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#26 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#32 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#33 {main}
+
+[previous exception] [object] (PDOException(code: 42S01): SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'event_store' already exists at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(472): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->create()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_140000_create_event_store_infrastructure.php(14): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#28 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#34 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#35 {main}
+"} 
