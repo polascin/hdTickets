@@ -176,6 +176,9 @@ pip-delete-this-directory.txt
 # Local configuration overrides
 config/local.php
 
+# PHPStan cache
+/storage/phpstan/cache/
+
 # Laravel Homestead
 /Homestead.json
 /Homestead.yaml
