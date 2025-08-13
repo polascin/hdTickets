@@ -49,7 +49,8 @@ class TicketCreated extends Notification implements ShouldQueue
      */
     public function toMail($notifiable): MailMessage
     {
-        return new MailMessage()
+        $mailMessage = new MailMessage();
+        $mailMessage
             ->subject('New Ticket Created: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('A new ticket has been created:')
@@ -59,6 +60,8 @@ class TicketCreated extends Notification implements ShouldQueue
             ->line('**Created by:** ' . ($this->ticket->user->username ?? 'System'))
             ->action('View Ticket', route('tickets.show', $this->ticket))
             ->line('You are receiving this notification because you are an administrator or agent.');
+
+        return $mailMessage;
     }
 
     /**
