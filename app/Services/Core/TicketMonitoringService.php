@@ -32,6 +32,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Start monitoring a ticket for availability and price changes
      */
+    /**
+     * StartMonitoring
+     */
     public function startMonitoring(int $ticketId, array $criteria = []): bool
     {
         $this->ensureInitialized();
@@ -75,6 +78,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Stop monitoring a ticket
      */
+    /**
+     * StopMonitoring
+     */
     public function stopMonitoring(int $ticketId): bool
     {
         $this->ensureInitialized();
@@ -108,6 +114,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Check availability for all monitored tickets
      */
+    /**
+     * CheckAllTickets
+     */
     public function checkAllTickets(): array
     {
         $this->ensureInitialized();
@@ -139,6 +148,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Check availability for specific ticket
      */
+    /**
+     * CheckTicketAvailability
+     */
     public function checkTicketAvailability(int $ticketId): array
     {
         $this->ensureInitialized();
@@ -169,6 +181,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
     /**
      * Set alert rule for ticket monitoring
+     */
+    /**
+     * Set  alert rule
      */
     public function setAlertRule(int $ticketId, string $condition, mixed $value, array $notificationChannels = ['email']): bool
     {
@@ -214,6 +229,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Remove alert rule
      */
+    /**
+     * RemoveAlertRule
+     */
     public function removeAlertRule(int $ticketId, string $condition): bool
     {
         $this->ensureInitialized();
@@ -239,6 +257,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
     /**
      * Get monitoring status for ticket
+     */
+    /**
+     * Get  monitoring status
      */
     public function getMonitoringStatus(int $ticketId): array
     {
@@ -266,6 +287,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * Get all monitored tickets
      */
+    /**
+     * Get  monitored tickets
+     */
     public function getMonitoredTickets(): array
     {
         $this->ensureInitialized();
@@ -282,6 +306,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
     /**
      * Get monitoring statistics
+     */
+    /**
+     * Get  monitoring statistics
      */
     public function getMonitoringStatistics(): array
     {
@@ -311,6 +338,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         ];
     }
 
+    /**
+     * OnInitialize
+     */
     protected function onInitialize(): void
     {
         $this->validateDependencies(['scrapingService', 'notificationService', 'analyticsService']);
@@ -320,6 +350,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
     /**
      * Private helper methods
+     */
+    /**
+     * LoadMonitoredTickets
      */
     private function loadMonitoredTickets(): void
     {
@@ -335,6 +368,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         }
     }
 
+    /**
+     * LoadAlertRules
+     */
     private function loadAlertRules(): void
     {
         foreach ($this->monitoredTickets as $ticketId => $data) {
@@ -342,6 +378,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         }
     }
 
+    /**
+     * ProcessAvailabilityResults
+     */
     private function processAvailabilityResults(int $ticketId, array $scrapingResults): array
     {
         $totalResults = 0;
@@ -384,6 +423,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         ];
     }
 
+    /**
+     * UpdateAvailabilityHistory
+     */
     private function updateAvailabilityHistory(int $ticketId, array $availabilityData): void
     {
         $monitoringKey = self::MONITORING_PREFIX . $ticketId;
@@ -413,6 +455,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         }
     }
 
+    /**
+     * UpdatePriceHistory
+     */
     private function updatePriceHistory(int $ticketId, float $price): void
     {
         $monitoringKey = self::MONITORING_PREFIX . $ticketId;
@@ -431,6 +476,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         Redis::hset($monitoringKey, 'price_history', json_encode($priceHistory));
     }
 
+    /**
+     * CheckAlertConditions
+     */
     private function checkAlertConditions(int $ticketId, array $availabilityData): void
     {
         $alertRules = $this->getTicketAlertRules($ticketId);
@@ -471,6 +519,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         }
     }
 
+    /**
+     * TriggerAlert
+     */
     private function triggerAlert(int $ticketId, string $condition, string $message, array $channels): void
     {
         try {
@@ -503,6 +554,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         }
     }
 
+    /**
+     * Get  ticket alert rules
+     */
     private function getTicketAlertRules(int $ticketId): array
     {
         $ruleKeys = Redis::smembers(self::ALERT_PREFIX . 'ticket:' . $ticketId);
@@ -519,6 +573,9 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
         return $rules;
     }
 
+    /**
+     * Get  monitoring health
+     */
     private function getMonitoringHealth(): string
     {
         $activeTickets = Redis::smembers(self::MONITORING_PREFIX . 'active_tickets');

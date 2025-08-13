@@ -12,6 +12,9 @@ class TicketCriteriaController extends Controller
     /**
      * Get all ticket criteria for user
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         $userId = auth()->id();
@@ -72,6 +75,9 @@ class TicketCriteriaController extends Controller
     /**
      * Store new ticket criteria
      */
+    /**
+     * Store
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -120,6 +126,9 @@ class TicketCriteriaController extends Controller
 
     /**
      * Update ticket criteria
+     */
+    /**
+     * Update
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -173,6 +182,9 @@ class TicketCriteriaController extends Controller
     /**
      * Delete ticket criteria
      */
+    /**
+     * Destroy
+     */
     public function destroy(int $id): JsonResponse
     {
         $userId = auth()->id();
@@ -195,6 +207,9 @@ class TicketCriteriaController extends Controller
 
     /**
      * Toggle ticket criteria active status
+     */
+    /**
+     * Toggle
      */
     public function toggle(int $id): JsonResponse
     {

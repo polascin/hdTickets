@@ -31,6 +31,9 @@ class TicketPriceHistory extends Model
     /**
      * Get the ticket that owns this price history record
      */
+    /**
+     * Ticket
+     */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(ScrapedTicket::class, 'ticket_id');
@@ -61,6 +64,9 @@ class TicketPriceHistory extends Model
     /**
      * Get price change percentage since last record
      */
+    /**
+     * Get  price change attribute
+     */
     public function getPriceChangeAttribute(): ?float
     {
         $previousRecord = static::where('ticket_id', $this->ticket_id)
@@ -77,6 +83,9 @@ class TicketPriceHistory extends Model
 
     /**
      * Get quantity change since last record
+     */
+    /**
+     * Get  quantity change attribute
      */
     public function getQuantityChangeAttribute(): ?int
     {
@@ -95,6 +104,9 @@ class TicketPriceHistory extends Model
     /**
      * Calculate average price for a time period
      */
+    /**
+     * Get  average price
+     */
     public static function getAveragePrice(int $ticketId, int $days = 7): ?float
     {
         return static::where('ticket_id', $ticketId)
@@ -104,6 +116,9 @@ class TicketPriceHistory extends Model
 
     /**
      * Get price volatility (standard deviation) for a time period
+     */
+    /**
+     * Get  price volatility
      */
     public static function getPriceVolatility(int $ticketId, int $days = 7): float
     {
@@ -126,6 +141,9 @@ class TicketPriceHistory extends Model
 
     /**
      * Get price trend direction
+     */
+    /**
+     * Get  price trend
      */
     public static function getPriceTrend(int $ticketId, int $days = 7): string
     {
@@ -154,6 +172,9 @@ class TicketPriceHistory extends Model
 
     /**
      * Record price history for a ticket
+     */
+    /**
+     * RecordPrice
      */
     public static function recordPrice(int $ticketId, float $price, int $quantity, string $source = 'scraper'): void
     {
@@ -188,6 +209,9 @@ class TicketPriceHistory extends Model
 
     /**
      * Clean up old price history records
+     */
+    /**
+     * Cleanup
      */
     public static function cleanup(int $daysToKeep = 90): int
     {

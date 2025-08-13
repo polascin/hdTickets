@@ -23,6 +23,9 @@ class LaravelEventBus implements EventBusInterface
     ) {
     }
 
+    /**
+     * Dispatch
+     */
     public function dispatch(DomainEventInterface $event): void
     {
         try {
@@ -51,6 +54,9 @@ class LaravelEventBus implements EventBusInterface
         }
     }
 
+    /**
+     * DispatchMany
+     */
     public function dispatchMany(array $events): void
     {
         if (empty($events)) {
@@ -82,6 +88,9 @@ class LaravelEventBus implements EventBusInterface
         }
     }
 
+    /**
+     * Subscribe
+     */
     public function subscribe(string $eventType, callable $handler): void
     {
         if (! isset($this->handlers[$eventType])) {
@@ -91,6 +100,9 @@ class LaravelEventBus implements EventBusInterface
         $this->handlers[$eventType][] = $handler;
     }
 
+    /**
+     * Unsubscribe
+     */
     public function unsubscribe(string $eventType, callable $handler): void
     {
         if (! isset($this->handlers[$eventType])) {
@@ -107,11 +119,17 @@ class LaravelEventBus implements EventBusInterface
         }
     }
 
+    /**
+     * Get  handlers
+     */
     public function getHandlers(string $eventType): array
     {
         return $this->handlers[$eventType] ?? [];
     }
 
+    /**
+     * Check if has  handlers
+     */
     public function hasHandlers(string $eventType): bool
     {
         return isset($this->handlers[$eventType]) && ! empty($this->handlers[$eventType]);
@@ -119,6 +137,9 @@ class LaravelEventBus implements EventBusInterface
 
     /**
      * Queue event for async processing
+     */
+    /**
+     * DispatchAsync
      */
     public function dispatchAsync(DomainEventInterface $event): void
     {
@@ -134,6 +155,9 @@ class LaravelEventBus implements EventBusInterface
 
     /**
      * Dispatch event with retry mechanism
+     */
+    /**
+     * DispatchWithRetry
      */
     public function dispatchWithRetry(DomainEventInterface $event, int $maxRetries = 3): void
     {
@@ -163,6 +187,9 @@ class LaravelEventBus implements EventBusInterface
         }
     }
 
+    /**
+     * TriggerHandlers
+     */
     private function triggerHandlers(DomainEventInterface $event): void
     {
         $handlers = $this->getHandlers($event->getEventType());
@@ -185,6 +212,9 @@ class LaravelEventBus implements EventBusInterface
         }
     }
 
+    /**
+     * RecordHandlerFailure
+     */
     private function recordHandlerFailure(DomainEventInterface $event, callable $handler, Exception $exception): void
     {
         // Record handler failure for monitoring and potential retry

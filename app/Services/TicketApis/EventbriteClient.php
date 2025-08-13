@@ -15,16 +15,25 @@ class EventbriteClient extends BaseWebScrapingClient
         $this->respectRateLimit('eventbrite');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->scrapeSearchResults($criteria['q'] ?? '', $criteria['location'] ?? '', $criteria['per_page'] ?? 50);
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->scrapeEventDetails($this->baseUrl . '/e/' . $eventId);
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         return $this->makeRequest('GET', "venues/{$venueId}");
@@ -32,6 +41,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Scrape Eventbrite search results
+     */
+    /**
+     * ScrapeSearchResults
      */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
@@ -52,6 +64,9 @@ class EventbriteClient extends BaseWebScrapingClient
     /**
      * Scrape individual event details
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -66,11 +81,17 @@ class EventbriteClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  base url
+     */
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -86,6 +107,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Extract search results from HTML (BaseWebScrapingClient requirement)
+     */
+    /**
+     * ExtractSearchResults
      */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
@@ -124,6 +148,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Extract prices from crawler (BaseWebScrapingClient requirement)
+     */
+    /**
+     * ExtractPrices
      */
     protected function extractPrices(Crawler $crawler): array
     {
@@ -164,6 +191,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Extract event data from a single node
+     */
+    /**
+     * ExtractEventFromNode
      */
     protected function extractEventFromNode(Crawler $node): array
     {
@@ -251,6 +281,9 @@ class EventbriteClient extends BaseWebScrapingClient
     /**
      * Extract ticket information from the event page
      */
+    /**
+     * ExtractTicketInfo
+     */
     protected function extractTicketInfo(Crawler $crawler): array
     {
         $ticketInfo = [
@@ -302,6 +335,9 @@ class EventbriteClient extends BaseWebScrapingClient
         return $ticketInfo;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -321,6 +357,9 @@ class EventbriteClient extends BaseWebScrapingClient
     /**
      * Build search URL for Eventbrite
      */
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(string $keyword, string $location = ''): string
     {
         $baseUrl = 'https://www.eventbrite.com/d';
@@ -338,6 +377,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Extract detailed event information from event page
+     */
+    /**
+     * ExtractEventDetails
      */
     private function extractEventDetails(Crawler $crawler, string $url): array
     {
@@ -415,6 +457,9 @@ class EventbriteClient extends BaseWebScrapingClient
 
     /**
      * Resolve relative URLs to absolute URLs
+     */
+    /**
+     * ResolveUrl
      */
     private function resolveUrl(string $url): string
     {

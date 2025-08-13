@@ -3,60 +3,59 @@
 namespace App\Models;
 
 use App\Events\TicketAvailabilityUpdated;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 use function in_array;
 
 /**
  * Sports Event Entry Ticket Model
  *
- * @property int $id
- * @property string $uuid
- * @property int|null $requester_id
- * @property int|null $assignee_id
- * @property int|null $category_id
- * @property string $title
- * @property string|null $description
- * @property string $status
- * @property string $priority
- * @property Carbon|null $due_date
- * @property Carbon|null $last_activity_at
- * @property string|null $platform
- * @property string|null $external_id
- * @property float|null $price
- * @property string|null $currency
- * @property int|null $available_quantity
- * @property string|null $location
- * @property string|null $venue
- * @property Carbon|null $event_date
- * @property string|null $event_type
- * @property string|null $performer_artist
- * @property string|null $seat_details
- * @property bool|null $is_available
- * @property string|null $ticket_url
- * @property array|null $scraping_metadata
- * @property string|null $sport
- * @property array|null $additional_metadata
- * @property string|null $source
- * @property array|null $tags
- * @property Carbon|null $resolved_at
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property Carbon|null $deleted_at
- *
- * @property-read User|null $user
- * @property-read User|null $requester
- * @property-read User|null $assignedTo
- * @property-read User|null $assignee
- * @property-read Category|null $category
- * @property-read string $priority_color
- * @property-read string $status_color
- * @property-read string $formatted_title
+ * @property int           $id
+ * @property string        $uuid
+ * @property int|null      $requester_id
+ * @property int|null      $assignee_id
+ * @property int|null      $category_id
+ * @property string        $title
+ * @property string|null   $description
+ * @property string        $status
+ * @property string        $priority
+ * @property Carbon|null   $due_date
+ * @property Carbon|null   $last_activity_at
+ * @property string|null   $platform
+ * @property string|null   $external_id
+ * @property float|null    $price
+ * @property string|null   $currency
+ * @property int|null      $available_quantity
+ * @property string|null   $location
+ * @property string|null   $venue
+ * @property Carbon|null   $event_date
+ * @property string|null   $event_type
+ * @property string|null   $performer_artist
+ * @property string|null   $seat_details
+ * @property bool|null     $is_available
+ * @property string|null   $ticket_url
+ * @property array|null    $scraping_metadata
+ * @property string|null   $sport
+ * @property array|null    $additional_metadata
+ * @property string|null   $source
+ * @property array|null    $tags
+ * @property Carbon|null   $resolved_at
+ * @property Carbon        $created_at
+ * @property Carbon        $updated_at
+ * @property Carbon|null   $deleted_at
+ * @property User|null     $user
+ * @property User|null     $requester
+ * @property User|null     $assignedTo
+ * @property User|null     $assignee
+ * @property Category|null $category
+ * @property string        $priority_color
+ * @property string        $status_color
+ * @property string        $formatted_title
  */
 class Ticket extends Model
 {
@@ -157,7 +156,10 @@ class Ticket extends Model
     /**
      * Get the route key for the model
      */
-    public function getRouteKeyName()
+    /**
+     * Get  route key name
+     */
+    public function getRouteKeyName(): string
     {
         return 'uuid';
     }
@@ -166,6 +168,9 @@ class Ticket extends Model
      * Get all available statuses
      *
      * @return array<int, string>
+     */
+    /**
+     * Get  statuses
      */
     public static function getStatuses(): array
     {
@@ -184,6 +189,9 @@ class Ticket extends Model
      *
      * @return array<int, string>
      */
+    /**
+     * Get  priorities
+     */
     public static function getPriorities(): array
     {
         return [
@@ -200,6 +208,9 @@ class Ticket extends Model
      *
      * @return array<int, string>
      */
+    /**
+     * Get  sources
+     */
     public static function getSources(): array
     {
         return [
@@ -214,6 +225,9 @@ class Ticket extends Model
     /**
      * Relationship: User who created the ticket (requester)
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requester_id');
@@ -221,6 +235,9 @@ class Ticket extends Model
 
     /**
      * Relationship: User who requested the ticket
+     */
+    /**
+     * Requester
      */
     public function requester(): BelongsTo
     {
@@ -230,6 +247,9 @@ class Ticket extends Model
     /**
      * Relationship: User assigned to handle the ticket
      */
+    /**
+     * AssignedTo
+     */
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
@@ -238,6 +258,9 @@ class Ticket extends Model
     /**
      * Relationship: User assigned to handle the ticket (alias)
      */
+    /**
+     * Assignee
+     */
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
@@ -245,6 +268,9 @@ class Ticket extends Model
 
     /**
      * Relationship: Ticket category
+     */
+    /**
+     * Category
      */
     public function category(): BelongsTo
     {
@@ -426,6 +452,9 @@ class Ticket extends Model
     /**
      * Check if ticket is open
      */
+    /**
+     * Check if  open
+     */
     public function isOpen(): bool
     {
         return in_array($this->status, [
@@ -437,6 +466,9 @@ class Ticket extends Model
 
     /**
      * Check if ticket is closed
+     */
+    /**
+     * Check if  closed
      */
     public function isClosed(): bool
     {
@@ -450,6 +482,9 @@ class Ticket extends Model
     /**
      * Check if ticket is overdue
      */
+    /**
+     * Check if  overdue
+     */
     public function isOverdue(): bool
     {
         return $this->due_date && $this->due_date->isPast() && $this->isOpen();
@@ -457,6 +492,9 @@ class Ticket extends Model
 
     /**
      * Check if ticket is high priority
+     */
+    /**
+     * Check if  high priority
      */
     public function isHighPriority(): bool
     {
@@ -469,6 +507,9 @@ class Ticket extends Model
 
     /**
      * Get priority color for UI
+     */
+    /**
+     * Get  priority color attribute
      */
     public function getPriorityColorAttribute(): string
     {
@@ -484,6 +525,9 @@ class Ticket extends Model
 
     /**
      * Get status color for UI
+     */
+    /**
+     * Get  status color attribute
      */
     public function getStatusColorAttribute(): string
     {
@@ -501,6 +545,9 @@ class Ticket extends Model
     /**
      * Get formatted title with ticket number
      */
+    /**
+     * Get  formatted title attribute
+     */
     public function getFormattedTitleAttribute(): string
     {
         return "#{$this->id} - {$this->title}";
@@ -508,6 +555,9 @@ class Ticket extends Model
 
     /**
      * Mark ticket as resolved
+     */
+    /**
+     * Resolve
      */
     public function resolve(): bool
     {
@@ -520,6 +570,9 @@ class Ticket extends Model
     /**
      * Assign ticket to user
      */
+    /**
+     * AssignTo
+     */
     public function assignTo(User $user): bool
     {
         return $this->update([
@@ -529,6 +582,9 @@ class Ticket extends Model
 
     /**
      * Add tag to ticket
+     */
+    /**
+     * AddTag
      */
     public function addTag(string $tag): bool
     {
@@ -545,6 +601,9 @@ class Ticket extends Model
     /**
      * Remove tag from ticket
      */
+    /**
+     * RemoveTag
+     */
     public function removeTag(string $tag): bool
     {
         $tags = $this->tags ?? [];
@@ -560,6 +619,9 @@ class Ticket extends Model
 
     /**
      * Boot the model
+     */
+    /**
+     * Boot
      */
     protected static function boot(): void
     {

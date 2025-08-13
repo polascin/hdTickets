@@ -40,6 +40,9 @@ class DataNormalizationService
     /**
      * Normalize event data across platforms with comprehensive data transformation.
      */
+    /**
+     * Normalize
+     */
     public function normalize(array $eventData): array
     {
         try {
@@ -101,6 +104,9 @@ class DataNormalizationService
     /**
      * Normalize multiple events at once.
      */
+    /**
+     * NormalizeMultiple
+     */
     public function normalizeMultiple(array $eventsData): array
     {
         return array_filter(array_map([$this, 'normalize'], $eventsData));
@@ -108,6 +114,9 @@ class DataNormalizationService
 
     /**
      * Validate normalized event data.
+     */
+    /**
+     * Validate
      */
     public function validate(array $normalizedEvent): bool
     {
@@ -124,6 +133,9 @@ class DataNormalizationService
 
     /**
      * Get field mapping for platform.
+     */
+    /**
+     * Get  platform field mapping
      */
     public function getPlatformFieldMapping(string $platform): array
     {
@@ -153,6 +165,9 @@ class DataNormalizationService
 
     /**
      * Compare events across platforms for deduplication.
+     */
+    /**
+     * CompareEvents
      */
     public function compareEvents(array $event1, array $event2): float
     {
@@ -189,6 +204,9 @@ class DataNormalizationService
     /**
      * Normalize event ID to ensure uniqueness across platforms.
      */
+    /**
+     * NormalizeId
+     */
     protected function normalizeId(array $eventData): ?string
     {
         $platform = $eventData['platform'] ?? 'unknown';
@@ -204,6 +222,9 @@ class DataNormalizationService
     /**
      * Normalize event name.
      */
+    /**
+     * NormalizeName
+     */
     protected function normalizeName(array $eventData): string
     {
         $name = $eventData['name'] ?? 'Unnamed Event';
@@ -217,6 +238,9 @@ class DataNormalizationService
     /**
      * Normalize event description.
      */
+    /**
+     * NormalizeDescription
+     */
     protected function normalizeDescription(array $eventData): ?string
     {
         return $eventData['description'] ?? $eventData['description_snippet'] ?? NULL;
@@ -224,6 +248,9 @@ class DataNormalizationService
 
     /**
      * Normalize event date.
+     */
+    /**
+     * NormalizeDate
      */
     protected function normalizeDate(array $eventData): ?string
     {
@@ -249,6 +276,9 @@ class DataNormalizationService
     /**
      * Normalize event time.
      */
+    /**
+     * NormalizeTime
+     */
     protected function normalizeTime(array $eventData): ?string
     {
         if (isset($eventData['parsed_date'])) {
@@ -262,6 +292,9 @@ class DataNormalizationService
 
     /**
      * Normalize timezone based on platform and location.
+     */
+    /**
+     * NormalizeTimezone
      */
     protected function normalizeTimezone(array $eventData, string $platform): string
     {
@@ -279,6 +312,9 @@ class DataNormalizationService
     /**
      * Normalize venue name.
      */
+    /**
+     * NormalizeVenue
+     */
     protected function normalizeVenue(array $eventData): string
     {
         return trim($eventData['venue'] ?? 'Unknown Venue');
@@ -287,6 +323,9 @@ class DataNormalizationService
     /**
      * Normalize city name.
      */
+    /**
+     * NormalizeCity
+     */
     protected function normalizeCity(array $eventData): string
     {
         return trim($eventData['city'] ?? 'Unknown City');
@@ -294,6 +333,9 @@ class DataNormalizationService
 
     /**
      * Normalize country based on platform defaults.
+     */
+    /**
+     * NormalizeCountry
      */
     protected function normalizeCountry(array $eventData, string $platform): string
     {
@@ -317,7 +359,10 @@ class DataNormalizationService
      *
      * @param mixed $price
      */
-    protected function normalizePrice($price): ?float
+    /**
+     * NormalizePrice
+     */
+    protected function normalizePrice(float $price): ?float
     {
         if (NULL === $price) {
             return NULL;
@@ -339,6 +384,9 @@ class DataNormalizationService
     /**
      * Normalize currency.
      */
+    /**
+     * NormalizeCurrency
+     */
     protected function normalizeCurrency(array $eventData, string $platform): string
     {
         if (isset($eventData['currency']) && ! empty($eventData['currency'])) {
@@ -350,6 +398,9 @@ class DataNormalizationService
 
     /**
      * Normalize prices array.
+     */
+    /**
+     * NormalizePrices
      */
     protected function normalizePrices(array $eventData): array
     {
@@ -378,6 +429,9 @@ class DataNormalizationService
     /**
      * Normalize availability status.
      */
+    /**
+     * NormalizeStatus
+     */
     protected function normalizeStatus(array $eventData): string
     {
         $status = strtolower($eventData['availability_status'] ?? $eventData['status'] ?? 'unknown');
@@ -387,6 +441,9 @@ class DataNormalizationService
 
     /**
      * Normalize ticket count.
+     */
+    /**
+     * NormalizeTicketCount
      */
     protected function normalizeTicketCount(array $eventData): ?int
     {
@@ -398,6 +455,9 @@ class DataNormalizationService
     /**
      * Normalize event category.
      */
+    /**
+     * NormalizeCategory
+     */
     protected function normalizeCategory(array $eventData): ?string
     {
         return $eventData['category'] ?? $eventData['entertainment_category'] ?? NULL;
@@ -405,6 +465,9 @@ class DataNormalizationService
 
     /**
      * Extract platform-specific data.
+     */
+    /**
+     * ExtractPlatformSpecific
      */
     protected function extractPlatformSpecific(array $eventData, string $platform): array
     {
@@ -434,6 +497,9 @@ class DataNormalizationService
 
     /**
      * Calculate string similarity.
+     */
+    /**
+     * StringSimilarity
      */
     private function stringSimilarity(string $str1, string $str2): float
     {

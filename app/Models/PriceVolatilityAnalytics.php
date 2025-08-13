@@ -39,6 +39,9 @@ class PriceVolatilityAnalytics extends Model
     /**
      * Get the ticket this analytics data belongs to
      */
+    /**
+     * Ticket
+     */
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(ScrapedTicket::class, 'ticket_id');
@@ -80,6 +83,9 @@ class PriceVolatilityAnalytics extends Model
     /**
      * Get price range
      */
+    /**
+     * Get  price range attribute
+     */
     public function getPriceRangeAttribute(): float
     {
         return $this->max_price - $this->min_price;
@@ -87,6 +93,9 @@ class PriceVolatilityAnalytics extends Model
 
     /**
      * Get volatility classification
+     */
+    /**
+     * Get  volatility classification attribute
      */
     public function getVolatilityClassificationAttribute(): string
     {
@@ -109,6 +118,9 @@ class PriceVolatilityAnalytics extends Model
     /**
      * Get formatted volatility score as percentage
      */
+    /**
+     * Get  formatted volatility attribute
+     */
     public function getFormattedVolatilityAttribute(): string
     {
         return number_format($this->volatility_score * 100, 2) . '%';
@@ -118,6 +130,11 @@ class PriceVolatilityAnalytics extends Model
      * Calculate analytics data for a specific ticket and date
      *
      * @param mixed|null $date
+     */
+    /**
+     * CalculateForTicket
+     *
+     * @param mixed $date
      */
     public static function calculateForTicket(int $ticketId, $date = NULL): ?self
     {
@@ -189,6 +206,11 @@ class PriceVolatilityAnalytics extends Model
 
     /**
      * Generate hourly aggregated data
+     *
+     * @param mixed $priceHistory
+     */
+    /**
+     * GenerateHourlyData
      *
      * @param mixed $priceHistory
      */

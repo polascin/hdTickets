@@ -29,6 +29,11 @@ class SmartTicketAlert extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * Via
+     *
+     * @param mixed $notifiable
+     */
     public function via($notifiable): array
     {
         $channels = ['database'];
@@ -43,6 +48,11 @@ class SmartTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToMail
      *
      * @param mixed $notifiable
      */
@@ -111,6 +121,11 @@ class SmartTicketAlert extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * ToDatabase
+     *
+     * @param mixed $notifiable
+     */
     public function toDatabase($notifiable): array
     {
         $ticket = $this->alertData['ticket'];
@@ -134,6 +149,11 @@ class SmartTicketAlert extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * ToArray
+     *
+     * @param mixed $notifiable
+     */
     public function toArray($notifiable): array
     {
         return $this->alertData;
@@ -141,6 +161,12 @@ class SmartTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Determine if the notification should be sent.
+     *
+     * @param mixed $notifiable
+     * @param mixed $channel
+     */
+    /**
+     * ShouldSend
      *
      * @param mixed $notifiable
      * @param mixed $channel
@@ -188,6 +214,9 @@ class SmartTicketAlert extends Notification implements ShouldQueue
     /**
      * Get notification tags for tracking
      */
+    /**
+     * Tags
+     */
     public function tags(): array
     {
         $ticket = $this->alertData['ticket'];
@@ -203,6 +232,9 @@ class SmartTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Build database notification message
+     */
+    /**
+     * BuildDatabaseMessage
      */
     protected function buildDatabaseMessage(): string
     {
@@ -222,6 +254,9 @@ class SmartTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Get the notification's queue name based on priority
+     */
+    /**
+     * Get  queue name
      */
     protected function getQueueName(int $priority): string
     {

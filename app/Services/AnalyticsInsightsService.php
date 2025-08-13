@@ -20,6 +20,9 @@ class AnalyticsInsightsService
     /**
      * Generate predictive insights for ticket demand
      */
+    /**
+     * Get  predictive insights
+     */
     public function getPredictiveInsights(array $filters = []): array
     {
         $cacheKey = 'insights:predictive:' . md5(serialize($filters));
@@ -50,6 +53,9 @@ class AnalyticsInsightsService
     /**
      * Analyze user behavior patterns
      */
+    /**
+     * Get  user behavior insights
+     */
     public function getUserBehaviorInsights(array $filters = []): array
     {
         $cacheKey = 'insights:user_behavior:' . md5(serialize($filters));
@@ -73,6 +79,9 @@ class AnalyticsInsightsService
 
     /**
      * Generate market intelligence insights
+     */
+    /**
+     * Get  market intelligence
      */
     public function getMarketIntelligence(array $filters = []): array
     {
@@ -98,6 +107,9 @@ class AnalyticsInsightsService
     /**
      * Generate performance optimization insights
      */
+    /**
+     * Get  optimization insights
+     */
     public function getOptimizationInsights(array $filters = []): array
     {
         $cacheKey = 'insights:optimization:' . md5(serialize($filters));
@@ -122,6 +134,9 @@ class AnalyticsInsightsService
     /**
      * Generate real-time anomaly detection insights
      */
+    /**
+     * Get  anomaly detection insights
+     */
     public function getAnomalyDetectionInsights(): array
     {
         return [
@@ -138,6 +153,9 @@ class AnalyticsInsightsService
 
     // Private helper methods for predictive insights
 
+    /**
+     * Get  historical patterns
+     */
     private function getHistoricalPatterns(Carbon $startDate, Carbon $endDate): Collection
     {
         return ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -149,6 +167,9 @@ class AnalyticsInsightsService
             ->get();
     }
 
+    /**
+     * AnalyzeSeasonalTrends
+     */
     private function analyzeSeasonalTrends(Collection $data): array
     {
         $monthlyTrends = $data->groupBy(function ($item) {
@@ -181,6 +202,9 @@ class AnalyticsInsightsService
         ];
     }
 
+    /**
+     * GenerateDemandForecasting
+     */
     private function generateDemandForecasting(Collection $data): array
     {
         $demandTrends = $data->groupBy(function ($item) {
@@ -207,6 +231,9 @@ class AnalyticsInsightsService
         ];
     }
 
+    /**
+     * GeneratePriceProjections
+     */
     private function generatePriceProjections(Collection $data): array
     {
         $priceData = $data->reject(function ($item) {
@@ -237,6 +264,9 @@ class AnalyticsInsightsService
 
     // User behavior analysis methods
 
+    /**
+     * AnalyzeEngagementPatterns
+     */
     private function analyzeEngagementPatterns(Carbon $startDate, Carbon $endDate): array
     {
         $userData = User::with(['ticketAlerts' => function ($query) use ($startDate, $endDate): void {
@@ -263,6 +293,9 @@ class AnalyticsInsightsService
         ];
     }
 
+    /**
+     * PerformUserSegmentation
+     */
     private function performUserSegmentation(Carbon $startDate, Carbon $endDate): array
     {
         $users = User::with(['ticketAlerts'])->get();
@@ -302,6 +335,9 @@ class AnalyticsInsightsService
 
     // Market intelligence methods
 
+    /**
+     * PerformCompetitiveAnalysis
+     */
     private function performCompetitiveAnalysis(Carbon $startDate, Carbon $endDate): array
     {
         $platformMetrics = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -329,6 +365,9 @@ class AnalyticsInsightsService
 
     // Optimization insights methods
 
+    /**
+     * AnalyzePlatformOptimization
+     */
     private function analyzePlatformOptimization(Carbon $startDate, Carbon $endDate): array
     {
         $platformPerformance = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -358,6 +397,9 @@ class AnalyticsInsightsService
 
     // Anomaly detection methods
 
+    /**
+     * DetectPriceAnomalies
+     */
     private function detectPriceAnomalies(): array
     {
         $recentPrices = TicketPriceHistory::where('recorded_at', '>=', Carbon::now()->subHours(24))
@@ -395,6 +437,9 @@ class AnalyticsInsightsService
         return array_slice($anomalies, 0, 20); // Return top 20 anomalies
     }
 
+    /**
+     * DetectDemandAnomalies
+     */
     private function detectDemandAnomalies(): array
     {
         $hourlyDemand = ScrapedTicket::where('created_at', '>=', Carbon::now()->subDays(7))
@@ -433,6 +478,9 @@ class AnalyticsInsightsService
 
     // Utility methods
 
+    /**
+     * CalculateStandardDeviation
+     */
     private function calculateStandardDeviation(array $values): float
     {
         if (count($values) < 2) {
@@ -449,6 +497,9 @@ class AnalyticsInsightsService
         return sqrt($variance);
     }
 
+    /**
+     * CalculateVolatility
+     */
     private function calculateVolatility(Collection $prices): float
     {
         if ($prices->count() < 2) {
@@ -488,7 +539,7 @@ class AnalyticsInsightsService
         return ['next_week' => 'stable', 'next_month' => 'increasing'];
     }
 
-    private function identifyDemandDrivers($data)
+    private function identifyDemandDrivers(array $data)
     {
         return ['event_popularity', 'seasonal_factors', 'price_sensitivity'];
     }
@@ -513,12 +564,12 @@ class AnalyticsInsightsService
         return 'low';
     }
 
-    private function identifyPriceOptimizationOpportunities($data)
+    private function identifyPriceOptimizationOpportunities(array $data)
     {
         return [];
     }
 
-    private function calculateEngagementFrequency($user, $alerts)
+    private function calculateEngagementFrequency(App\Models\User $user, $alerts)
     {
         return $alerts->count() / max(1, $user->created_at->diffInDays(now()));
     }
@@ -558,7 +609,7 @@ class AnalyticsInsightsService
         return [];
     }
 
-    private function determinePricePosition($price)
+    private function determinePricePosition(float $price)
     {
         return 'competitive';
     }
@@ -608,22 +659,22 @@ class AnalyticsInsightsService
         return [];
     }
 
-    private function identifyMarketOpportunities($data)
+    private function identifyMarketOpportunities(array $data)
     {
         return [];
     }
 
-    private function assessMarketRisks($data)
+    private function assessMarketRisks(array $data)
     {
         return [];
     }
 
-    private function generatePredictiveRecommendations($data)
+    private function generatePredictiveRecommendations(array $data)
     {
         return [];
     }
 
-    private function calculatePredictionConfidence($data)
+    private function calculatePredictionConfidence(array $data)
     {
         return [];
     }

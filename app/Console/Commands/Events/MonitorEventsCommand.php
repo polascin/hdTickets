@@ -15,14 +15,14 @@ use function strlen;
 class MonitorEventsCommand extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'events:monitor 
+    protected $signature = 'events:monitor 
                            {--watch : Watch events in real-time}
                            {--stats : Show event statistics}
                            {--failures : Show failed event processing}
                            {--projections : Show projection status}';
 
     /** The console command description. */
-    protected string $description = 'Monitor event store and projection health';
+    protected $description = 'Monitor event store and projection health';
 
     /**
      * Create a new command instance.
@@ -36,6 +36,9 @@ class MonitorEventsCommand extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -69,6 +72,9 @@ class MonitorEventsCommand extends Command
 
     /**
      * Watch for new events in real-time.
+     */
+    /**
+     * WatchEvents
      */
     private function watchEvents(): int
     {
@@ -110,6 +116,9 @@ class MonitorEventsCommand extends Command
 
     /**
      * Show event store statistics.
+     */
+    /**
+     * ShowEventStatistics
      */
     private function showEventStatistics(): void
     {
@@ -164,6 +173,9 @@ class MonitorEventsCommand extends Command
 
     /**
      * Show event processing failures.
+     */
+    /**
+     * ShowProcessingFailures
      */
     private function showProcessingFailures(): void
     {
@@ -227,6 +239,9 @@ class MonitorEventsCommand extends Command
     /**
      * Show projection status information.
      */
+    /**
+     * ShowProjectionStatus
+     */
     private function showProjectionStatus(): void
     {
         $this->info('Projection Status');
@@ -268,6 +283,9 @@ class MonitorEventsCommand extends Command
     /**
      * Show event store overview.
      */
+    /**
+     * ShowOverview
+     */
     private function showOverview(): void
     {
         $this->info('Event Store Overview');
@@ -306,6 +324,9 @@ class MonitorEventsCommand extends Command
     /**
      * Get the last event ID from the event store.
      */
+    /**
+     * Get  last event id
+     */
     private function getLastEventId(): int
     {
         // Use event store service to ensure it's not marked as unused
@@ -320,6 +341,9 @@ class MonitorEventsCommand extends Command
     /**
      * Get simplified event type name.
      */
+    /**
+     * Get  event type name
+     */
     private function getEventTypeName(string $eventType): string
     {
         return class_basename($eventType);
@@ -327,6 +351,9 @@ class MonitorEventsCommand extends Command
 
     /**
      * Check if monitoring should stop.
+     */
+    /**
+     * ShouldStop
      */
     private function shouldStop(): bool
     {

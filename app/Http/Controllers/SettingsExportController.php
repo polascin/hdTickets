@@ -30,7 +30,10 @@ class SettingsExportController extends Controller
     /**
      * Display the settings import/export page
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $user = auth()->user();
 
@@ -44,6 +47,9 @@ class SettingsExportController extends Controller
 
     /**
      * Export user preferences as JSON
+     */
+    /**
+     * ExportSettings
      */
     public function exportSettings(Request $request): Response
     {
@@ -96,6 +102,9 @@ class SettingsExportController extends Controller
 
     /**
      * Preview import data before applying
+     */
+    /**
+     * PreviewImport
      */
     public function previewImport(Request $request): JsonResponse
     {
@@ -157,6 +166,9 @@ class SettingsExportController extends Controller
 
     /**
      * Import user settings from uploaded file
+     */
+    /**
+     * ImportSettings
      */
     public function importSettings(Request $request): JsonResponse
     {
@@ -245,6 +257,9 @@ class SettingsExportController extends Controller
     /**
      * Handle conflicts during import
      */
+    /**
+     * ResolveConflicts
+     */
     public function resolveConflicts(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -307,6 +322,9 @@ class SettingsExportController extends Controller
 
     /**
      * Reset settings to defaults with backup option
+     */
+    /**
+     * ResetToDefaults
      */
     public function resetToDefaults(Request $request): JsonResponse
     {
@@ -378,6 +396,9 @@ class SettingsExportController extends Controller
     /**
      * Build complete export data structure
      */
+    /**
+     * BuildExportData
+     */
     private function buildExportData(User $user, array $categories): array
     {
         $exportData = [
@@ -422,6 +443,9 @@ class SettingsExportController extends Controller
     /**
      * Export user preferences (excluding sensitive data)
      */
+    /**
+     * ExportPreferences
+     */
     private function exportPreferences(User $user): array
     {
         $preferences = UserPreference::where('user_id', $user->id)
@@ -453,6 +477,9 @@ class SettingsExportController extends Controller
     /**
      * Export favorite teams
      */
+    /**
+     * ExportFavoriteTeams
+     */
     private function exportFavoriteTeams(User $user): array
     {
         return UserFavoriteTeam::where('user_id', $user->id)
@@ -463,6 +490,9 @@ class SettingsExportController extends Controller
 
     /**
      * Export favorite venues
+     */
+    /**
+     * ExportFavoriteVenues
      */
     private function exportFavoriteVenues(User $user): array
     {
@@ -475,6 +505,9 @@ class SettingsExportController extends Controller
     /**
      * Export price preferences
      */
+    /**
+     * ExportPricePreferences
+     */
     private function exportPricePreferences(User $user): array
     {
         return UserPricePreference::where('user_id', $user->id)
@@ -486,6 +519,9 @@ class SettingsExportController extends Controller
 
     /**
      * Export notification settings (excluding sensitive channels)
+     */
+    /**
+     * ExportNotificationSettings
      */
     private function exportNotificationSettings(User $user): array
     {
@@ -506,6 +542,9 @@ class SettingsExportController extends Controller
 
     /**
      * Check if preference is sensitive and should be excluded from export
+     */
+    /**
+     * Check if  sensitive preference
      */
     private function isSensitivePreference(string $key): bool
     {
@@ -548,6 +587,9 @@ class SettingsExportController extends Controller
     /**
      * Export data as JSON file
      */
+    /**
+     * ExportAsJSON
+     */
     private function exportAsJSON(array $exportData, User $user): Response
     {
         $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.json';
@@ -561,6 +603,9 @@ class SettingsExportController extends Controller
     /**
      * Export data as CSV file
      */
+    /**
+     * ExportAsCSV
+     */
     private function exportAsCSV(array $exportData, User $user): Response
     {
         $filename = "hdtickets-settings-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.csv';
@@ -573,6 +618,9 @@ class SettingsExportController extends Controller
 
     /**
      * Convert export data to CSV format
+     */
+    /**
+     * ConvertToCSV
      */
     private function convertToCSV(array $exportData): string
     {
@@ -614,6 +662,9 @@ class SettingsExportController extends Controller
 
     /**
      * Validate import data structure
+     */
+    /**
+     * ValidateImportData
      */
     private function validateImportData(array $data): array
     {
@@ -661,6 +712,11 @@ class SettingsExportController extends Controller
 
     /**
      * Validate specific category data
+     *
+     * @param mixed $data
+     */
+    /**
+     * ValidateCategoryData
      *
      * @param mixed $data
      */
@@ -737,6 +793,9 @@ class SettingsExportController extends Controller
     /**
      * Generate import preview showing what will be changed
      */
+    /**
+     * GenerateImportPreview
+     */
     private function generateImportPreview(User $user, array $importData, string $mergeStrategy): array
     {
         $preview = [
@@ -760,6 +819,11 @@ class SettingsExportController extends Controller
 
     /**
      * Generate preview for specific category
+     *
+     * @param mixed $data
+     */
+    /**
+     * GenerateCategoryPreview
      *
      * @param mixed $data
      */
@@ -800,6 +864,9 @@ class SettingsExportController extends Controller
 
     /**
      * Preview preferences changes
+     */
+    /**
+     * PreviewPreferencesChanges
      */
     private function previewPreferencesChanges(User $user, array $data, string $mergeStrategy): array
     {
@@ -864,6 +931,9 @@ class SettingsExportController extends Controller
     /**
      * Preview teams changes
      */
+    /**
+     * PreviewTeamsChanges
+     */
     private function previewTeamsChanges(User $user, array $data, string $mergeStrategy): array
     {
         $changes = [];
@@ -917,6 +987,9 @@ class SettingsExportController extends Controller
 
     /**
      * Preview venues changes
+     */
+    /**
+     * PreviewVenuesChanges
      */
     private function previewVenuesChanges(User $user, array $data, string $mergeStrategy): array
     {
@@ -972,6 +1045,9 @@ class SettingsExportController extends Controller
     /**
      * Preview price preferences changes
      */
+    /**
+     * PreviewPricesChanges
+     */
     private function previewPricesChanges(User $user, array $data, string $mergeStrategy): array
     {
         $changes = [];
@@ -1025,6 +1101,9 @@ class SettingsExportController extends Controller
 
     /**
      * Preview notification settings changes
+     */
+    /**
+     * PreviewNotificationsChanges
      */
     private function previewNotificationsChanges(User $user, array $data, string $mergeStrategy): array
     {
@@ -1082,6 +1161,9 @@ class SettingsExportController extends Controller
     /**
      * Compare two arrays and return differences
      */
+    /**
+     * CompareArrays
+     */
     private function compareArrays(array $existing, array $import): array
     {
         $changes = [];
@@ -1100,6 +1182,9 @@ class SettingsExportController extends Controller
 
     /**
      * Process the actual import
+     */
+    /**
+     * ProcessImport
      */
     private function processImport(User $user, array $importData, string $mergeStrategy, array $categories): array
     {
@@ -1140,6 +1225,11 @@ class SettingsExportController extends Controller
      *
      * @param mixed $data
      */
+    /**
+     * ImportCategory
+     *
+     * @param mixed $data
+     */
     private function importCategory(User $user, string $category, $data, string $mergeStrategy): array
     {
         switch ($category) {
@@ -1160,6 +1250,9 @@ class SettingsExportController extends Controller
 
     /**
      * Import preferences
+     */
+    /**
+     * ImportPreferences
      */
     private function importPreferences(User $user, array $data, string $mergeStrategy): array
     {
@@ -1213,6 +1306,9 @@ class SettingsExportController extends Controller
     /**
      * Import favorite teams
      */
+    /**
+     * ImportFavoriteTeams
+     */
     private function importFavoriteTeams(User $user, array $data, string $mergeStrategy): array
     {
         $imported = 0;
@@ -1256,6 +1352,9 @@ class SettingsExportController extends Controller
 
     /**
      * Import favorite venues
+     */
+    /**
+     * ImportFavoriteVenues
      */
     private function importFavoriteVenues(User $user, array $data, string $mergeStrategy): array
     {
@@ -1301,6 +1400,9 @@ class SettingsExportController extends Controller
     /**
      * Import price preferences
      */
+    /**
+     * ImportPricePreferences
+     */
     private function importPricePreferences(User $user, array $data, string $mergeStrategy): array
     {
         $imported = 0;
@@ -1342,6 +1444,9 @@ class SettingsExportController extends Controller
 
     /**
      * Import notification settings
+     */
+    /**
+     * ImportNotificationSettings
      */
     private function importNotificationSettings(User $user, array $data, string $mergeStrategy): array
     {
@@ -1387,6 +1492,9 @@ class SettingsExportController extends Controller
     /**
      * Resolve a specific conflict
      */
+    /**
+     * ResolveConflict
+     */
     private function resolveConflict(User $user, array $conflict): void
     {
         $action = $conflict['action'];
@@ -1404,6 +1512,9 @@ class SettingsExportController extends Controller
 
     /**
      * Perform settings reset
+     */
+    /**
+     * PerformReset
      */
     private function performReset(User $user, array $categories): array
     {
@@ -1440,6 +1551,9 @@ class SettingsExportController extends Controller
     /**
      * Create backup file
      */
+    /**
+     * CreateBackupFile
+     */
     private function createBackupFile(User $user, array $exportData): string
     {
         $filename = "backup-{$user->id}-" . now()->format('Y-m-d-H-i-s') . '.json';
@@ -1453,6 +1567,9 @@ class SettingsExportController extends Controller
     /**
      * Get information about last export
      */
+    /**
+     * Get  last export info
+     */
     private function getLastExportInfo(User $user): ?array
     {
         // This would typically come from a user_exports table
@@ -1462,6 +1579,9 @@ class SettingsExportController extends Controller
 
     /**
      * Get supported export formats
+     */
+    /**
+     * Get  supported formats
      */
     private function getSupportedFormats(): array
     {
@@ -1483,6 +1603,9 @@ class SettingsExportController extends Controller
 
     /**
      * Get exportable categories
+     */
+    /**
+     * Get  exportable categories
      */
     private function getExportableCategories(): array
     {

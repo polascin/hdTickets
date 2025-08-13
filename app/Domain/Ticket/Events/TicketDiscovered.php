@@ -19,7 +19,7 @@ final class TicketDiscovered extends AbstractDomainEvent
         public Price $price,
         public PlatformSource $platformSource,
         public int $availableQuantity,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Array containing detailed ticket information like seating section, row, etc. */
         public array $ticketDetails = [],
         /** @var array<string, mixed> */
         array $metadata = [],
@@ -27,11 +27,17 @@ final class TicketDiscovered extends AbstractDomainEvent
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->ticketId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'ticket';
@@ -39,6 +45,9 @@ final class TicketDiscovered extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -60,6 +69,9 @@ final class TicketDiscovered extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

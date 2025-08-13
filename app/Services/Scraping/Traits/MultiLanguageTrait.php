@@ -13,6 +13,9 @@ trait MultiLanguageTrait
     /**
      * Get Accept-Language header based on plugin language
      */
+    /**
+     * Get  accept language header
+     */
     protected function getAcceptLanguageHeader(): string
     {
         return match ($this->language) {
@@ -26,6 +29,9 @@ trait MultiLanguageTrait
 
     /**
      * Parse date in multiple European formats
+     */
+    /**
+     * ParseDate
      */
     protected function parseDate(string $dateString): ?string
     {
@@ -82,6 +88,9 @@ trait MultiLanguageTrait
     /**
      * Normalize availability status in multiple languages
      */
+    /**
+     * NormalizeAvailability
+     */
     protected function normalizeAvailability(string $availability): string
     {
         $availability = strtolower(trim($availability));
@@ -137,6 +146,9 @@ trait MultiLanguageTrait
     /**
      * Detect if event is football/soccer related (multi-language)
      */
+    /**
+     * Check if  football event
+     */
     protected function isFootballEvent(string $eventName): bool
     {
         $footballTerms = [
@@ -167,6 +179,9 @@ trait MultiLanguageTrait
     /**
      * Detect if event is music related (multi-language)
      */
+    /**
+     * Check if  music event
+     */
     protected function isMusicEvent(string $eventName): bool
     {
         $musicTerms = [
@@ -194,6 +209,9 @@ trait MultiLanguageTrait
     /**
      * Detect if event is theater related (multi-language)
      */
+    /**
+     * Check if  theater event
+     */
     protected function isTheaterEvent(string $eventName): bool
     {
         $theaterTerms = [
@@ -220,6 +238,9 @@ trait MultiLanguageTrait
 
     /**
      * Get localized error messages
+     */
+    /**
+     * Get  localized error message
      */
     protected function getLocalizedErrorMessage(string $key): string
     {

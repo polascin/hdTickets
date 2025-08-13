@@ -11,6 +11,9 @@ class CssTimestampServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Register the CSS timestamp helper as a singleton
@@ -18,6 +21,9 @@ class CssTimestampServiceProvider extends ServiceProvider
             return new class() {
                 /**
                  * Generate a timestamped CSS URL
+                 */
+                /**
+                 * Generate
                  */
                 public function generate(string $path): string
                 {
@@ -46,6 +52,9 @@ class CssTimestampServiceProvider extends ServiceProvider
                 /**
                  * Add timestamp parameter to URL
                  */
+                /**
+                 * AddTimestampToUrl
+                 */
                 private function addTimestampToUrl(string $url, int $timestamp): string
                 {
                     $separator = strpos($url, '?') !== FALSE ? '&' : '?';
@@ -58,6 +67,9 @@ class CssTimestampServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {

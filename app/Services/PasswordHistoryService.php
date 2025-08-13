@@ -21,6 +21,9 @@ class PasswordHistoryService
     /**
      * Add a new password to user's history
      */
+    /**
+     * AddPasswordToHistory
+     */
     public function addPasswordToHistory(User $user, string $password): void
     {
         $passwordHistory = $user->password_history ?? [];
@@ -42,6 +45,9 @@ class PasswordHistoryService
 
     /**
      * Check if a password has been used recently
+     */
+    /**
+     * Check if  password recently used
      */
     public function isPasswordRecentlyUsed(User $user, string $password): bool
     {
@@ -65,6 +71,9 @@ class PasswordHistoryService
     /**
      * Check if password matches current password
      */
+    /**
+     * Check if  current password
+     */
     public function isCurrentPassword(User $user, string $password): bool
     {
         return Hash::check($password, $user->password);
@@ -72,6 +81,9 @@ class PasswordHistoryService
 
     /**
      * Get password history validation rules
+     */
+    /**
+     * Get  password history validation rules
      */
     public function getPasswordHistoryValidationRules(User $user): array
     {
@@ -97,6 +109,9 @@ class PasswordHistoryService
     /**
      * Get password reuse information
      */
+    /**
+     * Get  password reuse info
+     */
     public function getPasswordReuseInfo(User $user): array
     {
         $passwordHistory = $user->password_history ?? [];
@@ -114,6 +129,9 @@ class PasswordHistoryService
 
     /**
      * Clean up old password history entries
+     */
+    /**
+     * CleanupOldPasswords
      */
     public function cleanupOldPasswords(User $user): void
     {
@@ -137,6 +155,9 @@ class PasswordHistoryService
 
     /**
      * Get password strength requirements
+     */
+    /**
+     * Get  password requirements
      */
     public function getPasswordRequirements(): array
     {
@@ -164,6 +185,9 @@ class PasswordHistoryService
 
     /**
      * Validate password strength
+     */
+    /**
+     * ValidatePasswordStrength
      */
     public function validatePasswordStrength(string $password): array
     {
@@ -224,6 +248,9 @@ class PasswordHistoryService
     /**
      * Get strength label based on percentage
      */
+    /**
+     * Get  strength label
+     */
     private function getStrengthLabel(float $percentage): string
     {
         if ($percentage >= 90) {
@@ -244,6 +271,9 @@ class PasswordHistoryService
 
     /**
      * Get password improvement recommendations
+     */
+    /**
+     * Get  password recommendations
      */
     private function getPasswordRecommendations(string $password, int $currentScore): array
     {

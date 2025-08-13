@@ -12,6 +12,9 @@ class EventPredictionService
     /**
      * Predict upcoming events based on historical patterns
      */
+    /**
+     * PredictUpcomingEvents
+     */
     public function predictUpcomingEvents(array $criteria = []): array
     {
         $predictions = [];
@@ -37,6 +40,9 @@ class EventPredictionService
 
     /**
      * Analyze seasonal event patterns
+     */
+    /**
+     * AnalyzeSeasonalPatterns
      */
     protected function analyzeSeasonalPatterns(array $criteria): array
     {
@@ -72,6 +78,9 @@ class EventPredictionService
     /**
      * Analyze venue-specific patterns
      */
+    /**
+     * AnalyzeVenuePatterns
+     */
     protected function analyzeVenuePatterns(array $criteria): array
     {
         $venueStats = TicketSource::where('is_active', TRUE)
@@ -103,6 +112,9 @@ class EventPredictionService
 
     /**
      * Analyze artist/performer patterns
+     */
+    /**
+     * AnalyzeArtistPatterns
      */
     protected function analyzeArtistPatterns(array $criteria): array
     {
@@ -150,6 +162,9 @@ class EventPredictionService
 
     /**
      * Analyze price trends
+     */
+    /**
+     * AnalyzePriceTrends
      */
     protected function analyzePriceTrends(array $criteria): array
     {
@@ -214,6 +229,11 @@ class EventPredictionService
      *
      * @param mixed $events
      */
+    /**
+     * CalculateAverageEventInterval
+     *
+     * @param mixed $events
+     */
     protected function calculateAverageEventInterval($events): int
     {
         $events = collect($events)->sortBy('event_date');
@@ -230,6 +250,9 @@ class EventPredictionService
     /**
      * Extract artist name from event title (simplified)
      */
+    /**
+     * ExtractArtistName
+     */
     protected function extractArtistName(string $eventName): string
     {
         // Remove common words and extract likely artist name
@@ -244,6 +267,9 @@ class EventPredictionService
 
     /**
      * Categorize events by type
+     */
+    /**
+     * CategorizeEvents
      */
     protected function categorizeEvents(array $events): array
     {
@@ -279,6 +305,11 @@ class EventPredictionService
      *
      * @param mixed $events
      */
+    /**
+     * CalculateVenueConfidence
+     *
+     * @param mixed $events
+     */
     protected function calculateVenueConfidence($events): float
     {
         $eventCount = $events->count();
@@ -292,6 +323,9 @@ class EventPredictionService
 
     /**
      * Generate seasonal predictions based on historical patterns
+     */
+    /**
+     * GenerateSeasonalPredictions
      */
     protected function generateSeasonalPredictions(array $patterns): array
     {

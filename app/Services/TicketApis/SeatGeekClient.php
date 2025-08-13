@@ -21,6 +21,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         $this->respectRateLimit('seatgeek');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         // Try API first
@@ -40,11 +43,17 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $this->scrapeSearchResults($criteria['q'] ?? '', $criteria['city'] ?? '', $criteria['per_page'] ?? 50);
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->makeRequest('GET', "events/{$eventId}");
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         return $this->makeRequest('GET', "venues/{$venueId}");
@@ -52,6 +61,9 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     /**
      * Get available tickets for an event
+     */
+    /**
+     * Get  event tickets
      */
     public function getEventTickets(string $eventId, array $filters = []): array
     {
@@ -76,6 +88,9 @@ class SeatGeekClient extends BaseWebScrapingClient
     /**
      * Scrape SeatGeek search results
      */
+    /**
+     * ScrapeSearchResults
+     */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
         try {
@@ -99,6 +114,9 @@ class SeatGeekClient extends BaseWebScrapingClient
     /**
      * Scrape event details from URL
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -116,6 +134,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -124,6 +145,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         ];
     }
 
+    /**
+     * BuildSearchParams
+     */
     protected function buildSearchParams(array $criteria): array
     {
         $params = [];
@@ -159,6 +183,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $params;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         $lowestPrice = NULL;
@@ -188,6 +215,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         ];
     }
 
+    /**
+     * BuildScrapingSearchUrl
+     */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
         $baseUrl = 'https://seatgeek.com/search';
@@ -214,6 +244,9 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     /**
      * Extract search results from HTML using Crawler
+     */
+    /**
+     * ExtractSearchResults
      */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
@@ -255,6 +288,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $events;
     }
 
+    /**
+     * ParseSearchResultsHtml
+     */
     protected function parseSearchResultsHtml(string $html): array
     {
         $crawler = new Crawler($html);
@@ -264,6 +300,9 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     /**
      * Extract event data from node using Crawler
+     */
+    /**
+     * ExtractEventFromNode
      */
     protected function extractEventFromNode(Crawler $node): array
     {
@@ -329,6 +368,11 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $event;
     }
 
+    /**
+     * ParseEventCard
+     *
+     * @param mixed $eventNode
+     */
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
@@ -390,6 +434,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $event;
     }
 
+    /**
+     * Get  event tickets via scraping
+     */
     protected function getEventTicketsViaScraping(string $eventId, array $filters = []): array
     {
         try {
@@ -415,6 +462,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * ParseEventTicketsHtml
+     */
     protected function parseEventTicketsHtml(string $html, string $eventId): array
     {
         try {
@@ -477,6 +527,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * NormalizeUrl
+     */
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
         if (strpos($url, 'http') !== 0) {
@@ -486,6 +539,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         return $url;
     }
 
+    /**
+     * ExtractEventIdFromUrl
+     */
     protected function extractEventIdFromUrl(string $url): ?string
     {
         if (preg_match('/\/events\/([^\/?]+)/', $url, $matches)) {
@@ -495,6 +551,11 @@ class SeatGeekClient extends BaseWebScrapingClient
         return NULL;
     }
 
+    /**
+     * ExtractPriceRange
+     *
+     * @param mixed $event
+     */
     protected function extractPriceRange(array &$event, array $prices): void
     {
         if (empty($prices)) {
@@ -514,6 +575,9 @@ class SeatGeekClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * ParseEventDate
+     */
     protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
@@ -552,6 +616,9 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     /**
      * Extract detailed event information
+     */
+    /**
+     * ExtractEventDetails
      */
     protected function extractEventDetails(Crawler $crawler, string $url): array
     {
@@ -609,6 +676,9 @@ class SeatGeekClient extends BaseWebScrapingClient
 
     /**
      * Extract prices from page
+     */
+    /**
+     * ExtractPrices
      */
     protected function extractPrices(Crawler $crawler): array
     {

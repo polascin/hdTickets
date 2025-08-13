@@ -16,6 +16,9 @@ class TicketmasterAntiCorruptionLayer
     /**
      * Convert Ticketmaster API response to domain objects
      */
+    /**
+     * AdaptEventData
+     */
     public function adaptEventData(array $ticketmasterData): array
     {
         $adaptedEvents = [];
@@ -30,6 +33,9 @@ class TicketmasterAntiCorruptionLayer
     /**
      * Adapt ticket-specific data from Ticketmaster
      */
+    /**
+     * AdaptTicketData
+     */
     public function adaptTicketData(array $ticketData): array
     {
         return [
@@ -41,6 +47,9 @@ class TicketmasterAntiCorruptionLayer
         ];
     }
 
+    /**
+     * AdaptSingleEvent
+     */
     private function adaptSingleEvent(array $eventData): array
     {
         return [
@@ -55,16 +64,25 @@ class TicketmasterAntiCorruptionLayer
         ];
     }
 
+    /**
+     * ExtractExternalId
+     */
     private function extractExternalId(array $eventData): string
     {
         return $eventData['id'] ?? uniqid('tm_');
     }
 
+    /**
+     * ExtractEventName
+     */
     private function extractEventName(array $eventData): string
     {
         return $eventData['name'] ?? 'Unknown Event';
     }
 
+    /**
+     * AdaptSportCategory
+     */
     private function adaptSportCategory(array $eventData): SportCategory
     {
         $segment = $eventData['classifications'][0]['segment']['name'] ?? 'OTHER';
@@ -87,6 +105,9 @@ class TicketmasterAntiCorruptionLayer
         }
     }
 
+    /**
+     * MapSportGenre
+     */
     private function mapSportGenre(string $genre): string
     {
         $genreMapping = [
@@ -114,6 +135,9 @@ class TicketmasterAntiCorruptionLayer
         return $genreMapping[$genre] ?? 'OTHER';
     }
 
+    /**
+     * AdaptEventDate
+     */
     private function adaptEventDate(array $eventData): EventDate
     {
         $dateString = $eventData['dates']['start']['dateTime'] ??
@@ -128,6 +152,9 @@ class TicketmasterAntiCorruptionLayer
         }
     }
 
+    /**
+     * AdaptVenueData
+     */
     private function adaptVenueData(array $eventData): array
     {
         $venue = $eventData['_embedded']['venues'][0] ?? [];
@@ -141,6 +168,9 @@ class TicketmasterAntiCorruptionLayer
         ];
     }
 
+    /**
+     * BuildAddress
+     */
     private function buildAddress(array $venue): ?string
     {
         $addressParts = [];
@@ -160,6 +190,9 @@ class TicketmasterAntiCorruptionLayer
         return ! empty($addressParts) ? implode(', ', $addressParts) : NULL;
     }
 
+    /**
+     * ExtractCapacity
+     */
     private function extractCapacity(array $venue): ?int
     {
         if (isset($venue['generalInfo']['childRule'])) {
@@ -171,6 +204,9 @@ class TicketmasterAntiCorruptionLayer
         return $venue['capacity'] ?? NULL;
     }
 
+    /**
+     * AdaptPriceRange
+     */
     private function adaptPriceRange(array $eventData): array
     {
         $priceRanges = $eventData['priceRanges'] ?? [];
@@ -191,6 +227,9 @@ class TicketmasterAntiCorruptionLayer
         return $prices;
     }
 
+    /**
+     * AdaptAvailabilityStatus
+     */
     private function adaptAvailabilityStatus(array $eventData): AvailabilityStatus
     {
         $salesStatus = $eventData['dates']['status']['code'] ?? 'unknown';
@@ -209,6 +248,9 @@ class TicketmasterAntiCorruptionLayer
         return new AvailabilityStatus($mappedStatus);
     }
 
+    /**
+     * CreatePlatformSource
+     */
     private function createPlatformSource(array $eventData): PlatformSource
     {
         $url = $eventData['url'] ?? NULL;
@@ -216,6 +258,9 @@ class TicketmasterAntiCorruptionLayer
         return new PlatformSource('TICKETMASTER', $url);
     }
 
+    /**
+     * AdaptTicketPrice
+     */
     private function adaptTicketPrice(array $ticketData): Price
     {
         $priceValue = $ticketData['pricing']['total'] ??
@@ -227,6 +272,9 @@ class TicketmasterAntiCorruptionLayer
         return new Price((float) $priceValue, $currency);
     }
 
+    /**
+     * AdaptTicketAvailability
+     */
     private function adaptTicketAvailability(array $ticketData): AvailabilityStatus
     {
         $available = $ticketData['available'] ?? TRUE;

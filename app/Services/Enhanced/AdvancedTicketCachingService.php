@@ -51,6 +51,9 @@ class AdvancedTicketCachingService
     /**
      * Cache frequently accessed ticket data with smart invalidation
      */
+    /**
+     * CacheTicketData
+     */
     public function cacheTicketData(array $criteria = [], int $ttl = self::TTL_MEDIUM): array
     {
         $cacheKey = $this->generateTicketCacheKey($criteria);
@@ -101,6 +104,9 @@ class AdvancedTicketCachingService
     /**
      * Cache ticket search results with smart autocomplete
      */
+    /**
+     * CacheSearchResults
+     */
     public function cacheSearchResults(string $query, array $filters = [], int $limit = 50): array
     {
         $cacheKey = self::PREFIX_SEARCH . md5($query . serialize($filters) . $limit);
@@ -146,6 +152,9 @@ class AdvancedTicketCachingService
     /**
      * Cache high-demand tickets with priority
      */
+    /**
+     * CacheHighDemandTickets
+     */
     public function cacheHighDemandTickets(int $ttl = self::TTL_ULTRA_SHORT): array
     {
         $cacheKey = self::PREFIX_TICKETS . 'high_demand';
@@ -172,7 +181,10 @@ class AdvancedTicketCachingService
      *
      * @param mixed $ticket
      */
-    public function cacheIndividualTicket($ticket, int $ttl = self::TTL_MEDIUM): void
+    /**
+     * CacheIndividualTicket
+     */
+    public function cacheIndividualTicket(App\Models\Ticket $ticket, int $ttl = self::TTL_MEDIUM): void
     {
         if (is_numeric($ticket)) {
             $ticket = ScrapedTicket::find($ticket);
@@ -196,6 +208,9 @@ class AdvancedTicketCachingService
 
     /**
      * Get cached ticket details
+     */
+    /**
+     * Get  cached ticket
      */
     public function getCachedTicket(int $ticketId): ?array
     {
@@ -222,6 +237,9 @@ class AdvancedTicketCachingService
 
     /**
      * Cache platform-specific ticket statistics
+     */
+    /**
+     * CachePlatformStats
      */
     public function cachePlatformStats(string $platform, int $ttl = self::TTL_LONG): array
     {
@@ -256,6 +274,9 @@ class AdvancedTicketCachingService
     /**
      * Cache user-specific ticket preferences and recommendations
      */
+    /**
+     * CacheUserTicketData
+     */
     public function cacheUserTicketData(int $userId, int $ttl = self::TTL_MEDIUM): array
     {
         $cacheKey = self::PREFIX_USERS . "tickets:{$userId}";
@@ -289,6 +310,9 @@ class AdvancedTicketCachingService
     /**
      * Cache real-time ticket availability updates
      */
+    /**
+     * CacheAvailabilityUpdates
+     */
     public function cacheAvailabilityUpdates(array $ticketIds, int $ttl = self::TTL_ULTRA_SHORT): void
     {
         $cacheKey = self::PREFIX_TICKETS . 'availability_batch:' . md5(implode(',', $ticketIds));
@@ -314,6 +338,9 @@ class AdvancedTicketCachingService
 
     /**
      * Cache event-specific ticket aggregations
+     */
+    /**
+     * CacheEventTickets
      */
     public function cacheEventTickets(string $eventTitle, string $venue, int $ttl = self::TTL_LONG): array
     {
@@ -347,6 +374,9 @@ class AdvancedTicketCachingService
     /**
      * Cache analytics data for dashboard performance
      */
+    /**
+     * CacheAnalyticsData
+     */
     public function cacheAnalyticsData(string $type, array $params = [], int $ttl = self::TTL_LONG): array
     {
         $cacheKey = self::PREFIX_ANALYTICS . "{$type}:" . md5(serialize($params));
@@ -369,6 +399,9 @@ class AdvancedTicketCachingService
 
     /**
      * Invalidate cache for specific ticket or pattern
+     */
+    /**
+     * InvalidateCache
      */
     public function invalidateCache(string $pattern): void
     {
@@ -396,6 +429,9 @@ class AdvancedTicketCachingService
 
     /**
      * Smart cache warming for critical data
+     */
+    /**
+     * WarmCriticalCaches
      */
     public function warmCriticalCaches(): array
     {
@@ -446,6 +482,9 @@ class AdvancedTicketCachingService
     /**
      * Get cache performance metrics
      */
+    /**
+     * Get  cache metrics
+     */
     public function getCacheMetrics(): array
     {
         try {
@@ -467,11 +506,19 @@ class AdvancedTicketCachingService
 
     // Private helper methods
 
+    /**
+     * GenerateTicketCacheKey
+     */
     private function generateTicketCacheKey(array $criteria): string
     {
         return self::PREFIX_TICKETS . 'query:' . md5(serialize($criteria));
     }
 
+    /**
+     * CacheSearchSuggestions
+     *
+     * @param mixed $results
+     */
     private function cacheSearchSuggestions(string $query, $results): void
     {
         $suggestions = $results->take(10)->pluck('title')->unique()->values()->toArray();
@@ -479,6 +526,9 @@ class AdvancedTicketCachingService
         Cache::put($suggestionsKey, $suggestions, self::TTL_MEDIUM);
     }
 
+    /**
+     * GenerateTicketRecommendations
+     */
     private function generateTicketRecommendations(User $user): array
     {
         // Simple recommendation algorithm based on user preferences
@@ -497,6 +547,9 @@ class AdvancedTicketCachingService
             ->toArray();
     }
 
+    /**
+     * Get  user recent activity
+     */
     private function getUserRecentActivity(int $userId): array
     {
         // This would integrate with activity logging system
@@ -507,6 +560,9 @@ class AdvancedTicketCachingService
         ];
     }
 
+    /**
+     * GenerateTicketTrendsData
+     */
     private function generateTicketTrendsData(array $params): array
     {
         $period = $params['period'] ?? '24h';
@@ -526,6 +582,9 @@ class AdvancedTicketCachingService
         ];
     }
 
+    /**
+     * GeneratePlatformPerformanceData
+     */
     private function generatePlatformPerformanceData(array $params): array
     {
         return ScrapedTicket::selectRaw('platform, count(*) as total_tickets, 
@@ -538,6 +597,9 @@ class AdvancedTicketCachingService
             ->toArray();
     }
 
+    /**
+     * GeneratePriceAnalysisData
+     */
     private function generatePriceAnalysisData(array $params): array
     {
         return [
@@ -564,6 +626,9 @@ class AdvancedTicketCachingService
         ];
     }
 
+    /**
+     * GenerateUserEngagementData
+     */
     private function generateUserEngagementData(array $params): array
     {
         return [
@@ -576,6 +641,9 @@ class AdvancedTicketCachingService
         ];
     }
 
+    /**
+     * WarmTrendingSearches
+     */
     private function warmTrendingSearches(): array
     {
         // Get trending search terms (this would integrate with search analytics)
@@ -588,6 +656,9 @@ class AdvancedTicketCachingService
         return $trendingTerms;
     }
 
+    /**
+     * TrackCacheGeneration
+     */
     private function trackCacheGeneration(string $type, string $key): void
     {
         $metricsKey = "cache_metrics:generation:{$type}";
@@ -595,6 +666,9 @@ class AdvancedTicketCachingService
         $this->redis->expire($metricsKey, 3600);
     }
 
+    /**
+     * TrackCacheHit
+     */
     private function trackCacheHit(string $type, string $key): void
     {
         $metricsKey = "cache_metrics:hits:{$type}";
@@ -602,6 +676,9 @@ class AdvancedTicketCachingService
         $this->redis->expire($metricsKey, 3600);
     }
 
+    /**
+     * TrackCacheMiss
+     */
     private function trackCacheMiss(string $type, string $key): void
     {
         $metricsKey = "cache_metrics:misses:{$type}";
@@ -609,6 +686,9 @@ class AdvancedTicketCachingService
         $this->redis->expire($metricsKey, 3600);
     }
 
+    /**
+     * CalculateHitRate
+     */
     private function calculateHitRate(array $info): float
     {
         $hits = $info['keyspace_hits'] ?? 0;
@@ -618,6 +698,9 @@ class AdvancedTicketCachingService
         return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
     }
 
+    /**
+     * Get  detailed cache metrics
+     */
     private function getDetailedCacheMetrics(): array
     {
         $metrics = [];

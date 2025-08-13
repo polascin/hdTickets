@@ -34,6 +34,9 @@ trait AntiDetectionTrait
     /**
      * Get random user agent
      */
+    /**
+     * Get  random user agent
+     */
     protected function getRandomUserAgent(): string
     {
         return self::$userAgents[array_rand(self::$userAgents)];
@@ -41,6 +44,9 @@ trait AntiDetectionTrait
 
     /**
      * Rotate headers to avoid detection
+     */
+    /**
+     * RotateHeaders
      */
     protected function rotateHeaders(): array
     {
@@ -86,6 +92,9 @@ trait AntiDetectionTrait
     /**
      * Get random Accept header
      */
+    /**
+     * Get  random accept header
+     */
     protected function getRandomAcceptHeader(): string
     {
         $acceptHeaders = [
@@ -100,6 +109,9 @@ trait AntiDetectionTrait
 
     /**
      * Add random delay to simulate human behavior
+     */
+    /**
+     * RandomDelay
      */
     protected function randomDelay(): void
     {
@@ -120,6 +132,9 @@ trait AntiDetectionTrait
 
     /**
      * Simulate human-like browsing patterns
+     */
+    /**
+     * SimulateHumanBehavior
      */
     protected function simulateHumanBehavior(): void
     {
@@ -142,6 +157,9 @@ trait AntiDetectionTrait
     /**
      * Get realistic viewport dimensions
      */
+    /**
+     * Get  viewport dimensions
+     */
     protected function getViewportDimensions(): array
     {
         $commonResolutions = [
@@ -157,6 +175,9 @@ trait AntiDetectionTrait
 
     /**
      * Detect and handle bot detection mechanisms
+     */
+    /**
+     * HandleBotDetection
      */
     protected function handleBotDetection(string $html): bool
     {
@@ -195,6 +216,9 @@ trait AntiDetectionTrait
     /**
      * Generate session-like behavior
      */
+    /**
+     * InitializeSession
+     */
     protected function initializeSession(): array
     {
         return [
@@ -208,6 +232,9 @@ trait AntiDetectionTrait
     /**
      * Generate realistic session ID
      */
+    /**
+     * GenerateSessionId
+     */
     protected function generateSessionId(): string
     {
         return bin2hex(random_bytes(16));
@@ -215,6 +242,9 @@ trait AntiDetectionTrait
 
     /**
      * Check if IP rotation is needed
+     */
+    /**
+     * ShouldRotateIP
      */
     protected function shouldRotateIP(): bool
     {
@@ -238,6 +268,9 @@ trait AntiDetectionTrait
 
     /**
      * Add random typos to search queries (simulate human input)
+     */
+    /**
+     * AddRandomTypos
      */
     protected function addRandomTypos(string $query): string
     {

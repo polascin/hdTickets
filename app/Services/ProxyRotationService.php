@@ -31,6 +31,9 @@ class ProxyRotationService
     /**
      * Get next available proxy with health check
      */
+    /**
+     * Get  next proxy
+     */
     public function getNextProxy(): ?array
     {
         if (empty($this->proxies)) {
@@ -64,6 +67,9 @@ class ProxyRotationService
     /**
      * Get random user agent
      */
+    /**
+     * Get  random user agent
+     */
     public function getRandomUserAgent(): string
     {
         return $this->userAgents[array_rand($this->userAgents)];
@@ -71,6 +77,9 @@ class ProxyRotationService
 
     /**
      * Get user agent with session persistence for a platform
+     */
+    /**
+     * Get  persistent user agent
      */
     public function getPersistentUserAgent(string $platform): string
     {
@@ -88,6 +97,9 @@ class ProxyRotationService
 
     /**
      * Test proxy health
+     */
+    /**
+     * TestProxy
      */
     public function testProxy(array $proxy): bool
     {
@@ -131,6 +143,9 @@ class ProxyRotationService
     /**
      * Update proxy health status
      */
+    /**
+     * UpdateProxyHealth
+     */
     public function updateProxyHealth(string $proxyKey, bool $success): void
     {
         $health = $this->proxyHealth[$proxyKey] ?? [
@@ -162,6 +177,9 @@ class ProxyRotationService
     /**
      * Format proxy URL for HTTP client
      */
+    /**
+     * FormatProxyUrl
+     */
     public function formatProxyUrl(array $proxy): string
     {
         $auth = '';
@@ -176,6 +194,9 @@ class ProxyRotationService
 
     /**
      * Test all proxies and return health report
+     */
+    /**
+     * TestAllProxies
      */
     public function testAllProxies(): array
     {
@@ -198,6 +219,9 @@ class ProxyRotationService
     /**
      * Add new proxy to rotation
      */
+    /**
+     * AddProxy
+     */
     public function addProxy(array $proxy): void
     {
         $this->proxies[] = $proxy;
@@ -206,6 +230,9 @@ class ProxyRotationService
 
     /**
      * Remove proxy from rotation
+     */
+    /**
+     * RemoveProxy
      */
     public function removeProxy(string $host, int $port): void
     {
@@ -218,6 +245,9 @@ class ProxyRotationService
 
     /**
      * Get proxy statistics
+     */
+    /**
+     * Get  proxy stats
      */
     public function getProxyStats(): array
     {
@@ -273,6 +303,9 @@ class ProxyRotationService
     /**
      * Clear proxy health cache
      */
+    /**
+     * ClearHealthCache
+     */
     public function clearHealthCache(): void
     {
         $this->proxyHealth = [];
@@ -281,6 +314,9 @@ class ProxyRotationService
 
     /**
      * Get headers with anti-detection measures
+     */
+    /**
+     * Get  anti detection headers
      */
     public function getAntiDetectionHeaders(string $platform = 'general', ?string $referer = NULL): array
     {
@@ -318,6 +354,9 @@ class ProxyRotationService
     /**
      * Load proxy configurations from cache or config
      */
+    /**
+     * LoadProxies
+     */
     protected function loadProxies(): void
     {
         try {
@@ -349,6 +388,9 @@ class ProxyRotationService
 
     /**
      * Load user agent strings for rotation
+     */
+    /**
+     * LoadUserAgents
      */
     protected function loadUserAgents(): void
     {
@@ -387,6 +429,9 @@ class ProxyRotationService
     /**
      * Load proxy health status from cache
      */
+    /**
+     * LoadProxyHealth
+     */
     protected function loadProxyHealth(): void
     {
         try {
@@ -400,6 +445,9 @@ class ProxyRotationService
 
     /**
      * Check if proxy is healthy
+     */
+    /**
+     * Check if  proxy healthy
      */
     protected function isProxyHealthy(string $proxyKey): bool
     {
@@ -418,6 +466,9 @@ class ProxyRotationService
 
     /**
      * Get unique key for proxy
+     */
+    /**
+     * Get  proxy key
      */
     protected function getProxyKey(array $proxy): string
     {

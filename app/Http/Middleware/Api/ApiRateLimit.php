@@ -11,6 +11,14 @@ class ApiRateLimit
 {
     /**
      * Handle an incoming request.
+     *
+     * @param Closure(Request): (Response) $next
+     * @param string                       $key          Rate limiter key
+     * @param int                          $maxAttempts  Maximum attempts allowed
+     * @param int                          $decayMinutes Time window in minutes
+     */
+    /**
+     * Handle
      */
     public function handle(Request $request, Closure $next, string $key = 'api', int $maxAttempts = 60, int $decayMinutes = 1): Response
     {
@@ -23,9 +31,9 @@ class ApiRateLimit
                 'message'     => 'Too many requests. Please try again later.',
                 'retry_after' => $retryAfter,
             ], 429, [
-                'Retry-After'           => $retryAfter,
-                'X-RateLimit-Limit'     => $maxAttempts,
-                'X-RateLimit-Remaining' => 0,
+                'Retry-After'           => (string) $retryAfter,
+                'X-RateLimit-Limit'     => (string) $maxAttempts,
+                'X-RateLimit-Remaining' => '0',
             ]);
         }
 
@@ -35,14 +43,17 @@ class ApiRateLimit
 
         $remaining = $maxAttempts - RateLimiter::attempts($limiterKey);
 
-        $response->headers->set('X-RateLimit-Limit', $maxAttempts);
-        $response->headers->set('X-RateLimit-Remaining', max(0, $remaining));
+        $response->headers->set('X-RateLimit-Limit', (string) $maxAttempts);
+        $response->headers->set('X-RateLimit-Remaining', (string) max(0, $remaining));
 
         return $response;
     }
 
     /**
      * Resolve the rate limiter key.
+     */
+    /**
+     * ResolveLimiterKey
      */
     protected function resolveLimiterKey(Request $request, string $key): string
     {

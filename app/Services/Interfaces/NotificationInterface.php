@@ -13,29 +13,29 @@ interface NotificationInterface
     /**
      * Send ticket availability alert
      *
-     * @param array  $ticketData Ticket data
-     * @param array  $userIds    User IDs to notify
-     * @param string $priority   Priority level
+     * @param array<string, mixed> $ticketData Ticket data
+     * @param array<string, mixed> $userIds    User IDs to notify
+     * @param string               $priority   Priority level
      */
     public function sendTicketAlert(array $ticketData, array $userIds = [], string $priority = 'normal'): void;
 
     /**
      * Send price update notification
      *
-     * @param int   $ticketId Ticket ID
-     * @param float $oldPrice Old price
-     * @param float $newPrice New price
-     * @param array $userIds  User IDs to notify
+     * @param int                  $ticketId Ticket ID
+     * @param float                $oldPrice Old price
+     * @param float                $newPrice New price
+     * @param array<string, mixed> $userIds  User IDs to notify
      */
     public function sendPriceUpdate(int $ticketId, float $oldPrice, float $newPrice, array $userIds = []): void;
 
     /**
      * Send system notification
      *
-     * @param string $message Notification message
-     * @param string $type    Notification type
-     * @param array  $userIds User IDs to notify
-     * @param array  $data    Additional data
+     * @param string               $message Notification message
+     * @param string               $type    Notification type
+     * @param array<string, mixed> $userIds User IDs to notify
+     * @param array<string, mixed> $data    Additional data
      */
     public function sendSystemNotification(string $message, string $type = 'info', array $userIds = [], array $data = []): void;
 
@@ -51,8 +51,8 @@ interface NotificationInterface
     /**
      * Update user notification preferences
      *
-     * @param int   $userId      User ID
-     * @param array $preferences Preferences to update
+     * @param int                  $userId      User ID
+     * @param array<string, mixed> $preferences Preferences to update
      *
      * @return bool Success status
      */

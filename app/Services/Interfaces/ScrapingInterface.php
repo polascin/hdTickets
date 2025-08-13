@@ -12,7 +12,7 @@ interface ScrapingInterface
     /**
      * Scrape tickets from all enabled platforms
      *
-     * @param array $criteria Search criteria for tickets
+     * @param array<string, mixed> $criteria Search criteria for tickets
      *
      * @return array Results from all platforms
      */
@@ -21,8 +21,8 @@ interface ScrapingInterface
     /**
      * Scrape specific platform
      *
-     * @param string $platform Platform name
-     * @param array  $criteria Search criteria
+     * @param string               $platform Platform name
+     * @param array<string, mixed> $criteria Search criteria
      *
      * @return array Platform results
      */

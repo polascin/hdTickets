@@ -95,6 +95,31 @@ database.sqlite
 auth.json
 cookies.txt
 
+# Sensitive dependency information
+npm-audit.json
+.npm-audit.json
+composer-audit.json
+.composer-audit.json
+security-advisories.json
+vulnerabilities.json
+
+# Package vulnerability reports
+audit-report.json
+security-report.json
+vulnerability-report.json
+
+# Dependency lock files with potential sensitive info (keep in repo but exclude any copies)
+composer.lock.bak
+package-lock.json.bak
+yarn.lock.bak
+
+# API keys and tokens that might leak in config files
+*api-key*
+*access-token*
+*secret-key*
+*.key
+!public.key
+
 # Testing
 /coverage/
 /.nyc_output/

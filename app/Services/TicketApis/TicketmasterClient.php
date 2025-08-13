@@ -15,16 +15,25 @@ class TicketmasterClient extends BaseWebScrapingClient
         $this->respectRateLimit('ticketmaster');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->makeRequest('GET', 'events', $criteria);
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->makeRequest('GET', "events/{$eventId}");
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         return $this->makeRequest('GET', "venues/{$venueId}");
@@ -32,6 +41,9 @@ class TicketmasterClient extends BaseWebScrapingClient
 
     /**
      * Scrape Ticketmaster search results
+     */
+    /**
+     * ScrapeSearchResults
      */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
@@ -52,6 +64,9 @@ class TicketmasterClient extends BaseWebScrapingClient
     /**
      * Scrape individual event details
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -66,6 +81,9 @@ class TicketmasterClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -76,6 +94,9 @@ class TicketmasterClient extends BaseWebScrapingClient
 
     /**
      * Extract search results from HTML
+     */
+    /**
+     * ExtractSearchResults
      */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
@@ -113,6 +134,9 @@ class TicketmasterClient extends BaseWebScrapingClient
 
     /**
      * Extract event data from a single node
+     */
+    /**
+     * ExtractEventFromNode
      */
     protected function extractEventFromNode(Crawler $node): array
     {
@@ -185,6 +209,9 @@ class TicketmasterClient extends BaseWebScrapingClient
     /**
      * Extract ticket prices from the page
      */
+    /**
+     * ExtractPrices
+     */
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
@@ -214,6 +241,9 @@ class TicketmasterClient extends BaseWebScrapingClient
     /**
      * Format price range from price data array
      */
+    /**
+     * FormatPriceRange
+     */
     protected function formatPriceRange(array $prices): string
     {
         if (empty($prices)) {
@@ -242,6 +272,9 @@ class TicketmasterClient extends BaseWebScrapingClient
         return '$' . number_format($min, 2) . ' - $' . number_format($max, 2);
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -260,6 +293,9 @@ class TicketmasterClient extends BaseWebScrapingClient
     /**
      * Build search URL for Ticketmaster
      */
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(string $keyword, string $location = ''): string
     {
         $baseUrl = 'https://www.ticketmaster.com/search';
@@ -277,6 +313,9 @@ class TicketmasterClient extends BaseWebScrapingClient
 
     /**
      * Extract detailed event information from event page
+     */
+    /**
+     * ExtractEventDetails
      */
     private function extractEventDetails(Crawler $crawler, string $url): array
     {

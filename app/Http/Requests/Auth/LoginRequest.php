@@ -18,6 +18,9 @@ class LoginRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * Authorize
+     */
     public function authorize(): bool
     {
         return TRUE;
@@ -27,6 +30,9 @@ class LoginRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, array|\Illuminate\Contracts\Validation\Rule|string>
+     */
+    /**
+     * Rules
      */
     public function rules(): array
     {
@@ -40,6 +46,9 @@ class LoginRequest extends FormRequest
      * Attempt to authenticate the request's credentials.
      *
      * @throws ValidationException
+     */
+    /**
+     * Authenticate
      */
     public function authenticate(): void
     {
@@ -137,6 +146,9 @@ class LoginRequest extends FormRequest
     /**
      * Check if 2FA is required for this login attempt
      */
+    /**
+     * Requires2FA
+     */
     public function requires2FA(): bool
     {
         return Session::has('2fa_user_id');
@@ -146,6 +158,9 @@ class LoginRequest extends FormRequest
      * Ensure the login request is not rate limited.
      *
      * @throws ValidationException
+     */
+    /**
+     * EnsureIsNotRateLimited
      */
     public function ensureIsNotRateLimited(): void
     {
@@ -167,6 +182,9 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the rate limiting throttle key for the request.
+     */
+    /**
+     * ThrottleKey
      */
     public function throttleKey(): string
     {

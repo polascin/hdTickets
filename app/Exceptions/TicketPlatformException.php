@@ -20,11 +20,17 @@ class TicketPlatformException extends Exception
         $this->method = $method;
     }
 
+    /**
+     * Get  platform
+     */
     public function getPlatform(): ?string
     {
         return $this->platform;
     }
 
+    /**
+     * Get  method
+     */
     public function getMethod(): ?string
     {
         return $this->method;
@@ -79,6 +85,9 @@ class RateLimitException extends TicketPlatformException
         $this->retryAfter = $retryAfter;
     }
 
+    /**
+     * Get  retry after
+     */
     public function getRetryAfter(): ?int
     {
         return $this->retryAfter;

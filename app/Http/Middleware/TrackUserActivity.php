@@ -15,6 +15,11 @@ class TrackUserActivity
 {
     /**
      * Handle an incoming request.
+     *
+     * @param Closure(Request): (Response) $next
+     */
+    /**
+     * Handle
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -30,6 +35,9 @@ class TrackUserActivity
 
     /**
      * Get user activity status
+     */
+    /**
+     * Get  user activity status
      */
     public static function getUserActivityStatus(int $userId): array
     {
@@ -60,6 +68,9 @@ class TrackUserActivity
     /**
      * Check if user was recently active on alert-related pages
      */
+    /**
+     * Check if  user active on alerts
+     */
     public static function isUserActiveOnAlerts(int $userId): bool
     {
         return Cache::has("user_alert_activity:{$userId}");
@@ -68,6 +79,9 @@ class TrackUserActivity
     /**
      * Check if user was recently viewing tickets
      */
+    /**
+     * Check if  user active on tickets
+     */
     public static function isUserActiveOnTickets(int $userId): bool
     {
         return Cache::has("user_ticket_activity:{$userId}");
@@ -75,6 +89,9 @@ class TrackUserActivity
 
     /**
      * Manually mark user as active (for API usage)
+     */
+    /**
+     * MarkUserActive
      */
     public static function markUserActive(int $userId): void
     {
@@ -88,6 +105,9 @@ class TrackUserActivity
 
     /**
      * Get activity statistics for analytics
+     */
+    /**
+     * Get  activity statistics
      */
     public static function getActivityStatistics(): array
     {
@@ -106,7 +126,10 @@ class TrackUserActivity
      *
      * @param mixed $user
      */
-    protected function trackUserActivity($user): void
+    /**
+     * TrackUserActivity
+     */
+    protected function trackUserActivity(App\Models\User $user): void
     {
         $cacheKey = "user_activity:{$user->id}";
         $activityData = [
@@ -135,7 +158,10 @@ class TrackUserActivity
      *
      * @param mixed $user
      */
-    protected function trackPageActivity($user): void
+    /**
+     * TrackPageActivity
+     */
+    protected function trackPageActivity(App\Models\User $user): void
     {
         $route = request()->route();
         if (! $route) {
@@ -173,7 +199,10 @@ class TrackUserActivity
      *
      * @param mixed $user
      */
-    protected function updateUserLastActive($user): void
+    /**
+     * UpdateUserLastActive
+     */
+    protected function updateUserLastActive(App\Models\User $user): void
     {
         $cacheKey = "user_db_update:{$user->id}";
 
@@ -186,6 +215,9 @@ class TrackUserActivity
 
     /**
      * Determine if we should track activity for this request
+     */
+    /**
+     * ShouldTrackActivity
      */
     protected function shouldTrackActivity(Request $request): bool
     {
@@ -218,6 +250,9 @@ class TrackUserActivity
     /**
      * Check if request is automated (polling, etc.)
      */
+    /**
+     * Check if  automated request
+     */
     protected function isAutomatedRequest(Request $request): bool
     {
         $automatedPaths = [
@@ -238,6 +273,9 @@ class TrackUserActivity
 
     /**
      * Check if API call is automated
+     */
+    /**
+     * Check if  automated api call
      */
     protected function isAutomatedApiCall(Request $request): bool
     {
@@ -264,6 +302,9 @@ class TrackUserActivity
 
     /**
      * Get activity level based on time since last activity
+     */
+    /**
+     * Get  activity level
      */
     protected static function getActivityLevel(int $minutesSinceActivity): string
     {

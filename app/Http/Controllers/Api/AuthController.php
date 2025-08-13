@@ -16,6 +16,9 @@ class AuthController extends Controller
      *
      * @throws ValidationException
      */
+    /**
+     * Login
+     */
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -43,6 +46,9 @@ class AuthController extends Controller
     /**
      * Logout user (revoke token)
      */
+    /**
+     * Logout
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
@@ -55,6 +61,9 @@ class AuthController extends Controller
     /**
      * Get user profile
      */
+    /**
+     * Profile
+     */
     public function profile(Request $request): JsonResponse
     {
         return response()->json([
@@ -64,6 +73,9 @@ class AuthController extends Controller
 
     /**
      * Revoke all tokens
+     */
+    /**
+     * RevokeAllTokens
      */
     public function revokeAllTokens(Request $request): JsonResponse
     {

@@ -15,11 +15,17 @@ use function in_array;
 
 class TicketReadModelProjection implements ProjectionInterface
 {
+    /**
+     * Get  name
+     */
     public function getName(): string
     {
         return 'ticket_read_model';
     }
 
+    /**
+     * Get  handled event types
+     */
     public function getHandledEventTypes(): array
     {
         return [
@@ -30,11 +36,17 @@ class TicketReadModelProjection implements ProjectionInterface
         ];
     }
 
+    /**
+     * Handles
+     */
     public function handles(string $eventType): bool
     {
         return in_array($eventType, $this->getHandledEventTypes(), TRUE);
     }
 
+    /**
+     * Project
+     */
     public function project(DomainEventInterface $event): void
     {
         match (get_class($event)) {
@@ -49,12 +61,18 @@ class TicketReadModelProjection implements ProjectionInterface
         };
     }
 
+    /**
+     * Reset
+     */
     public function reset(): void
     {
         DB::table('ticket_read_models')->truncate();
         Log::info('Ticket read model projection reset');
     }
 
+    /**
+     * Get  state
+     */
     public function getState(): array
     {
         return [
@@ -67,6 +85,9 @@ class TicketReadModelProjection implements ProjectionInterface
         ];
     }
 
+    /**
+     * HandleTicketDiscovered
+     */
     private function handleTicketDiscovered(TicketDiscovered $event): void
     {
         $priceHistory = [
@@ -108,6 +129,9 @@ class TicketReadModelProjection implements ProjectionInterface
         );
     }
 
+    /**
+     * HandleTicketPriceChanged
+     */
     private function handleTicketPriceChanged(TicketPriceChanged $event): void
     {
         $ticket = DB::table('ticket_read_models')
@@ -139,6 +163,9 @@ class TicketReadModelProjection implements ProjectionInterface
             ]);
     }
 
+    /**
+     * HandleTicketAvailabilityChanged
+     */
     private function handleTicketAvailabilityChanged(TicketAvailabilityChanged $event): void
     {
         $ticket = DB::table('ticket_read_models')
@@ -175,6 +202,9 @@ class TicketReadModelProjection implements ProjectionInterface
             ->update($updateData);
     }
 
+    /**
+     * HandleTicketSoldOut
+     */
     private function handleTicketSoldOut(TicketSoldOut $event): void
     {
         $ticket = DB::table('ticket_read_models')
@@ -208,6 +238,9 @@ class TicketReadModelProjection implements ProjectionInterface
             ]);
     }
 
+    /**
+     * Check if  high demand event
+     */
     private function isHighDemandEvent(string $eventName, string $venue): bool
     {
         $highDemandKeywords = ['final', 'cup', 'championship', 'derby', 'champions league', 'playoff'];

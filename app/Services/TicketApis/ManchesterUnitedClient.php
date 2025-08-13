@@ -21,16 +21,25 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         $this->respectRateLimit('manchester_united');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->scrapeSearchResults($criteria['q'] ?? '', '', $criteria['per_page'] ?? 50);
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->scrapeEventDetails($this->baseUrl . '/tickets/fixtures/' . $eventId);
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         return [
@@ -45,6 +54,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
     /**
      * Scrape Manchester United fixture and ticket information
+     */
+    /**
+     * ScrapeSearchResults
      */
     public function scrapeSearchResults(string $keyword = '', string $location = '', int $maxResults = 50): array
     {
@@ -66,6 +78,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Scrape individual match/event details
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -80,11 +95,17 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  base url
+     */
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -101,6 +122,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Extract search results from HTML (required by BaseWebScrapingClient)
      */
+    /**
+     * ExtractSearchResults
+     */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
         return $this->extractFixtures($crawler, $maxResults);
@@ -108,6 +132,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
     /**
      * Extract fixtures from the fixtures page
+     */
+    /**
+     * ExtractFixtures
      */
     protected function extractFixtures(Crawler $crawler, int $maxResults, string $keyword = ''): array
     {
@@ -151,6 +178,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Extract event data from node (required by BaseWebScrapingClient)
      */
+    /**
+     * ExtractEventFromNode
+     */
     protected function extractEventFromNode(Crawler $node): array
     {
         return $this->extractFixtureFromNode($node);
@@ -158,6 +188,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
     /**
      * Extract prices from crawler (required by BaseWebScrapingClient)
+     */
+    /**
+     * ExtractPrices
      */
     protected function extractPrices(Crawler $crawler): array
     {
@@ -185,6 +218,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
     /**
      * Extract fixture data from a single node
+     */
+    /**
+     * ExtractFixtureFromNode
      */
     protected function extractFixtureFromNode(Crawler $node): array
     {
@@ -274,6 +310,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Extract detailed match information
      */
+    /**
+     * ExtractMatchDetails
+     */
     protected function extractMatchDetails(Crawler $crawler, string $url): array
     {
         try {
@@ -344,6 +383,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Extract ticket information from match page
      */
+    /**
+     * ExtractTicketInfo
+     */
     protected function extractTicketInfo(Crawler $crawler): array
     {
         $ticketInfo = [
@@ -391,6 +433,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
         return $ticketInfo;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -409,6 +454,9 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
 
     /**
      * Resolve relative URLs to absolute URLs
+     */
+    /**
+     * ResolveUrl
      */
     private function resolveUrl(string $url): string
     {

@@ -21,6 +21,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Bind Repository Interfaces to Implementations
@@ -64,6 +67,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
+    /**
+     * Boot
+     */
     public function boot(): void
     {
         // Register event listeners for domain events
@@ -72,6 +78,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
 
     /**
      * Register additional bounded context providers
+     */
+    /**
+     * RegisterBoundedContexts
      */
     public function registerBoundedContexts(): void
     {
@@ -94,6 +103,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     /**
      * Register Event Sourcing components
      */
+    /**
+     * RegisterEventSourcing
+     */
     private function registerEventSourcing(): void
     {
         // This would register event store, event bus, etc.
@@ -107,6 +119,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     /**
      * Register Analytics components
      */
+    /**
+     * RegisterAnalyticsComponents
+     */
     private function registerAnalyticsComponents(): void
     {
         // Register analytics services, metrics collectors, etc.
@@ -115,11 +130,25 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         $this->app->bind('analytics.ticket_metrics', function ($app) {
             // Return analytics service for ticket metrics
             return new class() {
+                /**
+                 * RecordPriceChange
+                 *
+                 * @param mixed $ticketId
+                 * @param mixed $oldPrice
+                 * @param mixed $newPrice
+                 */
                 public function recordPriceChange($ticketId, $oldPrice, $newPrice): void
                 {
                     // Implementation for price change analytics
                 }
 
+                /**
+                 * RecordAvailabilityChange
+                 *
+                 * @param mixed $ticketId
+                 * @param mixed $oldStatus
+                 * @param mixed $newStatus
+                 */
                 public function recordAvailabilityChange($ticketId, $oldStatus, $newStatus): void
                 {
                     // Implementation for availability change analytics
@@ -130,6 +159,9 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
 
     /**
      * Register domain event listeners
+     */
+    /**
+     * RegisterDomainEventListeners
      */
     private function registerDomainEventListeners(): void
     {
@@ -201,30 +233,45 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         );
     }
 
+    /**
+     * RegisterUserManagementContext
+     */
     private function registerUserManagementContext(): void
     {
         // Register user domain services, repositories, etc.
         // This would include user preferences, authentication, etc.
     }
 
+    /**
+     * RegisterPurchaseManagementContext
+     */
     private function registerPurchaseManagementContext(): void
     {
         // Register purchase decision services, queue management, etc.
         // This would include automated purchase logic
     }
 
+    /**
+     * RegisterNotificationContext
+     */
     private function registerNotificationContext(): void
     {
         // Register notification services for different channels
         // This would include email, SMS, webhooks, etc.
     }
 
+    /**
+     * RegisterAnalyticsContext
+     */
     private function registerAnalyticsContext(): void
     {
         // Register analytics and reporting services
         // This would include metrics collection, insights generation
     }
 
+    /**
+     * RegisterPlatformIntegrationContext
+     */
     private function registerPlatformIntegrationContext(): void
     {
         // Register platform integration services

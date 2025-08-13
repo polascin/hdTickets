@@ -188,10 +188,20 @@ deploy_to_inactive() {
     # Composer install
     composer install --no-dev --optimize-autoloader --no-interaction
     
+    # Verify Node.js version requirement
+    if ! node --version | grep -q "v22.18.0"; then
+        log_error "Node.js v22.18.0 required. Current: $(node --version)"
+        log "Use 'nvm use 22.18.0' to switch to required version"
+        return 1
+    fi
+    
     # NPM install and build
     if [ -f "package.json" ]; then
+        log "Installing NPM dependencies (Node.js v22.18.0)..."
         npm ci --only=production
-        npm run build
+        
+        log "Building production assets with Vite 7..."
+        npm run build:production
     fi
     
     # Set permissions

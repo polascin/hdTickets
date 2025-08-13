@@ -10,6 +10,9 @@ class AlertAnalyticsController extends Controller
     /**
      * Get alert analytics data
      */
+    /**
+     * AlertAnalytics
+     */
     public function alertAnalytics(): JsonResponse
     {
         return response()->json([
@@ -26,6 +29,9 @@ class AlertAnalyticsController extends Controller
 
     /**
      * Get channel performance metrics
+     */
+    /**
+     * ChannelPerformance
      */
     public function channelPerformance(): JsonResponse
     {
@@ -45,6 +51,9 @@ class AlertAnalyticsController extends Controller
     /**
      * Get prediction accuracy metrics
      */
+    /**
+     * PredictionAccuracy
+     */
     public function predictionAccuracy(): JsonResponse
     {
         return response()->json([
@@ -62,6 +71,9 @@ class AlertAnalyticsController extends Controller
     /**
      * Get user engagement metrics
      */
+    /**
+     * UserEngagement
+     */
     public function userEngagement(): JsonResponse
     {
         return response()->json([
@@ -77,6 +89,9 @@ class AlertAnalyticsController extends Controller
 
     /**
      * Get system overview (admin only)
+     */
+    /**
+     * SystemOverview
      */
     public function systemOverview(): JsonResponse
     {
@@ -95,6 +110,9 @@ class AlertAnalyticsController extends Controller
     /**
      * Get system performance metrics (admin only)
      */
+    /**
+     * SystemPerformance
+     */
     public function systemPerformance(): JsonResponse
     {
         return response()->json([
@@ -111,6 +129,9 @@ class AlertAnalyticsController extends Controller
 
     /**
      * Get error analytics (admin only)
+     */
+    /**
+     * ErrorAnalytics
      */
     public function errorAnalytics(): JsonResponse
     {

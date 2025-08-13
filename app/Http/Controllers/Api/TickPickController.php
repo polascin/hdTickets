@@ -21,9 +21,6 @@ class TickPickController extends Controller
         $this->middleware('role:agent,admin')->only(['import', 'importUrls']);
     }
 
-    /**
-     * Search TickPick events (without importing)
-     */
     public function search(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -47,6 +44,7 @@ class TickPickController extends Controller
         try {
             $client = new TickPickClient([
                 'enabled' => TRUE,
+                'api_key' => config('services.tickpick.api_key'),
                 'timeout' => 30,
             ]);
 
@@ -70,9 +68,6 @@ class TickPickController extends Controller
         }
     }
 
-    /**
-     * Get detailed event information
-     */
     public function getEventDetails(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -92,6 +87,7 @@ class TickPickController extends Controller
         try {
             $client = new TickPickClient([
                 'enabled' => TRUE,
+                'api_key' => config('services.tickpick.api_key'),
                 'timeout' => 30,
             ]);
 
@@ -116,15 +112,12 @@ class TickPickController extends Controller
         }
     }
 
-    /**
-     * Import TickPick events as tickets (agent/admin only)
-     */
     public function import(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'keyword'  => 'required|string|min:2|max:100',
             'location' => 'nullable|string|max:100',
-            'limit'    => 'nullable|integer|min:1|max:50', // Lower limit for imports
+            'limit'    => 'nullable|integer|min:1|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -142,6 +135,7 @@ class TickPickController extends Controller
         try {
             $client = new TickPickClient([
                 'enabled' => TRUE,
+                'api_key' => config('services.tickpick.api_key'),
                 'timeout' => 30,
             ]);
 
@@ -163,7 +157,6 @@ class TickPickController extends Controller
                     if ($this->importEventAsTicket($event)) {
                         $imported++;
                     }
-
                     usleep(500000);
                 } catch (Exception $e) {
                     $errors[] = [
@@ -189,106 +182,6 @@ class TickPickController extends Controller
         }
     }
 
-    /**
-     * Import specific events by URLs
-     */
-    public function importUrls(Request $request): JsonResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'urls'   => 'required|array|min:1|max:10',
-            'urls.*' => 'required|url|regex:/tickpick\.com/',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Validation failed',
-                'errors'  => $validator->errors(),
-            ], 422);
-        }
-
-        $urls = $request->input('urls');
-
-        try {
-            $client = new TickPickClient([
-                'enabled' => TRUE,
-                'timeout' => 30,
-            ]);
-
-            $imported = 0;
-            $errors = [];
-
-            foreach ($urls as $url) {
-                try {
-                    $eventDetails = $client->scrapeEventDetails($url);
-
-                    if (! empty($eventDetails)) {
-                        if ($this->importEventAsTicket($eventDetails)) {
-                            $imported++;
-                        }
-                    } else {
-                        $errors[] = [
-                            'url'   => $url,
-                            'error' => 'No event details found',
-                        ];
-                    }
-
-                    usleep(500000);
-                } catch (Exception $e) {
-                    $errors[] = [
-                        'url'   => $url,
-                        'error' => $e->getMessage(),
-                    ];
-                }
-            }
-
-            return response()->json([
-                'success'    => TRUE,
-                'total_urls' => count($urls),
-                'imported'   => $imported,
-                'errors'     => $errors,
-                'message'    => "Successfully imported {$imported} out of " . count($urls) . ' events',
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success'  => FALSE,
-                'message'  => 'Import failed: ' . $e->getMessage(),
-                'imported' => 0,
-            ], 500);
-        }
-    }
-
-    /**
-     * Get scraping statistics
-     */
-    public function stats(): JsonResponse
-    {
-        try {
-            $stats = [
-                'platform'      => 'tickpick',
-                'total_scraped' => \App\Models\Ticket::where('platform', 'tickpick')->count(),
-                'last_scrape'   => \App\Models\Ticket::where('platform', 'tickpick')
-                    ->latest('created_at')
-                    ->value('created_at'),
-                'success_rate'      => $this->calculateSuccessRate('tickpick'),
-                'avg_response_time' => $this->getAverageResponseTime('tickpick'),
-            ];
-
-            return response()->json([
-                'success' => TRUE,
-                'data'    => $stats,
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Failed to get statistics: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Import event as ticket (private helper method)
-     */
     private function importEventAsTicket(array $eventData): bool
     {
         try {
@@ -300,43 +193,32 @@ class TickPickController extends Controller
                 return FALSE;
             }
 
-            $ticket = new \App\Models\Ticket();
-            $ticket->title = $eventData['name'] ?? 'Unknown Event';
-            $ticket->description = $eventData['description'] ?? '';
-            $ticket->platform = 'tickpick';
-            $ticket->external_id = $eventData['id'] ?? NULL;
-            $ticket->external_url = $eventData['url'] ?? NULL;
-            $ticket->event_date = $eventData['parsed_date'] ?? NULL;
-            $ticket->location = $eventData['venue'] ?? '';
-            $ticket->price = $eventData['min_price'] ?? NULL;
-            $ticket->user_id = auth()->id();
-            $ticket->status = 'active';
-            $ticket->scraped_data = json_encode($eventData);
+            $ticket = new \App\Models\Ticket([
+                'platform'    => 'tickpick',
+                'external_id' => $eventData['id'] ?? NULL,
+                'title'       => $eventData['name'] ?? 'Unknown Event',
+                'price'       => $eventData['price'] ?? 0.00,
+                'currency'    => $eventData['currency'] ?? 'USD',
+                'venue'       => $eventData['venue'] ?? '',
+                'event_date'  => $eventData['date'] ?? now(),
+                'category'    => $eventData['category'] ?? 'General',
+                'description' => $eventData['description'] ?? '',
+                'url'         => $eventData['url'] ?? '',
+                'status'      => 'available',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
 
-            return $ticket->save();
+            $ticket->save();
+
+            return TRUE;
         } catch (Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to import TickPick event as ticket', [
+            \Illuminate\Support\Facades\Log::error('Failed to import tickpick event as ticket', [
                 'event_data' => $eventData,
                 'error'      => $e->getMessage(),
             ]);
 
             return FALSE;
         }
-    }
-
-    /**
-     * Calculate success rate for platform
-     */
-    private function calculateSuccessRate(string $platform): float
-    {
-        return 92.1;
-    }
-
-    /**
-     * Get average response time for platform
-     */
-    private function getAverageResponseTime(string $platform): float
-    {
-        return 980.0;
     }
 }

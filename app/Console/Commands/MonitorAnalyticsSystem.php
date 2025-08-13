@@ -15,13 +15,16 @@ use function function_exists;
 class MonitorAnalyticsSystem extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'analytics:monitor {--refresh=5 : Refresh interval in seconds}';
+    protected $signature = 'analytics:monitor {--refresh=5 : Refresh interval in seconds}';
 
     /** The console command description. */
-    protected string $description = 'Monitor the Advanced Analytics Dashboard system performance';
+    protected $description = 'Monitor the Advanced Analytics Dashboard system performance';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -68,8 +71,11 @@ class MonitorAnalyticsSystem extends Command
             sleep($refreshInterval);
 
             // Additional check for running state after sleep
-            if (! $running) {
-                break;
+            if (function_exists('pcntl_signal_dispatch')) {
+                pcntl_signal_dispatch();
+                if (! $running) {
+                    break;
+                }
             }
         }
 
@@ -81,6 +87,9 @@ class MonitorAnalyticsSystem extends Command
     /**
      * Display monitoring header information.
      */
+    /**
+     * DisplayHeader
+     */
     private function displayHeader(): void
     {
         $this->info('🚀 HDTickets Analytics System Monitor');
@@ -91,6 +100,9 @@ class MonitorAnalyticsSystem extends Command
 
     /**
      * Display system metrics.
+     */
+    /**
+     * DisplaySystemMetrics
      */
     private function displaySystemMetrics(): void
     {
@@ -107,6 +119,9 @@ class MonitorAnalyticsSystem extends Command
 
     /**
      * Display queue status information.
+     */
+    /**
+     * DisplayQueueStatus
      */
     private function displayQueueStatus(): void
     {
@@ -134,6 +149,9 @@ class MonitorAnalyticsSystem extends Command
     /**
      * Display database metrics.
      */
+    /**
+     * DisplayDatabaseMetrics
+     */
     private function displayDatabaseMetrics(): void
     {
         $this->info('💾 DATABASE METRICS');
@@ -143,7 +161,12 @@ class MonitorAnalyticsSystem extends Command
             $recentUpdates = AnalyticsDashboard::where('updated_at', '>=', now()->subHour())->count();
 
             // Database connection check
-            $dbConnected = DB::connection()->getPdo() ? '✅ Connected' : '❌ Disconnected';
+            try {
+                DB::connection()->getPdo();
+                $dbConnected = '✅ Connected';
+            } catch (Exception $dbException) {
+                $dbConnected = '❌ Disconnected';
+            }
 
             $this->line("   Status: {$dbConnected}");
             $this->line("   Recent Updates (1h): {$recentUpdates}");
@@ -156,6 +179,9 @@ class MonitorAnalyticsSystem extends Command
 
     /**
      * Display cache metrics.
+     */
+    /**
+     * DisplayCacheMetrics
      */
     private function displayCacheMetrics(): void
     {
@@ -179,6 +205,9 @@ class MonitorAnalyticsSystem extends Command
 
     /**
      * Display user activity statistics.
+     */
+    /**
+     * DisplayUserActivity
      */
     private function displayUserActivity(): void
     {

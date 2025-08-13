@@ -12,6 +12,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Borussia Dortmund';
@@ -26,6 +29,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -44,6 +50,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -59,6 +68,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/tickets';
@@ -66,6 +78,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -95,6 +110,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Map competition names to German equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -111,6 +129,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -158,6 +179,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (German)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.match-title, .spiel-titel, .event-title, .titel, .gegner, .opponent, h3, h2, .title, .name';
@@ -165,6 +189,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (German)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -174,6 +201,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (German)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .stadion, .location, .ort, .austragungsort';
@@ -182,6 +212,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (German)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .preis, .kosten, .cost, .ab, .from, .ticket-preis, .tarif';
@@ -189,6 +222,9 @@ class Borussia_dortmundPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (German)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

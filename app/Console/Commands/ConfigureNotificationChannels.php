@@ -8,17 +8,20 @@ use RuntimeException;
 class ConfigureNotificationChannels extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'analytics:setup-notifications 
+    protected $signature = 'analytics:setup-notifications 
                             {--slack : Configure Slack notifications}
                             {--discord : Configure Discord notifications}
                             {--telegram : Configure Telegram notifications}
                             {--all : Configure all notification channels}';
 
     /** The console command description. */
-    protected string $description = 'Configure notification channels for the Advanced Analytics Dashboard';
+    protected $description = 'Configure notification channels for the Advanced Analytics Dashboard';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -64,6 +67,9 @@ class ConfigureNotificationChannels extends Command
     /**
      * Configure Slack notification settings.
      */
+    /**
+     * ConfigureSlack
+     */
     private function configureSlack(): void
     {
         $this->info('📢 Configuring Slack Notifications');
@@ -91,6 +97,9 @@ class ConfigureNotificationChannels extends Command
     /**
      * Configure Discord notification settings.
      */
+    /**
+     * ConfigureDiscord
+     */
     private function configureDiscord(): void
     {
         $this->info('🎮 Configuring Discord Notifications');
@@ -115,6 +124,9 @@ class ConfigureNotificationChannels extends Command
 
     /**
      * Configure Telegram notification settings.
+     */
+    /**
+     * ConfigureTelegram
      */
     private function configureTelegram(): void
     {
@@ -142,6 +154,9 @@ class ConfigureNotificationChannels extends Command
      * Update environment file with new values.
      *
      * @param array<string, string> $values
+     */
+    /**
+     * UpdateEnvFile
      */
     private function updateEnvFile(array $values): void
     {
@@ -171,6 +186,9 @@ class ConfigureNotificationChannels extends Command
 
     /**
      * Display current notification configuration status.
+     */
+    /**
+     * DisplayConfiguration
      */
     private function displayConfiguration(): void
     {

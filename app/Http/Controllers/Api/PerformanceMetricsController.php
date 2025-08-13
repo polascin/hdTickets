@@ -43,7 +43,10 @@ class PerformanceMetricsController extends Controller
     /**
      * Receive performance metrics from browser
      */
-    public function receiveMetrics(Request $request)
+    /**
+     * ReceiveMetrics
+     */
+    public function receiveMetrics(Request $request): Illuminate\Http\JsonResponse
     {
         try {
             $data = $request->validate([
@@ -93,7 +96,10 @@ class PerformanceMetricsController extends Controller
     /**
      * Get performance dashboard data
      */
-    public function getDashboardData(Request $request)
+    /**
+     * Get  dashboard data
+     */
+    public function getDashboardData(Request $request): Illuminate\Http\JsonResponse
     {
         $period = $request->get('period', '24h');
 
@@ -122,6 +128,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Process individual metric
+     */
+    /**
+     * ProcessMetric
      */
     private function processMetric(array $metric, array $page, array $session, array $device): void
     {
@@ -174,6 +183,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Process Core Web Vital metrics
      */
+    /**
+     * ProcessWebVital
+     */
     private function processWebVital(array $data, array $page, array $session): void
     {
         $vitalName = strtolower($data['name']);
@@ -210,6 +222,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Process AJAX request metrics
+     */
+    /**
+     * ProcessAjaxRequest
      */
     private function processAjaxRequest(array $data, array $page, array $session): void
     {
@@ -249,6 +264,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Process long task metrics (tasks > 50ms)
      */
+    /**
+     * ProcessLongTask
+     */
     private function processLongTask(array $data, array $page, array $session): void
     {
         $duration = $data['duration'];
@@ -280,6 +298,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Process custom performance measurements
      */
+    /**
+     * ProcessCustomMeasurement
+     */
     private function processCustomMeasurement(array $data, array $page, array $session): void
     {
         $name = $data['name'];
@@ -304,6 +325,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Process visibility changes
      */
+    /**
+     * ProcessVisibilityChange
+     */
     private function processVisibilityChange(array $data, array $page, array $session): void
     {
         $hidden = $data['hidden'];
@@ -325,6 +349,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Update real-time performance summaries
+     */
+    /**
+     * UpdateRealTimeSummaries
      */
     private function updateRealTimeSummaries(array $metrics, array $page): void
     {
@@ -367,6 +394,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Check for performance alerts
      */
+    /**
+     * CheckPerformanceAlerts
+     */
     private function checkPerformanceAlerts(array $metrics, array $page): void
     {
         $webVitals = collect($metrics)->where('type', 'web_vital');
@@ -386,6 +416,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Create performance alert
+     */
+    /**
+     * CreatePerformanceAlert
      */
     private function createPerformanceAlert(string $type, array $data): void
     {
@@ -412,6 +445,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Get alert severity based on type
      */
+    /**
+     * Get  alert severity
+     */
     private function getAlertSeverity(string $type): string
     {
         $severityMap = [
@@ -427,6 +463,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Update session tracking
+     */
+    /**
+     * UpdateSessionTracking
      */
     private function updateSessionTracking(array $session, array $page, array $device): void
     {
@@ -458,6 +497,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Get performance overview
+     */
+    /**
+     * Get  performance overview
      */
     private function getPerformanceOverview(string $period): array
     {
@@ -498,6 +540,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Get Web Vitals data
      */
+    /**
+     * Get  web vitals data
+     */
     private function getWebVitalsData(string $period): array
     {
         $vitals = ['lcp', 'fid', 'cls', 'fcp'];
@@ -534,6 +579,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Get page performance data
      */
+    /**
+     * Get  page performance data
+     */
     private function getPagePerformanceData(string $period): array
     {
         // This would require aggregating metrics by page URL
@@ -547,6 +595,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Get API performance data
+     */
+    /**
+     * Get  api performance data
      */
     private function getApiPerformanceData(string $period): array
     {
@@ -591,6 +642,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Get user sessions data
      */
+    /**
+     * Get  user sessions data
+     */
     private function getUserSessionsData(string $period): array
     {
         // This would require aggregating session data
@@ -604,6 +658,9 @@ class PerformanceMetricsController extends Controller
 
     /**
      * Get recent alerts
+     */
+    /**
+     * Get  recent alerts
      */
     private function getRecentAlerts(string $period): array
     {
@@ -631,6 +688,9 @@ class PerformanceMetricsController extends Controller
     /**
      * Get performance trends
      */
+    /**
+     * Get  performance trends
+     */
     private function getPerformanceTrends(string $period): array
     {
         // This would calculate trends over time
@@ -644,6 +704,9 @@ class PerformanceMetricsController extends Controller
 
     // Helper methods
 
+    /**
+     * Get  period hours
+     */
     private function getPeriodHours(string $period): int
     {
         switch ($period) {
@@ -656,6 +719,9 @@ class PerformanceMetricsController extends Controller
         }
     }
 
+    /**
+     * UpdateVitalAverages
+     */
     private function updateVitalAverages(string $vital, float $value, array $page): void
     {
         $key = "performance:vitals:{$vital}:average:" . date('Y-m-d');
@@ -675,6 +741,9 @@ class PerformanceMetricsController extends Controller
         $this->redis->expire($key, 86400 * 30);
     }
 
+    /**
+     * UpdateMeasurementAverages
+     */
     private function updateMeasurementAverages(string $name, float $duration, array $page): void
     {
         $key = "performance:custom:{$name}:average:" . date('Y-m-d');
@@ -694,6 +763,9 @@ class PerformanceMetricsController extends Controller
         $this->redis->expire($key, 86400 * 30);
     }
 
+    /**
+     * UpdateMetricCounters
+     */
     private function updateMetricCounters(string $type, array $page): void
     {
         $counterKey = 'performance:counters:' . date('Y-m-d');
@@ -701,6 +773,9 @@ class PerformanceMetricsController extends Controller
         $this->redis->expire($counterKey, 86400 * 30);
     }
 
+    /**
+     * IncrementErrorCounter
+     */
     private function incrementErrorCounter(string $url, int $status): void
     {
         $errorKey = 'performance:errors:' . date('Y-m-d-H');

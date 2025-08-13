@@ -12,6 +12,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Manchester City FC';
@@ -26,6 +29,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -43,6 +49,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -58,6 +67,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/tickets';
@@ -65,6 +77,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -94,6 +109,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Map competition names to English equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -110,6 +128,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -157,6 +178,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (English)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.fixture-title, .match-title, .event-title, .opponent, .vs, h3, h2, .title, .name';
@@ -164,6 +188,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (English)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -173,6 +200,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (English)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .stadium, .location, .ground';
@@ -181,6 +211,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (English)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .cost, .from, .ticket-price, .tariff';
@@ -188,6 +221,9 @@ class Manchester_cityPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (English)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

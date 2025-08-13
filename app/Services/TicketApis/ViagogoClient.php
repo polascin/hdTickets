@@ -43,6 +43,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @return array<int,array<string,mixed>>
      */
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->searchEventsViaScraping($criteria);
@@ -51,6 +54,9 @@ class ViagogoClient extends BaseApiClient
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->getEventViaScraping($eventId);
@@ -58,6 +64,9 @@ class ViagogoClient extends BaseApiClient
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  venue
      */
     public function getVenue(string $venueId): array
     {
@@ -76,6 +85,9 @@ class ViagogoClient extends BaseApiClient
      * @param array<string, mixed> $filters
      *
      * @return array<string, mixed>
+     */
+    /**
+     * Get  event tickets
      */
     public function getEventTickets(string $eventId, array $filters = []): array
     {
@@ -105,6 +117,9 @@ class ViagogoClient extends BaseApiClient
     /**
      * @return array<string, string>
      */
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return $this->scrapingHeaders;
@@ -114,6 +129,9 @@ class ViagogoClient extends BaseApiClient
      * @param array<string, mixed> $criteria
      *
      * @return array<int,array<string,mixed>>
+     */
+    /**
+     * SearchEventsViaScraping
      */
     protected function searchEventsViaScraping(array $criteria): array
     {
@@ -141,6 +159,9 @@ class ViagogoClient extends BaseApiClient
 
     /**
      * @param array<string, mixed> $criteria
+     */
+    /**
+     * BuildScrapingSearchUrl
      */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
@@ -181,6 +202,9 @@ class ViagogoClient extends BaseApiClient
      * Parse search results from HTML content.
      *
      * @return array<int,array<string,mixed>>
+     */
+    /**
+     * ParseSearchResultsHtml
      */
     protected function parseSearchResultsHtml(string $html): array
     {
@@ -228,6 +252,9 @@ class ViagogoClient extends BaseApiClient
      * Parse individual event card/node from search results.
      *
      * @return array<string,mixed>
+     */
+    /**
+     * ParseEventCard
      */
     protected function parseEventCard(DOMXPath $xpath, DOMNode $eventNode): array
     {
@@ -308,6 +335,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @return array<string,mixed>
      */
+    /**
+     * ParseEventFromLink
+     */
     protected function parseEventFromLink(DOMXPath $xpath, DOMNode $linkNode): array
     {
         $event = [
@@ -358,6 +388,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @return array<string,mixed>
      */
+    /**
+     * Get  event via scraping
+     */
     protected function getEventViaScraping(string $eventId): array
     {
         try {
@@ -386,6 +419,9 @@ class ViagogoClient extends BaseApiClient
      * Parse event details from HTML.
      *
      * @return array<string,mixed>
+     */
+    /**
+     * ParseEventDetailsHtml
      */
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
@@ -471,6 +507,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @return array<string,mixed>
      */
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -510,6 +549,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @param array<string,mixed> $eventData
      */
+    /**
+     * DetermineStatus
+     */
     protected function determineStatus(array $eventData): string
     {
         if (empty($eventData['prices']) && empty($eventData['ticket_count'])) {
@@ -527,6 +569,9 @@ class ViagogoClient extends BaseApiClient
         return 'unknown';
     }
 
+    /**
+     * ExtractCity
+     */
     protected function extractCity(string $location): string
     {
         if (empty($location)) {
@@ -542,6 +587,9 @@ class ViagogoClient extends BaseApiClient
         return trim($parts[0]) ?: 'Unknown City';
     }
 
+    /**
+     * ExtractCountry
+     */
     protected function extractCountry(string $location): string
     {
         if (empty($location)) {
@@ -574,6 +622,9 @@ class ViagogoClient extends BaseApiClient
         return 'Unknown Country';
     }
 
+    /**
+     * NormalizeUrl
+     */
     protected function normalizeUrl(string $url): string
     {
         if (! str_starts_with($url, 'http')) {
@@ -583,6 +634,9 @@ class ViagogoClient extends BaseApiClient
         return $url;
     }
 
+    /**
+     * ExtractEventIdFromUrl
+     */
     protected function extractEventIdFromUrl(string $url): ?string
     {
         // Viagogo URLs can be like /event/12345 or /tickets/some-event-name/e-12345
@@ -598,6 +652,11 @@ class ViagogoClient extends BaseApiClient
      *
      * @param array<string,mixed> $event
      * @param array<int,string>   $prices
+     */
+    /**
+     * ExtractPriceRange
+     *
+     * @param mixed $event
      */
     protected function extractPriceRange(array &$event, array $prices): void
     {
@@ -619,6 +678,9 @@ class ViagogoClient extends BaseApiClient
         }
     }
 
+    /**
+     * ParseEventDate
+     */
     protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
@@ -677,6 +739,9 @@ class ViagogoClient extends BaseApiClient
      *
      * @return array<string,mixed>
      */
+    /**
+     * ExtractGuaranteeInfo
+     */
     protected function extractGuaranteeInfo(array $eventData): array
     {
         $guaranteeInfo = [
@@ -721,6 +786,9 @@ class ViagogoClient extends BaseApiClient
      * Determine currency from event data.
      *
      * @param array<string,mixed> $eventData
+     */
+    /**
+     * DetermineCurrency
      */
     protected function determineCurrency(array $eventData): string
     {
@@ -768,6 +836,9 @@ class ViagogoClient extends BaseApiClient
 
     /**
      * Map internal status to standardized availability status
+     */
+    /**
+     * MapAvailabilityStatus
      */
     protected function mapAvailabilityStatus(string $internalStatus): string
     {

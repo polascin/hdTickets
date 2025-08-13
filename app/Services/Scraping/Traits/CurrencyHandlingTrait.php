@@ -12,6 +12,9 @@ trait CurrencyHandlingTrait
     /**
      * Parse price information from text with multi-currency support
      */
+    /**
+     * ParsePriceInfo
+     */
     protected function parsePriceInfo(string $priceText): array
     {
         $priceInfo = ['min' => NULL, 'max' => NULL];
@@ -78,6 +81,9 @@ trait CurrencyHandlingTrait
     /**
      * Detect currency from price text
      */
+    /**
+     * DetectCurrency
+     */
     protected function detectCurrency(string $priceText): ?string
     {
         $currencyPatterns = [
@@ -114,6 +120,9 @@ trait CurrencyHandlingTrait
     /**
      * Clean price text by removing non-price content
      */
+    /**
+     * CleanPriceText
+     */
     protected function cleanPriceText(string $priceText): string
     {
         // Remove common non-price words in multiple languages
@@ -140,6 +149,9 @@ trait CurrencyHandlingTrait
 
     /**
      * Normalize price value to float
+     */
+    /**
+     * NormalizePriceValue
      */
     protected function normalizePriceValue(string $price): ?float
     {
@@ -184,6 +196,9 @@ trait CurrencyHandlingTrait
     /**
      * Convert currency (basic implementation - would use real exchange rates in production)
      */
+    /**
+     * ConvertCurrency
+     */
     protected function convertCurrency(array $priceInfo, string $fromCurrency, string $toCurrency): array
     {
         if ($fromCurrency === $toCurrency || empty($priceInfo['min'])) {
@@ -225,6 +240,9 @@ trait CurrencyHandlingTrait
     /**
      * Format price for display
      */
+    /**
+     * FormatPrice
+     */
     protected function formatPrice(float $price, ?string $currency = NULL): string
     {
         $currency ??= $this->currency;
@@ -240,6 +258,9 @@ trait CurrencyHandlingTrait
     /**
      * Get currency symbol
      */
+    /**
+     * Get  currency symbol
+     */
     protected function getCurrencySymbol(?string $currency = NULL): string
     {
         $currency ??= $this->currency;
@@ -254,6 +275,9 @@ trait CurrencyHandlingTrait
 
     /**
      * Validate price range for the currency
+     */
+    /**
+     * Check if  valid price range
      */
     protected function isValidPriceRange(float $price, ?string $currency = NULL): bool
     {

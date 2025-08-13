@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,33 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * Sports Event Category Model
+ *
+ * @property int                            $id
+ * @property string                         $uuid
+ * @property int|null                       $parent_id
+ * @property string                         $name
+ * @property string|null                    $slug
+ * @property string|null                    $description
+ * @property string|null                    $color
+ * @property string|null                    $icon
+ * @property bool                           $is_active
+ * @property int|null                       $sort_order
+ * @property array|null                     $metadata
+ * @property Carbon                         $created_at
+ * @property Carbon                         $updated_at
+ * @property Carbon|null                    $deleted_at
+ * @property Category|null                  $parent
+ * @property Collection<int, Category>      $children
+ * @property Collection<int, ScrapedTicket> $scrapedTickets
+ * @property Collection<int, Ticket>        $tickets
+ * @property Collection<int, TicketSource>  $ticketSources
+ * @property string                         $full_path
+ * @property int                            $available_tickets_count
+ * @property int                            $total_scraped_tickets_count
+ * @property int                            $ticket_sources_count
+ */
 class Category extends Model
 {
     use HasFactory;
@@ -27,9 +56,15 @@ class Category extends Model
         'metadata',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'is_active' => 'boolean',
-        'metadata'  => 'array',
+        'is_active'  => 'boolean',
+        'sort_order' => 'integer',
+        'metadata'   => 'array',
     ];
 
     protected $dates = [
@@ -39,13 +74,19 @@ class Category extends Model
     /**
      * Get the route key for the model
      */
-    public function getRouteKeyName()
+    /**
+     * Get  route key name
+     */
+    public function getRouteKeyName(): string
     {
         return 'uuid';
     }
 
     /**
      * Relationship: Parent category
+     */
+    /**
+     * Parent
      */
     public function parent(): BelongsTo
     {
@@ -55,6 +96,9 @@ class Category extends Model
     /**
      * Relationship: Child categories
      */
+    /**
+     * Children
+     */
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order');
@@ -62,6 +106,9 @@ class Category extends Model
 
     /**
      * Relationship: Scraped tickets in this category
+     */
+    /**
+     * ScrapedTickets
      */
     public function scrapedTickets(): HasMany
     {
@@ -71,6 +118,9 @@ class Category extends Model
     /**
      * Relationship: Tickets in this category
      */
+    /**
+     * Tickets
+     */
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
@@ -78,6 +128,9 @@ class Category extends Model
 
     /**
      * Relationship: Ticket sources in this category
+     */
+    /**
+     * TicketSources
      */
     public function ticketSources(): HasMany
     {
@@ -89,7 +142,12 @@ class Category extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -152,6 +210,9 @@ class Category extends Model
     /**
      * Check if category is active
      */
+    /**
+     * Check if  active
+     */
     public function isActive(): bool
     {
         return $this->is_active;
@@ -159,6 +220,9 @@ class Category extends Model
 
     /**
      * Check if category is root (no parent)
+     */
+    /**
+     * Check if  root
      */
     public function isRoot(): bool
     {
@@ -168,6 +232,9 @@ class Category extends Model
     /**
      * Check if category has children
      */
+    /**
+     * Check if has  children
+     */
     public function hasChildren(): bool
     {
         return $this->children()->count() > 0;
@@ -175,6 +242,9 @@ class Category extends Model
 
     /**
      * Get the full category path (parent > child)
+     */
+    /**
+     * Get  full path attribute
      */
     public function getFullPathAttribute(): string
     {
@@ -192,6 +262,9 @@ class Category extends Model
     /**
      * Get all ancestors (parents, grandparents, etc.)
      */
+    /**
+     * Get  ancestors
+     */
     public function getAncestors(): array
     {
         $ancestors = [];
@@ -207,6 +280,9 @@ class Category extends Model
 
     /**
      * Get all descendants (children, grandchildren, etc.)
+     */
+    /**
+     * Get  descendants
      */
     public function getDescendants(): array
     {
@@ -224,6 +300,9 @@ class Category extends Model
     /**
      * Get available scraped tickets count
      */
+    /**
+     * Get  available tickets count attribute
+     */
     public function getAvailableTicketsCountAttribute(): int
     {
         return $this->scrapedTickets()->where('is_available', TRUE)->count();
@@ -231,6 +310,9 @@ class Category extends Model
 
     /**
      * Get total scraped tickets count
+     */
+    /**
+     * Get  total scraped tickets count attribute
      */
     public function getTotalScrapedTicketsCountAttribute(): int
     {
@@ -240,6 +322,9 @@ class Category extends Model
     /**
      * Get ticket sources count
      */
+    /**
+     * Get  ticket sources count attribute
+     */
     public function getTicketSourcesCountAttribute(): int
     {
         return $this->ticketSources()->count();
@@ -247,6 +332,9 @@ class Category extends Model
 
     /**
      * Boot the model
+     */
+    /**
+     * Boot
      */
     protected static function boot(): void
     {

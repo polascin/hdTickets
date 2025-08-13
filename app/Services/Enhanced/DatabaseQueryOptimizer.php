@@ -24,6 +24,9 @@ class DatabaseQueryOptimizer
     /**
      * Optimize scraped tickets queries with proper indexing
      */
+    /**
+     * Get  optimized tickets query
+     */
     public function getOptimizedTicketsQuery(array $filters = []): \Illuminate\Database\Eloquent\Builder
     {
         $query = DB::table('scraped_tickets');
@@ -85,6 +88,11 @@ class DatabaseQueryOptimizer
      *
      * @param mixed $query
      */
+    /**
+     * Get  paginated results
+     *
+     * @param mixed $query
+     */
     public function getPaginatedResults($query, int $perPage = 15, int $page = 1): array
     {
         $offset = ($page - 1) * $perPage;
@@ -114,6 +122,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Bulk insert optimization with chunk processing
+     */
+    /**
+     * BulkInsertOptimized
      */
     public function bulkInsertOptimized(string $table, array $data, int $chunkSize = 1000): bool
     {
@@ -150,6 +161,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Bulk update optimization using CASE statements
+     */
+    /**
+     * BulkUpdateOptimized
      */
     public function bulkUpdateOptimized(string $table, array $updates, string $keyColumn = 'id'): bool
     {
@@ -204,6 +218,9 @@ class DatabaseQueryOptimizer
     /**
      * Analyze query performance and suggest optimizations
      */
+    /**
+     * AnalyzeQueryPerformance
+     */
     public function analyzeQueryPerformance(string $sql, array $bindings = []): array
     {
         $analysis = [];
@@ -246,6 +263,9 @@ class DatabaseQueryOptimizer
     /**
      * Get database connection statistics
      */
+    /**
+     * Get  connection stats
+     */
     public function getConnectionStats(): array
     {
         try {
@@ -287,6 +307,9 @@ class DatabaseQueryOptimizer
     /**
      * Optimize database maintenance tasks
      */
+    /**
+     * PerformMaintenance
+     */
     public function performMaintenance(): array
     {
         $results = [];
@@ -324,6 +347,9 @@ class DatabaseQueryOptimizer
     /**
      * Get query performance statistics
      */
+    /**
+     * Get  query stats
+     */
     public function getQueryStats(): array
     {
         return [
@@ -342,6 +368,9 @@ class DatabaseQueryOptimizer
     /**
      * Reset query statistics
      */
+    /**
+     * ResetQueryStats
+     */
     public function resetQueryStats(): void
     {
         $this->queryStats = [];
@@ -349,6 +378,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Enable query logging for performance monitoring
+     */
+    /**
+     * EnableQueryLogging
      */
     private function enableQueryLogging(): void
     {
@@ -361,6 +393,11 @@ class DatabaseQueryOptimizer
 
     /**
      * Log query execution details
+     *
+     * @param mixed $query
+     */
+    /**
+     * LogQuery
      *
      * @param mixed $query
      */
@@ -390,6 +427,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Identify potential performance issues
+     */
+    /**
+     * IdentifyQueryIssues
      */
     private function identifyQueryIssues(array $executionPlan): array
     {
@@ -443,6 +483,9 @@ class DatabaseQueryOptimizer
     /**
      * Generate optimization suggestions
      */
+    /**
+     * GenerateOptimizationSuggestions
+     */
     private function generateOptimizationSuggestions(array $issues): array
     {
         $suggestions = [];
@@ -473,6 +516,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Analyze table statistics
+     */
+    /**
+     * AnalyzeTableStatistics
      */
     private function analyzeTableStatistics(): array
     {
@@ -512,6 +558,9 @@ class DatabaseQueryOptimizer
     /**
      * Clean up old data
      */
+    /**
+     * CleanupOldData
+     */
     private function cleanupOldData(): array
     {
         $results = [];
@@ -547,6 +596,9 @@ class DatabaseQueryOptimizer
 
     /**
      * Format bytes to human readable format
+     */
+    /**
+     * FormatBytes
      */
     private function formatBytes(int $bytes): string
     {

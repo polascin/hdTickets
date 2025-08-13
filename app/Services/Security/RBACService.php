@@ -275,6 +275,9 @@ class RBACService
     /**
      * Check if user has specific permission
      */
+    /**
+     * Check if has  permission
+     */
     public function hasPermission(User $user, string $permission, array $context = []): bool
     {
         // Cache key for user permissions
@@ -309,6 +312,9 @@ class RBACService
     /**
      * Check multiple permissions (user must have ALL)
      */
+    /**
+     * Check if has  all permissions
+     */
     public function hasAllPermissions(User $user, array $permissions, array $context = []): bool
     {
         foreach ($permissions as $permission) {
@@ -323,6 +329,9 @@ class RBACService
     /**
      * Check multiple permissions (user must have ANY)
      */
+    /**
+     * Check if has  any permission
+     */
     public function hasAnyPermission(User $user, array $permissions, array $context = []): bool
     {
         foreach ($permissions as $permission) {
@@ -336,6 +345,9 @@ class RBACService
 
     /**
      * Grant permission to user
+     */
+    /**
+     * GrantPermission
      */
     public function grantPermission(User $user, string $permission, ?User $grantedBy = NULL): bool
     {
@@ -366,6 +378,9 @@ class RBACService
     /**
      * Revoke permission from user
      */
+    /**
+     * RevokePermission
+     */
     public function revokePermission(User $user, string $permission, ?User $revokedBy = NULL): bool
     {
         $customPermissions = $user->custom_permissions ?? [];
@@ -391,6 +406,9 @@ class RBACService
 
     /**
      * Assign role to user
+     */
+    /**
+     * AssignRole
      */
     public function assignRole(User $user, string $role, ?User $assignedBy = NULL): bool
     {
@@ -418,6 +436,9 @@ class RBACService
     /**
      * Get user's effective permissions
      */
+    /**
+     * Get  user permissions
+     */
     public function getUserPermissions(User $user): array
     {
         $cacheKey = "user_permissions:{$user->id}";
@@ -429,6 +450,9 @@ class RBACService
 
     /**
      * Get permissions for a role
+     */
+    /**
+     * Get  role permissions
      */
     public function getRolePermissions(string $role): array
     {
@@ -449,6 +473,9 @@ class RBACService
 
     /**
      * Create dynamic role
+     */
+    /**
+     * CreateDynamicRole
      */
     public function createDynamicRole(string $roleName, array $permissions, User $createdBy): bool
     {
@@ -478,6 +505,11 @@ class RBACService
      *
      * @param mixed|null $resourceId
      */
+    /**
+     * CheckResourcePermission
+     *
+     * @param mixed $resourceId
+     */
     public function checkResourcePermission(User $user, string $resource, string $action, $resourceId = NULL): bool
     {
         $permission = "{$resource}.{$action}";
@@ -503,6 +535,9 @@ class RBACService
     /**
      * Get permission matrix for all roles
      */
+    /**
+     * Get  permission matrix
+     */
     public function getPermissionMatrix(): array
     {
         $matrix = [];
@@ -519,6 +554,9 @@ class RBACService
 
     /**
      * Validate permission structure
+     */
+    /**
+     * ValidatePermissionStructure
      */
     public function validatePermissionStructure(): array
     {
@@ -544,6 +582,9 @@ class RBACService
     /**
      * Clear user permissions cache
      */
+    /**
+     * ClearUserPermissionsCache
+     */
     public function clearUserPermissionsCache(User $user): void
     {
         Cache::forget("user_permissions:{$user->id}");
@@ -551,6 +592,9 @@ class RBACService
 
     /**
      * Clear all permissions cache
+     */
+    /**
+     * ClearAllPermissionsCache
      */
     public function clearAllPermissionsCache(): void
     {
@@ -562,6 +606,9 @@ class RBACService
 
     /**
      * Calculate user's effective permissions
+     */
+    /**
+     * CalculateUserPermissions
      */
     protected function calculateUserPermissions(User $user): array
     {
@@ -588,6 +635,9 @@ class RBACService
     /**
      * Check if user has inherited permission
      */
+    /**
+     * Check if has  inherited permission
+     */
     protected function hasInheritedPermission(string $permission, array $userPermissions): bool
     {
         foreach ($userPermissions as $userPermission) {
@@ -602,6 +652,9 @@ class RBACService
 
     /**
      * Get inherited permissions for a permission
+     */
+    /**
+     * Get  inherited permissions
      */
     protected function getInheritedPermissions(string $permission): array
     {
@@ -623,6 +676,9 @@ class RBACService
     /**
      * Check resource-based permissions
      */
+    /**
+     * Check if has  resource permission
+     */
     protected function hasResourcePermission(User $user, string $permission, array $context): bool
     {
         // Resource-specific permission logic
@@ -643,6 +699,11 @@ class RBACService
      *
      * @param mixed|null $ticketId
      */
+    /**
+     * CheckTicketPermission
+     *
+     * @param mixed $ticketId
+     */
     protected function checkTicketPermission(User $user, string $action, $ticketId = NULL): bool
     {
         // Agents can manage all tickets, customers only their own
@@ -660,6 +721,11 @@ class RBACService
      *
      * @param mixed|null $targetUserId
      */
+    /**
+     * CheckUserPermission
+     *
+     * @param mixed $targetUserId
+     */
     protected function checkUserPermission(User $user, string $action, $targetUserId = NULL): bool
     {
         // Admins can manage all users
@@ -676,6 +742,11 @@ class RBACService
      *
      * @param mixed|null $platformId
      */
+    /**
+     * CheckPlatformPermission
+     *
+     * @param mixed $platformId
+     */
     protected function checkPlatformPermission(User $user, string $action, $platformId = NULL): bool
     {
         // Only admins can manage platforms
@@ -685,6 +756,9 @@ class RBACService
     /**
      * Check if permission is valid
      */
+    /**
+     * Check if  valid permission
+     */
     protected function isValidPermission(string $permission): bool
     {
         return isset(self::PERMISSIONS[$permission]);
@@ -693,6 +767,9 @@ class RBACService
     /**
      * Check if role is valid
      */
+    /**
+     * Check if  valid role
+     */
     protected function isValidRole(string $role): bool
     {
         return isset(self::ROLES[$role]) || Cache::has("dynamic_roles.{$role}");
@@ -700,6 +777,9 @@ class RBACService
 
     /**
      * Check for circular dependencies in permissions
+     */
+    /**
+     * Check if has  circular dependency
      */
     protected function hasCircularDependency(string $permission, array $visited = []): bool
     {
@@ -724,6 +804,9 @@ class RBACService
 
     /**
      * Log permission check
+     */
+    /**
+     * LogPermissionCheck
      */
     protected function logPermissionCheck(User $user, string $permission, bool $granted, array $context): void
     {

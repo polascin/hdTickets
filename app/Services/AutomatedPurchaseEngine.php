@@ -36,6 +36,9 @@ class AutomatedPurchaseEngine
      * Intelligent purchase decision algorithm
      * Analyzes tickets and makes automated purchase decisions based on ML insights
      */
+    /**
+     * EvaluatePurchaseDecision
+     */
     public function evaluatePurchaseDecision(ScrapedTicket $ticket, User $user): array
     {
         $cacheKey = "purchase_decision_{$ticket->id}_{$user->id}";
@@ -83,6 +86,9 @@ class AutomatedPurchaseEngine
 
     /**
      * Multi-platform price comparison with intelligence
+     */
+    /**
+     * CompareMultiPlatformPrices
      */
     public function compareMultiPlatformPrices(string $eventTitle, array $criteria = []): array
     {
@@ -173,6 +179,9 @@ class AutomatedPurchaseEngine
     /**
      * Automated checkout flow with user preferences
      */
+    /**
+     * ExecuteAutomatedPurchase
+     */
     public function executeAutomatedPurchase(array $purchaseRequest): array
     {
         $startTime = microtime(TRUE);
@@ -233,6 +242,9 @@ class AutomatedPurchaseEngine
     /**
      * Purchase success tracking and optimization
      */
+    /**
+     * TrackAndOptimize
+     */
     public function trackAndOptimize(array $purchaseData): array
     {
         $trackingData = [
@@ -270,6 +282,9 @@ class AutomatedPurchaseEngine
     /**
      * Calculate price score based on AI analysis
      */
+    /**
+     * CalculatePriceScore
+     */
     private function calculatePriceScore(ScrapedTicket $ticket, array $priceAnalysis, User $user): float
     {
         $maxPrice = $user->preferences['max_ticket_price'] ?? 1000;
@@ -297,6 +312,9 @@ class AutomatedPurchaseEngine
     /**
      * Calculate demand score
      */
+    /**
+     * CalculateDemandScore
+     */
     private function calculateDemandScore(ScrapedTicket $ticket, array $demandAnalysis): float
     {
         $demandLevel = $demandAnalysis['demand_level'] ?? 'medium';
@@ -319,6 +337,9 @@ class AutomatedPurchaseEngine
     /**
      * Calculate platform score based on reliability and performance
      */
+    /**
+     * CalculatePlatformScore
+     */
     private function calculatePlatformScore(ScrapedTicket $ticket, array $platformPerformance): float
     {
         $platform = $ticket->platform;
@@ -340,6 +361,9 @@ class AutomatedPurchaseEngine
 
     /**
      * Calculate timing score based on event proximity and market conditions
+     */
+    /**
+     * CalculateTimingScore
      */
     private function calculateTimingScore(ScrapedTicket $ticket): float
     {
@@ -365,6 +389,9 @@ class AutomatedPurchaseEngine
 
     /**
      * Calculate user preference score
+     */
+    /**
+     * CalculateUserPreferenceScore
      */
     private function calculateUserPreferenceScore(ScrapedTicket $ticket, User $user): float
     {
@@ -395,6 +422,9 @@ class AutomatedPurchaseEngine
     /**
      * Calculate success probability based on historical data
      */
+    /**
+     * CalculateSuccessProbability
+     */
     private function calculateSuccessProbability(ScrapedTicket $ticket): float
     {
         $platformSuccessRate = $this->getPlatformSuccessRate($ticket->platform);
@@ -409,6 +439,9 @@ class AutomatedPurchaseEngine
 
     /**
      * Calculate overall score with weights
+     */
+    /**
+     * CalculateOverallScore
      */
     private function calculateOverallScore(array $scores): float
     {
@@ -436,6 +469,9 @@ class AutomatedPurchaseEngine
 
     /**
      * Generate recommendation based on score
+     */
+    /**
+     * GenerateRecommendation
      */
     private function generateRecommendation(float $overallScore, array $scores): array
     {
@@ -469,6 +505,9 @@ class AutomatedPurchaseEngine
     /**
      * Check if eligible for auto-purchase
      */
+    /**
+     * Check if  eligible for auto purchase
+     */
     private function isEligibleForAutoPurchase(float $overallScore, array $scores, User $user): bool
     {
         $userSettings = $user->preferences['auto_purchase'] ?? [];
@@ -485,6 +524,9 @@ class AutomatedPurchaseEngine
     }
 
     // Additional helper methods for platform statistics and calculations
+    /**
+     * Get  platform success rate
+     */
     private function getPlatformSuccessRate(string $platform): float
     {
         $cacheKey = "platform_success_rate_{$platform}";
@@ -503,6 +545,9 @@ class AutomatedPurchaseEngine
         });
     }
 
+    /**
+     * Get  platform processing time
+     */
     private function getPlatformProcessingTime(string $platform): float
     {
         return Cache::remember("platform_processing_time_{$platform}", now()->addHours(1), function () use ($platform) {
@@ -514,6 +559,9 @@ class AutomatedPurchaseEngine
         });
     }
 
+    /**
+     * Get  platform reliability score
+     */
     private function getPlatformReliabilityScore(string $platform): float
     {
         // Combine success rate, uptime, and error rates
@@ -526,7 +574,12 @@ class AutomatedPurchaseEngine
         return ($successRate * 0.7) + ($timeScore * 0.3);
     }
 
-    private function calculateValueScore($ticket, $platforms = []): float
+    /**
+     * CalculateValueScore
+     *
+     * @param mixed $platforms
+     */
+    private function calculateValueScore(App\Models\Ticket $ticket, $platforms = []): float
     {
         $config = config('purchase_automation.price_comparison.value_score_calculation', [
             'price_weight'           => 0.4,
@@ -574,7 +627,10 @@ class AutomatedPurchaseEngine
         return max(0, min(100, $valueScore));
     }
 
-    private function estimatePlatformFees($ticket): float
+    /**
+     * EstimatePlatformFees
+     */
+    private function estimatePlatformFees(App\Models\Ticket $ticket): float
     {
         $platform = $ticket->platform;
         $platformConfig = config("purchase_automation.platforms.{$platform}");
@@ -586,6 +642,9 @@ class AutomatedPurchaseEngine
         return $ticket->total_price * $platformConfig['base_fees_percentage'];
     }
 
+    /**
+     * CalculatePriceVariance
+     */
     private function calculatePriceVariance(array $comparison): float
     {
         $prices = array_column($comparison, 'price');
@@ -599,6 +658,9 @@ class AutomatedPurchaseEngine
         return sqrt($variance / count($prices)) / $mean; // Coefficient of variation
     }
 
+    /**
+     * ValidatePurchaseRequest
+     */
     private function validatePurchaseRequest(array $request): array
     {
         $errors = [];
@@ -628,7 +690,14 @@ class AutomatedPurchaseEngine
         ];
     }
 
-    private function createPurchaseQueueItem($ticket, $user, $request, $transactionId): PurchaseQueue
+    /**
+     * CreatePurchaseQueueItem
+     *
+     * @param mixed $user
+     * @param mixed $request
+     * @param mixed $transactionId
+     */
+    private function createPurchaseQueueItem(App\Models\Ticket $ticket, $user, $request, $transactionId): PurchaseQueue
     {
         return PurchaseQueue::create([
             'uuid'              => uniqid('queue_'),
@@ -648,6 +717,12 @@ class AutomatedPurchaseEngine
         ]);
     }
 
+    /**
+     * ExecutePurchaseFlow
+     *
+     * @param mixed $queueItem
+     * @param mixed $request
+     */
     private function executePurchaseFlow($queueItem, $request): array
     {
         // Create purchase attempt record
@@ -674,6 +749,12 @@ class AutomatedPurchaseEngine
         ];
     }
 
+    /**
+     * TrackPurchaseSuccess
+     *
+     * @param mixed $result
+     * @param mixed $request
+     */
     private function trackPurchaseSuccess($result, $request): void
     {
         // Store tracking data for analytics and ML training
@@ -689,6 +770,13 @@ class AutomatedPurchaseEngine
         ]);
     }
 
+    /**
+     * BuildFailureResponse
+     *
+     * @param mixed $transactionId
+     * @param mixed $reason
+     * @param mixed $errors
+     */
     private function buildFailureResponse($transactionId, $reason, $errors = []): array
     {
         return [
@@ -701,6 +789,11 @@ class AutomatedPurchaseEngine
         ];
     }
 
+    /**
+     * GenerateNextSteps
+     *
+     * @param mixed $result
+     */
     private function generateNextSteps($result): array
     {
         if ($result['success']) {
@@ -718,7 +811,12 @@ class AutomatedPurchaseEngine
         ];
     }
 
-    private function identifyRiskFactors($ticket, $scores): array
+    /**
+     * IdentifyRiskFactors
+     *
+     * @param mixed $scores
+     */
+    private function identifyRiskFactors(App\Models\Ticket $ticket, $scores): array
     {
         $risks = [];
 
@@ -737,6 +835,11 @@ class AutomatedPurchaseEngine
         return $risks;
     }
 
+    /**
+     * GenerateOptimizationSuggestions
+     *
+     * @param mixed $scores
+     */
     private function generateOptimizationSuggestions($scores): array
     {
         $suggestions = [];
@@ -756,6 +859,11 @@ class AutomatedPurchaseEngine
         return $suggestions;
     }
 
+    /**
+     * CalculateConfidence
+     *
+     * @param mixed $scores
+     */
     private function calculateConfidence($scores): float
     {
         $variance = 0;
@@ -771,6 +879,11 @@ class AutomatedPurchaseEngine
         return max(0, 100 - $standardDeviation);
     }
 
+    /**
+     * Get  event type success rate
+     *
+     * @param mixed $eventTitle
+     */
     private function getEventTypeSuccessRate($eventTitle): float
     {
         // Simplified - could use ML to categorize events
@@ -787,7 +900,10 @@ class AutomatedPurchaseEngine
         return $successRates[$eventType] ?? 70;
     }
 
-    private function getPriceRangeSuccessRate($price): float
+    /**
+     * Get  price range success rate
+     */
+    private function getPriceRangeSuccessRate(float $price): float
     {
         if ($price < 100) {
             return 85;
@@ -805,6 +921,11 @@ class AutomatedPurchaseEngine
         return 60; // Very expensive tickets
     }
 
+    /**
+     * CategorizeEvent
+     *
+     * @param mixed $eventTitle
+     */
     private function categorizeEvent($eventTitle): string
     {
         $title = strtolower($eventTitle);
@@ -825,7 +946,10 @@ class AutomatedPurchaseEngine
         return 'other';
     }
 
-    private function storeTrackingData($data): void
+    /**
+     * StoreTrackingData
+     */
+    private function storeTrackingData(array $data): void
     {
         // Store in database for analytics
         DB::table('automation_tracking')->insert([
@@ -840,7 +964,10 @@ class AutomatedPurchaseEngine
         ]);
     }
 
-    private function generateOptimizationInsights($data): array
+    /**
+     * GenerateOptimizationInsights
+     */
+    private function generateOptimizationInsights(array $data): array
     {
         $insights = [];
 
@@ -855,7 +982,10 @@ class AutomatedPurchaseEngine
         return $insights;
     }
 
-    private function updateMachineLearningModels($data): void
+    /**
+     * UpdateMachineLearningModels
+     */
+    private function updateMachineLearningModels(array $data): void
     {
         // Update ML models with new data
         Log::info('ML models updated with new purchase data', [
@@ -864,7 +994,10 @@ class AutomatedPurchaseEngine
         ]);
     }
 
-    private function adjustAutomationParameters($data): array
+    /**
+     * AdjustAutomationParameters
+     */
+    private function adjustAutomationParameters(array $data): array
     {
         $adjustments = [];
 
@@ -876,6 +1009,11 @@ class AutomatedPurchaseEngine
         return $adjustments;
     }
 
+    /**
+     * Get  average processing time
+     *
+     * @param mixed $platform
+     */
     private function getAverageProcessingTime($platform): float
     {
         return $this->getPlatformProcessingTime($platform);

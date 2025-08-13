@@ -12,6 +12,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Eventim.de';
@@ -26,6 +29,9 @@ class EventimPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -46,6 +52,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -63,6 +72,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/suche';
@@ -70,6 +82,9 @@ class EventimPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -103,6 +118,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Map categories to German equivalents
      */
+    /**
+     * MapCategory
+     */
     protected function mapCategory(string $category): string
     {
         $mapping = [
@@ -122,6 +140,9 @@ class EventimPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -170,6 +191,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (German)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.event-title, .title, .event-name, .veranstaltung-titel, .event-headline, h3, h2, .name, .titel';
@@ -177,6 +201,9 @@ class EventimPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (German)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -186,6 +213,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (German)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .location, .ort, .veranstaltungsort, .stadion, .halle';
@@ -194,6 +224,9 @@ class EventimPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (German)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .preis, .kosten, .cost, .ab, .from, .ticket-preis, .ab-preis';
@@ -201,6 +234,9 @@ class EventimPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (German)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

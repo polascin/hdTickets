@@ -24,6 +24,9 @@ class PlatformMonitoringService
     /**
      * Monitor all platforms and generate alerts if needed
      */
+    /**
+     * MonitorAllPlatforms
+     */
     public function monitorAllPlatforms(): array
     {
         $platforms = $this->getActivePlatforms();
@@ -42,6 +45,9 @@ class PlatformMonitoringService
 
     /**
      * Monitor a specific platform
+     */
+    /**
+     * MonitorPlatform
      */
     public function monitorPlatform(string $platform): array
     {
@@ -84,6 +90,9 @@ class PlatformMonitoringService
     /**
      * Get comprehensive stats for a platform
      */
+    /**
+     * Get  platform stats
+     */
     public function getPlatformStats(string $platform, int $hours = 24): array
     {
         $cacheKey = "platform_stats_{$platform}_{$hours}";
@@ -109,6 +118,9 @@ class PlatformMonitoringService
     /**
      * Get stats for all platforms
      */
+    /**
+     * Get  all platform stats
+     */
     public function getAllPlatformStats(int $hours = 24): Collection
     {
         $platforms = $this->getActivePlatforms();
@@ -120,6 +132,9 @@ class PlatformMonitoringService
 
     /**
      * Record a successful scraping operation
+     */
+    /**
+     * RecordSuccess
      */
     public function recordSuccess(
         string $platform,
@@ -151,6 +166,9 @@ class PlatformMonitoringService
 
     /**
      * Record a failed scraping operation
+     */
+    /**
+     * RecordFailure
      */
     public function recordFailure(
         string $platform,
@@ -187,6 +205,9 @@ class PlatformMonitoringService
     /**
      * Check success rate and generate alert if needed
      */
+    /**
+     * CheckSuccessRate
+     */
     private function checkSuccessRate(string $platform, float $successRate): ?array
     {
         if ($successRate < self::CRITICAL_SUCCESS_RATE_THRESHOLD) {
@@ -218,6 +239,9 @@ class PlatformMonitoringService
     /**
      * Check response time and generate alert if needed
      */
+    /**
+     * CheckResponseTime
+     */
     private function checkResponseTime(string $platform, float $avgResponseTime): ?array
     {
         if ($avgResponseTime > self::HIGH_RESPONSE_TIME_THRESHOLD) {
@@ -237,6 +261,9 @@ class PlatformMonitoringService
 
     /**
      * Check for bot detection issues
+     */
+    /**
+     * CheckBotDetection
      */
     private function checkBotDetection(string $platform, array $errorStats): ?array
     {
@@ -268,6 +295,9 @@ class PlatformMonitoringService
     /**
      * Check for rate limiting issues
      */
+    /**
+     * CheckRateLimit
+     */
     private function checkRateLimit(string $platform, array $errorStats): ?array
     {
         $rateLimitErrors = [
@@ -297,6 +327,9 @@ class PlatformMonitoringService
 
     /**
      * Check selector effectiveness
+     */
+    /**
+     * CheckSelectorEffectiveness
      */
     private function checkSelectorEffectiveness(string $platform, array $selectorStats): ?array
     {
@@ -328,6 +361,9 @@ class PlatformMonitoringService
     /**
      * Process alerts by logging and potentially sending notifications
      */
+    /**
+     * ProcessAlerts
+     */
     private function processAlerts(array $alerts): void
     {
         foreach ($alerts as $alert) {
@@ -349,6 +385,9 @@ class PlatformMonitoringService
     /**
      * Send critical alert notification
      */
+    /**
+     * SendCriticalAlert
+     */
     private function sendCriticalAlert(array $alert): void
     {
         // Here you could send email, Slack notification, SMS, etc.
@@ -366,6 +405,9 @@ class PlatformMonitoringService
     /**
      * Get list of active platforms from config
      */
+    /**
+     * Get  active platforms
+     */
     private function getActivePlatforms(): array
     {
         $platforms = config('ticket_apis', []);
@@ -382,6 +424,9 @@ class PlatformMonitoringService
 
     /**
      * Determine failure status based on exception type
+     */
+    /**
+     * DetermineFailureStatus
      */
     private function determineFailureStatus(Exception $exception): string
     {
@@ -402,6 +447,9 @@ class PlatformMonitoringService
 
     /**
      * Clear platform stats cache
+     */
+    /**
+     * ClearPlatformStatsCache
      */
     private function clearPlatformStatsCache(string $platform): void
     {

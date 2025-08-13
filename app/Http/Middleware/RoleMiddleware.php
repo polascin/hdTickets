@@ -17,6 +17,11 @@ class RoleMiddleware
      * @param Closure(Request): (Response) $next
      * @param string[]                     $roles
      */
+    /**
+     * Handle
+     *
+     * @param mixed $roles
+     */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (! Auth::check()) {

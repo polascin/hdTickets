@@ -18,14 +18,14 @@ use function is_array;
 class OptimizePerformance extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'hdtickets:optimize-performance 
+    protected $signature = 'hdtickets:optimize-performance 
                             {--cache : Only run cache optimizations}
                             {--database : Only run database optimizations}
                             {--analyze : Analyze performance without making changes}
                             {--force : Force optimization even in production}';
 
     /** The console command description. */
-    protected string $description = 'Run comprehensive performance optimizations for the Sports Events Ticket System';
+    protected $description = 'Run comprehensive performance optimizations for the Sports Events Ticket System';
 
     private AdvancedCacheService $advancedCache;
 
@@ -49,6 +49,9 @@ class OptimizePerformance extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -113,6 +116,9 @@ class OptimizePerformance extends Command
     /**
      * Run performance analysis without making changes.
      */
+    /**
+     * RunAnalysis
+     */
     private function runAnalysis(): int
     {
         $this->info('📊 Running Performance Analysis...');
@@ -137,6 +143,9 @@ class OptimizePerformance extends Command
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * OptimizeCache
      */
     private function optimizeCache(): array
     {
@@ -183,6 +192,9 @@ class OptimizePerformance extends Command
     /**
      * @return array<string, mixed>
      */
+    /**
+     * OptimizeDatabase
+     */
     private function optimizeDatabase(): array
     {
         $this->info('🗃️  Optimizing Database Performance...');
@@ -218,6 +230,9 @@ class OptimizePerformance extends Command
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * OptimizeLaravel
      */
     private function optimizeLaravel(): array
     {
@@ -266,6 +281,9 @@ class OptimizePerformance extends Command
     /**
      * @param array<string, mixed> $results
      */
+    /**
+     * DisplayResults
+     */
     private function displayResults(array $results, float $executionTime): void
     {
         $this->newLine();
@@ -300,6 +318,9 @@ class OptimizePerformance extends Command
     /**
      * @param array<string, mixed> $stats
      */
+    /**
+     * DisplayCacheStats
+     */
     private function displayCacheStats(array $stats): void
     {
         if (isset($stats['redis_info'])) {
@@ -322,6 +343,9 @@ class OptimizePerformance extends Command
     /**
      * @param array<string, mixed> $stats
      */
+    /**
+     * DisplayDatabaseStats
+     */
     private function displayDatabaseStats(array $stats): void
     {
         if (isset($stats['mysql_status'])) {
@@ -337,6 +361,9 @@ class OptimizePerformance extends Command
 
     /**
      * @param array<string, mixed> $stats
+     */
+    /**
+     * DisplayQueryStats
      */
     private function displayQueryStats(array $stats): void
     {
@@ -355,6 +382,9 @@ class OptimizePerformance extends Command
         $this->newLine();
     }
 
+    /**
+     * DisplayRecommendations
+     */
     private function displayRecommendations(): void
     {
         $this->line('<comment>🎯 Performance Recommendations:</comment>');
@@ -377,6 +407,9 @@ class OptimizePerformance extends Command
         $this->newLine();
     }
 
+    /**
+     * FormatBytes
+     */
     private function formatBytes(int $bytes): string
     {
         $units = ['B', 'KB', 'MB', 'GB'];

@@ -28,6 +28,9 @@ class NotificationManager
     /**
      * Send price drop alert
      */
+    /**
+     * SendPriceDropAlert
+     */
     public function sendPriceDropAlert(User $user, ScrapedTicket $ticket, float $oldPrice, float $newPrice): bool
     {
         $notification = [
@@ -60,6 +63,9 @@ class NotificationManager
 
     /**
      * Send ticket availability notification
+     */
+    /**
+     * SendTicketAvailabilityAlert
      */
     public function sendTicketAvailabilityAlert(User $user, ScrapedTicket $ticket, TicketAlert $alert): bool
     {
@@ -100,6 +106,9 @@ class NotificationManager
     /**
      * Send system status update
      */
+    /**
+     * SendSystemStatusUpdate
+     */
     public function sendSystemStatusUpdate(array $users, string $status, string $message, array $details = []): bool
     {
         $notification = [
@@ -134,6 +143,9 @@ class NotificationManager
     /**
      * Send custom alert rule notification
      */
+    /**
+     * SendCustomAlertRule
+     */
     public function sendCustomAlertRule(User $user, array $ruleData, ScrapedTicket $ticket): bool
     {
         $notification = [
@@ -165,6 +177,9 @@ class NotificationManager
     /**
      * Get notification statistics
      */
+    /**
+     * Get  statistics
+     */
     public function getStatistics(): array
     {
         return [
@@ -185,6 +200,9 @@ class NotificationManager
         ];
     }
 
+    /**
+     * InitializeChannels
+     */
     protected function initializeChannels(): void
     {
         $this->channels = [
@@ -197,6 +215,9 @@ class NotificationManager
 
     /**
      * Send notification to user through specified channels
+     */
+    /**
+     * SendNotification
      */
     protected function sendNotification(User $user, array $notification): bool
     {
@@ -256,6 +277,9 @@ class NotificationManager
     /**
      * Calculate notification priority based on type and context
      */
+    /**
+     * CalculatePriority
+     */
     protected function calculatePriority(string $type, array $context): int
     {
         $basePriority = match ($type) {
@@ -309,6 +333,9 @@ class NotificationManager
     /**
      * Get user's preferred notification channels for a type
      */
+    /**
+     * Get  user preferred channels
+     */
     protected function getUserPreferredChannels(User $user, string $type): array
     {
         // Get user preferences from cache or database
@@ -326,6 +353,9 @@ class NotificationManager
 
     /**
      * Check if user is rate limited for notification type
+     */
+    /**
+     * Check if  rate limited
      */
     protected function isRateLimited(User $user, string $type): bool
     {
@@ -350,6 +380,9 @@ class NotificationManager
     /**
      * Update rate limiting counter
      */
+    /**
+     * UpdateRateLimit
+     */
     protected function updateRateLimit(User $user, string $type): void
     {
         $limits = [
@@ -372,6 +405,9 @@ class NotificationManager
 
     /**
      * Store notification in database for history
+     */
+    /**
+     * StoreNotification
      */
     protected function storeNotification(User $user, array $notification): void
     {

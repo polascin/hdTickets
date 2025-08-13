@@ -15,12 +15,15 @@ final class SportEventCreated extends AbstractDomainEvent
         public SportCategory $category,
         public DateTimeImmutable $eventDate,
         public string $venue,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Create
+     */
     public static function create(
         EventId $eventId,
         string $name,
@@ -37,11 +40,17 @@ final class SportEventCreated extends AbstractDomainEvent
         );
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->eventId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'sport_event';
@@ -49,6 +58,9 @@ final class SportEventCreated extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -63,6 +75,9 @@ final class SportEventCreated extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

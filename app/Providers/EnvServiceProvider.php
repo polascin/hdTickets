@@ -9,6 +9,9 @@ class EnvServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Bind the 'env' service to the container
@@ -17,6 +20,9 @@ class EnvServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {

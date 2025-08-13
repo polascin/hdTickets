@@ -23,6 +23,9 @@ class RssFeedService
     /**
      * Parse RSS feed and extract event information
      */
+    /**
+     * ParseFeed
+     */
     public function parseFeed(string $feedUrl): array
     {
         try {
@@ -59,6 +62,9 @@ class RssFeedService
     /**
      * Process all configured RSS feeds
      */
+    /**
+     * ProcessAllFeeds
+     */
     public function processAllFeeds(): int
     {
         $totalEvents = 0;
@@ -89,6 +95,9 @@ class RssFeedService
 
     /**
      * Save events from RSS feed
+     */
+    /**
+     * SaveEventsFromFeed
      */
     protected function saveEventsFromFeed(array $events, string $category): int
     {
@@ -128,6 +137,9 @@ class RssFeedService
     /**
      * Parse event date from description (implement based on feed format)
      */
+    /**
+     * ParseEventDate
+     */
     protected function parseEventDate(string $description): ?string
     {
         // Implement date parsing logic based on your RSS feed format
@@ -141,6 +153,9 @@ class RssFeedService
 
     /**
      * Parse venue from description (implement based on feed format)
+     */
+    /**
+     * ParseVenue
      */
     protected function parseVenue(string $description): ?string
     {

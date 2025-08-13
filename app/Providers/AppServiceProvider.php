@@ -9,12 +9,18 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
     }
 
     /**
      * Bootstrap any application services.
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {

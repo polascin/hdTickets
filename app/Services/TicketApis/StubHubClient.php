@@ -22,6 +22,9 @@ class StubHubClient extends BaseWebScrapingClient
         $this->respectRateLimit('stubhub');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         // Try API first if credentials are available
@@ -41,6 +44,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Scrape StubHub search results
+     */
+    /**
+     * ScrapeSearchResults
      */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
@@ -62,6 +68,9 @@ class StubHubClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         // Try API first if available
@@ -83,6 +92,9 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * Scrape event details from URL
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -100,6 +112,9 @@ class StubHubClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         // StubHub doesn't have a direct venue API, we'll return basic info
@@ -113,6 +128,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Get available tickets with detailed pricing
+     */
+    /**
+     * Get  event tickets
      */
     public function getEventTickets(string $eventId, array $filters = []): array
     {
@@ -138,6 +156,9 @@ class StubHubClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         $headers = [
@@ -156,6 +177,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $headers;
     }
 
+    /**
+     * SearchEventsViaApi
+     */
     protected function searchEventsViaApi(array $criteria): array
     {
         $params = $this->buildApiSearchParams($criteria);
@@ -164,6 +188,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $response['events'] ?? [];
     }
 
+    /**
+     * BuildScrapingSearchUrl
+     */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
         $baseUrl = 'https://www.stubhub.com/secure/search';
@@ -193,6 +220,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Extract search results from HTML using Crawler
+     */
+    /**
+     * ExtractSearchResults
      */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
@@ -234,6 +264,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $events;
     }
 
+    /**
+     * ParseSearchResultsHtml
+     */
     protected function parseSearchResultsHtml(string $html): array
     {
         $crawler = new Crawler($html);
@@ -243,6 +276,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Extract event data from node using Crawler
+     */
+    /**
+     * ExtractEventFromNode
      */
     protected function extractEventFromNode(Crawler $node): array
     {
@@ -308,6 +344,11 @@ class StubHubClient extends BaseWebScrapingClient
         return $event;
     }
 
+    /**
+     * ParseEventCard
+     *
+     * @param mixed $eventNode
+     */
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
@@ -374,6 +415,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $event;
     }
 
+    /**
+     * Get  event via api
+     */
     protected function getEventViaApi(string $eventId): array
     {
         $endpoint = "events/{$eventId}";
@@ -381,6 +425,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $this->makeRequest('GET', $endpoint);
     }
 
+    /**
+     * Get  event via scraping
+     */
     protected function getEventViaScraping(string $eventId): array
     {
         try {
@@ -399,6 +446,9 @@ class StubHubClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * ParseEventDetailsHtml
+     */
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
         $event = [
@@ -458,6 +508,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $event;
     }
 
+    /**
+     * BuildApiSearchParams
+     */
     protected function buildApiSearchParams(array $criteria): array
     {
         $params = [];
@@ -484,6 +537,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $params;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -516,6 +572,9 @@ class StubHubClient extends BaseWebScrapingClient
         ];
     }
 
+    /**
+     * DetermineStatus
+     */
     protected function determineStatus(array $eventData): string
     {
         if (empty($eventData['prices']) && empty($eventData['ticket_count'])) {
@@ -529,6 +588,9 @@ class StubHubClient extends BaseWebScrapingClient
         return 'unknown';
     }
 
+    /**
+     * ExtractCity
+     */
     protected function extractCity(string $location): string
     {
         // Extract city from location string like "New York, NY" or "Los Angeles, CA"
@@ -539,6 +601,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $location ?: 'Unknown City';
     }
 
+    /**
+     * NormalizeUrl
+     */
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
         if (strpos($url, 'http') !== 0) {
@@ -548,6 +613,9 @@ class StubHubClient extends BaseWebScrapingClient
         return $url;
     }
 
+    /**
+     * ExtractEventIdFromUrl
+     */
     protected function extractEventIdFromUrl(string $url): ?string
     {
         if (preg_match('/\/event\/(\d+)/', $url, $matches)) {
@@ -557,6 +625,11 @@ class StubHubClient extends BaseWebScrapingClient
         return NULL;
     }
 
+    /**
+     * ExtractPriceRange
+     *
+     * @param mixed $event
+     */
     protected function extractPriceRange(array &$event, array $prices): void
     {
         if (empty($prices)) {
@@ -576,6 +649,9 @@ class StubHubClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * ParseEventDate
+     */
     protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
@@ -617,6 +693,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Extract detailed event information
+     */
+    /**
+     * ExtractEventDetails
      */
     protected function extractEventDetails(Crawler $crawler, string $url): array
     {
@@ -675,6 +754,9 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * Extract prices from page
      */
+    /**
+     * ExtractPrices
+     */
     protected function extractPrices(Crawler $crawler): array
     {
         $prices = [];
@@ -714,6 +796,9 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * Extract ticket classes from StubHub data
      */
+    /**
+     * ExtractTicketClasses
+     */
     protected function extractTicketClasses(array $eventData): array
     {
         $classes = [];
@@ -735,6 +820,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Extract zone information from StubHub data
+     */
+    /**
+     * ExtractZones
      */
     protected function extractZones(array $eventData): array
     {
@@ -758,6 +846,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Map sections for StubHub venue seating
+     */
+    /**
+     * MapSections
      */
     protected function mapSections(array $eventData): array
     {
@@ -783,6 +874,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Determine section type based on section name
+     */
+    /**
+     * DetermineSectionType
      */
     protected function determineSectionType(string $sectionName): string
     {
@@ -810,6 +904,9 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * Map internal status to standardized availability status
      */
+    /**
+     * MapAvailabilityStatus
+     */
     protected function mapAvailabilityStatus(string $internalStatus): string
     {
         $statusMap = [
@@ -827,6 +924,9 @@ class StubHubClient extends BaseWebScrapingClient
 
     /**
      * Determine country from location string
+     */
+    /**
+     * DetermineCountry
      */
     protected function determineCountry(string $location): string
     {

@@ -2,10 +2,35 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * User Subscription Model
+ *
+ * @property int         $id
+ * @property int         $user_id
+ * @property int         $payment_plan_id
+ * @property string      $status
+ * @property Carbon|null $starts_at
+ * @property Carbon|null $ends_at
+ * @property Carbon|null $trial_ends_at
+ * @property string|null $stripe_subscription_id
+ * @property string|null $stripe_customer_id
+ * @property float|null  $amount_paid
+ * @property string|null $payment_method
+ * @property array|null  $metadata
+ * @property Carbon      $created_at
+ * @property Carbon      $updated_at
+ * @property User        $user
+ * @property PaymentPlan $paymentPlan
+ * @property int|null    $days_remaining
+ * @property int|null    $trial_days_remaining
+ * @property string      $status_color
+ * @property string      $formatted_status
+ */
 class UserSubscription extends Model
 {
     use HasFactory;
@@ -24,16 +49,26 @@ class UserSubscription extends Model
         'metadata',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
-        'starts_at'     => 'datetime',
-        'ends_at'       => 'datetime',
-        'trial_ends_at' => 'datetime',
-        'amount_paid'   => 'decimal:2',
-        'metadata'      => 'array',
+        'starts_at'       => 'datetime',
+        'ends_at'         => 'datetime',
+        'trial_ends_at'   => 'datetime',
+        'amount_paid'     => 'decimal:2',
+        'user_id'         => 'integer',
+        'payment_plan_id' => 'integer',
+        'metadata'        => 'array',
     ];
 
     /**
      * Get the user that owns the subscription
+     */
+    /**
+     * User
      */
     public function user(): BelongsTo
     {
@@ -42,6 +77,9 @@ class UserSubscription extends Model
 
     /**
      * Get the payment plan for this subscription
+     */
+    /**
+     * PaymentPlan
      */
     public function paymentPlan(): BelongsTo
     {
@@ -53,7 +91,12 @@ class UserSubscription extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'active')
             ->where(function ($q): void {
@@ -93,6 +136,9 @@ class UserSubscription extends Model
     /**
      * Check if subscription is active
      */
+    /**
+     * Check if  active
+     */
     public function isActive(): bool
     {
         if ($this->status !== 'active') {
@@ -104,6 +150,9 @@ class UserSubscription extends Model
 
     /**
      * Check if subscription is on trial
+     */
+    /**
+     * Check if  on trial
      */
     public function isOnTrial(): bool
     {
@@ -117,6 +166,9 @@ class UserSubscription extends Model
     /**
      * Check if trial has expired
      */
+    /**
+     * Check if  trial expired
+     */
     public function isTrialExpired(): bool
     {
         return $this->trial_ends_at && $this->trial_ends_at->isPast();
@@ -125,6 +177,9 @@ class UserSubscription extends Model
     /**
      * Check if subscription has expired
      */
+    /**
+     * Check if  expired
+     */
     public function isExpired(): bool
     {
         return $this->ends_at && $this->ends_at->isPast();
@@ -132,6 +187,9 @@ class UserSubscription extends Model
 
     /**
      * Get days remaining in subscription
+     */
+    /**
+     * Get  days remaining attribute
      */
     public function getDaysRemainingAttribute(): ?int
     {
@@ -147,6 +205,9 @@ class UserSubscription extends Model
     /**
      * Get trial days remaining
      */
+    /**
+     * Get  trial days remaining attribute
+     */
     public function getTrialDaysRemainingAttribute(): ?int
     {
         if (! $this->trial_ends_at) {
@@ -161,6 +222,9 @@ class UserSubscription extends Model
     /**
      * Cancel the subscription
      */
+    /**
+     * Check if can cel
+     */
     public function cancel(): bool
     {
         $this->status = 'cancelled';
@@ -170,6 +234,9 @@ class UserSubscription extends Model
 
     /**
      * Expire the subscription
+     */
+    /**
+     * Expire
      */
     public function expire(): bool
     {
@@ -181,6 +248,9 @@ class UserSubscription extends Model
 
     /**
      * Activate the subscription
+     */
+    /**
+     * Activate
      */
     public function activate(): bool
     {
@@ -215,6 +285,9 @@ class UserSubscription extends Model
     /**
      * Start trial period
      */
+    /**
+     * StartTrial
+     */
     public function startTrial(int $days = 14): bool
     {
         $this->status = 'trial';
@@ -226,6 +299,9 @@ class UserSubscription extends Model
 
     /**
      * Get subscription status badge color
+     */
+    /**
+     * Get  status color attribute
      */
     public function getStatusColorAttribute(): string
     {
@@ -241,6 +317,9 @@ class UserSubscription extends Model
 
     /**
      * Get formatted status for display
+     */
+    /**
+     * Get  formatted status attribute
      */
     public function getFormattedStatusAttribute(): string
     {

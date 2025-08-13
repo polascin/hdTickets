@@ -12,6 +12,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Real Madrid CF';
@@ -26,6 +29,9 @@ class Real_madridPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -42,6 +48,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -56,6 +65,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/entradas';
@@ -63,6 +75,9 @@ class Real_madridPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -92,6 +107,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Map competition names to Spanish equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -107,6 +125,9 @@ class Real_madridPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -154,6 +175,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (Spanish)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.titulo-partido, .match-title, .event-title, .titulo-evento, .nombre-partido, h3, h2, .title, .titulo';
@@ -161,6 +185,9 @@ class Real_madridPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (Spanish)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -170,6 +197,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (Spanish)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.estadio, .venue, .location, .lugar, .sede';
@@ -178,6 +208,9 @@ class Real_madridPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (Spanish)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.precio, .price, .coste, .cost, .desde, .from, .precio-entrada, .precio-ticket';
@@ -185,6 +218,9 @@ class Real_madridPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (Spanish)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

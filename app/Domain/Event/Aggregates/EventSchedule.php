@@ -24,6 +24,9 @@ class EventSchedule
     ) {
     }
 
+    /**
+     * AddEvent
+     */
     public function addEvent(SportsEvent $event): void
     {
         $eventId = $event->getId()->value();
@@ -40,6 +43,9 @@ class EventSchedule
         );
     }
 
+    /**
+     * RemoveEvent
+     */
     public function removeEvent(EventId $eventId): void
     {
         $id = $eventId->value();
@@ -55,6 +61,9 @@ class EventSchedule
         );
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(EventId $eventId): ?SportsEvent
     {
         return $this->events[$eventId->value()] ?? NULL;
@@ -63,6 +72,9 @@ class EventSchedule
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * Get  all events
+     */
     public function getAllEvents(): array
     {
         return array_values($this->events);
@@ -70,6 +82,9 @@ class EventSchedule
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * Get  events by category
      */
     public function getEventsByCategory(SportCategory $category): array
     {
@@ -82,6 +97,9 @@ class EventSchedule
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * Get  upcoming events
+     */
     public function getUpcomingEvents(): array
     {
         return array_filter(
@@ -93,6 +111,9 @@ class EventSchedule
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * Get  high demand events
+     */
     public function getHighDemandEvents(): array
     {
         return array_filter(
@@ -101,6 +122,9 @@ class EventSchedule
         );
     }
 
+    /**
+     * Check if has  conflicts
+     */
     public function hasConflicts(): bool
     {
         $eventTimes = [];
@@ -122,6 +146,9 @@ class EventSchedule
     /**
      * @return array<int, array{0: SportsEvent, 1: SportsEvent}>
      */
+    /**
+     * Get  conflicting events
+     */
     public function getConflictingEvents(): array
     {
         $conflicts = [];
@@ -141,21 +168,33 @@ class EventSchedule
         return $conflicts;
     }
 
+    /**
+     * Get  schedule date
+     */
     public function getScheduleDate(): DateTimeImmutable
     {
         return $this->scheduleDate;
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(): ?string
     {
         return $this->venue;
     }
 
+    /**
+     * Get  event count
+     */
     public function getEventCount(): int
     {
         return count($this->events);
     }
 
+    /**
+     * Check if  empty
+     */
     public function isEmpty(): bool
     {
         return empty($this->events);
@@ -164,16 +203,25 @@ class EventSchedule
     /**
      * @return array<int, object>
      */
+    /**
+     * Get  domain events
+     */
     public function getDomainEvents(): array
     {
         return $this->domainEvents;
     }
 
+    /**
+     * ClearDomainEvents
+     */
     public function clearDomainEvents(): void
     {
         $this->domainEvents = [];
     }
 
+    /**
+     * ValidateEventDate
+     */
     private function validateEventDate(SportsEvent $event): void
     {
         $eventDate = $event->getEventDate()->value();
@@ -185,6 +233,9 @@ class EventSchedule
         }
     }
 
+    /**
+     * RecordDomainEvent
+     */
     private function recordDomainEvent(object $event): void
     {
         $this->domainEvents[] = $event;

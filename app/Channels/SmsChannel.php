@@ -19,6 +19,11 @@ class SmsChannel
      *
      * @return array<string, mixed>|null
      */
+    /**
+     * Send
+     *
+     * @param mixed $notifiable
+     */
     public function send($notifiable, Notification $notification): ?array
     {
         // Get the phone number - check multiple possible attributes
@@ -69,6 +74,11 @@ class SmsChannel
      *
      * @param mixed $notifiable
      */
+    /**
+     * Get  phone number
+     *
+     * @param mixed $notifiable
+     */
     protected function getPhoneNumber($notifiable): ?string
     {
         // Try different common phone number attribute names
@@ -85,6 +95,9 @@ class SmsChannel
 
     /**
      * Format phone number to E.164 standard.
+     */
+    /**
+     * FormatPhoneNumber
      */
     protected function formatPhoneNumber(string $phone): string
     {
@@ -109,6 +122,11 @@ class SmsChannel
      * @param mixed $notifiable
      *
      * @return array<string, mixed>
+     */
+    /**
+     * SendSms
+     *
+     * @param mixed $notifiable
      */
     protected function sendSms(string $phone, string $message, $notifiable): array
     {
@@ -136,6 +154,9 @@ class SmsChannel
      * Send SMS via Twilio.
      *
      * @return array<string, mixed>
+     */
+    /**
+     * SendViaTwilio
      */
     protected function sendViaTwilio(string $phone, string $message): array
     {
@@ -176,6 +197,9 @@ class SmsChannel
      *
      * @return array<string, mixed>
      */
+    /**
+     * SendViaNexmo
+     */
     protected function sendViaNexmo(string $phone, string $message): array
     {
         $apiKey = config('services.nexmo.key');
@@ -215,6 +239,11 @@ class SmsChannel
      * @param mixed $notifiable
      *
      * @return array<string, mixed>
+     */
+    /**
+     * SendViaLog
+     *
+     * @param mixed $notifiable
      */
     protected function sendViaLog(string $phone, string $message, $notifiable): array
     {

@@ -19,7 +19,10 @@ class ScraperDashboardController extends Controller
     /**
      * Display the scraper dashboard for sports events ticket monitoring
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $user = Auth::user();
 
@@ -60,7 +63,10 @@ class ScraperDashboardController extends Controller
     /**
      * API endpoint to get real-time scraping metrics
      */
-    public function getRealtimeMetrics(Request $request)
+    /**
+     * Get  realtime metrics
+     */
+    public function getRealtimeMetrics(Request $request): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
 
@@ -93,7 +99,12 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $jobId
      */
-    public function getJobDetails(Request $request, $jobId)
+    /**
+     * Get  job details
+     *
+     * @param mixed $jobId
+     */
+    public function getJobDetails(Request $request, $jobId): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
 
@@ -124,7 +135,7 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getScraperMetrics($user)
+    private function getScraperMetrics(App\Models\User $user)
     {
         try {
             return [
@@ -149,7 +160,12 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getScrapingJobData($user)
+    /**
+     * Get  scraping job data
+     *
+     * @return array<string, mixed>
+     */
+    private function getScrapingJobData(App\Models\User $user): array
     {
         try {
             return [
@@ -170,7 +186,12 @@ class ScraperDashboardController extends Controller
     /**
      * Get platform monitoring data
      */
-    private function getPlatformMonitoringData()
+    /**
+     * Get  platform monitoring data
+     *
+     * @return array<string, mixed>
+     */
+    private function getPlatformMonitoringData(): array
     {
         try {
             return [
@@ -192,7 +213,12 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getPerformanceData($user)
+    /**
+     * Get  performance data
+     *
+     * @return array<string, mixed>
+     */
+    private function getPerformanceData(App\Models\User $user): array
     {
         try {
             return [
@@ -213,7 +239,7 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getRecentScrapingActivity($user)
+    private function getRecentScrapingActivity(App\Models\User $user)
     {
         $activities = [];
 
@@ -285,7 +311,7 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getScrapingStatistics($user)
+    private function getScrapingStatistics(App\Models\User $user)
     {
         try {
             return [
@@ -303,7 +329,7 @@ class ScraperDashboardController extends Controller
 
     // Helper methods for metrics calculation
 
-    private function getTicketsScrapedToday($user)
+    private function getTicketsScrapedToday(App\Models\User $user)
     {
         try {
             if (Schema::hasTable('scraped_tickets')) {
@@ -319,7 +345,7 @@ class ScraperDashboardController extends Controller
         }
     }
 
-    private function getActiveScrapingJobs($user)
+    private function getActiveScrapingJobs(App\Models\User $user)
     {
         try {
             if (Schema::hasTable('scraping_jobs')) {
@@ -335,7 +361,7 @@ class ScraperDashboardController extends Controller
         }
     }
 
-    private function getSuccessfulScrapesToday($user)
+    private function getSuccessfulScrapesToday(App\Models\User $user)
     {
         try {
             if (Schema::hasTable('scraping_logs')) {
@@ -352,32 +378,41 @@ class ScraperDashboardController extends Controller
         }
     }
 
-    private function getPlatformsMonitored($user)
+    private function getPlatformsMonitored(App\Models\User $user)
     {
         return ['Ticketmaster', 'StubHub', 'Vivid Seats', 'Viagogo', 'SeatGeek'];
     }
 
-    private function getAverageScrapeTime($user)
+    /**
+     * Get  average scrape time
+     */
+    private function getAverageScrapeTime(): float
     {
         return rand(2, 8) . '.' . rand(10, 99) . 's';
     }
 
-    private function getScraperSuccessRate($user)
+    /**
+     * Get  scraper success rate
+     */
+    private function getScraperSuccessRate(App\Models\User $user): float
     {
         return rand(88, 98) . '%';
     }
 
-    private function getDataQualityScore($user)
+    /**
+     * Get  data quality score
+     */
+    private function getDataQualityScore(): Illuminate\Http\JsonResponse
     {
         return rand(92, 99);
     }
 
-    private function getProxyRotationHealth($user)
+    private function getProxyRotationHealth(App\Models\User $user)
     {
         return ['status' => 'healthy', 'active_proxies' => rand(8, 15), 'rotation_rate' => rand(85, 95) . '%'];
     }
 
-    private function getActiveJobs($user)
+    private function getActiveJobs(App\Models\User $user)
     {
         return [
             ['platform' => 'Ticketmaster', 'event_type' => 'Sports Events', 'status' => 'running', 'progress' => rand(20, 80)],
@@ -386,17 +421,17 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getQueuedJobs($user)
+    private function getQueuedJobs(App\Models\User $user)
     {
         return rand(3, 12);
     }
 
-    private function getCompletedJobsToday($user)
+    private function getCompletedJobsToday(App\Models\User $user)
     {
         return rand(15, 35);
     }
 
-    private function getFailedJobsToday($user)
+    private function getFailedJobsToday(App\Models\User $user)
     {
         return rand(0, 5);
     }
@@ -406,7 +441,7 @@ class ScraperDashboardController extends Controller
         return ['status' => 'healthy', 'queue_size' => rand(5, 20), 'processing_rate' => rand(85, 98) . '%'];
     }
 
-    private function getUpcomingSchedules($user)
+    private function getUpcomingSchedules(App\Models\User $user)
     {
         return [
             ['platform' => 'Ticketmaster', 'next_run' => Carbon::now()->addMinutes(rand(10, 60)), 'frequency' => 'Every 30 minutes'],
@@ -414,7 +449,10 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getPlatformStatus()
+    /**
+     * Get  platform status
+     */
+    private function getPlatformStatus(): string
     {
         return [
             'ticketmaster' => ['status' => 'online', 'response_time' => rand(150, 300) . 'ms', 'success_rate' => rand(92, 98) . '%'],
@@ -444,7 +482,10 @@ class ScraperDashboardController extends Controller
         return $times;
     }
 
-    private function getRateLimits()
+    /**
+     * Get  rate limits
+     */
+    private function getRateLimits(): float
     {
         return [
             'ticketmaster' => ['limit' => 1000, 'used' => rand(200, 800), 'reset_time' => Carbon::now()->addHour()],
@@ -468,7 +509,10 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getAntiDetectionStatus()
+    /**
+     * Get  anti detection status
+     */
+    private function getAntiDetectionStatus(): string
     {
         return [
             'user_agent_rotation' => ['status' => 'active', 'pool_size' => rand(50, 100)],
@@ -494,7 +538,12 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultJobData()
+    /**
+     * Get  default job data
+     *
+     * @return array<string, mixed>
+     */
+    private function getDefaultJobData(): array
     {
         return [
             'active_jobs'          => [],
@@ -506,7 +555,12 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultPlatformData()
+    /**
+     * Get  default platform data
+     *
+     * @return array<string, mixed>
+     */
+    private function getDefaultPlatformData(): array
     {
         return [
             'platform_status'       => [],
@@ -517,7 +571,12 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultPerformanceData()
+    /**
+     * Get  default performance data
+     *
+     * @return array<string, mixed>
+     */
+    private function getDefaultPerformanceData(): array
     {
         return [
             'hourly_performance' => [],
@@ -527,7 +586,7 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultActivity($user)
+    private function getDefaultActivity(App\Models\User $user)
     {
         return [
             [
@@ -542,7 +601,12 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultStats()
+    /**
+     * Get  default stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getDefaultStats(): array
     {
         return [
             'daily_stats'    => [],
@@ -554,7 +618,7 @@ class ScraperDashboardController extends Controller
 
     // Additional helper methods for comprehensive data
 
-    private function getHourlyPerformance($user)
+    private function getHourlyPerformance(App\Models\User $user)
     {
         $data = [];
         for ($i = 23; $i >= 0; $i--) {
@@ -570,7 +634,7 @@ class ScraperDashboardController extends Controller
         return $data;
     }
 
-    private function getPlatformBreakdown($user)
+    private function getPlatformBreakdown(App\Models\User $user)
     {
         return [
             'ticketmaster' => ['tickets' => rand(100, 300), 'success_rate' => rand(90, 98), 'avg_response' => rand(150, 300)],
@@ -580,7 +644,7 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getErrorAnalysis($user)
+    private function getErrorAnalysis(App\Models\User $user)
     {
         return [
             'connection_errors' => rand(2, 10),
@@ -591,7 +655,10 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDataFreshness($user)
+    /**
+     * Get  data freshness
+     */
+    private function getDataFreshness(): Illuminate\Http\JsonResponse
     {
         return [
             'average_age'     => rand(5, 30) . ' minutes',
@@ -600,7 +667,12 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDailyStats($user)
+    /**
+     * Get  daily stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getDailyStats(App\Models\User $user): array
     {
         $data = [];
         for ($i = 29; $i >= 0; $i--) {
@@ -616,7 +688,12 @@ class ScraperDashboardController extends Controller
         return $data;
     }
 
-    private function getWeeklyStats($user)
+    /**
+     * Get  weekly stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getWeeklyStats(App\Models\User $user): array
     {
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -632,7 +709,12 @@ class ScraperDashboardController extends Controller
         return $data;
     }
 
-    private function getMonthlyStats($user)
+    /**
+     * Get  monthly stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getMonthlyStats(App\Models\User $user): array
     {
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -648,7 +730,12 @@ class ScraperDashboardController extends Controller
         return $data;
     }
 
-    private function getPlatformStats($user)
+    /**
+     * Get  platform stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getPlatformStats(App\Models\User $user): array
     {
         return [
             'ticketmaster' => ['total_scraped' => rand(5000, 15000), 'success_rate' => rand(90, 98)],

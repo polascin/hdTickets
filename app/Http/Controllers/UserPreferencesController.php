@@ -31,7 +31,10 @@ class UserPreferencesController extends Controller
     /**
      * Display the user preferences page
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $user = auth()->user();
         $preferences = $this->getUserPreferences($user);
@@ -52,6 +55,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update user preferences via AJAX
+     */
+    /**
+     * Update
      */
     public function update(Request $request): JsonResponse
     {
@@ -114,6 +120,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update single preference via AJAX
+     */
+    /**
+     * UpdateSingle
      */
     public function updateSingle(Request $request): JsonResponse
     {
@@ -194,6 +203,9 @@ class UserPreferencesController extends Controller
     /**
      * Auto-detect user timezone
      */
+    /**
+     * DetectTimezone
+     */
     public function detectTimezone(Request $request): JsonResponse
     {
         $timezone = $request->input('timezone');
@@ -227,6 +239,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Reset preferences to defaults
+     */
+    /**
+     * Reset
      */
     public function reset(Request $request): JsonResponse
     {
@@ -272,6 +287,9 @@ class UserPreferencesController extends Controller
     /**
      * Export user preferences
      */
+    /**
+     * Export
+     */
     public function export(Request $request): JsonResponse
     {
         $user = auth()->user();
@@ -287,6 +305,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Import user preferences
+     */
+    /**
+     * Import
      */
     public function import(Request $request): JsonResponse
     {
@@ -332,6 +353,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update a single preference using new structure (AJAX)
+     */
+    /**
+     * UpdatePreference
      */
     public function updatePreference(Request $request): JsonResponse
     {
@@ -406,6 +430,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update multiple preferences at once
+     */
+    /**
+     * UpdatePreferences
      */
     public function updatePreferences(Request $request): JsonResponse
     {
@@ -496,6 +523,9 @@ class UserPreferencesController extends Controller
     /**
      * Export user preferences as JSON (enhanced version)
      */
+    /**
+     * ExportPreferences
+     */
     public function exportPreferences(): JsonResponse
     {
         try {
@@ -538,6 +568,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Reset preferences to defaults (enhanced version)
+     */
+    /**
+     * ResetPreferences
      */
     public function resetPreferences(Request $request): JsonResponse
     {
@@ -596,6 +629,11 @@ class UserPreferencesController extends Controller
 
     /**
      * Load a preference preset
+     *
+     * @param mixed $presetId
+     */
+    /**
+     * LoadPreset
      *
      * @param mixed $presetId
      */
@@ -694,6 +732,9 @@ class UserPreferencesController extends Controller
     /**
      * Add favorite team
      */
+    /**
+     * AddFavoriteTeam
+     */
     public function addFavoriteTeam(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -750,6 +791,9 @@ class UserPreferencesController extends Controller
     /**
      * Remove favorite team
      */
+    /**
+     * RemoveFavoriteTeam
+     */
     public function removeFavoriteTeam(Request $request, int $teamId): JsonResponse
     {
         try {
@@ -787,6 +831,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Add favorite venue
+     */
+    /**
+     * AddFavoriteVenue
      */
     public function addFavoriteVenue(Request $request): JsonResponse
     {
@@ -848,6 +895,9 @@ class UserPreferencesController extends Controller
     /**
      * Remove favorite venue
      */
+    /**
+     * RemoveFavoriteVenue
+     */
     public function removeFavoriteVenue(Request $request, int $venueId): JsonResponse
     {
         try {
@@ -885,6 +935,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Add price preference
+     */
+    /**
+     * AddPricePreference
      */
     public function addPricePreference(Request $request): JsonResponse
     {
@@ -963,6 +1016,9 @@ class UserPreferencesController extends Controller
     /**
      * Remove price preference
      */
+    /**
+     * RemovePricePreference
+     */
     public function removePricePreference(Request $request, int $preferenceId): JsonResponse
     {
         try {
@@ -1000,6 +1056,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get user's sports preferences data
+     */
+    /**
+     * Get  sports preferences
      */
     public function getSportsPreferences(): JsonResponse
     {
@@ -1048,6 +1107,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Search teams for autocomplete
+     */
+    /**
+     * SearchTeams
      */
     public function searchTeams(Request $request): JsonResponse
     {
@@ -1102,6 +1164,9 @@ class UserPreferencesController extends Controller
     /**
      * Search venues for autocomplete
      */
+    /**
+     * SearchVenues
+     */
     public function searchVenues(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -1154,6 +1219,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update notification settings for a team/venue/price preference
+     */
+    /**
+     * UpdateNotificationSettings
      */
     public function updateNotificationSettings(Request $request): JsonResponse
     {
@@ -1228,6 +1296,9 @@ class UserPreferencesController extends Controller
     /**
      * Get user preferences with defaults
      */
+    /**
+     * Get  user preferences
+     */
     private function getUserPreferences(User $user): array
     {
         $cacheKey = "user_preferences_{$user->id}";
@@ -1258,6 +1329,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get default preferences structure
+     */
+    /**
+     * Get  default preferences
      */
     private function getDefaultPreferences(): array
     {
@@ -1311,6 +1385,11 @@ class UserPreferencesController extends Controller
      *
      * @param mixed $value
      */
+    /**
+     * ValidatePreference
+     *
+     * @param mixed $value
+     */
     private function validatePreference(string $key, $value): bool
     {
         switch ($key) {
@@ -1343,6 +1422,11 @@ class UserPreferencesController extends Controller
      *
      * @param mixed $value
      */
+    /**
+     * ValidateNestedPreference
+     *
+     * @param mixed $value
+     */
     private function validateNestedPreference(string $key, $value): bool
     {
         $parts = explode('.', $key);
@@ -1362,6 +1446,9 @@ class UserPreferencesController extends Controller
     /**
      * Check if key is a user profile field
      */
+    /**
+     * Check if  user profile field
+     */
     private function isUserProfileField(string $key): bool
     {
         return in_array($key, ['timezone', 'language'], TRUE);
@@ -1369,6 +1456,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Check if key is a notification channel
+     */
+    /**
+     * Check if  notification channel
      */
     private function isNotificationChannel(string $key): bool
     {
@@ -1380,6 +1470,11 @@ class UserPreferencesController extends Controller
      *
      * @param mixed $value
      */
+    /**
+     * UpdateUserProfile
+     *
+     * @param mixed $value
+     */
     private function updateUserProfile(User $user, string $key, $value): void
     {
         $user->update([$key => $value]);
@@ -1387,6 +1482,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Update notification channel setting
+     */
+    /**
+     * UpdateNotificationChannel
      */
     private function updateNotificationChannel(User $user, string $channel, bool $enabled): void
     {
@@ -1398,6 +1496,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get available timezones
+     */
+    /**
+     * Get  timezones
      */
     private function getTimezones(): array
     {
@@ -1411,6 +1512,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get timezone display name
+     */
+    /**
+     * Get  timezone display name
      */
     private function getTimezoneDisplayName(string $timezone): string
     {
@@ -1429,6 +1533,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get available languages
+     */
+    /**
+     * Get  languages
      */
     private function getLanguages(): array
     {
@@ -1449,6 +1556,9 @@ class UserPreferencesController extends Controller
 
     /**
      * Get available themes
+     */
+    /**
+     * Get  themes
      */
     private function getThemes(): array
     {

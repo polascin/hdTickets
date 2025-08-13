@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
-
+use Exception;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 return new class() extends Migration {
@@ -96,10 +97,24 @@ return new class() extends Migration {
     {
         // Scraped tickets composite indexes
         Schema::table('scraped_tickets', function (Blueprint $table): void {
-            // Event search patterns
-            $table->index(['platform', 'event_date', 'is_available'], 'idx_platform_date_available');
-            $table->index(['sport', 'event_date', 'venue_id'], 'idx_sport_date_venue');
-            $table->index(['home_team_id', 'away_team_id', 'event_date'], 'idx_teams_date');
+            // Event search patterns - check if index exists before adding
+            try {
+                $table->index(['platform', 'event_date', 'is_available'], 'idx_platform_date_available');
+            } catch (Exception $e) {
+                // Index might already exist
+            }
+
+            try {
+                $table->index(['sport', 'event_date', 'venue_id'], 'idx_sport_date_venue');
+            } catch (Exception $e) {
+                // Index might already exist
+            }
+
+            try {
+                $table->index(['home_team_id', 'away_team_id', 'event_date'], 'idx_teams_date');
+            } catch (Exception $e) {
+                // Index might already exist
+            }
 
             // Price analysis patterns
             $table->index(['is_available', 'min_price', 'max_price'], 'idx_available_price_range');

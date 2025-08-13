@@ -33,6 +33,9 @@ class MultiPlatformManager
     /**
      * Search events across all enabled platforms.
      */
+    /**
+     * SearchEventsAcrossPlatforms
+     */
     public function searchEventsAcrossPlatforms(string $keyword, string $location = '', int $maxResults = 50): array
     {
         $allResults = [];
@@ -89,6 +92,9 @@ class MultiPlatformManager
     /**
      * Get detailed event information across platforms.
      */
+    /**
+     * Get  event details across platforms
+     */
     public function getEventDetailsAcrossPlatforms(array $eventUrls): array
     {
         $eventDetails = [];
@@ -127,6 +133,9 @@ class MultiPlatformManager
     /**
      * Get available platforms and their status.
      */
+    /**
+     * Get  platforms status
+     */
     public function getPlatformsStatus(): array
     {
         $status = [];
@@ -146,6 +155,9 @@ class MultiPlatformManager
 
     /**
      * Deduplicate events across platforms.
+     */
+    /**
+     * DeduplicateEvents
      */
     public function deduplicateEvents(array $events, float $similarityThreshold = 0.8): array
     {
@@ -188,6 +200,9 @@ class MultiPlatformManager
     /**
      * Get aggregated statistics from all platforms.
      */
+    /**
+     * Get  aggregated statistics
+     */
     public function getAggregatedStatistics(): array
     {
         $stats = [
@@ -225,6 +240,9 @@ class MultiPlatformManager
 
     /**
      * Perform health check on all platforms.
+     */
+    /**
+     * PerformHealthCheck
      */
     public function performHealthCheck(): array
     {
@@ -276,6 +294,9 @@ class MultiPlatformManager
     /**
      * Configure platform-specific settings.
      */
+    /**
+     * ConfigurePlatform
+     */
     public function configurePlatform(string $platformName, array $config): bool
     {
         if (! isset($this->platformClients[$platformName])) {
@@ -300,6 +321,9 @@ class MultiPlatformManager
 
     /**
      * Initialize platform clients with default configurations.
+     */
+    /**
+     * InitializePlatformClients
      */
     protected function initializePlatformClients(): void
     {
@@ -332,6 +356,11 @@ class MultiPlatformManager
      *
      * @param mixed $client
      */
+    /**
+     * SearchOnPlatform
+     *
+     * @param mixed $client
+     */
     protected function searchOnPlatform(string $platformName, $client, string $keyword, string $location, int $maxResults): array
     {
         // Use the scraping method if available
@@ -355,6 +384,9 @@ class MultiPlatformManager
 
     /**
      * Detect platform from URL.
+     */
+    /**
+     * DetectPlatformFromUrl
      */
     protected function detectPlatformFromUrl(string $url): ?string
     {
@@ -381,6 +413,9 @@ class MultiPlatformManager
 
     /**
      * Get display name for platform.
+     */
+    /**
+     * Get  platform display name
      */
     protected function getPlatformDisplayName(string $platform): string
     {

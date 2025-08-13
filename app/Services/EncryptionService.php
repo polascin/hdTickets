@@ -54,6 +54,11 @@ class EncryptionService
      *
      * @return string|null Encrypted value or null if encryption fails
      */
+    /**
+     * Encrypt
+     *
+     * @param mixed $value
+     */
     public function encrypt($value, bool $serialize = FALSE): ?string
     {
         if ($value === NULL || $value === '') {
@@ -114,10 +119,13 @@ class EncryptionService
     /**
      * Encrypt an array of sensitive data
      *
-     * @param array $data            Array of data to encrypt
-     * @param array $fieldsToEncrypt Specific fields to encrypt (optional)
+     * @param array<string, mixed> $data            Array of data to encrypt
+     * @param array<string, mixed> $fieldsToEncrypt Specific fields to encrypt (optional)
      *
      * @return array Array with encrypted sensitive fields
+     */
+    /**
+     * EncryptArray
      */
     public function encryptArray(array $data, ?array $fieldsToEncrypt = NULL): array
     {
@@ -136,10 +144,13 @@ class EncryptionService
     /**
      * Decrypt an array of encrypted data
      *
-     * @param array $encryptedData   Array with encrypted fields
-     * @param array $fieldsToDecrypt Specific fields to decrypt (optional)
+     * @param array<string, mixed> $encryptedData   Array with encrypted fields
+     * @param array<string, mixed> $fieldsToDecrypt Specific fields to decrypt (optional)
      *
      * @return array Array with decrypted fields
+     */
+    /**
+     * DecryptArray
      */
     public function decryptArray(array $encryptedData, ?array $fieldsToDecrypt = NULL): array
     {
@@ -158,6 +169,9 @@ class EncryptionService
     /**
      * Check if a field is considered sensitive
      */
+    /**
+     * Check if  sensitive field
+     */
     public function isSensitiveField(string $fieldName): bool
     {
         return in_array($fieldName, self::SENSITIVE_FIELDS, TRUE);
@@ -168,6 +182,9 @@ class EncryptionService
      *
      * @return string Encrypted JSON string
      */
+    /**
+     * EncryptJsonData
+     */
     public function encryptJsonData(array $jsonData): ?string
     {
         return $this->encrypt($jsonData, TRUE);
@@ -175,6 +192,9 @@ class EncryptionService
 
     /**
      * Decrypt JSON data and restore structure
+     */
+    /**
+     * DecryptJsonData
      */
     public function decryptJsonData(?string $encryptedJson): ?array
     {
@@ -186,6 +206,9 @@ class EncryptionService
     /**
      * Generate a secure hash for sensitive data (for indexing/searching)
      * This creates a searchable hash without exposing the original data
+     */
+    /**
+     * GenerateSearchableHash
      */
     public function generateSearchableHash(string $value): string
     {
@@ -199,6 +222,9 @@ class EncryptionService
      * @param string $oldKey (if different from current)
      *
      * @return string|null Re-encrypted value with current key
+     */
+    /**
+     * RotateEncryption
      */
     public function rotateEncryption(string $oldEncryptedValue, ?string $oldKey = NULL): ?string
     {

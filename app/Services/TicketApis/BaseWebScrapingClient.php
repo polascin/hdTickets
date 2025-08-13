@@ -59,6 +59,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Set proxy configuration
      */
+    /**
+     * Set  proxy config
+     */
     public function setProxyConfig(array $proxyConfig): void
     {
         $this->proxyConfig = $proxyConfig;
@@ -66,6 +69,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Set custom delay range
+     */
+    /**
+     * Set  delay range
      */
     public function setDelayRange(float $minDelay, float $maxDelay): void
     {
@@ -75,6 +81,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Override the fallback method to implement scraping
+     */
+    /**
+     * FallbackToScraping
      */
     public function fallbackToScraping(array $criteria): array
     {
@@ -120,6 +129,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Get the base URL for the platform
      */
+    /**
+     * Get  base url
+     */
     public function getBaseUrl(): ?string
     {
         return $this->baseUrl;
@@ -133,6 +145,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Make HTTP request with enhanced anti-detection measures and error handling
+     */
+    /**
+     * MakeScrapingRequest
      */
     protected function makeScrapingRequest(string $url, array $options = []): string
     {
@@ -201,6 +216,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Enforce random delay between requests
      */
+    /**
+     * EnforceDelay
+     */
     protected function enforceDelay(): void
     {
         $now = microtime(TRUE);
@@ -218,6 +236,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Build anti-detection headers
+     */
+    /**
+     * BuildAntiDetectionHeaders
      */
     protected function buildAntiDetectionHeaders(array $options = []): array
     {
@@ -253,6 +274,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Get random User-Agent from rotation array
      */
+    /**
+     * Get  random user agent
+     */
     protected function getRandomUserAgent(): string
     {
         return $this->userAgents[array_rand($this->userAgents)];
@@ -260,6 +284,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Get request options for HTTP client
+     */
+    /**
+     * Get  request options
      */
     protected function getRequestOptions(): array
     {
@@ -280,6 +307,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Update request statistics
      */
+    /**
+     * UpdateRequestStats
+     */
     protected function updateRequestStats(): void
     {
         $this->requestCount++;
@@ -296,6 +326,11 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      *
      * @param mixed $response
      */
+    /**
+     * UpdateSession
+     *
+     * @param mixed $response
+     */
     protected function updateSession($response): void
     {
         // Extract and store cookies for session management
@@ -308,6 +343,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Try multiple selectors and return first match
+     */
+    /**
+     * TrySelectors
      */
     protected function trySelectors(Crawler $crawler, array $selectors, ?string $attribute = NULL): string
     {
@@ -327,6 +365,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Extract JSON-LD structured data
+     */
+    /**
+     * ExtractJsonLdData
      */
     protected function extractJsonLdData(Crawler $crawler, ?string $type = NULL): array
     {
@@ -364,6 +405,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Dynamic selector detection - analyze page structure
      */
+    /**
+     * DetectSelectors
+     */
     protected function detectSelectors(Crawler $crawler, string $contentType = 'event'): array
     {
         $selectors = [];
@@ -400,6 +444,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Detect event-related selectors
      */
+    /**
+     * DetectEventSelectors
+     */
     protected function detectEventSelectors(Crawler $crawler): array
     {
         $selectors = [];
@@ -426,6 +473,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Detect price-related selectors
      */
+    /**
+     * DetectPriceSelectors
+     */
     protected function detectPriceSelectors(Crawler $crawler): array
     {
         $selectors = [];
@@ -448,6 +498,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Detect date-related selectors
+     */
+    /**
+     * DetectDateSelectors
      */
     protected function detectDateSelectors(Crawler $crawler): array
     {
@@ -481,6 +534,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Detect venue-related selectors
      */
+    /**
+     * DetectVenueSelectors
+     */
     protected function detectVenueSelectors(Crawler $crawler): array
     {
         $selectors = [];
@@ -503,6 +559,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Extract price information with multiple fallback strategies
+     */
+    /**
+     * ExtractPriceWithFallbacks
      */
     protected function extractPriceWithFallbacks(Crawler $crawler): array
     {
@@ -558,6 +617,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Map currency symbol to currency code
      */
+    /**
+     * MapCurrencySymbol
+     */
     protected function mapCurrencySymbol(string $symbol): string
     {
         $map = [
@@ -572,6 +634,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Parse event date with multiple format support
+     */
+    /**
+     * ParseEventDate
      */
     protected function parseEventDate(string $dateString): ?DateTime
     {
@@ -637,6 +702,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Normalize URL to absolute format
      */
+    /**
+     * NormalizeUrl
+     */
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
         if (strpos($url, 'http') === 0) {
@@ -657,6 +725,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Extract numeric value from price string
      */
+    /**
+     * ExtractNumericPrice
+     */
     protected function extractNumericPrice(string $priceString): ?float
     {
         // Remove currency symbols and extract numeric value
@@ -672,6 +743,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Rate limit based on platform-specific rules
+     */
+    /**
+     * RespectRateLimit
      */
     protected function respectRateLimit(string $platform): void
     {
@@ -723,7 +797,12 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      *
      * @param mixed $response
      */
-    protected function handleScrapingError($response, string $url, string $platform): void
+    /**
+     * HandleScrapingError
+     *
+     * @param mixed $response
+     */
+    protected function handleScrapingError($response, string $url, string $platform): never
     {
         $statusCode = $response->status();
         $body = $response->body();
@@ -773,6 +852,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Detect anti-bot measures in response content
      */
+    /**
+     * DetectAntiBot
+     */
     protected function detectAntiBot(string $body, string $url, string $platform): void
     {
         $botDetectionPatterns = [
@@ -808,6 +890,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
     /**
      * Track selector effectiveness for monitoring
+     */
+    /**
+     * TrackSelectorEffectiveness
      */
     protected function trackSelectorEffectiveness(string $selector, bool $successful, string $platform): void
     {

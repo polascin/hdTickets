@@ -39,6 +39,11 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * Via
+     *
+     * @param mixed $notifiable
+     */
     public function via($notifiable): array
     {
         $channels = ['database']; // Always store in database for in-app notifications
@@ -66,6 +71,11 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * ToMail
+     *
+     * @param mixed $notifiable
+     */
     public function toMail($notifiable): MailMessage
     {
         $urgencyLevel = $this->ticket->is_high_demand ? 'HIGH PRIORITY' : 'Alert';
@@ -74,8 +84,8 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
         $section = $this->ticket->section ?? 'Not specified';
         $row = $this->ticket->row ?? 'Not specified';
 
-        return new MailMessage()
-            ->subject("[{$urgencyLevel}] High-Value Ticket Alert: {$this->ticket->event_title}")
+        $mailMessage = new MailMessage();
+        $mailMessage->subject("[{$urgencyLevel}] High-Value Ticket Alert: {$this->ticket->event_title}")
             ->greeting("Hello {$notifiable->username}!")
             ->line("🎟️ **Your ticket alert \"{$this->alert->name}\" has found a match!** {$demandBadge}")
             ->line('')
@@ -87,28 +97,35 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
             ->line("**Section:** {$section}")
             ->line("**Row:** {$row}")
             ->line("**Available Quantity:** {$this->ticket->quantity_available}")
-            ->line('')
-            ->when($this->ticket->is_high_demand, function ($mail) {
-                return $mail->line("⚡ **This is a HIGH DEMAND ticket!** (Demand Score: {$this->ticket->demand_score}/100)")
-                    ->line('🚨 **Act fast - these tickets sell quickly!**');
-            })
-            ->line("**Match Score:** {$this->matchScore}%")
+            ->line('');
+        if ($this->ticket->is_high_demand) {
+            $mailMessage->line("⚡ **This is a HIGH DEMAND ticket!** (Demand Score: {$this->ticket->demand_score}/100)")
+                ->line('🚨 **Act fast - these tickets sell quickly!**');
+        }
+        $mailMessage->line("**Match Score:** {$this->matchScore}%")
             ->action('View Ticket Details', $this->ticket->ticket_url)
             ->line('This alert matched because:')
-            ->line("• Keywords: \"{$this->alert->keywords}\"")
-            ->when($this->alert->max_price, function ($mail) {
-                return $mail->line("• Maximum price: {$this->alert->formatted_max_price}");
-            })
-            ->when($this->alert->platform, function ($mail) {
-                return $mail->line("• Platform: {$this->alert->platform_display_name}");
-            })
-            ->line('')
+            ->line("• Keywords: \"{$this->alert->keywords}\"");
+        if ($this->alert->max_price) {
+            $mailMessage->line("• Maximum price: {$this->alert->formatted_max_price}");
+        }
+        if ($this->alert->platform) {
+            $mailMessage->line("• Platform: {$this->alert->platform_display_name}");
+        }
+        $mailMessage->line('')
             ->line('To stop receiving alerts for this search, you can disable the alert in your dashboard.')
             ->salutation('Happy ticket hunting! 🎭');
+
+        return $mailMessage;
     }
 
     /**
      * Get the SMS representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToSms
      *
      * @param mixed $notifiable
      */
@@ -121,6 +138,11 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Get the broadcast representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToBroadcast
      *
      * @param mixed $notifiable
      */
@@ -164,6 +186,11 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
 
     /**
      * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToArray
      *
      * @param mixed $notifiable
      */

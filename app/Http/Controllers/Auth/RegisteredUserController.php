@@ -19,6 +19,9 @@ class RegisteredUserController extends Controller
      * Display the registration view.
      * Only accessible by admin users.
      */
+    /**
+     * Create
+     */
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
@@ -34,6 +37,9 @@ class RegisteredUserController extends Controller
      * Only accessible by admin users.
      *
      * @throws \Illuminate\Validation\ValidationException
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse
     {

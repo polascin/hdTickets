@@ -41,6 +41,9 @@ class RedisRateLimitService
      *
      * @return array Rate limit status
      */
+    /**
+     * CheckRateLimit
+     */
     public function checkRateLimit(string $key, int $maxAttempts, int $decaySeconds, string $prefix = 'rate_limit'): array
     {
         $redisKey = $this->buildKey($prefix, $key);
@@ -87,6 +90,9 @@ class RedisRateLimitService
      *
      * @return int New count
      */
+    /**
+     * Hit
+     */
     public function hit(string $key, int $decaySeconds, string $prefix = 'rate_limit'): int
     {
         $redisKey = $this->buildKey($prefix, $key);
@@ -116,6 +122,9 @@ class RedisRateLimitService
     /**
      * Rate limit for API endpoints
      */
+    /**
+     * LimitApiRequest
+     */
     public function limitApiRequest(Request $request, string $endpoint, int $maxAttempts = 60, int $decayMinutes = 1): array
     {
         $key = $this->buildApiKey($request, $endpoint);
@@ -126,6 +135,9 @@ class RedisRateLimitService
     /**
      * Rate limit for scraping operations
      */
+    /**
+     * LimitScrapingRequest
+     */
     public function limitScrapingRequest(string $platform, string $userAgent, string $ipAddress, int $maxAttempts = 10, int $decaySeconds = 60): array
     {
         $key = $this->buildScrapingKey($platform, $userAgent, $ipAddress);
@@ -135,6 +147,9 @@ class RedisRateLimitService
 
     /**
      * Rate limit for user login attempts
+     */
+    /**
+     * LimitLoginAttempts
      */
     public function limitLoginAttempts(string $email, string $ip, int $maxAttempts = 5, int $decayMinutes = 15): array
     {
@@ -158,6 +173,9 @@ class RedisRateLimitService
     /**
      * Rate limit for bulk operations
      */
+    /**
+     * LimitBulkOperation
+     */
     public function limitBulkOperation(int $userId, string $operation, int $maxAttempts = 10, int $decayMinutes = 60): array
     {
         $key = "bulk:{$operation}:user:{$userId}";
@@ -167,6 +185,9 @@ class RedisRateLimitService
 
     /**
      * Rate limit for CAPTCHA solving requests
+     */
+    /**
+     * LimitCaptchaRequests
      */
     public function limitCaptchaRequests(string $service, string $userAgent, int $maxAttempts = 50, int $decayMinutes = 60): array
     {
@@ -178,6 +199,9 @@ class RedisRateLimitService
     /**
      * Global rate limiting per IP
      */
+    /**
+     * LimitGlobalRequests
+     */
     public function limitGlobalRequests(string $ip, int $maxAttempts = 1000, int $decayMinutes = 60): array
     {
         $key = 'global:ip:' . hash('sha256', $ip);
@@ -187,6 +211,9 @@ class RedisRateLimitService
 
     /**
      * Increment login attempt counter
+     */
+    /**
+     * RecordLoginAttempt
      */
     public function recordLoginAttempt(string $email, string $ip, int $decayMinutes = 15): void
     {
@@ -199,6 +226,9 @@ class RedisRateLimitService
 
     /**
      * Clear rate limit for a key
+     */
+    /**
+     * ClearRateLimit
      */
     public function clearRateLimit(string $key, string $prefix = 'rate_limit'): bool
     {
@@ -227,6 +257,9 @@ class RedisRateLimitService
 
     /**
      * Get rate limit statistics
+     */
+    /**
+     * Get  statistics
      */
     public function getStatistics(?string $prefix = NULL): array
     {
@@ -267,6 +300,9 @@ class RedisRateLimitService
     /**
      * Monitor for suspicious activity patterns
      */
+    /**
+     * DetectSuspiciousActivity
+     */
     public function detectSuspiciousActivity(string $ip, int $threshold = 100, int $timeWindow = 300): bool
     {
         try {
@@ -302,6 +338,9 @@ class RedisRateLimitService
     /**
      * Track request for suspicious activity monitoring
      */
+    /**
+     * TrackRequest
+     */
     public function trackRequest(string $ip, int $timeWindow = 300): void
     {
         try {
@@ -326,6 +365,9 @@ class RedisRateLimitService
      * Get leaky bucket rate limiter (for smoother rate limiting)
      *
      * @param float $leakRate (tokens per second)
+     */
+    /**
+     * CheckLeakyBucket
      */
     public function checkLeakyBucket(string $key, int $capacity, float $leakRate, string $prefix = 'bucket'): array
     {
@@ -386,6 +428,9 @@ class RedisRateLimitService
      *
      * @return int Number of keys cleaned up
      */
+    /**
+     * Cleanup
+     */
     public function cleanup(): int
     {
         try {
@@ -430,6 +475,9 @@ class RedisRateLimitService
     /**
      * Build Redis key
      */
+    /**
+     * BuildKey
+     */
     protected function buildKey(string $prefix, string $key): string
     {
         return "rate_limit:{$prefix}:{$key}";
@@ -437,6 +485,9 @@ class RedisRateLimitService
 
     /**
      * Build API rate limit key
+     */
+    /**
+     * BuildApiKey
      */
     protected function buildApiKey(Request $request, string $endpoint): string
     {
@@ -452,6 +503,9 @@ class RedisRateLimitService
     /**
      * Build scraping rate limit key
      */
+    /**
+     * BuildScrapingKey
+     */
     protected function buildScrapingKey(string $platform, string $userAgent, string $ipAddress): string
     {
         $userAgentHash = hash('md5', $userAgent);
@@ -463,6 +517,9 @@ class RedisRateLimitService
     /**
      * Get time window for rate limiting
      */
+    /**
+     * Get  time window
+     */
     protected function getTimeWindow(int $decaySeconds): int
     {
         return (int) (time() / $decaySeconds) * $decaySeconds;
@@ -470,6 +527,9 @@ class RedisRateLimitService
 
     /**
      * Calculate retry after seconds
+     */
+    /**
+     * Get  retry after
      */
     protected function getRetryAfter(int $decaySeconds, int $window): int
     {

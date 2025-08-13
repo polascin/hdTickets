@@ -31,6 +31,9 @@ class MonitoringController extends Controller
     /**
      * Get real-time monitoring statistics
      */
+    /**
+     * Get  realtime stats
+     */
     public function getRealtimeStats(Request $request): JsonResponse
     {
         try {
@@ -99,6 +102,9 @@ class MonitoringController extends Controller
     /**
      * Get platform health status
      */
+    /**
+     * Get  platform health
+     */
     public function getPlatformHealth(Request $request): JsonResponse
     {
         try {
@@ -144,6 +150,9 @@ class MonitoringController extends Controller
     /**
      * Get active monitors for the user
      */
+    /**
+     * Get  monitors
+     */
     public function getMonitors(Request $request): JsonResponse
     {
         try {
@@ -186,6 +195,9 @@ class MonitoringController extends Controller
 
     /**
      * Get recent monitoring activity
+     */
+    /**
+     * Get  recent activity
      */
     public function getRecentActivity(Request $request): JsonResponse
     {
@@ -287,6 +299,11 @@ class MonitoringController extends Controller
      *
      * @param mixed $monitorId
      */
+    /**
+     * CheckMonitorNow
+     *
+     * @param mixed $monitorId
+     */
     public function checkMonitorNow(Request $request, $monitorId): JsonResponse
     {
         try {
@@ -315,6 +332,11 @@ class MonitoringController extends Controller
 
     /**
      * Toggle monitor status
+     *
+     * @param mixed $monitorId
+     */
+    /**
+     * ToggleMonitor
      *
      * @param mixed $monitorId
      */
@@ -354,6 +376,9 @@ class MonitoringController extends Controller
     /**
      * Get system performance metrics
      */
+    /**
+     * Get  system metrics
+     */
     public function getSystemMetrics(Request $request): JsonResponse
     {
         try {
@@ -389,6 +414,9 @@ class MonitoringController extends Controller
     /**
      * Calculate success rate
      */
+    /**
+     * CalculateSuccessRate
+     */
     private function calculateSuccessRate(): float
     {
         // Mock calculation - in real implementation, track actual success/failure rates
@@ -397,6 +425,9 @@ class MonitoringController extends Controller
 
     /**
      * Calculate average response time
+     */
+    /**
+     * CalculateAverageResponseTime
      */
     private function calculateAverageResponseTime(): int
     {
@@ -407,6 +438,9 @@ class MonitoringController extends Controller
     /**
      * Calculate overall platform health
      */
+    /**
+     * CalculatePlatformHealth
+     */
     private function calculatePlatformHealth(): float
     {
         // Mock calculation - in real implementation, aggregate platform health scores
@@ -415,6 +449,11 @@ class MonitoringController extends Controller
 
     /**
      * Calculate health score for a specific platform
+     *
+     * @param mixed $platform
+     */
+    /**
+     * CalculatePlatformHealthScore
      *
      * @param mixed $platform
      */

@@ -26,6 +26,9 @@ class WebPushChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Send
+     */
     public function send(User $user, array $notification): bool
     {
         try {
@@ -105,12 +108,18 @@ class WebPushChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Check if  available
+     */
     public function isAvailable(): bool
     {
         return ! empty(config('services.webpush.public_key'))
                && ! empty(config('services.webpush.private_key'));
     }
 
+    /**
+     * BuildPushPayload
+     */
     protected function buildPushPayload(array $notification): array
     {
         $payload = [
@@ -158,6 +167,9 @@ class WebPushChannel implements NotificationChannelInterface
         return $payload;
     }
 
+    /**
+     * BuildPushActions
+     */
     protected function buildPushActions(array $notification): array
     {
         $actions = [];
@@ -194,6 +206,9 @@ class WebPushChannel implements NotificationChannelInterface
         return $actions;
     }
 
+    /**
+     * Get  notification url
+     */
     protected function getNotificationUrl(array $notification): string
     {
         switch ($notification['type']) {

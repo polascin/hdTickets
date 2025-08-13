@@ -14,7 +14,7 @@ use function count;
 class ScrapeTickets extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'tickets:scrape-v2
+    protected $signature = 'tickets:scrape-v2
                             {--plugin= : Specific plugin to run (optional)}
                             {--keyword= : Keyword to search for}
                             {--location= : Location to search in}
@@ -23,7 +23,7 @@ class ScrapeTickets extends Command
                             {--status : Show plugin status and health}';
 
     /** The console command description. */
-    protected string $description = 'Scrape tickets from various platforms using plugin-based system';
+    protected $description = 'Scrape tickets from various platforms using plugin-based system';
 
     private PluginBasedScraperManager $scraperManager;
 
@@ -41,6 +41,9 @@ class ScrapeTickets extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -66,6 +69,9 @@ class ScrapeTickets extends Command
 
     /**
      * List all available plugins.
+     */
+    /**
+     * ListPlugins
      */
     private function listPlugins(): int
     {
@@ -102,6 +108,9 @@ class ScrapeTickets extends Command
 
     /**
      * Show plugin status and health.
+     */
+    /**
+     * ShowStatus
      */
     private function showStatus(): int
     {
@@ -143,6 +152,9 @@ class ScrapeTickets extends Command
 
     /**
      * Test all or specific plugins.
+     */
+    /**
+     * TestPlugins
      */
     private function testPlugins(): int
     {
@@ -193,6 +205,9 @@ class ScrapeTickets extends Command
     /**
      * Test a single plugin.
      */
+    /**
+     * TestSinglePlugin
+     */
     private function testSinglePlugin(string $pluginName): int
     {
         $this->info("Testing Plugin: {$pluginName}");
@@ -235,6 +250,9 @@ class ScrapeTickets extends Command
 
     /**
      * Run actual scraping operation.
+     */
+    /**
+     * RunScraping
      */
     private function runScraping(): int
     {
@@ -290,6 +308,9 @@ class ScrapeTickets extends Command
      *
      * @param array<int, array<string, mixed>> $results
      */
+    /**
+     * DisplaySinglePluginResults
+     */
     private function displaySinglePluginResults(string $pluginName, array $results): void
     {
         $this->info("Results from {$pluginName}:");
@@ -340,6 +361,9 @@ class ScrapeTickets extends Command
      * Display results from all plugins.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * DisplayAllPluginResults
      */
     private function displayAllPluginResults(array $results): void
     {

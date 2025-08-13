@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 class CreateRootAdmin extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'hdtickets:create-root-admin 
+    protected $signature = 'hdtickets:create-root-admin 
                             {--name=ticketmaster : Admin first name}
                             {--surname=admin : Admin surname}
                             {--username=ticketmaster : Admin username}
@@ -18,10 +18,13 @@ class CreateRootAdmin extends Command
                             {--password=SecureAdminPass123! : Admin password}';
 
     /** The console command description. */
-    protected string $description = 'Create a root administrative user with full system access';
+    protected $description = 'Create a root administrative user with full system access';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -95,6 +98,9 @@ class CreateRootAdmin extends Command
     /**
      * Display user information in a formatted table.
      */
+    /**
+     * DisplayUserInfo
+     */
     private function displayUserInfo(User $user): void
     {
         $this->newLine();
@@ -111,7 +117,7 @@ class CreateRootAdmin extends Command
                 ['Role', strtoupper($user->role)],
                 ['Status', $user->is_active ? 'ACTIVE' : 'INACTIVE'],
                 ['Verified', $user->email_verified_at ? 'YES' : 'NO'],
-                ['Created', $user->created_at?->format('Y-m-d H:i:s') ?? 'Unknown'],
+                ['Created', $user->created_at->format('Y-m-d H:i:s')],
             ],
         );
 

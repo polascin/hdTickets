@@ -68,6 +68,12 @@ class TicketScrapingService
      *
      * @return array<string, mixed>
      */
+    /**
+     * SearchManchesterUnitedTickets
+     *
+     * @param mixed $maxPrice
+     * @param mixed $dateRange
+     */
     public function searchManchesterUnitedTickets($maxPrice = NULL, $dateRange = NULL): array
     {
         $results = [];
@@ -94,6 +100,9 @@ class TicketScrapingService
      *
      * @return array<string, mixed>
      */
+    /**
+     * SearchHighDemandSportsTickets
+     */
     public function searchHighDemandSportsTickets(array $filters = []): array
     {
         $results = [];
@@ -115,11 +124,9 @@ class TicketScrapingService
     /**
      * Get trending Manchester United tickets
      *
-     * @param int $limit
-     *
      * @return \Illuminate\Database\Eloquent\Collection<int,ScrapedTicket>
      */
-    public function getTrendingManchesterUnitedTickets($limit = 20)
+    public function getTrendingManchesterUnitedTickets(int $limit = 20)
     {
         return ScrapedTicket::where(function ($query): void {
             $query->where('title', 'like', '%Manchester United%')
@@ -155,6 +162,9 @@ class TicketScrapingService
 
     /**
      * Check alerts and notify users of matches
+     */
+    /**
+     * CheckAlerts
      */
     public function checkAlerts(): int
     {
@@ -201,6 +211,9 @@ class TicketScrapingService
      *
      * @return array<string, mixed>
      */
+    /**
+     * SearchTickets
+     */
     public function searchTickets(string $keywords, array $options = []): array
     {
         $platforms = $options['platforms'] ?? ['stubhub', 'ticketmaster', 'viagogo'];
@@ -244,6 +257,13 @@ class TicketScrapingService
      * @param mixed $maxPrice
      *
      * @return array<string, mixed>
+     */
+    /**
+     * AttemptAutoPurchase
+     *
+     * @param mixed $ticketId
+     * @param mixed $userId
+     * @param mixed $maxPrice
      */
     public function attemptAutoPurchase($ticketId, $userId, $maxPrice): array
     {
@@ -289,6 +309,11 @@ class TicketScrapingService
      * @param array<string, mixed> $filters
      *
      * @return array<int, mixed>
+     */
+    /**
+     * SearchAllPlatforms
+     *
+     * @param mixed $keyword
      */
     protected function searchAllPlatforms($keyword, array $filters = []): array
     {
@@ -573,6 +598,11 @@ class TicketScrapingService
      *
      * @return array<string, mixed>
      */
+    /**
+     * ProcessAndSaveResults
+     *
+     * @param mixed $category
+     */
     protected function processAndSaveResults(array $results, $category): array
     {
         $savedTickets = [];
@@ -630,6 +660,11 @@ class TicketScrapingService
      *
      * @param mixed $ticketData
      */
+    /**
+     * TriggerHighDemandAlert
+     *
+     * @param mixed $ticketData
+     */
     protected function triggerHighDemandAlert($ticketData): void
     {
         // Find users with alerts for this type of event
@@ -656,6 +691,11 @@ class TicketScrapingService
      * Send ticket alert to user
      *
      * @param array<string, mixed> $ticketData
+     */
+    /**
+     * SendTicketAlert
+     *
+     * @param mixed $ticketData
      */
     protected function sendTicketAlert(User $user, $ticketData): void
     {
@@ -694,6 +734,9 @@ class TicketScrapingService
      *
      * @return array<string, mixed>
      */
+    /**
+     * ScrapePlatform
+     */
     private function scrapePlatform(string $platform, string $keywords, array $options = []): array
     {
         $cacheKey = "tickets:{$platform}:" . md5($keywords . serialize($options));
@@ -712,6 +755,9 @@ class TicketScrapingService
      * Send notification for alert matches
      *
      * @param array<string, mixed> $tickets
+     */
+    /**
+     * SendAlertNotification
      */
     private function sendAlertNotification(TicketAlert $alert, array $tickets): void
     {
@@ -762,6 +808,9 @@ class TicketScrapingService
      * Calculate match score between alert and ticket data.
      *
      * @param array<string,mixed> $ticketData
+     */
+    /**
+     * CalculateMatchScore
      */
     private function calculateMatchScore(TicketAlert $alert, array $ticketData): int
     {

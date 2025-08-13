@@ -38,6 +38,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Create automated purchase rule
      */
+    /**
+     * CreatePurchaseRule
+     */
     public function createPurchaseRule(int $userId, array $criteria, array $conditions, array $preferences = []): string
     {
         $this->ensureInitialized();
@@ -85,6 +88,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Process purchase decision for available tickets
      */
+    /**
+     * ProcessPurchaseDecision
+     */
     public function processPurchaseDecision(int $ticketId, array $availabilityData, array $userPreferences = []): array
     {
         $this->ensureInitialized();
@@ -130,6 +136,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
     /**
      * Execute automated purchase
+     */
+    /**
+     * ExecutePurchase
      */
     public function executePurchase(int $ticketId, array $decision, array $userPreferences): array
     {
@@ -186,6 +195,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Process purchase queue
      */
+    /**
+     * ProcessPurchaseQueue
+     */
     public function processPurchaseQueue(?string $purchaseId = NULL): array
     {
         $this->ensureInitialized();
@@ -216,6 +228,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Get purchase automation statistics
      */
+    /**
+     * Get  automation statistics
+     */
     public function getAutomationStatistics(?int $userId = NULL): array
     {
         $this->ensureInitialized();
@@ -229,6 +244,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
     /**
      * Update purchase rule
+     */
+    /**
+     * UpdatePurchaseRule
      */
     public function updatePurchaseRule(string $ruleId, array $updates): bool
     {
@@ -261,6 +279,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Deactivate purchase rule
      */
+    /**
+     * DeactivatePurchaseRule
+     */
     public function deactivatePurchaseRule(string $ruleId): bool
     {
         $this->ensureInitialized();
@@ -276,6 +297,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
     /**
      * Get user's purchase rules
+     */
+    /**
+     * Get  user purchase rules
      */
     public function getUserPurchaseRules(int $userId): array
     {
@@ -299,6 +323,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * Check and trigger automation rules
      */
+    /**
+     * CheckAutomationTriggers
+     */
     public function checkAutomationTriggers(int $ticketId, array $availabilityData): array
     {
         $this->ensureInitialized();
@@ -319,6 +346,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return $triggeredRules;
     }
 
+    /**
+     * OnInitialize
+     */
     protected function onInitialize(): void
     {
         $this->validateDependencies([
@@ -340,6 +370,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
     /**
      * Private helper methods
+     */
+    /**
+     * ProcessSinglePurchase
      */
     private function processSinglePurchase(string $purchaseId): array
     {
@@ -388,6 +421,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * EvaluateRuleConditions
+     */
     private function evaluateRuleConditions(array $rule, int $ticketId, array $availabilityData): bool
     {
         foreach ($rule['conditions'] as $condition => $value) {
@@ -424,6 +460,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return TRUE;
     }
 
+    /**
+     * TriggerAutomationRule
+     */
     private function triggerAutomationRule(string $ruleId, int $ticketId, array $availabilityData): array
     {
         try {
@@ -453,6 +492,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * UpdateRuleStats
+     */
     private function updateRuleStats(string $ruleId, array $decision): void
     {
         $ruleKey = self::AUTOMATION_PREFIX . 'rule:' . $ruleId;
@@ -465,6 +507,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * SendPurchaseNotification
+     */
     private function sendPurchaseNotification(array $purchaseData, array $result): void
     {
         try {
@@ -487,6 +532,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * LoadAutomationRules
+     */
     private function loadAutomationRules(): void
     {
         // Load active automation rules from Redis
@@ -504,6 +552,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * LoadActiveQueues
+     */
     private function loadActiveQueues(): void
     {
         $queueKey = self::QUEUE_PREFIX . 'pending';
@@ -517,6 +568,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         }
     }
 
+    /**
+     * EncryptRuleData
+     */
     private function encryptRuleData(array $rule): array
     {
         $encryptionService = $this->getDependency('encryptionService');
@@ -532,6 +586,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return $encrypted;
     }
 
+    /**
+     * DecryptRuleData
+     */
     private function decryptRuleData(array $encryptedRule): array
     {
         $encryptionService = $this->getDependency('encryptionService');
@@ -547,6 +604,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return $decrypted;
     }
 
+    /**
+     * EncryptPurchaseData
+     */
     private function encryptPurchaseData(array $purchase): array
     {
         $encryptionService = $this->getDependency('encryptionService');
@@ -562,6 +622,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return $encrypted;
     }
 
+    /**
+     * DecryptPurchaseData
+     */
     private function decryptPurchaseData(array $encryptedPurchase): array
     {
         $encryptionService = $this->getDependency('encryptionService');
@@ -577,6 +640,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return $decrypted;
     }
 
+    /**
+     * Get  user automation stats
+     */
     private function getUserAutomationStats(int $userId): array
     {
         $rules = $this->getUserPurchaseRules($userId);
@@ -592,6 +658,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         ];
     }
 
+    /**
+     * Get  global automation stats
+     */
     private function getGlobalAutomationStats(): array
     {
         return [
@@ -602,6 +671,9 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         ];
     }
 
+    /**
+     * Get  queue health
+     */
     private function getQueueHealth(): string
     {
         $queueKey = self::QUEUE_PREFIX . 'pending';

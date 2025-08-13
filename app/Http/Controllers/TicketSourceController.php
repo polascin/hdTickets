@@ -12,7 +12,10 @@ class TicketSourceController extends Controller
     /**
      * Display a listing of ticket sources
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $query = TicketSource::query()->with('category');
 
@@ -122,7 +125,10 @@ class TicketSourceController extends Controller
     /**
      * Show the form for creating a new ticket source
      */
-    public function create()
+    /**
+     * Create
+     */
+    public function create(): Illuminate\Contracts\View\View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
@@ -133,7 +139,10 @@ class TicketSourceController extends Controller
     /**
      * Store a newly created ticket source
      */
-    public function store(Request $request)
+    /**
+     * Store
+     */
+    public function store(Request $request): Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'                => 'required|string|max:255',
@@ -177,7 +186,10 @@ class TicketSourceController extends Controller
     /**
      * Display the specified ticket source
      */
-    public function show(TicketSource $ticketSource)
+    /**
+     * Show
+     */
+    public function show(): Illuminate\Contracts\View\View
     {
         return view('ticket-sources.show', compact('ticketSource'));
     }
@@ -185,7 +197,10 @@ class TicketSourceController extends Controller
     /**
      * Show the form for editing the specified ticket source
      */
-    public function edit(TicketSource $ticketSource)
+    /**
+     * Edit
+     */
+    public function edit(): Illuminate\Contracts\View\View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
@@ -196,7 +211,10 @@ class TicketSourceController extends Controller
     /**
      * Update the specified ticket source
      */
-    public function update(Request $request, TicketSource $ticketSource)
+    /**
+     * Update
+     */
+    public function update(Request $request): Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'                => 'required|string|max:255',
@@ -231,8 +249,13 @@ class TicketSourceController extends Controller
 
     /**
      * Remove the specified ticket source
+     *
+     * @param mixed $ticketSource
      */
-    public function destroy(TicketSource $ticketSource)
+    /**
+     * Destroy
+     */
+    public function destroy($ticketSource): Illuminate\Http\RedirectResponse
     {
         $ticketSource->delete();
 
@@ -256,7 +279,10 @@ class TicketSourceController extends Controller
     /**
      * Bulk operations on ticket sources
      */
-    public function bulkAction(Request $request)
+    /**
+     * BulkAction
+     */
+    public function bulkAction(Request $request): Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'action' => 'required|in:activate,deactivate,delete',
@@ -308,7 +334,10 @@ class TicketSourceController extends Controller
     /**
      * Export ticket sources to CSV
      */
-    public function export(Request $request)
+    /**
+     * Export
+     */
+    public function export(Request $request): Illuminate\Http\RedirectResponse
     {
         $query = TicketSource::query();
 
@@ -397,7 +426,10 @@ class TicketSourceController extends Controller
     /**
      * Get available tickets for API
      */
-    public function apiIndex(Request $request)
+    /**
+     * ApiIndex
+     */
+    public function apiIndex(Request $request): Illuminate\Http\RedirectResponse
     {
         $query = TicketSource::active()->available();
 

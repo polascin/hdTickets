@@ -25,7 +25,10 @@ class ScrapingController extends Controller
     /**
      * Display scraping dashboard
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $stats = $this->getScrapingStats();
         $platforms = $this->getPlatformStats();
@@ -45,7 +48,10 @@ class ScrapingController extends Controller
     /**
      * Get scraping statistics
      */
-    public function getStats()
+    /**
+     * Get  stats
+     */
+    public function getStats(): Illuminate\Http\JsonResponse
     {
         return response()->json($this->getScrapingStats());
     }
@@ -53,7 +59,12 @@ class ScrapingController extends Controller
     /**
      * Get platform-specific statistics
      */
-    public function getPlatformStats()
+    /**
+     * Get  platform stats
+     *
+     * @return array<string, mixed>
+     */
+    public function getPlatformStats(): array
     {
         $platforms = ['stubhub', 'viagogo', 'seatgeek', 'tickpick', 'fanzone'];
         $stats = [];
@@ -91,7 +102,10 @@ class ScrapingController extends Controller
     /**
      * Get recent scraping operations
      */
-    public function getRecentOperations(int $limit = 50)
+    /**
+     * Get  recent operations
+     */
+    public function getRecentOperations(int $limit = 50): \Illuminate\Http\JsonResponse
     {
         return ScrapingStats::with(['user'])
             ->orderBy('created_at', 'desc')
@@ -136,7 +150,10 @@ class ScrapingController extends Controller
     /**
      * Test user rotation
      */
-    public function testRotation(Request $request)
+    /**
+     * TestRotation
+     */
+    public function testRotation(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'platform'  => 'nullable|string',
@@ -175,7 +192,10 @@ class ScrapingController extends Controller
     /**
      * Manage scraping configuration
      */
-    public function updateConfig(Request $request)
+    /**
+     * UpdateConfig
+     */
+    public function updateConfig(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'max_concurrent_requests'    => 'integer|min:1|max:100',
@@ -265,7 +285,10 @@ class ScrapingController extends Controller
     /**
      * Test anti-detection systems
      */
-    public function testAntiDetection(Request $request)
+    /**
+     * TestAntiDetection
+     */
+    public function testAntiDetection(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'platforms'   => 'array',
@@ -316,7 +339,10 @@ class ScrapingController extends Controller
     /**
      * Test high-demand scraping optimizations
      */
-    public function testHighDemand(Request $request)
+    /**
+     * TestHighDemand
+     */
+    public function testHighDemand(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'concurrent_requests' => 'integer|min:1|max:20',
@@ -357,7 +383,10 @@ class ScrapingController extends Controller
     /**
      * Get advanced scraping logs
      */
-    public function getAdvancedLogs(Request $request)
+    /**
+     * Get  advanced logs
+     */
+    public function getAdvancedLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         // Simulate advanced logs data
         $logs = [
@@ -401,7 +430,10 @@ class ScrapingController extends Controller
     /**
      * Configure anti-detection settings
      */
-    public function configureAntiDetection(Request $request)
+    /**
+     * ConfigureAntiDetection
+     */
+    public function configureAntiDetection(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'user_agent_rotation'    => 'string|in:aggressive,moderate,conservative',
@@ -434,7 +466,10 @@ class ScrapingController extends Controller
     /**
      * Configure high-demand optimization settings
      */
-    public function configureHighDemand(Request $request)
+    /**
+     * ConfigureHighDemand
+     */
+    public function configureHighDemand(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'priority_queue_size' => 'integer|min:10',
@@ -467,7 +502,12 @@ class ScrapingController extends Controller
     /**
      * Private helper methods
      */
-    private function getScrapingStats()
+    /**
+     * Get  scraping stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getScrapingStats(): array
     {
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
@@ -488,7 +528,12 @@ class ScrapingController extends Controller
         ];
     }
 
-    private function getSuccessRate($since)
+    /**
+     * Get  success rate
+     *
+     * @param mixed $since
+     */
+    private function getSuccessRate($since): float
     {
         $total = ScrapingStats::whereDate('created_at', '>=', $since)->count();
         $successful = ScrapingStats::whereDate('created_at', '>=', $since)
@@ -497,7 +542,12 @@ class ScrapingController extends Controller
         return $total > 0 ? ($successful / $total) * 100 : 0;
     }
 
-    private function getErrorRate($since)
+    /**
+     * Get  error rate
+     *
+     * @param mixed $since
+     */
+    private function getErrorRate($since): float
     {
         $total = ScrapingStats::whereDate('created_at', '>=', $since)->count();
         $errors = ScrapingStats::whereDate('created_at', '>=', $since)
@@ -507,7 +557,12 @@ class ScrapingController extends Controller
         return $total > 0 ? ($errors / $total) * 100 : 0;
     }
 
-    private function getPlatformStatus($successRate)
+    /**
+     * Get  platform status
+     *
+     * @param mixed $successRate
+     */
+    private function getPlatformStatus($successRate): string
     {
         if ($successRate >= 90) {
             return 'excellent';
@@ -525,7 +580,12 @@ class ScrapingController extends Controller
     /**
      * Get advanced scraping statistics for anti-detection and high-demand features
      */
-    private function getAdvancedStats()
+    /**
+     * Get  advanced stats
+     *
+     * @return array<string, mixed>
+     */
+    private function getAdvancedStats(): array
     {
         $today = Carbon::today();
         $totalOpsToday = ScrapingStats::whereDate('created_at', $today)->count();
@@ -578,7 +638,12 @@ class ScrapingController extends Controller
      *
      * @param mixed $since
      */
-    private function getProtectedSuccessRate($since)
+    /**
+     * Get  protected success rate
+     *
+     * @param mixed $since
+     */
+    private function getProtectedSuccessRate($since): float
     {
         $protectedTotal = ScrapingStats::whereDate('created_at', '>=', $since)
             ->where(function ($query): void {

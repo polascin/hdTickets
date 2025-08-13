@@ -33,6 +33,9 @@ class AdvancedReportingService
     /**
      * Generate comprehensive report with charts and analytics
      */
+    /**
+     * GenerateAdvancedReport
+     */
     public function generateAdvancedReport(string $reportType, array $parameters = []): array
     {
         $startDate = $parameters['start_date'] ?? now()->subMonth();
@@ -57,6 +60,9 @@ class AdvancedReportingService
     /**
      * Schedule automated report generation
      */
+    /**
+     * ScheduleReport
+     */
     public function scheduleReport(array $config): bool
     {
         $reportConfig = [
@@ -76,6 +82,14 @@ class AdvancedReportingService
 
     /**
      * Generate ticket availability trends report
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @param mixed $format
+     * @param mixed $includeCharts
+     */
+    /**
+     * GenerateTicketAvailabilityTrends
      *
      * @param mixed $startDate
      * @param mixed $endDate
@@ -132,6 +146,14 @@ class AdvancedReportingService
 
     /**
      * Generate price fluctuation analysis report
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @param mixed $format
+     * @param mixed $includeCharts
+     */
+    /**
+     * GeneratePriceFluctuationAnalysis
      *
      * @param mixed $startDate
      * @param mixed $endDate
@@ -196,6 +218,14 @@ class AdvancedReportingService
      * @param mixed $format
      * @param mixed $includeCharts
      */
+    /**
+     * GeneratePlatformPerformanceComparison
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @param mixed $format
+     * @param mixed $includeCharts
+     */
     protected function generatePlatformPerformanceComparison($startDate, $endDate, $format, $includeCharts): array
     {
         $platformMetrics = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -238,6 +268,14 @@ class AdvancedReportingService
 
     /**
      * Generate user engagement metrics report
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @param mixed $format
+     * @param mixed $includeCharts
+     */
+    /**
+     * GenerateUserEngagementMetrics
      *
      * @param mixed $startDate
      * @param mixed $endDate
@@ -289,6 +327,9 @@ class AdvancedReportingService
     /**
      * Export report in specified format
      */
+    /**
+     * ExportReport
+     */
     protected function exportReport(array $data, string $reportName, string $format, bool $includeCharts): array
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
@@ -308,6 +349,9 @@ class AdvancedReportingService
 
     /**
      * Export report to PDF with charts
+     */
+    /**
+     * ExportToPdf
      */
     protected function exportToPdf(array $data, string $filename, bool $includeCharts): array
     {
@@ -332,6 +376,9 @@ class AdvancedReportingService
     /**
      * Export report to Excel with charts
      */
+    /**
+     * ExportToExcel
+     */
     protected function exportToExcel(array $data, string $filename, bool $includeCharts): array
     {
         $path = "reports/excel/{$filename}.xlsx";
@@ -355,6 +402,9 @@ class AdvancedReportingService
     /**
      * Export report to CSV
      */
+    /**
+     * ExportToCsv
+     */
     protected function exportToCsv(array $data, string $filename): array
     {
         $path = "reports/csv/{$filename}.csv";
@@ -375,6 +425,9 @@ class AdvancedReportingService
     /**
      * Helper methods
      */
+    /**
+     * CalculatePercentage
+     */
     protected function calculatePercentage(Collection $collection, string $status): float
     {
         $total = $collection->sum('total');
@@ -383,6 +436,11 @@ class AdvancedReportingService
         return $total > 0 ? round(($statusCount / $total) * 100, 2) : 0;
     }
 
+    /**
+     * CalculatePlatformScore
+     *
+     * @param mixed $platform
+     */
     protected function calculatePlatformScore($platform): float
     {
         // Weighted scoring: availability (40%), demand (30%), total tickets (30%)
@@ -393,6 +451,9 @@ class AdvancedReportingService
         return round($availabilityScore + $demandScore + $volumeScore, 2);
     }
 
+    /**
+     * GeneratePriceInsights
+     */
     protected function generatePriceInsights(Collection $priceData, Collection $platformPrices): array
     {
         return [
@@ -403,6 +464,9 @@ class AdvancedReportingService
         ];
     }
 
+    /**
+     * GeneratePlatformRankings
+     */
     protected function generatePlatformRankings(Collection $platformMetrics): array
     {
         return $platformMetrics->map(function ($platform, $index) {
@@ -416,6 +480,9 @@ class AdvancedReportingService
         })->values()->toArray();
     }
 
+    /**
+     * GeneratePlatformRecommendations
+     */
     protected function generatePlatformRecommendations(Collection $platformMetrics): array
     {
         return [
@@ -425,6 +492,12 @@ class AdvancedReportingService
         ];
     }
 
+    /**
+     * CalculateUserGrowthRate
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     */
     protected function calculateUserGrowthRate($startDate, $endDate): float
     {
         $previousPeriodStart = $startDate->copy()->subDays($startDate->diffInDays($endDate));
@@ -434,6 +507,9 @@ class AdvancedReportingService
         return $previousUsers > 0 ? round((($currentUsers - $previousUsers) / $previousUsers) * 100, 2) : 0;
     }
 
+    /**
+     * CalculateNextRun
+     */
     protected function calculateNextRun(string $frequency): Carbon
     {
         switch ($frequency) {
@@ -448,6 +524,9 @@ class AdvancedReportingService
         }
     }
 
+    /**
+     * ConvertDataToCsv
+     */
     protected function convertDataToCsv(array $data): string
     {
         $csv = '';
@@ -472,31 +551,60 @@ class AdvancedReportingService
     }
 
     // Additional helper methods would be implemented here...
+    /**
+     * Get  platform response times
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     */
     protected function getPlatformResponseTimes($startDate, $endDate): Collection
     {
         return collect();
     }
 
+    /**
+     * AnalyzeEngagementTrends
+     *
+     * @param mixed $dailyActivity
+     */
     protected function analyzeEngagementTrends($dailyActivity): array
     {
         return [];
     }
 
+    /**
+     * Get  user segmentation
+     */
     protected function getUserSegmentation(): array
     {
         return [];
     }
 
+    /**
+     * DeterminePriceTrend
+     *
+     * @param mixed $priceData
+     */
     protected function determinePriceTrend($priceData): string
     {
         return 'stable';
     }
 
+    /**
+     * IdentifyPlatformStrengths
+     *
+     * @param mixed $platform
+     */
     protected function identifyPlatformStrengths($platform): array
     {
         return [];
     }
 
+    /**
+     * IdentifyPlatformWeaknesses
+     *
+     * @param mixed $platform
+     */
     protected function identifyPlatformWeaknesses($platform): array
     {
         return [];

@@ -13,7 +13,7 @@ use function count;
 class SearchMultiPlatform extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'search:multi-platform
+    protected $signature = 'search:multi-platform
                             {keyword : Search keyword for events}
                             {--location= : Location to search for events}
                             {--limit=20 : Maximum number of events per platform}
@@ -22,10 +22,13 @@ class SearchMultiPlatform extends Command
                             {--health-check : Perform health check before search}';
 
     /** The console command description. */
-    protected string $description = 'Search events across multiple platforms with data normalization';
+    protected $description = 'Search events across multiple platforms with data normalization';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -98,6 +101,9 @@ class SearchMultiPlatform extends Command
      *
      * @param array<string, mixed> $healthStatus
      */
+    /**
+     * DisplayHealthCheck
+     */
     private function displayHealthCheck(array $healthStatus): void
     {
         $this->info('Overall Status: ' . strtoupper($healthStatus['overall_status']));
@@ -122,6 +128,9 @@ class SearchMultiPlatform extends Command
      * Display search results.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * DisplaySearchResults
      */
     private function displaySearchResults(array $results): void
     {
@@ -176,6 +185,9 @@ class SearchMultiPlatform extends Command
      * Display deduplication results.
      *
      * @param array<string, mixed> $dedupResults
+     */
+    /**
+     * DisplayDeduplicationResults
      */
     private function displayDeduplicationResults(array $dedupResults): void
     {

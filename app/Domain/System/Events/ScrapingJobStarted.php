@@ -10,21 +10,27 @@ final class ScrapingJobStarted extends AbstractDomainEvent
     public function __construct(
         public string $jobId,
         public string $platform,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Scraping configuration including target URLs, intervals, retry settings, etc. */
         public array $configuration,
         public DateTimeImmutable $startedAt,
         public int $expectedTargets = 0,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->jobId;
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'scraping_job';
@@ -32,6 +38,9 @@ final class ScrapingJobStarted extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -46,6 +55,9 @@ final class ScrapingJobStarted extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

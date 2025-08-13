@@ -33,6 +33,9 @@ class DataExportService
     /**
      * Export ticket trends data
      */
+    /**
+     * ExportTicketTrends
+     */
     public function exportTicketTrends(array $filters = [], string $format = 'xlsx'): array
     {
         $this->validateFormat($format);
@@ -95,6 +98,9 @@ class DataExportService
     /**
      * Export price analysis data
      */
+    /**
+     * ExportPriceAnalysis
+     */
     public function exportPriceAnalysis(array $filters = [], string $format = 'xlsx'): array
     {
         $this->validateFormat($format);
@@ -149,6 +155,9 @@ class DataExportService
 
     /**
      * Export platform performance data
+     */
+    /**
+     * ExportPlatformPerformance
      */
     public function exportPlatformPerformance(array $filters = [], string $format = 'xlsx'): array
     {
@@ -219,6 +228,9 @@ class DataExportService
     /**
      * Export user engagement data
      */
+    /**
+     * ExportUserEngagement
+     */
     public function exportUserEngagement(array $filters = [], string $format = 'xlsx'): array
     {
         $this->validateFormat($format);
@@ -288,6 +300,9 @@ class DataExportService
     /**
      * Export comprehensive analytics data
      */
+    /**
+     * ExportComprehensiveAnalytics
+     */
     public function exportComprehensiveAnalytics(array $filters = [], string $format = 'xlsx'): array
     {
         $this->validateFormat($format);
@@ -321,6 +336,9 @@ class DataExportService
     /**
      * Generate export file in specified format
      */
+    /**
+     * GenerateExport
+     */
     protected function generateExport(Collection $data, array $metadata, string $filename, string $format): array
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
@@ -342,6 +360,9 @@ class DataExportService
 
     /**
      * Export to CSV format
+     */
+    /**
+     * ExportToCsv
      */
     protected function exportToCsv(Collection $data, array $metadata, string $filename): array
     {
@@ -377,6 +398,9 @@ class DataExportService
     /**
      * Export to Excel format
      */
+    /**
+     * ExportToExcel
+     */
     protected function exportToExcel(Collection $data, array $metadata, string $filename): array
     {
         $path = "exports/excel/{$filename}.xlsx";
@@ -396,6 +420,9 @@ class DataExportService
 
     /**
      * Export to PDF format
+     */
+    /**
+     * ExportToPdf
      */
     protected function exportToPdf(Collection $data, array $metadata, string $filename): array
     {
@@ -421,6 +448,9 @@ class DataExportService
     /**
      * Export to JSON format
      */
+    /**
+     * ExportToJson
+     */
     protected function exportToJson(Collection $data, array $metadata, string $filename): array
     {
         $jsonData = [
@@ -444,6 +474,9 @@ class DataExportService
     /**
      * Validate export format
      */
+    /**
+     * ValidateFormat
+     */
     protected function validateFormat(string $format): void
     {
         if (! in_array($format, $this->supportedFormats, TRUE)) {
@@ -455,6 +488,9 @@ class DataExportService
 
     /**
      * Calculate price statistics
+     */
+    /**
+     * CalculatePriceStatistics
      */
     protected function calculatePriceStatistics(Collection $priceData): array
     {
@@ -475,6 +511,9 @@ class DataExportService
     }
 
     // Analytics helper methods
+    /**
+     * Get  analytics summary
+     */
     protected function getAnalyticsSummary(Carbon $startDate, Carbon $endDate): array
     {
         return [
@@ -486,6 +525,9 @@ class DataExportService
         ];
     }
 
+    /**
+     * Get  ticket trends analytics
+     */
     protected function getTicketTrendsAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         return ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -495,6 +537,9 @@ class DataExportService
             ->toArray();
     }
 
+    /**
+     * Get  price insights analytics
+     */
     protected function getPriceInsightsAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         $priceData = TicketPriceHistory::whereBetween('recorded_at', [$startDate, $endDate])->get();
@@ -507,6 +552,9 @@ class DataExportService
         ];
     }
 
+    /**
+     * Get  platform metrics analytics
+     */
     protected function getPlatformMetricsAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         return ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
@@ -516,6 +564,9 @@ class DataExportService
             ->toArray();
     }
 
+    /**
+     * Get  user behavior analytics
+     */
     protected function getUserBehaviorAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         return [
@@ -525,6 +576,9 @@ class DataExportService
         ];
     }
 
+    /**
+     * Get  demand patterns analytics
+     */
     protected function getDemandPatternsAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         return [

@@ -17,6 +17,9 @@ class UserFavoriteVenueController extends Controller
     /**
      * Display the user's favorite venues
      */
+    /**
+     * Index
+     */
     public function index(Request $request): View|JsonResponse
     {
         $user = Auth::user();
@@ -68,6 +71,9 @@ class UserFavoriteVenueController extends Controller
     /**
      * Show the form for creating a new favorite venue
      */
+    /**
+     * Create
+     */
     public function create(): View
     {
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
@@ -81,6 +87,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Store a newly created favorite venue
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
@@ -143,6 +152,9 @@ class UserFavoriteVenueController extends Controller
     /**
      * Display the specified favorite venue
      */
+    /**
+     * Show
+     */
     public function show(UserFavoriteVenue $venue): View|JsonResponse
     {
         $this->authorize('view', $venue);
@@ -156,6 +168,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Show the form for editing the specified favorite venue
+     */
+    /**
+     * Edit
      */
     public function edit(UserFavoriteVenue $venue): View
     {
@@ -171,6 +186,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Update the specified favorite venue
+     */
+    /**
+     * Update
      */
     public function update(Request $request, UserFavoriteVenue $venue): RedirectResponse|JsonResponse
     {
@@ -215,6 +233,9 @@ class UserFavoriteVenueController extends Controller
     /**
      * Remove the specified favorite venue
      */
+    /**
+     * Destroy
+     */
     public function destroy(UserFavoriteVenue $venue): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $venue);
@@ -234,6 +255,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Update notification settings for a venue
+     */
+    /**
+     * UpdateNotifications
      */
     public function updateNotifications(Request $request, UserFavoriteVenue $venue): JsonResponse
     {
@@ -255,6 +279,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Search for venues (autocomplete API)
+     */
+    /**
+     * Search
      */
     public function search(Request $request): JsonResponse
     {
@@ -281,6 +308,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Find venues near user's location
+     */
+    /**
+     * NearMe
      */
     public function nearMe(Request $request): JsonResponse
     {
@@ -325,6 +355,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Import venues from a list or CSV
+     */
+    /**
+     * Import
      */
     public function import(Request $request): RedirectResponse|JsonResponse
     {
@@ -405,7 +438,10 @@ class UserFavoriteVenueController extends Controller
     /**
      * Export user's favorite venues
      */
-    public function export(Request $request)
+    /**
+     * Export
+     */
+    public function export(Request $request): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $venues = UserFavoriteVenue::where('user_id', $user->id)
@@ -456,6 +492,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Bulk update venues (priority, notifications, etc.)
+     */
+    /**
+     * BulkUpdate
      */
     public function bulkUpdate(Request $request): JsonResponse
     {
@@ -509,6 +548,9 @@ class UserFavoriteVenueController extends Controller
 
     /**
      * Get similar venues based on current venue
+     */
+    /**
+     * Get  similar
      */
     public function getSimilar(UserFavoriteVenue $venue): JsonResponse
     {

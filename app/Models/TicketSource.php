@@ -183,7 +183,10 @@ class TicketSource extends Model
         ];
     }
 
-    public static function getStatuses()
+    /**
+     * Get  statuses
+     */
+    public function getStatuses(): string
     {
         return [
             self::STATUS_AVAILABLE     => 'Available',
@@ -194,26 +197,40 @@ class TicketSource extends Model
         ];
     }
 
-    public function getPlatformNameAttribute()
+    /**
+     * Get  platform name attribute
+     */
+    public function getPlatformNameAttribute(): string
     {
         $platforms = self::getPlatforms();
 
         return $platforms[$this->platform] ?? 'Unknown';
     }
 
-    public function getStatusNameAttribute()
+    /**
+     * Get  status name attribute
+     */
+    public function getStatusNameAttribute(): string
     {
         $statuses = self::getStatuses();
 
         return $statuses[$this->availability_status] ?? 'Unknown';
     }
 
-    public function isAvailable()
+    /**
+     * Check if  available
+     */
+    public function isAvailable(): bool
     {
         return $this->availability_status === self::STATUS_AVAILABLE;
     }
 
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -267,7 +284,10 @@ class TicketSource extends Model
     }
 
     // Helper methods
-    public function getFormattedPriceAttribute()
+    /**
+     * Get  formatted price attribute
+     */
+    public function getFormattedPriceAttribute(): float
     {
         $symbol = $this->getCurrencySymbol();
 
@@ -320,7 +340,10 @@ class TicketSource extends Model
         return $this->last_checked->diffForHumans();
     }
 
-    public function getStatusBadgeClassAttribute()
+    /**
+     * Get  status badge class attribute
+     */
+    public function getStatusBadgeClassAttribute(): string
     {
         $classes = [
             self::STATUS_AVAILABLE     => 'bg-green-100 text-green-800',
@@ -333,7 +356,10 @@ class TicketSource extends Model
         return $classes[$this->availability_status] ?? 'bg-gray-100 text-gray-800';
     }
 
-    public function isPlatformClub()
+    /**
+     * Check if  platform club
+     */
+    public function isPlatformClub(): bool
     {
         $clubs = [
             self::PLATFORM_MANCHESTER_UNITED,
@@ -358,7 +384,10 @@ class TicketSource extends Model
         return in_array($this->platform, $clubs, TRUE);
     }
 
-    public function isPlatformVenue()
+    /**
+     * Check if  platform venue
+     */
+    public function isPlatformVenue(): bool
     {
         $venues = [
             self::PLATFORM_WEMBLEY,
@@ -384,7 +413,10 @@ class TicketSource extends Model
         ];
     }
 
-    public static function getCountries()
+    /**
+     * Get  countries
+     */
+    public function getCountries(): int
     {
         return [
             'GB' => 'United Kingdom',

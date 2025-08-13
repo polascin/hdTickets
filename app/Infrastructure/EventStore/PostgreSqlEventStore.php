@@ -20,6 +20,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         $this->buildEventMap();
     }
 
+    /**
+     * Store
+     */
     public function store(DomainEventInterface $event, ?int $expectedVersion = NULL): void
     {
         DB::transaction(function () use ($event, $expectedVersion): void {
@@ -28,6 +31,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         });
     }
 
+    /**
+     * StoreMany
+     */
     public function storeMany(array $events, string $aggregateId, ?int $expectedVersion = NULL): void
     {
         if (empty($events)) {
@@ -50,6 +56,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         });
     }
 
+    /**
+     * LoadEvents
+     */
     public function loadEvents(string $aggregateId, string $aggregateType, int $fromVersion = 0): Collection
     {
         $rows = DB::table('event_store')
@@ -64,6 +73,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         });
     }
 
+    /**
+     * LoadEventsByType
+     */
     public function loadEventsByType(string $eventType, int $limit = 1000, ?string $fromEventId = NULL): Collection
     {
         $query = DB::table('event_store')
@@ -82,6 +94,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         });
     }
 
+    /**
+     * LoadAllEvents
+     */
     public function loadAllEvents(int $fromPosition = 0, int $limit = 1000): Collection
     {
         $rows = DB::table('event_store')
@@ -95,6 +110,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         });
     }
 
+    /**
+     * Get  current version
+     */
     public function getCurrentVersion(string $aggregateId, string $aggregateType): int
     {
         return DB::table('event_store')
@@ -103,6 +121,9 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->max('aggregate_version') ?? 0;
     }
 
+    /**
+     * CreateSnapshot
+     */
     public function createSnapshot(string $aggregateId, string $aggregateType, int $version, array $data): void
     {
         DB::table('event_snapshots')->updateOrInsert(
@@ -118,6 +139,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         );
     }
 
+    /**
+     * LoadSnapshot
+     */
     public function loadSnapshot(string $aggregateId, string $aggregateType): ?array
     {
         $snapshot = DB::table('event_snapshots')
@@ -137,6 +161,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         ];
     }
 
+    /**
+     * EventExists
+     */
     public function eventExists(string $eventId): bool
     {
         return DB::table('event_store')
@@ -144,6 +171,9 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->exists();
     }
 
+    /**
+     * Get  event by id
+     */
     public function getEventById(string $eventId): ?DomainEventInterface
     {
         $row = DB::table('event_store')
@@ -153,6 +183,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         return $row ? $this->deserializeEvent($row) : NULL;
     }
 
+    /**
+     * Get  events count
+     */
     public function getEventsCount(string $aggregateId, string $aggregateType): int
     {
         return DB::table('event_store')
@@ -161,6 +194,9 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->count();
     }
 
+    /**
+     * ReplayEvents
+     */
     public function replayEvents(int $fromPosition = 0, ?callable $handler = NULL): void
     {
         $limit = 1000;
@@ -190,6 +226,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         } while ($events->count() === $limit);
     }
 
+    /**
+     * BuildEventMap
+     */
     private function buildEventMap(): void
     {
         // Map event class names to their full class paths for deserialization
@@ -209,6 +248,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         ];
     }
 
+    /**
+     * StoreEvent
+     */
     private function storeEvent(DomainEventInterface $event, ?int $version = NULL): void
     {
         $version ??= $this->getCurrentVersion(
@@ -237,6 +279,9 @@ class PostgreSqlEventStore implements EventStoreInterface
         }
     }
 
+    /**
+     * UpdateStreamVersion
+     */
     private function updateStreamVersion(DomainEventInterface $event): void
     {
         $streamName = $event->getAggregateType() . '-' . $event->getAggregateRootId();
@@ -253,6 +298,11 @@ class PostgreSqlEventStore implements EventStoreInterface
         );
     }
 
+    /**
+     * DeserializeEvent
+     *
+     * @param mixed $row
+     */
     private function deserializeEvent($row): DomainEventInterface
     {
         $eventClass = $this->eventMap[$row->event_type] ?? NULL;

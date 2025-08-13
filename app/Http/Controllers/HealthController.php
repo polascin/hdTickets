@@ -17,11 +17,11 @@ class HealthController extends Controller
 {
     /**
      * Comprehensive health check for production monitoring
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    /**
+     * Index
+     */
+    public function index(Request $request): JsonResponse
     {
         $startTime = microtime(TRUE);
         $checks = [];
@@ -79,10 +79,11 @@ class HealthController extends Controller
 
     /**
      * Database-specific health check
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function database(): \Illuminate\Http\JsonResponse
+    /**
+     * Database
+     */
+    public function database(): JsonResponse
     {
         $check = $this->checkDatabase();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -97,10 +98,11 @@ class HealthController extends Controller
 
     /**
      * Redis-specific health check
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function redis(): \Illuminate\Http\JsonResponse
+    /**
+     * Redis
+     */
+    public function redis(): JsonResponse
     {
         $check = $this->checkRedis();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -115,10 +117,11 @@ class HealthController extends Controller
 
     /**
      * WebSocket health check
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function websockets(): \Illuminate\Http\JsonResponse
+    /**
+     * Websockets
+     */
+    public function websockets(): JsonResponse
     {
         $check = $this->checkWebSocketHealth();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -133,10 +136,11 @@ class HealthController extends Controller
 
     /**
      * Services health check
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function services(): \Illuminate\Http\JsonResponse
+    /**
+     * Services
+     */
+    public function services(): JsonResponse
     {
         $check = $this->checkExternalServices();
         $status = $check['status'] === 'healthy' ? Response::HTTP_OK : Response::HTTP_SERVICE_UNAVAILABLE;
@@ -151,6 +155,9 @@ class HealthController extends Controller
 
     /**
      * Check basic application functionality
+     */
+    /**
+     * CheckApplication
      */
     private function checkApplication(): array
     {
@@ -179,6 +186,9 @@ class HealthController extends Controller
 
     /**
      * Check database connectivity and performance
+     */
+    /**
+     * CheckDatabase
      */
     private function checkDatabase(): array
     {
@@ -224,6 +234,9 @@ class HealthController extends Controller
     /**
      * Check Redis connectivity and performance
      */
+    /**
+     * CheckRedis
+     */
     private function checkRedis(): array
     {
         try {
@@ -268,6 +281,9 @@ class HealthController extends Controller
     /**
      * Check cache functionality
      */
+    /**
+     * CheckCache
+     */
     private function checkCache(): array
     {
         try {
@@ -303,6 +319,9 @@ class HealthController extends Controller
 
     /**
      * Check queue system health
+     */
+    /**
+     * CheckQueue
      */
     private function checkQueue(): array
     {
@@ -341,6 +360,9 @@ class HealthController extends Controller
     /**
      * Check external services connectivity
      */
+    /**
+     * CheckExternalServices
+     */
     private function checkExternalServices(): array
     {
         $services = [];
@@ -378,6 +400,9 @@ class HealthController extends Controller
 
     /**
      * Check system resources
+     */
+    /**
+     * CheckSystemResources
      */
     private function checkSystemResources(): array
     {
@@ -418,6 +443,9 @@ class HealthController extends Controller
 
     /**
      * Check ticket scraping system health
+     */
+    /**
+     * CheckTicketScrapingHealth
      */
     private function checkTicketScrapingHealth(): array
     {
@@ -466,6 +494,9 @@ class HealthController extends Controller
     /**
      * Check New Relic connectivity
      */
+    /**
+     * CheckNewRelic
+     */
     private function checkNewRelic(): array
     {
         // New Relic doesn't require a specific health check
@@ -480,6 +511,9 @@ class HealthController extends Controller
     /**
      * Check Sentry connectivity
      */
+    /**
+     * CheckSentry
+     */
     private function checkSentry(): array
     {
         // Sentry doesn't require a specific health check
@@ -493,6 +527,9 @@ class HealthController extends Controller
 
     /**
      * Check S3 connectivity
+     */
+    /**
+     * CheckS3
      */
     private function checkS3(): array
     {
@@ -517,6 +554,9 @@ class HealthController extends Controller
 
     /**
      * Check WebSocket system health
+     */
+    /**
+     * CheckWebSocketHealth
      */
     private function checkWebSocketHealth(): array
     {
@@ -583,6 +623,9 @@ class HealthController extends Controller
 
     /**
      * Parse size string to bytes
+     */
+    /**
+     * ParseSize
      */
     private function parseSize(string $size): int
     {

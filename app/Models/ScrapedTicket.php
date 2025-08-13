@@ -2,10 +2,46 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
+/**
+ * Scraped Sports Event Ticket Model
+ *
+ * @property int           $id
+ * @property string        $uuid
+ * @property string        $platform
+ * @property string|null   $external_id
+ * @property string|null   $title
+ * @property string|null   $venue
+ * @property string|null   $location
+ * @property string|null   $event_type
+ * @property string|null   $sport
+ * @property string|null   $team
+ * @property Carbon|null   $event_date
+ * @property float|null    $min_price
+ * @property float|null    $max_price
+ * @property string|null   $currency
+ * @property int|null      $availability
+ * @property bool          $is_available
+ * @property bool          $is_high_demand
+ * @property string        $status
+ * @property string|null   $ticket_url
+ * @property string|null   $search_keyword
+ * @property array|null    $metadata
+ * @property Carbon|null   $scraped_at
+ * @property int|null      $category_id
+ * @property Carbon        $created_at
+ * @property Carbon        $updated_at
+ * @property Category|null $category
+ * @property string        $formatted_price
+ * @property float         $total_price
+ * @property bool          $is_recent
+ * @property string        $platform_display_name
+ */
 class ScrapedTicket extends Model
 {
     use HasFactory;
@@ -48,10 +84,16 @@ class ScrapedTicket extends Model
         'category_id',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'event_date'     => 'datetime',
         'min_price'      => 'decimal:2',
         'max_price'      => 'decimal:2',
+        'availability'   => 'integer',
         'is_available'   => 'boolean',
         'is_high_demand' => 'boolean',
         'scraped_at'     => 'datetime',
@@ -63,8 +105,21 @@ class ScrapedTicket extends Model
         'scraped_at',
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function source(): BelongsTo
+    {
+        return $this->belongsTo(TicketSource::class);
+    }
+
     // Relationships
-    public function category()
+    /**
+     * Category
+     */
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -176,14 +231,20 @@ class ScrapedTicket extends Model
     }
 
     // Helpers
-    public function getFormattedPriceAttribute()
+    /**
+     * Get  formatted price attribute
+     */
+    public function getFormattedPriceAttribute(): float
     {
         $price = $this->max_price ?? $this->min_price ?? 0;
 
         return ($this->currency ?? 'USD') . ' ' . number_format($price, 2);
     }
 
-    public function getTotalPriceAttribute()
+    /**
+     * Get  total price attribute
+     */
+    public function getTotalPriceAttribute(): int
     {
         return $this->max_price ?? $this->min_price ?? 0;
     }
@@ -193,7 +254,10 @@ class ScrapedTicket extends Model
         return $this->scraped_at->diffInHours(now()) <= 24;
     }
 
-    public function getPlatformDisplayNameAttribute()
+    /**
+     * Get  platform display name attribute
+     */
+    public function getPlatformDisplayNameAttribute(): string
     {
         return match ($this->platform) {
             'stubhub'      => 'StubHub',
@@ -203,6 +267,9 @@ class ScrapedTicket extends Model
         };
     }
 
+    /**
+     * Boot
+     */
     protected static function boot(): void
     {
         parent::boot();

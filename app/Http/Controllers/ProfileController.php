@@ -26,6 +26,9 @@ class ProfileController extends Controller
     /**
      * Display the user's profile view.
      */
+    /**
+     * Show
+     */
     public function show(Request $request): View
     {
         return view('profile.show', [
@@ -36,6 +39,9 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
+    /**
+     * Edit
+     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -45,6 +51,9 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     */
+    /**
+     * Update
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
@@ -86,6 +95,9 @@ class ProfileController extends Controller
     /**
      * Delete the user's account - redirect to new deletion protection system
      */
+    /**
+     * Destroy
+     */
     public function destroy(Request $request): RedirectResponse
     {
         // Redirect to the new account deletion protection system
@@ -94,6 +106,9 @@ class ProfileController extends Controller
 
     /**
      * Display comprehensive security settings
+     */
+    /**
+     * Security
      */
     public function security(Request $request): \Illuminate\Contracts\View\View
     {
@@ -130,6 +145,9 @@ class ProfileController extends Controller
 
     /**
      * Download backup codes as a text file
+     */
+    /**
+     * DownloadBackupCodes
      */
     public function downloadBackupCodes(Request $request): RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
@@ -172,6 +190,9 @@ class ProfileController extends Controller
     /**
      * Trust current device
      */
+    /**
+     * TrustDevice
+     */
     public function trustDevice(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -182,6 +203,9 @@ class ProfileController extends Controller
 
     /**
      * Remove trusted device
+     */
+    /**
+     * RemoveTrustedDevice
      */
     public function removeTrustedDevice(Request $request, int $deviceIndex): RedirectResponse
     {
@@ -197,6 +221,9 @@ class ProfileController extends Controller
     /**
      * Revoke session
      */
+    /**
+     * RevokeSession
+     */
     public function revokeSession(Request $request, string $sessionId): RedirectResponse
     {
         if ($this->securityService->revokeSession($sessionId)) {
@@ -208,6 +235,9 @@ class ProfileController extends Controller
 
     /**
      * Revoke all other sessions
+     */
+    /**
+     * RevokeAllOtherSessions
      */
     public function revokeAllOtherSessions(Request $request): RedirectResponse
     {

@@ -27,6 +27,11 @@ class TicketAssigned extends Notification implements ShouldQueue
      *
      * @param mixed $notifiable
      */
+    /**
+     * Via
+     *
+     * @param mixed $notifiable
+     */
     public function via($notifiable): array
     {
         return ['mail', 'database'];
@@ -34,6 +39,11 @@ class TicketAssigned extends Notification implements ShouldQueue
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToMail
      *
      * @param mixed $notifiable
      */
@@ -55,6 +65,11 @@ class TicketAssigned extends Notification implements ShouldQueue
 
     /**
      * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
+     */
+    /**
+     * ToArray
      *
      * @param mixed $notifiable
      */

@@ -25,6 +25,9 @@ class WebPushSubscription extends Model
         'last_used_at' => 'datetime',
     ];
 
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -33,6 +36,9 @@ class WebPushSubscription extends Model
     /**
      * Mark subscription as used
      */
+    /**
+     * MarkAsUsed
+     */
     public function markAsUsed(): void
     {
         $this->update(['last_used_at' => now()]);
@@ -40,6 +46,9 @@ class WebPushSubscription extends Model
 
     /**
      * Disable subscription
+     */
+    /**
+     * Disable
      */
     public function disable(): void
     {

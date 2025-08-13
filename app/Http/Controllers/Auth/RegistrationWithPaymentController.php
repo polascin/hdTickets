@@ -26,6 +26,9 @@ class RegistrationWithPaymentController extends Controller
     /**
      * Display the registration view with payment plans.
      */
+    /**
+     * Create
+     */
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
@@ -40,6 +43,9 @@ class RegistrationWithPaymentController extends Controller
 
     /**
      * Handle registration request with payment plan selection.
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse
     {
@@ -187,6 +193,9 @@ class RegistrationWithPaymentController extends Controller
     /**
      * Show payment plan selection page for existing user
      */
+    /**
+     * SelectPlan
+     */
     public function selectPlan(User $user): View
     {
         if (! Auth::check() || ! Auth::user()->isAdmin()) {
@@ -201,6 +210,9 @@ class RegistrationWithPaymentController extends Controller
 
     /**
      * Assign payment plan to existing user
+     */
+    /**
+     * AssignPlan
      */
     public function assignPlan(Request $request, User $user): RedirectResponse
     {

@@ -61,13 +61,21 @@ class TicketAlert extends Model
     ];
 
     // Relationships
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     // Scopes
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'active');
     }
@@ -92,6 +100,9 @@ class TicketAlert extends Model
     }
 
     // Methods
+    /**
+     * MatchesTicket
+     */
     public function matchesTicket(ScrapedTicket $ticket): bool
     {
         // Check keywords match
@@ -141,6 +152,9 @@ class TicketAlert extends Model
         return TRUE;
     }
 
+    /**
+     * IncrementMatches
+     */
     public function incrementMatches(): void
     {
         // Increment the matches_found counter and update triggered_at
@@ -148,16 +162,25 @@ class TicketAlert extends Model
         $this->update(['triggered_at' => now()]);
     }
 
+    /**
+     * Get  formatted max price attribute
+     */
     public function getFormattedMaxPriceAttribute(): ?string
     {
         return $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : NULL;
     }
 
+    /**
+     * Get  last checked attribute
+     */
     public function getLastCheckedAttribute(): ?string
     {
         return $this->last_checked_at ? $this->last_checked_at->diffForHumans() : 'Never';
     }
 
+    /**
+     * Get  platform display name attribute
+     */
     public function getPlatformDisplayNameAttribute(): string
     {
         if (! $this->platform) {
@@ -172,6 +195,9 @@ class TicketAlert extends Model
         };
     }
 
+    /**
+     * Boot
+     */
     protected static function boot(): void
     {
         parent::boot();

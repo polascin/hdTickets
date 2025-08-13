@@ -21,7 +21,10 @@ class DashboardController extends Controller
      * Get live tickets data for dashboard
      * Cached for 2 minutes for performance
      */
-    public function liveTickets(Request $request)
+    /**
+     * LiveTickets
+     */
+    public function liveTickets(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $cacheKey = 'dashboard_live_tickets_' . Auth::id();
@@ -85,7 +88,10 @@ class DashboardController extends Controller
     /**
      * Get personalized user recommendations
      */
-    public function userRecommendations(Request $request)
+    /**
+     * UserRecommendations
+     */
+    public function userRecommendations(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $user = Auth::user();
@@ -200,7 +206,10 @@ class DashboardController extends Controller
     /**
      * Get platform health status
      */
-    public function platformHealth(Request $request)
+    /**
+     * PlatformHealth
+     */
+    public function platformHealth(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $cacheKey = 'dashboard_platform_health';
@@ -270,7 +279,10 @@ class DashboardController extends Controller
     /**
      * Get price alerts for user
      */
-    public function priceAlerts(Request $request)
+    /**
+     * PriceAlerts
+     */
+    public function priceAlerts(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $user = Auth::user();

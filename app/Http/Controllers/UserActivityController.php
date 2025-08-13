@@ -20,6 +20,9 @@ class UserActivityController extends Controller
     /**
      * Display the user activity dashboard
      */
+    /**
+     * Index
+     */
     public function index(Request $request): View
     {
         $user = Auth::user();
@@ -44,7 +47,12 @@ class UserActivityController extends Controller
     /**
      * AJAX endpoint for loading specific widget data
      */
-    public function getWidgetData(Request $request)
+    /**
+     * Get  widget data
+     *
+     * @return array<string, mixed>
+     */
+    public function getWidgetData(Request $request): array
     {
         $widget = $request->get('widget');
         $userId = Auth::id();
@@ -70,7 +78,10 @@ class UserActivityController extends Controller
     /**
      * Export activity data
      */
-    public function exportActivityData(Request $request)
+    /**
+     * ExportActivityData
+     */
+    public function exportActivityData(Request $request): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $dateRange = $request->get('date_range', '30');
@@ -100,6 +111,9 @@ class UserActivityController extends Controller
 
     /**
      * Get ticket alerts data and analytics
+     */
+    /**
+     * Get  alerts data
      */
     private function getAlertsData(int $userId, Carbon $startDate): array
     {
@@ -142,6 +156,9 @@ class UserActivityController extends Controller
 
     /**
      * Get purchase history and spending analytics
+     */
+    /**
+     * Get  purchase data
      */
     private function getPurchaseData(int $userId, Carbon $startDate): array
     {
@@ -197,6 +214,9 @@ class UserActivityController extends Controller
     /**
      * Get saved searches and frequent queries data
      */
+    /**
+     * Get  saved searches data
+     */
     private function getSavedSearchesData(int $userId): array
     {
         // Get search preferences from user preferences
@@ -235,6 +255,9 @@ class UserActivityController extends Controller
 
     /**
      * Get watchlist items with price trends
+     */
+    /**
+     * Get  watchlist data
      */
     private function getWatchlistData(int $userId, Carbon $startDate): array
     {
@@ -275,6 +298,9 @@ class UserActivityController extends Controller
     /**
      * Calculate price trends for tickets
      */
+    /**
+     * CalculatePriceTrends
+     */
     private function calculatePriceTrends(object $tickets): array
     {
         $trends = [];
@@ -307,6 +333,9 @@ class UserActivityController extends Controller
     /**
      * Get general activity statistics
      */
+    /**
+     * Get  activity stats
+     */
     private function getActivityStats(int $userId, Carbon $startDate): array
     {
         $loginHistory = LoginHistory::where('user_id', $userId)
@@ -333,6 +362,9 @@ class UserActivityController extends Controller
 
     /**
      * Get chart data for visual analytics
+     */
+    /**
+     * Get  chart data
      */
     private function getChartData(int $userId, Carbon $startDate): array
     {
@@ -373,6 +405,9 @@ class UserActivityController extends Controller
     /**
      * Calculate average session duration
      */
+    /**
+     * CalculateAverageSessionDuration
+     */
     private function calculateAverageSessionDuration(object $sessions): int
     {
         $totalDuration = 0;
@@ -391,6 +426,9 @@ class UserActivityController extends Controller
 
     /**
      * Get the most active day of the week
+     */
+    /**
+     * Get  most active day
      */
     private function getMostActiveDay(object $loginHistory): string
     {

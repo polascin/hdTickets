@@ -45,6 +45,9 @@ class AccountDeletionAuditLog extends Model
     /**
      * Create a new audit log entry
      */
+    /**
+     * Log
+     */
     public static function log(
         int $userId,
         string $action,
@@ -100,6 +103,9 @@ class AccountDeletionAuditLog extends Model
 
     /**
      * Get all available actions
+     */
+    /**
+     * Get  actions
      */
     public static function getActions(): array
     {

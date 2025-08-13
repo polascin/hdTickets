@@ -29,6 +29,9 @@ class ScrapingController extends Controller
     /**
      * Get all scraped tickets with filtering and pagination
      */
+    /**
+     * Tickets
+     */
     public function tickets(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -166,6 +169,9 @@ class ScrapingController extends Controller
     /**
      * Get scraped ticket by UUID
      */
+    /**
+     * Show
+     */
     public function show(string $uuid): JsonResponse
     {
         $ticket = ScrapedTicket::with(['category'])
@@ -187,6 +193,9 @@ class ScrapingController extends Controller
 
     /**
      * Start scraping for specific platforms and criteria
+     */
+    /**
+     * StartScraping
      */
     public function startScraping(Request $request): JsonResponse
     {
@@ -246,6 +255,9 @@ class ScrapingController extends Controller
 
     /**
      * Get scraping statistics and metrics
+     */
+    /**
+     * Statistics
      */
     public function statistics(): JsonResponse
     {
@@ -315,6 +327,9 @@ class ScrapingController extends Controller
     /**
      * Get available scraping platforms and their status
      */
+    /**
+     * Platforms
+     */
     public function platforms(): JsonResponse
     {
         $platforms = [
@@ -356,6 +371,9 @@ class ScrapingController extends Controller
 
     /**
      * Delete old scraped tickets based on criteria
+     */
+    /**
+     * Cleanup
      */
     public function cleanup(Request $request): JsonResponse
     {

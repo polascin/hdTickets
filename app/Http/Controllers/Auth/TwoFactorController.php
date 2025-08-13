@@ -23,6 +23,9 @@ class TwoFactorController extends Controller
     /**
      * Show 2FA challenge form during login
      */
+    /**
+     * Challenge
+     */
     public function challenge(): View
     {
         if (! Session::has('2fa_user_id')) {
@@ -34,6 +37,9 @@ class TwoFactorController extends Controller
 
     /**
      * Verify 2FA code during login
+     */
+    /**
+     * Verify
      */
     public function verify(Request $request): RedirectResponse
     {
@@ -134,6 +140,9 @@ class TwoFactorController extends Controller
     /**
      * Show 2FA setup form
      */
+    /**
+     * Set up
+     */
     public function setup(): View
     {
         $user = Auth::user();
@@ -158,6 +167,9 @@ class TwoFactorController extends Controller
 
     /**
      * Enable 2FA after verification
+     */
+    /**
+     * Enable
      */
     public function enable(Request $request): RedirectResponse
     {
@@ -190,6 +202,9 @@ class TwoFactorController extends Controller
     /**
      * Show recovery codes
      */
+    /**
+     * RecoveryCodes
+     */
     public function recoveryCodes(): View
     {
         $user = Auth::user();
@@ -211,6 +226,9 @@ class TwoFactorController extends Controller
     /**
      * Regenerate recovery codes
      */
+    /**
+     * RegenerateRecoveryCodes
+     */
     public function regenerateRecoveryCodes(Request $request): RedirectResponse
     {
         $user = Auth::user();
@@ -229,6 +247,9 @@ class TwoFactorController extends Controller
 
     /**
      * Disable 2FA
+     */
+    /**
+     * Disable
      */
     public function disable(Request $request): RedirectResponse
     {
@@ -249,6 +270,9 @@ class TwoFactorController extends Controller
 
     /**
      * Send SMS backup code
+     */
+    /**
+     * SendSmsCode
      */
     public function sendSmsCode(Request $request): RedirectResponse
     {
@@ -272,6 +296,9 @@ class TwoFactorController extends Controller
     /**
      * Send email backup code
      */
+    /**
+     * SendEmailCode
+     */
     public function sendEmailCode(Request $request): RedirectResponse
     {
         $userId = Session::get('2fa_user_id');
@@ -293,6 +320,11 @@ class TwoFactorController extends Controller
 
     /**
      * Admin: Generate backup codes for a user
+     *
+     * @param mixed $userId
+     */
+    /**
+     * AdminGenerateBackupCodes
      *
      * @param mixed $userId
      */

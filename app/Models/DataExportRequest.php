@@ -49,6 +49,9 @@ class DataExportRequest extends Model
     /**
      * Get the user that owns the export request
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -56,6 +59,9 @@ class DataExportRequest extends Model
 
     /**
      * Check if the export is pending
+     */
+    /**
+     * Check if  pending
      */
     public function isPending(): bool
     {
@@ -65,6 +71,9 @@ class DataExportRequest extends Model
     /**
      * Check if the export is processing
      */
+    /**
+     * Check if  processing
+     */
     public function isProcessing(): bool
     {
         return $this->status === self::STATUS_PROCESSING;
@@ -72,6 +81,9 @@ class DataExportRequest extends Model
 
     /**
      * Check if the export is completed
+     */
+    /**
+     * Check if  completed
      */
     public function isCompleted(): bool
     {
@@ -81,6 +93,9 @@ class DataExportRequest extends Model
     /**
      * Check if the export has failed
      */
+    /**
+     * Check if has  failed
+     */
     public function hasFailed(): bool
     {
         return $this->status === self::STATUS_FAILED;
@@ -89,6 +104,9 @@ class DataExportRequest extends Model
     /**
      * Check if the download link has expired
      */
+    /**
+     * Check if  expired
+     */
     public function isExpired(): bool
     {
         return $this->expires_at && $this->expires_at->isPast();
@@ -96,6 +114,9 @@ class DataExportRequest extends Model
 
     /**
      * Check if the file is available for download
+     */
+    /**
+     * Check if  available for download
      */
     public function isAvailableForDownload(): bool
     {
@@ -108,6 +129,9 @@ class DataExportRequest extends Model
     /**
      * Get the download URL
      */
+    /**
+     * Get  download url
+     */
     public function getDownloadUrl(): ?string
     {
         if (! $this->isAvailableForDownload()) {
@@ -119,6 +143,9 @@ class DataExportRequest extends Model
 
     /**
      * Get human readable file size
+     */
+    /**
+     * Get  formatted file size attribute
      */
     public function getFormattedFileSizeAttribute(): ?string
     {
@@ -139,6 +166,9 @@ class DataExportRequest extends Model
     /**
      * Mark as processing
      */
+    /**
+     * MarkAsProcessing
+     */
     public function markAsProcessing(): bool
     {
         if (! $this->isPending()) {
@@ -154,6 +184,9 @@ class DataExportRequest extends Model
 
     /**
      * Mark as completed
+     */
+    /**
+     * MarkAsCompleted
      */
     public function markAsCompleted(string $filePath, int $fileSize): bool
     {
@@ -174,6 +207,9 @@ class DataExportRequest extends Model
     /**
      * Mark as failed
      */
+    /**
+     * MarkAsFailed
+     */
     public function markAsFailed(string $errorMessage): bool
     {
         $this->update([
@@ -186,6 +222,9 @@ class DataExportRequest extends Model
 
     /**
      * Delete the export file
+     */
+    /**
+     * DeleteFile
      */
     public function deleteFile(): bool
     {
@@ -201,7 +240,12 @@ class DataExportRequest extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->whereIn('status', [self::STATUS_PENDING, self::STATUS_PROCESSING]);
     }
@@ -241,6 +285,9 @@ class DataExportRequest extends Model
     /**
      * Get all available export types
      */
+    /**
+     * Get  export types
+     */
     public static function getExportTypes(): array
     {
         return [
@@ -252,6 +299,9 @@ class DataExportRequest extends Model
     /**
      * Get all available formats
      */
+    /**
+     * Get  formats
+     */
     public static function getFormats(): array
     {
         return [
@@ -262,6 +312,9 @@ class DataExportRequest extends Model
 
     /**
      * Get all available statuses
+     */
+    /**
+     * Get  statuses
      */
     public static function getStatuses(): array
     {

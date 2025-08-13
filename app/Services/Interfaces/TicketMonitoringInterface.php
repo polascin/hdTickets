@@ -12,8 +12,8 @@ interface TicketMonitoringInterface
     /**
      * Start monitoring a ticket for availability and price changes
      *
-     * @param int   $ticketId Ticket ID to monitor
-     * @param array $criteria Monitoring criteria
+     * @param int                  $ticketId Ticket ID to monitor
+     * @param array<string, mixed> $criteria Monitoring criteria
      *
      * @return bool Success status
      */
@@ -47,10 +47,10 @@ interface TicketMonitoringInterface
     /**
      * Set alert rule for ticket monitoring
      *
-     * @param int    $ticketId             Ticket ID
-     * @param string $condition            Alert condition
-     * @param mixed  $value                Alert value
-     * @param array  $notificationChannels Notification channels
+     * @param int                  $ticketId             Ticket ID
+     * @param string               $condition            Alert condition
+     * @param mixed                $value                Alert value
+     * @param array<string, mixed> $notificationChannels Notification channels
      *
      * @return bool Success status
      */

@@ -21,6 +21,9 @@ class ChartDataService
     /**
      * Generate comprehensive ticket trends chart data
      */
+    /**
+     * Get  ticket trends chart data
+     */
     public function getTicketTrendsChartData(array $filters = []): array
     {
         $cacheKey = 'chart:ticket_trends:' . md5(serialize($filters));
@@ -126,6 +129,9 @@ class ChartDataService
     /**
      * Generate price volatility heatmap data
      */
+    /**
+     * Get  price volatility heatmap data
+     */
     public function getPriceVolatilityHeatmapData(array $filters = []): array
     {
         $cacheKey = 'chart:price_volatility:' . md5(serialize($filters));
@@ -211,6 +217,9 @@ class ChartDataService
     /**
      * Generate platform market share pie chart data
      */
+    /**
+     * Get  platform market share data
+     */
     public function getPlatformMarketShareData(array $filters = []): array
     {
         $cacheKey = 'chart:platform_market_share:' . md5(serialize($filters));
@@ -279,6 +288,9 @@ class ChartDataService
 
     /**
      * Generate user engagement funnel chart data
+     */
+    /**
+     * Get  user engagement funnel data
      */
     public function getUserEngagementFunnelData(array $filters = []): array
     {
@@ -350,6 +362,9 @@ class ChartDataService
 
     /**
      * Generate sports category performance radar chart data
+     */
+    /**
+     * Get  sports category radar data
      */
     public function getSportsCategoryRadarData(array $filters = []): array
     {
@@ -448,6 +463,9 @@ class ChartDataService
     /**
      * Generate hourly activity heatmap data
      */
+    /**
+     * Get  hourly activity heatmap data
+     */
     public function getHourlyActivityHeatmapData(array $filters = []): array
     {
         $cacheKey = 'chart:hourly_activity_heatmap:' . md5(serialize($filters));
@@ -533,6 +551,9 @@ class ChartDataService
     /**
      * Generate comprehensive dashboard chart data
      */
+    /**
+     * Get  dashboard charts data
+     */
     public function getDashboardChartsData(array $filters = []): array
     {
         return [
@@ -547,6 +568,9 @@ class ChartDataService
 
     /**
      * Clear chart data cache
+     */
+    /**
+     * ClearChartCache
      */
     public function clearChartCache(): void
     {

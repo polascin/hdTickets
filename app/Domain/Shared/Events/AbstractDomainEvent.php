@@ -5,10 +5,11 @@ namespace App\Domain\Shared\Events;
 use DateTimeImmutable;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
+use ReflectionClass;
 
 abstract class AbstractDomainEvent implements DomainEventInterface
 {
-    protected string $eventId;
+    protected string $domainEventId;
 
     protected DateTimeImmutable $occurredAt;
 
@@ -22,27 +23,39 @@ abstract class AbstractDomainEvent implements DomainEventInterface
      */
     public function __construct(array $metadata = [])
     {
-        $this->eventId = Uuid::uuid4()->toString();
+        $this->domainEventId = Uuid::uuid4()->toString();
         $this->occurredAt = new DateTimeImmutable();
         $this->version = '1.0';
         $this->metadata = $metadata;
     }
 
+    /**
+     * Get  event id
+     */
     public function getEventId(): string
     {
-        return $this->eventId;
+        return $this->domainEventId;
     }
 
+    /**
+     * Get  event type
+     */
     public function getEventType(): string
     {
         return static::class;
     }
 
+    /**
+     * Get  occurred at
+     */
     public function getOccurredAt(): DateTimeImmutable
     {
         return $this->occurredAt;
     }
 
+    /**
+     * Get  version
+     */
     public function getVersion(): string
     {
         return $this->version;
@@ -51,6 +64,9 @@ abstract class AbstractDomainEvent implements DomainEventInterface
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  metadata
+     */
     public function getMetadata(): array
     {
         return $this->metadata;
@@ -58,6 +74,9 @@ abstract class AbstractDomainEvent implements DomainEventInterface
 
     /**
      * @param array<string, mixed> $metadata
+     */
+    /**
+     * WithMetadata
      */
     public function withMetadata(array $metadata): static
     {
@@ -70,6 +89,9 @@ abstract class AbstractDomainEvent implements DomainEventInterface
     /**
      * Get the event name for serialization
      */
+    /**
+     * Get  event name
+     */
     public function getEventName(): string
     {
         return Str::snake(class_basename(static::class));
@@ -81,10 +103,13 @@ abstract class AbstractDomainEvent implements DomainEventInterface
     /**
      * @return array<string, mixed>
      */
+    /**
+     * ToArray
+     */
     public function toArray(): array
     {
         return [
-            'event_id'          => $this->eventId,
+            'event_id'          => $this->domainEventId,
             'event_type'        => $this->getEventType(),
             'aggregate_root_id' => $this->getAggregateRootId(),
             'aggregate_type'    => $this->getAggregateType(),
@@ -101,13 +126,18 @@ abstract class AbstractDomainEvent implements DomainEventInterface
     /**
      * @param array<string, mixed> $data
      */
+    /**
+     * FromArray
+     */
     public static function fromArray(array $data): static
     {
-        // Initialize with empty metadata first to ensure proper constructor behavior
-        $event = new static($data['metadata'] ?? []);
+        // Use reflection to create instance safely
+        $reflection = new ReflectionClass(static::class);
+        /** @var static $event */
+        $event = $reflection->newInstanceArgs([$data['metadata'] ?? []]);
 
         // Override the auto-generated values with the provided data
-        $event->eventId = $data['event_id'];
+        $event->domainEventId = $data['event_id'];
         $event->occurredAt = new DateTimeImmutable($data['occurred_at']);
         $event->version = $data['version'];
         $event->metadata = $data['metadata'] ?? [];
@@ -122,6 +152,9 @@ abstract class AbstractDomainEvent implements DomainEventInterface
      * Override in child classes to populate specific properties
      *
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

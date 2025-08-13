@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["resources/js/*"],
+      "@components/*": ["resources/js/components/*"],
+      "@composables/*": ["resources/js/composables/*"],
+      "@stores/*": ["resources/js/stores/*"],
+      "@utils/*": ["resources/js/utils/*"],
+      "@types/*": ["resources/js/types/*"],
+      "@assets/*": ["resources/assets/*"],
+      "@css/*": ["resources/css/*"]
+    },
+    "types": ["vite/client", "node"],
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "resources/js/**/*",
+    "resources/js/**/*.vue",
+    "resources/**/*.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "public",
+    "storage",
+    "vendor",
+    "bootstrap/cache",
+    "tests"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

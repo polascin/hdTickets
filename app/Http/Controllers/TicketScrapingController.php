@@ -6,6 +6,7 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Services\TicketScrapingService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,10 @@ class TicketScrapingController extends Controller
     /**
      * Display scraped tickets dashboard
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>', now())
@@ -65,7 +69,10 @@ class TicketScrapingController extends Controller
     /**
      * Search for tickets
      */
-    public function search(Request $request)
+    /**
+     * Search
+     */
+    public function search(Request $request): Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'keywords'    => 'required|string|max:255',
@@ -122,7 +129,10 @@ class TicketScrapingController extends Controller
     /**
      * Get Manchester United tickets
      */
-    public function manchesterUnited(Request $request)
+    /**
+     * ManchesterUnited
+     */
+    public function manchesterUnited(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $maxPrice = $request->get('max_price');
@@ -148,7 +158,10 @@ class TicketScrapingController extends Controller
     /**
      * Get high-demand sports tickets
      */
-    public function highDemandSports(Request $request)
+    /**
+     * HighDemandSports
+     */
+    public function highDemandSports(Request $request): Illuminate\Http\RedirectResponse
     {
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
@@ -177,8 +190,13 @@ class TicketScrapingController extends Controller
 
     /**
      * Show specific scraped ticket
+     *
+     * @param mixed $ticket
      */
-    public function show(ScrapedTicket $ticket)
+    /**
+     * Show
+     */
+    public function show($ticket): Illuminate\Contracts\View\View
     {
         $ticket->load(['metadata']);
 
@@ -188,7 +206,10 @@ class TicketScrapingController extends Controller
     /**
      * Purchase ticket (redirect to platform)
      */
-    public function purchase(Request $request, ScrapedTicket $ticket)
+    /**
+     * Purchase
+     */
+    public function purchase(Request $request, ScrapedTicket $ticket): Illuminate\Http\RedirectResponse
     {
         $validator = Validator::make($request->all(), [
             'max_price' => 'required|numeric|min:0',
@@ -225,7 +246,10 @@ class TicketScrapingController extends Controller
     /**
      * List user's ticket alerts
      */
-    public function alerts(Request $request)
+    /**
+     * Alerts
+     */
+    public function alerts(Request $request): Illuminate\Http\RedirectResponse
     {
         $alerts = TicketAlert::forUser(Auth::id())
             ->with(['user'])
@@ -238,7 +262,10 @@ class TicketScrapingController extends Controller
     /**
      * Create new ticket alert
      */
-    public function createAlert(Request $request)
+    /**
+     * CreateAlert
+     */
+    public function createAlert(): Illuminate\Contracts\View\View
     {
         $validator = Validator::make($request->all(), [
             'name'                => 'required|string|max:255',
@@ -293,7 +320,10 @@ class TicketScrapingController extends Controller
     /**
      * Update ticket alert
      */
-    public function updateAlert(Request $request, TicketAlert $alert)
+    /**
+     * UpdateAlert
+     */
+    public function updateAlert(): Illuminate\Http\RedirectResponse
     {
         // Ensure user owns the alert
         if ($alert->user_id !== Auth::id()) {
@@ -349,7 +379,10 @@ class TicketScrapingController extends Controller
     /**
      * Delete ticket alert
      */
-    public function deleteAlert(TicketAlert $alert)
+    /**
+     * DeleteAlert
+     */
+    public function deleteAlert(TicketAlert $alert): JsonResponse
     {
         // Ensure user owns the alert
         if ($alert->user_id !== Auth::id()) {
@@ -382,7 +415,10 @@ class TicketScrapingController extends Controller
     /**
      * Get trending Manchester United tickets
      */
-    public function trending(Request $request)
+    /**
+     * Trending
+     */
+    public function trending(Request $request): Illuminate\Http\RedirectResponse
     {
         $limit = $request->get('limit', 20);
         $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
@@ -397,7 +433,10 @@ class TicketScrapingController extends Controller
     /**
      * Get best sports deals
      */
-    public function bestDeals(Request $request)
+    /**
+     * BestDeals
+     */
+    public function bestDeals(Request $request): Illuminate\Http\RedirectResponse
     {
         $sport = $request->get('sport', 'football');
         $limit = $request->get('limit', 50);
@@ -415,7 +454,10 @@ class TicketScrapingController extends Controller
     /**
      * Manual check alerts
      */
-    public function checkAlerts(Request $request)
+    /**
+     * CheckAlerts
+     */
+    public function checkAlerts(Request $request): Illuminate\Http\RedirectResponse
     {
         try {
             $alertsChecked = $this->scrapingService->checkAlerts();
@@ -438,7 +480,10 @@ class TicketScrapingController extends Controller
     /**
      * Get scraping statistics
      */
-    public function stats(Request $request)
+    /**
+     * Stats
+     */
+    public function stats(Request $request): Illuminate\Http\RedirectResponse
     {
         $period = $request->get('period', '24h'); // 24h, 7d, 30d
 

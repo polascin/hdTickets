@@ -9,11 +9,11 @@ use Illuminate\Console\Command;
 class ProcessExpiredAccountDeletions extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'account-deletion:process-expired
+    protected $signature = 'account-deletion:process-expired
                            {--dry-run : Show what would be deleted without actually deleting}';
 
     /** The console command description. */
-    protected string $description = 'Process expired account deletion requests after grace period';
+    protected $description = 'Process expired account deletion requests after grace period';
 
     protected AccountDeletionProtectionService $deletionService;
 
@@ -28,6 +28,9 @@ class ProcessExpiredAccountDeletions extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {

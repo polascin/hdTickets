@@ -40,6 +40,9 @@ class PaymentPlan extends Model
     /**
      * Get all subscriptions for this plan
      */
+    /**
+     * Subscriptions
+     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(UserSubscription::class);
@@ -47,6 +50,9 @@ class PaymentPlan extends Model
 
     /**
      * Get active subscriptions for this plan
+     */
+    /**
+     * ActiveSubscriptions
      */
     public function activeSubscriptions(): HasMany
     {
@@ -58,7 +64,12 @@ class PaymentPlan extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -75,6 +86,9 @@ class PaymentPlan extends Model
 
     /**
      * Get formatted price for display
+     */
+    /**
+     * Get  formatted price attribute
      */
     public function getFormattedPriceAttribute(): string
     {
@@ -100,6 +114,9 @@ class PaymentPlan extends Model
     /**
      * Get monthly equivalent price for comparison
      */
+    /**
+     * Get  monthly equivalent attribute
+     */
     public function getMonthlyEquivalentAttribute(): float
     {
         switch ($this->billing_cycle) {
@@ -117,6 +134,9 @@ class PaymentPlan extends Model
     /**
      * Check if plan has unlimited tickets
      */
+    /**
+     * Check if has  unlimited tickets
+     */
     public function hasUnlimitedTickets(): bool
     {
         return $this->max_tickets_per_month === 0;
@@ -124,6 +144,9 @@ class PaymentPlan extends Model
 
     /**
      * Get feature list as HTML
+     */
+    /**
+     * Get  features list attribute
      */
     public function getFeaturesListAttribute(): string
     {
@@ -140,6 +163,9 @@ class PaymentPlan extends Model
 
     /**
      * Default payment plans seeder data
+     */
+    /**
+     * Get  default plans
      */
     public static function getDefaultPlans(): array
     {

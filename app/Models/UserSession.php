@@ -42,6 +42,9 @@ class UserSession extends Model
     /**
      * Get the user that owns the session.
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -52,7 +55,12 @@ class UserSession extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where(function ($q): void {
             $q->whereNull('expires_at')
@@ -93,6 +101,9 @@ class UserSession extends Model
     /**
      * Get formatted location string.
      */
+    /**
+     * Get  location string attribute
+     */
     public function getLocationStringAttribute(): string
     {
         if ($this->city && $this->country) {
@@ -109,6 +120,9 @@ class UserSession extends Model
     /**
      * Get formatted device information.
      */
+    /**
+     * Get  device info attribute
+     */
     public function getDeviceInfoAttribute(): string
     {
         $parts = array_filter([
@@ -123,6 +137,9 @@ class UserSession extends Model
     /**
      * Get device icon based on device type.
      */
+    /**
+     * Get  device icon attribute
+     */
     public function getDeviceIconAttribute(): string
     {
         return match (strtolower($this->device_type ?? '')) {
@@ -136,6 +153,9 @@ class UserSession extends Model
     /**
      * Check if session is expired.
      */
+    /**
+     * Check if  expired
+     */
     public function isExpired(): bool
     {
         return $this->expires_at && $this->expires_at <= now();
@@ -143,6 +163,9 @@ class UserSession extends Model
 
     /**
      * Check if session is active.
+     */
+    /**
+     * Check if  active
      */
     public function isActive(): bool
     {
@@ -152,6 +175,9 @@ class UserSession extends Model
     /**
      * Get time since last activity.
      */
+    /**
+     * Get  time since last activity attribute
+     */
     public function getTimeSinceLastActivityAttribute(): string
     {
         return $this->last_activity->diffForHumans();
@@ -159,6 +185,9 @@ class UserSession extends Model
 
     /**
      * Get session duration.
+     */
+    /**
+     * Get  session duration attribute
      */
     public function getSessionDurationAttribute(): string
     {
@@ -172,6 +201,9 @@ class UserSession extends Model
     /**
      * Mark session as trusted device.
      */
+    /**
+     * MarkAsTrusted
+     */
     public function markAsTrusted(): void
     {
         $this->update(['is_trusted' => TRUE]);
@@ -179,6 +211,9 @@ class UserSession extends Model
 
     /**
      * Revoke the session.
+     */
+    /**
+     * Revoke
      */
     public function revoke(): void
     {

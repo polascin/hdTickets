@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Log;
 
 class PurchaseService
 {
+    /**
+     * Purchase automation configuration
+     *
+     * @var array<string, mixed>
+     */
     protected array $config;
 
     public function __construct()
@@ -15,6 +20,16 @@ class PurchaseService
         $this->config = config('purchase_automation');
     }
 
+    /**
+     * Process a purchase attempt through third-party APIs
+     *
+     * @param PurchaseAttempt $attempt The purchase attempt to process
+     *
+     * @return object{success: bool, transactionId?: string, confirmationCode?: string, fees?: float, totalPrice?: float, errorMessage?: string, errorDetail?: string}
+     */
+    /**
+     * ProcessPurchase
+     */
     public function processPurchase(PurchaseAttempt $attempt): object
     {
         $platform = $attempt->platform;
@@ -61,6 +76,16 @@ class PurchaseService
         }
     }
 
+    /**
+     * Make API call to third-party purchase service
+     *
+     * @param PurchaseAttempt $attempt The purchase attempt data
+     *
+     * @return object{success: bool, transaction_id: string, confirmation_number: string, fees: float, totalPrice: float, message: string}
+     */
+    /**
+     * MakeApiCall
+     */
     private function makeApiCall(PurchaseAttempt $attempt): object
     {
         // Simulate API call to purchase

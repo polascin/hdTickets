@@ -18,6 +18,9 @@ class NewPasswordController extends Controller
     /**
      * Display the password reset view.
      */
+    /**
+     * Create
+     */
     public function create(Request $request): View
     {
         return view('auth.reset-password', ['request' => $request]);
@@ -27,6 +30,9 @@ class NewPasswordController extends Controller
      * Handle an incoming new password request.
      *
      * @throws \Illuminate\Validation\ValidationException
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse
     {

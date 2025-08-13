@@ -23,6 +23,9 @@ class ActivityLoggerMiddleware
     /**
      * Handle an incoming request and log user activity
      */
+    /**
+     * Handle
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
@@ -37,6 +40,9 @@ class ActivityLoggerMiddleware
 
     /**
      * Log user activity based on request
+     */
+    /**
+     * LogActivity
      */
     private function logActivity(Request $request, Response $response): void
     {
@@ -70,6 +76,9 @@ class ActivityLoggerMiddleware
     /**
      * Determine if we should skip logging for this request
      */
+    /**
+     * ShouldSkipLogging
+     */
     private function shouldSkipLogging(string $routeName, Request $request): bool
     {
         $skipRoutes = [
@@ -90,6 +99,9 @@ class ActivityLoggerMiddleware
 
     /**
      * Determine activity type and context based on the request
+     */
+    /**
+     * DetermineActivity
      */
     private function determineActivity(string $method, string $routeName, Request $request, int $statusCode): ?array
     {
@@ -175,6 +187,9 @@ class ActivityLoggerMiddleware
 
     /**
      * Get relevant parameters from request (excluding sensitive data)
+     */
+    /**
+     * Get  relevant parameters
      */
     private function getRelevantParameters(Request $request): array
     {

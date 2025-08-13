@@ -40,6 +40,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         $this->initializeHttpClient();
     }
 
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -66,23 +69,35 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
+    /**
+     * Enable
+     */
     public function enable(): void
     {
         $this->enabled = TRUE;
         Log::info('Liverpool FC plugin enabled');
     }
 
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
         Log::info('Liverpool FC plugin disabled');
     }
 
+    /**
+     * Configure
+     */
     public function configure(array $config): void
     {
         $this->config = array_merge($this->config, $config);
@@ -99,6 +114,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         Log::info('Liverpool FC plugin configured', ['config' => $config]);
     }
 
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -137,6 +155,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * Test
+     */
     public function test(): array
     {
         try {
@@ -163,6 +184,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * InitializeHttpClient
+     */
     private function initializeHttpClient(): void
     {
         $this->httpClient = new Client([
@@ -178,6 +202,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         ]);
     }
 
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(array $criteria): string
     {
         $params = [];
@@ -195,6 +222,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return $this->baseUrl . $this->ticketsEndpoint . '?' . $queryString;
     }
 
+    /**
+     * MapCompetition
+     */
     private function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -207,6 +237,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return $mapping[strtolower($competition)] ?? 'all';
     }
 
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(string $html): array
     {
         $events = [];
@@ -233,6 +266,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return $events;
     }
 
+    /**
+     * ExtractEventData
+     */
     private function extractEventData(DOMXPath $xpath, DOMElement $eventNode): array
     {
         return [
@@ -251,6 +287,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * BuildDescription
+     */
     private function buildDescription(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $parts = [];
@@ -274,6 +313,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return implode("\n", $parts);
     }
 
+    /**
+     * ExtractCompetition
+     */
     private function extractCompetition(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $competitionIndicators = [
@@ -293,6 +335,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return 'Football Match';
     }
 
+    /**
+     * ExtractAvailabilityStatus
+     */
     private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $statusIndicators = [
@@ -313,6 +358,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return 'unknown';
     }
 
+    /**
+     * ExtractText
+     */
     private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -320,6 +368,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
     }
 
+    /**
+     * ExtractUrl
+     */
     private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -332,6 +383,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return '';
     }
 
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
     {
         $priceText = $this->extractText($xpath, $selector, $context);
@@ -343,6 +397,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return NULL;
     }
 
+    /**
+     * ExtractAndParseDate
+     */
     private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
     {
         $dateText = $this->extractText($xpath, $selector, $context);
@@ -362,6 +419,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * FilterResults
+     */
     private function filterResults(array $events, array $criteria): array
     {
         $filtered = $events;
@@ -410,6 +470,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         return array_slice(array_values($filtered), 0, $maxResults);
     }
 
+    /**
+     * EnforceRateLimit
+     */
     private function enforceRateLimit(): void
     {
         $lastRequest = Cache::get('liverpoolfc_last_request', 0);
@@ -423,6 +486,9 @@ class LiverpoolFCPlugin implements ScraperPluginInterface
         Cache::put('liverpoolfc_last_request', microtime(TRUE), 60);
     }
 
+    /**
+     * MakeRequest
+     */
     private function makeRequest(string $url): string
     {
         try {

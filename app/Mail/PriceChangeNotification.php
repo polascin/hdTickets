@@ -42,10 +42,11 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
         $this->ticket = $ticket;
         $this->oldPrice = $oldPrice;
         $this->newPrice = $newPrice;
-        $this->priceChange = $newPrice - $oldPrice;
-        $this->changePercentage = $oldPrice > 0 ? round(($this->priceChange / $oldPrice) * 100, 2) : 0;
         $this->user = $user;
-        $this->platform = $platform ?: $ticket['platform'] ?? 'Unknown';
+        $this->platform = $platform;
+
+        $this->priceChange = $newPrice - $oldPrice;
+        $this->changePercentage = $oldPrice > 0 ? (($newPrice - $oldPrice) / $oldPrice) * 100 : 0;
     }
 
     /**
@@ -53,20 +54,10 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
      */
     public function envelope(): Envelope
     {
-        $direction = $this->priceChange > 0 ? 'Increased' : 'Decreased';
-        $subject = "🎫 Price {$direction}: {$this->ticket['event_name']}";
+        $subject = $this->priceChange > 0 ? 'Price Increase Alert' : 'Price Drop Alert';
 
         return new Envelope(
-            subject: $subject,
-            from: config('mail.from.address'),
-            replyTo: config('mail.from.address'),
-            tags: ['price-change', 'ticket-alert'],
-            metadata: [
-                'ticket_id'    => $this->ticket['id'] ?? NULL,
-                'platform'     => $this->platform,
-                'price_change' => $this->priceChange,
-                'user_id'      => $this->user['id'] ?? NULL,
-            ],
+            subject: $subject . ' - ' . $this->ticket->title,
         );
     }
 
@@ -77,7 +68,6 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.price-change-notification',
-            text: 'emails.price-change-notification-text',
             with: [
                 'ticket'           => $this->ticket,
                 'oldPrice'         => $this->oldPrice,
@@ -86,8 +76,6 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
                 'changePercentage' => $this->changePercentage,
                 'user'             => $this->user,
                 'platform'         => $this->platform,
-                'isIncrease'       => $this->priceChange > 0,
-                'isSignificant'    => abs($this->changePercentage) >= 10,
             ],
         );
     }
@@ -96,6 +84,9 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
      * Get the attachments for the message.
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    /**
+     * Attachments
      */
     public function attachments(): array
     {

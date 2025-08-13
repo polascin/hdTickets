@@ -18,6 +18,9 @@ class TicketmasterController extends Controller
     /**
      * Search Ticketmaster events (without importing)
      */
+    /**
+     * Search
+     */
     public function search(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -68,6 +71,9 @@ class TicketmasterController extends Controller
     /**
      * Get detailed event information
      */
+    /**
+     * Get  event details
+     */
     public function getEventDetails(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -115,6 +121,9 @@ class TicketmasterController extends Controller
     /**
      * Import Ticketmaster events as tickets
      */
+    /**
+     * Import
+     */
     public function import(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -156,6 +165,9 @@ class TicketmasterController extends Controller
     /**
      * Get scraping statistics
      */
+    /**
+     * Stats
+     */
     public function stats(): JsonResponse
     {
         try {
@@ -176,6 +188,9 @@ class TicketmasterController extends Controller
 
     /**
      * Import specific events by URLs
+     */
+    /**
+     * ImportUrls
      */
     public function importUrls(Request $request): JsonResponse
     {

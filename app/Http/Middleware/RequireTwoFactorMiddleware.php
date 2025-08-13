@@ -26,6 +26,9 @@ class RequireTwoFactorMiddleware
      *
      * @param Closure(Request): (Response) $next
      */
+    /**
+     * Handle
+     */
     public function handle(Request $request, Closure $next, string $action = 'default'): Response
     {
         $user = Auth::user();
@@ -102,6 +105,9 @@ class RequireTwoFactorMiddleware
     /**
      * Mark 2FA as verified for a specific action in this session
      */
+    /**
+     * MarkTwoFactorVerified
+     */
     public static function markTwoFactorVerified(string $action): void
     {
         $sessionKey = "2fa_verified_for_{$action}";
@@ -119,6 +125,9 @@ class RequireTwoFactorMiddleware
 
     /**
      * Clear all 2FA verifications from session (e.g., on logout)
+     */
+    /**
+     * ClearTwoFactorVerifications
      */
     public static function clearTwoFactorVerifications(): void
     {
@@ -145,7 +154,10 @@ class RequireTwoFactorMiddleware
      *
      * @param mixed $user
      */
-    protected function requiresTwoFactor($user, string $action): bool
+    /**
+     * RequiresTwoFactor
+     */
+    protected function requiresTwoFactor(App\Models\User $user, string $action): bool
     {
         $securityConfig = config('security.two_factor', []);
 
@@ -184,6 +196,9 @@ class RequireTwoFactorMiddleware
 
     /**
      * Check if an action is considered sensitive
+     */
+    /**
+     * Check if  sensitive action
      */
     protected function isSensitiveAction(string $action): bool
     {

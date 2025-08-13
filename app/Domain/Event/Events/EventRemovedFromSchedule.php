@@ -11,17 +11,23 @@ final class EventRemovedFromSchedule extends AbstractDomainEvent
     public function __construct(
         public EventId $eventId,
         public DateTimeImmutable $scheduleDate,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->eventId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'event_schedule';
@@ -29,6 +35,9 @@ final class EventRemovedFromSchedule extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -40,6 +49,9 @@ final class EventRemovedFromSchedule extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

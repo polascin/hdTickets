@@ -34,6 +34,9 @@ class UserPreferencePreset extends Model
     /**
      * Get the user who created this preset
      */
+    /**
+     * Creator
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -64,7 +67,12 @@ class UserPreferencePreset extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -84,6 +92,9 @@ class UserPreferencePreset extends Model
 
     /**
      * Get default system presets
+     */
+    /**
+     * Get  default presets
      */
     public static function getDefaultPresets(): array
     {
@@ -158,6 +169,9 @@ class UserPreferencePreset extends Model
     /**
      * Create default system presets
      */
+    /**
+     * CreateSystemPresets
+     */
     public static function createSystemPresets(): void
     {
         $defaults = self::getDefaultPresets();
@@ -180,6 +194,9 @@ class UserPreferencePreset extends Model
 
     /**
      * Create a user preset from current preferences
+     */
+    /**
+     * CreateFromUserPreferences
      */
     public static function createFromUserPreferences(
         int $userId,
@@ -217,6 +234,9 @@ class UserPreferencePreset extends Model
 
     /**
      * Apply this preset to a user
+     */
+    /**
+     * ApplyToUser
      */
     public function applyToUser(int $userId): array
     {
@@ -261,6 +281,9 @@ class UserPreferencePreset extends Model
     /**
      * Get presets accessible to a user with usage statistics
      */
+    /**
+     * Get  accessible presets with stats
+     */
     public static function getAccessiblePresetsWithStats(int $userId): \Illuminate\Database\Eloquent\Collection
     {
         return self::accessibleTo($userId)
@@ -277,6 +300,9 @@ class UserPreferencePreset extends Model
     /**
      * Duplicate this preset for a user
      */
+    /**
+     * DuplicateForUser
+     */
     public function duplicateForUser(int $userId, ?string $newName = NULL): self
     {
         return self::create([
@@ -291,6 +317,9 @@ class UserPreferencePreset extends Model
 
     /**
      * Validate preset data structure
+     */
+    /**
+     * ValidatePresetData
      */
     public function validatePresetData(): array
     {
@@ -333,6 +362,9 @@ class UserPreferencePreset extends Model
 
     /**
      * Get preset summary for display
+     */
+    /**
+     * Get  summary
      */
     public function getSummary(): array
     {

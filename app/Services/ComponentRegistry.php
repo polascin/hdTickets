@@ -54,6 +54,9 @@ class ComponentRegistry
     /**
      * Register a component
      */
+    /**
+     * Register
+     */
     public function register(string $name, string $type, array $config = []): void
     {
         if (! in_array($type, array_keys($this->componentTypes), TRUE)) {
@@ -86,6 +89,9 @@ class ComponentRegistry
     /**
      * Get a component by name
      */
+    /**
+     * Get
+     */
     public function get(string $name): ?array
     {
         return $this->components->get($name);
@@ -93,6 +99,9 @@ class ComponentRegistry
 
     /**
      * Get all components of a specific type
+     */
+    /**
+     * Get  by type
      */
     public function getByType(string $type): Collection
     {
@@ -102,6 +111,9 @@ class ComponentRegistry
     /**
      * Get all components in a category
      */
+    /**
+     * Get  by category
+     */
     public function getByCategory(string $category): Collection
     {
         return $this->components->filter(fn ($component) => $component['category'] === $category);
@@ -109,6 +121,9 @@ class ComponentRegistry
 
     /**
      * Load a component and its dependencies
+     */
+    /**
+     * Load
      */
     public function load(string $name): array
     {
@@ -140,6 +155,9 @@ class ComponentRegistry
     /**
      * Lazy load Vue components
      */
+    /**
+     * LazyLoad
+     */
     public function lazyLoad(string $name): array
     {
         $component = $this->get($name);
@@ -161,16 +179,25 @@ class ComponentRegistry
     /**
      * Component lifecycle event handlers
      */
+    /**
+     * OnComponentCreated
+     */
     public function onComponentCreated(callable $callback): void
     {
         // Implementation for creation hooks
     }
 
+    /**
+     * OnComponentLoaded
+     */
     public function onComponentLoaded(callable $callback): void
     {
         // Implementation for loading hooks
     }
 
+    /**
+     * OnComponentError
+     */
     public function onComponentError(callable $callback): void
     {
         // Implementation for error hooks
@@ -178,6 +205,9 @@ class ComponentRegistry
 
     /**
      * Get component statistics
+     */
+    /**
+     * Get  stats
      */
     public function getStats(): array
     {
@@ -193,6 +223,9 @@ class ComponentRegistry
 
     /**
      * Validate component structure
+     */
+    /**
+     * Validate
      */
     public function validate(string $name): array
     {
@@ -225,6 +258,9 @@ class ComponentRegistry
     /**
      * Generate component documentation
      */
+    /**
+     * GenerateDocs
+     */
     public function generateDocs(): array
     {
         $docs = [];
@@ -248,6 +284,9 @@ class ComponentRegistry
     /**
      * Clear component cache
      */
+    /**
+     * ClearCache
+     */
     public function clearCache(): void
     {
         $this->loadedComponents->forget($this->loadedComponents->keys());
@@ -257,6 +296,9 @@ class ComponentRegistry
     /**
      * Get all registered components
      */
+    /**
+     * All
+     */
     public function all(): Collection
     {
         return $this->components;
@@ -264,6 +306,9 @@ class ComponentRegistry
 
     /**
      * Initialize the component registry
+     */
+    /**
+     * InitializeRegistry
      */
     private function initializeRegistry(): void
     {
@@ -274,6 +319,9 @@ class ComponentRegistry
 
     /**
      * Discover components from file system
+     */
+    /**
+     * DiscoverComponents
      */
     private function discoverComponents(): void
     {
@@ -301,6 +349,9 @@ class ComponentRegistry
     /**
      * Auto-register discovered components
      */
+    /**
+     * AutoRegisterComponent
+     */
     private function autoRegisterComponent(string $name, string $type, string $path): void
     {
         $config = $this->parseComponentConfig($path);
@@ -311,6 +362,9 @@ class ComponentRegistry
 
     /**
      * Parse component configuration from file
+     */
+    /**
+     * ParseComponentConfig
      */
     private function parseComponentConfig(string $path): array
     {
@@ -352,6 +406,9 @@ class ComponentRegistry
     /**
      * Extract component name from file path
      */
+    /**
+     * ExtractComponentName
+     */
     private function extractComponentName(string $filePath, string $basePath, string $extension): string
     {
         $relativePath = str_replace($basePath . '/', '', $filePath);
@@ -364,6 +421,9 @@ class ComponentRegistry
     /**
      * Resolve component path
      */
+    /**
+     * ResolveComponentPath
+     */
     private function resolveComponentPath(string $name, string $type): string
     {
         $config = $this->componentTypes[$type];
@@ -374,6 +434,9 @@ class ComponentRegistry
 
     /**
      * Load component content
+     */
+    /**
+     * LoadComponent
      */
     private function loadComponent(array $component): array
     {
@@ -391,6 +454,9 @@ class ComponentRegistry
 
     /**
      * Establish clear boundaries between component types
+     */
+    /**
+     * EstablishComponentBoundaries
      */
     private function establishComponentBoundaries(): void
     {
@@ -446,6 +512,9 @@ class ComponentRegistry
     /**
      * Set boundary rules for component type
      */
+    /**
+     * Set  boundary
+     */
     private function setBoundary(string $type, array $rules): void
     {
         $this->componentTypes[$type]['boundaries'] = $rules;
@@ -453,6 +522,9 @@ class ComponentRegistry
 
     /**
      * Setup component lifecycle hooks
+     */
+    /**
+     * Set up lifecycle hooks
      */
     private function setupLifecycleHooks(): void
     {
@@ -474,6 +546,9 @@ class ComponentRegistry
 
     /**
      * Generate usage example for component
+     */
+    /**
+     * GenerateUsageExample
      */
     private function generateUsageExample(array $component): string
     {

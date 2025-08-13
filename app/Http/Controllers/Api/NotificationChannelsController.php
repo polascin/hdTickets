@@ -26,6 +26,9 @@ class NotificationChannelsController extends Controller
     /**
      * Get user's notification channels
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -63,6 +66,9 @@ class NotificationChannelsController extends Controller
 
     /**
      * Create or update a notification channel
+     */
+    /**
+     * Store
      */
     public function store(Request $request): JsonResponse
     {
@@ -130,6 +136,9 @@ class NotificationChannelsController extends Controller
     /**
      * Get specific channel settings
      */
+    /**
+     * Show
+     */
     public function show(Request $request, string $channel): JsonResponse
     {
         try {
@@ -169,6 +178,9 @@ class NotificationChannelsController extends Controller
 
     /**
      * Update channel settings
+     */
+    /**
+     * Update
      */
     public function update(Request $request, string $channel): JsonResponse
     {
@@ -240,6 +252,9 @@ class NotificationChannelsController extends Controller
     /**
      * Delete a notification channel
      */
+    /**
+     * Destroy
+     */
     public function destroy(Request $request, string $channel): JsonResponse
     {
         try {
@@ -273,6 +288,9 @@ class NotificationChannelsController extends Controller
 
     /**
      * Test a notification channel
+     */
+    /**
+     * Test
      */
     public function test(Request $request, string $channel): JsonResponse
     {
@@ -308,6 +326,9 @@ class NotificationChannelsController extends Controller
 
     /**
      * Toggle channel enabled status
+     */
+    /**
+     * Toggle
      */
     public function toggle(Request $request, string $channel): JsonResponse
     {
@@ -347,6 +368,9 @@ class NotificationChannelsController extends Controller
     /**
      * Get supported channels information
      */
+    /**
+     * Supported
+     */
     public function supported(): JsonResponse
     {
         return response()->json([
@@ -357,6 +381,9 @@ class NotificationChannelsController extends Controller
 
     /**
      * Validate channel data
+     */
+    /**
+     * ValidateChannelData
      */
     protected function validateChannelData(array $data, ?string $channel = NULL): \Illuminate\Validation\Validator
     {

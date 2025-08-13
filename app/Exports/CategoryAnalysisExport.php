@@ -19,29 +19,38 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 use function count;
 
+/**
+ * @implements WithMapping<array{name?: string, total_tickets?: int, resolved_tickets?: int, overdue_tickets?: int, resolution_rate?: float, avg_resolution_time?: float}>
+ */
 class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
 {
-    /** @var mixed */
-    protected $categoryData;
+    /** @var array<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}> */
+    protected array $categoryData;
 
     /**
-     * @param mixed $categoryData
+     * @param array<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}> $categoryData
      */
-    public function __construct($categoryData)
+    public function __construct(array $categoryData)
     {
         $this->categoryData = $categoryData;
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         return collect($this->categoryData);
     }
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -56,9 +65,12 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
     }
 
     /**
-     * @param mixed $category
+     * @param array{name?: string, total_tickets?: int, resolved_tickets?: int, overdue_tickets?: int, resolution_rate?: float, avg_resolution_time?: float} $category
      *
-     * @return array<int, mixed>
+     * @return array<int, float|int|string> Array shape: [name, total_tickets, resolved_tickets, overdue_tickets, resolution_rate, avg_resolution_time]
+     */
+    /**
+     * Map
      */
     public function map($category): array
     {
@@ -74,6 +86,9 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
 
     /**
      * @return array<int|string, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {
@@ -98,7 +113,10 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
     }
 
     /**
-     * @return array<Chart>
+     * @return array<int, Chart>
+     */
+    /**
+     * Charts
      */
     public function charts(): array
     {
@@ -114,7 +132,7 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
 
         foreach ($data as $index => $category) {
             $categories[] = new DataSeriesValues('String', 'Worksheet!$A$' . ($index + 2), NULL, 1);
-            $resolutionRates[] = $category['resolution_rate'] ?? 0;
+            $resolutionRates[] = $category['resolution_rate'];
         }
 
         $dataSeriesLabels = [
@@ -128,7 +146,7 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
         ];
 
         $series = new DataSeries(
-            DataSeries::TYPE_COLUMNCHART,
+            DataSeries::TYPE_BARCHART,
             DataSeries::GROUPING_CLUSTERED,
             range(0, count($dataSeriesValues) - 1),
             $dataSeriesLabels,

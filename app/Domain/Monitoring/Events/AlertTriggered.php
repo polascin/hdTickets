@@ -13,20 +13,26 @@ final class AlertTriggered extends AbstractDomainEvent
         public string $userId,
         public string $alertType,
         public string $severity,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Alert-specific data including trigger conditions, thresholds, current values, etc. */
         public array $alertData,
         public DateTimeImmutable $triggeredAt,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->alertId;
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'alert';
@@ -34,6 +40,9 @@ final class AlertTriggered extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -50,6 +59,9 @@ final class AlertTriggered extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

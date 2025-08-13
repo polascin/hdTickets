@@ -10,6 +10,9 @@ class WebSocketServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
+    /**
+     * Boot
+     */
     public function boot(BroadcastManager $broadcast): void
     {
         $broadcast->routes();
@@ -18,6 +21,9 @@ class WebSocketServiceProvider extends ServiceProvider
 
     /**
      * Register services.
+     */
+    /**
+     * Register
      */
     public function register(): void
     {

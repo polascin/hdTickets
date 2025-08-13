@@ -29,6 +29,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Search for events on SeeTickets
      */
+    /**
+     * SearchEvents
+     */
     public function searchEvents(string $query, array $filters = []): array
     {
         try {
@@ -64,6 +67,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Get detailed event information
      */
+    /**
+     * Get  event details
+     */
     public function getEventDetails(string $eventUrl): array
     {
         $cacheKey = 'seetickets_event_' . md5($eventUrl);
@@ -96,6 +102,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Import tickets from SeeTickets
+     */
+    /**
+     * ImportTickets
      */
     public function importTickets(array $eventUrls): array
     {
@@ -138,6 +147,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Get platform statistics
      */
+    /**
+     * Get  statistics
+     */
     public function getStatistics(): array
     {
         $totalTickets = ScrapedTicket::where('platform', $this->platformName)->count();
@@ -162,6 +174,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Build search URL with parameters
+     */
+    /**
+     * BuildSearchUrl
      */
     private function buildSearchUrl(string $query, array $filters): string
     {
@@ -196,6 +211,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Parse search results from HTML
      */
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(string $html, string $query): array
     {
         $dom = new DOMDocument();
@@ -228,6 +246,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Extract event data from DOM node
+     */
+    /**
+     * ExtractEventData
      */
     private function extractEventData(DOMNode $node, DOMXPath $xpath): ?array
     {
@@ -281,6 +302,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Parse detailed event information
+     */
+    /**
+     * ParseEventDetails
      */
     private function parseEventDetails(string $html, string $eventUrl): array
     {
@@ -341,6 +365,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Extract individual ticket data
      */
+    /**
+     * ExtractTicketData
+     */
     private function extractTicketData(DOMNode $ticketNode, DOMXPath $xpath): ?array
     {
         // Extract section/category
@@ -383,6 +410,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Create ticket record in database
      */
+    /**
+     * CreateTicketRecord
+     */
     private function createTicketRecord(array $ticketData, array $eventData): ?ScrapedTicket
     {
         try {
@@ -419,6 +449,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Parse event date from various formats
+     */
+    /**
+     * ParseEventDate
      */
     private function parseEventDate(string $dateStr): ?string
     {
@@ -458,6 +491,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Parse price range text
      */
+    /**
+     * ParsePriceRange
+     */
     private function parsePriceRange(string $priceText): ?array
     {
         $priceText = preg_replace('/[^\d.,£\-\s]/', '', $priceText);
@@ -495,6 +531,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Extract price from text
      */
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(string $priceText): ?float
     {
         $priceText = preg_replace('/[^\d.]/', '', $priceText);
@@ -504,6 +543,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Categorize event based on title and context
+     */
+    /**
+     * CategorizeEvent
      */
     private function categorizeEvent(string $title): string
     {
@@ -535,6 +577,9 @@ class SeeTicketsService extends BasePlatformService
     /**
      * Extract ticket type from section name
      */
+    /**
+     * ExtractTicketType
+     */
     private function extractTicketType(string $section): string
     {
         $section = strtolower($section);
@@ -556,6 +601,9 @@ class SeeTicketsService extends BasePlatformService
 
     /**
      * Extract ticket restrictions
+     */
+    /**
+     * ExtractRestrictions
      */
     private function extractRestrictions(DOMNode $ticketNode, DOMXPath $xpath): array
     {

@@ -27,6 +27,9 @@ class PluginBasedScraperManager
     /**
      * Register a new plugin
      */
+    /**
+     * RegisterPlugin
+     */
     public function registerPlugin(string $name, ScraperPluginInterface $plugin): void
     {
         $this->plugins[$name] = $plugin;
@@ -36,6 +39,9 @@ class PluginBasedScraperManager
     /**
      * Get all registered plugins
      */
+    /**
+     * Get  plugins
+     */
     public function getPlugins(): array
     {
         return $this->plugins;
@@ -44,6 +50,9 @@ class PluginBasedScraperManager
     /**
      * Get specific plugin
      */
+    /**
+     * Get  plugin
+     */
     public function getPlugin(string $name): ?ScraperPluginInterface
     {
         return $this->plugins[$name] ?? NULL;
@@ -51,6 +60,9 @@ class PluginBasedScraperManager
 
     /**
      * Run scraping across all enabled plugins
+     */
+    /**
+     * ScrapeAll
      */
     public function scrapeAll(array $criteria): array
     {
@@ -116,6 +128,9 @@ class PluginBasedScraperManager
     /**
      * Run scraping with specific plugin
      */
+    /**
+     * ScrapeWithPlugin
+     */
     public function scrapeWithPlugin(string $pluginName, array $criteria): array
     {
         $plugin = $this->getPlugin($pluginName);
@@ -134,6 +149,9 @@ class PluginBasedScraperManager
     /**
      * Enable plugin
      */
+    /**
+     * EnablePlugin
+     */
     public function enablePlugin(string $name): void
     {
         if (isset($this->plugins[$name])) {
@@ -145,6 +163,9 @@ class PluginBasedScraperManager
     /**
      * Disable plugin
      */
+    /**
+     * DisablePlugin
+     */
     public function disablePlugin(string $name): void
     {
         if (isset($this->plugins[$name])) {
@@ -155,6 +176,9 @@ class PluginBasedScraperManager
 
     /**
      * Get plugin statistics
+     */
+    /**
+     * Get  plugin stats
      */
     public function getPluginStats(): array
     {
@@ -177,6 +201,9 @@ class PluginBasedScraperManager
     /**
      * Update plugin statistics
      */
+    /**
+     * UpdatePluginStats
+     */
     public function updatePluginStats(string $name, bool $success, int $resultCount): void
     {
         $totalRuns = Cache::get("plugin_total_runs_{$name}", 0) + 1;
@@ -197,6 +224,9 @@ class PluginBasedScraperManager
     /**
      * Configure plugin
      */
+    /**
+     * ConfigurePlugin
+     */
     public function configurePlugin(string $name, array $config): void
     {
         if (isset($this->plugins[$name])) {
@@ -210,6 +240,9 @@ class PluginBasedScraperManager
 
     /**
      * Test plugin functionality
+     */
+    /**
+     * TestPlugin
      */
     public function testPlugin(string $name): array
     {
@@ -252,6 +285,9 @@ class PluginBasedScraperManager
     /**
      * Get plugin performance metrics
      */
+    /**
+     * Get  plugin metrics
+     */
     public function getPluginMetrics(string $name): array
     {
         $plugin = $this->getPlugin($name);
@@ -281,6 +317,9 @@ class PluginBasedScraperManager
     /**
      * Clear plugin cache and statistics
      */
+    /**
+     * ClearPluginCache
+     */
     public function clearPluginCache(string $name): void
     {
         $cacheKeys = [
@@ -305,6 +344,9 @@ class PluginBasedScraperManager
 
     /**
      * Get overall scraping health status
+     */
+    /**
+     * Get  health status
      */
     public function getHealthStatus(): array
     {
@@ -343,6 +385,9 @@ class PluginBasedScraperManager
     /**
      * Load and register scraper plugins
      */
+    /**
+     * LoadPlugins
+     */
     protected function loadPlugins(): void
     {
         $this->enabledPlugins = config('scraping.enabled_plugins', [
@@ -363,6 +408,9 @@ class PluginBasedScraperManager
 
     /**
      * Auto-discover scraper plugins
+     */
+    /**
+     * DiscoverPlugins
      */
     protected function discoverPlugins(): void
     {
@@ -394,6 +442,9 @@ class PluginBasedScraperManager
 
     /**
      * Load plugin configurations from cache/config
+     */
+    /**
+     * LoadPluginConfigurations
      */
     protected function loadPluginConfigurations(): void
     {

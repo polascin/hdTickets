@@ -19,36 +19,57 @@ final readonly class Venue
         $this->validate($name, $city, $country, $capacity);
     }
 
+    /**
+     * Name
+     */
     public function name(): string
     {
         return $this->name;
     }
 
+    /**
+     * City
+     */
     public function city(): string
     {
         return $this->city;
     }
 
+    /**
+     * Country
+     */
     public function country(): string
     {
         return $this->country;
     }
 
+    /**
+     * Address
+     */
     public function address(): ?string
     {
         return $this->address;
     }
 
+    /**
+     * Capacity
+     */
     public function capacity(): ?int
     {
         return $this->capacity;
     }
 
+    /**
+     * FullName
+     */
     public function fullName(): string
     {
         return sprintf('%s, %s, %s', $this->name, $this->city, $this->country);
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->name === $other->name
@@ -58,6 +79,9 @@ final readonly class Venue
                && $this->capacity === $other->capacity;
     }
 
+    /**
+     * Create
+     */
     public static function create(
         string $name,
         string $city,
@@ -68,6 +92,9 @@ final readonly class Venue
         return new self($name, $city, $country, $address, $capacity);
     }
 
+    /**
+     * Validate
+     */
     private function validate(string $name, string $city, string $country, ?int $capacity): void
     {
         if (empty(trim($name))) {
@@ -103,6 +130,9 @@ final readonly class Venue
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->fullName();

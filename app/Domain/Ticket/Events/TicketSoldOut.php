@@ -14,19 +14,25 @@ final class TicketSoldOut extends AbstractDomainEvent
         public PlatformSource $platformSource,
         public DateTimeImmutable $soldOutAt,
         public int $durationOnSaleMinutes,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Final pricing information including last known price and currency */
         public array $finalPriceData = [],
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->ticketId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'ticket';
@@ -34,6 +40,9 @@ final class TicketSoldOut extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -48,6 +57,9 @@ final class TicketSoldOut extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

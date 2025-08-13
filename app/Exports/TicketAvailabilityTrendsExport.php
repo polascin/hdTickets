@@ -3,8 +3,6 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithCharts;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -19,23 +17,22 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 use function count;
 
-class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
+/**
+ * @implements WithMapping<mixed>
+ */
+class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
-    /** @var mixed */
-    protected $trends;
+    /** @var \Illuminate\Support\Collection<int, object{status: string, total: int}> */
+    protected \Illuminate\Support\Collection $trends;
 
-    /** @var mixed */
-    protected $startDate;
+    protected string $startDate;
 
-    /** @var mixed */
-    protected $endDate;
+    protected string $endDate;
 
     /**
-     * @param mixed $trends
-     * @param mixed $startDate
-     * @param mixed $endDate
+     * @param \Illuminate\Support\Collection<int, object{status: string, total: int}> $trends
      */
-    public function __construct($trends, $startDate, $endDate)
+    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
     {
         $this->trends = $trends;
         $this->startDate = $startDate;
@@ -43,15 +40,21 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<int, object{status: string, total: int}>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         return collect($this->trends);
     }
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -64,9 +67,14 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
     }
 
     /**
-     * @param mixed $trend
+     * @param object{status: string, total: int} $trend
      *
-     * @return array<int, mixed>
+     * @return array<int, float|int|string> Array shape: [status, total, percentage, trend_analysis]
+     */
+    /**
+     * Map
+     *
+     * @param mixed $trend
      */
     public function map($trend): array
     {
@@ -83,6 +91,9 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
 
     /**
      * @return array<int|string, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {
@@ -105,7 +116,10 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
     }
 
     /**
-     * @return array<Chart>
+     * @return array<int, Chart>
+     */
+    /**
+     * Charts
      */
     public function charts(): array
     {
@@ -158,10 +172,12 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
     }
 
     /**
-     * @param string $status
-     * @param int    $count
+     * @return string Trend analysis description
      */
-    private function analyzeTrend($status, $count): string
+    /**
+     * AnalyzeTrend
+     */
+    private function analyzeTrend(string $status, int $count): string
     {
         switch ($status) {
             case 'active':

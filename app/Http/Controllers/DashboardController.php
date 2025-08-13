@@ -25,7 +25,9 @@ class DashboardController extends Controller
      */
     public function index(): \Illuminate\Contracts\View\View
     {
-        $user = Auth::user();
+        if (! $user = Auth::user()) {
+            abort(401);
+        }
 
         // Safely get user statistics with defaults
         $userStats = $this->getUserStats($user);
@@ -193,7 +195,9 @@ class DashboardController extends Controller
      */
     public function getUserMetrics(Request $request): array
     {
-        $user = Auth::user();
+        if (! $user = Auth::user()) {
+            abort(401);
+        }
         if (! $user) {
             return [
                 'success' => FALSE,

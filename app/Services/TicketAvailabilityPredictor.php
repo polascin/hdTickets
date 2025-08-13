@@ -26,6 +26,9 @@ class TicketAvailabilityPredictor
     /**
      * Predict ticket availability trend using ML features
      */
+    /**
+     * PredictAvailabilityTrend
+     */
     public function predictAvailabilityTrend(ScrapedTicket $ticket): array
     {
         $cacheKey = "prediction:{$ticket->id}:" . md5($ticket->updated_at);
@@ -68,6 +71,9 @@ class TicketAvailabilityPredictor
 
     /**
      * Extract features for machine learning model
+     */
+    /**
+     * ExtractFeatures
      */
     protected function extractFeatures(ScrapedTicket $ticket): array
     {
@@ -123,6 +129,9 @@ class TicketAvailabilityPredictor
     /**
      * Predict availability trend
      */
+    /**
+     * PredictAvailability
+     */
     protected function predictAvailability(array $features): array
     {
         $score = 0;
@@ -177,6 +186,9 @@ class TicketAvailabilityPredictor
     /**
      * Predict price trend
      */
+    /**
+     * PredictPriceTrend
+     */
     protected function predictPriceTrend(array $features): array
     {
         $score = 0;
@@ -229,6 +241,9 @@ class TicketAvailabilityPredictor
 
     /**
      * Predict demand level
+     */
+    /**
+     * PredictDemand
      */
     protected function predictDemand(array $features): array
     {
@@ -289,6 +304,9 @@ class TicketAvailabilityPredictor
     /**
      * Calculate prediction confidence
      */
+    /**
+     * CalculateConfidence
+     */
     protected function calculateConfidence(array $features): float
     {
         $confidence = 0.5; // Base confidence
@@ -318,6 +336,9 @@ class TicketAvailabilityPredictor
 
     /**
      * Generate ML-based recommendations
+     */
+    /**
+     * GenerateMLRecommendations
      */
     protected function generateMLRecommendations(array $availability, array $price, array $demand): array
     {
@@ -371,6 +392,9 @@ class TicketAvailabilityPredictor
     /**
      * Get fallback prediction when ML fails
      */
+    /**
+     * Get  fallback prediction
+     */
     protected function getFallbackPrediction(ScrapedTicket $ticket): array
     {
         $daysUntilEvent = Carbon::parse($ticket->event_date)->diffInDays(now());
@@ -398,6 +422,9 @@ class TicketAvailabilityPredictor
     /**
      * Helper methods for feature extraction
      */
+    /**
+     * CategorizePriceTier
+     */
     protected function categorizePriceTier(float $price): int
     {
         if ($price <= 50) {
@@ -416,6 +443,9 @@ class TicketAvailabilityPredictor
         return 5;
     }
 
+    /**
+     * Get  price history
+     */
     protected function getPriceHistory(ScrapedTicket $ticket): array
     {
         return TicketPriceHistory::where('ticket_id', $ticket->id)
@@ -425,6 +455,9 @@ class TicketAvailabilityPredictor
             ->toArray();
     }
 
+    /**
+     * CalculatePriceVolatility
+     */
     protected function calculatePriceVolatility(array $priceHistory): float
     {
         if (count($priceHistory) < 2) {
@@ -440,6 +473,9 @@ class TicketAvailabilityPredictor
         return sqrt($variance) / $mean; // Coefficient of variation
     }
 
+    /**
+     * CalculatePriceTrend
+     */
     protected function calculatePriceTrend(array $priceHistory, int $days): float
     {
         $cutoff = now()->subDays($days);
@@ -457,6 +493,9 @@ class TicketAvailabilityPredictor
         return ($newestPrice - $oldestPrice) / $oldestPrice;
     }
 
+    /**
+     * CalculateAvailabilityRatio
+     */
     protected function calculateAvailabilityRatio(ScrapedTicket $ticket): float
     {
         $totalForEvent = ScrapedTicket::where('event_name', 'LIKE', "%{$ticket->event_name}%")
@@ -466,6 +505,9 @@ class TicketAvailabilityPredictor
         return $totalForEvent > 0 ? ($ticket->quantity ?? 0) / $totalForEvent : 0;
     }
 
+    /**
+     * EncodePlatform
+     */
     protected function encodePlatform(string $platform): int
     {
         $platformMap = [
@@ -479,6 +521,9 @@ class TicketAvailabilityPredictor
         return $platformMap[strtolower($platform)] ?? 0;
     }
 
+    /**
+     * CategorizeEventType
+     */
     protected function categorizeEventType(string $eventName): int
     {
         $eventName = strtolower($eventName);
@@ -499,6 +544,9 @@ class TicketAvailabilityPredictor
         return 0; // Other
     }
 
+    /**
+     * Check if  popular event
+     */
     protected function isPopularEvent(ScrapedTicket $ticket): bool
     {
         // Check if event appears across multiple platforms with high demand
@@ -510,6 +558,9 @@ class TicketAvailabilityPredictor
         return $crossPlatformCount >= 3;
     }
 
+    /**
+     * Get  venue capacity
+     */
     protected function getVenueCapacity(string $venue): int
     {
         // Mock venue capacity data - in real implementation, this would come from a venues database
@@ -523,6 +574,9 @@ class TicketAvailabilityPredictor
         return $venueCapacities[strtolower($venue)] ?? 10000; // Default capacity
     }
 
+    /**
+     * CalculateMarketDemand
+     */
     protected function calculateMarketDemand(ScrapedTicket $ticket): float
     {
         // Calculate based on search volume, social mentions, etc.
@@ -530,6 +584,9 @@ class TicketAvailabilityPredictor
         return rand(10, 90) / 100;
     }
 
+    /**
+     * CalculateCompetitionLevel
+     */
     protected function calculateCompetitionLevel(ScrapedTicket $ticket): float
     {
         $competitorCount = ScrapedTicket::where('event_name', 'LIKE', "%{$ticket->event_name}%")
@@ -539,6 +596,9 @@ class TicketAvailabilityPredictor
         return min(1.0, $competitorCount / 10); // Normalize to 0-1
     }
 
+    /**
+     * Get  seasonal factor
+     */
     protected function getSeasonalFactor(Carbon $eventDate): float
     {
         $month = $eventDate->month;
@@ -562,6 +622,9 @@ class TicketAvailabilityPredictor
         return $seasonalMultipliers[$month] ?? 0.5;
     }
 
+    /**
+     * Get  similar events average price
+     */
     protected function getSimilarEventsAveragePrice(ScrapedTicket $ticket): float
     {
         return ScrapedTicket::where('event_name', 'LIKE', "%{$ticket->event_name}%")
@@ -569,12 +632,18 @@ class TicketAvailabilityPredictor
             ->avg('price') ?? $ticket->price;
     }
 
+    /**
+     * CalculateEventPopularityScore
+     */
     protected function calculateEventPopularityScore(ScrapedTicket $ticket): float
     {
         // Mock calculation based on social media mentions, search trends, etc.
         return rand(10, 95) / 100;
     }
 
+    /**
+     * Check if  holiday period
+     */
     protected function isHolidayPeriod(Carbon $date): bool
     {
         $holidays = [
@@ -599,6 +668,9 @@ class TicketAvailabilityPredictor
         return FALSE;
     }
 
+    /**
+     * Get  platform reliability
+     */
     protected function getPlatformReliability(string $platform): float
     {
         // Mock reliability scores - would come from actual metrics
@@ -613,6 +685,9 @@ class TicketAvailabilityPredictor
         return $reliabilityScores[strtolower($platform)] ?? 0.80;
     }
 
+    /**
+     * LoadModelWeights
+     */
     protected function loadModelWeights(): array
     {
         // In a real implementation, these would be loaded from a trained ML model

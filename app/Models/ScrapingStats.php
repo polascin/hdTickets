@@ -90,6 +90,9 @@ class ScrapingStats extends Model
     /**
      * Get success rate for a platform
      */
+    /**
+     * Get  success rate
+     */
     public static function getSuccessRate(string $platform, int $hours = 24): float
     {
         $total = static::platform($platform)->recent($hours)->count();
@@ -106,6 +109,9 @@ class ScrapingStats extends Model
     /**
      * Get average response time for a platform
      */
+    /**
+     * Get  average response time
+     */
     public static function getAverageResponseTime(string $platform, int $hours = 24): float
     {
         return static::platform($platform)
@@ -118,6 +124,9 @@ class ScrapingStats extends Model
     /**
      * Get platform availability (based on recent success rate)
      */
+    /**
+     * Get  platform availability
+     */
     public static function getPlatformAvailability(string $platform, int $hours = 1): bool
     {
         $successRate = static::getSuccessRate($platform, $hours);
@@ -127,6 +136,9 @@ class ScrapingStats extends Model
 
     /**
      * Get error statistics for a platform
+     */
+    /**
+     * Get  error stats
      */
     public static function getErrorStats(string $platform, int $hours = 24): array
     {
@@ -143,6 +155,9 @@ class ScrapingStats extends Model
 
     /**
      * Get selector effectiveness stats
+     */
+    /**
+     * Get  selector stats
      */
     public static function getSelectorStats(string $platform, int $hours = 24): array
     {

@@ -30,6 +30,9 @@ class TicketekService extends BasePlatformService
     /**
      * Search for events on Ticketek
      */
+    /**
+     * SearchEvents
+     */
     public function searchEvents(string $query, array $filters = []): array
     {
         try {
@@ -67,6 +70,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Get detailed event information
+     */
+    /**
+     * Get  event details
      */
     public function getEventDetails(string $eventUrl, string $region = 'uk'): array
     {
@@ -109,6 +115,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Import tickets from Ticketek
+     */
+    /**
+     * ImportTickets
      */
     public function importTickets(array $eventUrls, string $region = 'uk'): array
     {
@@ -153,6 +162,9 @@ class TicketekService extends BasePlatformService
     /**
      * Get platform statistics
      */
+    /**
+     * Get  statistics
+     */
     public function getStatistics(): array
     {
         $totalTickets = ScrapedTicket::where('platform', $this->platformName)->count();
@@ -179,6 +191,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Build search URL with parameters
+     */
+    /**
+     * BuildSearchUrl
      */
     private function buildSearchUrl(string $query, array $filters, string $baseUrl): string
     {
@@ -218,6 +233,9 @@ class TicketekService extends BasePlatformService
     /**
      * Parse search results from JSON response
      */
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(array $jsonData, string $query, string $region): array
     {
         $events = [];
@@ -254,6 +272,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Extract event data from JSON
+     */
+    /**
+     * ExtractEventFromJson
      */
     private function extractEventFromJson(array $eventData, string $region): ?array
     {
@@ -307,6 +328,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Parse event details from JSON response
+     */
+    /**
+     * ParseEventDetailsJson
      */
     private function parseEventDetailsJson(array $jsonData, string $eventUrl, string $region): array
     {
@@ -369,6 +393,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Parse event details from HTML response (fallback)
+     */
+    /**
+     * ParseEventDetailsHtml
      */
     private function parseEventDetailsHtml(string $html, string $eventUrl, string $region): array
     {
@@ -437,6 +464,9 @@ class TicketekService extends BasePlatformService
     /**
      * Extract ticket data from category JSON
      */
+    /**
+     * ExtractTicketFromCategory
+     */
     private function extractTicketFromCategory(array $category, string $region): ?array
     {
         if (! isset($category['name']) || ! isset($category['price'])) {
@@ -471,6 +501,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Extract ticket data from HTML
+     */
+    /**
+     * ExtractTicketFromHtml
      */
     private function extractTicketFromHtml(DOMNode $ticketNode, DOMXPath $xpath, string $region): ?array
     {
@@ -510,6 +543,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Create ticket record in database
+     */
+    /**
+     * CreateTicketRecord
      */
     private function createTicketRecord(array $ticketData, array $eventData, string $region): ?ScrapedTicket
     {
@@ -551,6 +587,9 @@ class TicketekService extends BasePlatformService
     /**
      * Map category to Ticketek format
      */
+    /**
+     * MapCategoryToTicketek
+     */
     private function mapCategoryToTicketek(string $category): string
     {
         $categoryMap = [
@@ -574,6 +613,9 @@ class TicketekService extends BasePlatformService
     /**
      * Get currency for region
      */
+    /**
+     * Get  currency for region
+     */
     private function getCurrencyForRegion(string $region): string
     {
         return match ($region) {
@@ -586,6 +628,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Parse event date from various formats
+     */
+    /**
+     * ParseEventDate
      */
     private function parseEventDate(string $dateStr): ?string
     {
@@ -638,6 +683,9 @@ class TicketekService extends BasePlatformService
     /**
      * Parse price range text
      */
+    /**
+     * ParsePriceRange
+     */
     private function parsePriceRange(string $priceText): ?array
     {
         $currency = 'GBP';
@@ -678,6 +726,9 @@ class TicketekService extends BasePlatformService
     /**
      * Extract price from text
      */
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(string $priceText): ?float
     {
         $priceText = preg_replace('/[^\d.,]/', '', $priceText);
@@ -688,6 +739,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Categorize event
+     */
+    /**
+     * CategorizeEvent
      */
     private function categorizeEvent(string $title, array $eventData = []): string
     {
@@ -741,6 +795,9 @@ class TicketekService extends BasePlatformService
     /**
      * Extract ticket type from section name
      */
+    /**
+     * ExtractTicketType
+     */
     private function extractTicketType(string $section): string
     {
         $section = strtolower($section);
@@ -762,6 +819,9 @@ class TicketekService extends BasePlatformService
 
     /**
      * Extract restrictions from HTML
+     */
+    /**
+     * ExtractRestrictionsFromHtml
      */
     private function extractRestrictionsFromHtml(DOMNode $ticketNode, DOMXPath $xpath): array
     {

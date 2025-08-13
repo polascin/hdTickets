@@ -12,7 +12,10 @@ class UserContributionController extends Controller
     /**
      * Show the contribution form
      */
-    public function create()
+    /**
+     * Create
+     */
+    public function create(): Illuminate\Contracts\View\View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
@@ -23,7 +26,10 @@ class UserContributionController extends Controller
     /**
      * Store user contribution
      */
-    public function store(Request $request)
+    /**
+     * Store
+     */
+    public function store(Request $request): Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'event_name'          => 'required|string|max:255',

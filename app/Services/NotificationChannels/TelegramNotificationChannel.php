@@ -21,6 +21,9 @@ class TelegramNotificationChannel
     /**
      * Send notification to Telegram
      */
+    /**
+     * Send
+     */
     public function send(User $user, array $alertData): bool
     {
         try {
@@ -56,6 +59,9 @@ class TelegramNotificationChannel
     /**
      * Test Telegram connection
      */
+    /**
+     * TestConnection
+     */
     public function testConnection(User $user): array
     {
         try {
@@ -90,6 +96,9 @@ Platform: Test Platform';
     /**
      * Build Telegram message text
      */
+    /**
+     * BuildTelegramMessage
+     */
     protected function buildTelegramMessage(array $alertData): string
     {
         $ticket = $alertData['ticket'];
@@ -114,6 +123,9 @@ Platform: Test Platform';
 
     /**
      * Send Telegram message
+     */
+    /**
+     * SendMessage
      */
     protected function sendMessage(string $chatId, string $message): bool
     {

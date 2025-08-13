@@ -12,6 +12,9 @@ class StoreTicketRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * Authorize
+     */
     public function authorize(): bool
     {
         return TRUE;
@@ -19,6 +22,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
+     */
+    /**
+     * Rules
      */
     public function rules(): array
     {
@@ -35,6 +41,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Get custom messages for validator errors.
+     */
+    /**
+     * Messages
      */
     public function messages(): array
     {
@@ -53,6 +62,9 @@ class StoreTicketRequest extends FormRequest
     /**
      * Get custom attributes for validator errors.
      */
+    /**
+     * Attributes
+     */
     public function attributes(): array
     {
         return [
@@ -63,6 +75,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Prepare the data for validation.
+     */
+    /**
+     * PrepareForValidation
      */
     protected function prepareForValidation(): void
     {

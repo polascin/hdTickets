@@ -15,6 +15,9 @@ class NotificationPreferencesController extends Controller
     /**
      * Get user's notification preferences
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -49,6 +52,9 @@ class NotificationPreferencesController extends Controller
 
     /**
      * Update user preferences
+     */
+    /**
+     * Update
      */
     public function update(Request $request): JsonResponse
     {
@@ -103,6 +109,9 @@ class NotificationPreferencesController extends Controller
     /**
      * Reset preferences to defaults
      */
+    /**
+     * Reset
+     */
     public function reset(Request $request): JsonResponse
     {
         try {
@@ -128,6 +137,9 @@ class NotificationPreferencesController extends Controller
     /**
      * Export user preferences
      */
+    /**
+     * Export
+     */
     public function export(Request $request): JsonResponse
     {
         try {
@@ -150,6 +162,9 @@ class NotificationPreferencesController extends Controller
 
     /**
      * Import user preferences
+     */
+    /**
+     * Import
      */
     public function import(Request $request): JsonResponse
     {
@@ -198,6 +213,9 @@ class NotificationPreferencesController extends Controller
     /**
      * Get specific preference
      */
+    /**
+     * Show
+     */
     public function show(Request $request, string $key): JsonResponse
     {
         try {
@@ -229,6 +247,9 @@ class NotificationPreferencesController extends Controller
 
     /**
      * Update specific preference
+     */
+    /**
+     * UpdatePreference
      */
     public function updatePreference(Request $request, string $key): JsonResponse
     {
@@ -277,6 +298,9 @@ class NotificationPreferencesController extends Controller
 
     /**
      * Validate preferences data
+     */
+    /**
+     * ValidatePreferences
      */
     protected function validatePreferences(array $data): \Illuminate\Validation\Validator
     {

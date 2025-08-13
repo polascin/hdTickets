@@ -16,6 +16,13 @@ class CustomFilesystem extends Filesystem
      * @param string   $content
      * @param int|null $mode
      */
+    /**
+     * Replace
+     *
+     * @param mixed $path
+     * @param mixed $content
+     * @param mixed $mode
+     */
     public function replace($path, $content, $mode = NULL): void
     {
         // Simplified version that avoids chmod and other disabled functions

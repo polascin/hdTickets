@@ -29,6 +29,9 @@ class SlackNotificationChannel
     /**
      * Send notification to Slack
      */
+    /**
+     * Send
+     */
     public function send(User $user, array $alertData): bool
     {
         try {
@@ -62,6 +65,9 @@ class SlackNotificationChannel
     /**
      * Send urgent Slack message with high priority formatting
      */
+    /**
+     * SendUrgent
+     */
     public function sendUrgent(User $user, array $alertData): bool
     {
         $alertData['urgent'] = TRUE;
@@ -71,6 +77,9 @@ class SlackNotificationChannel
 
     /**
      * Test Slack connection
+     */
+    /**
+     * TestConnection
      */
     public function testConnection(User $user): array
     {
@@ -111,6 +120,9 @@ class SlackNotificationChannel
     /**
      * Format message for thread reply
      */
+    /**
+     * SendThreadReply
+     */
     public function sendThreadReply(User $user, array $alertData, string $threadTs): bool
     {
         try {
@@ -146,6 +158,11 @@ class SlackNotificationChannel
 
     /**
      * Build Slack message payload
+     *
+     * @param mixed $slackSettings
+     */
+    /**
+     * BuildSlackMessage
      *
      * @param mixed $slackSettings
      */
@@ -298,6 +315,9 @@ class SlackNotificationChannel
     /**
      * Get priority configuration for styling
      */
+    /**
+     * Get  priority config
+     */
     protected function getPriorityConfig(int $priority, bool $isUrgent): array
     {
         $configs = [
@@ -321,6 +341,11 @@ class SlackNotificationChannel
 
     /**
      * Send via Slack webhook
+     *
+     * @param mixed $slackSettings
+     */
+    /**
+     * SendViaWebhook
      *
      * @param mixed $slackSettings
      */
@@ -351,6 +376,11 @@ class SlackNotificationChannel
 
     /**
      * Send via Slack Bot API
+     *
+     * @param mixed $slackSettings
+     */
+    /**
+     * SendViaBotAPI
      *
      * @param mixed $slackSettings
      */
@@ -405,6 +435,11 @@ class SlackNotificationChannel
 
     /**
      * Determine if webhook should be used over Bot API
+     *
+     * @param mixed $slackSettings
+     */
+    /**
+     * ShouldUseWebhook
      *
      * @param mixed $slackSettings
      */

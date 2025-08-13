@@ -14,6 +14,9 @@ class AgentMiddleware
      *
      * @param Closure(Request): (Response) $next
      */
+    /**
+     * Handle
+     */
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {

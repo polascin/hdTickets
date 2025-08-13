@@ -14,26 +14,41 @@ final readonly class EventId
         $this->validate($value);
     }
 
+    /**
+     * Value
+     */
     public function value(): string
     {
         return $this->value;
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->value === $other->value;
     }
 
+    /**
+     * FromString
+     */
     public static function fromString(string $value): self
     {
         return new self($value);
     }
 
+    /**
+     * Generate
+     */
     public static function generate(): self
     {
         return new self('event_' . str_replace('.', '_', uniqid('', TRUE)));
     }
 
+    /**
+     * Validate
+     */
     private function validate(string $value): void
     {
         if (empty(trim($value))) {
@@ -49,6 +64,9 @@ final readonly class EventId
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->value;

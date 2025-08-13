@@ -38,6 +38,9 @@ class EnhancedAnalyticsController extends Controller
     /**
      * Get comprehensive chart data for analytics dashboard
      */
+    /**
+     * Get  chart data
+     */
     public function getChartData(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -93,6 +96,9 @@ class EnhancedAnalyticsController extends Controller
 
     /**
      * Export analytics data in various formats
+     */
+    /**
+     * ExportData
      */
     public function exportData(Request $request): JsonResponse
     {
@@ -151,6 +157,9 @@ class EnhancedAnalyticsController extends Controller
     /**
      * Get predictive analytics insights
      */
+    /**
+     * Get  predictive insights
+     */
     public function getPredictiveInsights(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -199,6 +208,9 @@ class EnhancedAnalyticsController extends Controller
     /**
      * Get user behavior insights
      */
+    /**
+     * Get  user behavior insights
+     */
     public function getUserBehaviorInsights(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -245,6 +257,9 @@ class EnhancedAnalyticsController extends Controller
 
     /**
      * Get market intelligence insights
+     */
+    /**
+     * Get  market intelligence
      */
     public function getMarketIntelligence(Request $request): JsonResponse
     {
@@ -293,6 +308,9 @@ class EnhancedAnalyticsController extends Controller
 
     /**
      * Get performance optimization insights
+     */
+    /**
+     * Get  optimization insights
      */
     public function getOptimizationInsights(Request $request): JsonResponse
     {
@@ -343,6 +361,9 @@ class EnhancedAnalyticsController extends Controller
     /**
      * Get real-time anomaly detection results
      */
+    /**
+     * Get  anomaly detection
+     */
     public function getAnomalyDetection(Request $request): JsonResponse
     {
         try {
@@ -374,6 +395,9 @@ class EnhancedAnalyticsController extends Controller
 
     /**
      * Get analytics dashboard configuration
+     */
+    /**
+     * Get  dashboard config
      */
     public function getDashboardConfig(Request $request): JsonResponse
     {
@@ -467,6 +491,9 @@ class EnhancedAnalyticsController extends Controller
 
     // Private helper methods
 
+    /**
+     * BuildFilters
+     */
     private function buildFilters(Request $request): array
     {
         $filters = [];
@@ -490,7 +517,10 @@ class EnhancedAnalyticsController extends Controller
         return $filters;
     }
 
-    private function getSpecificChartData(string $chartType, array $filters)
+    /**
+     * Get  specific chart data
+     */
+    private function getSpecificChartData(string $chartType, array $filters): Illuminate\Http\JsonResponse
     {
         return match ($chartType) {
             'ticket_trends'           => $this->chartDataService->getTicketTrendsChartData($filters),
@@ -503,6 +533,9 @@ class EnhancedAnalyticsController extends Controller
         };
     }
 
+    /**
+     * Get  analysis period
+     */
     private function getAnalysisPeriod(array $filters): array
     {
         return [
@@ -514,12 +547,18 @@ class EnhancedAnalyticsController extends Controller
         ];
     }
 
+    /**
+     * AssessOverallRiskLevel
+     */
     private function assessOverallRiskLevel(array $riskAssessment): string
     {
         // Simplified risk assessment logic
         return empty($riskAssessment) ? 'low' : (count($riskAssessment) > 3 ? 'high' : 'medium');
     }
 
+    /**
+     * CalculateAverageConfidence
+     */
     private function calculateAverageConfidence(array $confidenceScores): float
     {
         if (empty($confidenceScores)) {
@@ -529,29 +568,44 @@ class EnhancedAnalyticsController extends Controller
         return round(array_sum($confidenceScores) / count($confidenceScores), 2);
     }
 
+    /**
+     * AssessChurnRiskLevel
+     */
     private function assessChurnRiskLevel(array $churnPrediction): string
     {
         // Simplified churn risk assessment
         return 'medium'; // Placeholder
     }
 
+    /**
+     * CalculateIntelligenceFreshness
+     */
     private function calculateIntelligenceFreshness(): string
     {
         return 'current'; // Placeholder
     }
 
+    /**
+     * CalculateOptimizationScore
+     */
     private function calculateOptimizationScore(array $insights): float
     {
         // Calculate overall optimization score based on insights
         return rand(70, 95); // Placeholder
     }
 
+    /**
+     * ExtractPriorityActions
+     */
     private function extractPriorityActions(array $insights): array
     {
         // Extract high-priority optimization actions
         return array_slice($insights['improvement_opportunities'] ?? [], 0, 3);
     }
 
+    /**
+     * FilterCriticalAnomalies
+     */
     private function filterCriticalAnomalies(array $anomalies): array
     {
         $critical = [];
@@ -569,6 +623,9 @@ class EnhancedAnalyticsController extends Controller
         return $critical;
     }
 
+    /**
+     * SummarizeAnomalies
+     */
     private function summarizeAnomalies(array $anomalies): array
     {
         $summary = [
@@ -594,6 +651,9 @@ class EnhancedAnalyticsController extends Controller
         return $summary;
     }
 
+    /**
+     * DetermineSystemHealth
+     */
     private function determineSystemHealth(array $anomalies): string
     {
         $summary = $this->summarizeAnomalies($anomalies);
@@ -609,6 +669,9 @@ class EnhancedAnalyticsController extends Controller
         return 'healthy';
     }
 
+    /**
+     * DetermineAlertLevel
+     */
     private function determineAlertLevel(array $criticalAnomalies): string
     {
         $totalCritical = array_sum(array_map('count', $criticalAnomalies));

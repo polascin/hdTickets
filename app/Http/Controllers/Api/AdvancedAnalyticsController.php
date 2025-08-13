@@ -25,6 +25,9 @@ class AdvancedAnalyticsController extends Controller
     /**
      * Get comprehensive price trend analysis
      */
+    /**
+     * Get  price trend analysis
+     */
     public function getPriceTrendAnalysis(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -68,6 +71,9 @@ class AdvancedAnalyticsController extends Controller
 
     /**
      * Get demand pattern analysis with ML insights
+     */
+    /**
+     * Get  demand pattern analysis
      */
     public function getDemandPatternAnalysis(Request $request): JsonResponse
     {
@@ -117,6 +123,9 @@ class AdvancedAnalyticsController extends Controller
     /**
      * Get success rate optimization recommendations
      */
+    /**
+     * Get  success rate optimization
+     */
     public function getSuccessRateOptimization(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -164,6 +173,9 @@ class AdvancedAnalyticsController extends Controller
 
     /**
      * Get comprehensive platform performance comparison
+     */
+    /**
+     * Get  platform performance comparison
      */
     public function getPlatformPerformanceComparison(Request $request): JsonResponse
     {
@@ -216,6 +228,9 @@ class AdvancedAnalyticsController extends Controller
     /**
      * Get real-time dashboard metrics
      */
+    /**
+     * Get  real time dashboard metrics
+     */
     public function getRealTimeDashboardMetrics(): JsonResponse
     {
         try {
@@ -243,6 +258,9 @@ class AdvancedAnalyticsController extends Controller
 
     /**
      * Export analytics data in various formats
+     */
+    /**
+     * ExportAnalyticsData
      */
     public function exportAnalyticsData(Request $request, string $type): JsonResponse
     {
@@ -305,6 +323,9 @@ class AdvancedAnalyticsController extends Controller
     /**
      * Get custom analytics dashboard configuration
      */
+    /**
+     * Get  custom dashboard
+     */
     public function getCustomDashboard(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -357,6 +378,9 @@ class AdvancedAnalyticsController extends Controller
 
     // Private helper methods
 
+    /**
+     * BuildFilters
+     */
     private function buildFilters(Request $request): array
     {
         $filters = [];
@@ -384,6 +408,9 @@ class AdvancedAnalyticsController extends Controller
         return $filters;
     }
 
+    /**
+     * BuildFiltersFromTimeRange
+     */
     private function buildFiltersFromTimeRange(string $timeRange): array
     {
         $endDate = Carbon::now();
@@ -423,6 +450,9 @@ class AdvancedAnalyticsController extends Controller
         ];
     }
 
+    /**
+     * Get  widget data
+     */
     private function getWidgetData(string $widget, array $filters): array
     {
         switch ($widget) {
@@ -441,6 +471,9 @@ class AdvancedAnalyticsController extends Controller
         }
     }
 
+    /**
+     * ExtractKeyDemandTrends
+     */
     private function extractKeyDemandTrends(array $analysis): array
     {
         $trends = [];
@@ -458,6 +491,9 @@ class AdvancedAnalyticsController extends Controller
         return $trends;
     }
 
+    /**
+     * CalculateAnalysisConfidenceScore
+     */
     private function calculateAnalysisConfidenceScore(array $analysis): float
     {
         // Calculate confidence based on data volume, pattern consistency, etc.
@@ -467,6 +503,9 @@ class AdvancedAnalyticsController extends Controller
         return min(100, ($dataVolume * 0.6 + $patternConsistency * 0.4));
     }
 
+    /**
+     * CalculateImprovementProjections
+     */
     private function calculateImprovementProjections(array $optimization): array
     {
         $current = $optimization['current_performance'] ?? [];
@@ -489,6 +528,9 @@ class AdvancedAnalyticsController extends Controller
         return $projections;
     }
 
+    /**
+     * PrioritizeActionItems
+     */
     private function prioritizeActionItems(array $optimization): array
     {
         $actionItems = [];
@@ -507,6 +549,9 @@ class AdvancedAnalyticsController extends Controller
         return $actionItems;
     }
 
+    /**
+     * FormatPlatformComparison
+     */
     private function formatPlatformComparison(array $comparison, string $type): array
     {
         switch ($type) {
@@ -520,6 +565,9 @@ class AdvancedAnalyticsController extends Controller
         }
     }
 
+    /**
+     * CreatePlatformSummary
+     */
     private function createPlatformSummary(array $comparison): array
     {
         $summary = [];
@@ -539,6 +587,9 @@ class AdvancedAnalyticsController extends Controller
         return $summary;
     }
 
+    /**
+     * IdentifyTopPerformer
+     */
     private function identifyTopPerformer(array $comparison): array
     {
         $rankings = $comparison['platform_rankings'] ?? [];
@@ -546,6 +597,9 @@ class AdvancedAnalyticsController extends Controller
         return ! empty($rankings) ? $rankings[0] : [];
     }
 
+    /**
+     * IdentifyBiggestOpportunity
+     */
     private function identifyBiggestOpportunity(array $comparison): array
     {
         $rankings = $comparison['platform_rankings'] ?? [];
@@ -574,6 +628,9 @@ class AdvancedAnalyticsController extends Controller
         return $opportunity;
     }
 
+    /**
+     * ExtractMarketTrends
+     */
     private function extractMarketTrends(array $comparison): array
     {
         return [
@@ -584,6 +641,9 @@ class AdvancedAnalyticsController extends Controller
         ];
     }
 
+    /**
+     * DetermineSystemStatus
+     */
     private function determineSystemStatus(array $metrics): string
     {
         $healthMetrics = $metrics['system_health'] ?? [];
@@ -605,6 +665,9 @@ class AdvancedAnalyticsController extends Controller
         return 'healthy';
     }
 
+    /**
+     * GenerateSystemAlerts
+     */
     private function generateSystemAlerts(array $metrics): array
     {
         $alerts = [];
@@ -631,6 +694,9 @@ class AdvancedAnalyticsController extends Controller
         return $alerts;
     }
 
+    /**
+     * GenerateExportFile
+     */
     private function generateExportFile(array $data, string $type, string $format): array
     {
         // This would implement actual file generation logic
@@ -644,18 +710,27 @@ class AdvancedAnalyticsController extends Controller
         ];
     }
 
+    /**
+     * CountExportRecords
+     */
     private function countExportRecords(array $data): int
     {
         // Count total records in the export data
         return collect($data)->flatten()->count();
     }
 
+    /**
+     * CountDataPoints
+     */
     private function countDataPoints(array $analysis): int
     {
         // Count data points across all analysis sections
         return collect($analysis)->flatten()->count();
     }
 
+    /**
+     * Get  analysis period
+     */
     private function getAnalysisPeriod(array $filters): array
     {
         return [
@@ -667,12 +742,18 @@ class AdvancedAnalyticsController extends Controller
         ];
     }
 
+    /**
+     * CalculateDataFreshness
+     */
     private function calculateDataFreshness(array $dashboardData): string
     {
         // Determine overall data freshness across all widgets
         return 'current'; // Simplified implementation
     }
 
+    /**
+     * CalculateImprovementPotential
+     */
     private function calculateImprovementPotential(array $optimization): float
     {
         // Calculate overall improvement potential percentage
@@ -683,31 +764,49 @@ class AdvancedAnalyticsController extends Controller
     }
 
     // Additional helper methods would be implemented here
+    /**
+     * IdentifyPeakHours
+     */
     private function identifyPeakHours(array $temporalPatterns): array
     {
         return [];
     }
 
+    /**
+     * IdentifySeasonalPeaks
+     */
     private function identifySeasonalPeaks(array $temporalPatterns): array
     {
         return [];
     }
 
+    /**
+     * AssessPatternConsistency
+     */
     private function assessPatternConsistency(array $analysis): float
     {
         return 75.0;
     }
 
+    /**
+     * IdentifyFastestGrowingPlatform
+     */
     private function identifyFastestGrowingPlatform(array $comparison): string
     {
         return 'N/A';
     }
 
+    /**
+     * IdentifyMostReliablePlatform
+     */
     private function identifyMostReliablePlatform(array $comparison): string
     {
         return 'N/A';
     }
 
+    /**
+     * IdentifyBestValuePlatform
+     */
     private function identifyBestValuePlatform(array $comparison): string
     {
         return 'N/A';

@@ -76,6 +76,9 @@ class ApiSecurityService
     /**
      * Check rate limits for API endpoint
      */
+    /**
+     * CheckRateLimit
+     */
     public function checkRateLimit(Request $request, string $endpoint, ?User $user = NULL): array
     {
         $config = $this->getRateLimitConfig($endpoint);
@@ -124,6 +127,9 @@ class ApiSecurityService
     /**
      * Generate API key with specific permissions
      */
+    /**
+     * GenerateApiKey
+     */
     public function generateApiKey(User $user, array $scopes = [], array $options = []): array
     {
         $keyId = Str::uuid();
@@ -169,6 +175,9 @@ class ApiSecurityService
 
     /**
      * Validate API key and get associated user
+     */
+    /**
+     * ValidateApiKey
      */
     public function validateApiKey(string $apiKey): ?array
     {
@@ -226,6 +235,9 @@ class ApiSecurityService
     /**
      * Rotate API key
      */
+    /**
+     * RotateApiKey
+     */
     public function rotateApiKey(string $keyId, User $user): ?array
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
@@ -262,6 +274,9 @@ class ApiSecurityService
     /**
      * Revoke API key
      */
+    /**
+     * RevokeApiKey
+     */
     public function revokeApiKey(string $keyId, User $user): bool
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
@@ -289,6 +304,9 @@ class ApiSecurityService
 
     /**
      * Verify request signature
+     */
+    /**
+     * VerifyRequestSignature
      */
     public function verifyRequestSignature(Request $request, string $signature, string $keySecret): bool
     {
@@ -319,6 +337,9 @@ class ApiSecurityService
     /**
      * Check IP whitelist
      */
+    /**
+     * CheckIpWhitelist
+     */
     public function checkIpWhitelist(Request $request, array $allowedIps = []): bool
     {
         if (empty($allowedIps)) {
@@ -338,6 +359,9 @@ class ApiSecurityService
 
     /**
      * Get API usage analytics
+     */
+    /**
+     * Get  api usage analytics
      */
     public function getApiUsageAnalytics(User $user, array $options = []): array
     {
@@ -382,6 +406,9 @@ class ApiSecurityService
     /**
      * Get system-wide API analytics (admin only)
      */
+    /**
+     * Get  system api analytics
+     */
     public function getSystemApiAnalytics(array $options = []): array
     {
         $period = $options['period'] ?? 'last_24_hours';
@@ -402,6 +429,9 @@ class ApiSecurityService
 
     /**
      * Implement progressive rate limiting
+     */
+    /**
+     * CheckProgressiveRateLimit
      */
     protected function checkProgressiveRateLimit(string $identifier, string $endpoint, array $config): array
     {
@@ -431,6 +461,9 @@ class ApiSecurityService
     /**
      * Get rate limit configuration for endpoint
      */
+    /**
+     * Get  rate limit config
+     */
     protected function getRateLimitConfig(string $endpoint): array
     {
         return self::RATE_LIMITS[$endpoint] ?? [
@@ -441,6 +474,9 @@ class ApiSecurityService
 
     /**
      * Get rate limit identifier (IP + User ID if available)
+     */
+    /**
+     * Get  rate limit identifier
      */
     protected function getRateLimitIdentifier(Request $request, ?User $user = NULL): string
     {
@@ -455,6 +491,9 @@ class ApiSecurityService
     /**
      * Check IP-based rate limiting
      */
+    /**
+     * CheckIpRateLimit
+     */
     protected function checkIpRateLimit(Request $request, string $endpoint, array $config): array
     {
         $ipIdentifier = 'ip:' . $request->ip();
@@ -465,6 +504,9 @@ class ApiSecurityService
     /**
      * Check user-based rate limiting
      */
+    /**
+     * CheckUserRateLimit
+     */
     protected function checkUserRateLimit(User $user, string $endpoint, array $config): array
     {
         $userIdentifier = 'user:' . $user->id;
@@ -474,6 +516,9 @@ class ApiSecurityService
 
     /**
      * Basic rate limit check
+     */
+    /**
+     * CheckBasicRateLimit
      */
     protected function checkBasicRateLimit(string $identifier, string $endpoint, array $config): array
     {
@@ -499,6 +544,9 @@ class ApiSecurityService
     /**
      * Check concurrent request limits
      */
+    /**
+     * CheckConcurrentLimit
+     */
     protected function checkConcurrentLimit(string $identifier, string $endpoint, array $config): array
     {
         $concurrentKey = "concurrent:{$identifier}:{$endpoint}";
@@ -517,6 +565,9 @@ class ApiSecurityService
 
     /**
      * Check burst limits
+     */
+    /**
+     * CheckBurstLimit
      */
     protected function checkBurstLimit(string $identifier, string $endpoint, array $config): array
     {
@@ -539,6 +590,9 @@ class ApiSecurityService
 
     /**
      * Record API request for analytics
+     */
+    /**
+     * RecordRequest
      */
     protected function recordRequest(string $identifier, string $endpoint, Request $request): void
     {
@@ -563,6 +617,9 @@ class ApiSecurityService
     /**
      * Generate secure API key
      */
+    /**
+     * GenerateSecureKey
+     */
     protected function generateSecureKey(int $length = 64): string
     {
         return Str::random($length);
@@ -570,6 +627,9 @@ class ApiSecurityService
 
     /**
      * Check if IP matches pattern
+     */
+    /**
+     * IpMatches
      */
     protected function ipMatches(string $ip, string $pattern): bool
     {
@@ -590,6 +650,9 @@ class ApiSecurityService
     /**
      * Check if IP is in CIDR range
      */
+    /**
+     * IpInCidr
+     */
     protected function ipInCidr(string $ip, string $cidr): bool
     {
         [$subnet, $mask] = explode('/', $cidr);
@@ -605,6 +668,9 @@ class ApiSecurityService
     /**
      * Get remaining requests for rate limit
      */
+    /**
+     * Get  remaining requests
+     */
     protected function getRemainingRequests(string $identifier, string $endpoint, array $config): int
     {
         $key = "rate_limit:{$identifier}:{$endpoint}";
@@ -615,6 +681,9 @@ class ApiSecurityService
 
     /**
      * Get rate limit reset time
+     */
+    /**
+     * Get  reset time
      */
     protected function getResetTime(string $identifier, string $endpoint, array $config): int
     {
@@ -627,6 +696,9 @@ class ApiSecurityService
     /**
      * Get retry after time
      */
+    /**
+     * Get  retry after
+     */
     protected function getRetryAfter(string $key, int $window): int
     {
         $ttl = Cache::getStore()->getRedis()->ttl(Cache::getStore()->getPrefix() . $key);
@@ -637,6 +709,9 @@ class ApiSecurityService
     /**
      * Calculate progressive retry after time
      */
+    /**
+     * CalculateProgressiveRetryAfter
+     */
     protected function calculateProgressiveRetryAfter(int $violations): int
     {
         return min(3600, (int) (60 * pow(2, $violations))); // Cap at 1 hour
@@ -644,6 +719,9 @@ class ApiSecurityService
 
     /**
      * Log invalid API key attempt
+     */
+    /**
+     * LogInvalidKeyAttempt
      */
     protected function logInvalidKeyAttempt(string $keyId): void
     {
@@ -659,6 +737,9 @@ class ApiSecurityService
     /**
      * Get analytics period start date
      */
+    /**
+     * Get  analytics period start
+     */
     protected function getAnalyticsPeriodStart(string $period): Carbon
     {
         return match ($period) {
@@ -672,6 +753,9 @@ class ApiSecurityService
 
     /**
      * Get usage analytics for specific API key
+     */
+    /**
+     * Get  key usage analytics
      */
     protected function getKeyUsageAnalytics(string $keyId, Carbon $startDate): array
     {
@@ -689,6 +773,9 @@ class ApiSecurityService
     /**
      * Get system request count for period
      */
+    /**
+     * Get  system request count
+     */
     protected function getSystemRequestCount(string $period): int
     {
         // Aggregate from cache or analytics store
@@ -698,6 +785,9 @@ class ApiSecurityService
     /**
      * Get unique API users for period
      */
+    /**
+     * Get  unique api users
+     */
     protected function getUniqueApiUsers(string $period): int
     {
         return 0; // Placeholder
@@ -705,6 +795,9 @@ class ApiSecurityService
 
     /**
      * Get top API endpoints for period
+     */
+    /**
+     * Get  top endpoints
      */
     protected function getTopEndpoints(string $period): array
     {
@@ -714,6 +807,9 @@ class ApiSecurityService
     /**
      * Get rate limit violations for period
      */
+    /**
+     * Get  rate limit violations
+     */
     protected function getRateLimitViolations(string $period): int
     {
         return 0; // Placeholder
@@ -722,6 +818,9 @@ class ApiSecurityService
     /**
      * Get geographical distribution of API requests
      */
+    /**
+     * Get  geographical distribution
+     */
     protected function getGeographicalDistribution(string $period): array
     {
         return []; // Placeholder
@@ -729,6 +828,9 @@ class ApiSecurityService
 
     /**
      * Get average response times for period
+     */
+    /**
+     * Get  average response times
      */
     protected function getAverageResponseTimes(string $period): array
     {

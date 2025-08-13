@@ -11,6 +11,9 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
+    /**
+     * Schedule
+     */
     protected function schedule(Schedule $schedule): void
     {
         // Ticket scraping schedules
@@ -75,6 +78,9 @@ class Kernel extends ConsoleKernel
 
     /**
      * Register the commands for the application.
+     */
+    /**
+     * Commands
      */
     protected function commands(): void
     {

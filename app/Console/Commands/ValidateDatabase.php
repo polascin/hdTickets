@@ -13,13 +13,16 @@ use function count;
 class ValidateDatabase extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'db:validate {--fix : Fix found issues}';
+    protected $signature = 'db:validate {--fix : Fix found issues}';
 
     /** The console command description. */
-    protected string $description = 'Validate database structure and content integrity';
+    protected $description = 'Validate database structure and content integrity';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -62,6 +65,9 @@ class ValidateDatabase extends Command
      *
      * @return array<int, string>
      */
+    /**
+     * CheckTableStructures
+     */
     private function checkTableStructures(): array
     {
         $issues = [];
@@ -96,6 +102,9 @@ class ValidateDatabase extends Command
      *
      * @return array<int, string>
      */
+    /**
+     * CheckDataIntegrity
+     */
     private function checkDataIntegrity(): array
     {
         $issues = [];
@@ -128,6 +137,9 @@ class ValidateDatabase extends Command
      *
      * @return array<int, string>
      */
+    /**
+     * CheckRelationships
+     */
     private function checkRelationships(): array
     {
         $issues = [];
@@ -158,6 +170,9 @@ class ValidateDatabase extends Command
 
     /**
      * Attempt to fix identified issues.
+     */
+    /**
+     * FixIssues
      */
     private function fixIssues(): void
     {

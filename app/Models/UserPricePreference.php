@@ -52,6 +52,9 @@ class UserPricePreference extends Model
     /**
      * Get the user that owns this price preference
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -82,7 +85,12 @@ class UserPricePreference extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -126,6 +134,9 @@ class UserPricePreference extends Model
     /**
      * Get all available event categories
      */
+    /**
+     * Get  event categories
+     */
     public static function getEventCategories(): array
     {
         return [
@@ -142,6 +153,9 @@ class UserPricePreference extends Model
 
     /**
      * Get all available seat preferences
+     */
+    /**
+     * Get  seat preferences
      */
     public static function getSeatPreferences(): array
     {
@@ -166,6 +180,9 @@ class UserPricePreference extends Model
     /**
      * Get all available alert frequencies
      */
+    /**
+     * Get  alert frequencies
+     */
     public static function getAlertFrequencies(): array
     {
         return [
@@ -178,6 +195,9 @@ class UserPricePreference extends Model
     /**
      * Check if a ticket price matches this preference
      */
+    /**
+     * MatchesPrice
+     */
     public function matchesPrice(float $ticketPrice): bool
     {
         if ($this->min_price && $ticketPrice < $this->min_price) {
@@ -189,6 +209,9 @@ class UserPricePreference extends Model
 
     /**
      * Check if price drop threshold is met
+     */
+    /**
+     * Check if  price drop significant
      */
     public function isPriceDropSignificant(float $oldPrice, float $newPrice): bool
     {
@@ -204,6 +227,9 @@ class UserPricePreference extends Model
     /**
      * Check if price increase threshold is met
      */
+    /**
+     * Check if  price increase significant
+     */
     public function isPriceIncreaseSignificant(float $oldPrice, float $newPrice): bool
     {
         if ($oldPrice <= 0) {
@@ -217,6 +243,9 @@ class UserPricePreference extends Model
 
     /**
      * Check if seat preferences match ticket
+     */
+    /**
+     * MatchesSeatPreferences
      */
     public function matchesSeatPreferences(array $ticketSeatInfo): bool
     {
@@ -236,6 +265,9 @@ class UserPricePreference extends Model
     /**
      * Check if section preferences match ticket
      */
+    /**
+     * MatchesSectionPreferences
+     */
     public function matchesSectionPreferences(string $ticketSection): bool
     {
         if (empty($this->section_preferences)) {
@@ -248,6 +280,9 @@ class UserPricePreference extends Model
     /**
      * Check if auto-purchase should trigger
      */
+    /**
+     * ShouldAutoPurchase
+     */
     public function shouldAutoPurchase(float $ticketPrice): bool
     {
         if (! $this->auto_purchase_enabled || ! $this->auto_purchase_max_price) {
@@ -259,6 +294,9 @@ class UserPricePreference extends Model
 
     /**
      * Get notification settings as array
+     */
+    /**
+     * Get  notification settings
      */
     public function getNotificationSettings(): array
     {
@@ -273,6 +311,9 @@ class UserPricePreference extends Model
     /**
      * Update notification settings
      */
+    /**
+     * UpdateNotificationSettings
+     */
     public function updateNotificationSettings(array $settings): void
     {
         $this->update([
@@ -286,6 +327,9 @@ class UserPricePreference extends Model
     /**
      * Get formatted price range
      */
+    /**
+     * Get  formatted price range
+     */
     public function getFormattedPriceRange(): string
     {
         $min = $this->min_price ? '$' . number_format($this->min_price, 2) : 'Any';
@@ -296,6 +340,9 @@ class UserPricePreference extends Model
 
     /**
      * Get average target price
+     */
+    /**
+     * Get  average target price
      */
     public function getAverageTargetPrice(): float
     {
@@ -308,6 +355,9 @@ class UserPricePreference extends Model
 
     /**
      * Clone preference for different sport/category
+     */
+    /**
+     * CloneFor
      */
     public function cloneFor(?string $sportType = NULL, ?string $eventCategory = NULL): self
     {
@@ -329,6 +379,9 @@ class UserPricePreference extends Model
 
     /**
      * Get price preference statistics for user
+     */
+    /**
+     * Get  price stats
      */
     public static function getPriceStats(int $userId): array
     {
@@ -365,6 +418,9 @@ class UserPricePreference extends Model
     /**
      * Get similar preferences for suggestions
      */
+    /**
+     * Get  similar preferences
+     */
     public function getSimilarPreferences(int $limit = 5): array
     {
         return self::where('user_id', $this->user_id)
@@ -384,6 +440,9 @@ class UserPricePreference extends Model
 
     /**
      * Validate preference data
+     */
+    /**
+     * ValidatePreferenceData
      */
     public static function validatePreferenceData(array $data): array
     {

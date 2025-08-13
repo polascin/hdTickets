@@ -13,6 +13,9 @@ class PurchaseServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         $this->app->singleton(PurchaseAnalyticsService::class, function ($app) {
@@ -37,6 +40,9 @@ class PurchaseServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {

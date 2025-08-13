@@ -74,6 +74,9 @@ class PurchaseAttempt extends Model
     /**
      * Relationship: Purchase queue this attempt belongs to
      */
+    /**
+     * PurchaseQueue
+     */
     public function purchaseQueue(): BelongsTo
     {
         return $this->belongsTo(PurchaseQueue::class);
@@ -81,6 +84,9 @@ class PurchaseAttempt extends Model
 
     /**
      * Relationship: Scraped ticket this attempt is based on
+     */
+    /**
+     * ScrapedTicket
      */
     public function scrapedTicket(): BelongsTo
     {
@@ -90,6 +96,9 @@ class PurchaseAttempt extends Model
     /**
      * Relationship: User who made the purchase attempt
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -97,6 +106,9 @@ class PurchaseAttempt extends Model
 
     /**
      * Relationship: Get the ticket (alias for scrapedTicket)
+     */
+    /**
+     * Ticket
      */
     public function ticket(): BelongsTo
     {
@@ -137,6 +149,9 @@ class PurchaseAttempt extends Model
     /**
      * Check if attempt is successful
      */
+    /**
+     * Check if  success
+     */
     public function isSuccess(): bool
     {
         return $this->status === self::STATUS_SUCCESS;
@@ -144,6 +159,9 @@ class PurchaseAttempt extends Model
 
     /**
      * Check if attempt is failed
+     */
+    /**
+     * Check if  failed
      */
     public function isFailed(): bool
     {
@@ -153,6 +171,9 @@ class PurchaseAttempt extends Model
     /**
      * Check if attempt is in progress
      */
+    /**
+     * Check if  in progress
+     */
     public function isInProgress(): bool
     {
         return $this->status === self::STATUS_IN_PROGRESS;
@@ -161,6 +182,9 @@ class PurchaseAttempt extends Model
     /**
      * Check if attempt is pending
      */
+    /**
+     * Check if  pending
+     */
     public function isPending(): bool
     {
         return $this->status === self::STATUS_PENDING;
@@ -168,6 +192,9 @@ class PurchaseAttempt extends Model
 
     /**
      * Mark as in progress
+     */
+    /**
+     * MarkInProgress
      */
     public function markInProgress(): bool
     {
@@ -179,6 +206,13 @@ class PurchaseAttempt extends Model
 
     /**
      * Mark as successful
+     *
+     * @param mixed $finalPrice
+     * @param mixed $fees
+     * @param mixed $totalPaid
+     */
+    /**
+     * MarkSuccessful
      *
      * @param mixed $finalPrice
      * @param mixed $fees
@@ -200,6 +234,9 @@ class PurchaseAttempt extends Model
     /**
      * Mark as failed
      */
+    /**
+     * MarkFailed
+     */
     public function markFailed(string $errorMessage, ?string $failureReason = NULL): bool
     {
         return $this->update([
@@ -213,6 +250,9 @@ class PurchaseAttempt extends Model
     /**
      * Cancel the attempt
      */
+    /**
+     * Check if can cel
+     */
     public function cancel(): bool
     {
         return $this->update([
@@ -225,16 +265,31 @@ class PurchaseAttempt extends Model
      *
      * @param mixed $value
      */
+    /**
+     * Set  transaction id attribute
+     *
+     * @param mixed $value
+     */
     public function setTransactionIdAttribute($value): void
     {
         $this->attributes['transaction_id'] = $this->encryptionService->encrypt($value);
     }
 
-    public function getTransactionIdAttribute($value)
+    /**
+     * Get  transaction id attribute
+     *
+     * @param mixed $value
+     */
+    public function getTransactionIdAttribute($value): int
     {
         return $this->encryptionService->decrypt($value);
     }
 
+    /**
+     * Set  confirmation number attribute
+     *
+     * @param mixed $value
+     */
     public function setConfirmationNumberAttribute($value): void
     {
         $this->attributes['confirmation_number'] = $this->encryptionService->encrypt($value);
@@ -245,6 +300,11 @@ class PurchaseAttempt extends Model
         return $this->encryptionService->decrypt($value);
     }
 
+    /**
+     * Set  purchase details attribute
+     *
+     * @param mixed $value
+     */
     public function setPurchaseDetailsAttribute($value): void
     {
         $this->attributes['purchase_details'] = $this->encryptionService->encryptJsonData($value);
@@ -255,16 +315,31 @@ class PurchaseAttempt extends Model
         return $this->encryptionService->decryptJsonData($value);
     }
 
+    /**
+     * Set  response data attribute
+     *
+     * @param mixed $value
+     */
     public function setResponseDataAttribute($value): void
     {
         $this->attributes['response_data'] = $this->encryptionService->encryptJsonData($value);
     }
 
-    public function getResponseDataAttribute($value)
+    /**
+     * Get  response data attribute
+     *
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    public function getResponseDataAttribute($value): array
     {
         return $this->encryptionService->decryptJsonData($value);
     }
 
+    /**
+     * Boot
+     */
     protected static function boot(): void
     {
         parent::boot();

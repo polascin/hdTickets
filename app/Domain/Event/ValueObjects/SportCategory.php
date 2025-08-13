@@ -35,11 +35,17 @@ final readonly class SportCategory
         $this->validate($category);
     }
 
+    /**
+     * Value
+     */
     public function value(): string
     {
         return strtoupper($this->category);
     }
 
+    /**
+     * DisplayName
+     */
     public function displayName(): string
     {
         return match ($this->value()) {
@@ -50,6 +56,9 @@ final readonly class SportCategory
         };
     }
 
+    /**
+     * Check if  team sport
+     */
     public function isTeamSport(): bool
     {
         return in_array($this->value(), [
@@ -63,6 +72,9 @@ final readonly class SportCategory
         ], TRUE);
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->value() === $other->value();
@@ -70,6 +82,9 @@ final readonly class SportCategory
 
     /**
      * @return array<string, string>
+     */
+    /**
+     * ValidCategories
      */
     public static function validCategories(): array
     {
@@ -87,26 +102,41 @@ final readonly class SportCategory
         );
     }
 
+    /**
+     * FromString
+     */
     public static function fromString(string $category): self
     {
         return new self($category);
     }
 
+    /**
+     * Football
+     */
     public static function football(): self
     {
         return new self('FOOTBALL');
     }
 
+    /**
+     * Basketball
+     */
     public static function basketball(): self
     {
         return new self('BASKETBALL');
     }
 
+    /**
+     * Tennis
+     */
     public static function tennis(): self
     {
         return new self('TENNIS');
     }
 
+    /**
+     * Validate
+     */
     private function validate(string $category): void
     {
         if (empty(trim($category))) {
@@ -125,6 +155,9 @@ final readonly class SportCategory
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->displayName();

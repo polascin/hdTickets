@@ -39,6 +39,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         $this->initializeHttpClient();
     }
 
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -65,29 +68,44 @@ class TwickenhamPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
+    /**
+     * Enable
+     */
     public function enable(): void
     {
         $this->enabled = TRUE;
         Log::info('Twickenham plugin enabled');
     }
 
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
         Log::info('Twickenham plugin disabled');
     }
 
+    /**
+     * Configure
+     */
     public function configure(array $config): void
     {
         $this->config = array_merge($this->config, $config);
         Log::info('Twickenham plugin configured', ['config' => $config]);
     }
 
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -119,6 +137,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * Test
+     */
     public function test(): array
     {
         try {
@@ -139,6 +160,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * InitializeHttpClient
+     */
     private function initializeHttpClient(): void
     {
         $this->httpClient = new Client([
@@ -154,6 +178,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         ]);
     }
 
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(array $criteria): string
     {
         $params = [];
@@ -167,6 +194,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return $this->baseUrl . $this->ticketsEndpoint . '?' . $queryString;
     }
 
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(string $html): array
     {
         $events = [];
@@ -205,6 +235,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return $events;
     }
 
+    /**
+     * ExtractText
+     */
     private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -212,6 +245,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
     }
 
+    /**
+     * ExtractUrl
+     */
     private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -224,6 +260,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return '';
     }
 
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
     {
         $priceText = $this->extractText($xpath, $selector, $context);
@@ -235,6 +274,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return NULL;
     }
 
+    /**
+     * ExtractAndParseDate
+     */
     private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
     {
         $dateText = $this->extractText($xpath, $selector, $context);
@@ -254,6 +296,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * ExtractCompetition
+     */
     private function extractCompetition(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $competitionIndicators = [
@@ -273,6 +318,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return 'Rugby Match';
     }
 
+    /**
+     * ExtractAvailabilityStatus
+     */
     private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $statusIndicators = [
@@ -291,6 +339,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return 'unknown';
     }
 
+    /**
+     * FilterResults
+     */
     private function filterResults(array $events, array $criteria): array
     {
         $maxResults = $criteria['max_results'] ?? 50;
@@ -298,6 +349,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         return array_slice(array_values($events), 0, $maxResults);
     }
 
+    /**
+     * EnforceRateLimit
+     */
     private function enforceRateLimit(): void
     {
         $lastRequest = Cache::get('twickenham_last_request', 0);
@@ -311,6 +365,9 @@ class TwickenhamPlugin implements ScraperPluginInterface
         Cache::put('twickenham_last_request', microtime(TRUE), 60);
     }
 
+    /**
+     * MakeRequest
+     */
     private function makeRequest(string $url): string
     {
         try {

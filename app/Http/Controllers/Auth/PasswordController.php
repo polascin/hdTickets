@@ -32,6 +32,9 @@ class PasswordController extends Controller
     /**
      * Update the user's password.
      */
+    /**
+     * Update
+     */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -73,6 +76,9 @@ class PasswordController extends Controller
     /**
      * Check password strength (AJAX)
      */
+    /**
+     * CheckStrength
+     */
     public function checkStrength(Request $request): JsonResponse
     {
         $request->validate([
@@ -107,6 +113,9 @@ class PasswordController extends Controller
     /**
      * Get password requirements
      */
+    /**
+     * Requirements
+     */
     public function requirements(): JsonResponse
     {
         $requirements = $this->passwordHistoryService->getPasswordRequirements();
@@ -116,6 +125,9 @@ class PasswordController extends Controller
 
     /**
      * Get password history info for current user
+     */
+    /**
+     * HistoryInfo
      */
     public function historyInfo(Request $request): JsonResponse
     {
@@ -127,6 +139,9 @@ class PasswordController extends Controller
 
     /**
      * Get history message based on checks
+     */
+    /**
+     * Get  history message
      */
     private function getHistoryMessage(bool $isRecentlyUsed, bool $isCurrentPassword): string
     {
@@ -143,6 +158,9 @@ class PasswordController extends Controller
 
     /**
      * Get overall password status
+     */
+    /**
+     * Get  overall status
      */
     private function getOverallStatus(array $strengthResult, bool $isRecentlyUsed, bool $isCurrentPassword, array $compromiseResult): array
     {

@@ -8,6 +8,14 @@ class ApiRateLimiter
 {
     /**
      * Check if API call is within rate limits
+     *
+     * @param string $platform Platform name to check
+     * @param string $endpoint Endpoint name for granular limiting
+     *
+     * @return bool Whether the request can be made
+     */
+    /**
+     * Check if can  make request
      */
     public function canMakeRequest(string $platform, string $endpoint = 'default'): bool
     {
@@ -24,6 +32,12 @@ class ApiRateLimiter
 
     /**
      * Record an API request
+     *
+     * @param string $platform Platform name
+     * @param string $endpoint Endpoint name for granular tracking
+     */
+    /**
+     * RecordRequest
      */
     public function recordRequest(string $platform, string $endpoint = 'default'): void
     {
@@ -47,6 +61,14 @@ class ApiRateLimiter
 
     /**
      * Get time until next request is allowed
+     *
+     * @param string $platform Platform name
+     * @param string $endpoint Endpoint name
+     *
+     * @return int Wait time in seconds
+     */
+    /**
+     * Get  wait time
      */
     public function getWaitTime(string $platform, string $endpoint = 'default'): int
     {
@@ -71,6 +93,18 @@ class ApiRateLimiter
         return max([0, ...$waitTimes]);
     }
 
+    /**
+     * Check per-second rate limit
+     *
+     * @param string               $platform Platform name
+     * @param string               $endpoint Endpoint name
+     * @param array<string, mixed> $config   Rate limit configuration
+     *
+     * @return bool Whether limit is not exceeded
+     */
+    /**
+     * CheckPerSecondLimit
+     */
     protected function checkPerSecondLimit(string $platform, string $endpoint, array $config): bool
     {
         if (! isset($config['requests_per_second'])) {
@@ -83,6 +117,18 @@ class ApiRateLimiter
         return $currentSecond < $config['requests_per_second'];
     }
 
+    /**
+     * Check per-hour rate limit
+     *
+     * @param string               $platform Platform name
+     * @param string               $endpoint Endpoint name
+     * @param array<string, mixed> $config   Rate limit configuration
+     *
+     * @return bool Whether limit is not exceeded
+     */
+    /**
+     * CheckPerHourLimit
+     */
     protected function checkPerHourLimit(string $platform, string $endpoint, array $config): bool
     {
         if (! isset($config['requests_per_hour'])) {
@@ -95,6 +141,18 @@ class ApiRateLimiter
         return $currentHour < $config['requests_per_hour'];
     }
 
+    /**
+     * Check per-day rate limit
+     *
+     * @param string               $platform Platform name
+     * @param string               $endpoint Endpoint name
+     * @param array<string, mixed> $config   Rate limit configuration
+     *
+     * @return bool Whether limit is not exceeded
+     */
+    /**
+     * CheckPerDayLimit
+     */
     protected function checkPerDayLimit(string $platform, string $endpoint, array $config): bool
     {
         if (! isset($config['requests_per_day'])) {

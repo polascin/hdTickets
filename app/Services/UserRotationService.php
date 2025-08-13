@@ -21,6 +21,9 @@ class UserRotationService
      * @param string $platform  The platform being scraped (stubhub, viagogo, etc.)
      * @param string $operation The type of operation (search, details, etc.)
      */
+    /**
+     * Get  rotated user
+     */
     public function getRotatedUser(string $platform = 'general', string $operation = 'scraping'): ?User
     {
         $cacheKey = $this->getCacheKey($platform, $operation);
@@ -71,6 +74,9 @@ class UserRotationService
     /**
      * @return Collection<int, User>
      */
+    /**
+     * Get  multiple rotated users
+     */
     public function getMultipleRotatedUsers(int $count, string $platform = 'general', string $operation = 'scraping'): Collection
     {
         $users = collect();
@@ -104,6 +110,9 @@ class UserRotationService
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  user activity
+     */
     public function getUserActivity(User $user): array
     {
         $activityKey = "user_activity_{$user->id}";
@@ -113,6 +122,9 @@ class UserRotationService
 
     /**
      * Clear rotation cache (useful for refreshing user pools)
+     */
+    /**
+     * ClearRotationCache
      */
     public function clearRotationCache(?string $platform = NULL, ?string $operation = NULL): void
     {
@@ -146,6 +158,9 @@ class UserRotationService
      */
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  rotation statistics
      */
     public function getRotationStatistics(): array
     {
@@ -189,6 +204,9 @@ class UserRotationService
     /**
      * @return Collection<int, User>
      */
+    /**
+     * Get  rotation pool
+     */
     private function getRotationPool(string $platform, string $operation): Collection
     {
         $cacheKey = $this->getCacheKey($platform, $operation) . '_pool';
@@ -203,6 +221,9 @@ class UserRotationService
      */
     /**
      * @return Collection<int, User>
+     */
+    /**
+     * BuildRotationPool
      */
     private function buildRotationPool(string $platform, string $operation): Collection
     {
@@ -264,6 +285,9 @@ class UserRotationService
     /**
      * Update user activity for tracking
      */
+    /**
+     * UpdateUserActivity
+     */
     private function updateUserActivity(User $user, string $platform, string $operation): void
     {
         $activityKey = "user_activity_{$user->id}";
@@ -283,6 +307,9 @@ class UserRotationService
 
     /**
      * Generate cache key for platform and operation
+     */
+    /**
+     * Get  cache key
      */
     private function getCacheKey(string $platform, string $operation): string
     {

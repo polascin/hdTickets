@@ -28,5 +28,8 @@ interface DomainEventInterface
      */
     public function getMetadata(): array;
 
+    /**
+     * @param array<string, mixed> $metadata
+     */
     public function withMetadata(array $metadata): static;
 }

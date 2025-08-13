@@ -45,7 +45,10 @@ class InputValidationService
      *
      * @param mixed $data
      */
-    public function sanitizeInput($data): mixed
+    /**
+     * SanitizeInput
+     */
+    public function sanitizeInput(array $data): mixed
     {
         if (is_array($data)) {
             return array_map([$this, 'sanitizeInput'], $data);
@@ -70,6 +73,9 @@ class InputValidationService
 
     /**
      * Validate and sanitize ticket data for sports events
+     */
+    /**
+     * ValidateTicketData
      */
     public function validateTicketData(array $data): array
     {
@@ -112,6 +118,9 @@ class InputValidationService
     /**
      * Validate user input with security checks
      */
+    /**
+     * ValidateUserInput
+     */
     public function validateUserInput(array $data, array $rules): array
     {
         // First, sanitize all input
@@ -133,6 +142,9 @@ class InputValidationService
     /**
      * Sanitize HTML content while preserving safe formatting
      */
+    /**
+     * SanitizeHtmlContent
+     */
     public function sanitizeHtmlContent(string $content): string
     {
         // Use HTMLPurifier for comprehensive HTML sanitization
@@ -151,6 +163,9 @@ class InputValidationService
 
     /**
      * Validate API request data with rate limiting considerations
+     */
+    /**
+     * ValidateApiRequest
      */
     public function validateApiRequest(array $data, string $endpoint): array
     {
@@ -196,6 +211,9 @@ class InputValidationService
     /**
      * Generate secure slug for sports events
      */
+    /**
+     * GenerateSecureSlug
+     */
     public function generateSecureSlug(string $title, string $sport = ''): string
     {
         $slug = Str::slug($title);
@@ -213,6 +231,9 @@ class InputValidationService
 
     /**
      * Validate file upload for ticket attachments
+     */
+    /**
+     * ValidateFileUpload
      */
     public function validateFileUpload(array $file): array
     {
@@ -238,6 +259,9 @@ class InputValidationService
     /**
      * Sanitize search query for ticket searching
      */
+    /**
+     * SanitizeSearchQuery
+     */
     public function sanitizeSearchQuery(string $query): string
     {
         // Remove dangerous characters but keep sports-related terms
@@ -255,7 +279,10 @@ class InputValidationService
      *
      * @param mixed $data
      */
-    private function detectDangerousPatterns($data): void
+    /**
+     * DetectDangerousPatterns
+     */
+    private function detectDangerousPatterns(array $data): void
     {
         if (is_array($data)) {
             foreach ($data as $value) {
@@ -278,6 +305,9 @@ class InputValidationService
 
     /**
      * Sanitize validated data for safe storage
+     */
+    /**
+     * SanitizeValidatedData
      */
     private function sanitizeValidatedData(array $data): array
     {

@@ -23,6 +23,9 @@ class SMSChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Send
+     */
     public function send(User $user, array $notification): bool
     {
         try {
@@ -71,6 +74,9 @@ class SMSChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Check if  available
+     */
     public function isAvailable(): bool
     {
         return ! empty(config('services.twilio.sid'))
@@ -78,6 +84,9 @@ class SMSChannel implements NotificationChannelInterface
                && ! empty(config('services.twilio.from'));
     }
 
+    /**
+     * FormatSMSMessage
+     */
     protected function formatSMSMessage(array $notification): string
     {
         $message = $notification['title'] . "\n\n";
@@ -121,6 +130,9 @@ class SMSChannel implements NotificationChannelInterface
         return $message;
     }
 
+    /**
+     * ShortenUrl
+     */
     protected function shortenUrl(string $url): string
     {
         // Simple URL shortening for SMS - in production, use a proper service

@@ -10,14 +10,14 @@ use Illuminate\Console\Command;
 class ReplayEventsCommand extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'events:replay 
+    protected $signature = 'events:replay 
                            {--from=0 : Starting position to replay from}
                            {--to= : End position to replay to}
                            {--projection= : Specific projection to rebuild}
                            {--dry-run : Show what would be replayed without executing}';
 
     /** The console command description. */
-    protected string $description = 'Replay events from the event store to rebuild projections or handle missed events';
+    protected $description = 'Replay events from the event store to rebuild projections or handle missed events';
 
     /**
      * Create a new command instance.
@@ -31,6 +31,9 @@ class ReplayEventsCommand extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -93,6 +96,9 @@ class ReplayEventsCommand extends Command
 
     /**
      * Display replay statistics.
+     */
+    /**
+     * DisplayReplayStats
      */
     private function displayReplayStats(): void
     {

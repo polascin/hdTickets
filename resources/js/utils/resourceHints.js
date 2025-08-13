@@ -76,7 +76,7 @@ class ResourceHints {
         document.head.appendChild(link);
         this.preconnectedOrigins.add(origin);
         
-        console.log(`🔗 Preconnected to: ${origin}${crossorigin ? ' (crossorigin)' : ''}`);\
+        console.log(`🔗 Preconnected to: ${origin}${crossorigin ? ' (crossorigin)' : ''}`);
     }
     
     /**
@@ -102,7 +102,7 @@ class ResourceHints {
             // Event handlers
             link.onload = () => {
                 this.preloadedResources.add(href);
-                console.log(`⚡ Preloaded: ${href} (${as})`);\
+                console.log(`⚡ Preloaded: ${href} (${as})`);
                 resolve(link);
             };
             
@@ -137,7 +137,7 @@ class ResourceHints {
                 
                 link.onload = () => {
                     this.prefetchedResources.add(href);
-                    console.log(`📦 Prefetched: ${href}`);\
+                    console.log(`📦 Prefetched: ${href}`);
                     resolve(link);
                 };
                 

@@ -15,6 +15,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
     /**
      * Enhanced scraping method that handles API-specific logic
      */
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -58,6 +61,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
     /**
      * Get specific sports events for better categorization
      */
+    /**
+     * Get  sports events
+     */
     public function getSportsEvents(array $criteria = []): array
     {
         $criteria['classification'] = 'Sports';
@@ -67,6 +73,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
 
     /**
      * Get events by specific sport
+     */
+    /**
+     * Get  events by sport
      */
     public function getEventsBySport(string $sport, array $criteria = []): array
     {
@@ -79,6 +88,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
     /**
      * Get events by venue
      */
+    /**
+     * Get  events by venue
+     */
     public function getEventsByVenue(string $venue, array $criteria = []): array
     {
         $criteria['venue'] = $venue;
@@ -89,6 +101,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
     /**
      * Get events by city
      */
+    /**
+     * Get  events by city
+     */
     public function getEventsByCity(string $city, array $criteria = []): array
     {
         $criteria['city'] = $city;
@@ -96,6 +111,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return $this->scrape($criteria);
     }
 
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Ticketmaster';
@@ -108,6 +126,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         $this->version = '2.0.0';
     }
 
+    /**
+     * Get  capabilities
+     */
     protected function getCapabilities(): array
     {
         return [
@@ -123,6 +144,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         ];
     }
 
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -140,11 +164,17 @@ class TicketmasterPlugin extends BaseScraperPlugin
         ];
     }
 
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . 'events.json?apikey=' . config('scraping.plugins.ticketmaster.api_key');
     }
 
+    /**
+     * BuildSearchUrl
+     */
     protected function buildSearchUrl(array $criteria): string
     {
         $apiKey = config('scraping.plugins.ticketmaster.api_key');
@@ -201,6 +231,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return $this->baseUrl . 'events.json?' . http_build_query($params);
     }
 
+    /**
+     * ParseSearchResults
+     */
     protected function parseSearchResults(string $response): array
     {
         $data = json_decode($response, TRUE);
@@ -223,31 +256,49 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return $events;
     }
 
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return 'name'; // JSON field, not CSS selector
     }
 
+    /**
+     * Get  date selectors
+     */
     protected function getDateSelectors(): string
     {
         return 'dates.start.dateTime,dates.start.localDate';
     }
 
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '_embedded.venues.0.name';
     }
 
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return 'priceRanges.0';
     }
 
+    /**
+     * Get  availability selectors
+     */
     protected function getAvailabilitySelectors(): string
     {
         return 'dates.status.code';
     }
 
+    /**
+     * ParseTicketmasterEvent
+     */
     private function parseTicketmasterEvent(array $event): ?array
     {
         try {
@@ -317,6 +368,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         }
     }
 
+    /**
+     * ExtractPriceInfo
+     */
     private function extractPriceInfo(array $event): array
     {
         $priceInfo = ['min' => NULL, 'max' => NULL];
@@ -335,6 +389,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return $priceInfo;
     }
 
+    /**
+     * ExtractCategory
+     */
     private function extractCategory(array $event): string
     {
         if (isset($event['classifications'][0]['segment']['name'])) {
@@ -344,6 +401,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return 'Entertainment';
     }
 
+    /**
+     * ExtractSubcategory
+     */
     private function extractSubcategory(array $event): string
     {
         if (isset($event['classifications'][0]['genre']['name'])) {
@@ -357,6 +417,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
         return 'General';
     }
 
+    /**
+     * DetermineAvailabilityStatus
+     */
     private function determineAvailabilityStatus(array $event): string
     {
         // Check sales status
@@ -403,6 +466,9 @@ class TicketmasterPlugin extends BaseScraperPlugin
 
     /**
      * Make API request with proper headers and error handling
+     */
+    /**
+     * MakeApiRequest
      */
     private function makeApiRequest(string $url): string
     {

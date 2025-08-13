@@ -30,7 +30,10 @@ class UserManagementController extends Controller
     /**
      * Display a listing of users
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $query = User::query();
 
@@ -127,7 +130,10 @@ class UserManagementController extends Controller
     /**
      * Show the form for creating a new user
      */
-    public function create()
+    /**
+     * Create
+     */
+    public function create(): Illuminate\Contracts\View\View
     {
         return view('admin.users.create');
     }
@@ -135,7 +141,10 @@ class UserManagementController extends Controller
     /**
      * Store a newly created user
      */
-    public function store(Request $request)
+    /**
+     * Store
+     */
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
@@ -176,7 +185,10 @@ class UserManagementController extends Controller
     /**
      * Display the specified user
      */
-    public function show(User $user)
+    /**
+     * Show
+     */
+    public function show(User $user): \Illuminate\Contracts\View\View
     {
         return view('admin.users.show', compact('user'));
     }
@@ -184,7 +196,10 @@ class UserManagementController extends Controller
     /**
      * Show the form for editing the specified user
      */
-    public function edit(User $user)
+    /**
+     * Edit
+     */
+    public function edit(User $user): \Illuminate\Contracts\View\View
     {
         return view('admin.users.edit', compact('user'));
     }
@@ -192,7 +207,10 @@ class UserManagementController extends Controller
     /**
      * Update the specified user
      */
-    public function update(Request $request, User $user)
+    /**
+     * Update
+     */
+    public function update(Request $request, User $user): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'      => ['required', 'string', 'max:255'],
@@ -233,7 +251,10 @@ class UserManagementController extends Controller
     /**
      * Remove the specified user
      */
-    public function destroy(User $user)
+    /**
+     * Destroy
+     */
+    public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
         // Prevent admin from deleting themselves
         if ($user->id === auth()->id()) {
@@ -250,7 +271,10 @@ class UserManagementController extends Controller
     /**
      * Toggle user active status
      */
-    public function toggleStatus(User $user)
+    /**
+     * ToggleStatus
+     */
+    public function toggleStatus(User $user): \Illuminate\Http\JsonResponse
     {
         $user->update(['is_active' => ! $user->is_active]);
 
@@ -263,7 +287,10 @@ class UserManagementController extends Controller
     /**
      * Reset the user's password to a default value
      */
-    public function resetPassword(User $user)
+    /**
+     * ResetPassword
+     */
+    public function resetPassword(User $user): \Illuminate\Http\JsonResponse
     {
         $defaultPassword = 'password';
         $user->update(['password' => Hash::make($defaultPassword)]);
@@ -275,7 +302,10 @@ class UserManagementController extends Controller
     /**
      * Handle bulk actions on users with enhanced security
      */
-    public function bulkAction(Request $request)
+    /**
+     * BulkAction
+     */
+    public function bulkAction(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         $startTime = microtime(TRUE);
@@ -383,7 +413,10 @@ class UserManagementController extends Controller
     /**
      * Impersonate a user
      */
-    public function impersonate(User $user)
+    /**
+     * Impersonate
+     */
+    public function impersonate(User $user): \Illuminate\Http\RedirectResponse
     {
         // Prevent impersonating yourself
         if ($user->id === auth()->id()) {
@@ -438,7 +471,10 @@ class UserManagementController extends Controller
     /**
      * Send email verification to user
      */
-    public function sendVerification(User $user)
+    /**
+     * SendVerification
+     */
+    public function sendVerification(User $user): \Illuminate\Http\JsonResponse
     {
         if ($user->hasVerifiedEmail()) {
             return redirect()->route('admin.users.index')
@@ -455,7 +491,10 @@ class UserManagementController extends Controller
     /**
      * Update user field inline via AJAX
      */
-    public function inlineUpdate(Request $request, User $user)
+    /**
+     * InlineUpdate
+     */
+    public function inlineUpdate(Request $request, User $user): \Illuminate\Http\JsonResponse
     {
         $field = $request->input('field');
         $value = $request->input('value');
@@ -610,7 +649,10 @@ class UserManagementController extends Controller
     /**
      * Update user role via AJAX
      */
-    public function updateRole(Request $request, User $user)
+    /**
+     * UpdateRole
+     */
+    public function updateRole(Request $request, User $user): \Illuminate\Http\JsonResponse
     {
         $this->authorize('manage_users');
 
@@ -657,7 +699,10 @@ class UserManagementController extends Controller
     /**
      * Bulk role assignment
      */
-    public function bulkRoleAssignment(Request $request)
+    /**
+     * BulkRoleAssignment
+     */
+    public function bulkRoleAssignment(Request $request): \Illuminate\Http\JsonResponse
     {
         $this->authorize('manage_users');
 
@@ -722,7 +767,12 @@ class UserManagementController extends Controller
      *
      * @param mixed $users
      */
-    private function bulkActivate($users)
+    /**
+     * BulkActivate
+     *
+     * @param mixed $users
+     */
+    private function bulkActivate($users): \Illuminate\Http\JsonResponse
     {
         $count = 0;
         foreach ($users as $user) {
@@ -742,7 +792,12 @@ class UserManagementController extends Controller
      *
      * @param mixed $users
      */
-    private function bulkDeactivate($users)
+    /**
+     * BulkDeactivate
+     *
+     * @param mixed $users
+     */
+    private function bulkDeactivate($users): \Illuminate\Http\JsonResponse
     {
         $count = 0;
         $currentUserId = auth()->id();
@@ -769,7 +824,12 @@ class UserManagementController extends Controller
      *
      * @param mixed $users
      */
-    private function bulkDelete($users)
+    /**
+     * BulkDelete
+     *
+     * @param mixed $users
+     */
+    private function bulkDelete($users): \Illuminate\Http\JsonResponse
     {
         $count = 0;
         $currentUserId = auth()->id();
@@ -795,7 +855,13 @@ class UserManagementController extends Controller
      * @param mixed $users
      * @param mixed $role
      */
-    private function bulkAssignRole($users, $role)
+    /**
+     * BulkAssignRole
+     *
+     * @param mixed $users
+     * @param mixed $role
+     */
+    private function bulkAssignRole($users, $role): \Illuminate\Http\JsonResponse
     {
         if (! $role) {
             return redirect()->route('admin.users.index')
@@ -820,7 +886,12 @@ class UserManagementController extends Controller
      *
      * @param mixed $users
      */
-    private function bulkExport($users)
+    /**
+     * BulkExport
+     *
+     * @param mixed $users
+     */
+    private function bulkExport($users): \Illuminate\Http\Response
     {
         $filename = 'users_export_' . date('Y-m-d_H-i-s') . '.csv';
 

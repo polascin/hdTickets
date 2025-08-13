@@ -46,6 +46,9 @@ class ProfilePictureController extends Controller
     /**
      * Upload and process profile picture
      */
+    /**
+     * Upload
+     */
     public function upload(Request $request): JsonResponse
     {
         try {
@@ -127,6 +130,9 @@ class ProfilePictureController extends Controller
 
     /**
      * Crop existing profile picture
+     */
+    /**
+     * Crop
      */
     public function crop(Request $request): JsonResponse
     {
@@ -221,6 +227,9 @@ class ProfilePictureController extends Controller
     /**
      * Delete profile picture
      */
+    /**
+     * Delete
+     */
     public function delete(): JsonResponse
     {
         try {
@@ -265,6 +274,9 @@ class ProfilePictureController extends Controller
 
     /**
      * Get profile picture info
+     */
+    /**
+     * Info
      */
     public function info(): JsonResponse
     {
@@ -319,6 +331,9 @@ class ProfilePictureController extends Controller
     /**
      * Get maximum allowed file size
      */
+    /**
+     * Get  upload limits
+     */
     public function getUploadLimits(): JsonResponse
     {
         return response()->json([
@@ -334,6 +349,11 @@ class ProfilePictureController extends Controller
 
     /**
      * Process and save image in multiple sizes
+     *
+     * @param mixed $source
+     */
+    /**
+     * ProcessAndSaveImage
      *
      * @param mixed $source
      */
@@ -394,6 +414,9 @@ class ProfilePictureController extends Controller
     /**
      * Delete old profile pictures for a user
      */
+    /**
+     * DeleteOldProfilePictures
+     */
     private function deleteOldProfilePictures(int $userId): void
     {
         try {
@@ -416,6 +439,9 @@ class ProfilePictureController extends Controller
     /**
      * Validate crop data structure
      */
+    /**
+     * Check if  valid crop data
+     */
     private function isValidCropData(array $cropData): bool
     {
         $requiredFields = ['x', 'y', 'width', 'height'];
@@ -433,6 +459,9 @@ class ProfilePictureController extends Controller
     /**
      * Format bytes to human readable format
      */
+    /**
+     * FormatBytes
+     */
     private function formatBytes(int $size): string
     {
         $units = ['B', 'KB', 'MB', 'GB'];
@@ -448,6 +477,9 @@ class ProfilePictureController extends Controller
 
     /**
      * Get available picture sizes for a user
+     */
+    /**
+     * Get  available sizes
      */
     private function getAvailableSizes(int $userId): array
     {

@@ -18,6 +18,9 @@ class PreventScraperWebAccess
      *
      * @param Closure(Request): (Response) $next
      */
+    /**
+     * Handle
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();

@@ -35,6 +35,9 @@ class PasswordChangedNotification extends Mailable
     /**
      * Get the message envelope.
      */
+    /**
+     * Envelope
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -44,6 +47,9 @@ class PasswordChangedNotification extends Mailable
 
     /**
      * Get the message content definition.
+     */
+    /**
+     * Content
      */
     public function content(): Content
     {
@@ -58,6 +64,9 @@ class PasswordChangedNotification extends Mailable
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
+    /**
+     * Attachments
+     */
     public function attachments(): array
     {
         return [];
@@ -65,6 +74,9 @@ class PasswordChangedNotification extends Mailable
 
     /**
      * Get approximate location from IP address
+     */
+    /**
+     * Get  location from i p
      */
     private function getLocationFromIP(string $ip): string
     {

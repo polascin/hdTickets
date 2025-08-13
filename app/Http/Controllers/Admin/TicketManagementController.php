@@ -15,7 +15,10 @@ class TicketManagementController extends Controller
     /**
      * Display a listing of tickets for management
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $query = Ticket::with(['user', 'category', 'assignedTo'])
             ->latest();
@@ -87,7 +90,10 @@ class TicketManagementController extends Controller
     /**
      * Assign ticket to agent
      */
-    public function assign(Request $request, Ticket $ticket)
+    /**
+     * Assign
+     */
+    public function assign(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'assigned_to' => ['nullable', 'exists:users,id'],
@@ -131,7 +137,10 @@ class TicketManagementController extends Controller
     /**
      * Bulk assign tickets
      */
-    public function bulkAssign(Request $request)
+    /**
+     * BulkAssign
+     */
+    public function bulkAssign(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'ticket_ids'   => ['required', 'array'],
@@ -182,7 +191,10 @@ class TicketManagementController extends Controller
     /**
      * Update ticket status
      */
-    public function updateStatus(Request $request, Ticket $ticket)
+    /**
+     * UpdateStatus
+     */
+    public function updateStatus(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'status'  => ['required', Rule::in(Ticket::getStatuses())],
@@ -233,7 +245,10 @@ class TicketManagementController extends Controller
     /**
      * Update ticket priority
      */
-    public function updatePriority(Request $request, Ticket $ticket)
+    /**
+     * UpdatePriority
+     */
+    public function updatePriority(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'priority' => ['required', Rule::in(Ticket::getPriorities())],
@@ -263,7 +278,10 @@ class TicketManagementController extends Controller
     /**
      * Bulk update status
      */
-    public function bulkUpdateStatus(Request $request)
+    /**
+     * BulkUpdateStatus
+     */
+    public function bulkUpdateStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'ticket_ids'   => ['required', 'array'],
@@ -315,7 +333,10 @@ class TicketManagementController extends Controller
     /**
      * Set due date for ticket
      */
-    public function setDueDate(Request $request, Ticket $ticket)
+    /**
+     * Set  due date
+     */
+    public function setDueDate(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'due_date' => ['nullable', 'date', 'after:today'],
@@ -377,7 +398,13 @@ class TicketManagementController extends Controller
      * @param mixed $oldAssignee
      * @param mixed $newAssignee
      */
-    private function getAssignmentMessage($oldAssignee, $newAssignee)
+    /**
+     * Get  assignment message
+     *
+     * @param mixed $oldAssignee
+     * @param mixed $newAssignee
+     */
+    private function getAssignmentMessage($oldAssignee, $newAssignee): string
     {
         if (! $oldAssignee && ! $newAssignee) {
             return 'Ticket assignment unchanged';

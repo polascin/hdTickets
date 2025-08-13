@@ -31,6 +31,11 @@ class ComprehensiveLoggingMiddleware
 
     /**
      * Handle an incoming request.
+     *
+     * @param Closure(Request): (BaseResponse) $next
+     */
+    /**
+     * Handle
      */
     public function handle(Request $request, Closure $next): BaseResponse
     {
@@ -74,6 +79,9 @@ class ComprehensiveLoggingMiddleware
     /**
      * Start database query logging
      */
+    /**
+     * StartDatabaseLogging
+     */
     protected function startDatabaseLogging(): void
     {
         $this->queries = [];
@@ -90,6 +98,9 @@ class ComprehensiveLoggingMiddleware
     /**
      * Stop database query logging and log queries
      */
+    /**
+     * StopDatabaseLogging
+     */
     protected function stopDatabaseLogging(): void
     {
         foreach ($this->queries as $query) {
@@ -104,6 +115,9 @@ class ComprehensiveLoggingMiddleware
 
     /**
      * Log response details
+     */
+    /**
+     * LogResponse
      */
     protected function logResponse(Request $request, BaseResponse $response, string $status): void
     {
@@ -129,6 +143,9 @@ class ComprehensiveLoggingMiddleware
 
     /**
      * Log performance metrics
+     */
+    /**
+     * LogPerformanceMetrics
      */
     protected function logPerformanceMetrics(Request $request): void
     {
@@ -163,6 +180,9 @@ class ComprehensiveLoggingMiddleware
 
     /**
      * Get safe headers (excluding sensitive information)
+     */
+    /**
+     * Get  safe headers
      */
     protected function getSafeHeaders(Request $request): array
     {

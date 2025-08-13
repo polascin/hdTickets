@@ -12,10 +12,10 @@ interface PurchaseAutomationInterface
     /**
      * Create automated purchase rule
      *
-     * @param int   $userId      User ID
-     * @param array $criteria    Purchase criteria
-     * @param array $conditions  Purchase conditions
-     * @param array $preferences User preferences
+     * @param int                  $userId      User ID
+     * @param array<string, mixed> $criteria    Purchase criteria
+     * @param array<string, mixed> $conditions  Purchase conditions
+     * @param array<string, mixed> $preferences User preferences
      *
      * @return string Rule ID
      */
@@ -24,9 +24,9 @@ interface PurchaseAutomationInterface
     /**
      * Process purchase decision for available tickets
      *
-     * @param int   $ticketId         Ticket ID
-     * @param array $availabilityData Ticket availability data
-     * @param array $userPreferences  User preferences
+     * @param int                  $ticketId         Ticket ID
+     * @param array<string, mixed> $availabilityData Ticket availability data
+     * @param array<string, mixed> $userPreferences  User preferences
      *
      * @return array Purchase decision
      */
@@ -35,9 +35,9 @@ interface PurchaseAutomationInterface
     /**
      * Execute automated purchase
      *
-     * @param int   $ticketId        Ticket ID
-     * @param array $decision        Purchase decision
-     * @param array $userPreferences User preferences
+     * @param int                  $ticketId        Ticket ID
+     * @param array<string, mixed> $decision        Purchase decision
+     * @param array<string, mixed> $userPreferences User preferences
      *
      * @return array Purchase result
      */
@@ -64,8 +64,8 @@ interface PurchaseAutomationInterface
     /**
      * Update purchase rule
      *
-     * @param string $ruleId  Rule ID
-     * @param array  $updates Updates to apply
+     * @param string               $ruleId  Rule ID
+     * @param array<string, mixed> $updates Updates to apply
      *
      * @return bool Success status
      */
@@ -83,8 +83,8 @@ interface PurchaseAutomationInterface
     /**
      * Check and trigger automation rules
      *
-     * @param int   $ticketId         Ticket ID
-     * @param array $availabilityData Availability data
+     * @param int                  $ticketId         Ticket ID
+     * @param array<string, mixed> $availabilityData Availability data
      *
      * @return array Triggered rules
      */

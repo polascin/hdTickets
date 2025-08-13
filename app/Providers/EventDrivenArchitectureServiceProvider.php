@@ -21,6 +21,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Bind Event Store
@@ -57,6 +60,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    /**
+     * Boot
+     */
     public function boot(): void
     {
         // Register event listeners with Laravel's event dispatcher
@@ -69,6 +75,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
     /**
      * Get the services provided by the provider.
      */
+    /**
+     * Provides
+     */
     public function provides(): array
     {
         return [
@@ -79,6 +88,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
         ];
     }
 
+    /**
+     * RegisterEventListeners
+     */
     private function registerEventListeners(): void
     {
         $dispatcher = $this->app->make(Dispatcher::class);
@@ -94,6 +106,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
         // $dispatcher->listen('App\Domain\Purchase\Events\PurchaseInitiated', [PurchaseInitiatedHandler::class, 'handle']);
     }
 
+    /**
+     * Set up event subscriptions
+     */
     private function setupEventSubscriptions(): void
     {
         $eventBus = $this->app->make(EventBusInterface::class);

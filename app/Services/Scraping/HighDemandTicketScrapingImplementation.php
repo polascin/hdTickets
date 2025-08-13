@@ -39,6 +39,9 @@ class HighDemandTicketScrapingImplementation
      * $scraper = app(HighDemandTicketScrapingImplementation::class);
      * $results = $scraper->scrapeElClasico(['max_price' => 500]);
      */
+    /**
+     * ScrapeElClasico
+     */
     public function scrapeElClasico(array $options = []): array
     {
         Log::info('Starting El Clasico high-demand ticket scraping');
@@ -97,6 +100,9 @@ class HighDemandTicketScrapingImplementation
      *     'max_price' => 300
      * ]);
      */
+    /**
+     * ScrapeManchesterUnited
+     */
     public function scrapeManchesterUnited(array $options = []): array
     {
         $opponent = $options['opponent'] ?? '';
@@ -128,6 +134,9 @@ class HighDemandTicketScrapingImplementation
     /**
      * Scrape Champions League Final tickets with extreme priority
      */
+    /**
+     * ScrapeChampionsLeagueFinal
+     */
     public function scrapeChampionsLeagueFinal(array $options = []): array
     {
         $criteria = [
@@ -154,6 +163,9 @@ class HighDemandTicketScrapingImplementation
     /**
      * Monitor and scrape tickets that are about to go on sale
      */
+    /**
+     * MonitorPreSaleTickets
+     */
     public function monitorPreSaleTickets(string $eventType, array $criteria): array
     {
         Log::info("Starting pre-sale monitoring for {$eventType}");
@@ -179,6 +191,9 @@ class HighDemandTicketScrapingImplementation
 
     /**
      * Handle queue-based scraping intelligently
+     */
+    /**
+     * HandleQueueScraping
      */
     public function handleQueueScraping(string $platform, array $criteria): array
     {
@@ -216,6 +231,9 @@ class HighDemandTicketScrapingImplementation
 
     /**
      * Set up real-time high-demand ticket alerts
+     */
+    /**
+     * Set up high demand alerts
      */
     public function setupHighDemandAlerts(array $events): array
     {
@@ -259,6 +277,9 @@ class HighDemandTicketScrapingImplementation
     /**
      * Execute high-demand scraping with auto-purchase capability
      */
+    /**
+     * ScrapeWithAutoPurchase
+     */
     public function scrapeWithAutoPurchase(array $criteria, array $purchaseConfig = []): array
     {
         $results = $this->executeConcurrentScraping(
@@ -283,6 +304,9 @@ class HighDemandTicketScrapingImplementation
     /**
      * Get real-time high-demand ticket statistics
      */
+    /**
+     * Get  high demand stats
+     */
     public function getHighDemandStats(): array
     {
         return Cache::remember('high_demand_stats', 300, function () {
@@ -302,6 +326,9 @@ class HighDemandTicketScrapingImplementation
 
     // Protected helper methods
 
+    /**
+     * PreWarmSessions
+     */
     protected function preWarmSessions(array $platforms): void
     {
         foreach ($platforms as $platform) {
@@ -316,6 +343,9 @@ class HighDemandTicketScrapingImplementation
         }
     }
 
+    /**
+     * ExecuteConcurrentScraping
+     */
     protected function executeConcurrentScraping(array $platforms, array $criteria, string $eventType): array
     {
         $results = [];
@@ -342,12 +372,18 @@ class HighDemandTicketScrapingImplementation
         return $this->mergeAndPrioritizeResults($results);
     }
 
+    /**
+     * ScrapeAsync
+     */
     protected function scrapeAsync(string $platform, array $criteria): array
     {
         // Implement async scraping using Guzzle promises or similar
         return $this->scraper->scrapeHighDemandTickets($platform, $criteria);
     }
 
+    /**
+     * ProcessResults
+     */
     protected function processResults(array $results, string $platform): array
     {
         if (empty($results)) {
@@ -371,6 +407,9 @@ class HighDemandTicketScrapingImplementation
         ];
     }
 
+    /**
+     * SaveTicketToDatabase
+     */
     protected function saveTicketToDatabase(array $ticketData, string $platform): ?ScrapedTicket
     {
         try {
@@ -403,6 +442,9 @@ class HighDemandTicketScrapingImplementation
         }
     }
 
+    /**
+     * MergeAndPrioritizeResults
+     */
     protected function mergeAndPrioritizeResults(array $results): array
     {
         $allTickets = [];
@@ -451,6 +493,9 @@ class HighDemandTicketScrapingImplementation
         ];
     }
 
+    /**
+     * TriggerHighDemandAlert
+     */
     protected function triggerHighDemandAlert(array $tickets, string $eventType): void
     {
         foreach ($tickets as $ticket) {
@@ -467,6 +512,9 @@ class HighDemandTicketScrapingImplementation
         }
     }
 
+    /**
+     * SendImmediateNotifications
+     */
     protected function sendImmediateNotifications(array $ticket, string $eventType): void
     {
         // Implementation for immediate notifications
@@ -477,6 +525,9 @@ class HighDemandTicketScrapingImplementation
         ]);
     }
 
+    /**
+     * CalculateDemandLevel
+     */
     protected function calculateDemandLevel(string $opponent): string
     {
         $highDemandOpponents = [
@@ -487,6 +538,9 @@ class HighDemandTicketScrapingImplementation
         return in_array($opponent, $highDemandOpponents, TRUE) ? 'very_high' : 'high';
     }
 
+    /**
+     * ShouldAutoPurchase
+     */
     protected function shouldAutoPurchase(array $ticket, array $config): bool
     {
         if (empty($config['enabled'])) {
@@ -512,6 +566,9 @@ class HighDemandTicketScrapingImplementation
         return TRUE;
     }
 
+    /**
+     * AttemptAutoPurchase
+     */
     protected function attemptAutoPurchase(array $ticket, array $config): array
     {
         Log::info('Attempting auto-purchase', [
@@ -527,11 +584,17 @@ class HighDemandTicketScrapingImplementation
         ];
     }
 
+    /**
+     * Get  active queue sessions
+     */
     protected function getActiveQueueSessions(): int
     {
         return Cache::get('active_queue_sessions', 0);
     }
 
+    /**
+     * Get  recent high demand finds
+     */
     protected function getRecentHighDemandFinds(): array
     {
         return ScrapedTicket::where('is_high_demand', TRUE)
@@ -542,6 +605,9 @@ class HighDemandTicketScrapingImplementation
             ->toArray();
     }
 
+    /**
+     * Get  platform performance stats
+     */
     protected function getPlatformPerformanceStats(): array
     {
         // Get performance statistics for each platform
@@ -559,18 +625,27 @@ class HighDemandTicketScrapingImplementation
         });
     }
 
+    /**
+     * SchedulePreSaleChecks
+     */
     protected function schedulePreSaleChecks(string $eventType, array $criteria): void
     {
         // Implementation would use Laravel's job queue system
         Log::info("Scheduling pre-sale checks for {$eventType}");
     }
 
+    /**
+     * ScheduleFrequentQueueChecks
+     */
     protected function scheduleFrequentQueueChecks(string $platform, array $criteria): void
     {
         // Implementation for frequent queue monitoring
         Log::info("Scheduling frequent queue checks for {$platform}");
     }
 
+    /**
+     * AttemptQueueBypass
+     */
     protected function attemptQueueBypass(string $platform, array $criteria): array
     {
         // Implementation for queue bypass techniques
@@ -579,6 +654,9 @@ class HighDemandTicketScrapingImplementation
         return [];
     }
 
+    /**
+     * WaitInQueueIntelligently
+     */
     protected function waitInQueueIntelligently(string $platform, array $criteria, array $position): array
     {
         Log::info("Waiting intelligently in queue for {$platform}", $position);
@@ -590,6 +668,9 @@ class HighDemandTicketScrapingImplementation
         ];
     }
 
+    /**
+     * EnablePreSaleMonitoring
+     */
     protected function enablePreSaleMonitoring(string $eventType): void
     {
         Cache::put("pre_sale_monitoring_{$eventType}", TRUE, now()->addDays(7));

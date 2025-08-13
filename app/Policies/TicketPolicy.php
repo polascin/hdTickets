@@ -15,6 +15,9 @@ class TicketPolicy
     /**
      * Determine whether the user can view any tickets.
      */
+    /**
+     * ViewAny
+     */
     public function viewAny(User $user): bool
     {
         return TRUE; // All authenticated users can view tickets list
@@ -22,6 +25,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can view the ticket.
+     */
+    /**
+     * View
      */
     public function view(User $user, Ticket $ticket): bool
     {
@@ -42,6 +48,9 @@ class TicketPolicy
     /**
      * Determine whether the user can create tickets.
      */
+    /**
+     * Create
+     */
     public function create(User $user): bool
     {
         return TRUE; // All authenticated users can create tickets
@@ -49,6 +58,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can update the ticket.
+     */
+    /**
+     * Update
      */
     public function update(User $user, Ticket $ticket): bool
     {
@@ -73,6 +85,9 @@ class TicketPolicy
     /**
      * Determine whether the user can delete the ticket.
      */
+    /**
+     * Delete
+     */
     public function delete(User $user, Ticket $ticket): bool
     {
         // Only admins can delete tickets
@@ -91,6 +106,9 @@ class TicketPolicy
     /**
      * Determine whether the user can restore the ticket.
      */
+    /**
+     * Restore
+     */
     public function restore(User $user, Ticket $ticket): bool
     {
         return $user->isAdmin();
@@ -98,6 +116,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can permanently delete the ticket.
+     */
+    /**
+     * ForceDelete
      */
     public function forceDelete(User $user, Ticket $ticket): bool
     {
@@ -107,6 +128,9 @@ class TicketPolicy
     /**
      * Determine whether the user can assign the ticket.
      */
+    /**
+     * Assign
+     */
     public function assign(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can assign tickets
@@ -115,6 +139,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can change ticket status.
+     */
+    /**
+     * UpdateStatus
      */
     public function updateStatus(User $user, Ticket $ticket): bool
     {
@@ -137,6 +164,9 @@ class TicketPolicy
     /**
      * Determine whether the user can change ticket priority.
      */
+    /**
+     * UpdatePriority
+     */
     public function updatePriority(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can update priority
@@ -145,6 +175,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can add comments to the ticket.
+     */
+    /**
+     * AddComment
      */
     public function addComment(User $user, Ticket $ticket): bool
     {
@@ -155,6 +188,9 @@ class TicketPolicy
     /**
      * Determine whether the user can add internal notes.
      */
+    /**
+     * AddInternalNote
+     */
     public function addInternalNote(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can add internal notes
@@ -164,6 +200,9 @@ class TicketPolicy
     /**
      * Determine whether the user can view internal comments.
      */
+    /**
+     * ViewInternalComments
+     */
     public function viewInternalComments(User $user): bool
     {
         // Only admins and agents can view internal comments
@@ -172,6 +211,9 @@ class TicketPolicy
 
     /**
      * Determine whether the user can bulk update tickets.
+     */
+    /**
+     * BulkUpdate
      */
     public function bulkUpdate(User $user): bool
     {

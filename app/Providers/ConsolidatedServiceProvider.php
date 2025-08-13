@@ -22,6 +22,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
     /**
      * Register services
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Register the service orchestrator as singleton
@@ -38,6 +41,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {
@@ -68,6 +74,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
     /**
      * Get the services provided by the provider
      */
+    /**
+     * Provides
+     */
     public function provides(): array
     {
         return [
@@ -91,6 +100,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
 
     /**
      * Register service interfaces
+     */
+    /**
+     * RegisterServiceInterfaces
      */
     private function registerServiceInterfaces(): void
     {
@@ -117,6 +129,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
 
     /**
      * Register concrete services
+     */
+    /**
+     * RegisterConcreteServices
      */
     private function registerConcreteServices(): void
     {
@@ -146,6 +161,9 @@ class ConsolidatedServiceProvider extends ServiceProvider
 
     /**
      * Register legacy service aliases for backward compatibility
+     */
+    /**
+     * RegisterLegacyAliases
      */
     private function registerLegacyAliases(): void
     {

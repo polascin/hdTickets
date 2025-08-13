@@ -33,6 +33,9 @@ class TicketApiManager
     /**
      * Search events across all enabled APIs
      */
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria, array $platforms = []): array
     {
         $results = [];
@@ -60,6 +63,9 @@ class TicketApiManager
     /**
      * Get specific event details
      */
+    /**
+     * Get  event
+     */
     public function getEvent(string $platform, string $eventId): ?array
     {
         if (! isset($this->clients[$platform])) {
@@ -84,6 +90,9 @@ class TicketApiManager
     /**
      * Get available platforms
      */
+    /**
+     * Get  available platforms
+     */
     public function getAvailablePlatforms(): array
     {
         return array_keys($this->clients);
@@ -92,6 +101,9 @@ class TicketApiManager
     /**
      * Check if platform is available
      */
+    /**
+     * Check if  platform available
+     */
     public function isPlatformAvailable(string $platform): bool
     {
         return isset($this->clients[$platform]);
@@ -99,6 +111,9 @@ class TicketApiManager
 
     /**
      * Search events with automatic fallback
+     */
+    /**
+     * SearchEventsWithFallback
      */
     public function searchEventsWithFallback(array $criteria): array
     {
@@ -128,6 +143,9 @@ class TicketApiManager
 
     /**
      * Initialize all available API clients
+     */
+    /**
+     * InitializeClients
      */
     protected function initializeClients(): void
     {
@@ -169,6 +187,11 @@ class TicketApiManager
      *
      * @param mixed $client
      */
+    /**
+     * ProcessApiResults
+     *
+     * @param mixed $client
+     */
     protected function processApiResults(array $apiResults, string $platform, $client): array
     {
         $processedResults = [];
@@ -199,6 +222,9 @@ class TicketApiManager
 
     /**
      * Extract events array from different API response structures
+     */
+    /**
+     * ExtractEventsFromResponse
      */
     protected function extractEventsFromResponse(array $response, string $platform): array
     {
@@ -249,6 +275,9 @@ class TicketApiManager
     /**
      * Save event data to database
      */
+    /**
+     * SaveEventToDatabase
+     */
     protected function saveEventToDatabase(array $eventData, string $platform): void
     {
         try {
@@ -278,6 +307,9 @@ class TicketApiManager
 
     /**
      * Map API status to our internal status with platform-specific handling
+     */
+    /**
+     * MapStatus
      */
     protected function mapStatus(string $apiStatus, ?string $platform = NULL): string
     {

@@ -19,6 +19,9 @@ class ProjectionManager implements ProjectionManagerInterface
     ) {
     }
 
+    /**
+     * Register
+     */
     public function register(ProjectionInterface $projection): void
     {
         $this->projections[$projection->getName()] = $projection;
@@ -27,6 +30,9 @@ class ProjectionManager implements ProjectionManagerInterface
         $this->initializeProjectionTracking($projection->getName());
     }
 
+    /**
+     * Project
+     */
     public function project(DomainEventInterface $event): void
     {
         foreach ($this->projections as $projection) {
@@ -48,6 +54,9 @@ class ProjectionManager implements ProjectionManagerInterface
         }
     }
 
+    /**
+     * RebuildAll
+     */
     public function rebuildAll(int $fromPosition = 0): void
     {
         Log::info('Starting rebuild of all projections', ['from_position' => $fromPosition]);
@@ -59,6 +68,9 @@ class ProjectionManager implements ProjectionManagerInterface
         Log::info('Completed rebuild of all projections');
     }
 
+    /**
+     * Rebuild
+     */
     public function rebuild(string $projectionName, int $fromPosition = 0): void
     {
         if (! isset($this->projections[$projectionName])) {
@@ -114,6 +126,9 @@ class ProjectionManager implements ProjectionManagerInterface
         }
     }
 
+    /**
+     * Get  projection status
+     */
     public function getProjectionStatus(string $projectionName): array
     {
         if (! isset($this->projections[$projectionName])) {
@@ -139,6 +154,9 @@ class ProjectionManager implements ProjectionManagerInterface
         ];
     }
 
+    /**
+     * LockProjection
+     */
     public function lockProjection(string $projectionName, string $lockedBy): bool
     {
         $updated = DB::table('event_projections')
@@ -153,6 +171,9 @@ class ProjectionManager implements ProjectionManagerInterface
         return $updated > 0;
     }
 
+    /**
+     * UnlockProjection
+     */
     public function unlockProjection(string $projectionName): void
     {
         DB::table('event_projections')
@@ -164,11 +185,17 @@ class ProjectionManager implements ProjectionManagerInterface
             ]);
     }
 
+    /**
+     * Get  projections
+     */
     public function getProjections(): array
     {
         return array_keys($this->projections);
     }
 
+    /**
+     * InitializeProjectionTracking
+     */
     private function initializeProjectionTracking(string $projectionName): void
     {
         try {
@@ -190,6 +217,9 @@ class ProjectionManager implements ProjectionManagerInterface
         }
     }
 
+    /**
+     * ProjectEvent
+     */
     private function projectEvent(ProjectionInterface $projection, DomainEventInterface $event): void
     {
         DB::transaction(function () use ($projection, $event): void {
@@ -201,6 +231,9 @@ class ProjectionManager implements ProjectionManagerInterface
         });
     }
 
+    /**
+     * UpdateProjectionTracking
+     */
     private function updateProjectionTracking(string $projectionName, DomainEventInterface $event): void
     {
         DB::table('event_projections')
@@ -212,6 +245,9 @@ class ProjectionManager implements ProjectionManagerInterface
             ]);
     }
 
+    /**
+     * UpdateProjectionPosition
+     */
     private function updateProjectionPosition(string $projectionName, int $position): void
     {
         DB::table('event_projections')
@@ -222,6 +258,9 @@ class ProjectionManager implements ProjectionManagerInterface
             ]);
     }
 
+    /**
+     * RecordProjectionFailure
+     */
     private function recordProjectionFailure(string $projectionName, DomainEventInterface $event, Exception $exception): void
     {
         DB::table('event_processing_failures')->insert([

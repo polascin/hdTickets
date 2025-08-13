@@ -7978,3 +7978,561 @@
 #3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
 #4 {main}
 "} 
+[2025-08-12 22:56:10] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:18] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:30] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:35] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:37] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:40] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:47] production.ERROR: Type of App\Console\Commands\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\ScrapeTicketmaster::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/ScrapeTicketmaster.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:56:55] production.ERROR: Type of App\Console\Commands\WarmPerformanceCaches::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\WarmPerformanceCaches::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/WarmPerformanceCaches.php:14)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:57:11] production.ERROR: Type of App\Console\Commands\WarmPerformanceCaches::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\WarmPerformanceCaches::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/WarmPerformanceCaches.php:14)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:57:18] production.ERROR: Type of App\Console\Commands\SearchMultiPlatform::$signature must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\SearchMultiPlatform::$signature must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/SearchMultiPlatform.php:13)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:57:40] production.ERROR: Type of App\Console\Commands\Events\ReplayEventsCommand::$description must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\Events\\ReplayEventsCommand::$description must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/Events/ReplayEventsCommand.php:10)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:57:40] production.ERROR: Type of App\Console\Commands\Events\ReplayEventsCommand::$description must not be defined (as in class Illuminate\Console\Command) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Type of App\\Console\\Commands\\Events\\ReplayEventsCommand::$description must not be defined (as in class Illuminate\\Console\\Command) at /var/www/hdtickets/app/Console/Commands/Events/ReplayEventsCommand.php:10)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(245): Symfony\\Component\\ErrorHandler\\Error\\FatalError->__construct(message: '...', code: '...', error: '...', traceOffset: '...', traceArgs: '...', trace: '...')
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(232): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->fatalErrorFromPhpError(error: '...', traceOffset: '...')
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(0): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:/var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:255-257}()
+#4 {main}
+"} 
+[2025-08-12 22:59:13] production.ERROR: The "--config" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--config\" option does not exist. at /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(153): Symfony\\Component\\Console\\Input\\ArgvInput->addLongOption()
+#1 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(88): Symfony\\Component\\Console\\Input\\ArgvInput->parseLongOption()
+#2 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(77): Symfony\\Component\\Console\\Input\\ArgvInput->parseToken()
+#3 /var/www/hdtickets/vendor/symfony/console/Input/Input.php(53): Symfony\\Component\\Console\\Input\\ArgvInput->parse()
+#4 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(276): Symfony\\Component\\Console\\Input\\Input->bind()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#6 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#7 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#8 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#10 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#11 {main}
+"} 
+[2025-08-12 22:59:25] production.ERROR: The "--compact" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--compact\" option does not exist. at /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(155): Symfony\\Component\\Console\\Input\\ArgvInput->addLongOption()
+#1 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(88): Symfony\\Component\\Console\\Input\\ArgvInput->parseLongOption()
+#2 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(77): Symfony\\Component\\Console\\Input\\ArgvInput->parseToken()
+#3 /var/www/hdtickets/vendor/symfony/console/Input/Input.php(53): Symfony\\Component\\Console\\Input\\ArgvInput->parse()
+#4 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(276): Symfony\\Component\\Console\\Input\\Input->bind()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#6 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#7 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#8 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#10 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#11 {main}
+"} 
+[2025-08-12 23:20:42] production.ERROR: Command "test" is not defined.
+
+Did you mean one of these?
+    make:test
+    schedule:test {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"test\" is not defined.
+
+Did you mean one of these?
+    make:test
+    schedule:test at /var/www/hdtickets/vendor/symfony/console/Application.php:725)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/symfony/console/Application.php(283): Symfony\\Component\\Console\\Application->find()
+#1 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#3 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#4 {main}
+"} 
+[2025-08-12 23:22:59] production.ERROR: Class "Spatie\LaravelIgnition\Http\Controllers\HealthCheckController" does not exist {"exception":"[object] (ReflectionException(code: -1): Class \"Spatie\\LaravelIgnition\\Http\\Controllers\\HealthCheckController\" does not exist at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php:235)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php(235): ReflectionClass->__construct()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php(149): Illuminate\\Foundation\\Console\\RouteListCommand->isVendorRoute()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php(117): Illuminate\\Foundation\\Console\\RouteListCommand->getRouteInformation()
+#3 [internal function]: Illuminate\\Foundation\\Console\\RouteListCommand->{closure:Illuminate\\Foundation\\Console\\RouteListCommand::getRoutes():117}()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Collections/Arr.php(786): array_map()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Collections/Collection.php(807): Illuminate\\Support\\Arr::map()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php(117): Illuminate\\Support\\Collection->map()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php(102): Illuminate\\Foundation\\Console\\RouteListCommand->getRoutes()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\RouteListCommand->handle()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#14 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#16 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#17 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#18 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#20 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#21 {main}
+"} 
+[2025-08-12 23:25:53] production.ERROR: SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_date_available' (Connection: mysql, SQL: alter table `scraped_tickets` add index `idx_platform_date_available`(`platform`, `event_date`, `is_available`)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_date_available' (Connection: mysql, SQL: alter table `scraped_tickets` add index `idx_platform_date_available`(`platform`, `event_date`, `is_available`)) at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:824)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(460): Illuminate\\Database\\Schema\\Builder->build()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->table()
+#6 /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php(98): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#7 /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->addCompositeIndexes()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+
+[previous exception] [object] (PDOException(code: 42000): SQLSTATE[42000]: Syntax error or access violation: 1061 Duplicate key name 'idx_platform_date_available' at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php:570)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(570): PDOStatement->execute()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(811): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::statement():559}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(559): Illuminate\\Database\\Connection->run()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Blueprint.php(121): Illuminate\\Database\\Connection->statement()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(618): Illuminate\\Database\\Schema\\Blueprint->build()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Schema/Builder.php(460): Illuminate\\Database\\Schema\\Builder->build()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Database\\Schema\\Builder->table()
+#8 /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php(98): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php(15): Illuminate\\Database\\Migrations\\Migration@anonymous->addCompositeIndexes()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(514): Illuminate\\Database\\Migrations\\Migration@anonymous->up()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(439): Illuminate\\Database\\Migrations\\Migrator->runMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(448): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runMigration():435}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->runMigration()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/View/Components/Task.php(41): Illuminate\\Database\\Migrations\\Migrator->{closure:Illuminate\\Database\\Migrations\\Migrator::runUp():250}()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(809): Illuminate\\Console\\View\\Components\\Task->render()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(250): Illuminate\\Database\\Migrations\\Migrator->write()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(210): Illuminate\\Database\\Migrations\\Migrator->runUp()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(137): Illuminate\\Database\\Migrations\\Migrator->runPending()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#29 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#32 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#33 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#34 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#35 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#36 {main}
+"} 
+[2025-08-12 23:31:44] production.ERROR: Call to undefined function bootstrap_path() {"exception":"[object] (Error(code: 0): Call to undefined function bootstrap_path() at /var/www/hdtickets/verify-compatibility.php:110)
+[stacktrace]
+#0 /var/www/hdtickets/verify-compatibility.php(37): CompatibilityVerifier->checkLaravelCompatibility()
+#1 /var/www/hdtickets/verify-compatibility.php(429): CompatibilityVerifier->runAllChecks()
+#2 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-ea280fb1636eb761c4fd23f76666e397.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-ea280fb1636eb761c4fd23f76666e397.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-79de9752f999b6e261cd05abba67a5ce.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-79de9752f999b6e261cd05abba67a5ce.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-31b934f114eabc246b541addb8b458e3.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-31b934f114eabc246b541addb8b458e3.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-67043687ec5f16a5c4357b3dc049d2d5.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-67043687ec5f16a5c4357b3dc049d2d5.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-d769f81c5eaf96f1f253a56481405376.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-d769f81c5eaf96f1f253a56481405376.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-77e9e6a2445455b87d4f4cd834e4e23d.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-77e9e6a2445455b87d4f4cd834e4e23d.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-7563160ca998bde672640aa1e68dfd08.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-7563160ca998bde672640aa1e68dfd08.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-1e7ea3cf42a2f9b84f3de09530e2c135.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-1e7ea3cf42a2f9b84f3de09530e2c135.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:44] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-9abd86d674d0ba851f4ac7b31349196a.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-9abd86d674d0ba851f4ac7b31349196a.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:45] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-d769f81c5eaf96f1f253a56481405376.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-d769f81c5eaf96f1f253a56481405376.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:45] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-1e7ea3cf42a2f9b84f3de09530e2c135.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-1e7ea3cf42a2f9b84f3de09530e2c135.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:45] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-79de9752f999b6e261cd05abba67a5ce.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-79de9752f999b6e261cd05abba67a5ce.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:45] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-77e9e6a2445455b87d4f4cd834e4e23d.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-77e9e6a2445455b87d4f4cd834e4e23d.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:45] production.ERROR: __VSCODE_LARAVEL_STARTUP_ERROR__: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): __VSCODE_LARAVEL_STARTUP_ERROR__: Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/_laravel_ide/discover-9abd86d674d0ba851f4ac7b31349196a.php:33)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/_laravel_ide/discover-9abd86d674d0ba851f4ac7b31349196a.php(62): LaravelVsCode::startupError()
+#1 {main}
+"} 
+[2025-08-12 23:32:53] production.ERROR: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:960)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(892): Illuminate\\Foundation\\Application->resolveProvider()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/ProviderRepository.php(74): Illuminate\\Foundation\\Application->register()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(870): Illuminate\\Foundation\\ProviderRepository->load()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(37): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(341): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(473): Illuminate\\Foundation\\Application->bootstrapWith()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(195): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2025-08-12 23:33:28] production.ERROR: Class "Laravel\Telescope\TelescopeServiceProvider" not found {"exception":"[object] (Error(code: 0): Class \"Laravel\\Telescope\\TelescopeServiceProvider\" not found at /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:960)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(892): Illuminate\\Foundation\\Application->resolveProvider()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/ProviderRepository.php(74): Illuminate\\Foundation\\Application->register()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(870): Illuminate\\Foundation\\ProviderRepository->load()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(37): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(341): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(473): Illuminate\\Foundation\\Application->bootstrapWith()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(195): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2025-08-12 23:45:56] testing.ERROR: The use statement with non-compound name 'Exception' has no effect {"exception":"[object] (ErrorException(code: 0): The use statement with non-compound name 'Exception' has no effect at /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php:3)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():255}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): require_once('...')
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(149): Illuminate\\Filesystem\\Filesystem::{closure:Illuminate\\Filesystem\\Filesystem::requireOnce():145}()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(595): Illuminate\\Filesystem\\Filesystem->requireOnce()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(130): Illuminate\\Database\\Migrations\\Migrator->requireFiles()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#16 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(68): Illuminate\\Console\\Command->run()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Concerns/CallsCommands.php(29): Illuminate\\Console\\Command->runCommand()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/FreshCommand.php(81): Illuminate\\Console\\Command->call()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\FreshCommand->handle()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#27 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(1074): Illuminate\\Console\\Command->run()
+#30 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#31 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#33 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#34 {main}
+"} 
+[2025-08-12 23:48:56] production.ERROR: Symfony\Component\HttpFoundation\ResponseHeaderBag::set(): Argument #2 ($values) must be of type array|string|null, int given, called in /var/www/hdtickets/app/Http/Middleware/Api/ApiRateLimit.php on line 43 {"exception":"[object] (TypeError(code: 0): Symfony\\Component\\HttpFoundation\\ResponseHeaderBag::set(): Argument #2 ($values) must be of type array|string|null, int given, called in /var/www/hdtickets/app/Http/Middleware/Api/ApiRateLimit.php on line 43 at /var/www/hdtickets/vendor/symfony/http-foundation/ResponseHeaderBag.php:100)
+[stacktrace]
+#0 /var/www/hdtickets/app/Http/Middleware/Api/ApiRateLimit.php(43): Symfony\\Component\\HttpFoundation\\ResponseHeaderBag->set()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): App\\Http\\Middleware\\Api\\ApiRateLimit->handle()
+#2 /var/www/hdtickets/app/Http/Middleware/SecurityHeadersMiddleware.php(65): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): App\\Http\\Middleware\\SecurityHeadersMiddleware->handle()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Routing/Router.php(821): Illuminate\\Pipeline\\Pipeline->then()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Routing/Router.php(800): Illuminate\\Routing\\Router->runRouteWithinStack()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Routing/Router.php(764): Illuminate\\Routing\\Router->runRoute()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Routing/Router.php(753): Illuminate\\Routing\\Router->dispatchToRoute()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(200): Illuminate\\Routing\\Router->dispatch()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(180): Illuminate\\Foundation\\Http\\Kernel->{closure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():197}()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\ValidatePostSize->handle()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php(109): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php(61): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\HandleCors->handle()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\TrustProxies->handle()
+#27 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php(22): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#28 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferredCallbacks->handle()
+#29 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php(26): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(219): Illuminate\\Http\\Middleware\\ValidatePathEncoding->handle()
+#31 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}()
+#32 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then()
+#33 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter()
+#34 /var/www/hdtickets/public/index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle()
+#35 {main}
+"} 
+[2025-08-12 23:51:39] production.ERROR: Ticket scraping command failed {"error":"SQLSTATE[42S22]: Column not found: 1054 Unknown column 'users.deleted_at' in 'where clause' (Connection: mysql, SQL: select * from `users` where `is_active` = 1 and `email_verified_at` is not null and (`email` like %stubhub% or `email` like %premium% or `email` like %rotationpool% or `role` = agent) and `users`.`deleted_at` is null order by CASE WHEN role = 'customer' THEN 0 ELSE 1 END, RAND() limit 500)","trace":"#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(778): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Connection.php(397): Illuminate\\Database\\Connection->run()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3188): Illuminate\\Database\\Connection->select()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3173): Illuminate\\Database\\Query\\Builder->runSelect()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3763): Illuminate\\Database\\Query\\Builder->{closure:Illuminate\\Database\\Query\\Builder::get():3172}()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3172): Illuminate\\Database\\Query\\Builder->onceWithColumns()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(887): Illuminate\\Database\\Query\\Builder->get()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php(869): Illuminate\\Database\\Eloquent\\Builder->getModels()
+#8 /var/www/hdtickets/app/Services/UserRotationService.php(260): Illuminate\\Database\\Eloquent\\Builder->get()
+#9 /var/www/hdtickets/app/Services/UserRotationService.php(197): App\\Services\\UserRotationService->buildRotationPool()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(431): App\\Services\\UserRotationService->{closure:App\\Services\\UserRotationService::getRotationPool():196}()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(474): Illuminate\\Cache\\Repository->remember()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Cache\\CacheManager->__call()
+#13 /var/www/hdtickets/app/Services/UserRotationService.php(196): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#14 /var/www/hdtickets/app/Services/UserRotationService.php(29): App\\Services\\UserRotationService->getRotationPool()
+#15 /var/www/hdtickets/app/Services/TicketScrapingService.php(298): App\\Services\\UserRotationService->getRotatedUser()
+#16 /var/www/hdtickets/app/Services/TicketScrapingService.php(76): App\\Services\\TicketScrapingService->searchAllPlatforms()
+#17 /var/www/hdtickets/app/Console/Commands/TicketScrapingCommand.php(119): App\\Services\\TicketScrapingService->searchManchesterUnitedTickets()
+#18 /var/www/hdtickets/app/Console/Commands/TicketScrapingCommand.php(73): App\\Console\\Commands\\TicketScrapingCommand->scrapeManchesterUnited()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): App\\Console\\Commands\\TicketScrapingCommand->handle()
+#20 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#22 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#23 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#24 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#25 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#26 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#27 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#28 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#29 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#30 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#31 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#32 {main}"} 
+[2025-08-12 23:51:58] production.ERROR: The "--show-columns" option does not exist. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\RuntimeException(code: 0): The \"--show-columns\" option does not exist. at /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php:226)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(155): Symfony\\Component\\Console\\Input\\ArgvInput->addLongOption()
+#1 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(88): Symfony\\Component\\Console\\Input\\ArgvInput->parseLongOption()
+#2 /var/www/hdtickets/vendor/symfony/console/Input/ArgvInput.php(77): Symfony\\Component\\Console\\Input\\ArgvInput->parseToken()
+#3 /var/www/hdtickets/vendor/symfony/console/Input/Input.php(53): Symfony\\Component\\Console\\Input\\ArgvInput->parse()
+#4 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(276): Symfony\\Component\\Console\\Input\\Input->bind()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#6 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#7 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#8 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#10 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#11 {main}
+"} 
+[2025-08-13 07:52:32] production.ERROR: The use statement with non-compound name 'Exception' has no effect {"exception":"[object] (ErrorException(code: 0): The use statement with non-compound name 'Exception' has no effect at /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php:3)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():255}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): require_once('...')
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(149): Illuminate\\Filesystem\\Filesystem::{closure:Illuminate\\Filesystem\\Filesystem::requireOnce():145}()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(595): Illuminate\\Filesystem\\Filesystem->requireOnce()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(130): Illuminate\\Database\\Migrations\\Migrator->requireFiles()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(116): Illuminate\\Database\\Migrations\\Migrator->run()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/Migrator.php(666): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->{closure:Illuminate\\Database\\Console\\Migrations\\MigrateCommand::runMigrations():109}()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(109): Illuminate\\Database\\Migrations\\Migrator->usingConnection()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateCommand.php(88): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->runMigrations()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateCommand->handle()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#16 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#18 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#19 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#20 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#22 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#23 {main}
+"} 
+[2025-08-13 07:53:42] production.ERROR: The use statement with non-compound name 'Exception' has no effect {"exception":"[object] (ErrorException(code: 0): The use statement with non-compound name 'Exception' has no effect at /var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php:2)
+[stacktrace]
+#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError()
+#1 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():255}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(148): require_once('...')
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(149): Illuminate\\Filesystem\\Filesystem::{closure:Illuminate\\Filesystem\\Filesystem::requireOnce():145}()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/MigrationCreator.php(96): Illuminate\\Filesystem\\Filesystem->requireOnce()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Migrations/MigrationCreator.php(58): Illuminate\\Database\\Migrations\\MigrationCreator->ensureMigrationDoesntAlreadyExist()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateMakeCommand.php(111): Illuminate\\Database\\Migrations\\MigrationCreator->create()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Database/Console/Migrations/MigrateMakeCommand.php(98): Illuminate\\Database\\Console\\Migrations\\MigrateMakeCommand->writeMigration()
+#8 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\MigrateMakeCommand->handle()
+#9 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#10 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#11 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#12 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#13 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#14 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#16 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#17 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#18 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#20 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#21 {main}
+"} 
+[2025-08-13 07:54:01] production.ERROR: Ticket scraping command failed {"error":"file_put_contents(/var/www/hdtickets/storage/framework/cache/data/b4/91/b491697ae8ac9235d6d13b50c603ccaf7aded85a): Failed to open stream: No such file or directory","trace":"#0 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(256): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError()
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->{closure:Illuminate\\Foundation\\Bootstrap\\HandleExceptions::forwardsTo():255}()
+#2 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php(204): file_put_contents()
+#3 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/FileStore.php(82): Illuminate\\Filesystem\\Filesystem->put()
+#4 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(241): Illuminate\\Cache\\FileStore->put()
+#5 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/Repository.php(433): Illuminate\\Cache\\Repository->put()
+#6 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Cache/CacheManager.php(474): Illuminate\\Cache\\Repository->remember()
+#7 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(363): Illuminate\\Cache\\CacheManager->__call()
+#8 /var/www/hdtickets/app/Services/UserRotationService.php(196): Illuminate\\Support\\Facades\\Facade::__callStatic()
+#9 /var/www/hdtickets/app/Services/UserRotationService.php(29): App\\Services\\UserRotationService->getRotationPool()
+#10 /var/www/hdtickets/app/Services/TicketScrapingService.php(298): App\\Services\\UserRotationService->getRotatedUser()
+#11 /var/www/hdtickets/app/Services/TicketScrapingService.php(76): App\\Services\\TicketScrapingService->searchAllPlatforms()
+#12 /var/www/hdtickets/app/Console/Commands/TicketScrapingCommand.php(119): App\\Services\\TicketScrapingService->searchManchesterUnitedTickets()
+#13 /var/www/hdtickets/app/Console/Commands/TicketScrapingCommand.php(73): App\\Console\\Commands\\TicketScrapingCommand->scrapeManchesterUnited()
+#14 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): App\\Console\\Commands\\TicketScrapingCommand->handle()
+#15 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#16 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()
+#17 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#18 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Container/Container.php(812): Illuminate\\Container\\BoundMethod::call()
+#19 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call()
+#20 /var/www/hdtickets/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#21 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()
+#22 /var/www/hdtickets/vendor/symfony/console/Application.php(1092): Illuminate\\Console\\Command->run()
+#23 /var/www/hdtickets/vendor/symfony/console/Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand()
+#24 /var/www/hdtickets/vendor/symfony/console/Application.php(192): Symfony\\Component\\Console\\Application->doRun()
+#25 /var/www/hdtickets/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(197): Symfony\\Component\\Console\\Application->run()
+#26 /var/www/hdtickets/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle()
+#27 {main}"} 

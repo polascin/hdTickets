@@ -8,10 +8,10 @@ use Illuminate\Console\Command;
 class WarmCache extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'cache:warm';
+    protected $signature = 'cache:warm';
 
     /** The console command description. */
-    protected string $description = 'Warm application cache for improved performance';
+    protected $description = 'Warm application cache for improved performance';
 
     private PerformanceOptimizationService $performanceService;
 
@@ -26,6 +26,9 @@ class WarmCache extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {

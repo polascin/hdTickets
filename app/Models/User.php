@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use App\Services\EncryptionService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,6 +20,68 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 use function count;
 
+/**
+ * User Model for Sports Ticket System
+ *
+ * @property int                                      $id
+ * @property string                                   $name
+ * @property string|null                              $surname
+ * @property string|null                              $username
+ * @property string                                   $email
+ * @property string|null                              $phone
+ * @property string                                   $password
+ * @property bool|null                                $two_factor_enabled
+ * @property string|null                              $two_factor_secret
+ * @property Carbon|null                              $two_factor_confirmed_at
+ * @property array|null                               $two_factor_recovery_codes
+ * @property string                                   $role
+ * @property bool                                     $is_active
+ * @property Carbon|null                              $email_verified_at
+ * @property Carbon|null                              $last_login_at
+ * @property string|null                              $last_login_ip
+ * @property string|null                              $last_login_user_agent
+ * @property int                                      $login_count
+ * @property int                                      $failed_login_attempts
+ * @property Carbon|null                              $locked_until
+ * @property bool|null                                $require_2fa
+ * @property array|null                               $trusted_devices
+ * @property Carbon|null                              $password_changed_at
+ * @property string|null                              $registration_source
+ * @property int|null                                 $activity_score
+ * @property string|null                              $profile_picture
+ * @property string|null                              $bio
+ * @property string|null                              $timezone
+ * @property string|null                              $language
+ * @property string|null                              $created_by_type
+ * @property int|null                                 $created_by_id
+ * @property Carbon|null                              $last_activity_at
+ * @property array|null                               $custom_permissions
+ * @property bool|null                                $email_notifications
+ * @property bool|null                                $push_notifications
+ * @property int|null                                 $current_subscription_id
+ * @property bool|null                                $has_trial_used
+ * @property array|null                               $billing_address
+ * @property string|null                              $stripe_customer_id
+ * @property array|null                               $password_history
+ * @property Carbon                                   $created_at
+ * @property Carbon                                   $updated_at
+ * @property Carbon|null                              $deleted_at
+ * @property string|null                              $remember_token
+ * @property Collection<int, Ticket>                  $tickets
+ * @property Collection<int, Ticket>                  $assignedTickets
+ * @property User|null                                $createdBy
+ * @property Collection<int, User>                    $createdUsers
+ * @property Collection<int, UserSubscription>        $subscriptions
+ * @property Collection<int, TicketAlert>             $ticketAlerts
+ * @property UserSubscription|null                    $currentSubscription
+ * @property Collection<int, LoginHistory>            $loginHistory
+ * @property Collection<int, UserSession>             $sessions
+ * @property Collection<int, AccountDeletionRequest>  $deletionRequests
+ * @property AccountDeletionRequest|null              $currentDeletionRequest
+ * @property Collection<int, DataExportRequest>       $dataExportRequests
+ * @property Collection<int, AccountDeletionAuditLog> $deletionAuditLogs
+ * @property string                                   $full_name
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -145,6 +210,9 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<int, string>
      */
+    /**
+     * Get  roles
+     */
     public static function getRoles(): array
     {
         return [
@@ -160,7 +228,12 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @param mixed $role
      */
-    public function hasRole($role)
+    /**
+     * Check if has  role
+     *
+     * @param mixed $role
+     */
+    public function hasRole($role): bool
     {
         return $this->role === $role;
     }
@@ -168,7 +241,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is admin
      */
-    public function isAdmin()
+    /**
+     * Check if  admin
+     */
+    public function isAdmin(): bool
     {
         return $this->hasRole(self::ROLE_ADMIN);
     }
@@ -176,7 +252,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is agent
      */
-    public function isAgent()
+    /**
+     * Check if  agent
+     */
+    public function isAgent(): bool
     {
         return $this->hasRole(self::ROLE_AGENT);
     }
@@ -184,7 +263,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is customer
      */
-    public function isCustomer()
+    /**
+     * Check if  customer
+     */
+    public function isCustomer(): bool
     {
         return $this->hasRole(self::ROLE_CUSTOMER);
     }
@@ -192,7 +274,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is scraper (fake user for rotation)
      */
-    public function isScraper()
+    /**
+     * Check if  scraper
+     */
+    public function isScraper(): bool
     {
         return $this->hasRole(self::ROLE_SCRAPER);
     }
@@ -200,7 +285,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is root admin (ticketmaster)
      */
-    public function isRootAdmin()
+    /**
+     * Check if  root admin
+     */
+    public function isRootAdmin(): bool
     {
         return $this->isAdmin() && $this->name === 'ticketmaster';
     }
@@ -208,7 +296,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user has permission for user management
      */
-    public function canManageUsers()
+    /**
+     * Check if can  manage users
+     */
+    public function canManageUsers(): bool
     {
         return $this->isAdmin();
     }
@@ -220,7 +311,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can select and purchase tickets
      */
-    public function canSelectAndPurchaseTickets()
+    /**
+     * Check if can  select and purchase tickets
+     */
+    public function canSelectAndPurchaseTickets(): bool
     {
         return $this->isAgent() || $this->isAdmin();
     }
@@ -228,7 +322,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access ticket purchasing decisions
      */
-    public function canMakePurchaseDecisions()
+    /**
+     * Check if can  make purchase decisions
+     */
+    public function canMakePurchaseDecisions(): bool
     {
         return $this->isAgent() || $this->isAdmin();
     }
@@ -236,7 +333,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access monitoring management
      */
-    public function canManageMonitoring()
+    /**
+     * Check if can  manage monitoring
+     */
+    public function canManageMonitoring(): bool
     {
         return $this->isAgent() || $this->isAdmin();
     }
@@ -244,7 +344,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can view scraping performance metrics
      */
-    public function canViewScrapingMetrics()
+    /**
+     * Check if can  view scraping metrics
+     */
+    public function canViewScrapingMetrics(): bool
     {
         return $this->isAgent() || $this->isAdmin();
     }
@@ -256,7 +359,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can manage system configuration
      */
-    public function canManageSystem()
+    /**
+     * Check if can  manage system
+     */
+    public function canManageSystem(): bool
     {
         return $this->isAdmin();
     }
@@ -264,7 +370,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access platform administration
      */
-    public function canManagePlatforms()
+    /**
+     * Check if can  manage platforms
+     */
+    public function canManagePlatforms(): bool
     {
         return $this->isAdmin();
     }
@@ -272,7 +381,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access financial reports
      */
-    public function canAccessFinancials()
+    /**
+     * Check if can  access financials
+     */
+    public function canAccessFinancials(): bool
     {
         return $this->isAdmin();
     }
@@ -280,7 +392,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can manage API access
      */
-    public function canManageApiAccess()
+    /**
+     * Check if can  manage api access
+     */
+    public function canManageApiAccess(): bool
     {
         return $this->isAdmin();
     }
@@ -288,7 +403,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can delete any data (root admin only)
      */
-    public function canDeleteAnyData()
+    /**
+     * Check if can  delete any data
+     */
+    public function canDeleteAnyData(): bool
     {
         return $this->isRootAdmin();
     }
@@ -300,7 +418,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access the system (scrapers cannot)
      */
-    public function canAccessSystem()
+    /**
+     * Check if can  access system
+     */
+    public function canAccessSystem(): bool
     {
         return ! $this->isScraper();
     }
@@ -308,7 +429,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can login to the web interface (scrapers cannot)
      */
-    public function canLoginToWeb()
+    /**
+     * Check if can  login to web
+     */
+    public function canLoginToWeb(): bool
     {
         return ! $this->isScraper();
     }
@@ -316,17 +440,21 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user is used for scraping rotation only
      */
-    public function isScrapingRotationUser()
+    /**
+     * Check if  scraping rotation user
+     */
+    public function isScrapingRotationUser(): bool
     {
         return $this->isScraper();
     }
 
     /**
      * Get the user's full name (concatenated name and surname)
-     *
-     * @return string
      */
-    public function getFullNameAttribute()
+    /**
+     * Get  full name attribute
+     */
+    public function getFullNameAttribute(): string
     {
         return trim($this->name . ' ' . $this->surname);
     }
@@ -356,10 +484,14 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @param string   $username
      * @param int|null $excludeId
-     *
-     * @return bool
      */
-    public static function isUsernameUnique($username, $excludeId = NULL)
+    /**
+     * Check if  username unique
+     *
+     * @param mixed $username
+     * @param mixed $excludeId
+     */
+    public function isUsernameUnique($username, $excludeId = NULL): bool
     {
         return ! static::uniqueUsername($username, $excludeId)->exists();
     }
@@ -368,6 +500,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * Get user's comprehensive permissions array
      *
      * @return array<string, bool>
+     */
+    /**
+     * Get  permissions
      */
     public function getPermissions(): array
     {
@@ -433,7 +568,12 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get user activity statistics
      */
-    public function getActivityStats()
+    /**
+     * Get  activity stats
+     *
+     * @return array<string, mixed>
+     */
+    public function getActivityStats(): array
     {
         return [
             'login_count'      => $this->login_count ?? 0,
@@ -567,6 +707,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get all available profile picture sizes
      */
+    /**
+     * Get  profile picture sizes
+     */
     public function getProfilePictureSizes(): array
     {
         if (! $this->profile_picture || ! $this->id) {
@@ -593,6 +736,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get profile picture URL by size
+     */
+    /**
+     * Get  profile picture url
      */
     public function getProfilePictureUrl(string $size = 'medium'): ?string
     {
@@ -638,6 +784,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship: Tickets created by this user
      */
+    /**
+     * Tickets
+     */
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'requester_id');
@@ -645,6 +794,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relationship: Tickets assigned to this user
+     */
+    /**
+     * AssignedTickets
      */
     public function assignedTickets(): HasMany
     {
@@ -654,13 +806,19 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship: User who created this account
      */
-    public function createdBy()
+    /**
+     * CreatedBy
+     */
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(self::class, 'created_by_id');
     }
 
     /**
      * Relationship: Users created by this user
+     */
+    /**
+     * CreatedUsers
      */
     public function createdUsers(): HasMany
     {
@@ -670,6 +828,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get all subscriptions for this user
      */
+    /**
+     * Subscriptions
+     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(UserSubscription::class);
@@ -677,6 +838,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get all ticket alerts for this user
+     */
+    /**
+     * TicketAlerts
      */
     public function ticketAlerts(): HasMany
     {
@@ -709,6 +873,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship: Login history records for this user
      */
+    /**
+     * LoginHistory
+     */
     public function loginHistory(): HasMany
     {
         return $this->hasMany(LoginHistory::class);
@@ -716,6 +883,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relationship: Active sessions for this user
+     */
+    /**
+     * Sessions
      */
     public function sessions(): HasMany
     {
@@ -747,6 +917,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user has an active subscription
      */
+    /**
+     * Check if has  active subscription
+     */
     public function hasActiveSubscription(): bool
     {
         return $this->activeSubscription() !== NULL;
@@ -754,6 +927,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if user is on trial
+     */
+    /**
+     * Check if  on trial
      */
     public function isOnTrial(): bool
     {
@@ -775,6 +951,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user can access feature based on their plan
      */
+    /**
+     * Check if can  access feature
+     */
     public function canAccessFeature(string $feature): bool
     {
         $plan = $this->getCurrentPlan();
@@ -794,6 +973,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get remaining ticket allowance for current month
      */
+    /**
+     * Get  remaining ticket allowance
+     */
     public function getRemainingTicketAllowance(): int
     {
         $plan = $this->getCurrentPlan();
@@ -810,6 +992,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user has reached their monthly ticket limit
      */
+    /**
+     * Check if has  reached ticket limit
+     */
     public function hasReachedTicketLimit(): bool
     {
         $remaining = $this->getRemainingTicketAllowance();
@@ -819,6 +1004,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Subscribe user to a plan
+     */
+    /**
+     * SubscribeToPlan
      */
     public function subscribeToPlan(PaymentPlan $plan, array $options = []): UserSubscription
     {
@@ -849,6 +1037,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship: Account deletion requests for this user
      */
+    /**
+     * DeletionRequests
+     */
     public function deletionRequests(): HasMany
     {
         return $this->hasMany(AccountDeletionRequest::class);
@@ -856,6 +1047,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relationship: Current active deletion request
+     */
+    /**
+     * CurrentDeletionRequest
      */
     public function currentDeletionRequest(): HasOne
     {
@@ -865,6 +1059,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Relationship: Data export requests for this user
      */
+    /**
+     * DataExportRequests
+     */
     public function dataExportRequests(): HasMany
     {
         return $this->hasMany(DataExportRequest::class);
@@ -872,6 +1069,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Relationship: Deletion audit logs for this user
+     */
+    /**
+     * DeletionAuditLogs
      */
     public function deletionAuditLogs(): HasMany
     {
@@ -881,6 +1081,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user has an active deletion request
      */
+    /**
+     * Check if has  active deletion request
+     */
     public function hasActiveDeletionRequest(): bool
     {
         return $this->currentDeletionRequest !== NULL;
@@ -888,6 +1091,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if user is in grace period
+     */
+    /**
+     * Check if  in deletion grace period
      */
     public function isInDeletionGracePeriod(): bool
     {
@@ -899,6 +1105,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the current deletion request
      */
+    /**
+     * Get  current deletion request
+     */
     public function getCurrentDeletionRequest(): ?AccountDeletionRequest
     {
         return $this->currentDeletionRequest;
@@ -906,6 +1115,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Configure activity logging
+     */
+    /**
+     * Get  activitylog options
      */
     public function getActivitylogOptions(): LogOptions
     {
@@ -918,6 +1130,36 @@ class User extends Authenticatable implements MustVerifyEmail
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(fn (string $eventName) => "User {$eventName}")
             ->useLogName('user_changes');
+    }
+
+    public function isVerified(): bool
+    {
+        return NULL !== $this->email_verified_at;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return TRUE;
+    }
+
+    public function scrapedTickets(): HasMany
+    {
+        return $this->hasMany(ScrapedTicket::class);
+    }
+
+    public function purchaseAttempts(): HasMany
+    {
+        return $this->hasMany(PurchaseAttempt::class);
+    }
+
+    public function purchaseQueues(): HasMany
+    {
+        return $this->hasMany(PurchaseQueue::class);
+    }
+
+    public function unreadNotifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable')->whereNull('read_at');
     }
 
     /**
@@ -949,6 +1191,9 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @return array<int, string>
      */
+    /**
+     * Get  encrypted fields
+     */
     protected function getEncryptedFields(): array
     {
         return [
@@ -962,6 +1207,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
+     */
+    /**
+     * Casts
      */
     protected function casts(): array
     {

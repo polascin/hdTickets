@@ -13,7 +13,7 @@ use function in_array;
 
 class AnalyticsController extends Controller
 {
-    protected $platformMonitoringService;
+    protected PlatformMonitoringService $platformMonitoringService;
 
     public function __construct(PlatformMonitoringService $platformMonitoringService)
     {
@@ -22,6 +22,9 @@ class AnalyticsController extends Controller
 
     /**
      * Get analytics overview
+     */
+    /**
+     * Overview
      */
     public function overview(Request $request): JsonResponse
     {
@@ -61,6 +64,9 @@ class AnalyticsController extends Controller
 
     /**
      * Get ticket trends over time
+     */
+    /**
+     * TicketTrends
      */
     public function ticketTrends(Request $request): JsonResponse
     {
@@ -108,6 +114,9 @@ class AnalyticsController extends Controller
     /**
      * Get platform performance metrics
      */
+    /**
+     * PlatformPerformance
+     */
     public function platformPerformance(Request $request): JsonResponse
     {
         $timeframe = $request->get('timeframe', '24h');
@@ -143,6 +152,9 @@ class AnalyticsController extends Controller
     /**
      * Get success rates by various metrics
      */
+    /**
+     * SuccessRates
+     */
     public function successRates(Request $request): JsonResponse
     {
         $timeframe = $request->get('timeframe', '7d');
@@ -172,6 +184,9 @@ class AnalyticsController extends Controller
 
     /**
      * Get price analysis data
+     */
+    /**
+     * PriceAnalysis
      */
     public function priceAnalysis(Request $request): JsonResponse
     {
@@ -222,6 +237,9 @@ class AnalyticsController extends Controller
     /**
      * Get demand patterns analysis
      */
+    /**
+     * DemandPatterns
+     */
     public function demandPatterns(Request $request): JsonResponse
     {
         $timeframe = $request->get('timeframe', '30d');
@@ -247,6 +265,9 @@ class AnalyticsController extends Controller
 
     /**
      * Export analytics data
+     */
+    /**
+     * Export
      */
     public function export(Request $request, string $type): JsonResponse
     {
@@ -279,6 +300,9 @@ class AnalyticsController extends Controller
 
     // Private helper methods
 
+    /**
+     * Get  timeframe days
+     */
     private function getTimeframeDays(string $timeframe): int
     {
         return match ($timeframe) {
@@ -290,6 +314,9 @@ class AnalyticsController extends Controller
         };
     }
 
+    /**
+     * Get  ticket trends
+     */
     private function getTicketTrends(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -306,6 +333,9 @@ class AnalyticsController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  top events
+     */
     private function getTopEvents(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -326,6 +356,9 @@ class AnalyticsController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  platform breakdown
+     */
     private function getPlatformBreakdown(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -344,6 +377,9 @@ class AnalyticsController extends Controller
             ->toArray();
     }
 
+    /**
+     * DeterminePlatformStatus
+     */
     private function determinePlatformStatus(array $stats): string
     {
         if ($stats['success_rate'] >= 80) {
@@ -356,6 +392,9 @@ class AnalyticsController extends Controller
         return 'critical';
     }
 
+    /**
+     * Get  tickets found by platform
+     */
     private function getTicketsFoundByPlatform(string $platform, int $hours): int
     {
         return ScrapedTicket::where('platform', $platform)
@@ -363,6 +402,9 @@ class AnalyticsController extends Controller
             ->count();
     }
 
+    /**
+     * Get  overall success rate
+     */
     private function getOverallSuccessRate(int $days): float
     {
         return $this->platformMonitoringService
@@ -370,6 +412,9 @@ class AnalyticsController extends Controller
             ->avg('success_rate');
     }
 
+    /**
+     * Get  ticket availability rate
+     */
     private function getTicketAvailabilityRate(int $days): float
     {
         $total = ScrapedTicket::where('scraped_at', '>=', now()->subDays($days))->count();
@@ -379,6 +424,9 @@ class AnalyticsController extends Controller
         return $total > 0 ? round(($available / $total) * 100, 2) : 0;
     }
 
+    /**
+     * Get  platform uptime
+     */
     private function getPlatformUptime(int $days): float
     {
         return $this->platformMonitoringService
@@ -386,6 +434,9 @@ class AnalyticsController extends Controller
             ->avg('availability');
     }
 
+    /**
+     * Get  success rates by platform
+     */
     private function getSuccessRatesByPlatform(int $days): array
     {
         return $this->platformMonitoringService
@@ -397,6 +448,9 @@ class AnalyticsController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  success rates by event type
+     */
     private function getSuccessRatesByEventType(int $days): array
     {
         // Placeholder - would need event type classification
@@ -407,6 +461,9 @@ class AnalyticsController extends Controller
         ];
     }
 
+    /**
+     * Get  success rates by time of day
+     */
     private function getSuccessRatesByTimeOfDay(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -424,6 +481,9 @@ class AnalyticsController extends Controller
     }
 
     // Additional helper methods for price analysis and demand patterns
+    /**
+     * Get  price range distribution
+     */
     private function getPriceRangeDistribution(int $days, ?string $eventType): array
     {
         // Implementation for price range distribution
@@ -436,42 +496,63 @@ class AnalyticsController extends Controller
         ];
     }
 
+    /**
+     * Get  price trends
+     */
     private function getPriceTrends(int $days, ?string $eventType): array
     {
         // Implementation for price trends over time
         return [];
     }
 
+    /**
+     * Get  best deals
+     */
     private function getBestDeals(int $days, ?string $eventType): array
     {
         // Implementation for identifying best deals
         return [];
     }
 
+    /**
+     * Get  peak hours
+     */
     private function getPeakHours(int $days): array
     {
         // Implementation for peak activity hours
         return [];
     }
 
+    /**
+     * Get  popular events
+     */
     private function getPopularEvents(int $days): array
     {
         // Implementation for popular events
         return [];
     }
 
+    /**
+     * Get  venue popularity
+     */
     private function getVenuePopularity(int $days): array
     {
         // Implementation for venue popularity
         return [];
     }
 
+    /**
+     * Get  seasonal trends
+     */
     private function getSeasonalTrends(int $days): array
     {
         // Implementation for seasonal trends
         return [];
     }
 
+    /**
+     * Get  price demand correlation
+     */
     private function getPriceDemandCorrelation(int $days): array
     {
         // Implementation for price-demand correlation

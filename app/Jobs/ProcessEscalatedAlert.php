@@ -44,6 +44,9 @@ class ProcessEscalatedAlert implements ShouldQueue
     /**
      * Execute the job.
      */
+    /**
+     * Handle
+     */
     public function handle(AlertEscalationService $escalationService): void
     {
         try {
@@ -88,6 +91,9 @@ class ProcessEscalatedAlert implements ShouldQueue
     /**
      * Handle a job failure.
      */
+    /**
+     * Failed
+     */
     public function failed(Throwable $exception): void
     {
         Log::critical('Escalated alert job failed permanently', [
@@ -111,6 +117,9 @@ class ProcessEscalatedAlert implements ShouldQueue
     /**
      * Get the display name for the job
      */
+    /**
+     * DisplayName
+     */
     public function displayName(): string
     {
         return "Process Escalated Alert #{$this->escalation->id}";
@@ -118,6 +127,9 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     /**
      * Get the tags for the job
+     */
+    /**
+     * Tags
      */
     public function tags(): array
     {
@@ -132,6 +144,9 @@ class ProcessEscalatedAlert implements ShouldQueue
     /**
      * Calculate the number of seconds to wait before retrying the job
      */
+    /**
+     * Backoff
+     */
     public function backoff(): array
     {
         // Return exponential backoff times in seconds
@@ -140,6 +155,9 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     /**
      * Determine if the job should be retried based on the exception
+     */
+    /**
+     * RetryUntil
      */
     public function retryUntil(): DateTime
     {
@@ -150,6 +168,9 @@ class ProcessEscalatedAlert implements ShouldQueue
     /**
      * Get unique ID for the job (useful for job deduplication)
      */
+    /**
+     * UniqueId
+     */
     public function uniqueId(): string
     {
         return "escalation:{$this->escalation->id}:{$this->escalation->attempts}";
@@ -157,6 +178,9 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     /**
      * Handle job middleware
+     */
+    /**
+     * Middleware
      */
     public function middleware(): array
     {
@@ -168,6 +192,9 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     /**
      * Get the appropriate queue name based on priority
+     */
+    /**
+     * Get  queue name
      */
     protected function getQueueName(int $priority): string
     {
@@ -185,6 +212,9 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     /**
      * Notify admin of escalation failure
+     */
+    /**
+     * NotifyAdminOfFailure
      */
     protected function notifyAdminOfFailure(Throwable $exception): void
     {

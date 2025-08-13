@@ -6,7 +6,6 @@ import WindiCSS from 'vite-plugin-windicss';
 import eslint from 'vite-plugin-eslint';
 import { resolve } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { splitVendorChunkPlugin } from 'vite';
 import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ command, mode }) => {
@@ -98,91 +97,15 @@ export default defineConfig(({ command, mode }) => {
         },
       }),
 
-      eslint({
-        cache: false,
-        include: ['**/*.{vue,js,ts}'],
-        exclude: ['node_modules']
-      }),
+      // ESLint only in development mode
+      ...(command === 'serve' ? [
+        eslint({
+          cache: false,
+          include: ['**/*.{vue,js,ts}'],
+          exclude: ['node_modules']
+        })
+      ] : []),
 
-      // Progressive Web App configuration
-      VitePWA({
-        registerType: 'autoUpdate',
-        workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt}'],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'jsdelivr-cache',
-                expiration: {
-                  maxEntries: 30,
-                  maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
-                }
-              }
-            },
-            {
-              urlPattern: /\/api\/.*/i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                networkTimeoutSeconds: 10,
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 // 1 day
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            }
-          ]
-        },
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-        manifest: {
-          name: 'HD Tickets - Sports Event Management',
-          short_name: 'HD Tickets',
-          description: 'Professional sports event ticket monitoring and management platform',
-          theme_color: '#2563eb',
-          background_color: '#ffffff',
-          display: 'standalone',
-          orientation: 'portrait',
-          scope: '/',
-          start_url: '/',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ]
-        }
-      }),
 
       // Legacy browser support
       legacy({
@@ -206,20 +129,18 @@ export default defineConfig(({ command, mode }) => {
         })
       ] : []),
 
-      // Advanced chunk splitting
-      splitVendorChunkPlugin()
     ],
 
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'resources/js'),
-        '@components': resolve(__dirname, 'resources/js/components'),
-        '@composables': resolve(__dirname, 'resources/js/composables'),
-        '@stores': resolve(__dirname, 'resources/js/stores'),
-        '@utils': resolve(__dirname, 'resources/js/utils'),
-        '@types': resolve(__dirname, 'resources/js/types'),
-        '@assets': resolve(__dirname, 'resources/assets'),
-        '@css': resolve(__dirname, 'resources/css'),
+        '@': resolve(import.meta.dirname || __dirname, 'resources/js'),
+        '@components': resolve(import.meta.dirname || __dirname, 'resources/js/components'),
+        '@composables': resolve(import.meta.dirname || __dirname, 'resources/js/composables'),
+        '@stores': resolve(import.meta.dirname || __dirname, 'resources/js/stores'),
+        '@utils': resolve(import.meta.dirname || __dirname, 'resources/js/utils'),
+        '@types': resolve(import.meta.dirname || __dirname, 'resources/js/types'),
+        '@assets': resolve(import.meta.dirname || __dirname, 'resources/assets'),
+        '@css': resolve(import.meta.dirname || __dirname, 'resources/css'),
       }
     },
 
@@ -244,10 +165,17 @@ export default defineConfig(({ command, mode }) => {
         }
       } : {},
       rollupOptions: {
+        onwarn(warning, warn) {
+          // Suppress warnings about missing imports during build
+          if (warning.code === 'UNRESOLVED_IMPORT') {
+            return;
+          }
+          warn(warning);
+        },
         // Laravel requires explicit input files
         input: {
-          app: resolve(__dirname, 'resources/js/app.js'),
-          css: resolve(__dirname, 'resources/css/app.css')
+          app: resolve(import.meta.dirname || __dirname, isProduction ? 'resources/js/app.prod.js' : 'resources/js/app.js'),
+          css: resolve(import.meta.dirname || __dirname, 'resources/css/app.css')
         },
         // External dependencies that shouldn't be bundled
         external: (id) => {
@@ -412,7 +340,7 @@ export default defineConfig(({ command, mode }) => {
     // Worker optimizations
     worker: {
       format: 'es',
-      plugins: []
+      plugins: () => []
     }
   };
 });

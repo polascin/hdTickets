@@ -10,6 +10,9 @@ use Throwable;
 
 class EmailChannel implements NotificationChannelInterface
 {
+    /**
+     * Send
+     */
     public function send(User $user, array $notification): bool
     {
         try {
@@ -45,6 +48,9 @@ class EmailChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Check if  available
+     */
     public function isAvailable(): bool
     {
         return ! empty(config('mail.default'));

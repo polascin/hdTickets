@@ -16,6 +16,11 @@ class RedirectIfAuthenticated
      * @param Closure(Request): (Response) $next
      * @param string[]                     $guards
      */
+    /**
+     * Handle
+     *
+     * @param mixed $guards
+     */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
         $guards = empty($guards) ? [NULL] : $guards;

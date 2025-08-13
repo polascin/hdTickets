@@ -21,6 +21,9 @@ class PerformanceOptimizationService
     /**
      * Warm cache for popular queries and upcoming events
      */
+    /**
+     * WarmCache
+     */
     public function warmCache(): array
     {
         $results = [];
@@ -56,6 +59,9 @@ class PerformanceOptimizationService
     /**
      * Optimize database by analyzing tables and updating statistics
      */
+    /**
+     * OptimizeDatabase
+     */
     public function optimizeDatabase(): array
     {
         $results = [];
@@ -90,6 +96,9 @@ class PerformanceOptimizationService
     /**
      * Get cache statistics
      */
+    /**
+     * Get  cache statistics
+     */
     public function getCacheStatistics(): array
     {
         return [
@@ -101,6 +110,9 @@ class PerformanceOptimizationService
 
     /**
      * Warm cache for popular events based on recent activity
+     */
+    /**
+     * WarmPopularEvents
      */
     private function warmPopularEvents(): int
     {
@@ -136,6 +148,9 @@ class PerformanceOptimizationService
     /**
      * Warm cache for upcoming events in the next 30 days
      */
+    /**
+     * WarmUpcomingEvents
+     */
     private function warmUpcomingEvents(): int
     {
         $count = 0;
@@ -168,6 +183,9 @@ class PerformanceOptimizationService
     /**
      * Warm cache for platform statistics
      */
+    /**
+     * WarmPlatformStatistics
+     */
     private function warmPlatformStatistics(): int
     {
         $count = 0;
@@ -196,6 +214,9 @@ class PerformanceOptimizationService
     /**
      * Warm cache for user analytics
      */
+    /**
+     * WarmUserAnalytics
+     */
     private function warmUserAnalytics(): int
     {
         $analytics = [
@@ -213,6 +234,9 @@ class PerformanceOptimizationService
 
     /**
      * Warm cache for hot sports events based on trending patterns
+     */
+    /**
+     * WarmHotSportsEvents
      */
     private function warmHotSportsEvents(): int
     {
@@ -240,6 +264,9 @@ class PerformanceOptimizationService
 
     /**
      * Clean up old data to improve performance
+     */
+    /**
+     * CleanupOldData
      */
     private function cleanupOldData(): array
     {
@@ -285,6 +312,9 @@ class PerformanceOptimizationService
 
     /**
      * Optimize table structure and indexes
+     */
+    /**
+     * OptimizeTableStructure
      */
     private function optimizeTableStructure(): array
     {
@@ -341,6 +371,9 @@ class PerformanceOptimizationService
     /**
      * Get Redis information if Redis is being used
      */
+    /**
+     * Get  redis info
+     */
     private function getRedisInfo(): array
     {
         try {
@@ -366,6 +399,9 @@ class PerformanceOptimizationService
     /**
      * Calculate cache hit rate
      */
+    /**
+     * CalculateCacheHitRate
+     */
     private function calculateCacheHitRate(): float
     {
         try {
@@ -388,6 +424,9 @@ class PerformanceOptimizationService
 
     /**
      * Get cache memory usage
+     */
+    /**
+     * Get  cache memory usage
      */
     private function getCacheMemoryUsage(): array
     {

@@ -424,27 +424,6 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
       ),
     ),
-    '/var/www/hdtickets/database/migrations/2025_01_30_120001_phase4_advanced_index_optimization.php' => 
-    array (
-      0 => 'e4920d3f6e2f1406307c3752f261c02b8afb31a2',
-      1 => 
-      array (
-      ),
-      2 => 
-      array (
-        0 => 'up',
-        1 => 'down',
-        2 => 'addcompositeindexes',
-        3 => 'addcoveringindexes',
-        4 => 'addspatialindexes',
-        5 => 'removeredundantindexes',
-        6 => 'addanalyticsindexes',
-        7 => 'indexexists',
-      ),
-      3 => 
-      array (
-      ),
-    ),
     '/var/www/hdtickets/database/migrations/2025_08_04_194423_decrypt_user_emails.php' => 
     array (
       0 => 'bec41dbb5b50ab5a2c1b3519ec3da06dbcf6bc3e',

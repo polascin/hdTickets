@@ -28,6 +28,9 @@ class ViewFragmentCachingService
     /**
      * Cache a view fragment with automatic invalidation
      */
+    /**
+     * CacheFragment
+     */
     public function cacheFragment(string $fragmentId, callable $callback, int $ttl = self::TTL_STATIC, array $tags = []): string
     {
         $cacheKey = $this->generateCacheKey($fragmentId, $tags);
@@ -61,6 +64,9 @@ class ViewFragmentCachingService
     /**
      * Cache navigation menu fragments
      */
+    /**
+     * CacheNavigationFragment
+     */
     public function cacheNavigationFragment(string $userRole, string $currentRoute): string
     {
         return $this->cacheFragment(
@@ -79,6 +85,9 @@ class ViewFragmentCachingService
     /**
      * Cache dashboard stat cards
      */
+    /**
+     * CacheDashboardStats
+     */
     public function cacheDashboardStats(array $stats, string $userRole): string
     {
         return $this->cacheFragment(
@@ -93,6 +102,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache ticket table fragments
+     */
+    /**
+     * CacheTicketTable
      */
     public function cacheTicketTable(array $tickets, array $filters, string $userRole): string
     {
@@ -115,6 +127,9 @@ class ViewFragmentCachingService
     /**
      * Cache platform status widgets
      */
+    /**
+     * CachePlatformStatus
+     */
     public function cachePlatformStatus(array $platformStats): string
     {
         return $this->cacheFragment(
@@ -131,6 +146,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache chart components
+     */
+    /**
+     * CacheChartFragment
      */
     public function cacheChartFragment(string $chartType, array $data, array $options = []): string
     {
@@ -153,6 +171,9 @@ class ViewFragmentCachingService
     /**
      * Cache footer fragment
      */
+    /**
+     * CacheFooter
+     */
     public function cacheFooter(): string
     {
         return $this->cacheFragment(
@@ -170,6 +191,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache breadcrumb navigation
+     */
+    /**
+     * CacheBreadcrumb
      */
     public function cacheBreadcrumb(array $breadcrumbs): string
     {
@@ -190,6 +214,9 @@ class ViewFragmentCachingService
     /**
      * Cache mobile navigation menu
      */
+    /**
+     * CacheMobileNavigation
+     */
     public function cacheMobileNavigation(string $userRole): string
     {
         return $this->cacheFragment(
@@ -207,6 +234,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache alert/notification panels
+     */
+    /**
+     * CacheAlertPanel
      */
     public function cacheAlertPanel(array $alerts, string $userRole): string
     {
@@ -226,6 +256,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache user profile sidebar
+     */
+    /**
+     * CacheUserProfile
      */
     public function cacheUserProfile(int $userId): string
     {
@@ -247,6 +280,9 @@ class ViewFragmentCachingService
     /**
      * Cache admin dashboard widgets
      */
+    /**
+     * CacheAdminWidget
+     */
     public function cacheAdminWidget(string $widgetType, array $data): string
     {
         $dataHash = md5(serialize($data));
@@ -263,6 +299,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache search filters sidebar
+     */
+    /**
+     * CacheSearchFilters
      */
     public function cacheSearchFilters(array $filters, array $options): string
     {
@@ -284,6 +323,9 @@ class ViewFragmentCachingService
     /**
      * Cache ticket availability map
      */
+    /**
+     * CacheAvailabilityMap
+     */
     public function cacheAvailabilityMap(array $venues, array $events): string
     {
         $dataHash = md5(serialize($venues) . serialize($events));
@@ -303,6 +345,9 @@ class ViewFragmentCachingService
 
     /**
      * Cache price trend charts
+     */
+    /**
+     * CachePriceTrendChart
      */
     public function cachePriceTrendChart(array $priceData, string $period): string
     {
@@ -325,6 +370,9 @@ class ViewFragmentCachingService
     /**
      * Cache event spotlight widget
      */
+    /**
+     * CacheEventSpotlight
+     */
     public function cacheEventSpotlight(array $featuredEvents): string
     {
         return $this->cacheFragment(
@@ -342,6 +390,9 @@ class ViewFragmentCachingService
     /**
      * Cache live ticker component
      */
+    /**
+     * CacheLiveTicker
+     */
     public function cacheLiveTicker(array $liveUpdates): string
     {
         return $this->cacheFragment(
@@ -358,6 +409,9 @@ class ViewFragmentCachingService
 
     /**
      * Invalidate cache fragments by tags
+     */
+    /**
+     * InvalidateByTags
      */
     public function invalidateByTags(array $tags): void
     {
@@ -382,6 +436,9 @@ class ViewFragmentCachingService
     /**
      * Invalidate specific fragment
      */
+    /**
+     * InvalidateFragment
+     */
     public function invalidateFragment(string $fragmentId, array $tags = []): void
     {
         try {
@@ -400,6 +457,9 @@ class ViewFragmentCachingService
     /**
      * Get fragment cache statistics
      */
+    /**
+     * Get  cache stats
+     */
     public function getCacheStats(): array
     {
         // This would require implementing cache statistics tracking
@@ -413,6 +473,9 @@ class ViewFragmentCachingService
 
     /**
      * Warm up critical view fragments
+     */
+    /**
+     * WarmupFragments
      */
     public function warmupFragments(array $userRoles = []): array
     {
@@ -460,6 +523,9 @@ class ViewFragmentCachingService
 
     // Private helper methods
 
+    /**
+     * GenerateCacheKey
+     */
     private function generateCacheKey(string $fragmentId, array $tags = []): string
     {
         $key = self::CACHE_PREFIX . $fragmentId;
@@ -477,6 +543,9 @@ class ViewFragmentCachingService
         return $key;
     }
 
+    /**
+     * Get  ticket table columns
+     */
     private function getTicketTableColumns(): array
     {
         return [
@@ -491,7 +560,10 @@ class ViewFragmentCachingService
         ];
     }
 
-    private function getUserStats($user): array
+    /**
+     * Get  user stats
+     */
+    private function getUserStats(App\Models\User $user): array
     {
         return [
             'total_alerts'   => $user->alerts()->count() ?? 0,
@@ -501,24 +573,36 @@ class ViewFragmentCachingService
         ];
     }
 
+    /**
+     * Get  total fragments
+     */
     private function getTotalFragments(): int
     {
         // Implementation would depend on cache backend
         return Cache::get('fragment_stats:total', 0);
     }
 
+    /**
+     * Get  cache hit rate
+     */
     private function getCacheHitRate(): float
     {
         // Implementation would depend on cache backend
         return Cache::get('fragment_stats:hit_rate', 0.0);
     }
 
+    /**
+     * Get  fragment memory usage
+     */
     private function getFragmentMemoryUsage(): string
     {
         // Implementation would depend on cache backend
         return Cache::get('fragment_stats:memory_usage', '0B');
     }
 
+    /**
+     * Get  most cached fragments
+     */
     private function getMostCachedFragments(): array
     {
         // Implementation would depend on cache backend

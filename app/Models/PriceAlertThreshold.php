@@ -36,6 +36,9 @@ class PriceAlertThreshold extends Model
     /**
      * Get the user that owns this price alert threshold
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -43,6 +46,9 @@ class PriceAlertThreshold extends Model
 
     /**
      * Get the ticket being monitored
+     */
+    /**
+     * Ticket
      */
     public function ticket(): BelongsTo
     {
@@ -54,7 +60,12 @@ class PriceAlertThreshold extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', TRUE);
     }
@@ -72,6 +83,11 @@ class PriceAlertThreshold extends Model
 
     /**
      * Check if price threshold should trigger alert
+     *
+     * @param mixed $currentPrice
+     */
+    /**
+     * ShouldTrigger
      *
      * @param mixed $currentPrice
      */
@@ -103,6 +119,9 @@ class PriceAlertThreshold extends Model
     /**
      * Trigger the alert
      */
+    /**
+     * Trigger
+     */
     public function trigger(): void
     {
         $this->increment('trigger_count');
@@ -112,11 +131,17 @@ class PriceAlertThreshold extends Model
     /**
      * Get formatted target price
      */
+    /**
+     * Get  formatted target price attribute
+     */
     public function getFormattedTargetPriceAttribute(): string
     {
         return '£' . number_format($this->target_price, 2);
     }
 
+    /**
+     * Boot
+     */
     protected static function boot(): void
     {
         parent::boot();

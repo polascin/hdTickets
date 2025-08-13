@@ -8,10 +8,10 @@ use Illuminate\Console\Command;
 class OptimizeDatabase extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'db:optimize';
+    protected $signature = 'db:optimize';
 
     /** The console command description. */
-    protected string $description = 'Optimize database performance by analyzing tables and cleaning up old data';
+    protected $description = 'Optimize database performance by analyzing tables and cleaning up old data';
 
     private PerformanceOptimizationService $performanceService;
 
@@ -26,6 +26,9 @@ class OptimizeDatabase extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {

@@ -17,6 +17,10 @@ class SportsEvent
     /** @var array<int, object> */
     private array $domainEvents = [];
 
+    private DateTimeImmutable $createdAt;
+
+    private DateTimeImmutable $updatedAt;
+
     public function __construct(
         private EventId $id,
         private string $name,
@@ -27,69 +31,105 @@ class SportsEvent
         private ?string $awayTeam = NULL,
         private ?string $competition = NULL,
         private bool $isHighDemand = FALSE,
-        private ?DateTimeImmutable $createdAt = NULL,
-        private ?DateTimeImmutable $updatedAt = NULL,
+        ?DateTimeImmutable $createdAt = NULL,
+        ?DateTimeImmutable $updatedAt = NULL,
     ) {
         $this->createdAt = $createdAt ?? new DateTimeImmutable();
         $this->updatedAt = $updatedAt ?? new DateTimeImmutable();
         $this->validate();
     }
 
+    /**
+     * Get  id
+     */
     public function getId(): EventId
     {
         return $this->id;
     }
 
+    /**
+     * Get  name
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * Get  category
+     */
     public function getCategory(): SportCategory
     {
         return $this->category;
     }
 
+    /**
+     * Get  event date
+     */
     public function getEventDate(): EventDate
     {
         return $this->eventDate;
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(): Venue
     {
         return $this->venue;
     }
 
+    /**
+     * Get  home team
+     */
     public function getHomeTeam(): ?string
     {
         return $this->homeTeam;
     }
 
+    /**
+     * Get  away team
+     */
     public function getAwayTeam(): ?string
     {
         return $this->awayTeam;
     }
 
+    /**
+     * Get  competition
+     */
     public function getCompetition(): ?string
     {
         return $this->competition;
     }
 
+    /**
+     * Check if  high demand
+     */
     public function isHighDemand(): bool
     {
         return $this->isHighDemand;
     }
 
+    /**
+     * Get  created at
+     */
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Get  updated at
+     */
     public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
+    /**
+     * UpdateDetails
+     */
     public function updateDetails(
         string $name,
         EventDate $eventDate,
@@ -108,6 +148,9 @@ class SportsEvent
         $this->recordDomainEvent(new \App\Domain\Event\Events\SportEventUpdated($this->id));
     }
 
+    /**
+     * MarkAsHighDemand
+     */
     public function markAsHighDemand(): void
     {
         if (! $this->isHighDemand) {
@@ -117,6 +160,9 @@ class SportsEvent
         }
     }
 
+    /**
+     * UnmarkAsHighDemand
+     */
     public function unmarkAsHighDemand(): void
     {
         if ($this->isHighDemand) {
@@ -126,16 +172,25 @@ class SportsEvent
         }
     }
 
+    /**
+     * Check if  upcoming
+     */
     public function isUpcoming(): bool
     {
         return $this->eventDate->isUpcoming();
     }
 
+    /**
+     * Check if  past
+     */
     public function isPast(): bool
     {
         return $this->eventDate->isPast();
     }
 
+    /**
+     * Get  display name
+     */
     public function getDisplayName(): string
     {
         if ($this->category->isTeamSport() && $this->homeTeam && $this->awayTeam) {
@@ -148,26 +203,41 @@ class SportsEvent
     /**
      * @return array<int, object>
      */
+    /**
+     * Get  domain events
+     */
     public function getDomainEvents(): array
     {
         return $this->domainEvents;
     }
 
+    /**
+     * ClearDomainEvents
+     */
     public function clearDomainEvents(): void
     {
         $this->domainEvents = [];
     }
 
+    /**
+     * RecordDomainEvent
+     */
     public function recordDomainEvent(object $event): void
     {
         $this->domainEvents[] = $event;
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->id->equals($other->id);
     }
 
+    /**
+     * Validate
+     */
     private function validate(): void
     {
         if (empty(trim($this->name))) {

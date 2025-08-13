@@ -37,6 +37,9 @@ class PlatformCachingService
     /**
      * Generate a cache key for search results
      */
+    /**
+     * Get  search cache key
+     */
     public function getSearchCacheKey(string $platform, array $criteria): string
     {
         $hash = md5(json_encode(array_merge($criteria, ['platform' => $platform])));
@@ -46,6 +49,9 @@ class PlatformCachingService
 
     /**
      * Get cached search results
+     */
+    /**
+     * Get  cached search results
      */
     public function getCachedSearchResults(string $platform, array $criteria): ?array
     {
@@ -76,6 +82,9 @@ class PlatformCachingService
 
     /**
      * Cache search results
+     */
+    /**
+     * CacheSearchResults
      */
     public function cacheSearchResults(string $platform, array $criteria, array $results): void
     {
@@ -115,6 +124,9 @@ class PlatformCachingService
     /**
      * Get cached event details
      */
+    /**
+     * Get  cached event details
+     */
     public function getCachedEventDetails(string $platform, string $eventId): ?array
     {
         $cacheKey = self::CACHE_PREFIXES['event'] . ":{$platform}:{$eventId}";
@@ -149,6 +161,9 @@ class PlatformCachingService
     /**
      * Cache event details
      */
+    /**
+     * CacheEventDetails
+     */
     public function cacheEventDetails(string $platform, string $eventId, array $eventData): void
     {
         $cacheKey = self::CACHE_PREFIXES['event'] . ":{$platform}:{$eventId}";
@@ -177,6 +192,9 @@ class PlatformCachingService
     /**
      * Cache platform statistics
      */
+    /**
+     * CachePlatformStats
+     */
     public function cachePlatformStats(string $platform, array $stats): void
     {
         $cacheKey = self::CACHE_PREFIXES['stats'] . ":{$platform}";
@@ -188,6 +206,9 @@ class PlatformCachingService
     /**
      * Get cached platform statistics
      */
+    /**
+     * Get  cached platform stats
+     */
     public function getCachedPlatformStats(string $platform): ?array
     {
         $cacheKey = self::CACHE_PREFIXES['stats'] . ":{$platform}";
@@ -197,6 +218,9 @@ class PlatformCachingService
 
     /**
      * Cache rate limit information
+     */
+    /**
+     * CacheRateLimit
      */
     public function cacheRateLimit(string $platform, array $rateLimitData): void
     {
@@ -209,6 +233,9 @@ class PlatformCachingService
     /**
      * Get cached rate limit information
      */
+    /**
+     * Get  cached rate limit
+     */
     public function getCachedRateLimit(string $platform): ?array
     {
         $cacheKey = self::CACHE_PREFIXES['rate_limit'] . ":{$platform}";
@@ -218,6 +245,9 @@ class PlatformCachingService
 
     /**
      * Cache selector effectiveness data
+     */
+    /**
+     * CacheSelectorStats
      */
     public function cacheSelectorStats(string $platform, string $selector, array $stats): void
     {
@@ -230,6 +260,9 @@ class PlatformCachingService
     /**
      * Get cached selector effectiveness data
      */
+    /**
+     * Get  cached selector stats
+     */
     public function getCachedSelectorStats(string $platform, string $selector): ?array
     {
         $cacheKey = self::CACHE_PREFIXES['selector'] . ":{$platform}:" . md5($selector);
@@ -239,6 +272,9 @@ class PlatformCachingService
 
     /**
      * Cache HTML response for debugging
+     */
+    /**
+     * CacheHtmlResponse
      */
     public function cacheHtmlResponse(string $platform, string $url, string $html): void
     {
@@ -262,6 +298,9 @@ class PlatformCachingService
     /**
      * Get cached HTML response
      */
+    /**
+     * Get  cached html response
+     */
     public function getCachedHtmlResponse(string $platform, string $url): ?string
     {
         if (! config('app.debug')) {
@@ -276,6 +315,9 @@ class PlatformCachingService
 
     /**
      * Clear cache for a specific platform
+     */
+    /**
+     * ClearPlatformCache
      */
     public function clearPlatformCache(string $platform): void
     {
@@ -300,6 +342,9 @@ class PlatformCachingService
 
     /**
      * Get cache statistics for a platform
+     */
+    /**
+     * Get  cache stats
      */
     public function getCacheStats(string $platform): array
     {
@@ -327,6 +372,9 @@ class PlatformCachingService
     /**
      * Warm cache for popular searches
      */
+    /**
+     * WarmCache
+     */
     public function warmCache(string $platform, array $popularSearches): void
     {
         foreach ($popularSearches as $searchCriteria) {
@@ -346,6 +394,9 @@ class PlatformCachingService
 
     /**
      * Get cache memory usage statistics
+     */
+    /**
+     * Get  cache memory stats
      */
     public function getCacheMemoryStats(): array
     {
@@ -373,6 +424,9 @@ class PlatformCachingService
     /**
      * Cleanup expired cache entries
      */
+    /**
+     * CleanupExpiredCache
+     */
     public function cleanupExpiredCache(): void
     {
         Log::channel('ticket_apis')->info('Starting cache cleanup');
@@ -395,6 +449,9 @@ class PlatformCachingService
     /**
      * Clear cache entries matching a pattern (Redis only)
      */
+    /**
+     * ClearCachePattern
+     */
     private function clearCachePattern(string $pattern): void
     {
         try {
@@ -416,6 +473,9 @@ class PlatformCachingService
 
     /**
      * Update cache statistics
+     */
+    /**
+     * UpdateCacheStats
      */
     private function updateCacheStats(string $platform, string $type, string $operation): void
     {

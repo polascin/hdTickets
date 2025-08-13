@@ -13,16 +13,16 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ResponseTimeExport implements WithMultipleSheets
 {
-    /** @var mixed */
-    protected $responseTimeData;
+    /** @var \Illuminate\Support\Collection<int, object> */
+    protected \Illuminate\Support\Collection $responseTimeData;
 
     /** @var array<string, mixed> */
     protected array $statistics;
 
     /**
-     * @param array<string, mixed> $data
+     * @param array{data?: \Illuminate\Support\Collection<int, object>, statistics?: array<string, mixed>} $data
      */
-    public function __construct($data)
+    public function __construct(array $data)
     {
         $this->responseTimeData = $data['data'] ?? collect();
         $this->statistics = $data['statistics'] ?? [];
@@ -30,6 +30,9 @@ class ResponseTimeExport implements WithMultipleSheets
 
     /**
      * @return array<int, mixed>
+     */
+    /**
+     * Sheets
      */
     public function sheets(): array
     {
@@ -40,29 +43,38 @@ class ResponseTimeExport implements WithMultipleSheets
     }
 }
 
+/**
+ * @implements WithMapping<object>
+ */
 class ResponseTimeDataSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
-    /** @var mixed */
-    protected $responseTimeData;
+    /** @var \Illuminate\Support\Collection<int, object> */
+    protected \Illuminate\Support\Collection $responseTimeData;
 
     /**
-     * @param mixed $responseTimeData
+     * @param \Illuminate\Support\Collection<int, object> $responseTimeData
      */
-    public function __construct($responseTimeData)
+    public function __construct(\Illuminate\Support\Collection $responseTimeData)
     {
         $this->responseTimeData = $responseTimeData;
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<int, object>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         return collect($this->responseTimeData);
     }
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -80,9 +92,14 @@ class ResponseTimeDataSheet implements FromCollection, WithHeadings, WithMapping
     }
 
     /**
-     * @param mixed $ticket
+     * @param object $ticket
      *
-     * @return array<int, mixed>
+     * @return array<int, int|string> Array shape: [id, title, priority, created_at, first_response_at, response_minutes, user_name, assigned_to, category]
+     */
+    /**
+     * Map
+     *
+     * @param object $ticket
      */
     public function map($ticket): array
     {
@@ -90,28 +107,24 @@ class ResponseTimeDataSheet implements FromCollection, WithHeadings, WithMapping
             $ticket->id ?? '',
             $ticket->title ?? '',
             $ticket->priority ?? '',
-            $ticket->created_at ? $ticket->created_at->format('Y-m-d H:i:s') : '',
-            $ticket->first_response_at ? $ticket->first_response_at->format('Y-m-d H:i:s') : '',
+            $ticket->created_at ?? '',
+            $ticket->first_response_at ?? '',
             $ticket->response_minutes ?? 0,
-            $ticket->user->name ?? 'N/A',
-            $ticket->assignedTo->name ?? 'Unassigned',
-            $ticket->category->name ?? 'Uncategorized',
+            $ticket->user_name ?? '',
+            $ticket->assigned_to ?? '',
+            $ticket->category ?? '',
         ];
     }
 
     /**
+     * Apply styles to the sheet
+     *
      * @return array<int, array<string, mixed>>
      */
     public function styles(Worksheet $sheet): array
     {
         return [
-            1 => [
-                'font' => ['bold' => TRUE, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '059669'],
-                ],
-            ],
+            1 => ['font' => ['bold' => TRUE]],
         ];
     }
 }
@@ -124,29 +137,32 @@ class ResponseTimeStatsSheet implements FromCollection, WithHeadings, WithStyles
     /**
      * @param array<string, mixed> $statistics
      */
-    public function __construct($statistics)
+    public function __construct(array $statistics)
     {
         $this->statistics = $statistics;
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * Collection
      */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         return collect([
-            ['Average Response Time', round($this->statistics['avg_response_time'] ?? 0, 2) . ' minutes'],
-            ['Median Response Time', round($this->statistics['median_response_time'] ?? 0, 2) . ' minutes'],
-            ['Fastest Response', ($this->statistics['fastest_response'] ?? 0) . ' minutes'],
-            ['Slowest Response', ($this->statistics['slowest_response'] ?? 0) . ' minutes'],
-            ['Within 1 Hour', $this->statistics['within_1_hour'] ?? 0],
-            ['Within 4 Hours', $this->statistics['within_4_hours'] ?? 0],
-            ['Within 24 Hours', $this->statistics['within_24_hours'] ?? 0],
+            ['Average Response Time', (string) (round($this->statistics['avg_response_time'] ?? 0, 2) . ' minutes')],
+            ['Median Response Time', (string) (round($this->statistics['median_response_time'] ?? 0, 2) . ' minutes')],
+            ['Fastest Response', (string) (($this->statistics['fastest_response'] ?? 0) . ' minutes')],
+            ['Slowest Response', (string) (($this->statistics['slowest_response'] ?? 0) . ' minutes')],
+            ['Within 1 Hour', (string) ($this->statistics['within_1_hour'] ?? 0)],
+            ['Within 4 Hours', (string) ($this->statistics['within_4_hours'] ?? 0)],
+            ['Within 24 Hours', (string) ($this->statistics['within_24_hours'] ?? 0)],
         ]);
     }
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -158,6 +174,9 @@ class ResponseTimeStatsSheet implements FromCollection, WithHeadings, WithStyles
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {

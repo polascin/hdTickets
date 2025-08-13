@@ -17,6 +17,9 @@ class UserFavoriteTeamController extends Controller
     /**
      * Display the user's favorite teams
      */
+    /**
+     * Index
+     */
     public function index(Request $request): View|JsonResponse
     {
         $user = Auth::user();
@@ -60,6 +63,9 @@ class UserFavoriteTeamController extends Controller
     /**
      * Show the form for creating a new favorite team
      */
+    /**
+     * Create
+     */
     public function create(): View
     {
         $availableSports = UserFavoriteTeam::getAvailableSports();
@@ -73,6 +79,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Store a newly created favorite team
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
@@ -131,6 +140,9 @@ class UserFavoriteTeamController extends Controller
     /**
      * Display the specified favorite team
      */
+    /**
+     * Show
+     */
     public function show(UserFavoriteTeam $team): View|JsonResponse
     {
         $this->authorize('view', $team);
@@ -144,6 +156,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Show the form for editing the specified favorite team
+     */
+    /**
+     * Edit
      */
     public function edit(UserFavoriteTeam $team): View
     {
@@ -161,6 +176,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Update the specified favorite team
+     */
+    /**
+     * Update
      */
     public function update(Request $request, UserFavoriteTeam $team): RedirectResponse|JsonResponse
     {
@@ -200,6 +218,9 @@ class UserFavoriteTeamController extends Controller
     /**
      * Remove the specified favorite team
      */
+    /**
+     * Destroy
+     */
     public function destroy(UserFavoriteTeam $team): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $team);
@@ -219,6 +240,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Update notification settings for a team
+     */
+    /**
+     * UpdateNotifications
      */
     public function updateNotifications(Request $request, UserFavoriteTeam $team): JsonResponse
     {
@@ -240,6 +264,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Search for teams (autocomplete API)
+     */
+    /**
+     * Search
      */
     public function search(Request $request): JsonResponse
     {
@@ -267,6 +294,9 @@ class UserFavoriteTeamController extends Controller
     /**
      * Get leagues for a specific sport
      */
+    /**
+     * Get  leagues
+     */
     public function getLeagues(Request $request): JsonResponse
     {
         $sport = $request->get('sport');
@@ -282,6 +312,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Import teams from a list or CSV
+     */
+    /**
+     * Import
      */
     public function import(Request $request): RedirectResponse|JsonResponse
     {
@@ -361,7 +394,10 @@ class UserFavoriteTeamController extends Controller
     /**
      * Export user's favorite teams
      */
-    public function export(Request $request)
+    /**
+     * Export
+     */
+    public function export(Request $request): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $teams = UserFavoriteTeam::where('user_id', $user->id)
@@ -410,6 +446,9 @@ class UserFavoriteTeamController extends Controller
 
     /**
      * Bulk update teams (priority, notifications, etc.)
+     */
+    /**
+     * BulkUpdate
      */
     public function bulkUpdate(Request $request): JsonResponse
     {

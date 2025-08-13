@@ -26,6 +26,9 @@ class AlertEscalationService
     /**
      * Schedule alert escalation based on priority and conditions
      */
+    /**
+     * ScheduleEscalation
+     */
     public function scheduleEscalation(TicketAlert $alert, array $alertData): void
     {
         $priority = $alertData['priority'] ?? 2;
@@ -76,6 +79,9 @@ class AlertEscalationService
     /**
      * Process escalated alert
      */
+    /**
+     * ProcessEscalation
+     */
     public function processEscalation(AlertEscalation $escalation): void
     {
         try {
@@ -122,6 +128,9 @@ class AlertEscalationService
 
     /**
      * Send escalated notifications with increased urgency
+     */
+    /**
+     * SendEscalatedNotifications
      */
     protected function sendEscalatedNotifications(AlertEscalation $escalation, array $alertData, array $escalationLevel): bool
     {
@@ -170,6 +179,9 @@ class AlertEscalationService
     /**
      * Handle escalation failure and schedule retry if appropriate
      */
+    /**
+     * HandleEscalationFailure
+     */
     protected function handleEscalationFailure(AlertEscalation $escalation, array $strategy): void
     {
         if ($escalation->attempts >= $escalation->max_attempts) {
@@ -203,6 +215,9 @@ class AlertEscalationService
 
     /**
      * Check if escalation is still valid
+     */
+    /**
+     * Check if  escalation valid
      */
     protected function isEscalationValid(AlertEscalation $escalation): bool
     {
@@ -238,6 +253,9 @@ class AlertEscalationService
     /**
      * Cancel escalation with reason
      */
+    /**
+     * Check if can cel escalation
+     */
     protected function cancelEscalation(AlertEscalation $escalation, string $reason): void
     {
         $escalation->update([
@@ -254,6 +272,9 @@ class AlertEscalationService
     /**
      * Get escalation strategy based on priority
      */
+    /**
+     * Get  escalation strategy
+     */
     protected function getEscalationStrategy(int $priority): ?array
     {
         return $this->escalationRules[$priority] ?? NULL;
@@ -261,6 +282,9 @@ class AlertEscalationService
 
     /**
      * Get escalation level configuration
+     */
+    /**
+     * Get  escalation level
      */
     protected function getEscalationLevel(int $attempt, array $strategy): array
     {
@@ -280,6 +304,9 @@ class AlertEscalationService
     /**
      * Calculate retry delay with exponential backoff
      */
+    /**
+     * CalculateRetryDelay
+     */
     protected function calculateRetryDelay(int $attempt, array $strategy): int
     {
         $baseDelay = $strategy['retry_base_delay'] ?? 5;
@@ -293,6 +320,9 @@ class AlertEscalationService
 
     /**
      * Check if user is recently active
+     */
+    /**
+     * Check if  user recently active
      */
     protected function isUserRecentlyActive(int $userId): bool
     {
@@ -308,6 +338,9 @@ class AlertEscalationService
     /**
      * Check if user has acknowledged the alert
      */
+    /**
+     * Check if has  user acknowledged
+     */
     protected function hasUserAcknowledged(int $userId, int $alertId): bool
     {
         return Cache::has("alert_acknowledged:{$userId}:{$alertId}");
@@ -315,6 +348,9 @@ class AlertEscalationService
 
     /**
      * Check if SMS can be sent to user
+     */
+    /**
+     * Check if can  send s m s
      */
     protected function canSendSMS(User $user): bool
     {
@@ -325,6 +361,9 @@ class AlertEscalationService
 
     /**
      * Check if user can be called
+     */
+    /**
+     * Check if can  call user
      */
     protected function canCallUser(User $user): bool
     {
@@ -337,6 +376,9 @@ class AlertEscalationService
     /**
      * Check if user has emergency contact
      */
+    /**
+     * Check if has  emergency contact
+     */
     protected function hasEmergencyContact(User $user): bool
     {
         return ! empty($user->emergency_contact_phone)
@@ -345,6 +387,9 @@ class AlertEscalationService
 
     /**
      * Check if current time is within allowed calling hours
+     */
+    /**
+     * Check if  within call hours
      */
     protected function isWithinCallHours(): bool
     {
@@ -355,6 +400,9 @@ class AlertEscalationService
 
     /**
      * Send escalated SMS
+     */
+    /**
+     * SendEscalatedSMS
      */
     protected function sendEscalatedSMS(User $user, array $alertData): void
     {
@@ -371,6 +419,9 @@ class AlertEscalationService
     /**
      * Initiate phone call
      */
+    /**
+     * InitiatePhoneCall
+     */
     protected function initiatePhoneCall(User $user, array $alertData): void
     {
         // Use voice service (Twilio Voice, etc.)
@@ -382,6 +433,9 @@ class AlertEscalationService
 
     /**
      * Notify emergency contact
+     */
+    /**
+     * NotifyEmergencyContact
      */
     protected function notifyEmergencyContact(User $user, array $alertData): void
     {
@@ -397,6 +451,9 @@ class AlertEscalationService
     /**
      * Send urgent Slack message
      */
+    /**
+     * SendUrgentSlackMessage
+     */
     protected function sendUrgentSlackMessage(User $user, array $alertData): void
     {
         // Send via Slack API with high priority
@@ -408,6 +465,9 @@ class AlertEscalationService
     /**
      * Send Discord ping
      */
+    /**
+     * SendDiscordPing
+     */
     protected function sendDiscordPing(User $user, array $alertData): void
     {
         // Send via Discord API with @everyone or role ping
@@ -418,6 +478,9 @@ class AlertEscalationService
 
     /**
      * Build escalated SMS message
+     */
+    /**
+     * BuildEscalatedSMSMessage
      */
     protected function buildEscalatedSMSMessage(array $alertData): string
     {
@@ -435,6 +498,9 @@ class AlertEscalationService
     /**
      * Build emergency contact message
      */
+    /**
+     * BuildEmergencyContactMessage
+     */
     protected function buildEmergencyContactMessage(User $user, array $alertData): string
     {
         $ticket = $alertData['ticket'];
@@ -446,6 +512,9 @@ class AlertEscalationService
 
     /**
      * Load escalation rules configuration
+     */
+    /**
+     * LoadEscalationRules
      */
     protected function loadEscalationRules(): array
     {
@@ -510,6 +579,9 @@ class AlertEscalationService
 
     /**
      * Load retry strategies configuration
+     */
+    /**
+     * LoadRetryStrategies
      */
     protected function loadRetryStrategies(): array
     {

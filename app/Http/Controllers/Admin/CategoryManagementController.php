@@ -13,7 +13,10 @@ class CategoryManagementController extends Controller
     /**
      * Display a listing of categories
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $query = Category::with('parent')
             ->withCount(['scrapedTickets', 'ticketSources', 'children']);
@@ -52,7 +55,10 @@ class CategoryManagementController extends Controller
     /**
      * Show the form for creating a new category
      */
-    public function create()
+    /**
+     * Create
+     */
+    public function create(): \Illuminate\Contracts\View\View
     {
         $parentCategories = Category::root()->active()->ordered()->get();
 
@@ -62,7 +68,10 @@ class CategoryManagementController extends Controller
     /**
      * Store a newly created category
      */
-    public function store(Request $request)
+    /**
+     * Store
+     */
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
@@ -108,7 +117,10 @@ class CategoryManagementController extends Controller
     /**
      * Display the specified category
      */
-    public function show(Category $category)
+    /**
+     * Show
+     */
+    public function show(Category $category): \Illuminate\Contracts\View\View
     {
         $category->load(['parent', 'children', 'scrapedTickets' => function ($query): void {
             $query->latest()->limit(10);
@@ -122,7 +134,10 @@ class CategoryManagementController extends Controller
     /**
      * Show the form for editing the specified category
      */
-    public function edit(Category $category)
+    /**
+     * Edit
+     */
+    public function edit(Category $category): \Illuminate\Contracts\View\View
     {
         $parentCategories = Category::root()
             ->active()
@@ -136,7 +151,10 @@ class CategoryManagementController extends Controller
     /**
      * Update the specified category
      */
-    public function update(Request $request, Category $category)
+    /**
+     * Update
+     */
+    public function update(Request $request, Category $category): \Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
@@ -180,7 +198,10 @@ class CategoryManagementController extends Controller
     /**
      * Remove the specified category
      */
-    public function destroy(Category $category)
+    /**
+     * Destroy
+     */
+    public function destroy(Category $category): \Illuminate\Http\RedirectResponse
     {
         // Check if category has scraped tickets
         if ($category->scrapedTickets()->count() > 0) {
@@ -209,7 +230,10 @@ class CategoryManagementController extends Controller
     /**
      * Toggle category active status
      */
-    public function toggleStatus(Category $category)
+    /**
+     * ToggleStatus
+     */
+    public function toggleStatus(Category $category): \Illuminate\Http\RedirectResponse
     {
         $category->update(['is_active' => ! $category->is_active]);
 
@@ -222,7 +246,10 @@ class CategoryManagementController extends Controller
     /**
      * Reorder categories
      */
-    public function reorder(Request $request)
+    /**
+     * Reorder
+     */
+    public function reorder(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'categories'              => ['required', 'array'],
@@ -243,7 +270,10 @@ class CategoryManagementController extends Controller
     /**
      * Get categories as JSON (for AJAX)
      */
-    public function apiIndex(Request $request)
+    /**
+     * ApiIndex
+     */
+    public function apiIndex(Request $request): \Illuminate\Http\JsonResponse
     {
         $query = Category::active();
 
@@ -263,7 +293,12 @@ class CategoryManagementController extends Controller
      *
      * @param mixed $parentId
      */
-    private function wouldCreateCircularReference(Category $category, $parentId)
+    /**
+     * WouldCreateCircularReference
+     *
+     * @param mixed $parentId
+     */
+    private function wouldCreateCircularReference(Category $category, $parentId): bool
     {
         $parent = Category::find($parentId);
 

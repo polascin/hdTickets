@@ -11,6 +11,9 @@ class EnhancedAlertsController extends Controller
     /**
      * Get alert system status
      */
+    /**
+     * Status
+     */
     public function status(): JsonResponse
     {
         return response()->json([
@@ -27,6 +30,9 @@ class EnhancedAlertsController extends Controller
     /**
      * Get active escalations
      */
+    /**
+     * Escalations
+     */
     public function escalations(): JsonResponse
     {
         return response()->json([
@@ -37,6 +43,11 @@ class EnhancedAlertsController extends Controller
 
     /**
      * Cancel an escalation
+     *
+     * @param mixed $escalation
+     */
+    /**
+     * Check if can cel escalation
      *
      * @param mixed $escalation
      */
@@ -53,7 +64,10 @@ class EnhancedAlertsController extends Controller
      *
      * @param mixed $ticket
      */
-    public function getPredictions($ticket): JsonResponse
+    /**
+     * Get  predictions
+     */
+    public function getPredictions(App\Models\Ticket $ticket): JsonResponse
     {
         return response()->json([
             'success' => TRUE,
@@ -68,6 +82,9 @@ class EnhancedAlertsController extends Controller
     /**
      * Submit prediction feedback
      */
+    /**
+     * SubmitPredictionFeedback
+     */
     public function submitPredictionFeedback(Request $request): JsonResponse
     {
         return response()->json([
@@ -78,6 +95,11 @@ class EnhancedAlertsController extends Controller
 
     /**
      * Acknowledge an alert
+     *
+     * @param mixed $alert
+     */
+    /**
+     * AcknowledgeAlert
      *
      * @param mixed $alert
      */
@@ -94,6 +116,11 @@ class EnhancedAlertsController extends Controller
      *
      * @param mixed $alert
      */
+    /**
+     * SnoozeAlert
+     *
+     * @param mixed $alert
+     */
     public function snoozeAlert($alert): JsonResponse
     {
         return response()->json([
@@ -104,6 +131,9 @@ class EnhancedAlertsController extends Controller
 
     /**
      * Get system health status
+     */
+    /**
+     * Health
      */
     public function health(): JsonResponse
     {

@@ -13,6 +13,9 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * Get events by specific sport category
      */
+    /**
+     * Get  events by sport
+     */
     public function getEventsBySport(string $sport, array $criteria = []): array
     {
         $sportUrls = [
@@ -38,6 +41,9 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * Get popular sports events
      */
+    /**
+     * Get  popular sports events
+     */
     public function getPopularSportsEvents(array $criteria = []): array
     {
         $criteria['sort'] = 'popularity';
@@ -49,6 +55,9 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * Get events by city
      */
+    /**
+     * Get  events by city
+     */
     public function getEventsByCity(string $city, array $criteria = []): array
     {
         $criteria['keyword'] = $city;
@@ -59,6 +68,9 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * Get events within price range
      */
+    /**
+     * Get  events by price range
+     */
     public function getEventsByPriceRange(int $minPrice, int $maxPrice, array $criteria = []): array
     {
         $criteria['price_min'] = $minPrice;
@@ -67,6 +79,9 @@ class StubHubPlugin extends BaseScraperPlugin
         return $this->scrape($criteria);
     }
 
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'StubHub';
@@ -79,6 +94,9 @@ class StubHubPlugin extends BaseScraperPlugin
         $this->version = '2.0.0';
     }
 
+    /**
+     * Get  capabilities
+     */
     protected function getCapabilities(): array
     {
         return [
@@ -93,6 +111,9 @@ class StubHubPlugin extends BaseScraperPlugin
         ];
     }
 
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -108,11 +129,17 @@ class StubHubPlugin extends BaseScraperPlugin
         ];
     }
 
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/sports';
     }
 
+    /**
+     * BuildSearchUrl
+     */
     protected function buildSearchUrl(array $criteria): string
     {
         $searchUrl = $this->baseUrl . '/sports';
@@ -150,6 +177,9 @@ class StubHubPlugin extends BaseScraperPlugin
         return $searchUrl;
     }
 
+    /**
+     * ParseSearchResults
+     */
     protected function parseSearchResults(string $html): array
     {
         $crawler = new Crawler($html);
@@ -183,6 +213,9 @@ class StubHubPlugin extends BaseScraperPlugin
         return $events;
     }
 
+    /**
+     * ParseEventNode
+     */
     protected function parseEventNode(Crawler $node): ?array
     {
         try {
@@ -241,26 +274,41 @@ class StubHubPlugin extends BaseScraperPlugin
         }
     }
 
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return 'h3 a, .event-title, .event-name, [data-testid="event-title"], .search-result-title a, .event-listing-title';
     }
 
+    /**
+     * Get  date selectors
+     */
     protected function getDateSelectors(): string
     {
         return '.event-date, .date-time, [data-testid="event-date"], .event-datetime, .listing-date';
     }
 
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue-name, .event-venue, [data-testid="venue-name"], .venue-info, .listing-venue';
     }
 
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .ticket-price, [data-testid="price"], .price-range, .starting-price, .min-price';
     }
 
+    /**
+     * Get  availability selectors
+     */
     protected function getAvailabilitySelectors(): string
     {
         return '.availability, .ticket-count, [data-testid="availability"], .tickets-available, .inventory-status';
@@ -268,6 +316,9 @@ class StubHubPlugin extends BaseScraperPlugin
 
     /**
      * Enhanced filtering for StubHub-specific criteria
+     */
+    /**
+     * FilterResults
      */
     protected function filterResults(array $events, array $criteria): array
     {
@@ -301,6 +352,9 @@ class StubHubPlugin extends BaseScraperPlugin
         });
     }
 
+    /**
+     * ParseStubHubDate
+     */
     private function parseStubHubDate(string $dateText): ?string
     {
         if (empty($dateText)) {
@@ -360,6 +414,9 @@ class StubHubPlugin extends BaseScraperPlugin
         }
     }
 
+    /**
+     * ParseStubHubPrice
+     */
     private function parseStubHubPrice(string $priceText): array
     {
         $priceInfo = ['min' => NULL, 'max' => NULL];
@@ -405,6 +462,9 @@ class StubHubPlugin extends BaseScraperPlugin
         return $priceInfo;
     }
 
+    /**
+     * NormalizeStubHubAvailability
+     */
     private function normalizeStubHubAvailability(string $availability): string
     {
         $availability = strtolower(trim($availability));

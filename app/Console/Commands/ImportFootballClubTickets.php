@@ -43,6 +43,9 @@ class ImportFootballClubTickets extends Command
     /**
      * Execute the console command.
      */
+    /**
+     * Handle
+     */
     public function handle(): int
     {
         $this->info('🏈 Football Club Ticket Import Starting...');
@@ -127,6 +130,9 @@ class ImportFootballClubTickets extends Command
      *
      * @return array<int, string>
      */
+    /**
+     * DetermineClubsToProcess
+     */
     private function determineClubsToProcess(): array
     {
         $supportedClubs = $this->service->getSupportedClubs();
@@ -134,7 +140,7 @@ class ImportFootballClubTickets extends Command
 
         // If specific clubs requested
         $clubs = $this->option('clubs');
-        if (! empty($clubs) && is_array($clubs)) {
+        if (! empty($clubs)) {
             $validClubs = array_intersect($clubs, $clubKeys);
 
             if (empty($validClubs)) {
@@ -154,7 +160,7 @@ class ImportFootballClubTickets extends Command
 
         // Filter by league
         $league = $this->option('league');
-        if ($league && is_string($league)) {
+        if ($league) {
             return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $league) {
                 return strcasecmp($supportedClubs[$key]['league'], $league) === 0;
             }));
@@ -162,7 +168,7 @@ class ImportFootballClubTickets extends Command
 
         // Filter by country
         $country = $this->option('country');
-        if ($country && is_string($country)) {
+        if ($country) {
             return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $country) {
                 return strcasecmp($supportedClubs[$key]['country'], $country) === 0;
             }));
@@ -178,6 +184,9 @@ class ImportFootballClubTickets extends Command
      * @param array<int, string> $clubKeys
      *
      * @return array<int, string>
+     */
+    /**
+     * InteractiveClubSelection
      */
     private function interactiveClubSelection(array $clubKeys): array
     {
@@ -224,22 +233,25 @@ class ImportFootballClubTickets extends Command
      *
      * @return array<string, mixed>
      */
+    /**
+     * BuildFilters
+     */
     private function buildFilters(): array
     {
         $filters = [];
 
         $dateFrom = $this->option('date-from');
-        if ($dateFrom && is_string($dateFrom)) {
+        if ($dateFrom) {
             $filters['date_from'] = $dateFrom;
         }
 
         $dateTo = $this->option('date-to');
-        if ($dateTo && is_string($dateTo)) {
+        if ($dateTo) {
             $filters['date_to'] = $dateTo;
         }
 
         $competition = $this->option('competition');
-        if ($competition && is_string($competition)) {
+        if ($competition) {
             $filters['competition'] = $competition;
         }
 
@@ -248,6 +260,9 @@ class ImportFootballClubTickets extends Command
 
     /**
      * Display supported clubs information.
+     */
+    /**
+     * DisplaySupportedClubs
      */
     private function displaySupportedClubs(): void
     {
@@ -274,6 +289,9 @@ class ImportFootballClubTickets extends Command
      * Display search results.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * DisplaySearchResults
      */
     private function displaySearchResults(array $results): void
     {
@@ -332,6 +350,9 @@ class ImportFootballClubTickets extends Command
      *
      * @param array<string, mixed> $results
      */
+    /**
+     * DisplayImportResults
+     */
     private function displayImportResults(array $results): void
     {
         if ($results['success']) {
@@ -353,6 +374,9 @@ class ImportFootballClubTickets extends Command
 
     /**
      * Display platform statistics.
+     */
+    /**
+     * DisplayStatistics
      */
     private function displayStatistics(): void
     {

@@ -27,6 +27,7 @@ class NotificationService extends BaseService implements NotificationInterface
 {
     private const NOTIFICATIONS_PREFIX = 'notifications:';
 
+    /** @var array<int, string> */
     private const CHANNELS = ['database', 'broadcast', 'push', 'mail', 'sms', 'discord', 'slack', 'telegram', 'webhook'];
 
     private const PRIORITY_HIGH = 'high';
@@ -35,14 +36,32 @@ class NotificationService extends BaseService implements NotificationInterface
 
     private const PRIORITY_LOW = 'low';
 
+    /** Factory for creating notification channels */
     private ChannelFactory $channelFactory;
 
+    /**
+     * Currently enabled notification channels
+     *
+     * @var array<int, string>
+     */
     private array $enabledChannels = [];
 
+    /**
+     * Rate limits for different notification channels
+     *
+     * @var array<string, int>
+     */
     private array $rateLimits = [];
 
     /**
      * Send ticket availability alert
+     *
+     * @param array<string, mixed> $ticketData Ticket information
+     * @param array<int, int>      $userIds    Target user IDs (empty for auto-discovery)
+     * @param string               $priority   Alert priority level
+     */
+    /**
+     * SendTicketAlert
      */
     public function sendTicketAlert(array $ticketData, array $userIds = [], string $priority = self::PRIORITY_NORMAL): void
     {
@@ -76,6 +95,14 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Send price update notification
+     *
+     * @param int             $ticketId Ticket ID for price update
+     * @param float           $oldPrice Previous ticket price
+     * @param float           $newPrice New ticket price
+     * @param array<int, int> $userIds  Target user IDs (empty for auto-discovery)
+     */
+    /**
+     * SendPriceUpdate
      */
     public function sendPriceUpdate(int $ticketId, float $oldPrice, float $newPrice, array $userIds = []): void
     {
@@ -130,6 +157,14 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Send system notification
+     *
+     * @param string               $message Notification message
+     * @param string               $type    Notification type (info, warning, error, etc.)
+     * @param array<int, int>      $userIds Target user IDs (empty for broadcast)
+     * @param array<string, mixed> $data    Additional notification data
+     */
+    /**
+     * SendSystemNotification
      */
     public function sendSystemNotification(string $message, string $type = 'info', array $userIds = [], array $data = []): void
     {
@@ -166,6 +201,12 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Send bulk notification to multiple users
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param array<int, int>      $userIds      Target user IDs
+     */
+    /**
+     * SendBulkNotification
      */
     public function sendBulkNotification(array $notification, array $userIds): void
     {
@@ -189,6 +230,13 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Get user notification preferences
+     *
+     * @param int $userId User ID to get preferences for
+     *
+     * @return array<string, mixed> User notification preferences
+     */
+    /**
+     * Get  user notification preferences
      */
     public function getUserNotificationPreferences(int $userId): array
     {
@@ -221,6 +269,14 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Update user notification preferences
+     *
+     * @param int                  $userId      User ID to update preferences for
+     * @param array<string, mixed> $preferences New preference values
+     *
+     * @return bool Whether update was successful
+     */
+    /**
+     * UpdateUserNotificationPreferences
      */
     public function updateUserNotificationPreferences(int $userId, array $preferences): bool
     {
@@ -258,6 +314,15 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Get user notifications with pagination
+     *
+     * @param int $userId  User ID to get notifications for
+     * @param int $page    Page number for pagination
+     * @param int $perPage Number of notifications per page
+     *
+     * @return array<string, mixed> Paginated notifications data
+     */
+    /**
+     * Get  user notifications
      */
     public function getUserNotifications(int $userId, int $page = 1, int $perPage = 50): array
     {
@@ -313,6 +378,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * Mark notification as read
      */
+    /**
+     * MarkNotificationAsRead
+     */
     public function markNotificationAsRead(string $notificationId, int $userId): bool
     {
         try {
@@ -345,6 +413,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * Get unread notification count for user
      */
+    /**
+     * Get  unread notification count
+     */
     public function getUnreadNotificationCount(int $userId): int
     {
         try {
@@ -363,6 +434,9 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Clean up expired notifications
+     */
+    /**
+     * CleanupExpiredNotifications
      */
     public function cleanupExpiredNotifications(): int
     {
@@ -392,6 +466,9 @@ class NotificationService extends BaseService implements NotificationInterface
         }
     }
 
+    /**
+     * OnInitialize
+     */
     protected function onInitialize(): void
     {
         $this->validateDependencies(['analyticsService']);
@@ -412,11 +489,24 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * Private helper methods
      */
+    /**
+     * GenerateNotificationId
+     */
     private function generateNotificationId(): string
     {
         return 'notif_' . uniqid() . '_' . time();
     }
 
+    /**
+     * Build ticket alert message from ticket data
+     *
+     * @param array<string, mixed> $ticketData Ticket information
+     *
+     * @return string Formatted alert message
+     */
+    /**
+     * BuildTicketAlertMessage
+     */
     private function buildTicketAlertMessage(array $ticketData): string
     {
         $event = $ticketData['event_name'] ?? 'Unknown Event';
@@ -426,6 +516,9 @@ class NotificationService extends BaseService implements NotificationInterface
         return "New tickets available for {$event} at {$venue}. Starting from $" . number_format($price, 2);
     }
 
+    /**
+     * BuildPriceUpdateMessage
+     */
     private function buildPriceUpdateMessage(int $ticketId, float $oldPrice, float $newPrice, float $percentChange): string
     {
         $direction = $percentChange < 0 ? 'dropped' : 'increased';
@@ -438,6 +531,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * @return array<int, string>
      */
+    /**
+     * Get  channels for priority
+     */
     private function getChannelsForPriority(string $priority): array
     {
         return match ($priority) {
@@ -448,6 +544,9 @@ class NotificationService extends BaseService implements NotificationInterface
         };
     }
 
+    /**
+     * Get  system notification title
+     */
     private function getSystemNotificationTitle(string $type): string
     {
         return match ($type) {
@@ -461,6 +560,9 @@ class NotificationService extends BaseService implements NotificationInterface
         };
     }
 
+    /**
+     * Get  priority for system notification
+     */
     private function getPriorityForSystemNotification(string $type): string
     {
         return match ($type) {
@@ -473,6 +575,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * @return array<int, string>
      */
+    /**
+     * Get  channels for system notification
+     */
     private function getChannelsForSystemNotification(string $type): array
     {
         return match ($type) {
@@ -482,6 +587,15 @@ class NotificationService extends BaseService implements NotificationInterface
         };
     }
 
+    /**
+     * Dispatch notification through all configured channels
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param array<int, int>      $userIds      Target user IDs
+     */
+    /**
+     * DispatchNotification
+     */
     private function dispatchNotification(array $notification, array $userIds): void
     {
         // Store notification data
@@ -521,6 +635,15 @@ class NotificationService extends BaseService implements NotificationInterface
         }
     }
 
+    /**
+     * Broadcast notification to users via WebSocket
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param array<int, int>      $userIds      Target user IDs
+     */
+    /**
+     * BroadcastNotification
+     */
     private function broadcastNotification(array $notification, array $userIds): void
     {
         try {
@@ -536,18 +659,39 @@ class NotificationService extends BaseService implements NotificationInterface
         }
     }
 
+    /**
+     * Send push notifications to users
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param array<int, int>      $userIds      Target user IDs
+     */
+    /**
+     * SendPushNotifications
+     */
     private function sendPushNotifications(array $notification, array $userIds): void
     {
         // Implementation for push notifications
         // This would integrate with services like FCM, APNs, etc.
     }
 
+    /**
+     * Send email notifications to users
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param array<int, int>      $userIds      Target user IDs
+     */
+    /**
+     * SendEmailNotifications
+     */
     private function sendEmailNotifications(array $notification, array $userIds): void
     {
         // Implementation for email notifications
         // This would use Laravel's mail system
     }
 
+    /**
+     * ProcessBulkBatch
+     */
     private function processBulkBatch(array $notification, array $userIds): void
     {
         // Process notification for batch of users
@@ -559,6 +703,9 @@ class NotificationService extends BaseService implements NotificationInterface
      *
      * @return array<int, int>
      */
+    /**
+     * Get  interested users
+     */
     private function getInterestedUsers(array $ticketData): array
     {
         // Implementation to get users interested in specific ticket types
@@ -568,6 +715,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * @return array<int, int>
      */
+    /**
+     * Get  users watching ticket
+     */
     private function getUsersWatchingTicket(int $ticketId): array
     {
         // Implementation to get users watching specific ticket
@@ -576,6 +726,9 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * @return array<int, int>
+     */
+    /**
+     * Get  all active users
      */
     private function getAllActiveUsers(): array
     {
@@ -587,6 +740,9 @@ class NotificationService extends BaseService implements NotificationInterface
      * @param array<string, mixed> $preferences
      *
      * @return array<string, mixed>
+     */
+    /**
+     * ValidateNotificationPreferences
      */
     private function validateNotificationPreferences(array $preferences): array
     {
@@ -610,6 +766,9 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  default notification preferences
+     */
     private function getDefaultNotificationPreferences(): array
     {
         return [
@@ -627,6 +786,15 @@ class NotificationService extends BaseService implements NotificationInterface
         ];
     }
 
+    /**
+     * Track notification sent event in analytics
+     *
+     * @param array<string, mixed> $notification Notification data
+     * @param int                  $userCount    Number of users notified
+     */
+    /**
+     * TrackNotificationSent
+     */
     private function trackNotificationSent(array $notification, int $userCount): void
     {
         $this->analytics->trackEvent('notification_sent', [

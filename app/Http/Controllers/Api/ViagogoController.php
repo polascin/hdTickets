@@ -166,8 +166,7 @@ class ViagogoController extends Controller
                     if ($this->importEventAsTicket($event)) {
                         $imported++;
                     }
-
-                    usleep(500000);
+                    usleep(500000); // 0.5 second delay
                 } catch (Exception $e) {
                     $errors[] = [
                         'event' => $event['name'] ?? 'Unknown',
@@ -237,7 +236,7 @@ class ViagogoController extends Controller
                         ];
                     }
 
-                    usleep(500000);
+                    usleep(500000); // 0.5 second delay
                 } catch (Exception $e) {
                     $errors[] = [
                         'url'   => $url,
@@ -301,23 +300,28 @@ class ViagogoController extends Controller
                 ->first();
 
             if ($existingTicket) {
-                return FALSE;
+                return FALSE; // Already exists
             }
 
-            $ticket = new \App\Models\Ticket();
-            $ticket->title = $eventData['name'] ?? 'Unknown Event';
-            $ticket->description = $eventData['description'] ?? '';
-            $ticket->platform = 'viagogo';
-            $ticket->external_id = $eventData['id'] ?? NULL;
-            $ticket->external_url = $eventData['url'] ?? NULL;
-            $ticket->event_date = $eventData['parsed_date'] ?? NULL;
-            $ticket->location = $eventData['venue'] ?? '';
-            $ticket->price = $eventData['min_price'] ?? NULL;
-            $ticket->user_id = auth()->id();
-            $ticket->status = 'active';
-            $ticket->scraped_data = json_encode($eventData);
+            $ticket = new \App\Models\Ticket([
+                'platform'    => 'viagogo',
+                'external_id' => $eventData['id'] ?? NULL,
+                'title'       => $eventData['name'] ?? 'Unknown Event',
+                'price'       => $eventData['price'] ?? 0.00,
+                'currency'    => $eventData['currency'] ?? 'USD',
+                'venue'       => $eventData['venue'] ?? '',
+                'event_date'  => $eventData['date'] ?? now(),
+                'category'    => $eventData['category'] ?? 'General',
+                'description' => $eventData['description'] ?? '',
+                'url'         => $eventData['url'] ?? '',
+                'status'      => 'available',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
 
-            return $ticket->save();
+            $ticket->save();
+
+            return TRUE;
         } catch (Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to import Viagogo event as ticket', [
                 'event_data' => $eventData,
@@ -333,7 +337,7 @@ class ViagogoController extends Controller
      */
     private function calculateSuccessRate(string $platform): float
     {
-        return 87.3;
+        return 82.3; // Placeholder
     }
 
     /**
@@ -341,6 +345,6 @@ class ViagogoController extends Controller
      */
     private function getAverageResponseTime(string $platform): float
     {
-        return 1150.0;
+        return 1450.0; // Placeholder in milliseconds
     }
 }

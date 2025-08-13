@@ -14,31 +14,49 @@ final readonly class EventDate
         $this->validate($value);
     }
 
+    /**
+     * Value
+     */
     public function value(): DateTimeImmutable
     {
         return $this->value;
     }
 
+    /**
+     * Format
+     */
     public function format(string $format = 'Y-m-d H:i:s'): string
     {
         return $this->value->format($format);
     }
 
+    /**
+     * Check if  upcoming
+     */
     public function isUpcoming(): bool
     {
         return $this->value > new DateTimeImmutable();
     }
 
+    /**
+     * Check if  past
+     */
     public function isPast(): bool
     {
         return $this->value < new DateTimeImmutable();
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->value->getTimestamp() === $other->value->getTimestamp();
     }
 
+    /**
+     * FromString
+     */
     public static function fromString(string $dateString): self
     {
         try {
@@ -48,11 +66,17 @@ final readonly class EventDate
         }
     }
 
+    /**
+     * Now
+     */
     public static function now(): self
     {
         return new self(new DateTimeImmutable());
     }
 
+    /**
+     * Validate
+     */
     private function validate(DateTimeImmutable $value): void
     {
         $now = new DateTimeImmutable();
@@ -65,6 +89,9 @@ final readonly class EventDate
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->format();

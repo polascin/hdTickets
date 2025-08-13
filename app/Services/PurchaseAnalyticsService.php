@@ -14,6 +14,9 @@ class PurchaseAnalyticsService
     /**
      * Get comprehensive purchase analytics for a given time period
      */
+    /**
+     * Get  purchase analytics
+     */
     public function getPurchaseAnalytics(string $period = '24h', ?string $platform = NULL): array
     {
         $cacheKey = "purchase_analytics_{$period}_" . ($platform ?? 'all');
@@ -35,6 +38,9 @@ class PurchaseAnalyticsService
     /**
      * Get real-time purchase monitoring dashboard data
      */
+    /**
+     * Get  real time data
+     */
     public function getRealTimeData(): array
     {
         return [
@@ -49,6 +55,9 @@ class PurchaseAnalyticsService
 
     /**
      * Get purchase success rate trends
+     */
+    /**
+     * Get  success rate trends
      */
     public function getSuccessRateTrends(string $period = '7d'): array
     {
@@ -78,6 +87,9 @@ class PurchaseAnalyticsService
     /**
      * Get platform-specific performance metrics
      */
+    /**
+     * Get  platform metrics
+     */
     public function getPlatformMetrics(): array
     {
         $platforms = PurchaseAttempt::select('platform')
@@ -95,6 +107,9 @@ class PurchaseAnalyticsService
 
     /**
      * Get purchase attempt failure reasons analysis
+     */
+    /**
+     * Get  failure analysis
      */
     public function getFailureAnalysis(array $dateRange, ?string $platform = NULL): array
     {
@@ -120,6 +135,9 @@ class PurchaseAnalyticsService
 
     /**
      * Get purchase queue optimization recommendations
+     */
+    /**
+     * Get  optimization recommendations
      */
     public function getOptimizationRecommendations(): array
     {
@@ -172,6 +190,9 @@ class PurchaseAnalyticsService
     /**
      * Generate performance report
      */
+    /**
+     * GeneratePerformanceReport
+     */
     public function generatePerformanceReport(string $period = '7d'): array
     {
         $analytics = $this->getPurchaseAnalytics($period);
@@ -197,6 +218,9 @@ class PurchaseAnalyticsService
 
     // Helper methods
 
+    /**
+     * Get  date range
+     */
     private function getDateRange(string $period): array
     {
         $end = Carbon::now();
@@ -213,6 +237,9 @@ class PurchaseAnalyticsService
         return [$start, $end];
     }
 
+    /**
+     * Get  summary stats
+     */
     private function getSummaryStats(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
@@ -245,6 +272,9 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  success rates
+     */
     private function getSuccessRates(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
@@ -265,6 +295,9 @@ class PurchaseAnalyticsService
             ->toArray();
     }
 
+    /**
+     * Get  platform performance
+     */
     private function getPlatformPerformance(array $dateRange): array
     {
         return PurchaseAttempt::selectRaw('
@@ -285,6 +318,9 @@ class PurchaseAnalyticsService
             ->toArray();
     }
 
+    /**
+     * Get  time series data
+     */
     private function getTimeSeriesData(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::selectRaw('
@@ -314,6 +350,9 @@ class PurchaseAnalyticsService
             ->toArray();
     }
 
+    /**
+     * Get  performance metrics
+     */
     private function getPerformanceMetrics(array $dateRange, ?string $platform = NULL): array
     {
         $query = PurchaseAttempt::whereBetween('created_at', $dateRange);
@@ -343,11 +382,17 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  current processing count
+     */
     private function getCurrentProcessingCount(): int
     {
         return PurchaseAttempt::where('status', 'in_progress')->count();
     }
 
+    /**
+     * Get  queue status
+     */
     private function getQueueStatus(): array
     {
         return [
@@ -360,6 +405,9 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  recent attempts
+     */
     private function getRecentAttempts(int $limit = 10): array
     {
         return PurchaseAttempt::with(['purchaseQueue.scrapedTicket'])
@@ -383,6 +431,9 @@ class PurchaseAnalyticsService
             ->toArray();
     }
 
+    /**
+     * Get  recent success rate
+     */
     private function getRecentSuccessRate(string $period): float
     {
         $dateRange = $this->getDateRange($period);
@@ -391,6 +442,9 @@ class PurchaseAnalyticsService
         return $stats['success_rate'];
     }
 
+    /**
+     * Get  active alerts
+     */
     private function getActiveAlerts(): array
     {
         $alerts = [];
@@ -423,6 +477,9 @@ class PurchaseAnalyticsService
         return $alerts;
     }
 
+    /**
+     * Get  system health metrics
+     */
     private function getSystemHealthMetrics(): array
     {
         return [
@@ -433,6 +490,9 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  platform specific metrics
+     */
     private function getPlatformSpecificMetrics(string $platform): array
     {
         $dateRange = $this->getDateRange('7d');
@@ -458,6 +518,9 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  average processing time
+     */
     private function getAverageProcessingTime(): float
     {
         $avgTime = PurchaseAttempt::whereNotNull('started_at')
@@ -469,6 +532,9 @@ class PurchaseAnalyticsService
         return round($avgTime ?? 0, 2);
     }
 
+    /**
+     * Get  total revenue
+     */
     private function getTotalRevenue(string $period): float
     {
         $dateRange = $this->getDateRange($period);
@@ -478,6 +544,9 @@ class PurchaseAnalyticsService
             ->sum('total_paid') ?? 0;
     }
 
+    /**
+     * Get  cost per success
+     */
     private function getCostPerSuccess(string $period): float
     {
         $dateRange = $this->getDateRange($period);
@@ -493,6 +562,9 @@ class PurchaseAnalyticsService
         return $successfulAttempts > 0 ? round($totalCost / $successfulAttempts, 2) : 0;
     }
 
+    /**
+     * CheckDatabaseConnection
+     */
     private function checkDatabaseConnection(): bool
     {
         try {
@@ -504,6 +576,9 @@ class PurchaseAnalyticsService
         }
     }
 
+    /**
+     * CheckQueueWorkerStatus
+     */
     private function checkQueueWorkerStatus(): string
     {
         // This would need to be implemented based on your queue setup
@@ -511,6 +586,9 @@ class PurchaseAnalyticsService
         return 'active';
     }
 
+    /**
+     * Get  memory usage
+     */
     private function getMemoryUsage(): array
     {
         return [
@@ -519,6 +597,9 @@ class PurchaseAnalyticsService
         ];
     }
 
+    /**
+     * Get  average response time
+     */
     private function getAverageResponseTime(): float
     {
         // This would typically be measured by application performance monitoring

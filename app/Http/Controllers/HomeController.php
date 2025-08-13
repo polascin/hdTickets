@@ -21,6 +21,9 @@ class HomeController extends Controller
      * - scraper: Technical users focused on ticket scraping operations
      * - customer/default: Regular users purchasing tickets
      */
+    /**
+     * Index
+     */
     public function index(): \Illuminate\Http\RedirectResponse
     {
         // Ensure user is authenticated before proceeding with role-based routing
@@ -64,6 +67,9 @@ class HomeController extends Controller
      * This method serves the main landing page of the HD Tickets sports events
      * entry ticket monitoring and purchase system. It's typically accessed
      * before user authentication.
+     */
+    /**
+     * Welcome
      */
     public function welcome(): \Illuminate\Contracts\View\View
     {

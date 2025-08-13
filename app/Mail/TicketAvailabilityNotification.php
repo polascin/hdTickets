@@ -42,7 +42,7 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
         $this->user = $user;
-        $this->platform = $platform ?: $ticket['platform'] ?? 'Unknown';
+        $this->platform = $platform;
         $this->quantity = $quantity;
     }
 
@@ -51,20 +51,8 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
      */
     public function envelope(): Envelope
     {
-        $subject = $this->getSubjectLine();
-
         return new Envelope(
-            subject: $subject,
-            from: config('mail.from.address'),
-            replyTo: config('mail.from.address'),
-            tags: ['availability-change', 'ticket-alert'],
-            metadata: [
-                'ticket_id'  => $this->ticket['id'] ?? NULL,
-                'platform'   => $this->platform,
-                'old_status' => $this->oldStatus,
-                'new_status' => $this->newStatus,
-                'user_id'    => $this->user['id'] ?? NULL,
-            ],
+            subject: $this->getSubjectLine(),
         );
     }
 
@@ -75,19 +63,15 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     {
         return new Content(
             view: 'emails.ticket-availability-notification',
-            text: 'emails.ticket-availability-notification-text',
             with: [
-                'ticket'            => $this->ticket,
-                'oldStatus'         => $this->oldStatus,
-                'newStatus'         => $this->newStatus,
-                'user'              => $this->user,
-                'platform'          => $this->platform,
-                'quantity'          => $this->quantity,
-                'isNowAvailable'    => $this->newStatus === 'available' && $this->oldStatus !== 'available',
-                'isSoldOut'         => $this->newStatus === 'sold_out',
-                'isLimitedQuantity' => $this->quantity && $this->quantity <= 10,
-                'statusMessage'     => $this->getStatusMessage(),
-                'urgency'           => $this->getUrgencyLevel(),
+                'ticket'        => $this->ticket,
+                'oldStatus'     => $this->oldStatus,
+                'newStatus'     => $this->newStatus,
+                'user'          => $this->user,
+                'platform'      => $this->platform,
+                'quantity'      => $this->quantity,
+                'statusMessage' => $this->getStatusMessage(),
+                'urgencyLevel'  => $this->getUrgencyLevel(),
             ],
         );
     }
@@ -97,6 +81,9 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
+    /**
+     * Attachments
+     */
     public function attachments(): array
     {
         return [];
@@ -104,6 +91,9 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
 
     /**
      * Generate appropriate subject line based on status change
+     */
+    /**
+     * Get  subject line
      */
     private function getSubjectLine(): string
     {
@@ -125,6 +115,9 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     /**
      * Get human-readable status message
      */
+    /**
+     * Get  status message
+     */
     private function getStatusMessage(): string
     {
         switch ($this->newStatus) {
@@ -145,6 +138,9 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
 
     /**
      * Determine urgency level for styling
+     */
+    /**
+     * Get  urgency level
      */
     private function getUrgencyLevel(): string
     {

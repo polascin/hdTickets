@@ -12,17 +12,23 @@ final class TicketPriceChanged extends AbstractDomainEvent
         public TicketId $ticketId,
         public Price $oldPrice,
         public Price $newPrice,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->ticketId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'ticket';
@@ -30,6 +36,9 @@ final class TicketPriceChanged extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -46,6 +55,9 @@ final class TicketPriceChanged extends AbstractDomainEvent
         ];
     }
 
+    /**
+     * Get  price change
+     */
     public function getPriceChange(): Price
     {
         if ($this->newPrice->isGreaterThan($this->oldPrice)) {
@@ -55,11 +67,17 @@ final class TicketPriceChanged extends AbstractDomainEvent
         return $this->oldPrice->subtract($this->newPrice);
     }
 
+    /**
+     * Check if  increase
+     */
     public function isIncrease(): bool
     {
         return $this->newPrice->isGreaterThan($this->oldPrice);
     }
 
+    /**
+     * Check if  decrease
+     */
     public function isDecrease(): bool
     {
         return $this->newPrice->isLessThan($this->oldPrice);
@@ -67,6 +85,9 @@ final class TicketPriceChanged extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

@@ -50,6 +50,9 @@ class ComponentLifecycleManager
     /**
      * Register a component for lifecycle management
      */
+    /**
+     * Register
+     */
     public function register(string $componentName, string $type, array $config = []): void
     {
         $componentState = [
@@ -84,6 +87,9 @@ class ComponentLifecycleManager
 
     /**
      * Initialize component lifecycle
+     */
+    /**
+     * Initialize
      */
     public function initialize(string $componentName, array $initData = []): void
     {
@@ -141,6 +147,9 @@ class ComponentLifecycleManager
     /**
      * Mount component to DOM/render system
      */
+    /**
+     * Mount
+     */
     public function mount(string $componentName, array $mountData = []): void
     {
         $componentState = $this->getComponentState($componentName);
@@ -196,6 +205,9 @@ class ComponentLifecycleManager
     /**
      * Update component with new data
      */
+    /**
+     * Update
+     */
     public function update(string $componentName, array $updateData = []): void
     {
         $componentState = $this->getComponentState($componentName);
@@ -245,6 +257,9 @@ class ComponentLifecycleManager
 
     /**
      * Unmount component and cleanup resources
+     */
+    /**
+     * Unmount
      */
     public function unmount(string $componentName, array $unmountData = []): void
     {
@@ -316,6 +331,9 @@ class ComponentLifecycleManager
     /**
      * Add lifecycle hook for a component
      */
+    /**
+     * AddHook
+     */
     public function addHook(string $componentName, string $lifecycle, callable $callback): void
     {
         if (! in_array($lifecycle, $this->lifecycleEvents, TRUE)) {
@@ -334,6 +352,9 @@ class ComponentLifecycleManager
     /**
      * Add cleanup callback for a component
      */
+    /**
+     * AddCleanupCallback
+     */
     public function addCleanupCallback(string $componentName, callable $callback): void
     {
         $componentState = $this->getComponentState($componentName);
@@ -346,6 +367,9 @@ class ComponentLifecycleManager
 
     /**
      * Add watcher for component state changes
+     */
+    /**
+     * AddWatcher
      */
     public function addWatcher(string $componentName, string $property, callable $callback): string
     {
@@ -365,6 +389,9 @@ class ComponentLifecycleManager
 
     /**
      * Add timer for component
+     */
+    /**
+     * AddTimer
      */
     public function addTimer(string $componentName, callable $callback, int $interval): string
     {
@@ -389,6 +416,12 @@ class ComponentLifecycleManager
      * @param mixed $event
      * @param mixed $payload
      */
+    /**
+     * HandleLifecycleEvent
+     *
+     * @param mixed $event
+     * @param mixed $payload
+     */
     public function handleLifecycleEvent($event, $payload): void
     {
         // This method is called by Laravel's event system
@@ -397,6 +430,9 @@ class ComponentLifecycleManager
 
     /**
      * Get component performance metrics
+     */
+    /**
+     * Get  performance metrics
      */
     public function getPerformanceMetrics(string $componentName): ?array
     {
@@ -408,6 +444,9 @@ class ComponentLifecycleManager
     /**
      * Get all active components
      */
+    /**
+     * Get  active components
+     */
     public function getActiveComponents(): Collection
     {
         return $this->activeComponents;
@@ -415,6 +454,9 @@ class ComponentLifecycleManager
 
     /**
      * Get component state summary
+     */
+    /**
+     * Get  component summary
      */
     public function getComponentSummary(string $componentName): ?array
     {
@@ -438,6 +480,9 @@ class ComponentLifecycleManager
 
     /**
      * Get lifecycle statistics
+     */
+    /**
+     * Get  lifecycle stats
      */
     public function getLifecycleStats(): array
     {
@@ -489,6 +534,9 @@ class ComponentLifecycleManager
     /**
      * Cleanup all components
      */
+    /**
+     * CleanupAll
+     */
     public function cleanupAll(): void
     {
         foreach ($this->activeComponents->keys() as $componentName) {
@@ -509,6 +557,9 @@ class ComponentLifecycleManager
     /**
      * Setup lifecycle event system
      */
+    /**
+     * Set up lifecycle events
+     */
     private function setupLifecycleEvents(): void
     {
         foreach ($this->lifecycleEvents as $eventName) {
@@ -519,6 +570,9 @@ class ComponentLifecycleManager
     /**
      * Initialize Blade component
      */
+    /**
+     * InitializeBladeComponent
+     */
     private function initializeBladeComponent(string $componentName, array $componentState, array $initData): void
     {
         // Blade components are server-side rendered, minimal initialization
@@ -527,6 +581,9 @@ class ComponentLifecycleManager
 
     /**
      * Initialize Alpine.js component
+     */
+    /**
+     * InitializeAlpineComponent
      */
     private function initializeAlpineComponent(string $componentName, array $componentState, array $initData): void
     {
@@ -538,6 +595,9 @@ class ComponentLifecycleManager
     /**
      * Initialize Vue.js component
      */
+    /**
+     * InitializeVueComponent
+     */
     private function initializeVueComponent(string $componentName, array $componentState, array $initData): void
     {
         // Vue.js components need registration with Vue instance
@@ -548,6 +608,9 @@ class ComponentLifecycleManager
     /**
      * Mount Blade component
      */
+    /**
+     * MountBladeComponent
+     */
     private function mountBladeComponent(string $componentName, array $componentState, array $mountData): void
     {
         // Blade components are rendered server-side, emit event for client-side hooks
@@ -556,6 +619,9 @@ class ComponentLifecycleManager
 
     /**
      * Mount Alpine.js component
+     */
+    /**
+     * MountAlpineComponent
      */
     private function mountAlpineComponent(string $componentName, array $componentState, array $mountData): void
     {
@@ -567,6 +633,9 @@ class ComponentLifecycleManager
     /**
      * Mount Vue.js component
      */
+    /**
+     * MountVueComponent
+     */
     private function mountVueComponent(string $componentName, array $componentState, array $mountData): void
     {
         // Generate Vue.js mount instructions
@@ -577,6 +646,9 @@ class ComponentLifecycleManager
     /**
      * Update Blade component
      */
+    /**
+     * UpdateBladeComponent
+     */
     private function updateBladeComponent(string $componentName, array $componentState, array $updateData): void
     {
         // Blade components need re-rendering on server side for updates
@@ -585,6 +657,9 @@ class ComponentLifecycleManager
 
     /**
      * Update Alpine.js component
+     */
+    /**
+     * UpdateAlpineComponent
      */
     private function updateAlpineComponent(string $componentName, array $componentState, array $updateData): void
     {
@@ -596,6 +671,9 @@ class ComponentLifecycleManager
     /**
      * Update Vue.js component
      */
+    /**
+     * UpdateVueComponent
+     */
     private function updateVueComponent(string $componentName, array $componentState, array $updateData): void
     {
         // Generate Vue.js update instructions
@@ -606,6 +684,9 @@ class ComponentLifecycleManager
     /**
      * Unmount Blade component
      */
+    /**
+     * UnmountBladeComponent
+     */
     private function unmountBladeComponent(string $componentName, array $componentState, array $unmountData): void
     {
         $this->emitLifecycleEvent('blade.unmounted', $componentName, $unmountData);
@@ -613,6 +694,9 @@ class ComponentLifecycleManager
 
     /**
      * Unmount Alpine.js component
+     */
+    /**
+     * UnmountAlpineComponent
      */
     private function unmountAlpineComponent(string $componentName, array $componentState, array $unmountData): void
     {
@@ -623,6 +707,9 @@ class ComponentLifecycleManager
     /**
      * Unmount Vue.js component
      */
+    /**
+     * UnmountVueComponent
+     */
     private function unmountVueComponent(string $componentName, array $componentState, array $unmountData): void
     {
         $unmountConfig = $this->generateVueUnmountConfig($componentName, $componentState, $unmountData);
@@ -631,6 +718,9 @@ class ComponentLifecycleManager
 
     /**
      * Generate Alpine.js initialization script
+     */
+    /**
+     * GenerateAlpineInitScript
      */
     private function generateAlpineInitScript(string $componentName, array $componentState, array $initData): string
     {
@@ -642,6 +732,9 @@ class ComponentLifecycleManager
     /**
      * Generate Alpine.js mount script
      */
+    /**
+     * GenerateAlpineMountScript
+     */
     private function generateAlpineMountScript(string $componentName, array $componentState, array $mountData): string
     {
         $selector = $componentState['config']['selector'] ?? "[x-data='{$componentName}']";
@@ -651,6 +744,9 @@ class ComponentLifecycleManager
 
     /**
      * Generate Alpine.js update script
+     */
+    /**
+     * GenerateAlpineUpdateScript
      */
     private function generateAlpineUpdateScript(string $componentName, array $componentState, array $updateData): string
     {
@@ -663,6 +759,9 @@ class ComponentLifecycleManager
     /**
      * Generate Alpine.js unmount script
      */
+    /**
+     * GenerateAlpineUnmountScript
+     */
     private function generateAlpineUnmountScript(string $componentName, array $componentState, array $unmountData): string
     {
         $selector = $componentState['config']['selector'] ?? "[x-data='{$componentName}']";
@@ -672,6 +771,9 @@ class ComponentLifecycleManager
 
     /**
      * Generate Vue.js configuration
+     */
+    /**
+     * GenerateVueConfig
      */
     private function generateVueConfig(string $componentName, array $componentState, array $initData): array
     {
@@ -685,6 +787,9 @@ class ComponentLifecycleManager
     /**
      * Generate Vue.js mount configuration
      */
+    /**
+     * GenerateVueMountConfig
+     */
     private function generateVueMountConfig(string $componentName, array $componentState, array $mountData): array
     {
         return [
@@ -697,6 +802,9 @@ class ComponentLifecycleManager
     /**
      * Generate Vue.js update configuration
      */
+    /**
+     * GenerateVueUpdateConfig
+     */
     private function generateVueUpdateConfig(string $componentName, array $componentState, array $updateData): array
     {
         return [
@@ -708,6 +816,9 @@ class ComponentLifecycleManager
     /**
      * Generate Vue.js unmount configuration
      */
+    /**
+     * GenerateVueUnmountConfig
+     */
     private function generateVueUnmountConfig(string $componentName, array $componentState, array $unmountData): array
     {
         return [
@@ -718,6 +829,9 @@ class ComponentLifecycleManager
 
     /**
      * Execute hooks for a specific lifecycle event
+     */
+    /**
+     * ExecuteHooks
      */
     private function executeHooks(string $componentName, string $lifecycle, array $data = []): void
     {
@@ -737,6 +851,9 @@ class ComponentLifecycleManager
 
     /**
      * Handle component errors
+     */
+    /**
+     * HandleComponentError
      */
     private function handleComponentError(string $componentName, string $phase, Exception $error): void
     {
@@ -765,6 +882,9 @@ class ComponentLifecycleManager
     /**
      * Emit lifecycle event
      */
+    /**
+     * EmitLifecycleEvent
+     */
     private function emitLifecycleEvent(string $eventName, string $componentName, array $data = []): void
     {
         Event::dispatch("component.{$eventName}", [
@@ -777,6 +897,9 @@ class ComponentLifecycleManager
     /**
      * Get component state
      */
+    /**
+     * Get  component state
+     */
     private function getComponentState(string $componentName): ?array
     {
         return $this->componentStates->get($componentName);
@@ -784,6 +907,9 @@ class ComponentLifecycleManager
 
     /**
      * Update component state
+     */
+    /**
+     * UpdateComponentState
      */
     private function updateComponentState(string $componentName, array $state): void
     {
@@ -793,6 +919,9 @@ class ComponentLifecycleManager
     /**
      * Clear timer
      */
+    /**
+     * ClearTimer
+     */
     private function clearTimer(string $timerId): void
     {
         // Implementation depends on how timers are handled in client-side
@@ -801,6 +930,9 @@ class ComponentLifecycleManager
 
     /**
      * Clear watcher
+     */
+    /**
+     * ClearWatcher
      */
     private function clearWatcher(string $watcherId): void
     {

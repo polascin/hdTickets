@@ -16,19 +16,25 @@ final class PaymentProcessed extends AbstractDomainEvent
         public string $currency,
         public string $status,
         public DateTimeImmutable $processedAt,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Payment-specific details like transaction ID, processor info, etc. */
         public array $paymentDetails = [],
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->purchaseId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'purchase';
@@ -36,6 +42,9 @@ final class PaymentProcessed extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -53,6 +62,9 @@ final class PaymentProcessed extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

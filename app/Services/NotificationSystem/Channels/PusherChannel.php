@@ -27,6 +27,9 @@ class PusherChannel implements NotificationChannelInterface
         );
     }
 
+    /**
+     * Send
+     */
     public function send(User $user, array $notification): bool
     {
         try {
@@ -80,6 +83,9 @@ class PusherChannel implements NotificationChannelInterface
         }
     }
 
+    /**
+     * Check if  available
+     */
     public function isAvailable(): bool
     {
         return ! empty(config('broadcasting.connections.pusher.key'))
@@ -87,6 +93,9 @@ class PusherChannel implements NotificationChannelInterface
                && ! empty(config('broadcasting.connections.pusher.app_id'));
     }
 
+    /**
+     * BuildActions
+     */
     protected function buildActions(array $notification): array
     {
         $actions = [];

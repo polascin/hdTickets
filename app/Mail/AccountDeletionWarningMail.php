@@ -36,6 +36,9 @@ class AccountDeletionWarningMail extends Mailable
     /**
      * Get the message envelope.
      */
+    /**
+     * Envelope
+     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -51,6 +54,9 @@ class AccountDeletionWarningMail extends Mailable
     /**
      * Get the message content definition.
      */
+    /**
+     * Content
+     */
     public function content(): Content
     {
         return new Content(
@@ -63,6 +69,9 @@ class AccountDeletionWarningMail extends Mailable
      * Get the attachments for the message.
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    /**
+     * Attachments
      */
     public function attachments(): array
     {

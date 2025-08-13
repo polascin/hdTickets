@@ -24,6 +24,9 @@ class HealthCheckController extends Controller
     /**
      * Basic health check endpoint for load balancer
      */
+    /**
+     * Basic
+     */
     public function basic(): JsonResponse
     {
         return response()->json([
@@ -36,6 +39,9 @@ class HealthCheckController extends Controller
 
     /**
      * Comprehensive health check with detailed system status
+     */
+    /**
+     * Detailed
      */
     public function detailed(): JsonResponse
     {
@@ -111,6 +117,9 @@ class HealthCheckController extends Controller
     /**
      * Deployment status endpoint
      */
+    /**
+     * DeploymentStatus
+     */
     public function deploymentStatus(): JsonResponse
     {
         $environment = config('app.env');
@@ -131,6 +140,9 @@ class HealthCheckController extends Controller
 
     /**
      * Check database connectivity and performance
+     */
+    /**
+     * CheckDatabase
      */
     private function checkDatabase(): array
     {
@@ -174,6 +186,9 @@ class HealthCheckController extends Controller
 
     /**
      * Check cache system (Redis/File)
+     */
+    /**
+     * CheckCache
      */
     private function checkCache(): array
     {
@@ -220,6 +235,9 @@ class HealthCheckController extends Controller
 
     /**
      * Check queue system
+     */
+    /**
+     * CheckQueue
      */
     private function checkQueue(): array
     {
@@ -283,6 +301,9 @@ class HealthCheckController extends Controller
     /**
      * Check storage system
      */
+    /**
+     * CheckStorage
+     */
     private function checkStorage(): array
     {
         try {
@@ -339,6 +360,9 @@ class HealthCheckController extends Controller
 
     /**
      * Check sports events system specifically
+     */
+    /**
+     * CheckSportsEventsSystem
      */
     private function checkSportsEventsSystem(): array
     {
@@ -397,6 +421,9 @@ class HealthCheckController extends Controller
     /**
      * Check ticket scraping system
      */
+    /**
+     * CheckScrapingSystem
+     */
     private function checkScrapingSystem(): array
     {
         try {
@@ -451,6 +478,9 @@ class HealthCheckController extends Controller
     /**
      * Check external APIs (ticket platforms)
      */
+    /**
+     * CheckExternalAPIs
+     */
     private function checkExternalAPIs(): array
     {
         $startTime = microtime(TRUE);
@@ -503,6 +533,9 @@ class HealthCheckController extends Controller
     /**
      * Get memory usage information
      */
+    /**
+     * Get  memory usage
+     */
     private function getMemoryUsage(): array
     {
         return [
@@ -514,6 +547,9 @@ class HealthCheckController extends Controller
 
     /**
      * Get application uptime
+     */
+    /**
+     * Get  uptime
      */
     private function getUptime(): string
     {

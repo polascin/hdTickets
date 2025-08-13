@@ -171,7 +171,6 @@ class StubHubController extends Controller
                     if ($this->importEventAsTicket($event)) {
                         $imported++;
                     }
-
                     // Add delay between imports
                     usleep(500000); // 0.5 second delay
                 } catch (Exception $e) {
@@ -316,20 +315,25 @@ class StubHubController extends Controller
             }
 
             // Create new ticket
-            $ticket = new \App\Models\Ticket();
-            $ticket->title = $eventData['name'] ?? 'Unknown Event';
-            $ticket->description = $eventData['description'] ?? '';
-            $ticket->platform = 'stubhub';
-            $ticket->external_id = $eventData['id'] ?? NULL;
-            $ticket->external_url = $eventData['url'] ?? NULL;
-            $ticket->event_date = $eventData['parsed_date'] ?? NULL;
-            $ticket->location = $eventData['venue'] ?? '';
-            $ticket->price = $eventData['min_price'] ?? NULL;
-            $ticket->user_id = auth()->id();
-            $ticket->status = 'active';
-            $ticket->scraped_data = json_encode($eventData);
+            $ticket = new \App\Models\Ticket([
+                'platform'    => 'stubhub',
+                'external_id' => $eventData['id'] ?? NULL,
+                'title'       => $eventData['name'] ?? 'Unknown Event',
+                'price'       => $eventData['price'] ?? 0.00,
+                'currency'    => $eventData['currency'] ?? 'USD',
+                'venue'       => $eventData['venue'] ?? '',
+                'event_date'  => $eventData['date'] ?? now(),
+                'category'    => $eventData['category'] ?? 'General',
+                'description' => $eventData['description'] ?? '',
+                'url'         => $eventData['url'] ?? '',
+                'status'      => 'available',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ]);
 
-            return $ticket->save();
+            $ticket->save();
+
+            return TRUE;
         } catch (Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to import StubHub event as ticket', [
                 'event_data' => $eventData,

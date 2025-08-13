@@ -15,16 +15,25 @@ class AxsClient extends BaseWebScrapingClient
         $this->respectRateLimit('axs');
     }
 
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->scrapeSearchResults($criteria['q'] ?? '', $criteria['location'] ?? '', $criteria['per_page'] ?? 50);
     }
 
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->scrapeEventDetails($this->baseUrl . '/events/' . $eventId);
     }
 
+    /**
+     * Get  venue
+     */
     public function getVenue(string $venueId): array
     {
         return $this->makeRequest('GET', "venues/{$venueId}");
@@ -32,6 +41,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Scrape AXS search results
+     */
+    /**
+     * ScrapeSearchResults
      */
     public function scrapeSearchResults(string $keyword, string $location = '', int $maxResults = 50): array
     {
@@ -52,6 +64,9 @@ class AxsClient extends BaseWebScrapingClient
     /**
      * Scrape individual event details
      */
+    /**
+     * ScrapeEventDetails
+     */
     public function scrapeEventDetails(string $url): array
     {
         try {
@@ -66,11 +81,17 @@ class AxsClient extends BaseWebScrapingClient
         }
     }
 
+    /**
+     * Get  base url
+     */
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
     }
 
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -86,6 +107,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Extract search results from HTML (BaseWebScrapingClient requirement)
+     */
+    /**
+     * ExtractSearchResults
      */
     protected function extractSearchResults(Crawler $crawler, int $maxResults): array
     {
@@ -124,6 +148,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Extract prices from crawler (BaseWebScrapingClient requirement)
+     */
+    /**
+     * ExtractPrices
      */
     protected function extractPrices(Crawler $crawler): array
     {
@@ -164,6 +191,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Extract event data from a single node
+     */
+    /**
+     * ExtractEventFromNode
      */
     protected function extractEventFromNode(Crawler $node): array
     {
@@ -250,6 +280,9 @@ class AxsClient extends BaseWebScrapingClient
     /**
      * Extract ticket information from the event page
      */
+    /**
+     * ExtractTicketInfo
+     */
     protected function extractTicketInfo(Crawler $crawler): array
     {
         $ticketInfo = [
@@ -320,6 +353,9 @@ class AxsClient extends BaseWebScrapingClient
         return $ticketInfo;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -338,6 +374,9 @@ class AxsClient extends BaseWebScrapingClient
     /**
      * Build search URL for AXS
      */
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(string $keyword, string $location = ''): string
     {
         $baseUrl = 'https://www.axs.com/search';
@@ -354,6 +393,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Extract detailed event information from event page
+     */
+    /**
+     * ExtractEventDetails
      */
     private function extractEventDetails(Crawler $crawler, string $url): array
     {
@@ -445,6 +487,9 @@ class AxsClient extends BaseWebScrapingClient
 
     /**
      * Resolve relative URLs to absolute URLs
+     */
+    /**
+     * ResolveUrl
      */
     private function resolveUrl(string $url): string
     {

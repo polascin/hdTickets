@@ -32,6 +32,9 @@ class UserPreference extends Model
     /**
      * Get the user that owns this preference
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -82,6 +85,11 @@ class UserPreference extends Model
      *
      * @param mixed $value
      */
+    /**
+     * Set  value
+     *
+     * @param mixed $value
+     */
     public static function setValue(int $userId, string $category, string $key, $value, string $dataType = 'string'): void
     {
         static::updateOrCreate(
@@ -100,6 +108,9 @@ class UserPreference extends Model
     /**
      * Get all preferences for a user by category
      */
+    /**
+     * Get  by category
+     */
     public static function getByCategory(int $userId, string $category): array
     {
         return static::where('user_id', $userId)
@@ -113,6 +124,9 @@ class UserPreference extends Model
 
     /**
      * Get default preference structure
+     */
+    /**
+     * Get  default preferences
      */
     public static function getDefaultPreferences(): array
     {
@@ -159,6 +173,9 @@ class UserPreference extends Model
     /**
      * Initialize default preferences for a user
      */
+    /**
+     * InitializeDefaults
+     */
     public static function initializeDefaults(int $userId): void
     {
         $defaults = static::getDefaultPreferences();
@@ -170,6 +187,11 @@ class UserPreference extends Model
 
     /**
      * Validate preference value based on key
+     *
+     * @param mixed $value
+     */
+    /**
+     * ValidatePreference
      *
      * @param mixed $value
      */
@@ -217,6 +239,9 @@ class UserPreference extends Model
     /**
      * Get user's notification preferences
      */
+    /**
+     * Get  notification preferences
+     */
     public static function getNotificationPreferences(int $userId): array
     {
         $channels = static::getValue($userId, 'notification_channels', []);
@@ -228,6 +253,9 @@ class UserPreference extends Model
 
     /**
      * Get user's alert preferences
+     */
+    /**
+     * Get  alert preferences
      */
     public static function getAlertPreferences(int $userId): array
     {
@@ -242,6 +270,9 @@ class UserPreference extends Model
 
     /**
      * Update multiple preferences at once
+     */
+    /**
+     * UpdateMultiple
      */
     public static function updateMultiple(int $userId, array $preferences): array
     {
@@ -266,6 +297,9 @@ class UserPreference extends Model
     /**
      * Reset preferences to defaults
      */
+    /**
+     * ResetToDefaults
+     */
     public static function resetToDefaults(int $userId, ?array $keys = NULL): void
     {
         $defaults = static::getDefaultPreferences();
@@ -280,6 +314,9 @@ class UserPreference extends Model
 
     /**
      * Export user preferences
+     */
+    /**
+     * ExportPreferences
      */
     public static function exportPreferences(int $userId): array
     {
@@ -298,6 +335,9 @@ class UserPreference extends Model
 
     /**
      * Import user preferences
+     */
+    /**
+     * ImportPreferences
      */
     public static function importPreferences(int $userId, array $preferences): array
     {
@@ -335,6 +375,9 @@ class UserPreference extends Model
 
     /**
      * Get category for a preference key
+     */
+    /**
+     * Get  category for key
      */
     protected static function getCategoryForKey(string $key): string
     {

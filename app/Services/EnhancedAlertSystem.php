@@ -45,6 +45,9 @@ class EnhancedAlertSystem
     /**
      * Monitor dynamic price conditions and alert as necessary
      */
+    /**
+     * MonitorDynamicPriceConditions
+     */
     public function monitorDynamicPriceConditions(): void
     {
         $thresholds = PriceAlertThreshold::active()->get();
@@ -61,6 +64,9 @@ class EnhancedAlertSystem
 
     /**
      * Process smart alert with ML-based prioritization
+     */
+    /**
+     * ProcessSmartAlert
      */
     public function processSmartAlert(ScrapedTicket $ticket, TicketAlert $alert): void
     {
@@ -108,6 +114,9 @@ class EnhancedAlertSystem
     /**
      * Trigger alert for a price condition
      */
+    /**
+     * TriggerDynamicAlert
+     */
     protected function triggerDynamicAlert(PriceAlertThreshold $threshold, float $currentPrice): void
     {
         $alertData = [
@@ -130,6 +139,9 @@ class EnhancedAlertSystem
 
     /**
      * Calculate smart priority based on multiple factors
+     */
+    /**
+     * CalculateSmartPriority
      */
     protected function calculateSmartPriority(ScrapedTicket $ticket, TicketAlert $alert): int
     {
@@ -218,6 +230,9 @@ class EnhancedAlertSystem
     /**
      * Build enhanced alert data with predictions and context
      */
+    /**
+     * BuildEnhancedAlertData
+     */
     protected function buildEnhancedAlertData(ScrapedTicket $ticket, TicketAlert $alert, int $priority, array $prediction): array
     {
         return [
@@ -250,6 +265,9 @@ class EnhancedAlertSystem
 
     /**
      * Get optimal notification channels based on priority and user preferences
+     */
+    /**
+     * Get  optimal notification channels
      */
     protected function getOptimalNotificationChannels(User $user, int $priority): array
     {
@@ -301,6 +319,9 @@ class EnhancedAlertSystem
     /**
      * Send notification through multiple channels
      */
+    /**
+     * SendMultiChannelNotification
+     */
     protected function sendMultiChannelNotification(User $user, array $alertData, array $channels): void
     {
         $notification = new SmartTicketAlert($alertData);
@@ -331,6 +352,9 @@ class EnhancedAlertSystem
     /**
      * Get total ticket availability across all platforms
      */
+    /**
+     * Get  total ticket availability
+     */
     protected function getTotalTicketAvailability(string $eventName, ?string $eventDate): int
     {
         return ScrapedTicket::where('event_name', 'LIKE', "%{$eventName}%")
@@ -343,6 +367,9 @@ class EnhancedAlertSystem
 
     /**
      * Get user's event preferences
+     */
+    /**
+     * Get  user event preferences
      */
     protected function getUserEventPreferences(int $userId, ScrapedTicket $ticket): array
     {
@@ -369,6 +396,9 @@ class EnhancedAlertSystem
     /**
      * Check if event is for user's favorite team
      */
+    /**
+     * Check if  event for favorite team
+     */
     protected function isEventForFavoriteTeam(ScrapedTicket $ticket, array $favoriteTeams): bool
     {
         foreach ($favoriteTeams as $team) {
@@ -382,6 +412,9 @@ class EnhancedAlertSystem
 
     /**
      * Get user's alert success rate
+     */
+    /**
+     * Get  user alert success rate
      */
     protected function getUserAlertSuccessRate(int $userId): float
     {
@@ -400,6 +433,9 @@ class EnhancedAlertSystem
     /**
      * Get platform reliability score
      */
+    /**
+     * Get  platform reliability
+     */
     protected function getPlatformReliability(string $platform): float
     {
         return Cache::remember("platform_reliability:{$platform}", 1800, function () {
@@ -413,6 +449,9 @@ class EnhancedAlertSystem
 
     /**
      * Generate smart recommendation based on data analysis
+     */
+    /**
+     * GenerateRecommendation
      */
     protected function generateRecommendation(ScrapedTicket $ticket, TicketAlert $alert, array $prediction): string
     {
@@ -444,6 +483,9 @@ class EnhancedAlertSystem
     /**
      * Get price comparison data
      */
+    /**
+     * Get  price comparison
+     */
     protected function getPriceComparison(ScrapedTicket $ticket): array
     {
         $similarTickets = ScrapedTicket::where('event_name', 'LIKE', "%{$ticket->event_name}%")
@@ -473,6 +515,9 @@ class EnhancedAlertSystem
     /**
      * Get availability trend data
      */
+    /**
+     * Get  availability trend
+     */
     protected function getAvailabilityTrend(ScrapedTicket $ticket): array
     {
         // Mock trend data - in real implementation, this would analyze historical data
@@ -487,6 +532,9 @@ class EnhancedAlertSystem
     /**
      * Update alert statistics
      */
+    /**
+     * UpdateAlertStatistics
+     */
     protected function updateAlertStatistics(TicketAlert $alert, int $priority, array $channels): void
     {
         $alert->increment('times_triggered');
@@ -499,6 +547,9 @@ class EnhancedAlertSystem
 
     /**
      * Get similar events data for context
+     */
+    /**
+     * Get  similar events data
      */
     protected function getSimilarEventsData(ScrapedTicket $ticket): array
     {
@@ -528,6 +579,9 @@ class EnhancedAlertSystem
     /**
      * Extract key terms from event name for similarity matching
      */
+    /**
+     * ExtractEventTerms
+     */
     protected function extractEventTerms(string $eventName): array
     {
         // Remove common words and extract meaningful terms
@@ -541,6 +595,9 @@ class EnhancedAlertSystem
 
     /**
      * Get event type priority based on user preferences
+     */
+    /**
+     * Get  event type priority
      */
     protected function getEventTypePriority(ScrapedTicket $ticket, array $eventTypes): int
     {
@@ -569,6 +626,9 @@ class AlertPriority
 
     public const LOW = 1;
 
+    /**
+     * Get  label
+     */
     public static function getLabel(int $priority): string
     {
         $labels = [

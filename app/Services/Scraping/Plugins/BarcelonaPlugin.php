@@ -12,6 +12,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'FC Barcelona';
@@ -26,6 +29,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -43,6 +49,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -58,6 +67,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/es/entradas';
@@ -65,6 +77,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -94,6 +109,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Map competition names to Spanish equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -110,6 +128,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -157,6 +178,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (Spanish)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.match-title, .titulo-partido, .event-title, .titulo-evento, .nombre-partido, .rival, .opponent, h3, h2, .title, .titulo';
@@ -164,6 +188,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (Spanish)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -173,6 +200,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (Spanish)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .estadio, .location, .lugar, .sede, .ground';
@@ -181,6 +211,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (Spanish)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .precio, .coste, .cost, .desde, .from, .precio-entrada, .precio-ticket, .tarifa';
@@ -188,6 +221,9 @@ class BarcelonaPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (Spanish)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

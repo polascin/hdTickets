@@ -31,6 +31,11 @@ class SecurityHeadersMiddleware
 
     /**
      * Handle an incoming request with comprehensive security checks
+     *
+     * @param Closure(Request): (Response) $next
+     */
+    /**
+     * Handle
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -73,6 +78,9 @@ class SecurityHeadersMiddleware
 
     /**
      * Apply comprehensive security headers
+     */
+    /**
+     * ApplySecurityHeaders
      */
     protected function applySecurityHeaders(Request $request, Response $response): void
     {
@@ -139,6 +147,9 @@ class SecurityHeadersMiddleware
     /**
      * Get endpoint identifier for rate limiting
      */
+    /**
+     * Get  endpoint identifier
+     */
     protected function getEndpointIdentifier(Request $request): string
     {
         $route = $request->route();
@@ -167,6 +178,9 @@ class SecurityHeadersMiddleware
 
     /**
      * Record request metrics for monitoring
+     */
+    /**
+     * RecordRequestMetrics
      */
     protected function recordRequestMetrics(Request $request, Response $response): void
     {
@@ -197,6 +211,9 @@ class SecurityHeadersMiddleware
 
     /**
      * Build Content Security Policy header
+     */
+    /**
+     * BuildContentSecurityPolicy
      */
     protected function buildContentSecurityPolicy(): string
     {
@@ -238,6 +255,9 @@ class SecurityHeadersMiddleware
 
     /**
      * Check if the current page is sensitive (admin, auth, etc.)
+     */
+    /**
+     * Check if  sensitive page
      */
     protected function isSensitivePage(Request $request): bool
     {

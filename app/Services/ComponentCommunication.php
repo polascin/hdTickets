@@ -42,6 +42,9 @@ class ComponentCommunication
     /**
      * Register a prop validator
      */
+    /**
+     * RegisterPropValidator
+     */
     public function registerPropValidator(string $propName, callable $validator): void
     {
         $this->propValidators->put($propName, $validator);
@@ -49,6 +52,9 @@ class ComponentCommunication
 
     /**
      * Validate props for a component
+     */
+    /**
+     * ValidateProps
      */
     public function validateProps(string $componentName, array $props): array
     {
@@ -76,6 +82,9 @@ class ComponentCommunication
     /**
      * Register event listener
      */
+    /**
+     * RegisterEventListener
+     */
     public function registerEventListener(string $eventName, string $componentName, callable $handler): void
     {
         $key = "{$eventName}:{$componentName}";
@@ -86,6 +95,9 @@ class ComponentCommunication
 
     /**
      * Emit event between components
+     */
+    /**
+     * EmitEvent
      */
     public function emitEvent(string $eventName, array $payload = [], ?string $source = NULL): void
     {
@@ -112,6 +124,9 @@ class ComponentCommunication
     /**
      * Create Blade to Alpine.js data binding
      */
+    /**
+     * CreateBladeToAlpineBinding
+     */
     public function createBladeToAlpineBinding(string $bladeVariable, string $alpineProperty): string
     {
         return "x-data=\"{ {$alpineProperty}: @json({$bladeVariable}) }\"";
@@ -119,6 +134,9 @@ class ComponentCommunication
 
     /**
      * Create Blade to Vue.js prop binding
+     */
+    /**
+     * CreateBladeToVueBinding
      */
     public function createBladeToVueBinding(array $props): string
     {
@@ -136,6 +154,9 @@ class ComponentCommunication
     /**
      * Generate Alpine.js event emitter
      */
+    /**
+     * GenerateAlpineEventEmitter
+     */
     public function generateAlpineEventEmitter(string $eventName, array $payload = []): string
     {
         $payloadJson = json_encode($payload);
@@ -146,6 +167,9 @@ class ComponentCommunication
     /**
      * Generate Alpine.js event listener
      */
+    /**
+     * GenerateAlpineEventListener
+     */
     public function generateAlpineEventListener(string $eventName, string $handler): string
     {
         return "@{$eventName}=\"{$handler}\"";
@@ -153,6 +177,9 @@ class ComponentCommunication
 
     /**
      * Generate Vue.js event emitter
+     */
+    /**
+     * GenerateVueEventEmitter
      */
     public function generateVueEventEmitter(string $eventName, array $payload = []): string
     {
@@ -164,6 +191,9 @@ class ComponentCommunication
     /**
      * Generate Vue.js event listener
      */
+    /**
+     * GenerateVueEventListener
+     */
     public function generateVueEventListener(string $eventName, string $handler): string
     {
         return "@{$eventName}=\"{$handler}\"";
@@ -171,6 +201,9 @@ class ComponentCommunication
 
     /**
      * Create communication bridge between different component types
+     */
+    /**
+     * CreateCommunicationBridge
      */
     public function createCommunicationBridge(string $sourceType, string $targetType): array
     {
@@ -192,6 +225,9 @@ class ComponentCommunication
     /**
      * Validate communication between Blade and Alpine
      */
+    /**
+     * ValidateBladeToAlpine
+     */
     public function validateBladeToAlpine(array $data): bool
     {
         // Ensure data can be JSON serialized
@@ -206,6 +242,9 @@ class ComponentCommunication
 
     /**
      * Validate communication between Blade and Vue
+     */
+    /**
+     * ValidateBladeToVue
      */
     public function validateBladeToVue(array $data): bool
     {
@@ -222,6 +261,9 @@ class ComponentCommunication
     /**
      * Validate communication between Alpine components
      */
+    /**
+     * ValidateAlpineToAlpine
+     */
     public function validateAlpineToAlpine(array $eventData): bool
     {
         // Alpine events should have simple, serializable data
@@ -230,6 +272,9 @@ class ComponentCommunication
 
     /**
      * Validate communication between Alpine and Vue
+     */
+    /**
+     * ValidateAlpineToVue
      */
     public function validateAlpineToVue(array $eventData): bool
     {
@@ -240,6 +285,9 @@ class ComponentCommunication
     /**
      * Validate communication between Vue components
      */
+    /**
+     * ValidateVueToVue
+     */
     public function validateVueToVue(array $eventData): bool
     {
         // Vue events are handled internally, always valid if properly structured
@@ -249,6 +297,9 @@ class ComponentCommunication
     /**
      * Validate communication between Vue and Alpine
      */
+    /**
+     * ValidateVueToAlpine
+     */
     public function validateVueToAlpine(array $eventData): bool
     {
         // Check for DOM event compatibility
@@ -257,6 +308,9 @@ class ComponentCommunication
 
     /**
      * Get communication patterns documentation
+     */
+    /**
+     * Get  communication patterns
      */
     public function getCommunicationPatterns(): array
     {
@@ -306,6 +360,9 @@ class ComponentCommunication
     /**
      * Create event channel for real-time communication
      */
+    /**
+     * CreateEventChannel
+     */
     public function createEventChannel(string $channelName): array
     {
         return [
@@ -322,6 +379,9 @@ class ComponentCommunication
     /**
      * Get component communication statistics
      */
+    /**
+     * Get  stats
+     */
     public function getStats(): array
     {
         return [
@@ -334,6 +394,9 @@ class ComponentCommunication
 
     /**
      * Initialize communication channels
+     */
+    /**
+     * InitializeCommunicationChannels
      */
     private function initializeCommunicationChannels(): void
     {
@@ -376,6 +439,11 @@ class ComponentCommunication
      *
      * @param mixed $propValue
      */
+    /**
+     * ValidatePropType
+     *
+     * @param mixed $propValue
+     */
     private function validatePropType(string $propName, $propValue): ?string
     {
         // Common sport events platform prop types
@@ -402,6 +470,9 @@ class ComponentCommunication
 
     /**
      * Generate communication examples
+     */
+    /**
+     * GenerateCommunicationExamples
      */
     private function generateCommunicationExamples(string $sourceType, string $targetType): array
     {

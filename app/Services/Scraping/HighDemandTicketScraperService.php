@@ -28,6 +28,9 @@ class HighDemandTicketScraperService
     /**
      * Scrape high-demand football tickets with queue management
      */
+    /**
+     * ScrapeHighDemandTickets
+     */
     public function scrapeHighDemandTickets(string $platform, array $criteria): array
     {
         $eventType = $this->identifyEventType($criteria);
@@ -56,6 +59,9 @@ class HighDemandTicketScraperService
 
     /**
      * Initialize high-priority events that require special handling
+     */
+    /**
+     * InitializePriorityEvents
      */
     protected function initializePriorityEvents(): void
     {
@@ -103,6 +109,9 @@ class HighDemandTicketScraperService
     /**
      * Initialize queue management strategies
      */
+    /**
+     * InitializeQueueStrategies
+     */
     protected function initializeQueueStrategies(): void
     {
         $this->queueStrategies = [
@@ -139,6 +148,9 @@ class HighDemandTicketScraperService
     /**
      * Identify event type based on criteria
      */
+    /**
+     * IdentifyEventType
+     */
     protected function identifyEventType(array $criteria): string
     {
         $keyword = strtolower($criteria['keyword'] ?? '');
@@ -164,6 +176,9 @@ class HighDemandTicketScraperService
     /**
      * Select scraping strategy based on event type and platform
      */
+    /**
+     * SelectScrapingStrategy
+     */
     protected function selectScrapingStrategy(string $eventType, string $platform): string
     {
         if (isset($this->priorityEvents[$eventType])) {
@@ -185,6 +200,9 @@ class HighDemandTicketScraperService
 
     /**
      * Execute high-demand scraping with advanced strategies
+     */
+    /**
+     * ExecuteHighDemandScraping
      */
     protected function executeHighDemandScraping(string $platform, array $criteria, string $strategy): array
     {
@@ -269,6 +287,9 @@ class HighDemandTicketScraperService
     /**
      * Create optimized session for high-demand scraping
      */
+    /**
+     * CreateHighDemandSession
+     */
     protected function createHighDemandSession(string $platform, int $sessionIndex): \GuzzleHttp\Client
     {
         $client = $this->antiDetection->createAdvancedHttpClient($platform, [
@@ -297,6 +318,9 @@ class HighDemandTicketScraperService
 
     /**
      * Pre-warm session to establish cookies and avoid cold starts
+     */
+    /**
+     * PreWarmSession
      */
     protected function preWarmSession(\GuzzleHttp\Client $client, string $platform): void
     {
@@ -327,6 +351,9 @@ class HighDemandTicketScraperService
     /**
      * Get tickets page path for each platform
      */
+    /**
+     * Get  tickets path
+     */
     protected function getTicketsPath(string $platform): string
     {
         $paths = [
@@ -343,6 +370,9 @@ class HighDemandTicketScraperService
 
     /**
      * Scrape with specific session
+     */
+    /**
+     * ScrapeWithSession
      */
     protected function scrapeWithSession(\GuzzleHttp\Client $client, string $platform, array $criteria, int $sessionIndex): array
     {
@@ -378,6 +408,9 @@ class HighDemandTicketScraperService
     /**
      * Build search URL optimized for high-demand tickets
      */
+    /**
+     * BuildHighDemandSearchUrl
+     */
     protected function buildHighDemandSearchUrl(string $platform, array $criteria): string
     {
         $baseUrls = [
@@ -412,6 +445,9 @@ class HighDemandTicketScraperService
     /**
      * Parse tickets with high-demand specific logic
      */
+    /**
+     * ParseHighDemandTickets
+     */
     protected function parseHighDemandTickets(string $html, string $platform): array
     {
         $tickets = [];
@@ -441,6 +477,9 @@ class HighDemandTicketScraperService
     /**
      * Get high-demand specific selectors
      */
+    /**
+     * Get  high demand selectors
+     */
     protected function getHighDemandSelectors(string $platform): array
     {
         $selectors = [
@@ -468,6 +507,11 @@ class HighDemandTicketScraperService
 
     /**
      * Parse individual high-demand ticket
+     *
+     * @param mixed $node
+     */
+    /**
+     * ParseHighDemandTicket
      *
      * @param mixed $node
      */
@@ -507,6 +551,11 @@ class HighDemandTicketScraperService
      *
      * @param mixed $node
      */
+    /**
+     * ExtractText
+     *
+     * @param mixed $node
+     */
     protected function extractText($node, string $selector): string
     {
         try {
@@ -520,6 +569,9 @@ class HighDemandTicketScraperService
 
     /**
      * Normalize availability status for high-demand tickets
+     */
+    /**
+     * NormalizeAvailabilityStatus
      */
     protected function normalizeAvailabilityStatus(string $availability): string
     {
@@ -553,6 +605,9 @@ class HighDemandTicketScraperService
     /**
      * Check if ticket qualifies as high-demand
      */
+    /**
+     * Check if  high demand ticket
+     */
     protected function isHighDemandTicket(array $ticket): bool
     {
         $highDemandKeywords = [
@@ -572,6 +627,9 @@ class HighDemandTicketScraperService
 
     /**
      * Calculate demand level for ticket
+     */
+    /**
+     * CalculateDemandLevel
      */
     protected function calculateDemandLevel(string $title, string $availability): string
     {
@@ -603,6 +661,9 @@ class HighDemandTicketScraperService
     /**
      * Prioritize tickets by availability and demand
      */
+    /**
+     * PrioritizeTickets
+     */
     protected function prioritizeTickets(array $tickets): array
     {
         usort($tickets, function ($a, $b) {
@@ -625,6 +686,9 @@ class HighDemandTicketScraperService
 
     /**
      * Merge results from multiple sessions
+     */
+    /**
+     * MergeSessionResults
      */
     protected function mergeSessionResults(array $sessionResults): array
     {
@@ -652,6 +716,9 @@ class HighDemandTicketScraperService
     /**
      * Check if queue page is detected
      */
+    /**
+     * DetectQueuePage
+     */
     protected function detectQueuePage(string $html): bool
     {
         $queueIndicators = [
@@ -671,6 +738,9 @@ class HighDemandTicketScraperService
 
     /**
      * Handle queue-based scraping
+     */
+    /**
+     * HandleQueueScraping
      */
     protected function handleQueueScraping(string $platform, array $criteria, string $strategy): array
     {
@@ -698,6 +768,9 @@ class HighDemandTicketScraperService
     /**
      * Monitor queue position
      */
+    /**
+     * MonitorQueuePosition
+     */
     protected function monitorQueuePosition(string $platform): array
     {
         // Implementation would monitor actual queue systems
@@ -710,6 +783,9 @@ class HighDemandTicketScraperService
 
     /**
      * Attempt to bypass queue using various techniques
+     */
+    /**
+     * AttemptQueueBypass
      */
     protected function attemptQueueBypass(string $platform, array $criteria): array
     {
@@ -725,6 +801,9 @@ class HighDemandTicketScraperService
     /**
      * Wait in queue intelligently
      */
+    /**
+     * WaitInQueue
+     */
     protected function waitInQueue(string $platform, array $criteria, array $queueInfo): array
     {
         Log::info('Waiting in queue', [
@@ -738,6 +817,9 @@ class HighDemandTicketScraperService
 
     /**
      * Monitor pre-sale availability
+     */
+    /**
+     * MonitorPreSaleAvailability
      */
     protected function monitorPreSaleAvailability(string $platform, array $criteria, string $eventType): array
     {
@@ -763,6 +845,9 @@ class HighDemandTicketScraperService
     /**
      * Schedule pre-sale monitoring
      */
+    /**
+     * SchedulePreSaleMonitoring
+     */
     protected function schedulePreSaleMonitoring(string $platform, array $criteria, string $eventType, int $interval): void
     {
         // Implementation would use Laravel's job queue system
@@ -776,6 +861,9 @@ class HighDemandTicketScraperService
     /**
      * Check if platform is in queue
      */
+    /**
+     * Check if  in queue
+     */
     protected function isInQueue(string $platform): bool
     {
         return Cache::has("queue_active_{$platform}");
@@ -783,6 +871,9 @@ class HighDemandTicketScraperService
 
     /**
      * Mark platform as in queue
+     */
+    /**
+     * MarkInQueue
      */
     protected function markInQueue(string $platform): void
     {
@@ -792,6 +883,9 @@ class HighDemandTicketScraperService
     /**
      * Check if pre-sale monitoring is required
      */
+    /**
+     * RequiresPreSaleMonitoring
+     */
     protected function requiresPreSaleMonitoring(string $eventType): bool
     {
         return isset($this->priorityEvents[$eventType])
@@ -800,6 +894,9 @@ class HighDemandTicketScraperService
 
     /**
      * Check if in monitoring mode
+     */
+    /**
+     * Check if  monitoring mode
      */
     protected function isMonitoringMode(): bool
     {

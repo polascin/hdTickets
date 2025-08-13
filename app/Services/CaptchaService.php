@@ -18,9 +18,15 @@ use Illuminate\Support\Facades\Log;
  */
 class CaptchaService
 {
-    protected $client;
+    /** HTTP client for API requests */
+    protected Client $client;
 
-    protected $config;
+    /**
+     * CAPTCHA service configuration
+     *
+     * @var array<string, mixed>
+     */
+    protected array $config;
 
     public function __construct()
     {
@@ -35,7 +41,14 @@ class CaptchaService
     /**
      * Solve reCAPTCHA v2
      *
-     * @return string|null Solved CAPTCHA token
+     * @param string               $siteKey reCAPTCHA site key
+     * @param string               $pageUrl URL where CAPTCHA is located
+     * @param array<string, mixed> $options Additional options (invisible, enterprise, etc.)
+     *
+     * @return string|null Solved CAPTCHA token or null on failure
+     */
+    /**
+     * SolveRecaptchaV2
      */
     public function solveRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
@@ -59,6 +72,16 @@ class CaptchaService
 
     /**
      * Solve reCAPTCHA v3
+     *
+     * @param string $siteKey  reCAPTCHA site key
+     * @param string $pageUrl  URL where CAPTCHA is located
+     * @param string $action   Action name for v3 (default: 'verify')
+     * @param float  $minScore Minimum score threshold (0.1-0.9)
+     *
+     * @return string|null Solved CAPTCHA token or null on failure
+     */
+    /**
+     * SolveRecaptchaV3
      */
     public function solveRecaptchaV3(string $siteKey, string $pageUrl, string $action = 'verify', float $minScore = 0.3): ?string
     {
@@ -78,6 +101,14 @@ class CaptchaService
 
     /**
      * Solve image CAPTCHA
+     *
+     * @param string               $imageBase64 Base64 encoded image data
+     * @param array<string, mixed> $options     CAPTCHA options (numeric, min_len, max_len, etc.)
+     *
+     * @return string|null Solved text or null on failure
+     */
+    /**
+     * SolveImageCaptcha
      */
     public function solveImageCaptcha(string $imageBase64, array $options = []): ?string
     {
@@ -99,6 +130,11 @@ class CaptchaService
 
     /**
      * Get account balance for current service
+     *
+     * @return float|null Account balance or null on failure
+     */
+    /**
+     * Get  balance
      */
     public function getBalance(): ?float
     {
@@ -116,6 +152,13 @@ class CaptchaService
 
     /**
      * Report bad CAPTCHA solution
+     *
+     * @param string $captchaId CAPTCHA solution ID to report
+     *
+     * @return bool Whether report was successful
+     */
+    /**
+     * ReportBad
      */
     public function reportBad(string $captchaId): bool
     {
@@ -134,6 +177,9 @@ class CaptchaService
     /**
      * Check if CAPTCHA service is enabled and configured
      */
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return config('services.captcha.enabled', FALSE)
@@ -142,6 +188,11 @@ class CaptchaService
 
     /**
      * Get service statistics
+     *
+     * @return array<string, mixed> Service statistics data
+     */
+    /**
+     * Get  stats
      */
     public function getStats(): array
     {
@@ -161,6 +212,12 @@ class CaptchaService
 
     /**
      * Increment daily statistics
+     *
+     * @param string $type Statistics type ('solved', 'failed', etc.)
+     * @param float  $cost Cost associated with the operation
+     */
+    /**
+     * IncrementStats
      */
     public function incrementStats(string $type, float $cost = 0.0): void
     {
@@ -179,6 +236,15 @@ class CaptchaService
 
     /**
      * 2captcha.com reCAPTCHA v2 solver
+     *
+     * @param string               $siteKey reCAPTCHA site key
+     * @param string               $pageUrl URL where CAPTCHA is located
+     * @param array<string, mixed> $options Additional options
+     *
+     * @return string|null Solved token or null on failure
+     */
+    /**
+     * Solve2CaptchaRecaptchaV2
      */
     protected function solve2CaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
@@ -225,6 +291,16 @@ class CaptchaService
 
     /**
      * 2captcha.com reCAPTCHA v3 solver
+     *
+     * @param string $siteKey  reCAPTCHA site key
+     * @param string $pageUrl  URL where CAPTCHA is located
+     * @param string $action   Action name for v3
+     * @param float  $minScore Minimum score threshold
+     *
+     * @return string|null Solved token or null on failure
+     */
+    /**
+     * Solve2CaptchaRecaptchaV3
      */
     protected function solve2CaptchaRecaptchaV3(string $siteKey, string $pageUrl, string $action, float $minScore): ?string
     {
@@ -272,6 +348,9 @@ class CaptchaService
 
     /**
      * 2captcha.com image CAPTCHA solver
+     */
+    /**
+     * Solve2CaptchaImage
      */
     protected function solve2CaptchaImage(string $imageBase64, array $options = []): ?string
     {
@@ -323,6 +402,9 @@ class CaptchaService
     /**
      * Poll 2captcha for result
      */
+    /**
+     * Poll2CaptchaResult
+     */
     protected function poll2CaptchaResult(string $captchaId, string $apiKey): ?string
     {
         $timeout = config('services.captcha.timeout', 120);
@@ -370,6 +452,9 @@ class CaptchaService
     /**
      * Anti-Captcha.com reCAPTCHA v2 solver
      */
+    /**
+     * SolveAntiCaptchaRecaptchaV2
+     */
     protected function solveAntiCaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
         $apiKey = config('services.captcha.anticaptcha.api_key');
@@ -416,6 +501,9 @@ class CaptchaService
     /**
      * Poll Anti-Captcha for result
      */
+    /**
+     * PollAntiCaptchaResult
+     */
     protected function pollAntiCaptchaResult(int $taskId, string $apiKey): ?string
     {
         $timeout = config('services.captcha.timeout', 120);
@@ -461,6 +549,9 @@ class CaptchaService
     /**
      * Get 2captcha balance
      */
+    /**
+     * Get 2 captcha balance
+     */
     protected function get2CaptchaBalance(): ?float
     {
         $apiKey = config('services.captcha.2captcha.api_key');
@@ -488,6 +579,9 @@ class CaptchaService
 
     /**
      * Get Anti-Captcha balance
+     */
+    /**
+     * Get  anti captcha balance
      */
     protected function getAntiCaptchaBalance(): ?float
     {
@@ -522,6 +616,9 @@ class CaptchaService
     /**
      * Report bad 2captcha solution
      */
+    /**
+     * Report2CaptchaBad
+     */
     protected function report2CaptchaBad(string $captchaId): bool
     {
         $apiKey = config('services.captcha.2captcha.api_key');
@@ -547,31 +644,49 @@ class CaptchaService
     }
 
     // Placeholder methods for other services
+    /**
+     * SolveAntiCaptchaRecaptchaV3
+     */
     protected function solveAntiCaptchaRecaptchaV3(string $siteKey, string $pageUrl, string $action, float $minScore): ?string
     {
         return NULL;
     }
 
+    /**
+     * SolveCaptchaSolverRecaptchaV2
+     */
     protected function solveCaptchaSolverRecaptchaV2(string $siteKey, string $pageUrl, array $options): ?string
     {
         return NULL;
     }
 
+    /**
+     * SolveDeathByCaptchaRecaptchaV2
+     */
     protected function solveDeathByCaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options): ?string
     {
         return NULL;
     }
 
+    /**
+     * SolveAntiCaptchaImage
+     */
     protected function solveAntiCaptchaImage(string $imageBase64, array $options): ?string
     {
         return NULL;
     }
 
+    /**
+     * SolveDeathByCaptchaImage
+     */
     protected function solveDeathByCaptchaImage(string $imageBase64, array $options): ?string
     {
         return NULL;
     }
 
+    /**
+     * ReportAntiCaptchaBad
+     */
     protected function reportAntiCaptchaBad(string $captchaId): bool
     {
         return FALSE;

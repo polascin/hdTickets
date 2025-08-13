@@ -4,14 +4,15 @@ namespace App\Exports;
 
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class UsersExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+/**
+ * @implements WithMapping<User>
+ */
+class UsersExport implements FromCollection, WithHeadings, WithMapping
 {
     /** @var array<int, string> */
     protected array $fields;
@@ -33,9 +34,12 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, User>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Database\Eloquent\Collection
     {
         $query = User::query();
 
@@ -61,6 +65,9 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -89,9 +96,12 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, WithStyl
     }
 
     /**
-     * @param mixed $user
+     * @param User $user
      *
-     * @return array<int, mixed>
+     * @return array<int, mixed|string> Array with values based on selected fields
+     */
+    /**
+     * Map
      */
     public function map($user): array
     {
@@ -113,6 +123,9 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {

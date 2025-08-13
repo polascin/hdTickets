@@ -28,6 +28,9 @@ class DiscordNotificationChannel
     /**
      * Send notification to Discord
      */
+    /**
+     * Send
+     */
     public function send(User $user, array $alertData): bool
     {
         try {
@@ -68,6 +71,9 @@ class DiscordNotificationChannel
     /**
      * Send Discord ping with role mention
      */
+    /**
+     * SendPing
+     */
     public function sendPing(User $user, array $alertData): bool
     {
         $alertData['ping'] = TRUE;
@@ -77,6 +83,9 @@ class DiscordNotificationChannel
 
     /**
      * Test Discord connection
+     */
+    /**
+     * TestConnection
      */
     public function testConnection(User $user): array
     {
@@ -117,6 +126,9 @@ class DiscordNotificationChannel
     /**
      * Send reaction to existing message
      */
+    /**
+     * AddReaction
+     */
     public function addReaction(string $channelId, string $messageId, string $emoji): bool
     {
         if (! $this->botToken) {
@@ -142,6 +154,9 @@ class DiscordNotificationChannel
 
     /**
      * Edit existing Discord message
+     */
+    /**
+     * EditMessage
      */
     public function editMessage(string $channelId, string $messageId, array $alertData): bool
     {
@@ -179,6 +194,9 @@ class DiscordNotificationChannel
     /**
      * Send thread message
      */
+    /**
+     * SendThreadMessage
+     */
     public function sendThreadMessage(string $channelId, string $messageId, string $content): bool
     {
         if (! $this->botToken) {
@@ -212,6 +230,9 @@ class DiscordNotificationChannel
     /**
      * Get Discord guild/server information
      */
+    /**
+     * Get  guild info
+     */
     public function getGuildInfo(string $guildId): ?array
     {
         if (! $this->botToken) {
@@ -241,6 +262,9 @@ class DiscordNotificationChannel
     /**
      * Get available roles in a guild
      */
+    /**
+     * Get  guild roles
+     */
     public function getGuildRoles(string $guildId): array
     {
         if (! $this->botToken) {
@@ -269,6 +293,11 @@ class DiscordNotificationChannel
 
     /**
      * Build Discord message payload
+     *
+     * @param mixed $discordSettings
+     */
+    /**
+     * BuildDiscordMessage
      *
      * @param mixed $discordSettings
      */
@@ -438,6 +467,9 @@ class DiscordNotificationChannel
     /**
      * Get priority configuration for styling
      */
+    /**
+     * Get  priority config
+     */
     protected function getPriorityConfig(int $priority, bool $isUrgent): array
     {
         $configs = [
@@ -460,6 +492,11 @@ class DiscordNotificationChannel
 
     /**
      * Send via Discord webhook
+     *
+     * @param mixed $discordSettings
+     */
+    /**
+     * SendViaWebhook
      *
      * @param mixed $discordSettings
      */
@@ -490,6 +527,11 @@ class DiscordNotificationChannel
 
     /**
      * Send via Discord Bot API (Direct Message)
+     *
+     * @param mixed $discordSettings
+     */
+    /**
+     * SendViaBotAPI
      *
      * @param mixed $discordSettings
      */

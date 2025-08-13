@@ -33,6 +33,9 @@ class AdvancedAntiDetectionService
     /**
      * Get a realistic browser session for the platform
      */
+    /**
+     * Get  browser session
+     */
     public function getBrowserSession(string $platform): array
     {
         $cacheKey = "browser_session_{$platform}_" . date('H');
@@ -57,6 +60,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Generate advanced HTTP headers with anti-detection
+     */
+    /**
+     * GenerateAdvancedHeaders
      */
     public function generateAdvancedHeaders(string $platform, ?string $referer = NULL, array $customHeaders = []): array
     {
@@ -97,6 +103,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Implement intelligent delays with human-like patterns
+     */
+    /**
+     * HumanLikeDelay
      */
     public function humanLikeDelay(string $platform, string $action = 'page_load'): void
     {
@@ -146,6 +155,9 @@ class AdvancedAntiDetectionService
     /**
      * Create HTTP client with advanced anti-detection
      */
+    /**
+     * CreateAdvancedHttpClient
+     */
     public function createAdvancedHttpClient(string $platform, array $options = []): Client
     {
         $session = $this->getBrowserSession($platform);
@@ -182,6 +194,9 @@ class AdvancedAntiDetectionService
     /**
      * Handle JavaScript challenges and CAPTCHA detection
      */
+    /**
+     * HandleJavaScriptChallenge
+     */
     public function handleJavaScriptChallenge(string $html, string $platform): ?array
     {
         $challenges = [
@@ -216,6 +231,9 @@ class AdvancedAntiDetectionService
     /**
      * Rotate session and reset fingerprints
      */
+    /**
+     * RotateSession
+     */
     public function rotateSession(string $platform): void
     {
         $cacheKeys = [
@@ -234,6 +252,9 @@ class AdvancedAntiDetectionService
     /**
      * Check if platform is currently under rate limiting
      */
+    /**
+     * Check if  rate limited
+     */
     public function isRateLimited(string $platform): bool
     {
         $limitKey = "rate_limit_{$platform}";
@@ -243,6 +264,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Apply rate limiting for platform
+     */
+    /**
+     * ApplyRateLimit
      */
     public function applyRateLimit(string $platform, int $seconds = 300): void
     {
@@ -257,6 +281,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Initialize realistic browser fingerprints
+     */
+    /**
+     * InitializeBrowserFingerprints
      */
     protected function initializeBrowserFingerprints(): void
     {
@@ -303,6 +330,9 @@ class AdvancedAntiDetectionService
     /**
      * Initialize TLS fingerprints to mimic real browsers
      */
+    /**
+     * InitializeTlsFingerprints
+     */
     protected function initializeTlsFingerprints(): void
     {
         $this->tlsFingerprints = [
@@ -347,6 +377,9 @@ class AdvancedAntiDetectionService
     /**
      * Initialize sophisticated user agents with version randomization
      */
+    /**
+     * InitializeUserAgents
+     */
     protected function initializeUserAgents(): void
     {
         $chromeVersions = ['119.0.0.0', '120.0.0.0', '121.0.0.0', '122.0.0.0'];
@@ -376,6 +409,9 @@ class AdvancedAntiDetectionService
     /**
      * Initialize session pools for different platforms
      */
+    /**
+     * InitializeSessionPools
+     */
     protected function initializeSessionPools(): void
     {
         $this->sessionPools = [];
@@ -391,6 +427,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Select appropriate browser type based on platform demographics
+     */
+    /**
+     * SelectBrowserType
      */
     protected function selectBrowserType(string $platform): string
     {
@@ -420,6 +459,9 @@ class AdvancedAntiDetectionService
     /**
      * Get random user agent for browser type
      */
+    /**
+     * Get  random user agent
+     */
     protected function getRandomUserAgent(string $browserType): string
     {
         $agents = $this->userAgents[$browserType] ?? $this->userAgents['chrome_windows'];
@@ -429,6 +471,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Generate Accept header based on browser type
+     */
+    /**
+     * Get  accept header
      */
     protected function getAcceptHeader(string $browserType): string
     {
@@ -445,6 +490,9 @@ class AdvancedAntiDetectionService
     /**
      * Generate sec-ch-ua header
      */
+    /**
+     * GenerateSecChUa
+     */
     protected function generateSecChUa(string $browserType): string
     {
         $brands = [
@@ -460,6 +508,9 @@ class AdvancedAntiDetectionService
     /**
      * Generate full version list for Chrome
      */
+    /**
+     * GenerateFullVersionList
+     */
     protected function generateFullVersionList(): string
     {
         return '"Not_A Brand";v="8.0.0.0", "Chromium";v="120.0.6099.109", "Google Chrome";v="120.0.6099.109"';
@@ -467,6 +518,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Generate delay with specific distribution
+     */
+    /**
+     * GenerateDelayWithDistribution
      */
     protected function generateDelayWithDistribution(array $pattern): int
     {
@@ -493,6 +547,9 @@ class AdvancedAntiDetectionService
     /**
      * Generate normal distribution random number
      */
+    /**
+     * NormalRandom
+     */
     protected function normalRandom(float $mean, float $stddev): int
     {
         static $hasSpare = FALSE;
@@ -516,6 +573,9 @@ class AdvancedAntiDetectionService
     /**
      * Get session cookies for platform
      */
+    /**
+     * Get  session cookies
+     */
     protected function getSessionCookies(string $platform): CookieJar
     {
         $cacheKey = "session_cookies_{$platform}";
@@ -532,6 +592,9 @@ class AdvancedAntiDetectionService
 
     /**
      * Calculate retry delay based on challenge provider
+     */
+    /**
+     * CalculateRetryDelay
      */
     protected function calculateRetryDelay(string $provider): int
     {

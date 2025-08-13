@@ -13,16 +13,19 @@ use Illuminate\Support\Facades\DB;
 class InitializeAnalyticsDashboards extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'analytics:init-dashboards 
+    protected $signature = 'analytics:init-dashboards 
                             {--force : Force initialization even if dashboards exist}
                             {--user= : Initialize for specific user ID}
                             {--clear-cache : Clear analytics cache}';
 
     /** The console command description. */
-    protected string $description = 'Initialize default analytics dashboards for users';
+    protected $description = 'Initialize default analytics dashboards for users';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -52,6 +55,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Initialize dashboards for all users.
+     */
+    /**
+     * InitializeForAllUsers
      */
     private function initializeForAllUsers(bool $force = FALSE): void
     {
@@ -83,6 +89,9 @@ class InitializeAnalyticsDashboards extends Command
     /**
      * Initialize dashboard for specific user.
      */
+    /**
+     * InitializeForUser
+     */
     private function initializeForUser(int $userId, bool $force = FALSE): void
     {
         $user = User::find($userId);
@@ -105,6 +114,9 @@ class InitializeAnalyticsDashboards extends Command
     /**
      * Initialize dashboard for a user.
      */
+    /**
+     * InitializeUserDashboard
+     */
     private function initializeUserDashboard(User $user, bool $force = FALSE): bool
     {
         try {
@@ -115,7 +127,7 @@ class InitializeAnalyticsDashboards extends Command
                 return FALSE; // Skip if dashboard exists and not forcing
             }
 
-            if ($existingDashboard && $force) {
+            if ($force) {
                 $this->warn("🔄 Removing existing dashboard for user {$user->name}");
                 $existingDashboard->delete();
             }
@@ -136,6 +148,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Customize dashboard based on user characteristics.
+     */
+    /**
+     * CustomizeDashboardForUser
      */
     private function customizeDashboardForUser(AnalyticsDashboard $dashboard, User $user): void
     {
@@ -170,6 +185,9 @@ class InitializeAnalyticsDashboards extends Command
     /**
      * Clear analytics cache.
      */
+    /**
+     * ClearAnalyticsCache
+     */
     private function clearAnalyticsCache(): void
     {
         $this->info('🧹 Clearing analytics cache...');
@@ -191,6 +209,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Validate analytics system health.
+     */
+    /**
+     * ValidateSystemHealth
      */
     private function validateSystemHealth(): bool
     {
@@ -227,6 +248,9 @@ class InitializeAnalyticsDashboards extends Command
     /**
      * Check database connection status.
      */
+    /**
+     * CheckDatabaseConnection
+     */
     private function checkDatabaseConnection(): bool
     {
         try {
@@ -240,6 +264,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Check cache system functionality.
+     */
+    /**
+     * CheckCacheSystem
      */
     private function checkCacheSystem(): bool
     {
@@ -257,6 +284,9 @@ class InitializeAnalyticsDashboards extends Command
     /**
      * Check queue system configuration.
      */
+    /**
+     * CheckQueueSystem
+     */
     private function checkQueueSystem(): bool
     {
         try {
@@ -269,6 +299,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Check required database tables exist.
+     */
+    /**
+     * CheckRequiredTables
      */
     private function checkRequiredTables(): bool
     {
@@ -295,6 +328,9 @@ class InitializeAnalyticsDashboards extends Command
 
     /**
      * Check analytics service availability.
+     */
+    /**
+     * CheckAnalyticsService
      */
     private function checkAnalyticsService(): bool
     {

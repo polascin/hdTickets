@@ -26,6 +26,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
 
     private string $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -51,23 +54,35 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
+    /**
+     * Enable
+     */
     public function enable(): void
     {
         $this->enabled = TRUE;
         Log::info('Silverstone F1 plugin enabled');
     }
 
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
         Log::info('Silverstone F1 plugin disabled');
     }
 
+    /**
+     * Configure
+     */
     public function configure(array $config): void
     {
         $this->config = array_merge($this->config, $config);
@@ -83,6 +98,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         Log::info('Silverstone F1 plugin configured', ['config' => $config]);
     }
 
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -121,6 +139,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * Test
+     */
     public function test(): array
     {
         try {
@@ -159,6 +180,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(array $criteria): string
     {
         $params = [];
@@ -176,6 +200,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return $this->baseUrl . '/events' . ($queryString ? '?' . $queryString : '');
     }
 
+    /**
+     * MapEventType
+     */
     private function mapEventType(string $eventType): string
     {
         $mapping = [
@@ -189,6 +216,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return $mapping[strtolower($eventType)] ?? 'all';
     }
 
+    /**
+     * MakeRequest
+     */
     private function makeRequest(string $url): string
     {
         $response = Http::timeout(30)
@@ -208,6 +238,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return $response->body();
     }
 
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(string $html): array
     {
         $events = [];
@@ -234,6 +267,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return $events;
     }
 
+    /**
+     * ExtractEventData
+     */
     private function extractEventData(DOMXPath $xpath, DOMElement $eventNode): array
     {
         return [
@@ -252,6 +288,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * ExtractText
+     */
     private function extractText(DOMXPath $xpath, string $query, DOMElement $context): string
     {
         $nodes = $xpath->query($query, $context);
@@ -259,6 +298,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
     }
 
+    /**
+     * ExtractUrl
+     */
     private function extractUrl(DOMXPath $xpath, string $query, DOMElement $context): string
     {
         $nodes = $xpath->query($query, $context);
@@ -271,6 +313,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return '';
     }
 
+    /**
+     * ParseDate
+     */
     private function parseDate(string $dateString): ?string
     {
         if (empty($dateString)) {
@@ -291,6 +336,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * NormalizeAvailability
+     */
     private function normalizeAvailability(string $availability): string
     {
         $availability = strtolower(trim($availability));
@@ -310,6 +358,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         return 'unknown';
     }
 
+    /**
+     * FilterResults
+     */
     private function filterResults(array $events, array $criteria): array
     {
         // Apply additional filtering logic here if needed
@@ -327,6 +378,9 @@ class SilverstoneF1Plugin implements ScraperPluginInterface
         });
     }
 
+    /**
+     * EnforceRateLimit
+     */
     private function enforceRateLimit(): void
     {
         $cacheKey = 'silverstone_f1_plugin_last_request';

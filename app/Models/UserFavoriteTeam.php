@@ -36,6 +36,9 @@ class UserFavoriteTeam extends Model
     /**
      * Get the user that owns this favorite team
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -118,6 +121,9 @@ class UserFavoriteTeam extends Model
     /**
      * Get the full team display name
      */
+    /**
+     * Get  full name attribute
+     */
     public function getFullNameAttribute(): string
     {
         return $this->team_city ? "{$this->team_city} {$this->team_name}" : $this->team_name;
@@ -125,6 +131,9 @@ class UserFavoriteTeam extends Model
 
     /**
      * Generate team slug from name and city
+     */
+    /**
+     * GenerateSlug
      */
     public function generateSlug(): string
     {
@@ -138,6 +147,11 @@ class UserFavoriteTeam extends Model
      *
      * @param mixed $value
      */
+    /**
+     * Set  team slug attribute
+     *
+     * @param mixed $value
+     */
     public function setTeamSlugAttribute($value): void
     {
         $this->attributes['team_slug'] = $value ?: $this->generateSlug();
@@ -145,6 +159,9 @@ class UserFavoriteTeam extends Model
 
     /**
      * Get all available sports
+     */
+    /**
+     * Get  available sports
      */
     public static function getAvailableSports(): array
     {
@@ -167,6 +184,9 @@ class UserFavoriteTeam extends Model
     /**
      * Get leagues for a specific sport
      */
+    /**
+     * Get  leagues by sport
+     */
     public static function getLeaguesBySport(string $sport): array
     {
         $leagues = [
@@ -188,6 +208,9 @@ class UserFavoriteTeam extends Model
 
     /**
      * Get popular teams for autocomplete
+     */
+    /**
+     * Get  popular teams
      */
     public static function getPopularTeams(?string $sport = NULL): array
     {
@@ -218,6 +241,9 @@ class UserFavoriteTeam extends Model
     /**
      * Check if team matches search criteria
      */
+    /**
+     * MatchesSearch
+     */
     public function matchesSearch(string $term): bool
     {
         $term = strtolower($term);
@@ -233,6 +259,9 @@ class UserFavoriteTeam extends Model
     /**
      * Get notification settings as array
      */
+    /**
+     * Get  notification settings
+     */
     public function getNotificationSettings(): array
     {
         return [
@@ -245,6 +274,9 @@ class UserFavoriteTeam extends Model
     /**
      * Update notification settings
      */
+    /**
+     * UpdateNotificationSettings
+     */
     public function updateNotificationSettings(array $settings): void
     {
         $this->update([
@@ -256,6 +288,9 @@ class UserFavoriteTeam extends Model
 
     /**
      * Get team statistics for dashboard
+     */
+    /**
+     * Get  team stats
      */
     public static function getTeamStats(int $userId): array
     {

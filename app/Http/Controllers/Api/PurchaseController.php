@@ -27,6 +27,9 @@ class PurchaseController extends Controller
     /**
      * Get purchase queue for the authenticated user
      */
+    /**
+     * Queue
+     */
     public function queue(Request $request): JsonResponse
     {
         $query = PurchaseQueue::where('selected_by_user_id', auth()->id())
@@ -71,6 +74,9 @@ class PurchaseController extends Controller
 
     /**
      * Add ticket to purchase queue
+     */
+    /**
+     * AddToQueue
      */
     public function addToQueue(Request $request): JsonResponse
     {
@@ -136,6 +142,9 @@ class PurchaseController extends Controller
     /**
      * Update queue item
      */
+    /**
+     * UpdateQueue
+     */
     public function updateQueue(Request $request, string $uuid): JsonResponse
     {
         $queueItem = PurchaseQueue::where('uuid', $uuid)
@@ -185,6 +194,9 @@ class PurchaseController extends Controller
     /**
      * Remove item from queue
      */
+    /**
+     * RemoveFromQueue
+     */
     public function removeFromQueue(string $uuid): JsonResponse
     {
         $queueItem = PurchaseQueue::where('uuid', $uuid)
@@ -215,6 +227,9 @@ class PurchaseController extends Controller
 
     /**
      * Get purchase attempts for the user
+     */
+    /**
+     * Attempts
      */
     public function attempts(Request $request): JsonResponse
     {
@@ -267,6 +282,9 @@ class PurchaseController extends Controller
 
     /**
      * Initiate manual purchase attempt
+     */
+    /**
+     * InitiatePurchase
      */
     public function initiatePurchase(Request $request): JsonResponse
     {
@@ -343,6 +361,9 @@ class PurchaseController extends Controller
     /**
      * Get purchase attempt details
      */
+    /**
+     * AttemptDetails
+     */
     public function attemptDetails(string $uuid): JsonResponse
     {
         $attempt = PurchaseAttempt::where('uuid', $uuid)
@@ -380,6 +401,9 @@ class PurchaseController extends Controller
 
     /**
      * Cancel pending purchase attempt
+     */
+    /**
+     * Check if can cel attempt
      */
     public function cancelAttempt(string $uuid): JsonResponse
     {
@@ -423,6 +447,9 @@ class PurchaseController extends Controller
 
     /**
      * Get purchase statistics for the user
+     */
+    /**
+     * Statistics
      */
     public function statistics(): JsonResponse
     {
@@ -494,6 +521,9 @@ class PurchaseController extends Controller
     /**
      * Get user's purchase configuration
      */
+    /**
+     * Configuration
+     */
     public function configuration(): JsonResponse
     {
         $user = auth()->user();
@@ -525,6 +555,9 @@ class PurchaseController extends Controller
 
     /**
      * Update user's purchase configuration
+     */
+    /**
+     * UpdateConfiguration
      */
     public function updateConfiguration(Request $request): JsonResponse
     {

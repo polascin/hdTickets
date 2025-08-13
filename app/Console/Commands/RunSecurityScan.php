@@ -13,13 +13,13 @@ use function dirname;
 class RunSecurityScan extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'security:scan 
+    protected $signature = 'security:scan 
                           {--type=all : Type of scan to run (all, vulnerability, compliance, integrity)}
                           {--report=true : Generate detailed report}
                           {--email= : Email address to send report to}';
 
     /** The console command description. */
-    protected string $description = 'Run comprehensive security scans and generate compliance reports';
+    protected $description = 'Run comprehensive security scans and generate compliance reports';
 
     protected SecurityMonitoringService $securityMonitoring;
 
@@ -39,6 +39,9 @@ class RunSecurityScan extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -102,6 +105,11 @@ class RunSecurityScan extends Command
      * Run vulnerability scans.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * RunVulnerabilityScans
+     *
+     * @param mixed $results
      */
     protected function runVulnerabilityScans(array &$results): void
     {
@@ -174,6 +182,11 @@ class RunSecurityScan extends Command
      *
      * @param array<string, mixed> $results
      */
+    /**
+     * RunComplianceChecks
+     *
+     * @param mixed $results
+     */
     protected function runComplianceChecks(array &$results): void
     {
         $complianceReport = $this->securityMonitoring->generateComplianceReport();
@@ -203,6 +216,11 @@ class RunSecurityScan extends Command
      * Run data integrity checks.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * RunDataIntegrityChecks
+     *
+     * @param mixed $results
      */
     protected function runDataIntegrityChecks(array &$results): void
     {
@@ -236,6 +254,9 @@ class RunSecurityScan extends Command
      * Display scan summary.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * DisplaySummary
      */
     protected function displaySummary(array $results): void
     {
@@ -273,6 +294,9 @@ class RunSecurityScan extends Command
      *
      * @return array<string, mixed>
      */
+    /**
+     * GenerateDetailedReport
+     */
     protected function generateDetailedReport(array $results): array
     {
         $report = [
@@ -302,6 +326,9 @@ class RunSecurityScan extends Command
      *
      * @param array<string, mixed> $report
      */
+    /**
+     * SendReportByEmail
+     */
     protected function sendReportByEmail(array $report, string $email): void
     {
         try {
@@ -317,6 +344,9 @@ class RunSecurityScan extends Command
      * Calculate overall security status.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * CalculateOverallStatus
      */
     protected function calculateOverallStatus(array $results): string
     {
@@ -362,6 +392,9 @@ class RunSecurityScan extends Command
      *
      * @param array<int, array{severity: string}> $vulnerabilities
      */
+    /**
+     * CountSeverity
+     */
     protected function countSeverity(array $vulnerabilities, string $severity): int
     {
         return count(array_filter($vulnerabilities, fn ($v) => $v['severity'] === $severity));
@@ -371,6 +404,9 @@ class RunSecurityScan extends Command
      * Get encrypted columns for a table.
      *
      * @return array<int, string>
+     */
+    /**
+     * Get  encrypted columns
      */
     protected function getEncryptedColumns(string $table): array
     {
@@ -389,6 +425,9 @@ class RunSecurityScan extends Command
      * @param array<string, mixed> $results
      *
      * @return array<int, array{priority: string, title: string, description: string}>
+     */
+    /**
+     * GenerateRecommendations
      */
     protected function generateRecommendations(array $results): array
     {

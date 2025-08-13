@@ -33,6 +33,9 @@ class InAppNotificationService
     /**
      * Send in-app notification to user
      */
+    /**
+     * SendNotification
+     */
     public function sendNotification(
         User $user,
         string $type,
@@ -88,6 +91,9 @@ class InAppNotificationService
     /**
      * Send notification to multiple users
      */
+    /**
+     * SendBulkNotification
+     */
     public function sendBulkNotification(
         array $userIds,
         string $type,
@@ -136,6 +142,9 @@ class InAppNotificationService
 
     /**
      * Get user notifications
+     */
+    /**
+     * Get  user notifications
      */
     public function getUserNotifications(
         int $userId,
@@ -194,6 +203,9 @@ class InAppNotificationService
     /**
      * Mark notification as read
      */
+    /**
+     * MarkAsRead
+     */
     public function markAsRead(string $notificationId): bool
     {
         try {
@@ -235,6 +247,9 @@ class InAppNotificationService
     /**
      * Mark all notifications as read for a user
      */
+    /**
+     * MarkAllAsRead
+     */
     public function markAllAsRead(int $userId): int
     {
         try {
@@ -265,6 +280,9 @@ class InAppNotificationService
 
     /**
      * Dismiss notification
+     */
+    /**
+     * DismissNotification
      */
     public function dismissNotification(string $notificationId): bool
     {
@@ -304,6 +322,9 @@ class InAppNotificationService
     /**
      * Get notification statistics for user
      */
+    /**
+     * Get  user notification stats
+     */
     public function getUserNotificationStats(int $userId): array
     {
         $cacheKey = "user_notification_stats_{$userId}";
@@ -335,6 +356,9 @@ class InAppNotificationService
     /**
      * Clean up expired notifications
      */
+    /**
+     * CleanupExpiredNotifications
+     */
     public function cleanupExpiredNotifications(): int
     {
         try {
@@ -356,6 +380,9 @@ class InAppNotificationService
 
     /**
      * Create notification preferences for user
+     */
+    /**
+     * CreateUserPreferences
      */
     public function createUserPreferences(int $userId, array $preferences = []): array
     {
@@ -387,6 +414,9 @@ class InAppNotificationService
     /**
      * Get user notification preferences
      */
+    /**
+     * Get  user preferences
+     */
     public function getUserPreferences(int $userId): array
     {
         return Cache::remember("user_notification_preferences_{$userId}", 3600 * 24, function () use ($userId) {
@@ -397,6 +427,9 @@ class InAppNotificationService
 
     /**
      * Update user notification preferences
+     */
+    /**
+     * UpdateUserPreferences
      */
     public function updateUserPreferences(int $userId, array $preferences): array
     {
@@ -413,6 +446,9 @@ class InAppNotificationService
 
     /**
      * Check if user should receive notification based on preferences
+     */
+    /**
+     * ShouldSendNotification
      */
     public function shouldSendNotification(int $userId, string $type): bool
     {
@@ -446,6 +482,9 @@ class InAppNotificationService
     /**
      * Store notification in database
      */
+    /**
+     * StoreNotification
+     */
     protected function storeNotification(array $notification): void
     {
         DB::table('in_app_notifications')->insert([
@@ -465,6 +504,9 @@ class InAppNotificationService
 
     /**
      * Broadcast notification via WebSocket
+     */
+    /**
+     * BroadcastNotification
      */
     protected function broadcastNotification(User $user, array $notification): void
     {
@@ -490,6 +532,9 @@ class InAppNotificationService
     /**
      * Update user notification counters
      */
+    /**
+     * UpdateUserNotificationCounters
+     */
     protected function updateUserNotificationCounters(int $userId): void
     {
         $stats = $this->getUserNotificationStats($userId);
@@ -509,6 +554,9 @@ class InAppNotificationService
     /**
      * Clear user notification cache
      */
+    /**
+     * ClearUserNotificationCache
+     */
     protected function clearUserNotificationCache(int $userId): void
     {
         $pattern = "user_notifications_{$userId}_*";
@@ -520,6 +568,9 @@ class InAppNotificationService
 
     /**
      * Calculate notification expiry time based on type and priority
+     */
+    /**
+     * CalculateExpiryTime
      */
     protected function calculateExpiryTime(string $type, string $priority): string
     {
@@ -546,6 +597,9 @@ class InAppNotificationService
     /**
      * Get daily notification count for user
      */
+    /**
+     * Get  daily notification count
+     */
     protected function getDailyNotificationCount(int $userId): int
     {
         $today = now()->format('Y-m-d');
@@ -561,6 +615,9 @@ class InAppNotificationService
 
     /**
      * Check if current time is in user's quiet hours
+     */
+    /**
+     * Check if  in quiet hours
      */
     protected function isInQuietHours(array $preferences): bool
     {

@@ -34,6 +34,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Initialize the service with dependencies
      */
+    /**
+     * Initialize
+     */
     public function initialize(array $dependencies = []): void
     {
         $this->dependencies = $dependencies;
@@ -49,6 +52,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Get service health status
      */
+    /**
+     * Get  health status
+     */
     public function getHealthStatus(): array
     {
         return [
@@ -62,6 +68,9 @@ abstract class BaseService implements ServiceInterface
 
     /**
      * Clean up resources when service is destroyed
+     */
+    /**
+     * Cleanup
      */
     public function cleanup(): void
     {
@@ -77,6 +86,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Get dependency by name
      */
+    /**
+     * Get  dependency
+     */
     protected function getDependency(string $name): mixed
     {
         return $this->dependencies[$name] ?? NULL;
@@ -85,6 +97,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Check if service has required dependency
      */
+    /**
+     * Check if has  dependency
+     */
     protected function hasDependency(string $name): bool
     {
         return isset($this->dependencies[$name]);
@@ -92,6 +107,9 @@ abstract class BaseService implements ServiceInterface
 
     /**
      * Ensure service is initialized before operation
+     */
+    /**
+     * EnsureInitialized
      */
     protected function ensureInitialized(): void
     {
@@ -102,6 +120,9 @@ abstract class BaseService implements ServiceInterface
 
     /**
      * Handle service errors consistently
+     */
+    /**
+     * HandleError
      */
     protected function handleError(Exception $exception, string $operation, array $context = []): void
     {
@@ -117,6 +138,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Log service operation
      */
+    /**
+     * LogOperation
+     */
     protected function logOperation(string $operation, array $context = []): void
     {
         Log::info('Service operation', [
@@ -129,6 +153,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Load service configuration
      */
+    /**
+     * LoadConfiguration
+     */
     protected function loadConfiguration(): void
     {
         $serviceName = $this->getServiceConfigKey();
@@ -138,6 +165,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Get configuration value
      */
+    /**
+     * Get  config
+     */
     protected function getConfig(string $key, mixed $default = NULL): mixed
     {
         return data_get($this->config, $key, $default);
@@ -145,6 +175,9 @@ abstract class BaseService implements ServiceInterface
 
     /**
      * Get service configuration key
+     */
+    /**
+     * Get  service config key
      */
     protected function getServiceConfigKey(): string
     {
@@ -156,6 +189,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Hook for service initialization
      */
+    /**
+     * OnInitialize
+     */
     protected function onInitialize(): void
     {
         // Override in child classes
@@ -164,6 +200,9 @@ abstract class BaseService implements ServiceInterface
     /**
      * Hook for service cleanup
      */
+    /**
+     * OnCleanup
+     */
     protected function onCleanup(): void
     {
         // Override in child classes
@@ -171,6 +210,9 @@ abstract class BaseService implements ServiceInterface
 
     /**
      * Validate required dependencies
+     */
+    /**
+     * ValidateDependencies
      */
     protected function validateDependencies(array $required): void
     {

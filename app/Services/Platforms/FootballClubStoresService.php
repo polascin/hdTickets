@@ -141,6 +141,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Search for tickets across club stores
      */
+    /**
+     * SearchTickets
+     */
     public function searchTickets(array $clubs, array $filters = []): array
     {
         $results = [];
@@ -182,6 +185,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Import tickets from club stores
+     */
+    /**
+     * ImportTickets
      */
     public function importTickets(array $clubs, array $filters = []): array
     {
@@ -225,6 +231,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Get platform statistics
      */
+    /**
+     * Get  statistics
+     */
     public function getStatistics(): array
     {
         $totalTickets = ScrapedTicket::where('platform', $this->platformName)->count();
@@ -259,6 +268,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Get supported clubs
      */
+    /**
+     * Get  supported clubs
+     */
     public function getSupportedClubs(): array
     {
         return $this->clubStores;
@@ -266,6 +278,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Search tickets for a specific club
+     */
+    /**
+     * SearchClubTickets
      */
     private function searchClubTickets(string $clubKey, array $clubData, array $filters): array
     {
@@ -298,6 +313,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Search via club API
      */
+    /**
+     * SearchViaApi
+     */
     private function searchViaApi(string $clubKey, array $clubData, array $filters): array
     {
         $params = $this->buildApiParams($filters, $clubData['country']);
@@ -321,6 +339,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Search via web scraping
      */
+    /**
+     * SearchViaWebScraping
+     */
     private function searchViaWebScraping(string $clubKey, array $clubData, array $filters): array
     {
         $response = Http::withHeaders([
@@ -339,6 +360,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Parse API response
+     */
+    /**
+     * ParseApiResponse
      */
     private function parseApiResponse(array $data, string $clubKey, array $clubData): array
     {
@@ -387,6 +411,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Parse web page content
      */
+    /**
+     * ParseWebPage
+     */
     private function parseWebPage(string $html, string $clubKey, array $clubData): array
     {
         $dom = new DOMDocument();
@@ -430,6 +457,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Parse Arsenal API response
      */
+    /**
+     * ParseArsenalApi
+     */
     private function parseArsenalApi(array $data, array $clubData): array
     {
         $fixtures = [];
@@ -457,6 +487,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Parse Chelsea API response
+     */
+    /**
+     * ParseChelseaApi
      */
     private function parseChelseaApi(array $data, array $clubData): array
     {
@@ -486,6 +519,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Parse Liverpool API response
      */
+    /**
+     * ParseLiverpoolApi
+     */
     private function parseLiverpoolApi(array $data, array $clubData): array
     {
         $fixtures = [];
@@ -513,6 +549,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Parse Real Madrid API response
+     */
+    /**
+     * ParseRealMadridApi
      */
     private function parseRealMadridApi(array $data, array $clubData): array
     {
@@ -542,6 +581,9 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Parse Barcelona API response
      */
+    /**
+     * ParseBarcelonaApi
+     */
     private function parseBarcelonaApi(array $data, array $clubData): array
     {
         $fixtures = [];
@@ -569,6 +611,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Parse generic API response
+     */
+    /**
+     * ParseGenericApi
      */
     private function parseGenericApi(array $data, array $clubData): array
     {
@@ -609,6 +654,9 @@ class FootballClubStoresService extends BasePlatformService
 
     /**
      * Create ticket record in database
+     */
+    /**
+     * CreateTicketRecord
      */
     private function createTicketRecord(array $ticketData, array $fixture, array $clubData): ?ScrapedTicket
     {
@@ -654,11 +702,17 @@ class FootballClubStoresService extends BasePlatformService
     /**
      * Helper methods
      */
+    /**
+     * Check if has  api access
+     */
     private function hasApiAccess(array $clubData): bool
     {
         return isset($clubData['api_endpoint']) && ! empty($clubData['api_endpoint']);
     }
 
+    /**
+     * BuildApiParams
+     */
     private function buildApiParams(array $filters, string $country): array
     {
         $params = ['limit' => 50];
@@ -678,6 +732,9 @@ class FootballClubStoresService extends BasePlatformService
         return $params;
     }
 
+    /**
+     * Get  language for country
+     */
     private function getLanguageForCountry(string $country): string
     {
         return match ($country) {
@@ -689,6 +746,9 @@ class FootballClubStoresService extends BasePlatformService
         };
     }
 
+    /**
+     * Get  currency for country
+     */
     private function getCurrencyForCountry(string $country): string
     {
         return match ($country) {
@@ -701,6 +761,9 @@ class FootballClubStoresService extends BasePlatformService
         };
     }
 
+    /**
+     * ExtractOpponent
+     */
     private function extractOpponent(string $title, string $homeTeam): string
     {
         $title = str_replace($homeTeam, '', $title);
@@ -709,6 +772,9 @@ class FootballClubStoresService extends BasePlatformService
         return $title ?: 'TBD';
     }
 
+    /**
+     * ExtractOpponentGeneric
+     */
     private function extractOpponentGeneric(array $data, string $homeTeam): string
     {
         $possibleFields = ['opponent', 'away_team', 'visitor', 'rival'];
@@ -727,6 +793,9 @@ class FootballClubStoresService extends BasePlatformService
         return 'TBD';
     }
 
+    /**
+     * ParseTicketCategories
+     */
     private function parseTicketCategories(array $tickets): array
     {
         $categories = [];
@@ -748,6 +817,9 @@ class FootballClubStoresService extends BasePlatformService
         return $categories;
     }
 
+    /**
+     * ExtractPriceFromTicket
+     */
     private function extractPriceFromTicket(array $ticket): float
     {
         $priceFields = ['price', 'cost', 'amount', 'precio'];
@@ -764,6 +836,9 @@ class FootballClubStoresService extends BasePlatformService
         return 0;
     }
 
+    /**
+     * Check if  ticket available
+     */
     private function isTicketAvailable(array $ticket): bool
     {
         if (isset($ticket['available'])) {
@@ -777,6 +852,9 @@ class FootballClubStoresService extends BasePlatformService
         return TRUE; // Default to available
     }
 
+    /**
+     * ExtractSeatType
+     */
     private function extractSeatType(array $ticket): string
     {
         $category = strtolower($ticket['category'] ?? $ticket['name'] ?? '');
@@ -796,6 +874,9 @@ class FootballClubStoresService extends BasePlatformService
         return 'standard';
     }
 
+    /**
+     * ParseEventDate
+     */
     private function parseEventDate(string $dateStr): ?string
     {
         if (empty($dateStr)) {
@@ -811,6 +892,9 @@ class FootballClubStoresService extends BasePlatformService
         }
     }
 
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(string $priceText): float
     {
         $priceText = preg_replace('/[^\d.,]/', '', $priceText);
@@ -819,6 +903,9 @@ class FootballClubStoresService extends BasePlatformService
         return is_numeric($priceText) ? (float) $priceText : 0;
     }
 
+    /**
+     * Get  selectors for club
+     */
     private function getSelectorsForClub(string $clubKey): array
     {
         // Club-specific CSS selectors for web scraping
@@ -847,6 +934,9 @@ class FootballClubStoresService extends BasePlatformService
         ];
     }
 
+    /**
+     * ExtractFixtureFromNode
+     */
     private function extractFixtureFromNode(DOMNode $node, DOMXPath $xpath, array $selectors, array $clubData): ?array
     {
         // Extract fixture title
@@ -889,6 +979,9 @@ class FootballClubStoresService extends BasePlatformService
         ];
     }
 
+    /**
+     * ExtractTicketCategoryFromHtml
+     */
     private function extractTicketCategoryFromHtml(DOMNode $ticketNode, DOMXPath $xpath): ?array
     {
         // Extract category name

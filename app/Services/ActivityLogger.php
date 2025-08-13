@@ -13,11 +13,18 @@ use function get_class;
 
 class ActivityLogger
 {
-    protected static $performanceTimings = [];
+    /**
+     * Array of performance timing data for operations
+     *
+     * @var array<string, array{start: float, memory_start: int}>
+     */
+    protected static array $performanceTimings = [];
 
-    protected static $requestId;
+    /** Unique request ID for tracking related log entries */
+    protected static ?string $requestId = NULL;
 
-    protected static $criticalErrorThreshold = 5; // Critical errors per minute
+    /** Critical errors threshold per minute before admin notification */
+    protected static int $criticalErrorThreshold = 5;
 
     public function __construct()
     {
@@ -29,6 +36,9 @@ class ActivityLogger
     /**
      * Start performance timing for a specific operation
      */
+    /**
+     * StartTiming
+     */
     public function startTiming(string $operation): void
     {
         self::$performanceTimings[$operation] = [
@@ -39,6 +49,9 @@ class ActivityLogger
 
     /**
      * End performance timing and log if threshold exceeded
+     */
+    /**
+     * EndTiming
      */
     public function endTiming(string $operation, float $warningThreshold = 1.0): void
     {
@@ -68,6 +81,12 @@ class ActivityLogger
 
     /**
      * Log API endpoint access with detailed context
+     *
+     * @param Request              $request HTTP request object
+     * @param array<string, mixed> $context Additional context data
+     */
+    /**
+     * LogApiAccess
      */
     public function logApiAccess(Request $request, array $context = []): void
     {
@@ -94,6 +113,14 @@ class ActivityLogger
 
     /**
      * Log database query with performance metrics
+     *
+     * @param string                   $query    SQL query string
+     * @param array<int|string, mixed> $bindings Query parameter bindings
+     * @param float|null               $duration Query execution duration in seconds
+     * @param array<string, mixed>     $context  Additional context data
+     */
+    /**
+     * LogDatabaseQuery
      */
     public function logDatabaseQuery(string $query, array $bindings = [], ?float $duration = NULL, array $context = []): void
     {
@@ -115,6 +142,12 @@ class ActivityLogger
 
     /**
      * Log JavaScript initialization and errors
+     *
+     * @param string               $event   JavaScript event name
+     * @param array<string, mixed> $context Additional context data
+     */
+    /**
+     * LogJavaScriptEvent
      */
     public function logJavaScriptEvent(string $event, array $context = []): void
     {
@@ -132,6 +165,12 @@ class ActivityLogger
 
     /**
      * Log WebSocket connection events
+     *
+     * @param string               $event   WebSocket event name
+     * @param array<string, mixed> $context Additional context data
+     */
+    /**
+     * LogWebSocketEvent
      */
     public function logWebSocketEvent(string $event, array $context = []): void
     {
@@ -151,6 +190,13 @@ class ActivityLogger
 
     /**
      * Log critical errors with admin notification
+     *
+     * @param Throwable            $exception   Exception or error to log
+     * @param array<string, mixed> $context     Additional context data
+     * @param bool                 $notifyAdmin Whether to notify admin if threshold exceeded
+     */
+    /**
+     * LogCriticalError
      */
     public function logCriticalError(Throwable $exception, array $context = [], bool $notifyAdmin = TRUE): void
     {
@@ -182,6 +228,13 @@ class ActivityLogger
 
     /**
      * Log admin activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the activity
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogAdminActivity
      */
     public function logAdminActivity(string $action, string $description, array $context = []): void
     {
@@ -204,6 +257,13 @@ class ActivityLogger
 
     /**
      * Log system activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the activity
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogSystemActivity
      */
     public function logSystemActivity(string $action, string $description, array $context = []): void
     {
@@ -219,6 +279,13 @@ class ActivityLogger
 
     /**
      * Log user activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the activity
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogUserActivity
      */
     public function logUserActivity(string $action, string $description, array $context = []): void
     {
@@ -239,6 +306,13 @@ class ActivityLogger
 
     /**
      * Log ticket monitoring activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the activity
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogTicketActivity
      */
     public function logTicketActivity(string $action, string $description, array $context = []): void
     {
@@ -254,6 +328,13 @@ class ActivityLogger
 
     /**
      * Log security-related activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the activity
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogSecurityActivity
      */
     public function logSecurityActivity(string $action, string $description, array $context = []): void
     {
@@ -275,6 +356,13 @@ class ActivityLogger
 
     /**
      * Log error activity
+     *
+     * @param string               $action      Action being performed
+     * @param string               $description Description of the error
+     * @param array<string, mixed> $context     Additional context data
+     */
+    /**
+     * LogError
      */
     public function logError(string $action, string $description, array $context = []): void
     {
@@ -290,6 +378,11 @@ class ActivityLogger
 
     /**
      * Check if admin notification is needed and send it
+     *
+     * @param array<string, mixed> $errorData Error data to include in notification
+     */
+    /**
+     * CheckAndNotifyAdmin
      */
     protected function checkAndNotifyAdmin(array $errorData): void
     {
@@ -310,6 +403,16 @@ class ActivityLogger
 
     /**
      * Get formatted log entry
+     *
+     * @param string               $level       Log level
+     * @param string               $action      Action being logged
+     * @param string               $description Description of the action
+     * @param array<string, mixed> $context     Additional context data
+     *
+     * @return array<string, mixed> Formatted log entry data
+     */
+    /**
+     * FormatLogEntry
      */
     private function formatLogEntry(string $level, string $action, string $description, array $context = []): array
     {

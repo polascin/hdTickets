@@ -41,6 +41,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         $this->initializeHttpClient();
     }
 
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -63,23 +66,35 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
+    /**
+     * Enable
+     */
     public function enable(): void
     {
         $this->enabled = TRUE;
         Log::info('Manchester United plugin enabled');
     }
 
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
         Log::info('Manchester United plugin disabled');
     }
 
+    /**
+     * Configure
+     */
     public function configure(array $config): void
     {
         $this->config = array_merge($this->config, $config);
@@ -96,6 +111,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         Log::info('Manchester United plugin configured', ['config' => $config]);
     }
 
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -134,6 +152,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * Test
+     */
     public function test(): array
     {
         try {
@@ -160,6 +181,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * InitializeHttpClient
+     */
     private function initializeHttpClient(): void
     {
         $this->httpClient = new Client([
@@ -176,6 +200,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         ]);
     }
 
+    /**
+     * ScrapeFixtures
+     */
     private function scrapeFixtures(array $criteria): array
     {
         $url = $this->baseUrl . $this->fixturesEndpoint;
@@ -207,6 +234,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return $fixtures;
     }
 
+    /**
+     * ExtractFixtureData
+     */
     private function extractFixtureData(DOMXPath $xpath, DOMElement $fixtureNode): array
     {
         return [
@@ -220,6 +250,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * ExtractTicketUrl
+     */
     private function extractTicketUrl(DOMXPath $xpath, DOMElement $fixtureNode): string
     {
         $ticketLinks = $xpath->query('.//a[contains(@href, "ticket") or contains(text(), "Tickets") or contains(@class, "ticket")]', $fixtureNode);
@@ -233,6 +266,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return '';
     }
 
+    /**
+     * ScrapeTicketAvailability
+     */
     private function scrapeTicketAvailability(array $fixture): array
     {
         if (empty($fixture['ticket_url'])) {
@@ -253,6 +289,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * ParseTicketAvailability
+     */
     private function parseTicketAvailability(string $html, array $fixture): array
     {
         $tickets = [];
@@ -279,6 +318,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return $tickets;
     }
 
+    /**
+     * ExtractTicketInfo
+     */
     private function extractTicketInfo(DOMXPath $xpath, DOMElement $sectionNode, array $fixture): array
     {
         $availability = $this->extractText($xpath, './/*[contains(@class, "availability")] | .//*[contains(@class, "status")]', $sectionNode);
@@ -301,6 +343,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * MapAvailabilityStatus
+     */
     private function mapAvailabilityStatus(string $availability): string
     {
         $availability = strtolower($availability);
@@ -324,6 +369,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return 'unknown';
     }
 
+    /**
+     * MatchesCriteria
+     */
     private function matchesCriteria(array $fixture, array $criteria): bool
     {
         // Filter by date range
@@ -355,6 +403,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return TRUE;
     }
 
+    /**
+     * ExtractText
+     */
     private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -362,6 +413,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
     }
 
+    /**
+     * ExtractAttribute
+     */
     private function extractAttribute(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -369,6 +423,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->nodeValue) : '';
     }
 
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
     {
         $priceText = $this->extractText($xpath, $selector, $context);
@@ -381,6 +438,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         return NULL;
     }
 
+    /**
+     * ExtractAndParseFixtureDate
+     */
     private function extractAndParseFixtureDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
     {
         $dateText = $this->extractText($xpath, $selector, $context);
@@ -401,6 +461,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * EnforceRateLimit
+     */
     private function enforceRateLimit(): void
     {
         $lastRequest = Cache::get('manchester_united_last_request', 0);
@@ -414,6 +477,9 @@ class ManchesterUnitedPlugin implements ScraperPluginInterface
         Cache::put('manchester_united_last_request', microtime(TRUE), 60);
     }
 
+    /**
+     * MakeRequest
+     */
     private function makeRequest(string $url): string
     {
         try {

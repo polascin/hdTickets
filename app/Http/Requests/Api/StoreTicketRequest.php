@@ -10,6 +10,9 @@ class StoreTicketRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * Authorize
+     */
     public function authorize(): bool
     {
         return TRUE; // Authorization handled by middleware
@@ -17,6 +20,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
+     */
+    /**
+     * Rules
      */
     public function rules(): array
     {
@@ -36,6 +42,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Get the validation error messages.
+     */
+    /**
+     * Messages
      */
     public function messages(): array
     {
@@ -60,6 +69,9 @@ class StoreTicketRequest extends FormRequest
 
     /**
      * Prepare the data for validation.
+     */
+    /**
+     * PrepareForValidation
      */
     protected function prepareForValidation(): void
     {

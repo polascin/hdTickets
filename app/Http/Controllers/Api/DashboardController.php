@@ -37,6 +37,9 @@ class DashboardController extends Controller
     /**
      * Get dashboard statistics
      */
+    /**
+     * Stats
+     */
     public function stats(Request $request): JsonResponse
     {
         try {
@@ -80,6 +83,9 @@ class DashboardController extends Controller
 
     /**
      * Get monitors data
+     */
+    /**
+     * Monitors
      */
     public function monitors(Request $request): JsonResponse
     {
@@ -138,6 +144,11 @@ class DashboardController extends Controller
      *
      * @param mixed $monitorId
      */
+    /**
+     * CheckMonitorNow
+     *
+     * @param mixed $monitorId
+     */
     public function checkMonitorNow(Request $request, $monitorId): JsonResponse
     {
         // Simulate checking a monitor
@@ -165,6 +176,11 @@ class DashboardController extends Controller
      *
      * @param mixed $monitorId
      */
+    /**
+     * ToggleMonitor
+     *
+     * @param mixed $monitorId
+     */
     public function toggleMonitor(Request $request, $monitorId): JsonResponse
     {
         // Simulate toggling monitor
@@ -183,6 +199,9 @@ class DashboardController extends Controller
 
     /**
      * Get real-time platform health data
+     */
+    /**
+     * PlatformHealth
      */
     public function platformHealth(): JsonResponse
     {
@@ -206,6 +225,9 @@ class DashboardController extends Controller
 
     /**
      * Get high-demand tickets
+     */
+    /**
+     * HighDemandTickets
      */
     public function highDemandTickets(Request $request): JsonResponse
     {
@@ -256,6 +278,9 @@ class DashboardController extends Controller
     /**
      * Get detailed analytics data
      */
+    /**
+     * Analytics
+     */
     public function analytics(Request $request): JsonResponse
     {
         try {
@@ -300,6 +325,9 @@ class DashboardController extends Controller
     /**
      * Get real-time statistics
      */
+    /**
+     * RealtimeStats
+     */
     public function realtimeStats(Request $request): JsonResponse
     {
         // No caching for real-time data
@@ -320,6 +348,9 @@ class DashboardController extends Controller
 
     /**
      * Get performance metrics
+     */
+    /**
+     * PerformanceMetrics
      */
     public function performanceMetrics(Request $request): JsonResponse
     {
@@ -346,6 +377,9 @@ class DashboardController extends Controller
     /**
      * Get success rates
      */
+    /**
+     * SuccessRates
+     */
     public function successRates(Request $request): JsonResponse
     {
         $timeframe = $request->get('timeframe', '7d');
@@ -370,6 +404,9 @@ class DashboardController extends Controller
 
     /**
      * Log JavaScript errors and performance data from the frontend
+     */
+    /**
+     * LogError
      */
     public function logError(Request $request): JsonResponse
     {
@@ -472,6 +509,9 @@ class DashboardController extends Controller
     /**
      * Refresh dashboard data
      */
+    /**
+     * Refresh
+     */
     public function refresh(Request $request): JsonResponse
     {
         try {
@@ -517,6 +557,9 @@ class DashboardController extends Controller
     /**
      * Get user notifications
      */
+    /**
+     * Notifications
+     */
     public function notifications(Request $request): JsonResponse
     {
         try {
@@ -557,6 +600,9 @@ class DashboardController extends Controller
 
     /**
      * Mark notification as read
+     */
+    /**
+     * MarkNotificationRead
      */
     public function markNotificationRead(Request $request): JsonResponse
     {
@@ -601,6 +647,9 @@ class DashboardController extends Controller
     /**
      * Get system status
      */
+    /**
+     * SystemStatus
+     */
     public function systemStatus(): JsonResponse
     {
         try {
@@ -624,6 +673,9 @@ class DashboardController extends Controller
 
     /**
      * Get live metrics for real-time updates
+     */
+    /**
+     * LiveMetrics
      */
     public function liveMetrics(): JsonResponse
     {
@@ -667,12 +719,18 @@ class DashboardController extends Controller
 
     // Private helper methods
 
+    /**
+     * Get  active monitors count
+     */
     private function getActiveMonitorsCount(): int
     {
         // Replace with actual monitor model count
         return 8;
     }
 
+    /**
+     * Get  tickets found today
+     */
     private function getTicketsFoundToday(): int
     {
         try {
@@ -684,6 +742,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get  price alerts count
+     */
     private function getPriceAlertsCount(): int
     {
         try {
@@ -696,6 +757,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get  overall success rate
+     */
     private function getOverallSuccessRate(): float
     {
         try {
@@ -715,6 +779,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get  platform stats
+     */
     private function getPlatformStats(): array
     {
         try {
@@ -735,6 +802,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get  high demand events
+     */
     private function getHighDemandEvents(): array
     {
         try {
@@ -759,6 +829,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Get  recent updates
+     */
     private function getRecentUpdates(): array
     {
         try {
@@ -781,6 +854,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * DeterminePlatformStatus
+     */
     private function determinePlatformStatus(array $stats): string
     {
         if ($stats['success_rate'] >= 80) {
@@ -795,6 +871,9 @@ class DashboardController extends Controller
 
     // Additional private helper methods
 
+    /**
+     * Get  timeframe days
+     */
     private function getTimeframeDays(string $timeframe): int
     {
         return match ($timeframe) {
@@ -806,6 +885,9 @@ class DashboardController extends Controller
         };
     }
 
+    /**
+     * Get  timeframe hours
+     */
     private function getTimeframeHours(string $timeframe): int
     {
         return match ($timeframe) {
@@ -817,6 +899,9 @@ class DashboardController extends Controller
         };
     }
 
+    /**
+     * Get  ticket volume data
+     */
     private function getTicketVolumeData(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -845,6 +930,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  platform performance data
+     */
     private function getPlatformPerformanceData(int $days): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($days * 24)
@@ -860,6 +948,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  price trends data
+     */
     private function getPriceTrendsData(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -890,6 +981,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  success metrics
+     */
     private function getSuccessMetrics(int $days): array
     {
         return [
@@ -899,6 +993,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  user activity data
+     */
     private function getUserActivityData(int $days): array
     {
         // Mock data - would integrate with actual user activity tracking
@@ -910,17 +1007,26 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  active scrapers count
+     */
     private function getActiveScrapersCount(): int
     {
         // Mock data - would check actual scraper processes
         return 6;
     }
 
+    /**
+     * Get  tickets found last hour
+     */
     private function getTicketsFoundLastHour(): int
     {
         return ScrapedTicket::where('scraped_at', '>=', now()->subHour())->count();
     }
 
+    /**
+     * Get  current platform statuses
+     */
     private function getCurrentPlatformStatuses(): array
     {
         return $this->platformMonitoringService->getAllPlatformStats(1)
@@ -932,6 +1038,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  recent alerts
+     */
     private function getRecentAlerts(): array
     {
         // Mock data - would fetch from alerts table
@@ -941,6 +1050,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  system load metrics
+     */
     private function getSystemLoadMetrics(): array
     {
         // Mock data - would integrate with system monitoring
@@ -952,12 +1064,18 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  active users count
+     */
     private function getActiveUsersCount(): int
     {
         // Mock data - would check active sessions
         return 18;
     }
 
+    /**
+     * Get  response time metrics
+     */
     private function getResponseTimeMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
@@ -970,6 +1088,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  throughput metrics
+     */
     private function getThroughputMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
@@ -981,6 +1102,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  error rate metrics
+     */
     private function getErrorRateMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
@@ -992,6 +1116,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  resource usage metrics
+     */
     private function getResourceUsageMetrics(int $hours): array
     {
         // Mock data - would integrate with system monitoring
@@ -1003,6 +1130,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  scraping success by hour
+     */
     private function getScrapingSuccessByHour(int $days): array
     {
         $startDate = now()->subDays($days);
@@ -1019,6 +1149,9 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    /**
+     * Get  ticket discovery rate
+     */
     private function getTicketDiscoveryRate(int $days): float
     {
         $totalChecks = $this->platformMonitoringService->getAllPlatformStats($days * 24)->sum('total_requests');
@@ -1027,6 +1160,9 @@ class DashboardController extends Controller
         return $totalChecks > 0 ? round(($ticketsFound / $totalChecks) * 100, 2) : 0;
     }
 
+    /**
+     * Get  alert accuracy
+     */
     private function getAlertAccuracy(int $days): float
     {
         // Mock calculation - would track alert accuracy
@@ -1034,6 +1170,9 @@ class DashboardController extends Controller
     }
 
     // Additional helper methods for new functionality
+    /**
+     * Get  ticket data
+     */
     private function getTicketData(): array
     {
         return [
@@ -1043,6 +1182,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  total available tickets
+     */
     private function getTotalAvailableTickets(): int
     {
         return (int) Cache::remember('dashboard:total_tickets', 300, function () {
@@ -1050,6 +1192,9 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * Get  recent ticket updates
+     */
     private function getRecentTicketUpdates(): array
     {
         return Cache::remember('dashboard:recent_ticket_updates', 60, function () {
@@ -1065,6 +1210,9 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * Get  notification data
+     */
     private function getNotificationData(?int $userId): array
     {
         if (! $userId) {
@@ -1080,6 +1228,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  system status
+     */
     private function getSystemStatus(): array
     {
         return [
@@ -1097,7 +1248,10 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getUserMetrics($user): array
+    /**
+     * Get  user metrics
+     */
+    private function getUserMetrics(App\Models\User $user): array
     {
         if (! $user) {
             return [];
@@ -1110,6 +1264,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * Get  performance metrics
+     */
     private function getPerformanceMetrics(): array
     {
         return [
@@ -1129,6 +1286,9 @@ class DashboardController extends Controller
         ];
     }
 
+    /**
+     * CalculateSystemHealthScore
+     */
     private function calculateSystemHealthScore(): int
     {
         $scores = [
@@ -1141,6 +1301,9 @@ class DashboardController extends Controller
         return array_sum($scores);
     }
 
+    /**
+     * CheckDatabaseStatus
+     */
     private function checkDatabaseStatus(): bool
     {
         try {
@@ -1152,6 +1315,9 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * CheckRedisStatus
+     */
     private function checkRedisStatus(): bool
     {
         try {
@@ -1163,11 +1329,17 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * CheckStorageStatus
+     */
     private function checkStorageStatus(): bool
     {
         return disk_free_space('/') > (1024 * 1024 * 1024); // 1GB free
     }
 
+    /**
+     * Get  memory usage
+     */
     private function getMemoryUsage(): float
     {
         $memoryUsage = memory_get_usage(TRUE);
@@ -1182,6 +1354,9 @@ class DashboardController extends Controller
         return ($memoryUsage / $memoryLimitBytes) * 100;
     }
 
+    /**
+     * Get  cache hit rate
+     */
     private function getCacheHitRate(): float
     {
         $hits = (int) Redis::get('cache:hits') ?: 0;
@@ -1191,31 +1366,49 @@ class DashboardController extends Controller
         return $total > 0 ? ($hits / $total) * 100 : 0;
     }
 
+    /**
+     * Get  cache size
+     */
     private function getCacheSize(): int
     {
         return (int) Redis::dbsize();
     }
 
+    /**
+     * Get  error rate
+     */
     private function getErrorRate(): float
     {
         return (float) Cache::get('dashboard:error_rate', 0.0);
     }
 
+    /**
+     * Get  database queries per second
+     */
     private function getDatabaseQueriesPerSecond(): float
     {
         return (float) Cache::get('dashboard:db_qps', 0.0);
     }
 
+    /**
+     * Get  average query time
+     */
     private function getAverageQueryTime(): float
     {
         return (float) Cache::get('dashboard:avg_query_time', 0.0);
     }
 
+    /**
+     * Get  api requests per minute
+     */
     private function getApiRequestsPerMinute(): int
     {
         return (int) Cache::get('dashboard:api_rpm', 0);
     }
 
+    /**
+     * Get  session duration
+     */
     private function getSessionDuration(int $userId): int
     {
         $sessionStart = Redis::get("session:start:{$userId}");
@@ -1223,11 +1416,17 @@ class DashboardController extends Controller
         return $sessionStart ? time() - (int) $sessionStart : 0;
     }
 
+    /**
+     * Get  session page views
+     */
     private function getSessionPageViews(int $userId): int
     {
         return (int) Redis::get("session:page_views:{$userId}") ?: 0;
     }
 
+    /**
+     * Get  recent sales
+     */
     private function getRecentSales(): int
     {
         return (int) Cache::remember('dashboard:recent_sales', 60, function () {
@@ -1236,6 +1435,9 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * Get  active alerts count
+     */
     private function getActiveAlertsCount(): int
     {
         return (int) Cache::remember('dashboard:active_alerts', 60, function () {
@@ -1244,6 +1446,9 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * ConvertToBytes
+     */
     private function convertToBytes(string $value): int
     {
         $value = trim($value);
@@ -1266,6 +1471,9 @@ class DashboardController extends Controller
 
     /**
      * Determine error severity level
+     */
+    /**
+     * DetermineErrorLevel
      */
     private function determineErrorLevel(string $errorType, array $error): string
     {

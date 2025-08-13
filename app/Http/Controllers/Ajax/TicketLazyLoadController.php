@@ -17,6 +17,9 @@ class TicketLazyLoadController extends Controller
     /**
      * Load tickets with lazy loading and AJAX pagination
      */
+    /**
+     * LoadTickets
+     */
     public function loadTickets(Request $request): JsonResponse
     {
         $page = $request->get('page', 1);
@@ -91,6 +94,9 @@ class TicketLazyLoadController extends Controller
     /**
      * Load dashboard statistics with lazy loading
      */
+    /**
+     * LoadDashboardStats
+     */
     public function loadDashboardStats(Request $request): JsonResponse
     {
         $cacheKey = 'dashboard_stats_lazy';
@@ -131,6 +137,9 @@ class TicketLazyLoadController extends Controller
 
     /**
      * Search tickets with autocomplete
+     */
+    /**
+     * SearchTickets
      */
     public function searchTickets(Request $request): JsonResponse
     {
@@ -175,6 +184,9 @@ class TicketLazyLoadController extends Controller
     /**
      * Load more tickets for infinite scroll
      */
+    /**
+     * LoadMore
+     */
     public function loadMore(Request $request): JsonResponse
     {
         $lastId = $request->get('last_id', 0);
@@ -198,7 +210,10 @@ class TicketLazyLoadController extends Controller
      *
      * @param mixed $ticket
      */
-    private function formatPrice($ticket): string
+    /**
+     * FormatPrice
+     */
+    private function formatPrice(App\Models\Ticket $ticket): string
     {
         if ($ticket->min_price && $ticket->max_price) {
             return $ticket->currency . ' ' . number_format($ticket->min_price, 2) . ' - ' . number_format($ticket->max_price, 2);

@@ -50,6 +50,9 @@ class TickPickClient extends BaseApiClient
      *
      * @return array<int,array<string,mixed>>
      */
+    /**
+     * SearchEvents
+     */
     public function searchEvents(array $criteria): array
     {
         return $this->searchEventsViaScraping($criteria);
@@ -60,6 +63,9 @@ class TickPickClient extends BaseApiClient
      *
      * @return array<string,mixed>
      */
+    /**
+     * Get  event
+     */
     public function getEvent(string $eventId): array
     {
         return $this->getEventViaScraping($eventId);
@@ -69,6 +75,9 @@ class TickPickClient extends BaseApiClient
      * Get venue details
      *
      * @return array<string,mixed>
+     */
+    /**
+     * Get  venue
      */
     public function getVenue(string $venueId): array
     {
@@ -87,6 +96,9 @@ class TickPickClient extends BaseApiClient
      * @param array<string,mixed> $filters
      *
      * @return array<int,array<string,mixed>>
+     */
+    /**
+     * Get  event tickets
      */
     public function getEventTickets(string $eventId, array $filters = []): array
     {
@@ -124,6 +136,9 @@ class TickPickClient extends BaseApiClient
      *
      * @return array<string,string>
      */
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return $this->scrapingHeaders;
@@ -135,6 +150,9 @@ class TickPickClient extends BaseApiClient
      * @param array<string,mixed> $criteria
      *
      * @return array<int,array<string,mixed>>
+     */
+    /**
+     * SearchEventsViaScraping
      */
     protected function searchEventsViaScraping(array $criteria): array
     {
@@ -164,6 +182,9 @@ class TickPickClient extends BaseApiClient
      * Build scraping search URL
      *
      * @param array<string,mixed> $criteria
+     */
+    /**
+     * BuildScrapingSearchUrl
      */
     protected function buildScrapingSearchUrl(array $criteria): string
     {
@@ -201,6 +222,9 @@ class TickPickClient extends BaseApiClient
      * Parse search results from HTML
      *
      * @return array<int,array<string,mixed>>
+     */
+    /**
+     * ParseSearchResultsHtml
      */
     protected function parseSearchResultsHtml(string $html): array
     {
@@ -242,6 +266,11 @@ class TickPickClient extends BaseApiClient
         return $events;
     }
 
+    /**
+     * ParseEventCard
+     *
+     * @param mixed $eventNode
+     */
     protected function parseEventCard(DOMXPath $xpath, $eventNode): array
     {
         $event = [
@@ -323,6 +352,11 @@ class TickPickClient extends BaseApiClient
         return $event;
     }
 
+    /**
+     * ParseEventFromLink
+     *
+     * @param mixed $linkNode
+     */
     protected function parseEventFromLink(DOMXPath $xpath, $linkNode): array
     {
         $event = [
@@ -371,6 +405,9 @@ class TickPickClient extends BaseApiClient
         return $event;
     }
 
+    /**
+     * Get  event via scraping
+     */
     protected function getEventViaScraping(string $eventId): array
     {
         try {
@@ -396,6 +433,9 @@ class TickPickClient extends BaseApiClient
         }
     }
 
+    /**
+     * BuildEventUrl
+     */
     protected function buildEventUrl(string $eventId): string
     {
         // If eventId contains a URL fragment, use it directly
@@ -407,6 +447,9 @@ class TickPickClient extends BaseApiClient
         return "https://www.tickpick.com/buy-tickets/{$eventId}";
     }
 
+    /**
+     * ParseEventDetailsHtml
+     */
     protected function parseEventDetailsHtml(string $html, string $eventId): array
     {
         $event = [
@@ -494,6 +537,9 @@ class TickPickClient extends BaseApiClient
         return $event;
     }
 
+    /**
+     * TransformEventData
+     */
     protected function transformEventData(array $eventData): array
     {
         return [
@@ -528,6 +574,9 @@ class TickPickClient extends BaseApiClient
         ];
     }
 
+    /**
+     * DetermineStatus
+     */
     protected function determineStatus(array $eventData): string
     {
         if (empty($eventData['prices']) && empty($eventData['ticket_count'])) {
@@ -545,6 +594,9 @@ class TickPickClient extends BaseApiClient
         return 'unknown';
     }
 
+    /**
+     * ExtractCity
+     */
     protected function extractCity(string $location): string
     {
         if (empty($location)) {
@@ -559,6 +611,9 @@ class TickPickClient extends BaseApiClient
         return $location ?: 'Unknown City';
     }
 
+    /**
+     * NormalizeUrl
+     */
     protected function normalizeUrl(string $url): string
     {
         if (strpos($url, 'http') !== 0) {
@@ -568,6 +623,9 @@ class TickPickClient extends BaseApiClient
         return $url;
     }
 
+    /**
+     * ExtractEventIdFromUrl
+     */
     protected function extractEventIdFromUrl(string $url): ?string
     {
         // TickPick URLs are like /buy-{event-name}-tickets/{id} or contain numeric IDs
@@ -583,6 +641,9 @@ class TickPickClient extends BaseApiClient
         return NULL;
     }
 
+    /**
+     * ExtractEventNameFromUrl
+     */
     protected function extractEventNameFromUrl(string $url): string
     {
         // Extract event name from TickPick URL format: /buy-{event-name}-tickets
@@ -593,6 +654,11 @@ class TickPickClient extends BaseApiClient
         return '';
     }
 
+    /**
+     * ExtractPriceRange
+     *
+     * @param mixed $event
+     */
     protected function extractPriceRange(array &$event, array $prices): void
     {
         if (empty($prices)) {
@@ -612,6 +678,11 @@ class TickPickClient extends BaseApiClient
         }
     }
 
+    /**
+     * ExtractNoFeePriceRange
+     *
+     * @param mixed $event
+     */
     protected function extractNoFeePriceRange(array &$event, array $noFeePrices): void
     {
         if (empty($noFeePrices)) {
@@ -631,6 +702,9 @@ class TickPickClient extends BaseApiClient
         }
     }
 
+    /**
+     * ParseEventDate
+     */
     protected function parseEventDate(string $dateString): ?DateTime
     {
         if (empty($dateString)) {
@@ -682,6 +756,9 @@ class TickPickClient extends BaseApiClient
     /**
      * Extract no-fee pricing information specific to TickPick
      */
+    /**
+     * ExtractNoFeePricing
+     */
     protected function extractNoFeePricing(array $eventData): array
     {
         return [
@@ -701,6 +778,9 @@ class TickPickClient extends BaseApiClient
 
     /**
      * Calculate potential fee savings compared to competitors
+     */
+    /**
+     * CalculateFeeSavings
      */
     protected function calculateFeeSavings(array $eventData): array
     {
@@ -725,6 +805,9 @@ class TickPickClient extends BaseApiClient
 
     /**
      * Map internal status to standardized availability status
+     */
+    /**
+     * MapAvailabilityStatus
      */
     protected function mapAvailabilityStatus(string $internalStatus): string
     {

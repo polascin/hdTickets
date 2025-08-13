@@ -21,6 +21,9 @@ trait HasEncryptedAttributes
     /**
      * Initialize the encryption service
      */
+    /**
+     * InitializeEncryptionService
+     */
     public function initializeEncryptionService(): void
     {
         if (! $this->encryptionService) {
@@ -63,6 +66,12 @@ trait HasEncryptedAttributes
      *
      * @return mixed
      */
+    /**
+     * Set  attribute
+     *
+     * @param mixed $key
+     * @param mixed $value
+     */
     public function setAttribute($key, $value)
     {
         // If this attribute should be encrypted
@@ -86,6 +95,11 @@ trait HasEncryptedAttributes
      *
      * @param mixed $value
      */
+    /**
+     * CreateSearchableHash
+     *
+     * @param mixed $value
+     */
     public function createSearchableHash(string $attribute, $value): string
     {
         $this->initializeEncryptionService();
@@ -95,6 +109,9 @@ trait HasEncryptedAttributes
 
     /**
      * Get decrypted attributes for a given set of fields
+     */
+    /**
+     * Get  decrypted attributes
      */
     public function getDecryptedAttributes(?array $fields = NULL): array
     {
@@ -113,6 +130,9 @@ trait HasEncryptedAttributes
     /**
      * Rotate encryption for this model's encrypted fields
      * Useful when rotating encryption keys
+     */
+    /**
+     * RotateEncryption
      */
     public function rotateEncryption(?string $oldKey = NULL): bool
     {
@@ -149,6 +169,9 @@ trait HasEncryptedAttributes
     /**
      * Boot the trait
      */
+    /**
+     * BootHasEncryptedAttributes
+     */
     protected static function bootHasEncryptedAttributes(): void
     {
         // Ensure encryption service is available after model is constructed
@@ -168,6 +191,9 @@ trait HasEncryptedAttributes
     /**
      * Check if an attribute should be encrypted
      */
+    /**
+     * ShouldEncryptAttribute
+     */
     protected function shouldEncryptAttribute(string $key): bool
     {
         return in_array($key, $this->getEncryptedAttributes(), TRUE);
@@ -175,6 +201,9 @@ trait HasEncryptedAttributes
 
     /**
      * Check if an attribute should be encrypted as JSON
+     */
+    /**
+     * Check if  json encrypted attribute
      */
     protected function isJsonEncryptedAttribute(string $key): bool
     {
@@ -190,6 +219,9 @@ trait HasEncryptedAttributes
 
     /**
      * Check if the model has an attribute
+     */
+    /**
+     * Check if has  attribute
      */
     protected function hasAttribute(string $attribute): bool
     {

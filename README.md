@@ -82,13 +82,17 @@ HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monit
 ## 🚀 Installation & Setup
 
 ### Prerequisites
-- PHP 8.4 or higher (Laravel 12.x requirement)
-- Node.js v22.18.0 (Exact version required, specified in .nvmrc)
-- NPM (latest version compatible with Node.js 22.18.0)
-- MySQL 8.4+
-- Redis 6.0+
-- Composer 2.x
-- Ubuntu 24.04 LTS with Apache2 (Production environment)
+- **PHP**: 8.4.11+ (Required for Laravel 12.22.1)
+- **Node.js**: v22.18.0 (Exact version required, specified in .nvmrc)
+- **NPM**: v10.9.3+ (Compatible with Node.js 22.18.0)
+- **MySQL**: 8.4+ or MariaDB 10.4+
+- **Redis**: 6.0+ (Required for caching, sessions, and queues)
+- **Composer**: 2.x (Latest stable version)
+- **Web Server**: Apache2 with PHP 8.4 module
+- **Operating System**: Ubuntu 24.04 LTS (Production environment)
+- **SSL/TLS**: OpenSSL for secure connections
+- **Memory**: Minimum 4GB RAM (8GB recommended for production)
+- **Disk Space**: Minimum 10GB available space
 
 ### Installation Steps
 ```bash

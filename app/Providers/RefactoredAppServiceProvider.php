@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
+use function function_exists;
 use function get_class;
 use function in_array;
 
@@ -31,6 +33,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         $this->registerCoreServices();
@@ -40,6 +45,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
+     */
+    /**
+     * Boot
      */
     public function boot(): void
     {
@@ -55,6 +63,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
+     */
+    /**
+     * Provides
      */
     public function provides(): array
     {
@@ -74,6 +85,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Register core application services
+     */
+    /**
+     * RegisterCoreServices
      */
     private function registerCoreServices(): void
     {
@@ -101,6 +115,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Register custom application services
      */
+    /**
+     * RegisterCustomServices
+     */
     private function registerCustomServices(): void
     {
         // Register scraping services
@@ -127,6 +144,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Register development-specific services
      */
+    /**
+     * RegisterDevelopmentServices
+     */
     private function registerDevelopmentServices(): void
     {
         if ($this->app->environment('local', 'testing')) {
@@ -136,7 +156,7 @@ class RefactoredAppServiceProvider extends ServiceProvider
             // Register debug services
             $this->app->singleton('debug.profiler', function ($app) {
                 return new class() {
-                    public function profile($callback, $name = 'operation')
+                    public function profile()
                     {
                         $start = microtime(TRUE);
                         $result = $callback();
@@ -153,6 +173,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Configure Eloquent settings
+     */
+    /**
+     * ConfigureEloquent
      */
     private function configureEloquent(): void
     {
@@ -176,6 +199,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Configure pagination settings
      */
+    /**
+     * ConfigurePagination
+     */
     private function configurePagination(): void
     {
         // Use Bootstrap 5 for pagination
@@ -188,6 +214,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Configure custom validation rules
+     */
+    /**
+     * ConfigureValidation
      */
     private function configureValidation(): void
     {
@@ -211,6 +240,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
     /**
      * Configure view composers and shared data
+     */
+    /**
+     * ConfigureViews
      */
     private function configureViews(): void
     {
@@ -265,6 +297,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Configure custom Blade directives
      */
+    /**
+     * ConfigureBladeDirectives
+     */
     private function configureBladeDirectives(): void
     {
         // Directive for formatting prices
@@ -316,6 +351,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Configure authorization gates
      */
+    /**
+     * ConfigureGates
+     */
     private function configureGates(): void
     {
         // Gate for admin access
@@ -347,6 +385,9 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Configure security settings
      */
+    /**
+     * ConfigureSecurity
+     */
     private function configureSecurity(): void
     {
         // Configure JSON resource wrapping
@@ -359,23 +400,15 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
         // Configure rate limiting
         $this->app->singleton('rate_limiter', function ($app) {
-            return new \App\Services\ApiRateLimiter();
+            return new \Illuminate\Cache\RateLimiter($app['cache']);
         });
-    }
 
-    /**
-     * Configure performance optimizations
-     */
-    private function configurePerformance(): void
-    {
-        // Configure query optimization
-        if (config('database.log_queries', FALSE)) {
-            \Illuminate\Support\Facades\DB::listen(function ($query): void {
-                if ($query->time > 1000) { // Log slow queries (>1s)
-                    logger("Slow query detected: {$query->sql} ({$query->time}ms)");
-                }
-            });
-        }
+        // Configure database query listening
+        DB::listen(function ($query): void {
+            if ($query->time > 1000) { // Log slow queries (>1s)
+                logger("Slow query detected: {$query->sql} ({$query->time}ms)");
+            }
+        });
 
         // Configure memory usage monitoring
         if (config('app.monitor_memory', FALSE)) {
@@ -391,5 +424,23 @@ class RefactoredAppServiceProvider extends ServiceProvider
         $this->app->singleton('cache.optimizer', function ($app) {
             return new \App\Services\Enhanced\AdvancedCacheService();
         });
+    }
+
+    /**
+     * Configure performance settings
+     */
+    private function configurePerformance(): void
+    {
+        // Configure opcache settings if available
+        if (function_exists('opcache_get_status') && opcache_get_status()) {
+            // Opcache is available and enabled
+        }
+
+        // Configure session garbage collection
+        if (config('session.driver') === 'file') {
+            ini_set('session.gc_probability', 1);
+            ini_set('session.gc_divisor', 100);
+            ini_set('session.gc_maxlifetime', 7200); // 2 hours
+        }
     }
 }

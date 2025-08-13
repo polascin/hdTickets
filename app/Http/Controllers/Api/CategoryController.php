@@ -16,6 +16,9 @@ class CategoryController extends Controller
     /**
      * Get all categories with ticket counts
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Category::withCount(['scrapedTickets']);
@@ -77,6 +80,9 @@ class CategoryController extends Controller
     /**
      * Get category by ID with detailed statistics
      */
+    /**
+     * Show
+     */
     public function show(int $id): JsonResponse
     {
         $category = Category::withCount(['scrapedTickets'])->find($id);
@@ -126,6 +132,9 @@ class CategoryController extends Controller
 
     /**
      * Get tickets for a specific category
+     */
+    /**
+     * Tickets
      */
     public function tickets(Request $request, int $id): JsonResponse
     {
@@ -207,6 +216,9 @@ class CategoryController extends Controller
     /**
      * Get category statistics summary
      */
+    /**
+     * Statistics
+     */
     public function statistics(): JsonResponse
     {
         $totalCategories = Category::count();
@@ -254,6 +266,9 @@ class CategoryController extends Controller
     /**
      * Create a new category (admin only)
      */
+    /**
+     * Store
+     */
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -286,6 +301,9 @@ class CategoryController extends Controller
 
     /**
      * Update an existing category (admin only)
+     */
+    /**
+     * Update
      */
     public function update(Request $request, int $id): JsonResponse
     {
@@ -326,6 +344,9 @@ class CategoryController extends Controller
     /**
      * Delete a category (admin only)
      */
+    /**
+     * Destroy
+     */
     public function destroy(int $id): JsonResponse
     {
         $category = Category::find($id);
@@ -358,6 +379,9 @@ class CategoryController extends Controller
 
     /**
      * Get available sport types
+     */
+    /**
+     * SportTypes
      */
     public function sportTypes(): JsonResponse
     {

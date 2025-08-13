@@ -15,16 +15,25 @@ final readonly class Price
         $this->validate($amount, $currency);
     }
 
+    /**
+     * Amount
+     */
     public function amount(): float
     {
         return $this->amount;
     }
 
+    /**
+     * Currency
+     */
     public function currency(): string
     {
         return $this->currency;
     }
 
+    /**
+     * Formatted
+     */
     public function formatted(): string
     {
         $symbols = [
@@ -36,12 +45,18 @@ final readonly class Price
         return $symbols[$this->currency] . number_format($this->amount, 2);
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return abs($this->amount - $other->amount) < 0.01
                && $this->currency === $other->currency;
     }
 
+    /**
+     * Check if  greater than
+     */
     public function isGreaterThan(self $other): bool
     {
         if ($this->currency !== $other->currency) {
@@ -51,6 +66,9 @@ final readonly class Price
         return $this->amount > $other->amount;
     }
 
+    /**
+     * Check if  less than
+     */
     public function isLessThan(self $other): bool
     {
         if ($this->currency !== $other->currency) {
@@ -60,6 +78,9 @@ final readonly class Price
         return $this->amount < $other->amount;
     }
 
+    /**
+     * Add
+     */
     public function add(self $other): self
     {
         if ($this->currency !== $other->currency) {
@@ -69,6 +90,9 @@ final readonly class Price
         return new self($this->amount + $other->amount, $this->currency);
     }
 
+    /**
+     * Subtract
+     */
     public function subtract(self $other): self
     {
         if ($this->currency !== $other->currency) {
@@ -83,6 +107,9 @@ final readonly class Price
         return new self($result, $this->currency);
     }
 
+    /**
+     * Percentage
+     */
     public function percentage(float $percentage): self
     {
         if ($percentage < 0) {
@@ -92,21 +119,33 @@ final readonly class Price
         return new self($this->amount * ($percentage / 100), $this->currency);
     }
 
+    /**
+     * Gbp
+     */
     public static function gbp(float $amount): self
     {
         return new self($amount, 'GBP');
     }
 
+    /**
+     * Usd
+     */
     public static function usd(float $amount): self
     {
         return new self($amount, 'USD');
     }
 
+    /**
+     * Eur
+     */
     public static function eur(float $amount): self
     {
         return new self($amount, 'EUR');
     }
 
+    /**
+     * FromString
+     */
     public static function fromString(string $amount, string $currency = 'GBP'): self
     {
         $numericAmount = (float) $amount;
@@ -114,11 +153,17 @@ final readonly class Price
         return new self($numericAmount, $currency);
     }
 
+    /**
+     * Zero
+     */
     public static function zero(string $currency = 'GBP'): self
     {
         return new self(0.0, $currency);
     }
 
+    /**
+     * Validate
+     */
     private function validate(float $amount, string $currency): void
     {
         if ($amount < 0) {
@@ -143,6 +188,9 @@ final readonly class Price
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->formatted();

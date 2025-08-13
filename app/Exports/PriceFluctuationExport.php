@@ -24,21 +24,17 @@ use function count;
 
 class PriceFluctuationExport implements WithMultipleSheets
 {
-    /** @var mixed */
-    protected $trends;
+    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
+    protected \Illuminate\Support\Collection $trends;
 
-    /** @var mixed */
-    protected $startDate;
+    protected string $startDate;
 
-    /** @var mixed */
-    protected $endDate;
+    protected string $endDate;
 
     /**
-     * @param mixed $trends
-     * @param mixed $startDate
-     * @param mixed $endDate
+     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct($trends, $startDate, $endDate)
+    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
     {
         $this->trends = $trends;
         $this->startDate = $startDate;
@@ -47,6 +43,9 @@ class PriceFluctuationExport implements WithMultipleSheets
 
     /**
      * @return array<int, mixed>
+     */
+    /**
+     * Sheets
      */
     public function sheets(): array
     {
@@ -57,23 +56,22 @@ class PriceFluctuationExport implements WithMultipleSheets
     }
 }
 
+/**
+ * @implements WithMapping<object{ticket_id: int, title: string, platform: string, avg_price: float, min_price: float, max_price: float, volatility: float, trend_direction: string, data_points: int}>
+ */
 class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
 {
-    /** @var mixed */
-    protected $trends;
+    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
+    protected \Illuminate\Support\Collection $trends;
 
-    /** @var mixed */
-    protected $startDate;
+    protected string $startDate;
 
-    /** @var mixed */
-    protected $endDate;
+    protected string $endDate;
 
     /**
-     * @param mixed $trends
-     * @param mixed $startDate
-     * @param mixed $endDate
+     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct($trends, $startDate, $endDate)
+    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
     {
         $this->trends = $trends;
         $this->startDate = $startDate;
@@ -81,9 +79,12 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<int, object{ticket_id: int, title: string, platform: string, avg_price: float, min_price: float, max_price: float, volatility: float, trend_direction: string, data_points: int}>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         return collect($this->trends)->map(function ($trend) {
             $ticket = ScrapedTicket::find($trend->ticket_id);
@@ -92,8 +93,8 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
                 ->orderBy('recorded_at')
                 ->get();
 
-            $minPrice = $priceHistory->min('price') ?? 0;
-            $maxPrice = $priceHistory->max('price') ?? 0;
+            $minPrice = (float) ($priceHistory->min('price') ?? 0);
+            $maxPrice = (float) ($priceHistory->max('price') ?? 0);
             $volatility = $this->calculateVolatility($priceHistory);
             $trendDirection = $this->calculateTrendDirection($priceHistory);
 
@@ -114,6 +115,9 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     /**
      * @return array<int, string>
      */
+    /**
+     * Headings
+     */
     public function headings(): array
     {
         return [
@@ -130,9 +134,14 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @param mixed $item
+     * @param object{ticket_id: int, title: string, platform: string, avg_price: float, min_price: float, max_price: float, volatility: float, trend_direction: string, data_points: int} $item
      *
-     * @return array<int, mixed>
+     * @return array<int, mixed> Array shape: [ticket_id, title, platform, avg_price, min_price, max_price, volatility, trend_direction, data_points]
+     */
+    /**
+     * Map
+     *
+     * @param mixed $item
      */
     public function map($item): array
     {
@@ -152,6 +161,9 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     /**
      * @return array<int, array<string, mixed>>
      */
+    /**
+     * Styles
+     */
     public function styles(Worksheet $sheet): array
     {
         return [
@@ -166,7 +178,10 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @return array<Chart>
+     * @return array<int, Chart>
+     */
+    /**
+     * Charts
      */
     public function charts(): array
     {
@@ -219,9 +234,14 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @param mixed $priceHistory
+     * @param \Illuminate\Support\Collection<int, object{price: float}> $priceHistory
+     *
+     * @return float Price volatility calculation
      */
-    private function calculateVolatility($priceHistory): float
+    /**
+     * CalculateVolatility
+     */
+    private function calculateVolatility(\Illuminate\Support\Collection $priceHistory): float
     {
         if ($priceHistory->count() < 2) {
             return 0;
@@ -237,9 +257,14 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @param mixed $priceHistory
+     * @param \Illuminate\Support\Collection<int, object{price: float}> $priceHistory
+     *
+     * @return string Trend direction (Increasing|Decreasing|Stable)
      */
-    private function calculateTrendDirection($priceHistory): string
+    /**
+     * CalculateTrendDirection
+     */
+    private function calculateTrendDirection(\Illuminate\Support\Collection $priceHistory): string
     {
         if ($priceHistory->count() < 2) {
             return 'Stable';
@@ -262,21 +287,17 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
 
 class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    /** @var mixed */
-    protected $trends;
+    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
+    protected \Illuminate\Support\Collection $trends;
 
-    /** @var mixed */
-    protected $startDate;
+    protected string $startDate;
 
-    /** @var mixed */
-    protected $endDate;
+    protected string $endDate;
 
     /**
-     * @param mixed $trends
-     * @param mixed $startDate
-     * @param mixed $endDate
+     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct($trends, $startDate, $endDate)
+    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
     {
         $this->trends = $trends;
         $this->startDate = $startDate;
@@ -284,9 +305,12 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<int, array{ticket_id: int, recorded_at: string, price: float, quantity: int, source: string, price_change: float}>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         $detailData = collect();
 
@@ -314,6 +338,9 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
     /**
      * @return array<int, string>
      */
+    /**
+     * Headings
+     */
     public function headings(): array
     {
         return [
@@ -328,6 +355,9 @@ class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithS
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {

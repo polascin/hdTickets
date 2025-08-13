@@ -12,6 +12,9 @@ trait RateLimitingTrait
     /**
      * Apply rate limiting for a specific platform
      */
+    /**
+     * ApplyRateLimit
+     */
     protected function applyRateLimit(string $platform): void
     {
         $cacheKey = "rate_limit_{$platform}";
@@ -38,6 +41,9 @@ trait RateLimitingTrait
     /**
      * Get adaptive rate limit based on platform origin
      */
+    /**
+     * Get  adaptive rate limit
+     */
     protected function getAdaptiveRateLimit(): int
     {
         // European sites tend to be more restrictive
@@ -52,6 +58,9 @@ trait RateLimitingTrait
 
     /**
      * Apply exponential backoff for failed requests
+     */
+    /**
+     * ApplyBackoff
      */
     protected function applyBackoff(int $attempt): void
     {
@@ -74,6 +83,9 @@ trait RateLimitingTrait
 
     /**
      * Check if rate limit is exceeded
+     */
+    /**
+     * Check if  rate limit exceeded
      */
     protected function isRateLimitExceeded(string $platform): bool
     {
@@ -116,6 +128,9 @@ trait RateLimitingTrait
     /**
      * Get intelligent delay based on time of day and platform
      */
+    /**
+     * Get  intelligent delay
+     */
     protected function getIntelligentDelay(): int
     {
         $hour = (int) date('H');
@@ -141,6 +156,9 @@ trait RateLimitingTrait
 
     /**
      * Check if this is a European platform
+     */
+    /**
+     * Check if  european platform
      */
     protected function isEuropeanPlatform(): bool
     {

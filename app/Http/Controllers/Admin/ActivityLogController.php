@@ -10,7 +10,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
-    protected $securityService;
+    protected SecurityService $securityService;
 
     public function __construct(SecurityService $securityService)
     {
@@ -20,7 +20,10 @@ class ActivityLogController extends Controller
     /**
      * Display activity logs dashboard
      */
-    public function index(Request $request)
+    /**
+     * Index
+     */
+    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
         // Check permissions
         if (! auth()->user()->canManageSystem()) {
@@ -69,7 +72,7 @@ class ActivityLogController extends Controller
         $users = User::where('is_active', TRUE)->select('id', 'name', 'surname', 'email')->get();
 
         // Get summary statistics
-        $stats = $this->getActivityStats();
+        $stats = $this->getActivityStatsInternal();
 
         return view('admin.activity-logs.index', compact(
             'activities',
@@ -86,12 +89,19 @@ class ActivityLogController extends Controller
 
     /**
      * Show detailed activity log entry
+     *
+     * @param mixed $id
      */
-    public function show(Activity $activity)
+    /**
+     * Show
+     */
+    public function show(int $id): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
     {
-        if (! auth()->user()->canManageSystem()) {
+        if (! auth()->user()?->canManageSystem()) {
             abort(403, 'You do not have permission to view activity log details.');
         }
+
+        $activity = Activity::with('causer:id,name,surname,email')->findOrFail($id);
 
         $this->securityService->logUserActivity('view_activity_log_details', [
             'activity_id' => $activity->id,
@@ -103,9 +113,12 @@ class ActivityLogController extends Controller
     /**
      * Get security activities for dashboard
      */
-    public function getSecurityActivities(Request $request)
+    /**
+     * Get  security activities
+     */
+    public function getSecurityActivities(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        if (! auth()->user()->canManageSystem()) {
+        if (! auth()->user()?->canManageSystem()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -130,13 +143,18 @@ class ActivityLogController extends Controller
     /**
      * Get user activity summary
      */
-    public function getUserActivitySummary(Request $request, User $user)
+    /**
+     * Get  user activity summary
+     */
+    public function getUserActivitySummary(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        if (! auth()->user()->canManageUsers()) {
+        if (! auth()->user()?->canManageUsers()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        $userId = $request->get('user_id');
         $days = $request->get('days', 30);
+        $user = User::findOrFail($userId);
         $summary = $this->securityService->getUserActivitySummary($user, $days);
 
         return response()->json($summary);
@@ -145,7 +163,10 @@ class ActivityLogController extends Controller
     /**
      * Generate bulk operation token
      */
-    public function generateBulkToken(Request $request)
+    /**
+     * GenerateBulkToken
+     */
+    public function generateBulkToken(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'operation' => 'required|string',
@@ -167,7 +188,10 @@ class ActivityLogController extends Controller
     /**
      * Export activity logs
      */
-    public function export(Request $request)
+    /**
+     * Export
+     */
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
     {
         if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to export activity logs.');
@@ -249,9 +273,12 @@ class ActivityLogController extends Controller
     /**
      * Delete old activity logs
      */
-    public function cleanup(Request $request)
+    /**
+     * Cleanup
+     */
+    public function cleanup(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
-        if (! auth()->user()->isRootAdmin()) {
+        if (! auth()->user()?->isRootAdmin()) {
             abort(403, 'Only root admin can perform log cleanup.');
         }
 
@@ -280,7 +307,44 @@ class ActivityLogController extends Controller
     /**
      * Get activity statistics
      */
-    private function getActivityStats()
+    /**
+     * Get  activity stats
+     */
+    public function getActivityStats(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $today = now()->startOfDay();
+        $thisWeek = now()->startOfWeek();
+        $thisMonth = now()->startOfMonth();
+
+        $stats = [
+            'total_activities' => Activity::count(),
+            'today'            => Activity::where('created_at', '>=', $today)->count(),
+            'this_week'        => Activity::where('created_at', '>=', $thisWeek)->count(),
+            'this_month'       => Activity::where('created_at', '>=', $thisMonth)->count(),
+            'security_events'  => Activity::where('log_name', 'security')->count(),
+            'user_actions'     => Activity::where('log_name', 'user_actions')->count(),
+            'bulk_operations'  => Activity::where('log_name', 'bulk_operations')->count(),
+            'high_risk_events' => Activity::whereJsonContains('properties->risk_level', 'high')->count(),
+            'by_log_name'      => Activity::selectRaw('log_name, COUNT(*) as count')
+                ->groupBy('log_name')
+                ->pluck('count', 'log_name')
+                ->toArray(),
+            'recent_high_risk' => Activity::whereJsonContains('properties->risk_level', 'high')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get(),
+        ];
+
+        return response()->json($stats);
+    }
+
+    /**
+     * Get activity statistics for internal use
+     */
+    /**
+     * Get  activity stats internal
+     */
+    private function getActivityStatsInternal(): array
     {
         $today = now()->startOfDay();
         $thisWeek = now()->startOfWeek();

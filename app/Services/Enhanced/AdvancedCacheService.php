@@ -35,6 +35,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Multi-layered cache retrieval with fallback
      */
+    /**
+     * Get  multi layered
+     */
     public function getMultiLayered(string $key, callable $callback, int $ttl = self::CACHE_TTL_MEDIUM): mixed
     {
         // Layer 1: Memory cache (Redis)
@@ -69,6 +72,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Intelligent cache warming based on usage patterns
      */
+    /**
+     * IntelligentWarmUp
+     */
     public function intelligentWarmUp(): void
     {
         $popularKeys = [
@@ -94,6 +100,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Enhanced ticket statistics with performance optimization
+     */
+    /**
+     * Get  enhanced ticket stats
      */
     public function getEnhancedTicketStats(): array
     {
@@ -131,6 +140,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Optimized platform breakdown with Redis sorted sets
      */
+    /**
+     * Get  optimized platform breakdown
+     */
     public function getOptimizedPlatformBreakdown(): array
     {
         return $this->getMultiLayered('optimized_platform_breakdown', function () {
@@ -164,6 +176,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Real-time metrics with micro-caching
      */
+    /**
+     * Get  real time metrics
+     */
     public function getRealTimeMetrics(): array
     {
         return $this->getMultiLayered('realtime_metrics', function () {
@@ -178,6 +193,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Advanced search results caching with query fingerprinting
+     */
+    /**
+     * Get  cached search results
      */
     public function getCachedSearchResults(array $criteria, callable $searchCallback): array
     {
@@ -200,6 +218,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Bulk cache invalidation with pattern matching
+     */
+    /**
+     * BulkInvalidate
      */
     public function bulkInvalidate(array $patterns): int
     {
@@ -234,6 +255,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Cache preloading for anticipated requests
      */
+    /**
+     * PreloadAnticipatedData
+     */
     public function preloadAnticipatedData(): void
     {
         $preloadTasks = [
@@ -261,6 +285,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Advanced cache statistics and health monitoring
      */
+    /**
+     * Get  advanced cache stats
+     */
     public function getAdvancedCacheStats(): array
     {
         return [
@@ -273,6 +300,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Warm cache for popular search patterns
+     */
+    /**
+     * WarmPopularSearches
      */
     private function warmPopularSearches(): void
     {
@@ -297,6 +327,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Get active scraping sessions count
      */
+    /**
+     * Get  active scraping sessions
+     */
     private function getActiveScrapingSessions(): int
     {
         try {
@@ -313,6 +346,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Get recent ticket updates
      */
+    /**
+     * Get  recent ticket updates
+     */
     private function getRecentTicketUpdates(): int
     {
         return ScrapedTicket::where('updated_at', '>=', Carbon::now()->subMinutes(5))->count();
@@ -320,6 +356,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Get system load metrics
+     */
+    /**
+     * Get  system load metrics
      */
     private function getSystemLoadMetrics(): array
     {
@@ -332,6 +371,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Get Redis memory usage
+     */
+    /**
+     * Get  redis memory usage
      */
     private function getRedisMemoryUsage(): array
     {
@@ -353,6 +395,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Calculate cache hit rate
      */
+    /**
+     * CalculateCacheHitRate
+     */
     private function calculateCacheHitRate(): float
     {
         try {
@@ -370,6 +415,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Get cache performance metrics
      */
+    /**
+     * Get  cache performance metrics
+     */
     private function getCachePerformanceMetrics(): array
     {
         return [
@@ -383,6 +431,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Generate query fingerprint for consistent caching
      */
+    /**
+     * GenerateQueryFingerprint
+     */
     private function generateQueryFingerprint(array $criteria): string
     {
         // Sort criteria for consistent fingerprinting
@@ -393,6 +444,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Store cache metadata for analytics
+     */
+    /**
+     * StoreCacheMetadata
      */
     private function storeCacheMetadata(string $cacheKey, array $metadata): void
     {
@@ -409,6 +463,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Preload high-demand events into cache
+     */
+    /**
+     * PreloadHighDemandEvents
      */
     private function preloadHighDemandEvents(): void
     {
@@ -427,6 +484,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Get price analytics with caching
+     */
+    /**
+     * Get  price analytics
      */
     private function getPriceAnalytics(): array
     {
@@ -451,6 +511,9 @@ class AdvancedCacheService extends PerformanceCacheService
     /**
      * Get comprehensive Redis information
      */
+    /**
+     * Get  redis info
+     */
     private function getRedisInfo(): array
     {
         try {
@@ -467,6 +530,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Get cache key distribution analysis
+     */
+    /**
+     * Get  cache distribution
      */
     private function getCacheDistribution(): array
     {
@@ -493,6 +559,9 @@ class AdvancedCacheService extends PerformanceCacheService
 
     /**
      * Get memory analysis
+     */
+    /**
+     * Get  memory analysis
      */
     private function getMemoryAnalysis(): array
     {

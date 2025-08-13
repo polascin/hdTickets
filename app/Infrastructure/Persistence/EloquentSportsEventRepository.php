@@ -13,6 +13,9 @@ use DateTimeImmutable;
 
 class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 {
+    /**
+     * Save
+     */
     public function save(SportsEvent $event): void
     {
         $model = ScrapedTicket::firstOrNew(['external_id' => $event->getId()->value()]);
@@ -38,6 +41,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
         $model->save();
     }
 
+    /**
+     * FindById
+     */
     public function findById(EventId $id): ?SportsEvent
     {
         $model = ScrapedTicket::where('external_id', $id->value())->first();
@@ -49,6 +55,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
         return $this->toDomainEntity($model);
     }
 
+    /**
+     * FindByName
+     */
     public function findByName(string $name): ?SportsEvent
     {
         $model = ScrapedTicket::where('event_name', $name)->first();
@@ -63,6 +72,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * FindByCategory
+     */
     public function findByCategory(SportCategory $category): array
     {
         $models = ScrapedTicket::where('sport_category', $category->value())->get();
@@ -72,6 +84,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * FindUpcoming
      */
     public function findUpcoming(int $limit = 50): array
     {
@@ -85,6 +100,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * FindByDateRange
      */
     public function findByDateRange(
         DateTimeImmutable $startDate,
@@ -101,6 +119,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * FindHighDemandEvents
+     */
     public function findHighDemandEvents(): array
     {
         $models = ScrapedTicket::where('is_high_demand', TRUE)->get();
@@ -111,6 +132,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * FindByVenue
+     */
     public function findByVenue(string $venue): array
     {
         $models = ScrapedTicket::where('venue_name', $venue)->get();
@@ -120,6 +144,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * FindByTeam
      */
     public function findByTeam(string $team): array
     {
@@ -133,6 +160,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * FindByCompetition
+     */
     public function findByCompetition(string $competition): array
     {
         $models = ScrapedTicket::where('competition', $competition)->get();
@@ -142,6 +172,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * FindConflictingEvents
      */
     public function findConflictingEvents(
         DateTimeImmutable $eventDate,
@@ -154,11 +187,17 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
         return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
     }
 
+    /**
+     * Delete
+     */
     public function delete(EventId $id): void
     {
         ScrapedTicket::where('external_id', $id->value())->delete();
     }
 
+    /**
+     * Exists
+     */
     public function exists(EventId $id): bool
     {
         return ScrapedTicket::where('external_id', $id->value())->exists();
@@ -166,6 +205,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * FindWithFilters
      */
     public function findWithFilters(
         ?SportCategory $category = NULL,
@@ -206,6 +248,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
         return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
     }
 
+    /**
+     * CountWithFilters
+     */
     public function countWithFilters(
         ?SportCategory $category = NULL,
         ?string $venue = NULL,
@@ -238,6 +283,9 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
         return $query->count();
     }
 
+    /**
+     * ToDomainEntity
+     */
     private function toDomainEntity(ScrapedTicket $model): SportsEvent
     {
         return new SportsEvent(

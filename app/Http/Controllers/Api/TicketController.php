@@ -18,11 +18,11 @@ class TicketController extends Controller
 {
     /**
      * Display a listing of the tickets.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    /**
+     * Index
+     */
+    public function index(Request $request): JsonResponse
     {
         $query = Ticket::query()
             ->with(['user', 'assignedTo', 'category', 'comments', 'attachments'])
@@ -127,11 +127,11 @@ class TicketController extends Controller
 
     /**
      * Store a newly created ticket in storage.
-     *
-     * @param \App\Http\Requests\Api\StoreTicketRequest $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreTicketRequest $request): \Illuminate\Http\JsonResponse
+    /**
+     * Store
+     */
+    public function store(StoreTicketRequest $request): JsonResponse
     {
         $data = $request->validated();
         $data['user_id'] = auth()->id();
@@ -146,11 +146,11 @@ class TicketController extends Controller
 
     /**
      * Display the specified ticket.
-     *
-     * @param \App\Models\Ticket $ticket
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Ticket $ticket): \Illuminate\Http\JsonResponse
+    /**
+     * Show
+     */
+    public function show(Ticket $ticket): JsonResponse
     {
         // Load all relationships for detailed view
         $ticket->load([
@@ -168,12 +168,11 @@ class TicketController extends Controller
 
     /**
      * Update the specified ticket in storage.
-     *
-     * @param \App\Http\Requests\Api\UpdateTicketRequest $request
-     * @param \App\Models\Ticket $ticket
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateTicketRequest $request, Ticket $ticket): \Illuminate\Http\JsonResponse
+    /**
+     * Update
+     */
+    public function update(UpdateTicketRequest $request, Ticket $ticket): JsonResponse
     {
         $oldStatus = $ticket->status;
 
@@ -197,11 +196,11 @@ class TicketController extends Controller
 
     /**
      * Remove the specified ticket from storage.
-     *
-     * @param \App\Models\Ticket $ticket
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Ticket $ticket): \Illuminate\Http\JsonResponse
+    /**
+     * Destroy
+     */
+    public function destroy(Ticket $ticket): JsonResponse
     {
         $ticket->delete();
 
@@ -210,11 +209,11 @@ class TicketController extends Controller
 
     /**
      * Broadcast ticket availability update.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
-    public function availabilityUpdate(Request $request): \Illuminate\Http\JsonResponse
+    /**
+     * AvailabilityUpdate
+     */
+    public function availabilityUpdate(Request $request): JsonResponse
     {
         // Validate request
         $data = $request->validate([

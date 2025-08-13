@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AdvancedReportingController extends Controller
 {
-    protected $reportingService;
+    protected AdvancedReportingService $reportingService;
 
     public function __construct(AdvancedReportingService $reportingService)
     {
@@ -21,6 +21,9 @@ class AdvancedReportingController extends Controller
 
     /**
      * Generate advanced analytics report
+     */
+    /**
+     * GenerateReport
      */
     public function generateReport(Request $request): JsonResponse
     {
@@ -70,6 +73,9 @@ class AdvancedReportingController extends Controller
 
     /**
      * Get available report types and their configurations
+     */
+    /**
+     * Get  report types
      */
     public function getReportTypes(): JsonResponse
     {
@@ -136,6 +142,9 @@ class AdvancedReportingController extends Controller
     /**
      * Schedule a recurring report
      */
+    /**
+     * ScheduleReport
+     */
     public function scheduleReport(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -194,6 +203,9 @@ class AdvancedReportingController extends Controller
     /**
      * Get scheduled reports
      */
+    /**
+     * Get  scheduled reports
+     */
     public function getScheduledReports(): JsonResponse
     {
         try {
@@ -228,6 +240,11 @@ class AdvancedReportingController extends Controller
 
     /**
      * Update scheduled report
+     *
+     * @param mixed $id
+     */
+    /**
+     * UpdateScheduledReport
      *
      * @param mixed $id
      */
@@ -288,7 +305,10 @@ class AdvancedReportingController extends Controller
      *
      * @param mixed $id
      */
-    public function deleteScheduledReport($id): JsonResponse
+    /**
+     * DeleteScheduledReport
+     */
+    public function deleteScheduledReport(int $id): JsonResponse
     {
         try {
             $deleted = DB::table('scheduled_reports')
@@ -317,6 +337,9 @@ class AdvancedReportingController extends Controller
 
     /**
      * Get report generation status
+     */
+    /**
+     * Get  report status
      */
     public function getReportStatus(Request $request): JsonResponse
     {
@@ -369,6 +392,9 @@ class AdvancedReportingController extends Controller
     /**
      * Get report builder configuration
      */
+    /**
+     * Get  report builder config
+     */
     public function getReportBuilderConfig(): JsonResponse
     {
         $config = [
@@ -419,6 +445,9 @@ class AdvancedReportingController extends Controller
 
     /**
      * Build custom report
+     */
+    /**
+     * BuildCustomReport
      */
     public function buildCustomReport(Request $request): JsonResponse
     {

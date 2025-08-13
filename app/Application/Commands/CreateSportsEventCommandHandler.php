@@ -16,6 +16,9 @@ class CreateSportsEventCommandHandler
     ) {
     }
 
+    /**
+     * Handle
+     */
     public function handle(CreateSportsEventCommand $command): void
     {
         $eventDate = new EventDate($command->eventDate);

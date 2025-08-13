@@ -37,6 +37,9 @@ class AccountHealthMonitoringService
      *
      * @return array Health status report
      */
+    /**
+     * PerformHealthCheck
+     */
     public function performHealthCheck(User $user): array
     {
         $healthReport = [
@@ -88,6 +91,9 @@ class AccountHealthMonitoringService
 
     /**
      * Perform bulk health checks
+     */
+    /**
+     * PerformBulkHealthChecks
      */
     public function performBulkHealthChecks(?Collection $users = NULL): array
     {
@@ -145,6 +151,9 @@ class AccountHealthMonitoringService
     /**
      * Get cached health report
      */
+    /**
+     * Get  cached health report
+     */
     public function getCachedHealthReport(int $userId): ?array
     {
         $cacheKey = "account_health_{$userId}";
@@ -154,6 +163,9 @@ class AccountHealthMonitoringService
 
     /**
      * Validate basic account information
+     */
+    /**
+     * ValidateBasicAccount
      */
     protected function validateBasicAccount(User $user): array
     {
@@ -177,6 +189,9 @@ class AccountHealthMonitoringService
 
     /**
      * Analyze login patterns for anomalies
+     */
+    /**
+     * AnalyzeLoginPatterns
      */
     protected function analyzeLoginPatterns(User $user): array
     {
@@ -226,6 +241,9 @@ class AccountHealthMonitoringService
     /**
      * Check failed authentication attempts
      */
+    /**
+     * CheckFailedAttempts
+     */
     protected function checkFailedAttempts(User $user): array
     {
         $failedAttempts = DB::table('activity_log')
@@ -266,6 +284,9 @@ class AccountHealthMonitoringService
     /**
      * Analyze account activity patterns
      */
+    /**
+     * AnalyzeAccountActivity
+     */
     protected function analyzeAccountActivity(User $user): array
     {
         $activities = DB::table('activity_log')
@@ -303,6 +324,9 @@ class AccountHealthMonitoringService
     /**
      * Validate user sessions
      */
+    /**
+     * ValidateUserSessions
+     */
     protected function validateUserSessions(User $user): array
     {
         // Check for active sessions
@@ -337,6 +361,9 @@ class AccountHealthMonitoringService
     /**
      * Check permission consistency
      */
+    /**
+     * CheckPermissionConsistency
+     */
     protected function checkPermissionConsistency(User $user): array
     {
         $permissionChecks = [
@@ -356,6 +383,9 @@ class AccountHealthMonitoringService
 
     /**
      * Validate security settings
+     */
+    /**
+     * ValidateSecuritySettings
      */
     protected function validateSecuritySettings(User $user): array
     {
@@ -378,6 +408,9 @@ class AccountHealthMonitoringService
 
     /**
      * Check data integrity for encrypted fields
+     */
+    /**
+     * CheckDataIntegrity
      */
     protected function checkDataIntegrity(User $user): array
     {
@@ -413,6 +446,9 @@ class AccountHealthMonitoringService
     /**
      * Calculate overall health status
      */
+    /**
+     * CalculateOverallHealth
+     */
     protected function calculateOverallHealth(array $healthReport): array
     {
         $scores = array_column($healthReport['checks'], 'score');
@@ -446,6 +482,9 @@ class AccountHealthMonitoringService
     /**
      * Generate health recommendations
      */
+    /**
+     * GenerateRecommendations
+     */
     protected function generateRecommendations(array $healthReport): array
     {
         $recommendations = [];
@@ -461,6 +500,9 @@ class AccountHealthMonitoringService
 
     /**
      * Get recommendations for specific check
+     */
+    /**
+     * Get  check recommendations
      */
     protected function getCheckRecommendations(string $checkName, array $checkResult): array
     {
@@ -521,6 +563,9 @@ class AccountHealthMonitoringService
     /**
      * Cache health report
      */
+    /**
+     * CacheHealthReport
+     */
     protected function cacheHealthReport(int $userId, array $healthReport): void
     {
         $cacheKey = "account_health_{$userId}";
@@ -529,6 +574,9 @@ class AccountHealthMonitoringService
 
     /**
      * Log health check
+     */
+    /**
+     * LogHealthCheck
      */
     protected function logHealthCheck(User $user, array $healthReport): void
     {
@@ -546,11 +594,17 @@ class AccountHealthMonitoringService
     }
 
     // Helper methods
+    /**
+     * Check if  profile complete
+     */
     protected function isProfileComplete(User $user): bool
     {
         return ! empty($user->email) && ! empty($user->username) && ! empty($user->role);
     }
 
+    /**
+     * CalculateInactiveDays
+     */
     protected function calculateInactiveDays(User $user): int
     {
         $lastActivity = DB::table('activity_log')
@@ -565,6 +619,9 @@ class AccountHealthMonitoringService
         return Carbon::parse($lastActivity->created_at)->diffInDays(now());
     }
 
+    /**
+     * Get  expected activity level
+     */
     protected function getExpectedActivityLevel(User $user): float
     {
         return match ($user->role) {
@@ -576,18 +633,27 @@ class AccountHealthMonitoringService
         };
     }
 
+    /**
+     * ValidateRolePermissions
+     */
     protected function validateRolePermissions(User $user): bool
     {
         // Check if user's permissions match their role
         return TRUE; // Implement role-specific permission validation
     }
 
+    /**
+     * CheckElevatedPermissions
+     */
     protected function checkElevatedPermissions(User $user): bool
     {
         // Check for any elevated permissions that shouldn't be there
         return TRUE; // Implement elevated permission check
     }
 
+    /**
+     * CheckRecentPermissionChanges
+     */
     protected function checkRecentPermissionChanges(User $user): bool
     {
         $recentChanges = DB::table('activity_log')
@@ -599,12 +665,18 @@ class AccountHealthMonitoringService
         return $recentChanges <= 2; // No more than 2 permission changes per month
     }
 
+    /**
+     * Check if has  strong password
+     */
     protected function hasStrongPassword(User $user): bool
     {
         // This would need access to password history or strength validation
         return TRUE; // Implement password strength validation
     }
 
+    /**
+     * Check if has  recent password change
+     */
     protected function hasRecentPasswordChange(User $user): bool
     {
         return $user->password_changed_at === NULL

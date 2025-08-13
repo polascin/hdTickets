@@ -46,6 +46,9 @@ class LoginHistory extends Model
     /**
      * Get the user that owns the login history record.
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -95,6 +98,9 @@ class LoginHistory extends Model
     /**
      * Get formatted location string.
      */
+    /**
+     * Get  location string attribute
+     */
     public function getLocationStringAttribute(): string
     {
         if ($this->city && $this->country) {
@@ -111,6 +117,9 @@ class LoginHistory extends Model
     /**
      * Get formatted device information.
      */
+    /**
+     * Get  device info attribute
+     */
     public function getDeviceInfoAttribute(): string
     {
         $parts = array_filter([
@@ -124,6 +133,9 @@ class LoginHistory extends Model
 
     /**
      * Get risk level based on suspicious flags.
+     */
+    /**
+     * Get  risk level attribute
      */
     public function getRiskLevelAttribute(): string
     {
@@ -146,6 +158,9 @@ class LoginHistory extends Model
 
     /**
      * Get risk level color for UI display.
+     */
+    /**
+     * Get  risk color attribute
      */
     public function getRiskColorAttribute(): string
     {

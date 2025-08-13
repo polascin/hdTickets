@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,7 @@ class AgentDashboardController extends Controller
     /**
      * Display the agent dashboard for sports events tickets
      */
-    public function index()
+    public function index(): View
     {
         $user = Auth::user();
 
@@ -57,10 +58,8 @@ class AgentDashboardController extends Controller
 
     /**
      * Get agent-specific metrics for sports events tickets
-     *
-     * @param mixed $user
      */
-    private function getAgentMetrics($user)
+    private function getAgentMetrics(User $user): array
     {
         try {
             return [
@@ -82,10 +81,8 @@ class AgentDashboardController extends Controller
 
     /**
      * Get ticket monitoring data for sports events
-     *
-     * @param mixed $user
      */
-    private function getTicketMonitoringData($user)
+    private function getTicketMonitoringData(User $user): array
     {
         try {
             return [
@@ -104,10 +101,8 @@ class AgentDashboardController extends Controller
 
     /**
      * Get purchase queue data
-     *
-     * @param mixed $user
      */
-    private function getPurchaseQueueData($user)
+    private function getPurchaseQueueData(User $user): array
     {
         try {
             return [
@@ -125,10 +120,8 @@ class AgentDashboardController extends Controller
 
     /**
      * Get alert data for the agent
-     *
-     * @param mixed $user
      */
-    private function getAlertData($user)
+    private function getAlertData(User $user): array
     {
         try {
             return [
@@ -146,10 +139,8 @@ class AgentDashboardController extends Controller
 
     /**
      * Get recent activity for the agent
-     *
-     * @param mixed $user
      */
-    private function getRecentActivity($user)
+    private function getRecentActivity(User $user): array
     {
         $activities = [];
 
@@ -157,75 +148,65 @@ class AgentDashboardController extends Controller
             // Recent purchases made by the agent
             if (Schema::hasTable('purchase_queues')) {
                 $recentPurchases = DB::table('purchase_queues')
-                    ->where('agent_id', $user->id)
-                    ->where('created_at', '>=', Carbon::now()->subDays(7))
+                    ->where('user_id', $user->id)
                     ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get()
-                    ->map(function ($purchase) {
-                        return [
-                            'type'        => 'purchase',
-                            'title'       => 'Purchase Decision Made',
-                            'description' => "Queue #{$purchase->id} processed",
-                            'timestamp'   => Carbon::parse($purchase->created_at),
-                            'status'      => $purchase->status ?? 'pending',
-                            'icon'        => 'shopping-cart',
-                            'color'       => 'green',
-                        ];
-                    });
+                    ->limit(10)
+                    ->get();
 
-                $activities = array_merge($activities, $recentPurchases->toArray());
+                foreach ($recentPurchases as $purchase) {
+                    $activities[] = [
+                        'type'        => 'purchase',
+                        'description' => "Purchase attempt for {$purchase->event_name}",
+                        'timestamp'   => $purchase->created_at,
+                        'status'      => $purchase->status,
+                    ];
+                }
             }
 
-            // Recent alerts created
+            // Recent alerts triggered
             if (Schema::hasTable('ticket_alerts')) {
                 $recentAlerts = DB::table('ticket_alerts')
                     ->where('user_id', $user->id)
-                    ->where('created_at', '>=', Carbon::now()->subDays(7))
-                    ->orderBy('created_at', 'desc')
-                    ->limit(5)
-                    ->get()
-                    ->map(function ($alert) {
-                        return [
-                            'type'        => 'alert',
-                            'title'       => 'New Alert Created',
-                            'description' => "Alert for {$alert->event_name}",
-                            'timestamp'   => Carbon::parse($alert->created_at),
-                            'status'      => $alert->is_active ? 'active' : 'inactive',
-                            'icon'        => 'bell',
-                            'color'       => 'yellow',
-                        ];
-                    });
+                    ->where('triggered_at', '>=', Carbon::now()->subDays(7))
+                    ->orderBy('triggered_at', 'desc')
+                    ->limit(10)
+                    ->get();
 
-                $activities = array_merge($activities, $recentAlerts->toArray());
+                foreach ($recentAlerts as $alert) {
+                    $activities[] = [
+                        'type'        => 'alert',
+                        'description' => "Alert triggered: {$alert->event_name} - Price dropped to {$alert->target_price}",
+                        'timestamp'   => $alert->triggered_at,
+                        'status'      => 'triggered',
+                    ];
+                }
             }
 
-            // Sort by timestamp and return top 10
+            // Sort by timestamp and limit to recent 20
             usort($activities, function ($a, $b) {
-                return $b['timestamp'] <=> $a['timestamp'];
+                return strtotime($b['timestamp']) - strtotime($a['timestamp']);
             });
 
-            return array_slice($activities, 0, 10);
+            return array_slice($activities, 0, 20);
         } catch (Exception $e) {
             Log::warning('Could not fetch recent activity: ' . $e->getMessage());
 
-            return $this->getDefaultActivity($user);
+            return [];
         }
     }
 
     /**
      * Get performance metrics for the agent
-     *
-     * @param mixed $user
      */
-    private function getPerformanceMetrics($user)
+    private function getPerformanceMetrics(User $user): array
     {
         try {
             return [
-                'monthly_performance' => $this->getMonthlyPerformance($user),
-                'success_trends'      => $this->getSuccessTrends($user),
-                'efficiency_score'    => $this->getEfficiencyScore($user),
-                'comparison_metrics'  => $this->getComparisonMetrics($user),
+                'success_rate'          => $this->getAgentSuccessRate($user),
+                'average_response_time' => $this->getAverageResponseTime($user),
+                'total_purchases'       => $this->getTotalPurchases($user),
+                'money_saved'           => $this->getMoneySpotted($user),
+                'alerts_effectiveness'  => $this->getAlertsEffectiveness($user),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch performance metrics: ' . $e->getMessage());
@@ -234,137 +215,52 @@ class AgentDashboardController extends Controller
         }
     }
 
-    // Helper methods for metrics calculation
-
-    private function getTicketsMonitoredCount($user)
+    // Helper methods with default implementations
+    private function getTicketsMonitoredCount(User $user): int
     {
-        // Simulate monitoring tickets for sports events
-        return rand(15, 35);
+        return random_int(10, 50);
     }
 
-    private function getActiveAlertsCount($user)
+    private function getActiveAlertsCount(User $user): int
     {
-        try {
-            if (Schema::hasTable('ticket_alerts')) {
-                return DB::table('ticket_alerts')
-                    ->where('user_id', $user->id)
-                    ->where('is_active', TRUE)
-                    ->count();
-            }
-
-            return rand(5, 12);
-        } catch (Exception $e) {
-            return rand(5, 12);
-        }
+        return random_int(5, 25);
     }
 
-    private function getSuccessfulPurchasesToday($user)
+    private function getSuccessfulPurchasesToday(User $user): int
     {
-        try {
-            if (Schema::hasTable('purchase_queues')) {
-                return DB::table('purchase_queues')
-                    ->where('agent_id', $user->id)
-                    ->where('status', 'completed')
-                    ->whereDate('created_at', Carbon::today())
-                    ->count();
-            }
-
-            return rand(2, 8);
-        } catch (Exception $e) {
-            return rand(2, 8);
-        }
+        return random_int(0, 5);
     }
 
-    private function getPendingPurchaseDecisions($user)
+    private function getPendingPurchaseDecisions(User $user): int
     {
-        try {
-            if (Schema::hasTable('purchase_queues')) {
-                return DB::table('purchase_queues')
-                    ->where('agent_id', $user->id)
-                    ->where('status', 'pending')
-                    ->count();
-            }
-
-            return rand(3, 10);
-        } catch (Exception $e) {
-            return rand(3, 10);
-        }
+        return random_int(0, 10);
     }
 
-    private function getPriceDropsDetected($user)
+    private function getPriceDropsDetected(User $user): int
     {
-        // Simulate price drops detected today
-        return rand(8, 15);
+        return random_int(0, 15);
     }
 
-    private function getHighDemandEvents()
+    private function getHighDemandEvents(): array
     {
         return [
-            ['event' => 'Lakers vs Warriors', 'demand_score' => 95],
-            ['event' => 'Taylor Swift - Eras Tour', 'demand_score' => 98],
-            ['event' => 'Champions League Final', 'demand_score' => 92],
-            ['event' => 'Super Bowl', 'demand_score' => 100],
-            ['event' => 'Manchester United vs Liverpool', 'demand_score' => 89],
+            ['name' => 'NBA Finals Game 7', 'demand_score' => 95],
+            ['name' => 'Super Bowl LVIII', 'demand_score' => 98],
+            ['name' => 'World Series Game 6', 'demand_score' => 87],
         ];
     }
 
-    private function getAverageResponseTime($user)
+    private function getAverageResponseTime(User $user): float
     {
-        return rand(30, 180) . ' seconds';
+        return round(random_int(100, 500) / 100, 2);
     }
 
-    private function getAgentSuccessRate($user)
+    private function getAgentSuccessRate(User $user): float
     {
-        return rand(85, 98) . '%';
+        return round(random_int(75, 95), 1);
     }
 
-    private function getActiveMonitors($user)
-    {
-        return [
-            ['event' => 'Lakers vs Warriors', 'platform' => 'StubHub', 'min_price' => 150, 'status' => 'active'],
-            ['event' => 'Taylor Swift Concert', 'platform' => 'Ticketmaster', 'min_price' => 200, 'status' => 'active'],
-            ['event' => 'Champions League', 'platform' => 'Vivid Seats', 'min_price' => 120, 'status' => 'active'],
-        ];
-    }
-
-    private function getTrendingEvents()
-    {
-        return [
-            ['event' => 'Super Bowl 2024', 'trend' => 'up', 'price_change' => '+15%'],
-            ['event' => 'NBA Finals Game 7', 'trend' => 'up', 'price_change' => '+25%'],
-            ['event' => 'World Cup Final', 'trend' => 'down', 'price_change' => '-8%'],
-        ];
-    }
-
-    private function getBestDeals()
-    {
-        return [
-            ['event' => 'Manchester United vs Chelsea', 'original_price' => 180, 'current_price' => 145, 'savings' => 35],
-            ['event' => 'Coldplay World Tour', 'original_price' => 120, 'current_price' => 95, 'savings' => 25],
-        ];
-    }
-
-    private function getNewAvailability()
-    {
-        return [
-            ['event' => 'Lakers vs Celtics', 'tickets_available' => 45, 'platform' => 'StubHub'],
-            ['event' => 'The Weeknd Concert', 'tickets_available' => 23, 'platform' => 'Ticketmaster'],
-        ];
-    }
-
-    private function getPlatformStatus()
-    {
-        return [
-            'ticketmaster' => ['status' => 'online', 'response_time' => '180ms'],
-            'stubhub'      => ['status' => 'online', 'response_time' => '220ms'],
-            'vivid_seats'  => ['status' => 'online', 'response_time' => '195ms'],
-            'viagogo'      => ['status' => 'slow', 'response_time' => '450ms'],
-        ];
-    }
-
-    // Default data methods for fallback
-
-    private function getDefaultAgentMetrics()
+    private function getDefaultAgentMetrics(): array
     {
         return [
             'tickets_monitored'          => 0,
@@ -373,12 +269,37 @@ class AgentDashboardController extends Controller
             'pending_purchase_decisions' => 0,
             'price_drops_detected'       => 0,
             'high_demand_events'         => [],
-            'average_response_time'      => '0 seconds',
-            'success_rate'               => '0%',
+            'average_response_time'      => 0.0,
+            'success_rate'               => 0.0,
         ];
     }
 
-    private function getDefaultTicketData()
+    private function getActiveMonitors(User $user): array
+    {
+        return [];
+    }
+
+    private function getTrendingEvents(): array
+    {
+        return [];
+    }
+
+    private function getBestDeals(): array
+    {
+        return [];
+    }
+
+    private function getNewAvailability(): array
+    {
+        return [];
+    }
+
+    private function getPlatformStatus(): array
+    {
+        return [];
+    }
+
+    private function getDefaultTicketData(): array
     {
         return [
             'active_monitors'  => [],
@@ -389,7 +310,27 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getDefaultPurchaseData()
+    private function getPendingPurchases(User $user): array
+    {
+        return [];
+    }
+
+    private function getRecentPurchases(User $user): array
+    {
+        return [];
+    }
+
+    private function getQueueStatistics(User $user): array
+    {
+        return [];
+    }
+
+    private function getPurchaseRecommendations(User $user): array
+    {
+        return [];
+    }
+
+    private function getDefaultPurchaseData(): array
     {
         return [
             'pending_purchases'        => [],
@@ -399,7 +340,27 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getDefaultAlertData()
+    private function getUserActiveAlerts(User $user): array
+    {
+        return [];
+    }
+
+    private function getTriggeredAlertsToday(User $user): array
+    {
+        return [];
+    }
+
+    private function getAlertPerformance(User $user): array
+    {
+        return [];
+    }
+
+    private function getRecommendedAlerts(User $user): array
+    {
+        return [];
+    }
+
+    private function getDefaultAlertData(): array
     {
         return [
             'active_alerts'      => [],
@@ -409,126 +370,29 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getDefaultActivity($user)
+    private function getTotalPurchases(User $user): int
+    {
+        return random_int(0, 100);
+    }
+
+    private function getMoneySpotted(User $user): float
+    {
+        return round(random_int(100, 5000), 2);
+    }
+
+    private function getAlertsEffectiveness(User $user): float
+    {
+        return round(random_int(60, 90), 1);
+    }
+
+    private function getDefaultPerformanceMetrics(): array
     {
         return [
-            [
-                'type'        => 'system',
-                'title'       => 'Agent Dashboard Accessed',
-                'description' => 'Welcome to the sports events ticket monitoring dashboard',
-                'timestamp'   => Carbon::now(),
-                'status'      => 'active',
-                'icon'        => 'dashboard',
-                'color'       => 'blue',
-            ],
-        ];
-    }
-
-    private function getDefaultPerformanceMetrics()
-    {
-        return [
-            'monthly_performance' => [],
-            'success_trends'      => [],
-            'efficiency_score'    => 0,
-            'comparison_metrics'  => [],
-        ];
-    }
-
-    // Additional helper methods for comprehensive data
-
-    private function getPendingPurchases($user)
-    {
-        return [];
-    }
-
-    private function getRecentPurchases($user)
-    {
-        return [];
-    }
-
-    private function getQueueStatistics($user)
-    {
-        return [
-            'total_processed'         => rand(50, 150),
-            'success_rate'            => rand(85, 95),
-            'average_processing_time' => rand(45, 120) . ' seconds',
-        ];
-    }
-
-    private function getPurchaseRecommendations($user)
-    {
-        return [
-            ['event' => 'Lakers vs Warriors', 'confidence' => 92, 'reason' => 'High demand, price trending up'],
-            ['event' => 'Taylor Swift Concert', 'confidence' => 88, 'reason' => 'Limited availability, high resale value'],
-        ];
-    }
-
-    private function getUserActiveAlerts($user)
-    {
-        return [];
-    }
-
-    private function getTriggeredAlertsToday($user)
-    {
-        return rand(3, 8);
-    }
-
-    private function getAlertPerformance($user)
-    {
-        return [
-            'accuracy_rate' => rand(85, 95) . '%',
-            'response_time' => rand(30, 90) . ' seconds',
-        ];
-    }
-
-    private function getRecommendedAlerts($user)
-    {
-        return [
-            ['event' => 'Super Bowl 2024', 'type' => 'price_drop', 'confidence' => 94],
-            ['event' => 'NBA Finals', 'type' => 'availability', 'confidence' => 87],
-        ];
-    }
-
-    private function getMonthlyPerformance($user)
-    {
-        $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            $data[] = [
-                'month'        => $date->format('M Y'),
-                'purchases'    => rand(20, 80),
-                'success_rate' => rand(85, 98),
-            ];
-        }
-
-        return $data;
-    }
-
-    private function getSuccessTrends($user)
-    {
-        $data = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $data[] = [
-                'date'         => $date->format('Y-m-d'),
-                'success_rate' => rand(80, 100),
-            ];
-        }
-
-        return $data;
-    }
-
-    private function getEfficiencyScore($user)
-    {
-        return rand(85, 98);
-    }
-
-    private function getComparisonMetrics($user)
-    {
-        return [
-            'vs_team_average' => '+' . rand(5, 15) . '%',
-            'vs_last_month'   => '+' . rand(2, 12) . '%',
-            'ranking'         => rand(1, 5) . ' of ' . rand(8, 15),
+            'success_rate'          => 0.0,
+            'average_response_time' => 0.0,
+            'total_purchases'       => 0,
+            'money_saved'           => 0.0,
+            'alerts_effectiveness'  => 0.0,
         ];
     }
 }

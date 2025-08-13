@@ -50,6 +50,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     /**
      * Get the message envelope.
      */
+    /**
+     * Envelope
+     */
     public function envelope(): Envelope
     {
         $subject = $this->getSubjectLine();
@@ -71,6 +74,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
 
     /**
      * Get the message content definition.
+     */
+    /**
+     * Content
      */
     public function content(): Content
     {
@@ -100,6 +106,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
+    /**
+     * Attachments
+     */
     public function attachments(): array
     {
         return [];
@@ -107,6 +116,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
 
     /**
      * Generate appropriate subject line based on alert level
+     */
+    /**
+     * Get  subject line
      */
     private function getSubjectLine(): string
     {
@@ -124,6 +136,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     /**
      * Get email priority based on alert level
      */
+    /**
+     * Get  priority
+     */
     private function getPriority(): int
     {
         return match ($this->level) {
@@ -137,6 +152,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
 
     /**
      * Get icon for alert level
+     */
+    /**
+     * Get  level icon
      */
     private function getLevelIcon(): string
     {
@@ -152,6 +170,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     /**
      * Get color for alert level styling
      */
+    /**
+     * Get  level color
+     */
     private function getLevelColor(): string
     {
         return match ($this->level) {
@@ -166,6 +187,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     /**
      * Check if this alert requires immediate action
      */
+    /**
+     * RequiresAction
+     */
     private function requiresAction(): bool
     {
         return in_array($this->level, ['critical', 'error'], TRUE)
@@ -174,6 +198,9 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
 
     /**
      * Get troubleshooting steps based on alert type
+     */
+    /**
+     * Get  troubleshooting steps
      */
     private function getTroubleshootingSteps(): array
     {

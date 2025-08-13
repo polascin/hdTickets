@@ -68,6 +68,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Get plugin metadata
      */
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -88,6 +91,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Check if plugin is enabled
      */
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
@@ -95,6 +101,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Enable the plugin
+     */
+    /**
+     * Enable
      */
     public function enable(): void
     {
@@ -105,6 +114,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Disable the plugin
      */
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
@@ -113,6 +125,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Configure the plugin
+     */
+    /**
+     * Configure
      */
     public function configure(array $config): void
     {
@@ -144,6 +159,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Test plugin connectivity
+     */
+    /**
+     * Test
      */
     public function test(): array
     {
@@ -182,6 +200,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Main scraping method
+     */
+    /**
+     * Scrape
      */
     public function scrape(array $criteria): array
     {
@@ -256,6 +277,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Make HTTP request with anti-detection
      */
+    /**
+     * MakeRequest
+     */
     protected function makeRequest(string $url): string
     {
         $headers = $this->getHeaders();
@@ -294,6 +318,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Get HTTP headers with anti-detection
      */
+    /**
+     * Get  headers
+     */
     protected function getHeaders(): array
     {
         return [
@@ -314,6 +341,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Parse individual event from DOM node
+     */
+    /**
+     * ParseEventNode
      */
     protected function parseEventNode(Crawler $node): ?array
     {
@@ -389,6 +419,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Extract text from node using CSS selectors
      */
+    /**
+     * ExtractText
+     */
     protected function extractText(Crawler $node, string $selectors): string
     {
         try {
@@ -403,6 +436,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Extract URL from node
      */
+    /**
+     * ExtractUrl
+     */
     protected function extractUrl(Crawler $node, string $selector = 'a'): string
     {
         try {
@@ -416,6 +452,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Determine event category
+     */
+    /**
+     * Get  event category
      */
     protected function getEventCategory(string $eventName): string
     {
@@ -442,6 +481,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     /**
      * Determine event subcategory
      */
+    /**
+     * Get  event subcategory
+     */
     protected function getEventSubcategory(string $eventName): string
     {
         if ($this->isFootballEvent($eventName)) {
@@ -453,6 +495,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Filter results based on criteria
+     */
+    /**
+     * FilterResults
      */
     protected function filterResults(array $events, array $criteria): array
     {
@@ -485,6 +530,9 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
 
     /**
      * Load configuration from config files
+     */
+    /**
+     * LoadConfiguration
      */
     protected function loadConfiguration(): void
     {

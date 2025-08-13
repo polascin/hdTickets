@@ -26,7 +26,10 @@ class SystemController extends Controller
     /**
      * Display system overview
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $systemHealth = $this->getSystemHealth();
         $systemConfig = $this->getSystemConfig();
@@ -60,7 +63,10 @@ class SystemController extends Controller
     /**
      * Update system configuration
      */
-    public function updateConfiguration(Request $request)
+    /**
+     * UpdateConfiguration
+     */
+    public function updateConfiguration(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'app_timezone'         => 'required|string|max:50',
@@ -103,7 +109,10 @@ class SystemController extends Controller
     /**
      * Get system logs
      */
-    public function getLogs(Request $request)
+    /**
+     * Get  logs
+     */
+    public function getLogs(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'level' => 'nullable|string|in:emergency,alert,critical,error,warning,notice,info,debug',
@@ -123,7 +132,10 @@ class SystemController extends Controller
     /**
      * Clear system caches
      */
-    public function clearCache(Request $request)
+    /**
+     * ClearCache
+     */
+    public function clearCache(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'types'   => 'required|array',
@@ -177,7 +189,10 @@ class SystemController extends Controller
     /**
      * Run system maintenance tasks
      */
-    public function runMaintenance(Request $request)
+    /**
+     * RunMaintenance
+     */
+    public function runMaintenance(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'tasks'   => 'required|array',
@@ -263,7 +278,10 @@ class SystemController extends Controller
     /**
      * Get database information
      */
-    public function getDatabaseInfo()
+    /**
+     * Get  database info
+     */
+    public function getDatabaseInfo(): Illuminate\Http\JsonResponse
     {
         try {
             $connection = DB::connection();
@@ -308,7 +326,10 @@ class SystemController extends Controller
     /**
      * Private helper methods
      */
-    private function getSystemHealth()
+    /**
+     * Get  system health
+     */
+    private function getSystemHealth(): array
     {
         $health = [
             'status' => 'healthy',
@@ -366,7 +387,10 @@ class SystemController extends Controller
         return $health;
     }
 
-    private function getSystemConfig()
+    /**
+     * Get  system config
+     */
+    private function getSystemConfig(): array
     {
         $defaultConfig = [
             'app_timezone'         => config('app.timezone'),
@@ -385,7 +409,14 @@ class SystemController extends Controller
         return Cache::get('system_config', $defaultConfig);
     }
 
-    private function getRecentLogs($level = NULL, $date = NULL, $limit = 100)
+    /**
+     * Get  recent logs
+     *
+     * @param mixed $level
+     * @param mixed $date
+     * @param mixed $limit
+     */
+    private function getRecentLogs($level = NULL, $date = NULL, $limit = 100): array
     {
         // This is a simplified implementation
         // In a real application, you'd parse actual log files
@@ -419,7 +450,10 @@ class SystemController extends Controller
         return $logs->take($limit);
     }
 
-    private function getServiceStatus()
+    /**
+     * Get  service status
+     */
+    private function getServiceStatus(): array
     {
         return [
             ['name' => 'Web Server', 'status' => 'running', 'uptime' => '99.9%'],
@@ -430,7 +464,10 @@ class SystemController extends Controller
         ];
     }
 
-    private function measureDatabaseResponseTime()
+    /**
+     * MeasureDatabaseResponseTime
+     */
+    private function measureDatabaseResponseTime(): float
     {
         $start = microtime(TRUE);
         DB::select('SELECT 1');
@@ -439,7 +476,13 @@ class SystemController extends Controller
         return round(($end - $start) * 1000, 2) . 'ms';
     }
 
-    private function formatBytes($bytes, $precision = 2)
+    /**
+     * FormatBytes
+     *
+     * @param mixed $bytes
+     * @param mixed $precision
+     */
+    private function formatBytes($bytes, $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -450,7 +493,12 @@ class SystemController extends Controller
         return round($bytes, $precision) . ' ' . $units[$i];
     }
 
-    private function extractLogLevel($logLine)
+    /**
+     * ExtractLogLevel
+     *
+     * @param mixed $logLine
+     */
+    private function extractLogLevel($logLine): string
     {
         $levels = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
 

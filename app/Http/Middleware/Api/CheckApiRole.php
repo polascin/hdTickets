@@ -13,7 +13,13 @@ class CheckApiRole
     /**
      * Handle an incoming request.
      *
-     * @param array $roles
+     * @param Closure(Request): (Response) $next
+     * @param string[]                     $roles Variable number of role arguments
+     */
+    /**
+     * Handle
+     *
+     * @param mixed $roles
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {

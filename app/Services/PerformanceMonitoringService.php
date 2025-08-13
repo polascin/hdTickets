@@ -33,6 +33,9 @@ class PerformanceMonitoringService
     /**
      * Start monitoring a metric
      */
+    /**
+     * StartTimer
+     */
     public function startTimer(string $name): void
     {
         if (! $this->enabled) {
@@ -48,6 +51,9 @@ class PerformanceMonitoringService
 
     /**
      * End monitoring and record metric
+     */
+    /**
+     * EndTimer
      */
     public function endTimer(string $name): array
     {
@@ -81,6 +87,9 @@ class PerformanceMonitoringService
     /**
      * Record a counter metric
      */
+    /**
+     * Increment
+     */
     public function increment(string $name, int $value = 1, array $tags = []): void
     {
         if (! $this->enabled) {
@@ -100,6 +109,9 @@ class PerformanceMonitoringService
 
     /**
      * Record a gauge metric
+     */
+    /**
+     * Gauge
      */
     public function gauge(string $name, float $value, array $tags = []): void
     {
@@ -123,6 +135,9 @@ class PerformanceMonitoringService
 
     /**
      * Monitor database query performance
+     */
+    /**
+     * MonitorQuery
      */
     public function monitorQuery(string $sql, array $bindings, float $time): void
     {
@@ -154,6 +169,9 @@ class PerformanceMonitoringService
 
     /**
      * Monitor HTTP request performance
+     */
+    /**
+     * MonitorRequest
      */
     public function monitorRequest(string $method, string $uri, int $statusCode, float $duration): void
     {
@@ -194,6 +212,9 @@ class PerformanceMonitoringService
     /**
      * Get system metrics
      */
+    /**
+     * Get  system metrics
+     */
     public function getSystemMetrics(): array
     {
         if (! $this->enabled) {
@@ -220,6 +241,9 @@ class PerformanceMonitoringService
     /**
      * Get performance report
      */
+    /**
+     * Get  performance report
+     */
     public function getPerformanceReport(int $hours = 24): array
     {
         if (! $this->enabled) {
@@ -245,6 +269,9 @@ class PerformanceMonitoringService
     /**
      * Enable/disable monitoring
      */
+    /**
+     * Set  enabled
+     */
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
@@ -253,6 +280,9 @@ class PerformanceMonitoringService
     /**
      * Check if monitoring is enabled
      */
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
@@ -260,6 +290,9 @@ class PerformanceMonitoringService
 
     /**
      * Check performance thresholds
+     */
+    /**
+     * CheckThresholds
      */
     protected function checkThresholds(array $metric): void
     {
@@ -282,6 +315,9 @@ class PerformanceMonitoringService
 
     /**
      * Store metric for analysis
+     */
+    /**
+     * StoreMetric
      */
     protected function storeMetric(array $metric): void
     {
@@ -308,6 +344,9 @@ class PerformanceMonitoringService
     /**
      * Get CPU usage (mock implementation)
      */
+    /**
+     * Get  cpu usage
+     */
     protected function getCpuUsage(): array
     {
         // This would need actual system monitoring
@@ -320,6 +359,9 @@ class PerformanceMonitoringService
 
     /**
      * Get database performance metrics
+     */
+    /**
+     * Get  database metrics
      */
     protected function getDatabaseMetrics(): array
     {
@@ -346,6 +388,9 @@ class PerformanceMonitoringService
     /**
      * Get cache performance metrics
      */
+    /**
+     * Get  cache metrics
+     */
     protected function getCacheMetrics(): array
     {
         try {
@@ -364,6 +409,9 @@ class PerformanceMonitoringService
     /**
      * Calculate cache hit rate
      */
+    /**
+     * CalculateCacheHitRate
+     */
     protected function calculateCacheHitRate(): float
     {
         $hits = Cache::get('metrics:counter:cache_hits:' . date('Y-m-d-H'), 0);
@@ -375,6 +423,9 @@ class PerformanceMonitoringService
 
     /**
      * Get request metrics for timeframe
+     */
+    /**
+     * Get  request metrics
      */
     protected function getRequestMetrics(int $hours): array
     {
@@ -397,6 +448,9 @@ class PerformanceMonitoringService
     /**
      * Get database performance for timeframe
      */
+    /**
+     * Get  database performance
+     */
     protected function getDatabasePerformance(int $hours): array
     {
         $totalQueries = 0;
@@ -418,6 +472,9 @@ class PerformanceMonitoringService
     /**
      * Get error metrics for timeframe
      */
+    /**
+     * Get  error metrics
+     */
     protected function getErrorMetrics(int $hours): array
     {
         $errors = 0;
@@ -435,6 +492,9 @@ class PerformanceMonitoringService
 
     /**
      * Get performance alerts
+     */
+    /**
+     * Get  performance alerts
      */
     protected function getPerformanceAlerts(int $hours): array
     {

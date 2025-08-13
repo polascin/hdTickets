@@ -18,8 +18,9 @@ class DashboardController extends Controller
 {
     /**
      * Display the admin dashboard
-     *
-     * @return \Illuminate\Contracts\View\View
+     */
+    /**
+     * Index
      */
     public function index(): \Illuminate\Contracts\View\View
     {
@@ -275,8 +276,9 @@ class DashboardController extends Controller
 
     /**
      * Get realtime scraping statistics for dashboard analytics
-     *
-     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * Get  scraping stats
      */
     public function getScrapingStats(): \Illuminate\Http\JsonResponse
     {
@@ -301,8 +303,9 @@ class DashboardController extends Controller
 
     /**
      * Get user activity heatmap data
-     *
-     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * Get  user activity heatmap
      */
     public function getUserActivityHeatmap(): \Illuminate\Http\JsonResponse
     {
@@ -340,8 +343,9 @@ class DashboardController extends Controller
 
     /**
      * Get revenue and pricing analytics
-     *
-     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * Get  revenue analytics
      */
     public function getRevenueAnalytics(): \Illuminate\Http\JsonResponse
     {
@@ -366,8 +370,9 @@ class DashboardController extends Controller
 
     /**
      * Get dashboard statistics as JSON (for AJAX updates)
-     *
-     * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * Get  stats
      */
     public function getStats(): \Illuminate\Http\JsonResponse
     {
@@ -455,22 +460,27 @@ class DashboardController extends Controller
     /**
      * Get chart data for tickets by status
      */
-    public function getTicketStatusChart()
+    /**
+     * Get  ticket status chart
+     */
+    public function getTicketStatusChart(): \Illuminate\Http\JsonResponse
     {
         $data = collect();
 
         try {
             if (Schema::hasTable('tickets')) {
-                $data = Ticket::select('status', DB::raw('count(*) as count'))
+                /** @var \Illuminate\Support\Collection<int, object{status: string, count: int}> $rawData */
+                $rawData = Ticket::select('status', DB::raw('count(*) as count'))
                     ->groupBy('status')
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'label' => ucfirst(str_replace('_', ' ', $item->status)),
-                            'value' => $item->count,
-                            'color' => $this->getStatusColor($item->status),
-                        ];
-                    });
+                    ->get();
+
+                $data = $rawData->map(function ($item): array {
+                    return [
+                        'label' => ucfirst(str_replace('_', ' ', $item->status)),
+                        'value' => $item->count,
+                        'color' => $this->getStatusColor($item->status),
+                    ];
+                });
             }
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket status chart data: ' . $e->getMessage());
@@ -482,22 +492,27 @@ class DashboardController extends Controller
     /**
      * Get chart data for tickets by priority
      */
-    public function getTicketPriorityChart()
+    /**
+     * Get  ticket priority chart
+     */
+    public function getTicketPriorityChart(): \Illuminate\Http\JsonResponse
     {
         $data = collect();
 
         try {
             if (Schema::hasTable('tickets')) {
-                $data = Ticket::select('priority', DB::raw('count(*) as count'))
+                /** @var \Illuminate\Support\Collection<int, object{priority: string, count: int}> $rawData */
+                $rawData = Ticket::select('priority', DB::raw('count(*) as count'))
                     ->groupBy('priority')
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'label' => ucfirst($item->priority),
-                            'value' => $item->count,
-                            'color' => $this->getPriorityColor($item->priority),
-                        ];
-                    });
+                    ->get();
+
+                $data = $rawData->map(function ($item): array {
+                    return [
+                        'label' => ucfirst($item->priority),
+                        'value' => $item->count,
+                        'color' => $this->getPriorityColor($item->priority),
+                    ];
+                });
             }
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket priority chart data: ' . $e->getMessage());
@@ -509,7 +524,10 @@ class DashboardController extends Controller
     /**
      * Get monthly trend data
      */
-    public function getMonthlyTrend()
+    /**
+     * Get  monthly trend
+     */
+    public function getMonthlyTrend(): \Illuminate\Http\JsonResponse
     {
         $data = [];
 
@@ -553,18 +571,23 @@ class DashboardController extends Controller
     /**
      * Get chart data for user role distribution
      */
-    public function getRoleDistributionChart()
+    /**
+     * Get  role distribution chart
+     */
+    public function getRoleDistributionChart(): \Illuminate\Http\JsonResponse
     {
-        $data = User::select('role', DB::raw('count(*) as count'))
+        /** @var \Illuminate\Support\Collection<int, object{role: string, count: int}> $rawData */
+        $rawData = User::select('role', DB::raw('count(*) as count'))
             ->groupBy('role')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'label' => ucfirst($item->role),
-                    'value' => $item->count,
-                    'color' => $this->getRoleColor($item->role),
-                ];
-            });
+            ->get();
+
+        $data = $rawData->map(function ($item): array {
+            return [
+                'label' => ucfirst($item->role),
+                'value' => $item->count,
+                'color' => $this->getRoleColor($item->role),
+            ];
+        });
 
         return response()->json($data);
     }
@@ -572,7 +595,13 @@ class DashboardController extends Controller
     /**
      * Get recent activity feed data
      */
-    public function getRecentActivity()
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Get  recent activity
+     */
+    public function getRecentActivity(): array
     {
         $activities = collect();
 
@@ -622,7 +651,7 @@ class DashboardController extends Controller
             ->take(10)
             ->values();
 
-        return response()->json($activities);
+        return $activities->toArray();
     }
 
     /**
@@ -630,7 +659,10 @@ class DashboardController extends Controller
      *
      * @param mixed $status
      */
-    private function getStatusColor($status)
+    /**
+     * Get  status color
+     */
+    private function getStatusColor(string $status): string
     {
         return match ($status) {
             Ticket::STATUS_OPEN        => '#3b82f6',
@@ -648,7 +680,12 @@ class DashboardController extends Controller
      *
      * @param mixed $priority
      */
-    private function getPriorityColor($priority)
+    /**
+     * Get  priority color
+     *
+     * @param mixed $priority
+     */
+    private function getPriorityColor($priority): string
     {
         return match ($priority) {
             'urgent' => '#dc2626',
@@ -662,7 +699,10 @@ class DashboardController extends Controller
     /**
      * Calculate system health percentage
      */
-    private function calculateSystemHealth()
+    /**
+     * CalculateSystemHealth
+     */
+    private function calculateSystemHealth(): float
     {
         $healthChecks = [];
 
@@ -697,7 +737,10 @@ class DashboardController extends Controller
     /**
      * Check database health status
      */
-    private function checkDatabaseHealth()
+    /**
+     * CheckDatabaseHealth
+     */
+    private function checkDatabaseHealth(): bool
     {
         try {
             // Test database connection
@@ -725,7 +768,12 @@ class DashboardController extends Controller
      *
      * @param mixed $role
      */
-    private function getRoleColor($role)
+    /**
+     * Get  role color
+     *
+     * @param mixed $role
+     */
+    private function getRoleColor($role): string
     {
         return match ($role) {
             User::ROLE_ADMIN    => '#dc2626',      // Red
@@ -741,7 +789,10 @@ class DashboardController extends Controller
     /**
      * Get total tickets scraped today
      */
-    private function getTotalScrapedToday()
+    /**
+     * Get  total scraped today
+     */
+    private function getTotalScrapedToday(): int
     {
         try {
             return Ticket::whereDate('created_at', Carbon::today())->count();
@@ -753,7 +804,10 @@ class DashboardController extends Controller
     /**
      * Get active scrapers count
      */
-    private function getActiveScrapers()
+    /**
+     * Get  active scrapers
+     */
+    private function getActiveScrapers(): int
     {
         try {
             return User::where('role', 'scraper')
@@ -768,7 +822,10 @@ class DashboardController extends Controller
     /**
      * Get scraping success rate
      */
-    private function getScrapingSuccessRate()
+    /**
+     * Get  scraping success rate
+     */
+    private function getScrapingSuccessRate(): float
     {
         // Simulated success rate based on platform performance
         return [
@@ -783,7 +840,10 @@ class DashboardController extends Controller
     /**
      * Get platform performance metrics
      */
-    private function getPlatformPerformance()
+    /**
+     * Get  platform performance
+     */
+    private function getPlatformPerformance(): array
     {
         return [
             'ticketmaster' => [
@@ -816,7 +876,10 @@ class DashboardController extends Controller
     /**
      * Get recent scraping activity
      */
-    private function getRecentScrapingActivity()
+    /**
+     * Get  recent scraping activity
+     */
+    private function getRecentScrapingActivity(): array
     {
         $activities = [];
         $platforms = ['ticketmaster', 'stubhub', 'vivid_seats', 'viagogo'];
@@ -838,7 +901,10 @@ class DashboardController extends Controller
     /**
      * Get price trends
      */
-    private function getPriceTrends()
+    /**
+     * Get  price trends
+     */
+    private function getPriceTrends(): array
     {
         $trends = [];
         for ($i = 29; $i >= 0; $i--) {
@@ -858,7 +924,10 @@ class DashboardController extends Controller
     /**
      * Get alert triggers data
      */
-    private function getAlertTriggers()
+    /**
+     * Get  alert triggers
+     */
+    private function getAlertTriggers(): array
     {
         return [
             'today'            => rand(15, 40),
@@ -874,7 +943,12 @@ class DashboardController extends Controller
      *
      * @param mixed $date
      */
-    private function getDayLogins($date)
+    /**
+     * Get  day logins
+     *
+     * @param mixed $date
+     */
+    private function getDayLogins($date): int
     {
         try {
             return User::whereDate('last_activity_at', $date)->count();
@@ -888,7 +962,12 @@ class DashboardController extends Controller
      *
      * @param mixed $date
      */
-    private function getDayTicketViews($date)
+    /**
+     * Get  day ticket views
+     *
+     * @param mixed $date
+     */
+    private function getDayTicketViews($date): int
     {
         // Simulated ticket views data
         $dayOfWeek = $date->dayOfWeek;
@@ -901,7 +980,12 @@ class DashboardController extends Controller
      *
      * @param mixed $date
      */
-    private function getDayPurchases($date)
+    /**
+     * Get  day purchases
+     *
+     * @param mixed $date
+     */
+    private function getDayPurchases($date): int
     {
         // Simulated purchase data
         return rand(2, 15);
@@ -912,7 +996,12 @@ class DashboardController extends Controller
      *
      * @param mixed $date
      */
-    private function getDayAlertsCreated($date)
+    /**
+     * Get  day alerts created
+     *
+     * @param mixed $date
+     */
+    private function getDayAlertsCreated($date): int
     {
         // Simulated alerts data
         return rand(1, 8);
@@ -921,7 +1010,10 @@ class DashboardController extends Controller
     /**
      * Get daily revenue
      */
-    private function getDailyRevenue()
+    /**
+     * Get  daily revenue
+     */
+    private function getDailyRevenue(): float
     {
         $revenue = [];
         for ($i = 29; $i >= 0; $i--) {
@@ -939,7 +1031,10 @@ class DashboardController extends Controller
     /**
      * Get monthly revenue
      */
-    private function getMonthlyRevenue()
+    /**
+     * Get  monthly revenue
+     */
+    private function getMonthlyRevenue(): float
     {
         $revenue = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -957,7 +1052,10 @@ class DashboardController extends Controller
     /**
      * Get average ticket price
      */
-    private function getAverageTicketPrice()
+    /**
+     * Get  average ticket price
+     */
+    private function getAverageTicketPrice(): float
     {
         return [
             'current'        => rand(120, 180),
@@ -969,7 +1067,10 @@ class DashboardController extends Controller
     /**
      * Get price range distribution
      */
-    private function getPriceRangeDistribution()
+    /**
+     * Get  price range distribution
+     */
+    private function getPriceRangeDistribution(): array
     {
         return [
             ['range' => '$0-50', 'count' => rand(50, 150), 'percentage' => rand(10, 20)],
@@ -983,7 +1084,10 @@ class DashboardController extends Controller
     /**
      * Get top selling events
      */
-    private function getTopSellingEvents()
+    /**
+     * Get  top selling events
+     */
+    private function getTopSellingEvents(): array
     {
         return [
             ['event' => 'Taylor Swift - Eras Tour', 'tickets_sold' => rand(200, 500), 'revenue' => rand(50000, 150000)],
@@ -997,7 +1101,10 @@ class DashboardController extends Controller
     /**
      * Get revenue by platform
      */
-    private function getRevenueByPlatform()
+    /**
+     * Get  revenue by platform
+     */
+    private function getRevenueByPlatform(): array
     {
         return [
             'ticketmaster' => ['revenue' => rand(20000, 40000), 'percentage' => rand(35, 45)],
@@ -1010,7 +1117,10 @@ class DashboardController extends Controller
     /**
      * Get profit margins
      */
-    private function getProfitMargins()
+    /**
+     * Get  profit margins
+     */
+    private function getProfitMargins(): array
     {
         return [
             'gross_margin'      => rand(15, 25),

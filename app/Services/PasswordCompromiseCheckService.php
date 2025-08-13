@@ -21,6 +21,9 @@ class PasswordCompromiseCheckService
     /**
      * Check if password appears in known data breaches
      */
+    /**
+     * CheckPasswordCompromise
+     */
     public function checkPasswordCompromise(string $password): array
     {
         try {
@@ -62,6 +65,9 @@ class PasswordCompromiseCheckService
     /**
      * Check multiple passwords at once
      */
+    /**
+     * CheckMultiplePasswords
+     */
     public function checkMultiplePasswords(array $passwords): array
     {
         $results = [];
@@ -77,6 +83,9 @@ class PasswordCompromiseCheckService
      * Get password compromise validation rule
      *
      * @param bool $strict Whether to reject any compromised password
+     */
+    /**
+     * Get  compromise validation rule
      */
     public function getCompromiseValidationRule(bool $strict = FALSE): Closure
     {
@@ -100,6 +109,9 @@ class PasswordCompromiseCheckService
     /**
      * Get compromise check statistics
      */
+    /**
+     * Get  statistics
+     */
     public function getStatistics(): array
     {
         $cacheKeys = Cache::get('hibp_cache_keys', []);
@@ -115,6 +127,9 @@ class PasswordCompromiseCheckService
 
     /**
      * Clear password check cache
+     */
+    /**
+     * ClearCache
      */
     public function clearCache(): bool
     {
@@ -134,6 +149,9 @@ class PasswordCompromiseCheckService
 
     /**
      * Fetch password hashes from HaveIBeenPwned API
+     */
+    /**
+     * FetchPasswordHashes
      */
     private function fetchPasswordHashes(string $hashPrefix): ?string
     {
@@ -168,6 +186,9 @@ class PasswordCompromiseCheckService
     /**
      * Parse API response to find specific hash suffix
      */
+    /**
+     * ParseResponseForHash
+     */
     private function parseResponseForHash(string $response, string $hashSuffix): int
     {
         $lines = explode("\n", trim($response));
@@ -188,6 +209,9 @@ class PasswordCompromiseCheckService
     /**
      * Create standardized response array
      */
+    /**
+     * CreateResponse
+     */
     private function createResponse(bool $isCompromised, int $count, string $message): array
     {
         return [
@@ -202,6 +226,9 @@ class PasswordCompromiseCheckService
 
     /**
      * Get severity level based on breach count
+     */
+    /**
+     * Get  severity level
      */
     private function getSeverityLevel(int $count): string
     {
@@ -224,6 +251,9 @@ class PasswordCompromiseCheckService
     /**
      * Get recommendation based on compromise status
      */
+    /**
+     * Get  recommendation
+     */
     private function getRecommendation(bool $isCompromised, int $count): string
     {
         if (! $isCompromised) {
@@ -244,6 +274,9 @@ class PasswordCompromiseCheckService
     /**
      * Calculate cache hit rate
      */
+    /**
+     * CalculateCacheHitRate
+     */
     private function calculateCacheHitRate(): float
     {
         $hits = Cache::get('hibp_cache_hits', 0);
@@ -254,6 +287,9 @@ class PasswordCompromiseCheckService
 
     /**
      * Check API status
+     */
+    /**
+     * CheckApiStatus
      */
     private function checkApiStatus(): array
     {
@@ -279,6 +315,9 @@ class PasswordCompromiseCheckService
 
     /**
      * Increment cache statistics
+     */
+    /**
+     * IncrementCacheStats
      */
     private function incrementCacheStats(bool $wasHit): void
     {

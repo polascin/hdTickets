@@ -49,6 +49,9 @@ class TicketmasterScraper
      *
      * @return array<string, mixed>
      */
+    /**
+     * SearchAndImportTickets
+     */
     public function searchAndImportTickets(string $keyword, string $location = '', int $maxResults = 50): array
     {
         Log::info('Starting Ticketmaster scraping', [
@@ -131,6 +134,9 @@ class TicketmasterScraper
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  scraping stats
+     */
     public function getScrapingStats(): array
     {
         $totalScraped = Ticket::where('metadata->source', 'ticketmaster_scrape')->count();
@@ -159,6 +165,9 @@ class TicketmasterScraper
      */
     /**
      * @param array<string, mixed> $eventData
+     */
+    /**
+     * ImportEventAsTicket
      */
     private function importEventAsTicket(array $eventData): bool
     {
@@ -233,6 +242,9 @@ class TicketmasterScraper
     /**
      * @param array<string, mixed> $eventData
      */
+    /**
+     * ParseEventDate
+     */
     private function parseEventDate(array $eventData): ?Carbon
     {
         $dateString = $eventData['date_time'] ?? $eventData['date'] ?? NULL;
@@ -277,6 +289,9 @@ class TicketmasterScraper
     /**
      * @param array<string, mixed> $eventData
      */
+    /**
+     * BuildEventDescription
+     */
     private function buildEventDescription(array $eventData): string
     {
         $parts = [];
@@ -315,6 +330,9 @@ class TicketmasterScraper
     /**
      * @param array<string, mixed> $eventData
      */
+    /**
+     * DeterminePriority
+     */
     private function determinePriority(array $eventData): string
     {
         $name = strtolower($eventData['name'] ?? '');
@@ -350,6 +368,9 @@ class TicketmasterScraper
      *
      * @return array<string>
      */
+    /**
+     * ExtractTags
+     */
     private function extractTags(array $eventData): array
     {
         $tags = ['ticketmaster', 'scraped'];
@@ -384,6 +405,9 @@ class TicketmasterScraper
     /**
      * Get or create default user for scraping
      */
+    /**
+     * Get  default user
+     */
     private function getDefaultUser(): int
     {
         $user = User::where('email', 'ticketmaster.scraper@hdtickets.local')->first();
@@ -403,6 +427,9 @@ class TicketmasterScraper
 
     /**
      * Get or create default category for scraped tickets
+     */
+    /**
+     * Get  default category
      */
     private function getDefaultCategory(): int
     {

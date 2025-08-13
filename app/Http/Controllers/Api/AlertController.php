@@ -15,7 +15,7 @@ use Log;
 
 class AlertController extends Controller
 {
-    protected $alertSystem;
+    protected \App\Services\AdvancedAlertSystem $alertSystem;
 
     public function __construct(EnhancedAlertSystem $alertSystem)
     {
@@ -24,6 +24,9 @@ class AlertController extends Controller
 
     /**
      * Get all alerts for the authenticated user
+     */
+    /**
+     * Index
      */
     public function index(Request $request): JsonResponse
     {
@@ -76,6 +79,9 @@ class AlertController extends Controller
 
     /**
      * Create a new ticket alert
+     */
+    /**
+     * Store
      */
     public function store(Request $request): JsonResponse
     {
@@ -132,6 +138,9 @@ class AlertController extends Controller
     /**
      * Get a specific alert
      */
+    /**
+     * Show
+     */
     public function show(string $uuid): JsonResponse
     {
         $alert = TicketAlert::with(['user'])
@@ -154,6 +163,9 @@ class AlertController extends Controller
 
     /**
      * Update an existing alert
+     */
+    /**
+     * Update
      */
     public function update(Request $request, string $uuid): JsonResponse
     {
@@ -215,6 +227,9 @@ class AlertController extends Controller
     /**
      * Delete an alert
      */
+    /**
+     * Destroy
+     */
     public function destroy(string $uuid): JsonResponse
     {
         $alert = TicketAlert::where('uuid', $uuid)
@@ -238,6 +253,9 @@ class AlertController extends Controller
 
     /**
      * Toggle alert active status
+     */
+    /**
+     * Toggle
      */
     public function toggle(string $uuid): JsonResponse
     {
@@ -268,6 +286,9 @@ class AlertController extends Controller
 
     /**
      * Test an alert against current tickets
+     */
+    /**
+     * Test
      */
     public function test(string $uuid): JsonResponse
     {
@@ -361,6 +382,9 @@ class AlertController extends Controller
     /**
      * Get alert statistics for the user
      */
+    /**
+     * Statistics
+     */
     public function statistics(): JsonResponse
     {
         $userId = auth()->id();
@@ -400,6 +424,9 @@ class AlertController extends Controller
 
     /**
      * Trigger manual check for all active alerts
+     */
+    /**
+     * CheckAll
      */
     public function checkAll(): JsonResponse
     {

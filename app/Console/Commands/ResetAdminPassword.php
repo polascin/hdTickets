@@ -9,13 +9,16 @@ use Illuminate\Support\Facades\Hash;
 class ResetAdminPassword extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'admin:reset-password {email} {password}';
+    protected $signature = 'admin:reset-password {email} {password}';
 
     /** The console command description. */
-    protected string $description = 'Reset admin user password';
+    protected $description = 'Reset admin user password';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {

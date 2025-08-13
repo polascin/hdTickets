@@ -56,6 +56,9 @@ abstract class BaseApiClient
     /**
      * Check if API is enabled
      */
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->config['enabled'] ?? FALSE;
@@ -63,6 +66,9 @@ abstract class BaseApiClient
 
     /**
      * Check if scraping fallback is available and enabled
+     */
+    /**
+     * Check if has  scraping fallback
      */
     public function hasScrapingFallback(): bool
     {
@@ -72,6 +78,9 @@ abstract class BaseApiClient
     /**
      * Attempt to fall back to scraping method
      * This method should be implemented by child classes that support scraping
+     */
+    /**
+     * FallbackToScraping
      */
     public function fallbackToScraping(array $criteria): array
     {
@@ -87,6 +96,9 @@ abstract class BaseApiClient
     /**
      * Get the base URL for the platform
      */
+    /**
+     * Get  base url
+     */
     public function getBaseUrl(): ?string
     {
         return $this->baseUrl;
@@ -94,6 +106,9 @@ abstract class BaseApiClient
 
     /**
      * Make HTTP request with enhanced error handling, retry logic and caching
+     */
+    /**
+     * MakeRequest
      */
     protected function makeRequest(string $method, string $endpoint, array $params = [], bool $useCache = TRUE): array
     {
@@ -212,6 +227,9 @@ abstract class BaseApiClient
     /**
      * Execute the actual HTTP request
      */
+    /**
+     * ExecuteRequest
+     */
     protected function executeRequest(string $method, string $endpoint, array $params = []): Response
     {
         $http = Http::timeout($this->timeout)
@@ -236,6 +254,9 @@ abstract class BaseApiClient
     /**
      * Generate cache key for request
      */
+    /**
+     * Get  cache key
+     */
     protected function getCacheKey(string $method, string $endpoint, array $params): string
     {
         return 'api_' . static::class . '_' . md5($method . $endpoint . serialize($params));
@@ -243,6 +264,9 @@ abstract class BaseApiClient
 
     /**
      * Get cache TTL from config
+     */
+    /**
+     * Get  cache ttl
      */
     protected function getCacheTtl(): int
     {
@@ -262,6 +286,9 @@ abstract class BaseApiClient
     /**
      * Get platform name for logging and error handling
      */
+    /**
+     * Get  platform name
+     */
     protected function getPlatformName(): string
     {
         $className = get_class($this);
@@ -272,6 +299,9 @@ abstract class BaseApiClient
 
     /**
      * Handle HTTP error responses
+     */
+    /**
+     * HandleHttpError
      */
     protected function handleHttpError(Response $response, string $platform): void
     {
@@ -330,6 +360,9 @@ abstract class BaseApiClient
 
     /**
      * Create platform-specific exception
+     */
+    /**
+     * CreatePlatformException
      */
     protected function createPlatformException(string $message, string $platform, int $code = 0): TicketPlatformException
     {

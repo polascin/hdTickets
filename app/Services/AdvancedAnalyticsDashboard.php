@@ -23,10 +23,11 @@ class AdvancedAnalyticsDashboard
 
     /**
      * Get comprehensive price trend analysis
-     *
-     * @param mixed $filters
      */
-    public function getPriceTrendAnalysis($filters = [])
+    /**
+     * Get  price trend analysis
+     */
+    public function getPriceTrendAnalysis(): float
     {
         $cacheKey = 'analytics:price_trends:' . md5(serialize($filters));
 
@@ -69,7 +70,7 @@ class AdvancedAnalyticsDashboard
      *
      * @param mixed $filters
      */
-    public function getDemandPatternAnalysis($filters = [])
+    public function getDemandPatternAnalysis(array $filters = [])
     {
         $cacheKey = 'analytics:demand_patterns:' . md5(serialize($filters));
 
@@ -95,7 +96,10 @@ class AdvancedAnalyticsDashboard
      *
      * @param mixed $filters
      */
-    public function getSuccessRateOptimization($filters = [])
+    /**
+     * Get  success rate optimization
+     */
+    public function getSuccessRateOptimization(array $filters = []): float
     {
         $cacheKey = 'analytics:success_optimization:' . md5(serialize($filters));
 
@@ -123,7 +127,7 @@ class AdvancedAnalyticsDashboard
      *
      * @param mixed $filters
      */
-    public function getPlatformPerformanceComparison($filters = [])
+    public function getPlatformPerformanceComparison(array $filters = [])
     {
         $cacheKey = 'analytics:platform_performance:' . md5(serialize($filters));
 
@@ -150,6 +154,9 @@ class AdvancedAnalyticsDashboard
 
     /**
      * Calculate price volatility metrics
+     */
+    /**
+     * Get  price volatility metrics
      */
     public function getPriceVolatilityMetrics(int $ticketId, string $date): ?array
     {
@@ -179,7 +186,7 @@ class AdvancedAnalyticsDashboard
      * @param mixed $type
      * @param mixed $filters
      */
-    public function exportAnalyticsData($type, $filters = [])
+    public function exportAnalyticsData(string $type, $filters = [])
     {
         switch ($type) {
             case 'price_trends':
@@ -391,7 +398,7 @@ class AdvancedAnalyticsDashboard
 
     // Helper methods for demand pattern analysis
 
-    private function aggregateDemandMetrics($filters)
+    private function aggregateDemandMetrics(array $filters)
     {
         $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
         $endDate = $filters['end_date'] ?? Carbon::now();
@@ -591,13 +598,13 @@ class AdvancedAnalyticsDashboard
         );
     }
 
-    private function exportPriceTrendData($filters)
+    private function exportPriceTrendData(array $filters)
     {
         // Implementation for exporting price trend data
         return $this->getPriceTrendAnalysis($filters);
     }
 
-    private function exportDemandPatternData($filters)
+    private function exportDemandPatternData(array $filters)
     {
         // Implementation for exporting demand pattern data
         return $this->getDemandPatternAnalysis($filters);

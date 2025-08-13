@@ -15,6 +15,9 @@ class GetUpcomingEventsQueryHandler
     /**
      * @return array<int, \App\Domain\Event\Entities\SportsEvent>
      */
+    /**
+     * Handle
+     */
     public function handle(GetUpcomingEventsQuery $query): array
     {
         $category = $query->category ? new SportCategory($query->category) : NULL;

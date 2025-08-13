@@ -40,6 +40,9 @@ class AnalyticsDashboard extends Model
     /**
      * Get the user that owns the dashboard
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -119,6 +122,9 @@ class AnalyticsDashboard extends Model
     /**
      * Update last accessed timestamp
      */
+    /**
+     * MarkAccessed
+     */
     public function markAccessed(): void
     {
         $this->update(['last_accessed_at' => now()]);
@@ -126,10 +132,11 @@ class AnalyticsDashboard extends Model
 
     /**
      * Check if user can access this dashboard
-     *
-     * @param mixed $userId
      */
-    public function canAccess($userId)
+    /**
+     * Check if can  access
+     */
+    public function canAccess(): bool
     {
         return $this->user_id === $userId
                || $this->is_public
@@ -138,6 +145,9 @@ class AnalyticsDashboard extends Model
 
     /**
      * Share dashboard with users
+     */
+    /**
+     * ShareWith
      */
     public function shareWith(array $userIds): void
     {
@@ -149,6 +159,9 @@ class AnalyticsDashboard extends Model
 
     /**
      * Remove sharing from users
+     */
+    /**
+     * RemoveSharing
      */
     public function removeSharing(array $userIds): void
     {

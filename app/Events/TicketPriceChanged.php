@@ -14,36 +14,57 @@ class TicketPriceChanged implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public $ticketId;
+    /**
+     * The unique identifier for the ticket
+     * Can be string UUID or integer ID depending on platform
+     */
+    public string|int $ticketId;
 
-    public $eventName;
+    /** The name of the sports event for this ticket */
+    public string $eventName;
 
-    public $platform;
+    /**
+     * The platform where this ticket is available
+     * Examples: 'ticketmaster', 'stubhub', 'seatgeek', 'vivid_seats'
+     */
+    public string $platform;
 
-    public $oldPrice;
+    /** The previous price of the ticket in decimal format */
+    public float $oldPrice;
 
-    public $newPrice;
+    /** The new price of the ticket in decimal format */
+    public float $newPrice;
 
-    public $priceChange;
+    /** The calculated price change amount (newPrice - oldPrice) */
+    public float $priceChange;
 
-    public $changePercentage;
+    /** The percentage change in price */
+    public float $changePercentage;
 
-    public $url;
+    /** The URL to the ticket on the platform */
+    public ?string $url;
 
-    public $timestamp;
+    /** Timestamp when the price change was detected */
+    public string $timestamp;
 
     /**
      * Create a new event instance.
      *
-     * @param mixed      $ticketId
-     * @param mixed      $eventName
-     * @param mixed      $platform
-     * @param mixed      $oldPrice
-     * @param mixed      $newPrice
-     * @param mixed|null $url
+     * @param int|string  $ticketId  The unique identifier for the ticket
+     * @param string      $eventName The name of the sports event
+     * @param string      $platform  The platform where ticket is available
+     * @param float       $oldPrice  The previous price of the ticket
+     * @param float       $newPrice  The new price of the ticket
+     * @param string|null $url       The URL to the ticket on the platform
      */
-    public function __construct($ticketId, $eventName, $platform, $oldPrice, $newPrice, $url = NULL)
-    {
+    public function __construct(
+        string|int $ticketId,
+        string $eventName,
+        string $platform,
+        float $oldPrice,
+        float $newPrice,
+        ?string $url = NULL,
+    ) {
         $this->ticketId = $ticketId;
         $this->eventName = $eventName;
         $this->platform = $platform;
@@ -52,13 +73,16 @@ class TicketPriceChanged implements ShouldBroadcast
         $this->priceChange = $newPrice - $oldPrice;
         $this->changePercentage = $oldPrice > 0 ? round(($this->priceChange / $oldPrice) * 100, 2) : 0;
         $this->url = $url;
-        $this->timestamp = now()->toISOString();
+        $this->timestamp = now()->toISOString() ?? now()->toDateTimeString();
     }
 
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, Channel>
+     */
+    /**
+     * BroadcastOn
      */
     public function broadcastOn(): array
     {
@@ -72,6 +96,9 @@ class TicketPriceChanged implements ShouldBroadcast
     /**
      * The event's broadcast name.
      */
+    /**
+     * BroadcastAs
+     */
     public function broadcastAs(): string
     {
         return 'ticket.price.changed';
@@ -81,6 +108,9 @@ class TicketPriceChanged implements ShouldBroadcast
      * Get the data to broadcast.
      *
      * @return array<string, mixed>
+     */
+    /**
+     * BroadcastWith
      */
     public function broadcastWith(): array
     {

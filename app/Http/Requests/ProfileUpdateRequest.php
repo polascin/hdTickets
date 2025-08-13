@@ -13,6 +13,9 @@ class ProfileUpdateRequest extends FormRequest
      *
      * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
      */
+    /**
+     * Rules
+     */
     public function rules(): array
     {
         return [
@@ -42,6 +45,9 @@ class ProfileUpdateRequest extends FormRequest
 
     /**
      * Get custom validation messages.
+     */
+    /**
+     * Messages
      */
     public function messages(): array
     {

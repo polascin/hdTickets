@@ -27,6 +27,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Register services
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Register component registry as singleton
@@ -53,6 +56,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Bootstrap services
      */
+    /**
+     * Boot
+     */
     public function boot(): void
     {
         // Register Blade components and directives
@@ -72,6 +78,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Get services provided by this provider
      */
+    /**
+     * Provides
+     */
     public function provides(): array
     {
         return [
@@ -86,6 +95,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
 
     /**
      * Register Blade components
+     */
+    /**
+     * RegisterBladeComponents
      */
     private function registerBladeComponents(): void
     {
@@ -110,6 +122,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
 
     /**
      * Register custom Blade directives for component integration
+     */
+    /**
+     * RegisterBladeDirectives
      */
     private function registerBladeDirectives(): void
     {
@@ -179,6 +194,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Setup automatic component discovery
      */
+    /**
+     * Set up component discovery
+     */
     private function setupComponentDiscovery(): void
     {
         $registry = app(ComponentRegistry::class);
@@ -210,6 +228,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
 
     /**
      * Register view composers for component data injection
+     */
+    /**
+     * RegisterViewComposers
      */
     private function registerViewComposers(): void
     {
@@ -264,6 +285,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Setup component validation rules
      */
+    /**
+     * Set up component validation
+     */
     private function setupComponentValidation(): void
     {
         $communication = app(ComponentCommunication::class);
@@ -305,6 +329,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Determine component type from view name
      */
+    /**
+     * DetermineComponentType
+     */
     private function determineComponentType(string $viewName): string
     {
         // Check for Vue components (typically in JS directories or have .vue extension)
@@ -323,6 +350,9 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
 
     /**
      * Extract category from component path
+     */
+    /**
+     * ExtractCategoryFromPath
      */
     private function extractCategoryFromPath(string $viewName): string
     {

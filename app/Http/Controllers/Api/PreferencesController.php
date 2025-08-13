@@ -12,6 +12,9 @@ class PreferencesController extends Controller
     /**
      * Get all user preferences
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         $userId = auth()->id();
@@ -65,6 +68,9 @@ class PreferencesController extends Controller
     /**
      * Store new preference
      */
+    /**
+     * Store
+     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -101,6 +107,9 @@ class PreferencesController extends Controller
     /**
      * Update specific preference
      */
+    /**
+     * Update
+     */
     public function update(Request $request, string $key): JsonResponse
     {
         $request->validate([
@@ -126,6 +135,9 @@ class PreferencesController extends Controller
     /**
      * Delete preference
      */
+    /**
+     * Destroy
+     */
     public function destroy(Request $request, string $key): JsonResponse
     {
         $request->validate([
@@ -149,6 +161,9 @@ class PreferencesController extends Controller
 
     /**
      * Reset all preferences to default
+     */
+    /**
+     * Reset
      */
     public function reset(Request $request): JsonResponse
     {

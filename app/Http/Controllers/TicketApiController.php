@@ -21,7 +21,10 @@ class TicketApiController extends Controller
     /**
      * Show API integration dashboard
      */
-    public function index()
+    /**
+     * Index
+     */
+    public function index(): Illuminate\Contracts\View\View
     {
         $availablePlatforms = $this->apiManager->getAvailablePlatforms();
 
@@ -31,7 +34,10 @@ class TicketApiController extends Controller
     /**
      * Search events via API
      */
-    public function search(Request $request)
+    /**
+     * Search
+     */
+    public function search(Request $request): Illuminate\Http\JsonResponse
     {
         $request->validate([
             'query'       => 'required|string|max:255',
@@ -69,7 +75,10 @@ class TicketApiController extends Controller
     /**
      * Get event details from specific platform
      */
-    public function getEvent(Request $request, string $platform, string $eventId)
+    /**
+     * Get  event
+     */
+    public function getEvent(Request $request, string $platform, string $eventId): Illuminate\Http\RedirectResponse
     {
         try {
             $event = $this->apiManager->getEvent($platform, $eventId);
@@ -102,7 +111,10 @@ class TicketApiController extends Controller
     /**
      * Import events from APIs to database
      */
-    public function importEvents(Request $request)
+    /**
+     * ImportEvents
+     */
+    public function importEvents(Request $request): Illuminate\Http\RedirectResponse
     {
         $request->validate([
             'query'       => 'required|string|max:255',
@@ -183,6 +195,9 @@ class TicketApiController extends Controller
     /**
      * Build search criteria from request
      */
+    /**
+     * BuildSearchCriteria
+     */
     protected function buildSearchCriteria(Request $request): array
     {
         $criteria = [
@@ -212,6 +227,9 @@ class TicketApiController extends Controller
 
     /**
      * Generate search summary
+     */
+    /**
+     * GenerateSearchSummary
      */
     protected function generateSearchSummary(array $results): array
     {

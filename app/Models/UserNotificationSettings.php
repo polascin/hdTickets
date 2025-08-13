@@ -51,6 +51,9 @@ class UserNotificationSettings extends Model
     /**
      * Get the user that owns this notification setting
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -79,6 +82,9 @@ class UserNotificationSettings extends Model
     /**
      * Check if the channel is properly configured
      */
+    /**
+     * Check if  configured
+     */
     public function isConfigured(): bool
     {
         switch ($this->channel) {
@@ -97,6 +103,9 @@ class UserNotificationSettings extends Model
 
     /**
      * Get channel-specific settings
+     */
+    /**
+     * Get  channel settings
      */
     public function getChannelSettings(): array
     {
@@ -143,6 +152,9 @@ class UserNotificationSettings extends Model
     /**
      * Update channel settings
      */
+    /**
+     * UpdateChannelSettings
+     */
     public function updateChannelSettings(array $settings): bool
     {
         $fillableSettings = array_intersect_key($settings, array_flip($this->fillable));
@@ -152,6 +164,9 @@ class UserNotificationSettings extends Model
 
     /**
      * Test the notification channel
+     */
+    /**
+     * Test
      */
     public function test(): array
     {
@@ -203,6 +218,9 @@ class UserNotificationSettings extends Model
 
     /**
      * Get supported notification channels
+     */
+    /**
+     * Get  supported channels
      */
     public static function getSupportedChannels(): array
     {

@@ -119,6 +119,11 @@ class DataSecurityService
      *
      * @param mixed $value
      */
+    /**
+     * EncryptField
+     *
+     * @param mixed $value
+     */
     public function encryptField(string $fieldName, $value, array $options = []): string
     {
         if (empty($value)) {
@@ -146,6 +151,9 @@ class DataSecurityService
 
     /**
      * Decrypt sensitive field data
+     */
+    /**
+     * DecryptField
      */
     public function decryptField(string $fieldName, string $encryptedValue, array $options = []): string
     {
@@ -183,6 +191,11 @@ class DataSecurityService
      *
      * @param mixed $value
      */
+    /**
+     * MaskForLog
+     *
+     * @param mixed $value
+     */
     public function maskForLog(string $fieldName, $value): string
     {
         if (empty($value)) {
@@ -208,6 +221,9 @@ class DataSecurityService
 
     /**
      * Secure key rotation
+     */
+    /**
+     * RotateEncryptionKeys
      */
     public function rotateEncryptionKeys(): array
     {
@@ -236,6 +252,9 @@ class DataSecurityService
 
     /**
      * Database encryption at rest
+     */
+    /**
+     * ConfigureTableEncryption
      */
     public function configureTableEncryption(string $table, array $encryptedColumns): bool
     {
@@ -266,6 +285,9 @@ class DataSecurityService
 
     /**
      * Create secure backup with encryption
+     */
+    /**
+     * CreateSecureBackup
      */
     public function createSecureBackup(array $tables = [], array $options = []): array
     {
@@ -319,6 +341,9 @@ class DataSecurityService
     /**
      * Validate data integrity
      */
+    /**
+     * ValidateDataIntegrity
+     */
     public function validateDataIntegrity(string $table, array $columns = []): array
     {
         $results = [
@@ -358,6 +383,9 @@ class DataSecurityService
     /**
      * Setup data retention policies
      */
+    /**
+     * Set up data retention
+     */
     public function setupDataRetention(): void
     {
         foreach (self::FIELD_CONFIGS as $fieldName => $config) {
@@ -369,6 +397,9 @@ class DataSecurityService
 
     /**
      * Initialize encryption components
+     */
+    /**
+     * InitializeEncryption
      */
     protected function initializeEncryption(): void
     {
@@ -383,6 +414,9 @@ class DataSecurityService
     /**
      * Get field configuration
      */
+    /**
+     * Get  field config
+     */
     protected function getFieldConfig(string $fieldName): array
     {
         return self::FIELD_CONFIGS[$fieldName] ?? [
@@ -395,6 +429,11 @@ class DataSecurityService
 
     /**
      * Encrypt with AES-256
+     *
+     * @param mixed $value
+     */
+    /**
+     * EncryptWithAES256
      *
      * @param mixed $value
      */
@@ -421,6 +460,9 @@ class DataSecurityService
     /**
      * Decrypt with AES-256
      */
+    /**
+     * DecryptWithAES256
+     */
     protected function decryptWithAES256(string $fieldName, string $encryptedValue, array $config): string
     {
         if ($config['key_rotation']) {
@@ -444,6 +486,11 @@ class DataSecurityService
      *
      * @param mixed $value
      */
+    /**
+     * EncryptEphemeral
+     *
+     * @param mixed $value
+     */
     protected function encryptEphemeral($value): string
     {
         return Crypt::encrypt($value);
@@ -452,6 +499,9 @@ class DataSecurityService
     /**
      * Decrypt ephemeral data
      */
+    /**
+     * DecryptEphemeral
+     */
     protected function decryptEphemeral(string $encryptedValue): string
     {
         return Crypt::decrypt($encryptedValue);
@@ -459,6 +509,11 @@ class DataSecurityService
 
     /**
      * Tokenize sensitive data
+     *
+     * @param mixed $value
+     */
+    /**
+     * TokenizeData
      *
      * @param mixed $value
      */
@@ -475,6 +530,9 @@ class DataSecurityService
     /**
      * Detokenize data
      */
+    /**
+     * DetokenizeData
+     */
     protected function detokenizeData(string $fieldName, string $token): string
     {
         $encryptedValue = Cache::get("token:{$token}");
@@ -487,6 +545,9 @@ class DataSecurityService
 
     /**
      * Partial data masking
+     */
+    /**
+     * PartialMask
      */
     protected function partialMask(string $value, float $maskRatio): string
     {
@@ -507,6 +568,9 @@ class DataSecurityService
     /**
      * Get or create field encryption key
      */
+    /**
+     * Get  or create field encryption key
+     */
     protected function getOrCreateFieldEncryptionKey(): string
     {
         $key = Cache::get('field_encryption_key');
@@ -521,6 +585,9 @@ class DataSecurityService
 
     /**
      * Get field-specific encryption key
+     */
+    /**
+     * Get  field encryption key
      */
     protected function getFieldEncryptionKey(string $fieldName, ?int $version = NULL): string
     {
@@ -538,6 +605,9 @@ class DataSecurityService
     /**
      * Get current key version for field
      */
+    /**
+     * Get  current key version
+     */
     protected function getCurrentKeyVersion(?string $fieldName = NULL): int
     {
         $versionKey = $fieldName ? "key_version:{$fieldName}" : 'global_key_version';
@@ -547,6 +617,9 @@ class DataSecurityService
 
     /**
      * Rotate field encryption key
+     */
+    /**
+     * RotateFieldKey
      */
     protected function rotateFieldKey(string $fieldName): array
     {
@@ -569,6 +642,9 @@ class DataSecurityService
     /**
      * Audit field access
      */
+    /**
+     * AuditFieldAccess
+     */
     protected function auditFieldAccess(string $fieldName, string $operation, array $context): void
     {
         $this->securityService->logSecurityActivity("Field {$operation}", [
@@ -581,6 +657,9 @@ class DataSecurityService
 
     /**
      * Handle decryption errors
+     */
+    /**
+     * HandleDecryptionError
      */
     protected function handleDecryptionError(string $fieldName, Exception $error, array $options): void
     {
@@ -600,6 +679,9 @@ class DataSecurityService
     /**
      * Create encrypted table backup
      */
+    /**
+     * CreateEncryptedTableBackup
+     */
     protected function createEncryptedTableBackup(string $table, string $outputPath): void
     {
         $backupSql = DB::select("SELECT * FROM {$table}");
@@ -609,6 +691,9 @@ class DataSecurityService
 
     /**
      * Calculate backup checksum
+     */
+    /**
+     * CalculateBackupChecksum
      */
     protected function calculateBackupChecksum(string $backupPath): string
     {
@@ -625,6 +710,9 @@ class DataSecurityService
     /**
      * Schedule data purge based on retention policy
      */
+    /**
+     * ScheduleDataPurge
+     */
     protected function scheduleDataPurge(string $fieldName, int $days): void
     {
         // This would typically integrate with a job scheduler
@@ -638,11 +726,17 @@ class DataSecurityService
  */
 class EncryptionKeyManager
 {
+    /**
+     * GenerateKey
+     */
     public function generateKey(): string
     {
         return base64_encode(random_bytes(32));
     }
 
+    /**
+     * RotateKey
+     */
     public function rotateKey(string $keyName): array
     {
         $oldKey = Cache::get($keyName);

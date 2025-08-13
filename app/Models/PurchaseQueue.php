@@ -68,7 +68,10 @@ class PurchaseQueue extends Model
     /**
      * Get the route key for the model
      */
-    public function getRouteKeyName()
+    /**
+     * Get  route key name
+     */
+    public function getRouteKeyName(): string
     {
         return 'uuid';
     }
@@ -76,7 +79,10 @@ class PurchaseQueue extends Model
     /**
      * Get all available statuses
      */
-    public static function getStatuses()
+    /**
+     * Get  statuses
+     */
+    public function getStatuses(): string
     {
         return [
             self::STATUS_QUEUED,
@@ -104,6 +110,9 @@ class PurchaseQueue extends Model
     /**
      * Relationship: Scraped ticket that was selected for purchase
      */
+    /**
+     * ScrapedTicket
+     */
     public function scrapedTicket(): BelongsTo
     {
         return $this->belongsTo(ScrapedTicket::class);
@@ -111,6 +120,9 @@ class PurchaseQueue extends Model
 
     /**
      * Relationship: User who selected this ticket for purchase
+     */
+    /**
+     * SelectedByUser
      */
     public function selectedByUser(): BelongsTo
     {
@@ -120,6 +132,9 @@ class PurchaseQueue extends Model
     /**
      * Relationship: User (alias for selectedByUser for compatibility)
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -128,6 +143,9 @@ class PurchaseQueue extends Model
     /**
      * Relationship: Purchase attempts for this queue item
      */
+    /**
+     * PurchaseAttempts
+     */
     public function purchaseAttempts(): HasMany
     {
         return $this->hasMany(PurchaseAttempt::class)->orderBy('created_at', 'desc');
@@ -135,6 +153,9 @@ class PurchaseQueue extends Model
 
     /**
      * Relationship: Latest purchase attempt
+     */
+    /**
+     * LatestAttempt
      */
     public function latestAttempt(): HasMany
     {
@@ -209,6 +230,9 @@ class PurchaseQueue extends Model
     /**
      * Check if queue item is active
      */
+    /**
+     * Check if  active
+     */
     public function isActive(): bool
     {
         return in_array($this->status, [
@@ -220,6 +244,9 @@ class PurchaseQueue extends Model
     /**
      * Check if queue item is completed
      */
+    /**
+     * Check if  completed
+     */
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;
@@ -227,6 +254,9 @@ class PurchaseQueue extends Model
 
     /**
      * Check if queue item has failed
+     */
+    /**
+     * Check if  failed
      */
     public function isFailed(): bool
     {
@@ -236,6 +266,9 @@ class PurchaseQueue extends Model
     /**
      * Check if queue item is cancelled
      */
+    /**
+     * Check if  cancelled
+     */
     public function isCancelled(): bool
     {
         return $this->status === self::STATUS_CANCELLED;
@@ -243,6 +276,9 @@ class PurchaseQueue extends Model
 
     /**
      * Check if queue item is expired
+     */
+    /**
+     * Check if  expired
      */
     public function isExpired(): bool
     {
@@ -252,6 +288,9 @@ class PurchaseQueue extends Model
     /**
      * Check if queue item is scheduled for future
      */
+    /**
+     * Check if  scheduled
+     */
     public function isScheduled(): bool
     {
         return $this->scheduled_for && $this->scheduled_for->isFuture();
@@ -259,6 +298,9 @@ class PurchaseQueue extends Model
 
     /**
      * Mark as processing
+     */
+    /**
+     * MarkAsProcessing
      */
     public function markAsProcessing(): bool
     {
@@ -271,6 +313,9 @@ class PurchaseQueue extends Model
     /**
      * Mark as completed
      */
+    /**
+     * MarkAsCompleted
+     */
     public function markAsCompleted(): bool
     {
         return $this->update([
@@ -282,6 +327,9 @@ class PurchaseQueue extends Model
     /**
      * Mark as failed
      */
+    /**
+     * MarkAsFailed
+     */
     public function markAsFailed(): bool
     {
         return $this->update([
@@ -292,6 +340,9 @@ class PurchaseQueue extends Model
     /**
      * Cancel queue item
      */
+    /**
+     * Check if can cel
+     */
     public function cancel(): bool
     {
         return $this->update([
@@ -301,6 +352,9 @@ class PurchaseQueue extends Model
 
     /**
      * Get status color for UI
+     */
+    /**
+     * Get  status color attribute
      */
     public function getStatusColorAttribute(): string
     {
@@ -317,6 +371,9 @@ class PurchaseQueue extends Model
     /**
      * Get priority color for UI
      */
+    /**
+     * Get  priority color attribute
+     */
     public function getPriorityColorAttribute(): string
     {
         return match ($this->priority) {
@@ -331,6 +388,9 @@ class PurchaseQueue extends Model
 
     /**
      * Get success rate for this queue item
+     */
+    /**
+     * Get  success rate
      */
     public function getSuccessRate(): float
     {
@@ -347,6 +407,9 @@ class PurchaseQueue extends Model
     /**
      * Get estimated processing time
      */
+    /**
+     * Get  estimated processing time
+     */
     public function getEstimatedProcessingTime(): ?string
     {
         if ($this->scheduled_for && $this->scheduled_for->isFuture()) {
@@ -356,6 +419,9 @@ class PurchaseQueue extends Model
         return NULL;
     }
 
+    /**
+     * Boot
+     */
     protected static function boot(): void
     {
         parent::boot();

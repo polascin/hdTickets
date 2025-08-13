@@ -14,6 +14,9 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
+    /**
+     * Create
+     */
     public function create(): View
     {
         return view('auth.login');
@@ -21,6 +24,9 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     */
+    /**
+     * Store
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -38,6 +44,9 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
+     */
+    /**
+     * Destroy
      */
     public function destroy(Request $request): RedirectResponse
     {

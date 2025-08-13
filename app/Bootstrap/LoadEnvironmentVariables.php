@@ -9,6 +9,9 @@ class LoadEnvironmentVariables
     /**
      * Bootstrap the given application.
      */
+    /**
+     * Bootstrap
+     */
     public function bootstrap(Application $application): void
     {
         // Environment variables are already loaded in bootstrap/app.php

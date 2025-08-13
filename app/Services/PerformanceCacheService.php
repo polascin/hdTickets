@@ -23,6 +23,9 @@ class PerformanceCacheService
     /**
      * Get cached ticket statistics
      */
+    /**
+     * Get  ticket stats
+     */
     public function getTicketStats(): array
     {
         return Cache::remember('ticket_stats', self::CACHE_TTL_MEDIUM, function () {
@@ -47,6 +50,9 @@ class PerformanceCacheService
     /**
      * Get cached platform breakdown
      */
+    /**
+     * Get  platform breakdown
+     */
     public function getPlatformBreakdown(): array
     {
         return Cache::remember('platform_breakdown', self::CACHE_TTL_MEDIUM, function () {
@@ -64,6 +70,9 @@ class PerformanceCacheService
     /**
      * Get cached price ranges distribution
      */
+    /**
+     * Get  price ranges
+     */
     public function getPriceRanges(): array
     {
         return Cache::remember('price_ranges', self::CACHE_TTL_LONG, function () {
@@ -79,6 +88,9 @@ class PerformanceCacheService
 
     /**
      * Get cached trending events
+     */
+    /**
+     * Get  trending events
      */
     public function getTrendingEvents(): array
     {
@@ -98,6 +110,9 @@ class PerformanceCacheService
 
     /**
      * Get cached user activity statistics
+     */
+    /**
+     * Get  user activity stats
      */
     public function getUserActivityStats(): array
     {
@@ -119,6 +134,9 @@ class PerformanceCacheService
 
     /**
      * Get cached ticket availability timeline
+     */
+    /**
+     * Get  availability timeline
      */
     public function getAvailabilityTimeline(): array
     {
@@ -153,6 +171,9 @@ class PerformanceCacheService
     /**
      * Get cached top events by price
      */
+    /**
+     * Get  top events by price
+     */
     public function getTopEventsByPrice(): array
     {
         return Cache::remember('top_events_by_price', self::CACHE_TTL_LONG, function () {
@@ -172,6 +193,9 @@ class PerformanceCacheService
     /**
      * Get cached search suggestions
      */
+    /**
+     * Get  search suggestions
+     */
     public function getSearchSuggestions(string $query, int $limit = 10): array
     {
         $cacheKey = 'search_suggestions_' . md5($query);
@@ -190,6 +214,9 @@ class PerformanceCacheService
 
     /**
      * Invalidate ticket-related caches
+     */
+    /**
+     * InvalidateTicketCaches
      */
     public function invalidateTicketCaches(): void
     {
@@ -215,6 +242,9 @@ class PerformanceCacheService
     /**
      * Warm up critical caches
      */
+    /**
+     * WarmUpCaches
+     */
     public function warmUpCaches(): void
     {
         // Warm up the most frequently accessed caches
@@ -228,6 +258,9 @@ class PerformanceCacheService
 
     /**
      * Get cache status and statistics
+     */
+    /**
+     * Get  cache status
      */
     public function getCacheStatus(): array
     {
@@ -255,6 +288,9 @@ class PerformanceCacheService
     /**
      * Get database performance metrics
      */
+    /**
+     * Get  database metrics
+     */
     public function getDatabaseMetrics(): array
     {
         return Cache::remember('db_metrics', self::CACHE_TTL_SHORT, function () {
@@ -275,6 +311,9 @@ class PerformanceCacheService
 
     /**
      * Optimize cache usage based on patterns
+     */
+    /**
+     * OptimizeCacheUsage
      */
     public function optimizeCacheUsage(): array
     {

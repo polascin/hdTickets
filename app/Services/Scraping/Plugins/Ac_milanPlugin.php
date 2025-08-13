@@ -12,6 +12,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'AC Milan';
@@ -26,6 +29,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -44,6 +50,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -59,6 +68,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/it/biglietti';
@@ -66,6 +78,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -95,6 +110,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Map competition names to Italian equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -111,6 +129,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -158,6 +179,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (Italian)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.match-title, .titolo-partita, .event-title, .titolo-evento, .nome-partita, .avversario, .opponent, h3, h2, .title, .titolo';
@@ -165,6 +189,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (Italian)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -174,6 +201,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (Italian)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .stadio, .location, .luogo, .sede';
@@ -182,6 +212,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (Italian)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .prezzo, .costo, .cost, .da, .from, .prezzo-biglietto, .tariffa';
@@ -189,6 +222,9 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (Italian)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

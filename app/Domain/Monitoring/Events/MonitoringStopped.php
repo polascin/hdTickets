@@ -12,19 +12,25 @@ final class MonitoringStopped extends AbstractDomainEvent
         public string $userId,
         public DateTimeImmutable $stoppedAt,
         public string $reason,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Final monitoring metrics including total scans, alerts triggered, success rate, etc. */
         public array $finalMetrics = [],
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->monitorId;
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'monitoring';
@@ -32,6 +38,9 @@ final class MonitoringStopped extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -46,6 +55,9 @@ final class MonitoringStopped extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

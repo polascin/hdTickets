@@ -8,12 +8,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 use function count;
-use function is_string;
 
 class TicketScrapingCommand extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'tickets:scrape 
+    protected $signature = 'tickets:scrape 
                             {--platform= : Platform to scrape (stubhub, ticketmaster, viagogo)}
                             {--keywords= : Specific keywords to search for}
                             {--manchester-united : Search for Manchester United tickets}
@@ -23,7 +22,7 @@ class TicketScrapingCommand extends Command
                             {--limit=50 : Maximum number of tickets to process}';
 
     /** The console command description. */
-    protected string $description = 'Scrape tickets from various platforms and check alerts';
+    protected $description = 'Scrape tickets from various platforms and check alerts';
 
     protected TicketScrapingService $scrapingService;
 
@@ -38,6 +37,9 @@ class TicketScrapingCommand extends Command
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -99,6 +101,9 @@ class TicketScrapingCommand extends Command
     /**
      * Check ticket alerts.
      */
+    /**
+     * CheckAlerts
+     */
     protected function checkAlerts(): void
     {
         $this->info('🔍 Checking ticket alerts...');
@@ -112,6 +117,9 @@ class TicketScrapingCommand extends Command
     /**
      * Scrape Manchester United tickets.
      */
+    /**
+     * ScrapeManchesterUnited
+     */
     protected function scrapeManchesterUnited(): void
     {
         $this->info('🔴 Scraping Manchester United tickets...');
@@ -124,6 +132,9 @@ class TicketScrapingCommand extends Command
 
     /**
      * Scrape high-demand sports tickets.
+     */
+    /**
+     * ScrapeHighDemandSports
      */
     protected function scrapeHighDemandSports(): void
     {
@@ -142,13 +153,16 @@ class TicketScrapingCommand extends Command
     /**
      * Scrape by custom keywords.
      */
+    /**
+     * ScrapeByKeywords
+     */
     protected function scrapeByKeywords(): void
     {
         $keywords = $this->option('keywords');
 
-        // Ensure keywords is not null and is a string
-        if (! $keywords || ! is_string($keywords)) {
-            $this->error('Keywords must be provided as a string');
+        // Ensure keywords is not null
+        if (! $keywords) {
+            $this->error('Keywords must be provided');
 
             return;
         }
@@ -179,6 +193,9 @@ class TicketScrapingCommand extends Command
      * Display scraping results.
      *
      * @param array<string, mixed> $results
+     */
+    /**
+     * DisplayResults
      */
     protected function displayResults(string $category, array $results): void
     {

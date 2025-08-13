@@ -20,6 +20,9 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Register any authentication / authorization services.
      */
+    /**
+     * Boot
+     */
     public function boot(): void
     {
         // SYSTEM ACCESS GATES

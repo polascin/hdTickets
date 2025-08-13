@@ -27,6 +27,9 @@ class EventMonitoringController extends Controller
     /**
      * Get event store overview
      */
+    /**
+     * Overview
+     */
     public function overview(): JsonResponse
     {
         $data = Cache::remember('event_monitoring_overview', 60, function () {
@@ -75,6 +78,9 @@ class EventMonitoringController extends Controller
     /**
      * Get projection status
      */
+    /**
+     * Projections
+     */
     public function projections(): JsonResponse
     {
         $projections = $this->projectionManager->getProjections();
@@ -101,6 +107,9 @@ class EventMonitoringController extends Controller
 
     /**
      * Get processing failures
+     */
+    /**
+     * Failures
      */
     public function failures(Request $request): JsonResponse
     {
@@ -153,6 +162,9 @@ class EventMonitoringController extends Controller
     /**
      * Get recent events
      */
+    /**
+     * RecentEvents
+     */
     public function recentEvents(Request $request): JsonResponse
     {
         $limit = $request->get('limit', 50);
@@ -192,6 +204,9 @@ class EventMonitoringController extends Controller
 
     /**
      * Get event statistics
+     */
+    /**
+     * Statistics
      */
     public function statistics(): JsonResponse
     {
@@ -238,6 +253,9 @@ class EventMonitoringController extends Controller
     /**
      * Rebuild projection
      */
+    /**
+     * RebuildProjection
+     */
     public function rebuildProjection(Request $request, string $projectionName): JsonResponse
     {
         try {
@@ -259,6 +277,9 @@ class EventMonitoringController extends Controller
 
     /**
      * Resolve processing failure
+     */
+    /**
+     * ResolveFailure
      */
     public function resolveFailure(int $failureId): JsonResponse
     {
@@ -282,6 +303,9 @@ class EventMonitoringController extends Controller
         }
     }
 
+    /**
+     * Get  payload preview
+     */
     private function getPayloadPreview(array $payload): string
     {
         // Create a brief preview of the payload

@@ -37,6 +37,9 @@ class AlertEscalation extends Model
     /**
      * Get the alert that owns this escalation
      */
+    /**
+     * Alert
+     */
     public function alert(): BelongsTo
     {
         return $this->belongsTo(TicketAlert::class, 'alert_id');
@@ -44,6 +47,9 @@ class AlertEscalation extends Model
 
     /**
      * Get the user for this escalation
+     */
+    /**
+     * User
      */
     public function user(): BelongsTo
     {
@@ -55,7 +61,12 @@ class AlertEscalation extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->whereIn('status', ['scheduled', 'retrying']);
     }
@@ -83,6 +94,9 @@ class AlertEscalation extends Model
     /**
      * Check if escalation is still valid
      */
+    /**
+     * Check if  valid
+     */
     public function isValid(): bool
     {
         return $this->status === 'scheduled' || $this->status === 'retrying';
@@ -91,6 +105,9 @@ class AlertEscalation extends Model
     /**
      * Check if escalation has exceeded max attempts
      */
+    /**
+     * Check if has  exceeded max attempts
+     */
     public function hasExceededMaxAttempts(): bool
     {
         return $this->attempts >= $this->max_attempts;
@@ -98,6 +115,9 @@ class AlertEscalation extends Model
 
     /**
      * Get escalation progress percentage
+     */
+    /**
+     * Get  progress percentage
      */
     public function getProgressPercentage(): int
     {

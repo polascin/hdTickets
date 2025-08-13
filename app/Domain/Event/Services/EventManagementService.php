@@ -21,6 +21,9 @@ class EventManagementService
     ) {
     }
 
+    /**
+     * CreateSportsEvent
+     */
     public function createSportsEvent(
         string $name,
         SportCategory $category,
@@ -73,6 +76,9 @@ class EventManagementService
         return $event;
     }
 
+    /**
+     * UpdateEventDetails
+     */
     public function updateEventDetails(
         EventId $eventId,
         string $name,
@@ -90,6 +96,9 @@ class EventManagementService
         $this->eventRepository->save($event);
     }
 
+    /**
+     * MarkEventAsHighDemand
+     */
     public function markEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
@@ -101,6 +110,9 @@ class EventManagementService
         $this->eventRepository->save($event);
     }
 
+    /**
+     * UnmarkEventAsHighDemand
+     */
     public function unmarkEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
@@ -114,6 +126,9 @@ class EventManagementService
 
     /**
      * @return array<int, SportsEvent>
+     */
+    /**
+     * DetectHighDemandEvents
      */
     public function detectHighDemandEvents(): array
     {
@@ -136,6 +151,9 @@ class EventManagementService
     /**
      * @return array<int, SportsEvent>
      */
+    /**
+     * FindEventsByFilters
+     */
     public function findEventsByFilters(
         ?SportCategory $category = NULL,
         ?string $venue = NULL,
@@ -156,6 +174,9 @@ class EventManagementService
         );
     }
 
+    /**
+     * Check if  likely high demand
+     */
     private function isLikelyHighDemand(SportsEvent $event): bool
     {
         // Business logic to determine if an event is likely high demand

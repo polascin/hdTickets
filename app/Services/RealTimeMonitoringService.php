@@ -35,6 +35,9 @@ class RealTimeMonitoringService
     /**
      * Start real-time monitoring
      */
+    /**
+     * StartMonitoring
+     */
     public function startMonitoring(): void
     {
         if ($this->monitoringActive) {
@@ -58,6 +61,9 @@ class RealTimeMonitoringService
     /**
      * Stop real-time monitoring
      */
+    /**
+     * StopMonitoring
+     */
     public function stopMonitoring(): void
     {
         $this->monitoringActive = FALSE;
@@ -69,6 +75,9 @@ class RealTimeMonitoringService
     /**
      * Check if monitoring is active
      */
+    /**
+     * Check if  monitoring active
+     */
     public function isMonitoringActive(): bool
     {
         return Cache::get('monitoring.active', FALSE);
@@ -76,6 +85,9 @@ class RealTimeMonitoringService
 
     /**
      * Add ticket to monitoring watch list
+     */
+    /**
+     * AddToWatchList
      */
     public function addToWatchList(int $ticketId, array $criteria = []): void
     {
@@ -104,6 +116,9 @@ class RealTimeMonitoringService
     /**
      * Remove ticket from monitoring watch list
      */
+    /**
+     * RemoveFromWatchList
+     */
     public function removeFromWatchList(int $ticketId): void
     {
         unset($this->watchedTickets[$ticketId]);
@@ -115,6 +130,9 @@ class RealTimeMonitoringService
 
     /**
      * Get monitoring statistics
+     */
+    /**
+     * Get  monitoring stats
      */
     public function getMonitoringStats(): array
     {
@@ -130,6 +148,9 @@ class RealTimeMonitoringService
 
     /**
      * Get real-time dashboard data
+     */
+    /**
+     * Get  dashboard data
      */
     public function getDashboardData(): array
     {
@@ -149,6 +170,9 @@ class RealTimeMonitoringService
     /**
      * Set monitoring interval
      */
+    /**
+     * Set  monitoring interval
+     */
     public function setMonitoringInterval(int $seconds): void
     {
         $this->monitoringInterval = max(10, $seconds); // Minimum 10 seconds
@@ -158,6 +182,9 @@ class RealTimeMonitoringService
     /**
      * Set alert thresholds
      */
+    /**
+     * Set  alert thresholds
+     */
     public function setAlertThresholds(array $thresholds): void
     {
         $this->alertThresholds = array_merge($this->alertThresholds, $thresholds);
@@ -166,6 +193,9 @@ class RealTimeMonitoringService
 
     /**
      * Load monitoring configuration
+     */
+    /**
+     * LoadConfiguration
      */
     protected function loadConfiguration(): void
     {
@@ -181,6 +211,9 @@ class RealTimeMonitoringService
 
     /**
      * Load tickets to be watched
+     */
+    /**
+     * LoadWatchedTickets
      */
     protected function loadWatchedTickets(): void
     {
@@ -198,6 +231,9 @@ class RealTimeMonitoringService
 
     /**
      * Main monitoring loop
+     */
+    /**
+     * RunMonitoringLoop
      */
     protected function runMonitoringLoop(): void
     {
@@ -221,6 +257,9 @@ class RealTimeMonitoringService
 
     /**
      * Perform a single monitoring cycle
+     */
+    /**
+     * PerformMonitoringCycle
      */
     protected function performMonitoringCycle(): void
     {
@@ -274,6 +313,9 @@ class RealTimeMonitoringService
 
     /**
      * Check for changes in a ticket
+     */
+    /**
+     * CheckTicketChanges
      */
     protected function checkTicketChanges(Ticket $ticket, array $watchData): array
     {
@@ -338,6 +380,9 @@ class RealTimeMonitoringService
     /**
      * Get fresh ticket data from scraping
      */
+    /**
+     * Get  fresh ticket data
+     */
     protected function getFreshTicketData(Ticket $ticket): array
     {
         $source = $ticket->metadata['source'] ?? NULL;
@@ -374,6 +419,9 @@ class RealTimeMonitoringService
     /**
      * Process ticket changes and send notifications
      */
+    /**
+     * ProcessTicketChanges
+     */
     protected function processTicketChanges(Ticket $ticket, array $changes): void
     {
         foreach ($changes as $change) {
@@ -400,6 +448,9 @@ class RealTimeMonitoringService
 
     /**
      * Send notifications for ticket changes
+     */
+    /**
+     * SendChangeNotifications
      */
     protected function sendChangeNotifications(Ticket $ticket, array $change): void
     {
@@ -432,6 +483,9 @@ class RealTimeMonitoringService
     /**
      * Determine if alert should be sent based on user preferences
      */
+    /**
+     * ShouldSendAlert
+     */
     protected function shouldSendAlert(TicketAlert $alert, array $change): bool
     {
         $preferences = $alert->preferences ?? [];
@@ -450,6 +504,9 @@ class RealTimeMonitoringService
 
     /**
      * Update ticket metadata with latest changes
+     */
+    /**
+     * UpdateTicketMetadata
      */
     protected function updateTicketMetadata(Ticket $ticket, array $changes): void
     {
@@ -479,6 +536,9 @@ class RealTimeMonitoringService
     /**
      * Update monitoring statistics
      */
+    /**
+     * UpdateMonitoringStats
+     */
     protected function updateMonitoringStats(int $checked, int $updated, int $alerts, float $duration): void
     {
         $stats = Cache::get('monitoring.stats', [
@@ -503,6 +563,9 @@ class RealTimeMonitoringService
     /**
      * Get recent alerts
      */
+    /**
+     * Get  recent alerts
+     */
     protected function getRecentAlerts(int $limit = 10): array
     {
         return Cache::get('monitoring.recent_alerts', []);
@@ -510,6 +573,9 @@ class RealTimeMonitoringService
 
     /**
      * Get performance metrics
+     */
+    /**
+     * Get  performance metrics
      */
     protected function getPerformanceMetrics(): array
     {
@@ -525,6 +591,9 @@ class RealTimeMonitoringService
 
     /**
      * Get health status
+     */
+    /**
+     * Get  health status
      */
     protected function getHealthStatus(): array
     {
@@ -551,6 +620,9 @@ class RealTimeMonitoringService
     /**
      * Calculate success rate
      */
+    /**
+     * CalculateSuccessRate
+     */
     protected function calculateSuccessRate(): float
     {
         // Implementation would calculate based on successful vs failed monitoring cycles
@@ -559,6 +631,9 @@ class RealTimeMonitoringService
 
     /**
      * Calculate throughput (tickets checked per minute)
+     */
+    /**
+     * CalculateThroughput
      */
     protected function calculateThroughput(): float
     {
@@ -575,6 +650,9 @@ class RealTimeMonitoringService
 
     /**
      * Calculate error rate
+     */
+    /**
+     * CalculateErrorRate
      */
     protected function calculateErrorRate(): float
     {

@@ -15,6 +15,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Display the user's price preferences
      */
+    /**
+     * Index
+     */
     public function index(Request $request): View|JsonResponse
     {
         $user = Auth::user();
@@ -69,6 +72,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Show the form for creating a new price preference
      */
+    /**
+     * Create
+     */
     public function create(): View
     {
         $eventCategories = UserPricePreference::getEventCategories();
@@ -84,6 +90,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Store a newly created price preference
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
@@ -147,6 +156,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Display the specified price preference
      */
+    /**
+     * Show
+     */
     public function show(UserPricePreference $preference): View|JsonResponse
     {
         $this->authorize('view', $preference);
@@ -160,6 +172,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Show the form for editing the specified price preference
+     */
+    /**
+     * Edit
      */
     public function edit(UserPricePreference $preference): View
     {
@@ -179,6 +194,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Update the specified price preference
+     */
+    /**
+     * Update
      */
     public function update(Request $request, UserPricePreference $preference): RedirectResponse|JsonResponse
     {
@@ -240,6 +258,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Remove the specified price preference
      */
+    /**
+     * Destroy
+     */
     public function destroy(UserPricePreference $preference): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', $preference);
@@ -260,6 +281,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Toggle active status for a price preference
      */
+    /**
+     * ToggleActive
+     */
     public function toggleActive(UserPricePreference $preference): JsonResponse
     {
         $this->authorize('update', $preference);
@@ -274,6 +298,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Update notification settings for a price preference
+     */
+    /**
+     * UpdateNotifications
      */
     public function updateNotifications(Request $request, UserPricePreference $preference): JsonResponse
     {
@@ -296,6 +323,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Clone a price preference
+     */
+    /**
+     * Clone
      */
     public function clone(Request $request, UserPricePreference $preference): RedirectResponse|JsonResponse
     {
@@ -324,6 +354,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Test a price preference against sample data
+     */
+    /**
+     * Test
      */
     public function test(Request $request, UserPricePreference $preference): JsonResponse
     {
@@ -370,6 +403,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Import price preferences from a list or CSV
+     */
+    /**
+     * Import
      */
     public function import(Request $request): RedirectResponse|JsonResponse
     {
@@ -447,7 +483,10 @@ class UserPricePreferenceController extends Controller
     /**
      * Export user's price preferences
      */
-    public function export(Request $request)
+    /**
+     * Export
+     */
+    public function export(Request $request): Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $preferences = UserPricePreference::where('user_id', $user->id)
@@ -505,6 +544,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Bulk update price preferences
+     */
+    /**
+     * BulkUpdate
      */
     public function bulkUpdate(Request $request): JsonResponse
     {
@@ -565,6 +607,9 @@ class UserPricePreferenceController extends Controller
     /**
      * Get similar preferences for suggestions
      */
+    /**
+     * Get  similar
+     */
     public function getSimilar(UserPricePreference $preference): JsonResponse
     {
         $this->authorize('view', $preference);
@@ -583,6 +628,9 @@ class UserPricePreferenceController extends Controller
 
     /**
      * Generate recommendation based on test results
+     */
+    /**
+     * GenerateRecommendation
      */
     private function generateRecommendation(UserPricePreference $preference, array $results): string
     {

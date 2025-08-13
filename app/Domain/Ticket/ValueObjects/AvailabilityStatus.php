@@ -33,41 +33,65 @@ final readonly class AvailabilityStatus
         $this->validate($status);
     }
 
+    /**
+     * Value
+     */
     public function value(): string
     {
         return strtoupper($this->status);
     }
 
+    /**
+     * Check if  available
+     */
     public function isAvailable(): bool
     {
         return $this->value() === self::AVAILABLE;
     }
 
+    /**
+     * Check if  limited
+     */
     public function isLimited(): bool
     {
         return $this->value() === self::LIMITED;
     }
 
+    /**
+     * Check if  sold out
+     */
     public function isSoldOut(): bool
     {
         return $this->value() === self::SOLD_OUT;
     }
 
+    /**
+     * Check if  on sale soon
+     */
     public function isOnSaleSoon(): bool
     {
         return $this->value() === self::ON_SALE_SOON;
     }
 
+    /**
+     * Check if  unknown
+     */
     public function isUnknown(): bool
     {
         return $this->value() === self::UNKNOWN;
     }
 
+    /**
+     * Check if can  purchase
+     */
     public function canPurchase(): bool
     {
         return in_array($this->value(), [self::AVAILABLE, self::LIMITED], TRUE);
     }
 
+    /**
+     * DisplayName
+     */
     public function displayName(): string
     {
         return match ($this->value()) {
@@ -76,49 +100,80 @@ final readonly class AvailabilityStatus
             self::SOLD_OUT     => 'Sold Out',
             self::ON_SALE_SOON => 'On Sale Soon',
             self::UNKNOWN      => 'Unknown',
+            default            => 'Unknown',
         };
     }
 
+    /**
+     * Equals
+     */
     public function equals(self $other): bool
     {
         return $this->value() === $other->value();
     }
 
+    /**
+     * @return array<int, string>
+     */
+    /**
+     * ValidStatuses
+     */
     public static function validStatuses(): array
     {
         return self::VALID_STATUSES;
     }
 
+    /**
+     * Available
+     */
     public static function available(): self
     {
         return new self(self::AVAILABLE);
     }
 
+    /**
+     * Limited
+     */
     public static function limited(): self
     {
         return new self(self::LIMITED);
     }
 
+    /**
+     * SoldOut
+     */
     public static function soldOut(): self
     {
         return new self(self::SOLD_OUT);
     }
 
+    /**
+     * OnSaleSoon
+     */
     public static function onSaleSoon(): self
     {
         return new self(self::ON_SALE_SOON);
     }
 
+    /**
+     * Unknown
+     */
     public static function unknown(): self
     {
         return new self(self::UNKNOWN);
     }
 
+    /**
+     * FromString
+     */
     public static function fromString(string $status): self
     {
         return new self($status);
     }
 
+    /**
+     * Validate
+     */
     private function validate(string $status): void
     {
         if (empty(trim($status))) {
@@ -137,6 +192,9 @@ final readonly class AvailabilityStatus
         }
     }
 
+    /**
+     * __toString
+     */
     public function __toString(): string
     {
         return $this->displayName();

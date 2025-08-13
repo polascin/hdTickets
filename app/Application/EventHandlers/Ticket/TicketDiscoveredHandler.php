@@ -16,6 +16,9 @@ class TicketDiscoveredHandler
     ) {
     }
 
+    /**
+     * Handle
+     */
     public function handle(TicketDiscovered $event): void
     {
         try {
@@ -48,6 +51,9 @@ class TicketDiscoveredHandler
         }
     }
 
+    /**
+     * UpdateTicketReadModel
+     */
     private function updateTicketReadModel(TicketDiscovered $event): void
     {
         $priceHistory = [
@@ -89,6 +95,9 @@ class TicketDiscoveredHandler
         );
     }
 
+    /**
+     * UpdateTicketCache
+     */
     private function updateTicketCache(TicketDiscovered $event): void
     {
         $cacheKey = "ticket:{$event->ticketId->getValue()}";
@@ -116,6 +125,9 @@ class TicketDiscoveredHandler
         Cache::put($platformCacheKey, $platformTickets, now()->addHours(1));
     }
 
+    /**
+     * CheckAlertConditions
+     */
     private function checkAlertConditions(TicketDiscovered $event): void
     {
         // Check if any user alerts match this ticket
@@ -150,6 +162,9 @@ class TicketDiscoveredHandler
         }
     }
 
+    /**
+     * UpdatePlatformStats
+     */
     private function updatePlatformStats(TicketDiscovered $event): void
     {
         $platform = $event->platformSource->getValue();
@@ -182,6 +197,9 @@ class TicketDiscoveredHandler
         );
     }
 
+    /**
+     * DetermineHighDemand
+     */
     private function determineHighDemand(TicketDiscovered $event): bool
     {
         // Simple high demand logic - can be made more sophisticated

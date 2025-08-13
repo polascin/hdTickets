@@ -11,28 +11,38 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class GenericArrayExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    protected $data;
+    /** @var \Illuminate\Support\Collection<int, mixed> */
+    protected \Illuminate\Support\Collection $data;
 
     /** @var array<int, string> */
     protected array $headings;
 
     /**
-     * @param mixed              $data
-     * @param array<int, string> $headings
+     * @param array<int, mixed>|\Illuminate\Support\Collection<int, mixed> $data
+     * @param array<int, string>                                           $headings
      */
-    public function __construct($data, array $headings = [])
+    public function __construct(array $data, array $headings = [])
     {
-        $this->data = collect($data);
+        $this->data = $data instanceof \Illuminate\Support\Collection ? $data : collect($data);
         $this->headings = $headings;
     }
 
-    public function collection()
+    /**
+     * @return \Illuminate\Support\Collection<int, mixed>
+     */
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Support\Collection
     {
         return $this->data;
     }
 
     /**
      * @return array<int, string>
+     */
+    /**
+     * Headings
      */
     public function headings(): array
     {
@@ -41,6 +51,9 @@ class GenericArrayExport implements FromCollection, WithHeadings, WithStyles, Sh
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {

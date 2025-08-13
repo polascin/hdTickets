@@ -16,6 +16,9 @@ class PushSubscriptionController extends Controller
     /**
      * Subscribe to push notifications
      */
+    /**
+     * Subscribe
+     */
     public function subscribe(Request $request): JsonResponse
     {
         try {
@@ -98,6 +101,9 @@ class PushSubscriptionController extends Controller
     /**
      * Unsubscribe from push notifications
      */
+    /**
+     * Unsubscribe
+     */
     public function unsubscribe(Request $request): JsonResponse
     {
         try {
@@ -156,6 +162,9 @@ class PushSubscriptionController extends Controller
     /**
      * Get user's push subscriptions
      */
+    /**
+     * Index
+     */
     public function index(Request $request): JsonResponse
     {
         try {
@@ -198,6 +207,9 @@ class PushSubscriptionController extends Controller
 
     /**
      * Test push notification
+     */
+    /**
+     * Test
      */
     public function test(Request $request): JsonResponse
     {
@@ -261,6 +273,11 @@ class PushSubscriptionController extends Controller
      *
      * @param mixed $id
      */
+    /**
+     * Update
+     *
+     * @param mixed $id
+     */
     public function update(Request $request, $id): JsonResponse
     {
         try {
@@ -320,6 +337,11 @@ class PushSubscriptionController extends Controller
      *
      * @param mixed $id
      */
+    /**
+     * Destroy
+     *
+     * @param mixed $id
+     */
     public function destroy(Request $request, $id): JsonResponse
     {
         try {
@@ -367,7 +389,10 @@ class PushSubscriptionController extends Controller
      *
      * @param mixed $user
      */
-    private function sendTestPushNotification($user, array $notification): bool
+    /**
+     * SendTestPushNotification
+     */
+    private function sendTestPushNotification(App\Models\User $user, array $notification): bool
     {
         try {
             $webPushChannel = app(\App\Services\NotificationSystem\Channels\WebPushChannel::class);

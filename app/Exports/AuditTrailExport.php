@@ -11,6 +11,9 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @implements WithMapping<Activity>
+ */
 class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
     /** @var array<string, mixed> */
@@ -25,9 +28,12 @@ class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, Wit
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, Activity>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Database\Eloquent\Collection
     {
         $query = Activity::with(['causer', 'subject']);
 
@@ -62,6 +68,9 @@ class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, Wit
     /**
      * @return array<int, string>
      */
+    /**
+     * Headings
+     */
     public function headings(): array
     {
         return [
@@ -81,30 +90,44 @@ class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, Wit
     }
 
     /**
-     * @param mixed $activity
+     * @param Activity $activity
      *
-     * @return array<int, mixed>
+     * @return array<int, int|string|null> Array shape: [id, log_name, event, user_name, user_email, subject_type, subject_id, description, changes, ip, user_agent, created_at]
+     */
+    /**
+     * Map
+     *
+     * @param mixed $activity
      */
     public function map($activity): array
     {
+        $causerName = $activity->causer?->name;
+        $causerEmail = $activity->causer?->email;
+        $subjectType = $activity->subject_type;
+        $createdAt = $activity->created_at;
+        $properties = $activity->properties ?? [];
+
         return [
             $activity->id,
             $activity->log_name,
-            ucfirst($activity->event),
-            $activity->causer ? $activity->causer->name : 'System',
-            $activity->causer ? $activity->causer->email : 'N/A',
-            class_basename($activity->subject_type),
+            ucfirst((string) $activity->event),
+            $causerName ? (string) $causerName : 'System',
+            $causerEmail ? (string) $causerEmail : 'N/A',
+            $subjectType ? class_basename((string) $subjectType) : 'N/A',
             $activity->subject_id,
             $activity->description,
-            $this->formatChanges($activity->changes),
-            $activity->properties['ip'] ?? 'N/A',
-            $activity->properties['user_agent'] ?? 'N/A',
-            $activity->created_at->format('Y-m-d H:i:s'),
+            $this->formatChanges($activity->changes ?? []),
+            $properties['ip'] ?? 'N/A',
+            $properties['user_agent'] ?? 'N/A',
+            $createdAt?->format('Y-m-d H:i:s') ?? 'N/A',
         ];
     }
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {
@@ -121,12 +144,24 @@ class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, Wit
     }
 
     /**
-     * @param array<string, mixed> $changes
+     * @param array<string, mixed>|\Illuminate\Support\Collection<string, mixed> $changes
+     *
+     * @return string Formatted changes string
      */
-    private function formatChanges(array $changes): string
+    /**
+     * FormatChanges
+     *
+     * @param \Illuminate\Support\Collection $changes
+     */
+    private function formatChanges(array|\Illuminate\Support\Collection $changes): string
     {
         if (empty($changes)) {
             return 'No changes recorded';
+        }
+
+        // Convert Collection to array if needed
+        if ($changes instanceof \Illuminate\Support\Collection) {
+            $changes = $changes->toArray();
         }
 
         $formatted = [];

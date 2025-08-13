@@ -31,6 +31,9 @@ class AccountDeletionProtectionService
     /**
      * Initiate account deletion process
      */
+    /**
+     * InitiateDeletion
+     */
     public function initiateDeletion(User $user): AccountDeletionRequest
     {
         // Check if user already has an active deletion request
@@ -97,6 +100,9 @@ class AccountDeletionProtectionService
     /**
      * Confirm deletion request via email token
      */
+    /**
+     * ConfirmDeletion
+     */
     public function confirmDeletion(string $token): bool
     {
         $deletionRequest = AccountDeletionRequest::where('confirmation_token', $token)
@@ -144,6 +150,9 @@ class AccountDeletionProtectionService
     /**
      * Cancel deletion request
      */
+    /**
+     * Check if can cel deletion
+     */
     public function cancelDeletion(AccountDeletionRequest $deletionRequest, ?string $reason = NULL): bool
     {
         if (! $deletionRequest->isPending() && ! $deletionRequest->isConfirmed()) {
@@ -187,6 +196,9 @@ class AccountDeletionProtectionService
     /**
      * Process expired grace period deletions
      */
+    /**
+     * ProcessExpiredDeletions
+     */
     public function processExpiredDeletions(): int
     {
         $expiredRequests = AccountDeletionRequest::gracePeriodExpired()->get();
@@ -215,6 +227,9 @@ class AccountDeletionProtectionService
 
     /**
      * Recover deleted user account
+     */
+    /**
+     * RecoverAccount
      */
     public function recoverAccount(int $originalUserId): User
     {
@@ -275,6 +290,9 @@ class AccountDeletionProtectionService
     /**
      * Create data export for user
      */
+    /**
+     * CreateDataExport
+     */
     public function createDataExport(User $user, string $format = 'json', array $dataTypes = ['all']): DataExportRequest
     {
         return $user->dataExportRequests()->create([
@@ -288,6 +306,9 @@ class AccountDeletionProtectionService
 
     /**
      * Process data export request
+     */
+    /**
+     * ProcessDataExport
      */
     public function processDataExport(DataExportRequest $exportRequest): bool
     {
@@ -358,6 +379,9 @@ class AccountDeletionProtectionService
     /**
      * Clean up expired data export files
      */
+    /**
+     * CleanupExpiredExports
+     */
     public function cleanupExpiredExports(): int
     {
         $expiredExports = DataExportRequest::expired()->get();
@@ -374,6 +398,9 @@ class AccountDeletionProtectionService
 
     /**
      * Execute actual account deletion
+     */
+    /**
+     * ExecuteAccountDeletion
      */
     protected function executeAccountDeletion(AccountDeletionRequest $deletionRequest): void
     {
@@ -422,6 +449,9 @@ class AccountDeletionProtectionService
     /**
      * Create user data backup for recovery
      */
+    /**
+     * CreateUserBackup
+     */
     protected function createUserBackup(User $user, AccountDeletionRequest $deletionRequest): DeletedUser
     {
         // Collect related data
@@ -448,6 +478,9 @@ class AccountDeletionProtectionService
     /**
      * Generate unique confirmation token
      */
+    /**
+     * GenerateConfirmationToken
+     */
     protected function generateConfirmationToken(): string
     {
         do {
@@ -459,6 +492,9 @@ class AccountDeletionProtectionService
 
     /**
      * Create user data snapshot for deletion request
+     */
+    /**
+     * CreateUserDataSnapshot
      */
     protected function createUserDataSnapshot(User $user): array
     {
@@ -473,6 +509,9 @@ class AccountDeletionProtectionService
     /**
      * Convert array data to CSV format
      */
+    /**
+     * ConvertToCSV
+     */
     protected function convertToCSV(array $data): string
     {
         $output = '';
@@ -483,6 +522,11 @@ class AccountDeletionProtectionService
 
     /**
      * Recursively convert array to CSV
+     */
+    /**
+     * ArrayToCSV
+     *
+     * @param mixed $output
      */
     protected function arrayToCSV(array $data, string &$output, string $prefix = ''): void
     {

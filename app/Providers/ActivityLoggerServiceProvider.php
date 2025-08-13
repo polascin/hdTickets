@@ -10,6 +10,9 @@ class ActivityLoggerServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
+    /**
+     * Register
+     */
     public function register(): void
     {
         // Bind the ActivityLogger service as a singleton
@@ -24,12 +27,18 @@ class ActivityLoggerServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
+    /**
+     * Boot
+     */
     public function boot(): void
     {
     }
 
     /**
      * Get the services provided by the provider.
+     */
+    /**
+     * Provides
      */
     public function provides(): array
     {

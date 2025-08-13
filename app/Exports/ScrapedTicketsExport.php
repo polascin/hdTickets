@@ -4,16 +4,17 @@ namespace App\Exports;
 
 use App\Models\ScrapedTicket;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 use function is_array;
 
-class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+/**
+ * @implements WithMapping<ScrapedTicket>
+ */
+class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping
 {
     /** @var array<int, string> */
     protected array $fields;
@@ -35,9 +36,12 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping,
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, ScrapedTicket>
      */
-    public function collection()
+    /**
+     * Collection
+     */
+    public function collection(): \Illuminate\Database\Eloquent\Collection
     {
         $query = ScrapedTicket::with(['category']);
 
@@ -76,6 +80,9 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping,
     /**
      * @return array<int, string>
      */
+    /**
+     * Headings
+     */
     public function headings(): array
     {
         $headings = [];
@@ -106,9 +113,12 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping,
     }
 
     /**
-     * @param mixed $ticket
+     * @param ScrapedTicket $ticket
      *
-     * @return array<int, mixed>
+     * @return array<int, mixed|string> Array with values based on selected fields
+     */
+    /**
+     * Map
      */
     public function map($ticket): array
     {
@@ -132,6 +142,9 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping,
 
     /**
      * @return array<int, array<string, mixed>>
+     */
+    /**
+     * Styles
      */
     public function styles(Worksheet $sheet): array
     {

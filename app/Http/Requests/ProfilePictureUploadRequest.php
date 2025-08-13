@@ -9,6 +9,9 @@ class ProfilePictureUploadRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * Authorize
+     */
     public function authorize(): bool
     {
         return TRUE; // Authorization is handled by auth middleware
@@ -18,6 +21,9 @@ class ProfilePictureUploadRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
+     */
+    /**
+     * Rules
      */
     public function rules(): array
     {
@@ -42,6 +48,9 @@ class ProfilePictureUploadRequest extends FormRequest
      *
      * @return array<string, string>
      */
+    /**
+     * Messages
+     */
     public function messages(): array
     {
         return [
@@ -59,6 +68,9 @@ class ProfilePictureUploadRequest extends FormRequest
      * Get custom attributes for validator errors.
      *
      * @return array<string, string>
+     */
+    /**
+     * Attributes
      */
     public function attributes(): array
     {

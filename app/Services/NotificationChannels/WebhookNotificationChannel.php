@@ -28,6 +28,9 @@ class WebhookNotificationChannel
     /**
      * Send notification via webhook
      */
+    /**
+     * Send
+     */
     public function send(User $user, array $alertData): bool
     {
         try {
@@ -63,6 +66,9 @@ class WebhookNotificationChannel
 
     /**
      * Test webhook connection
+     */
+    /**
+     * TestConnection
      */
     public function testConnection(User $user): array
     {
@@ -110,6 +116,9 @@ class WebhookNotificationChannel
     /**
      * Validate webhook URL format
      */
+    /**
+     * ValidateWebhookUrl
+     */
     public function validateWebhookUrl(string $url): bool
     {
         // Basic URL validation
@@ -136,6 +145,9 @@ class WebhookNotificationChannel
 
     /**
      * Send webhook with different HTTP methods
+     */
+    /**
+     * SendWithMethod
      */
     public function sendWithMethod(User $user, array $alertData, string $method = 'POST'): bool
     {
@@ -183,6 +195,9 @@ class WebhookNotificationChannel
     /**
      * Get webhook delivery status
      */
+    /**
+     * Get  delivery status
+     */
     public function getDeliveryStatus(string $webhookId): ?array
     {
         // This would integrate with a webhook delivery tracking system
@@ -191,6 +206,9 @@ class WebhookNotificationChannel
 
     /**
      * Build webhook payload in standardized format
+     */
+    /**
+     * BuildWebhookPayload
      */
     protected function buildWebhookPayload(array $alertData, User $user): array
     {
@@ -231,6 +249,11 @@ class WebhookNotificationChannel
 
     /**
      * Send webhook with retry logic
+     *
+     * @param mixed $settings
+     */
+    /**
+     * SendWebhook
      *
      * @param mixed $settings
      */
@@ -293,7 +316,10 @@ class WebhookNotificationChannel
      *
      * @param mixed $settings
      */
-    protected function buildHeaders($settings): array
+    /**
+     * BuildHeaders
+     */
+    protected function buildHeaders(array $settings): array
     {
         $headers = [
             'Content-Type'          => 'application/json',
@@ -330,6 +356,9 @@ class WebhookNotificationChannel
     /**
      * Generate webhook signature for verification
      */
+    /**
+     * GenerateSignature
+     */
     protected function generateSignature(string $secret, string $payload = ''): string
     {
         return hash_hmac('sha256', $payload, $secret);
@@ -337,6 +366,9 @@ class WebhookNotificationChannel
 
     /**
      * Determine if request should be retried based on status code
+     */
+    /**
+     * ShouldRetry
      */
     protected function shouldRetry(int $statusCode): bool
     {
@@ -358,6 +390,9 @@ class WebhookNotificationChannel
 
     /**
      * Store webhook delivery attempt
+     */
+    /**
+     * StoreDeliveryAttempt
      */
     protected function storeDeliveryAttempt(string $url, array $payload, bool $success, ?string $error = NULL): void
     {

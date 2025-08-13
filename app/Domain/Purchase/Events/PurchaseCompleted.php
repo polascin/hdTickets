@@ -13,19 +13,25 @@ final class PurchaseCompleted extends AbstractDomainEvent
         public string $userId,
         public string $paymentReference,
         public DateTimeImmutable $completedAt,
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Purchase confirmation details like ticket details, confirmation numbers, etc. */
         public array $confirmationDetails = [],
-        /** @var array<string, mixed> */
+        /** @var array<string, mixed> Event metadata including additional context or debugging information */
         array $metadata = [],
     ) {
         parent::__construct($metadata);
     }
 
+    /**
+     * Get  aggregate root id
+     */
     public function getAggregateRootId(): string
     {
         return $this->purchaseId->value();
     }
 
+    /**
+     * Get  aggregate type
+     */
     public function getAggregateType(): string
     {
         return 'purchase';
@@ -33,6 +39,9 @@ final class PurchaseCompleted extends AbstractDomainEvent
 
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * Get  payload
      */
     public function getPayload(): array
     {
@@ -47,6 +56,9 @@ final class PurchaseCompleted extends AbstractDomainEvent
 
     /**
      * @param array<string, mixed> $payload
+     */
+    /**
+     * PopulateFromPayload
      */
     protected function populateFromPayload(array $payload): void
     {

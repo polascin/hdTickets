@@ -28,6 +28,9 @@ class PerformanceMonitoringService
     /**
      * Record performance metric
      */
+    /**
+     * RecordMetric
+     */
     public function recordMetric(string $name, float $value, array $tags = []): void
     {
         $metric = [
@@ -56,6 +59,9 @@ class PerformanceMonitoringService
     /**
      * Track database query performance
      */
+    /**
+     * TrackDatabaseQuery
+     */
     public function trackDatabaseQuery(string $sql, float $executionTime, string $connection = 'default'): void
     {
         $this->recordMetric('database.query_time', $executionTime, [
@@ -75,6 +81,9 @@ class PerformanceMonitoringService
     /**
      * Track cache performance
      */
+    /**
+     * TrackCacheOperation
+     */
     public function trackCacheOperation(string $operation, string $key, ?bool $hit = NULL, ?float $executionTime = NULL): void
     {
         $tags = [
@@ -93,6 +102,9 @@ class PerformanceMonitoringService
 
     /**
      * Track API endpoint performance
+     */
+    /**
+     * TrackApiEndpoint
      */
     public function trackApiEndpoint(string $endpoint, string $method, float $responseTime, int $statusCode): void
     {
@@ -114,6 +126,9 @@ class PerformanceMonitoringService
     /**
      * Track scraping performance
      */
+    /**
+     * TrackScrapingOperation
+     */
     public function trackScrapingOperation(string $platform, string $operation, float $duration, bool $success): void
     {
         $this->recordMetric('scraping.operation_time', $duration, [
@@ -133,6 +148,9 @@ class PerformanceMonitoringService
     /**
      * Get real-time performance dashboard data
      */
+    /**
+     * Get  dashboard metrics
+     */
     public function getDashboardMetrics(): array
     {
         return Cache::remember('performance_dashboard', 30, function () {
@@ -149,6 +167,9 @@ class PerformanceMonitoringService
 
     /**
      * Export metrics for external monitoring systems
+     */
+    /**
+     * ExportMetrics
      */
     public function exportMetrics(string $format = 'json'): string
     {
@@ -167,6 +188,9 @@ class PerformanceMonitoringService
     /**
      * Get system performance metrics
      */
+    /**
+     * Get  system metrics
+     */
     private function getSystemMetrics(): array
     {
         return [
@@ -183,6 +207,9 @@ class PerformanceMonitoringService
 
     /**
      * Get database performance metrics
+     */
+    /**
+     * Get  database metrics
      */
     private function getDatabaseMetrics(): array
     {
@@ -220,6 +247,9 @@ class PerformanceMonitoringService
     /**
      * Get cache performance metrics
      */
+    /**
+     * Get  cache metrics
+     */
     private function getCacheMetrics(): array
     {
         try {
@@ -246,6 +276,9 @@ class PerformanceMonitoringService
     /**
      * Get API performance metrics
      */
+    /**
+     * Get  api metrics
+     */
     private function getApiMetrics(): array
     {
         return [
@@ -259,6 +292,9 @@ class PerformanceMonitoringService
     /**
      * Get scraping performance metrics
      */
+    /**
+     * Get  scraping metrics
+     */
     private function getScrapingMetrics(): array
     {
         return [
@@ -271,6 +307,9 @@ class PerformanceMonitoringService
 
     /**
      * Get performance alerts
+     */
+    /**
+     * Get  performance alerts
      */
     private function getPerformanceAlerts(): array
     {
@@ -315,6 +354,9 @@ class PerformanceMonitoringService
     /**
      * Extract query type from SQL
      */
+    /**
+     * ExtractQueryType
+     */
     private function extractQueryType(string $sql): string
     {
         $sql = trim(strtoupper($sql));
@@ -347,6 +389,9 @@ class PerformanceMonitoringService
     /**
      * Extract cache key prefix
      */
+    /**
+     * ExtractKeyPrefix
+     */
     private function extractKeyPrefix(string $key): string
     {
         $parts = explode(':', $key);
@@ -356,6 +401,9 @@ class PerformanceMonitoringService
 
     /**
      * Get memory limit in bytes
+     */
+    /**
+     * Get  memory limit
      */
     private function getMemoryLimit(): int
     {
@@ -382,6 +430,9 @@ class PerformanceMonitoringService
     /**
      * Get CPU load average
      */
+    /**
+     * Get  cpu load
+     */
     private function getCpuLoad(): array
     {
         if (function_exists('sys_getloadavg')) {
@@ -400,6 +451,9 @@ class PerformanceMonitoringService
     /**
      * Get disk usage
      */
+    /**
+     * Get  disk usage
+     */
     private function getDiskUsage(): array
     {
         $path = base_path();
@@ -413,6 +467,9 @@ class PerformanceMonitoringService
 
     /**
      * Get system uptime
+     */
+    /**
+     * Get  system uptime
      */
     private function getSystemUptime(): int
     {
@@ -428,6 +485,9 @@ class PerformanceMonitoringService
     /**
      * Calculate Redis hit rate
      */
+    /**
+     * CalculateRedisHitRate
+     */
     private function calculateRedisHitRate(array $info): float
     {
         $hits = $info['keyspace_hits'] ?? 0;
@@ -439,6 +499,9 @@ class PerformanceMonitoringService
 
     /**
      * Get recent query statistics
+     */
+    /**
+     * Get  recent query stats
      */
     private function getRecentQueryStats(): array
     {
@@ -460,6 +523,9 @@ class PerformanceMonitoringService
     /**
      * Get recent cache operations
      */
+    /**
+     * Get  recent cache operations
+     */
     private function getRecentCacheOperations(): array
     {
         $hits = $this->getRecentMetrics('cache.hit_rate', 50);
@@ -479,6 +545,9 @@ class PerformanceMonitoringService
 
     /**
      * Get recent metrics by name
+     */
+    /**
+     * Get  recent metrics
      */
     private function getRecentMetrics(string $name, int $limit = 100): array
     {
@@ -509,6 +578,9 @@ class PerformanceMonitoringService
     /**
      * Get top API endpoints by request count
      */
+    /**
+     * Get  top endpoints
+     */
     private function getTopEndpoints(): array
     {
         // This would typically be implemented with proper metrics aggregation
@@ -524,6 +596,9 @@ class PerformanceMonitoringService
     /**
      * Get average response times by endpoint
      */
+    /**
+     * Get  average response times
+     */
     private function getAverageResponseTimes(): array
     {
         return [
@@ -538,6 +613,9 @@ class PerformanceMonitoringService
     /**
      * Get error rates by endpoint
      */
+    /**
+     * Get  error rates
+     */
     private function getErrorRates(): array
     {
         return [
@@ -551,6 +629,9 @@ class PerformanceMonitoringService
 
     /**
      * Get request volume over time
+     */
+    /**
+     * Get  request volume
      */
     private function getRequestVolume(): array
     {
@@ -568,6 +649,9 @@ class PerformanceMonitoringService
     /**
      * Get scraping platform statistics
      */
+    /**
+     * Get  scraping platform stats
+     */
     private function getScrapingPlatformStats(): array
     {
         return [
@@ -580,6 +664,9 @@ class PerformanceMonitoringService
 
     /**
      * Get scraping success rates
+     */
+    /**
+     * Get  scraping success rates
      */
     private function getScrapingSuccessRates(): array
     {
@@ -594,6 +681,9 @@ class PerformanceMonitoringService
     /**
      * Get scraping durations
      */
+    /**
+     * Get  scraping durations
+     */
     private function getScrapingDurations(): array
     {
         return [
@@ -606,6 +696,9 @@ class PerformanceMonitoringService
 
     /**
      * Get recent scraping failures
+     */
+    /**
+     * Get  recent scraping failures
      */
     private function getRecentScrapingFailures(): array
     {
@@ -628,6 +721,9 @@ class PerformanceMonitoringService
     /**
      * Get slow query count
      */
+    /**
+     * Get  slow query count
+     */
     private function getSlowQueryCount(): int
     {
         try {
@@ -641,6 +737,9 @@ class PerformanceMonitoringService
 
     /**
      * Get cache hit rate
+     */
+    /**
+     * Get  cache hit rate
      */
     private function getCacheHitRate(): float
     {
@@ -658,6 +757,9 @@ class PerformanceMonitoringService
 
     /**
      * Export metrics in Prometheus format
+     */
+    /**
+     * ExportPrometheusMetrics
      */
     private function exportPrometheusMetrics(array $metrics): string
     {
@@ -684,6 +786,9 @@ class PerformanceMonitoringService
 
     /**
      * Export metrics in InfluxDB line protocol format
+     */
+    /**
+     * ExportInfluxDBMetrics
      */
     private function exportInfluxDBMetrics(array $metrics): string
     {

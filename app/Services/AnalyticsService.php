@@ -24,6 +24,13 @@ class AnalyticsService
 
     /**
      * Track user events and behavior
+     *
+     * @param string               $event  Event name to track
+     * @param array<string, mixed> $data   Event data and context
+     * @param int|null             $userId User ID if authenticated
+     */
+    /**
+     * TrackEvent
      */
     public function trackEvent(string $event, array $data = [], ?int $userId = NULL): void
     {
@@ -68,9 +75,15 @@ class AnalyticsService
     /**
      * Track ticket performance metrics
      *
-     * @param mixed $value
+     * @param int                  $ticketId ID of the ticket
+     * @param string               $metric   Metric name to track
+     * @param mixed                $value    Metric value (number, string, boolean)
+     * @param array<string, mixed> $context  Additional context data
      */
-    public function trackTicketPerformance(int $ticketId, string $metric, $value, array $context = []): void
+    /**
+     * TrackTicketPerformance
+     */
+    public function trackTicketPerformance(int $ticketId, string $metric, mixed $value, array $context = []): void
     {
         try {
             $timestamp = Carbon::now();
@@ -100,6 +113,11 @@ class AnalyticsService
 
     /**
      * Get real-time dashboard metrics
+     *
+     * @return array<string, mixed> Real-time metrics data
+     */
+    /**
+     * Get  real time metrics
      */
     public function getRealTimeMetrics(): array
     {
@@ -128,6 +146,14 @@ class AnalyticsService
 
     /**
      * Get user behavior analytics
+     *
+     * @param int $userId User ID to analyze
+     * @param int $days   Number of days to analyze
+     *
+     * @return array<string, mixed> User behavior analytics data
+     */
+    /**
+     * Get  user behavior analytics
      */
     public function getUserBehaviorAnalytics(int $userId, int $days = 30): array
     {
@@ -158,6 +184,13 @@ class AnalyticsService
 
     /**
      * Get ticket performance report
+     *
+     * @param int $ticketId Ticket ID to analyze
+     *
+     * @return array<string, mixed> Performance metrics and report data
+     */
+    /**
+     * Get  ticket performance report
      */
     public function getTicketPerformanceReport(int $ticketId): array
     {
@@ -240,6 +273,14 @@ class AnalyticsService
 
     /**
      * Generate comprehensive analytics report
+     *
+     * @param Carbon $startDate Report period start date
+     * @param Carbon $endDate   Report period end date
+     *
+     * @return array<string, mixed> Comprehensive analytics report
+     */
+    /**
+     * GenerateAnalyticsReport
      */
     public function generateAnalyticsReport(Carbon $startDate, Carbon $endDate): array
     {
@@ -279,6 +320,9 @@ class AnalyticsService
     /**
      * Private helper methods
      */
+    /**
+     * UpdateRealTimeCounters
+     */
     private function updateRealTimeCounters(string $event, Carbon $timestamp): void
     {
         $counterKey = self::ANALYTICS_PREFIX . 'counters:' . $timestamp->format('Y-m-d:H');
@@ -286,6 +330,9 @@ class AnalyticsService
         Redis::expire($counterKey, 86400); // 24 hours retention
     }
 
+    /**
+     * UpdateHourlyMetrics
+     */
     private function updateHourlyMetrics(string $event, Carbon $timestamp): void
     {
         $metricsKey = self::ANALYTICS_PREFIX . 'hourly:' . $timestamp->format('Y-m-d:H');
@@ -293,6 +340,9 @@ class AnalyticsService
         Redis::expire($metricsKey, 2592000); // 30 days retention
     }
 
+    /**
+     * TrackUserBehavior
+     */
     private function trackUserBehavior(int $userId, string $event, array $data): void
     {
         $behaviorKey = self::ANALYTICS_PREFIX . self::USER_BEHAVIOR_KEY . ':' . $userId;
@@ -320,7 +370,18 @@ class AnalyticsService
         Redis::expire($behaviorKey, 7776000); // 90 days retention
     }
 
-    private function updateTicketAggregates(int $ticketId, string $metric, $value, Carbon $timestamp): void
+    /**
+     * Update aggregated ticket metrics
+     *
+     * @param int    $ticketId  Ticket ID
+     * @param string $metric    Metric name
+     * @param mixed  $value     Metric value
+     * @param Carbon $timestamp Timestamp of the metric
+     */
+    /**
+     * UpdateTicketAggregates
+     */
+    private function updateTicketAggregates(int $ticketId, string $metric, mixed $value, Carbon $timestamp): void
     {
         $aggregateKey = self::ANALYTICS_PREFIX . 'aggregates:tickets:' . $timestamp->format('Y-m-d');
         $ticketMetricKey = $ticketId . ':' . $metric;
@@ -329,6 +390,9 @@ class AnalyticsService
         Redis::expire($aggregateKey, 2592000); // 30 days retention
     }
 
+    /**
+     * Get  active users
+     */
     private function getActiveUsers(): int
     {
         $activeKey = self::ANALYTICS_PREFIX . 'active_users';
@@ -336,6 +400,9 @@ class AnalyticsService
         return Redis::scard($activeKey);
     }
 
+    /**
+     * Get  events last hour
+     */
     private function getEventsLastHour(): int
     {
         $hour = Carbon::now()->format('Y-m-d:H');
@@ -345,54 +412,87 @@ class AnalyticsService
         return array_sum($events);
     }
 
+    /**
+     * Get  popular events
+     */
     private function getPopularEvents(): array
     {
         // Implementation for popular events
         return [];
     }
 
+    /**
+     * Get  conversion rate
+     */
     private function getConversionRate(): float
     {
         // Implementation for conversion rate
         return 0.0;
     }
 
+    /**
+     * Get  average response time
+     */
     private function getAverageResponseTime(): float
     {
         // Implementation for average response time
         return 0.0;
     }
 
+    /**
+     * Get  ticket views
+     */
     private function getTicketViews(): int
     {
         // Implementation for ticket views
         return 0;
     }
 
+    /**
+     * Get  search trends
+     */
     private function getSearchTrends(): array
     {
         // Implementation for search trends
         return [];
     }
 
+    /**
+     * Get  geographic distribution
+     */
     private function getGeographicDistribution(): array
     {
         // Implementation for geographic distribution
         return [];
     }
 
+    /**
+     * Get  device breakdown
+     */
     private function getDeviceBreakdown(): array
     {
         // Implementation for device breakdown
         return [];
     }
 
+    /**
+     * Get  revenue metrics
+     */
     private function getRevenueMetrics(): array
     {
         // Implementation for revenue metrics
         return [];
     }
 
+    /**
+     * Update user search history in behavior tracking
+     *
+     * @param string $behaviorKey Redis key for user behavior data
+     * @param string $query       Search query to record
+     */
+    /**
+     * UpdateSearchHistory
+     */
     private function updateSearchHistory(string $behaviorKey, string $query): void
     {
         if (empty($query)) {
@@ -410,6 +510,15 @@ class AnalyticsService
         Redis::hset($behaviorKey, 'search_history', json_encode($searchHistory));
     }
 
+    /**
+     * Update user sport preferences based on viewing behavior
+     *
+     * @param string $behaviorKey Redis key for user behavior data
+     * @param string $sport       Sport name to increment preference for
+     */
+    /**
+     * UpdateSportPreferences
+     */
     private function updateSportPreferences(string $behaviorKey, string $sport): void
     {
         if (empty($sport)) {
@@ -424,6 +533,16 @@ class AnalyticsService
         Redis::hset($behaviorKey, 'favorite_sports', json_encode($favorites));
     }
 
+    /**
+     * Calculate popularity score based on engagement metrics
+     *
+     * @param array<string, mixed> $metrics Engagement metrics array
+     *
+     * @return float Calculated popularity score
+     */
+    /**
+     * CalculatePopularityScore
+     */
     private function calculatePopularityScore(array $metrics): float
     {
         $score = 0;
@@ -436,6 +555,9 @@ class AnalyticsService
         return round($score / 100, 2);
     }
 
+    /**
+     * Get  overview metrics
+     */
     private function getOverviewMetrics(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for overview metrics
@@ -449,42 +571,63 @@ class AnalyticsService
         ];
     }
 
+    /**
+     * Get  user engagement metrics
+     */
     private function getUserEngagementMetrics(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for user engagement metrics
         return [];
     }
 
+    /**
+     * Get  top ticket performance
+     */
     private function getTopTicketPerformance(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for top ticket performance
         return [];
     }
 
+    /**
+     * Get  search analytics
+     */
     private function getSearchAnalytics(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for search analytics
         return [];
     }
 
+    /**
+     * Get  conversion funnel
+     */
     private function getConversionFunnel(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for conversion funnel
         return [];
     }
 
+    /**
+     * Get  revenue analysis
+     */
     private function getRevenueAnalysis(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for revenue analysis
         return [];
     }
 
+    /**
+     * Get  trend analysis
+     */
     private function getTrendAnalysis(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for trend analysis
         return [];
     }
 
+    /**
+     * GenerateRecommendations
+     */
     private function generateRecommendations(Carbon $startDate, Carbon $endDate): array
     {
         // Implementation for generating recommendations

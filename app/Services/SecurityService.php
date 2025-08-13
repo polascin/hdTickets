@@ -27,6 +27,11 @@ class SecurityService
      *
      * @param mixed|null $subject
      */
+    /**
+     * LogSecurityActivity
+     *
+     * @param mixed $subject
+     */
     public function logSecurityActivity(string $description, array $properties = [], $subject = NULL): void
     {
         $user = Auth::user();
@@ -56,6 +61,11 @@ class SecurityService
      *
      * @param mixed|null $subject
      */
+    /**
+     * LogUserActivity
+     *
+     * @param mixed $subject
+     */
     public function logUserActivity(string $action, array $context = [], $subject = NULL): void
     {
         $user = Auth::user();
@@ -79,6 +89,9 @@ class SecurityService
 
     /**
      * Log bulk operations with detailed tracking
+     */
+    /**
+     * LogBulkOperation
      */
     public function logBulkOperation(string $operation, array $items, array $results = []): void
     {
@@ -104,6 +117,9 @@ class SecurityService
     /**
      * Log authentication events
      */
+    /**
+     * LogAuthEvent
+     */
     public function logAuthEvent(string $event, array $context = []): void
     {
         $request = request();
@@ -123,6 +139,9 @@ class SecurityService
 
     /**
      * Check if user has permission for action with logging
+     */
+    /**
+     * CheckPermission
      */
     public function checkPermission(User $user, string $permission, array $context = []): bool
     {
@@ -158,6 +177,9 @@ class SecurityService
     /**
      * Check if user can perform bulk operations
      */
+    /**
+     * Check if can  perform bulk operations
+     */
     public function canPerformBulkOperations(User $user): bool
     {
         return $user->isAdmin() || $user->isAgent();
@@ -165,6 +187,9 @@ class SecurityService
 
     /**
      * Validate bulk operation security
+     */
+    /**
+     * ValidateBulkOperation
      */
     public function validateBulkOperation(array $items, string $operation, User $user): array
     {
@@ -201,6 +226,9 @@ class SecurityService
     /**
      * Generate secure CSRF token for bulk operations
      */
+    /**
+     * GenerateBulkOperationToken
+     */
     public function generateBulkOperationToken(string $operation, array $items): string
     {
         $payload = [
@@ -216,6 +244,9 @@ class SecurityService
 
     /**
      * Validate bulk operation token
+     */
+    /**
+     * ValidateBulkOperationToken
      */
     public function validateBulkOperationToken(string $token, string $operation, array $items): bool
     {
@@ -242,6 +273,9 @@ class SecurityService
     /**
      * Get recent security activities
      */
+    /**
+     * Get  recent security activities
+     */
     public function getRecentSecurityActivities(int $limit = 50): \Illuminate\Database\Eloquent\Collection
     {
         return Activity::where('log_name', 'security')
@@ -253,6 +287,9 @@ class SecurityService
 
     /**
      * Get user activity summary
+     */
+    /**
+     * Get  user activity summary
      */
     public function getUserActivitySummary(User $user, int $days = 30): array
     {
@@ -270,6 +307,9 @@ class SecurityService
         ];
     }
 
+    /**
+     * InitAgent
+     */
     public function initAgent(): void
     {
         if (! $this->agent) {
@@ -279,6 +319,9 @@ class SecurityService
 
     /**
      * Log login attempt and track security information
+     */
+    /**
+     * LogLoginAttempt
      */
     public function logLoginAttempt(User $user, Request $request, bool $success, ?string $failureReason = NULL): LoginHistory
     {
@@ -309,6 +352,9 @@ class SecurityService
 
     /**
      * Create or update user session
+     */
+    /**
+     * CreateOrUpdateSession
      */
     public function createOrUpdateSession(User $user, Request $request): UserSession
     {
@@ -342,6 +388,9 @@ class SecurityService
     /**
      * Update session activity
      */
+    /**
+     * UpdateSessionActivity
+     */
     public function updateSessionActivity(string $sessionId): void
     {
         UserSession::where('id', $sessionId)->update([
@@ -353,6 +402,9 @@ class SecurityService
     /**
      * Revoke session
      */
+    /**
+     * RevokeSession
+     */
     public function revokeSession(string $sessionId): bool
     {
         return UserSession::where('id', $sessionId)->delete() > 0;
@@ -360,6 +412,9 @@ class SecurityService
 
     /**
      * Revoke all sessions for user except current
+     */
+    /**
+     * RevokeAllOtherSessions
      */
     public function revokeAllOtherSessions(User $user, ?string $exceptSessionId = NULL): int
     {
@@ -374,6 +429,9 @@ class SecurityService
 
     /**
      * Add device to trusted devices
+     */
+    /**
+     * TrustDevice
      */
     public function trustDevice(User $user, Request $request): void
     {
@@ -406,6 +464,9 @@ class SecurityService
     /**
      * Remove device from trusted devices
      */
+    /**
+     * UntrustDevice
+     */
     public function untrustDevice(User $user, int $deviceIndex): bool
     {
         $trustedDevices = $user->trusted_devices ?? [];
@@ -422,6 +483,9 @@ class SecurityService
 
     /**
      * Get user's login statistics
+     */
+    /**
+     * Get  login statistics
      */
     public function getLoginStatistics(User $user, int $days = 30): array
     {
@@ -472,6 +536,9 @@ class SecurityService
     /**
      * Get recent login history for user
      */
+    /**
+     * Get  recent login history
+     */
     public function getRecentLoginHistory(User $user, int $limit = 20): \Illuminate\Database\Eloquent\Collection
     {
         return LoginHistory::where('user_id', $user->id)
@@ -483,6 +550,9 @@ class SecurityService
     /**
      * Get active sessions for user
      */
+    /**
+     * Get  active sessions
+     */
     public function getActiveSessions(User $user): \Illuminate\Database\Eloquent\Collection
     {
         return UserSession::where('user_id', $user->id)
@@ -493,6 +563,9 @@ class SecurityService
 
     /**
      * Perform security checkup for user
+     */
+    /**
+     * PerformSecurityCheckup
      */
     public function performSecurityCheckup(User $user): array
     {
@@ -575,6 +648,9 @@ class SecurityService
     /**
      * Get device information from request
      */
+    /**
+     * Get  device info
+     */
     protected function getDeviceInfo(Request $request): array
     {
         $this->initAgent();
@@ -596,6 +672,9 @@ class SecurityService
 
     /**
      * Get location information from IP address
+     */
+    /**
+     * Get  location info
      */
     protected function getLocationInfo(string $ipAddress): array
     {
@@ -621,6 +700,9 @@ class SecurityService
 
     /**
      * Analyze suspicious activity patterns
+     */
+    /**
+     * AnalyzeSuspiciousActivity
      */
     protected function analyzeSuspiciousActivity(User $user, Request $request, array $deviceInfo, array $locationInfo): array
     {
@@ -678,6 +760,9 @@ class SecurityService
     /**
      * Check if device is trusted
      */
+    /**
+     * Check if  device trusted
+     */
     protected function isDeviceTrusted(User $user, array $deviceInfo, string $ipAddress): bool
     {
         $trustedDevices = $user->trusted_devices ?? [];
@@ -696,6 +781,9 @@ class SecurityService
     /**
      * Generate a friendly name for the device
      */
+    /**
+     * GenerateDeviceName
+     */
     protected function generateDeviceName(array $deviceInfo): string
     {
         $deviceType = ucfirst($deviceInfo['device_type']);
@@ -707,6 +795,9 @@ class SecurityService
 
     /**
      * Calculate security score for user
+     */
+    /**
+     * CalculateSecurityScore
      */
     protected function calculateSecurityScore(User $user, array $issues): int
     {
@@ -745,6 +836,9 @@ class SecurityService
     /**
      * Calculate risk level based on activity
      */
+    /**
+     * CalculateRiskLevel
+     */
     private function calculateRiskLevel(string $description, array $properties): string
     {
         $highRiskKeywords = ['delete', 'disable', 'permission', 'admin', 'bulk', 'failed'];
@@ -770,6 +864,9 @@ class SecurityService
     /**
      * Get maximum bulk items based on user role and operation
      */
+    /**
+     * Get  max bulk items
+     */
     private function getMaxBulkItems(User $user, string $operation): int
     {
         if ($user->isRootAdmin()) {
@@ -789,6 +886,9 @@ class SecurityService
 
     /**
      * Check if user is rate limited for bulk operations
+     */
+    /**
+     * Check if  bulk operation rate limited
      */
     private function isBulkOperationRateLimited(User $user): bool
     {

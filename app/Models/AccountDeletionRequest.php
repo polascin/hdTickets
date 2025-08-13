@@ -47,6 +47,9 @@ class AccountDeletionRequest extends Model
     /**
      * Get the user that owns the deletion request
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -54,6 +57,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Check if the request is pending email confirmation
+     */
+    /**
+     * Check if  pending
      */
     public function isPending(): bool
     {
@@ -63,6 +69,9 @@ class AccountDeletionRequest extends Model
     /**
      * Check if the request is confirmed
      */
+    /**
+     * Check if  confirmed
+     */
     public function isConfirmed(): bool
     {
         return $this->status === self::STATUS_CONFIRMED;
@@ -70,6 +79,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Check if the request is cancelled
+     */
+    /**
+     * Check if  cancelled
      */
     public function isCancelled(): bool
     {
@@ -79,6 +91,9 @@ class AccountDeletionRequest extends Model
     /**
      * Check if the request has expired
      */
+    /**
+     * Check if  expired
+     */
     public function isExpired(): bool
     {
         return $this->status === self::STATUS_EXPIRED;
@@ -87,6 +102,9 @@ class AccountDeletionRequest extends Model
     /**
      * Check if the request is completed
      */
+    /**
+     * Check if  completed
+     */
     public function isCompleted(): bool
     {
         return $this->status === self::STATUS_COMPLETED;
@@ -94,6 +112,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Check if the grace period is active
+     */
+    /**
+     * Check if  in grace period
      */
     public function isInGracePeriod(): bool
     {
@@ -105,6 +126,9 @@ class AccountDeletionRequest extends Model
     /**
      * Check if the grace period has expired
      */
+    /**
+     * Check if  grace period expired
+     */
     public function isGracePeriodExpired(): bool
     {
         return $this->isConfirmed()
@@ -114,6 +138,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Get the remaining time in the grace period
+     */
+    /**
+     * Get  remaining grace time
      */
     public function getRemainingGraceTime(): ?Carbon
     {
@@ -127,6 +154,9 @@ class AccountDeletionRequest extends Model
     /**
      * Get human readable time remaining
      */
+    /**
+     * Get  time remaining attribute
+     */
     public function getTimeRemainingAttribute(): ?string
     {
         if (! $this->isInGracePeriod()) {
@@ -138,6 +168,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Cancel the deletion request
+     */
+    /**
+     * Check if can cel
      */
     public function cancel(?string $reason = NULL): bool
     {
@@ -160,6 +193,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Confirm the deletion request and start grace period
+     */
+    /**
+     * Confirm
      */
     public function confirm(): bool
     {
@@ -185,6 +221,9 @@ class AccountDeletionRequest extends Model
     /**
      * Mark the deletion as completed
      */
+    /**
+     * MarkCompleted
+     */
     public function markCompleted(): bool
     {
         if (! $this->isConfirmed()) {
@@ -202,6 +241,9 @@ class AccountDeletionRequest extends Model
     /**
      * Mark the request as expired
      */
+    /**
+     * MarkExpired
+     */
     public function markExpired(): bool
     {
         $this->update([
@@ -216,7 +258,12 @@ class AccountDeletionRequest extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query)
+    /**
+     * ScopeActive
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
     {
         return $query->whereIn('status', [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
     }
@@ -245,6 +292,9 @@ class AccountDeletionRequest extends Model
 
     /**
      * Get all available statuses
+     */
+    /**
+     * Get  statuses
      */
     public static function getStatuses(): array
     {

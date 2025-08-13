@@ -33,6 +33,9 @@ class ProcessDataExportJob implements ShouldQueue
     /**
      * Execute the job.
      */
+    /**
+     * Handle
+     */
     public function handle(AccountDeletionProtectionService $deletionService): void
     {
         Log::info('Processing data export request', [
@@ -67,6 +70,9 @@ class ProcessDataExportJob implements ShouldQueue
 
     /**
      * Handle a job failure.
+     */
+    /**
+     * Failed
      */
     public function failed(Throwable $exception): void
     {

@@ -34,6 +34,9 @@ class AuthenticationService
     /**
      * Enhanced login with security features
      */
+    /**
+     * AuthenticateUser
+     */
     public function authenticateUser(Request $request, array $credentials, bool $remember = FALSE): array
     {
         $email = $credentials['email'] ?? '';
@@ -97,6 +100,9 @@ class AuthenticationService
     /**
      * Generate JWT token for API authentication
      */
+    /**
+     * GenerateJWTToken
+     */
     public function generateJWTToken(User $user, array $scopes = []): array
     {
         $payload = [
@@ -138,6 +144,9 @@ class AuthenticationService
     /**
      * Validate JWT token
      */
+    /**
+     * ValidateJWTToken
+     */
     public function validateJWTToken(string $token): ?User
     {
         try {
@@ -169,6 +178,9 @@ class AuthenticationService
     /**
      * Revoke JWT token
      */
+    /**
+     * RevokeJWTToken
+     */
     public function revokeJWTToken(string $jti): bool
     {
         return Cache::forget("jwt_token:{$jti}");
@@ -176,6 +188,9 @@ class AuthenticationService
 
     /**
      * Generate OAuth 2.0 authorization code
+     */
+    /**
+     * GenerateAuthorizationCode
      */
     public function generateAuthorizationCode(User $user, string $clientId, array $scopes, string $redirectUri): string
     {
@@ -194,6 +209,9 @@ class AuthenticationService
 
     /**
      * Exchange authorization code for access token
+     */
+    /**
+     * ExchangeAuthorizationCode
      */
     public function exchangeAuthorizationCode(string $code, string $clientId, string $redirectUri): ?array
     {
@@ -220,6 +238,9 @@ class AuthenticationService
     /**
      * Generate device fingerprint
      */
+    /**
+     * GenerateDeviceFingerprint
+     */
     public function generateDeviceFingerprint(Request $request): string
     {
         $this->agent->setUserAgent($request->userAgent());
@@ -239,6 +260,9 @@ class AuthenticationService
     /**
      * Biometric authentication support
      */
+    /**
+     * InitiateBiometricAuth
+     */
     public function initiateBiometricAuth(User $user, Request $request): array
     {
         $challenge = Str::random(64);
@@ -257,6 +281,9 @@ class AuthenticationService
 
     /**
      * Verify biometric authentication
+     */
+    /**
+     * VerifyBiometricAuth
      */
     public function verifyBiometricAuth(User $user, string $challenge, string $signature, Request $request): bool
     {
@@ -287,6 +314,9 @@ class AuthenticationService
 
     /**
      * Detect anomalous login patterns
+     */
+    /**
+     * DetectLoginAnomaly
      */
     public function detectLoginAnomaly(User $user, Request $request): array
     {
@@ -352,6 +382,9 @@ class AuthenticationService
     /**
      * Session management with Redis
      */
+    /**
+     * CreateSecureSession
+     */
     public function createSecureSession(User $user, Request $request, array $options = []): string
     {
         $sessionId = Str::uuid()->toString();
@@ -392,6 +425,9 @@ class AuthenticationService
     /**
      * Validate session with security checks
      */
+    /**
+     * ValidateSession
+     */
     public function validateSession(string $sessionId, Request $request): ?User
     {
         $sessionData = Cache::get("session:{$sessionId}");
@@ -430,6 +466,9 @@ class AuthenticationService
     /**
      * Check if user requires 2FA based on risk assessment
      */
+    /**
+     * RequiresTwoFactorAuthentication
+     */
     protected function requiresTwoFactorAuthentication(User $user, string $deviceFingerprint): bool
     {
         // Always require for admin users
@@ -451,6 +490,9 @@ class AuthenticationService
 
     /**
      * Complete login process
+     */
+    /**
+     * CompleteLogin
      */
     protected function completeLogin(User $user, Request $request, bool $remember, string $deviceFingerprint): void
     {
@@ -482,6 +524,9 @@ class AuthenticationService
     /**
      * Handle failed login attempt
      */
+    /**
+     * HandleFailedLogin
+     */
     protected function handleFailedLogin(User $user, Request $request, string $reason): void
     {
         $user->increment('failed_login_attempts');
@@ -505,6 +550,9 @@ class AuthenticationService
     /**
      * Check if account is locked
      */
+    /**
+     * Check if  account locked
+     */
     protected function isAccountLocked(User $user): bool
     {
         return $user->locked_until && $user->locked_until->isFuture();
@@ -512,6 +560,9 @@ class AuthenticationService
 
     /**
      * Get location information from IP
+     */
+    /**
+     * Get  location info
      */
     protected function getLocationInfo(string $ipAddress): array
     {
@@ -536,6 +587,9 @@ class AuthenticationService
 
     /**
      * Detect suspicious activity patterns
+     */
+    /**
+     * DetectSuspiciousActivity
      */
     protected function detectSuspiciousActivity(User $user, Request $request): array
     {
@@ -568,6 +622,9 @@ class AuthenticationService
     /**
      * Check if user agent is suspicious
      */
+    /**
+     * Check if  suspicious user agent
+     */
     protected function isSuspiciousUserAgent(string $userAgent): bool
     {
         $suspiciousPatterns = [
@@ -592,6 +649,9 @@ class AuthenticationService
     /**
      * Check if IP is proxy or VPN
      */
+    /**
+     * Check if  proxy or v p n
+     */
     protected function isProxyOrVPN(string $ipAddress): bool
     {
         // In production, integrate with proxy detection service
@@ -600,6 +660,9 @@ class AuthenticationService
 
     /**
      * Handle suspicious login
+     */
+    /**
+     * HandleSuspiciousLogin
      */
     protected function handleSuspiciousLogin(User $user, Request $request, array $flags): void
     {
@@ -617,6 +680,9 @@ class AuthenticationService
     /**
      * Log failed attempt without user
      */
+    /**
+     * LogFailedAttempt
+     */
     protected function logFailedAttempt(Request $request, string $email, string $reason): void
     {
         $this->securityService->logSecurityActivity('Failed login attempt', [
@@ -630,6 +696,9 @@ class AuthenticationService
     /**
      * Check if user has backup authentication methods
      */
+    /**
+     * Check if has  backup methods
+     */
     protected function hasBackupMethods(User $user): array
     {
         return [
@@ -641,6 +710,9 @@ class AuthenticationService
 
     /**
      * Verify biometric signature (placeholder)
+     */
+    /**
+     * VerifyBiometricSignature
      */
     protected function verifyBiometricSignature(User $user, string $challenge, string $signature): bool
     {

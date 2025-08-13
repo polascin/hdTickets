@@ -31,6 +31,9 @@ class ApiSecurityMiddleware
      *
      * @param Closure(Request): (Response) $next
      */
+    /**
+     * Handle
+     */
     public function handle(Request $request, Closure $next): Response
     {
         // Perform comprehensive security checks
@@ -56,6 +59,9 @@ class ApiSecurityMiddleware
 
     /**
      * Perform comprehensive security checks
+     */
+    /**
+     * PerformSecurityChecks
      */
     protected function performSecurityChecks(Request $request): void
     {
@@ -87,6 +93,9 @@ class ApiSecurityMiddleware
     /**
      * Validate API authentication
      */
+    /**
+     * ValidateApiAuthentication
+     */
     protected function validateApiAuthentication(Request $request): void
     {
         $apiKey = $request->header('X-API-Key') ?? $request->input('api_key');
@@ -115,6 +124,9 @@ class ApiSecurityMiddleware
     /**
      * Check rate limiting for API requests
      */
+    /**
+     * CheckRateLimit
+     */
     protected function checkRateLimit(Request $request): void
     {
         $apiKeyInfo = $request->attributes->get('api_key_info');
@@ -139,6 +151,9 @@ class ApiSecurityMiddleware
     /**
      * Sanitize request data
      */
+    /**
+     * SanitizeRequestData
+     */
     protected function sanitizeRequestData(Request $request): void
     {
         // Get all input data
@@ -159,6 +174,9 @@ class ApiSecurityMiddleware
     /**
      * Check if IP address is suspicious
      */
+    /**
+     * Check if  suspicious ip
+     */
     protected function isSuspiciousIp(string $ip): bool
     {
         // Check against known bad IP lists
@@ -174,6 +192,9 @@ class ApiSecurityMiddleware
 
     /**
      * Check if user agent is malicious
+     */
+    /**
+     * Check if  malicious user agent
      */
     protected function isMaliciousUserAgent(?string $userAgent): bool
     {
@@ -206,6 +227,9 @@ class ApiSecurityMiddleware
     /**
      * Check if request exceeds size limits
      */
+    /**
+     * ExceedsRequestSizeLimit
+     */
     protected function exceedsRequestSizeLimit(Request $request): bool
     {
         $maxSize = 10 * 1024 * 1024; // 10MB limit
@@ -216,6 +240,9 @@ class ApiSecurityMiddleware
 
     /**
      * Check for invalid request structure
+     */
+    /**
+     * Check if has  invalid request structure
      */
     protected function hasInvalidRequestStructure(Request $request): bool
     {
@@ -237,6 +264,9 @@ class ApiSecurityMiddleware
 
     /**
      * Validate API key
+     */
+    /**
+     * Check if  valid api key
      */
     protected function isValidApiKey(string $apiKey): bool
     {
@@ -266,6 +296,9 @@ class ApiSecurityMiddleware
     /**
      * Get API key information
      */
+    /**
+     * Get  api key info
+     */
     protected function getApiKeyInfo(string $apiKey): array
     {
         $validKeys = Cache::get('valid_api_keys', []);
@@ -275,6 +308,9 @@ class ApiSecurityMiddleware
 
     /**
      * Verify API signature
+     */
+    /**
+     * VerifyApiSignature
      */
     protected function verifyApiSignature(Request $request, string $apiKey, string $signature): bool
     {
@@ -287,6 +323,9 @@ class ApiSecurityMiddleware
 
     /**
      * Add security headers to API responses
+     */
+    /**
+     * AddApiSecurityHeaders
      */
     protected function addApiSecurityHeaders(Response $response): void
     {
@@ -304,6 +343,9 @@ class ApiSecurityMiddleware
 
     /**
      * Log security violation
+     */
+    /**
+     * LogSecurityViolation
      */
     protected function logSecurityViolation(Request $request, string $reason): void
     {

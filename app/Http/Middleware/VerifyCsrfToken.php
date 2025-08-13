@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpFoundation\Response;
 
 use function in_array;
 
@@ -27,13 +28,15 @@ class VerifyCsrfToken extends Middleware
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
+     * @param Closure(Request): (Response) $next
+     * @param mixed                        $request
      *
      * @throws TokenMismatchException
-     *
-     * @return mixed
      */
-    public function handle($request, Closure $next)
+    /**
+     * Handle
+     */
+    public function handle($request, Closure $next): Response
     {
         // Enhanced CSRF protection for sports events system
         if ($this->isReading($request)
@@ -52,11 +55,12 @@ class VerifyCsrfToken extends Middleware
     /**
      * Determine if the HTTP request uses a 'read' verb.
      *
-     * @param Request $request
-     *
-     * @return bool
+     * @param mixed $request
      */
-    protected function isReading($request)
+    /**
+     * Check if  reading
+     */
+    protected function isReading($request): bool
     {
         return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS'], TRUE);
     }
@@ -64,11 +68,12 @@ class VerifyCsrfToken extends Middleware
     /**
      * Enhanced token matching with additional security checks
      *
-     * @param Request $request
-     *
-     * @return bool
+     * @param mixed $request
      */
-    protected function tokensMatch($request)
+    /**
+     * TokensMatch
+     */
+    protected function tokensMatch($request): bool
     {
         $token = $this->getTokenFromRequest($request);
 
@@ -88,12 +93,11 @@ class VerifyCsrfToken extends Middleware
 
     /**
      * Perform additional security checks specific to sports events monitoring
-     *
-     * @param Request $request
-     *
-     * @return bool
      */
-    protected function performAdditionalSecurityChecks($request)
+    /**
+     * PerformAdditionalSecurityChecks
+     */
+    protected function performAdditionalSecurityChecks(Request $request): bool
     {
         // Check for suspicious request patterns
         if ($this->detectSuspiciousPatterns($request)) {
@@ -111,12 +115,11 @@ class VerifyCsrfToken extends Middleware
 
     /**
      * Detect suspicious request patterns
-     *
-     * @param Request $request
-     *
-     * @return bool
      */
-    protected function detectSuspiciousPatterns($request)
+    /**
+     * DetectSuspiciousPatterns
+     */
+    protected function detectSuspiciousPatterns(Request $request): bool
     {
         $suspiciousPatterns = [
             // Rapid automated requests
@@ -137,12 +140,11 @@ class VerifyCsrfToken extends Middleware
 
     /**
      * Verify session integrity
-     *
-     * @param Request $request
-     *
-     * @return bool
      */
-    protected function verifySessionIntegrity($request)
+    /**
+     * VerifySessionIntegrity
+     */
+    protected function verifySessionIntegrity(Request $request): bool
     {
         $session = $request->session();
 
@@ -173,12 +175,11 @@ class VerifyCsrfToken extends Middleware
 
     /**
      * Check if requests are coming too frequently (rate limiting)
-     *
-     * @param Request $request
-     *
-     * @return bool
      */
-    protected function isRequestTooFrequent($request)
+    /**
+     * Check if  request too frequent
+     */
+    protected function isRequestTooFrequent(Request $request): bool
     {
         $key = 'csrf_rate_limit:' . $request->ip();
         $cache = app('cache');
@@ -196,10 +197,11 @@ class VerifyCsrfToken extends Middleware
 
     /**
      * Log CSRF violation for security monitoring
-     *
-     * @param Request $request
      */
-    protected function logCsrfViolation($request): void
+    /**
+     * LogCsrfViolation
+     */
+    protected function logCsrfViolation(Request $request): void
     {
         $securityService = app(SecurityService::class);
 

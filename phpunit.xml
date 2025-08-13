@@ -42,9 +42,7 @@
     </source>
     
     <coverage includeUncoveredFiles="true"
-              processUncoveredFiles="true"
               pathCoverage="true"
-              ignoreDeprecatedCodeUnitsFromCodeCoverage="true"
               disableCodeCoverageIgnore="false">
         <report>
             <html outputDirectory="storage/quality/coverage/html" lowUpperBound="50" highLowerBound="90"/>

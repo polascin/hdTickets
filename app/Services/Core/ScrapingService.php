@@ -35,6 +35,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * Scrape tickets from all enabled platforms
      */
+    /**
+     * ScrapeAllPlatforms
+     */
     public function scrapeAllPlatforms(array $criteria): array
     {
         $this->ensureInitialized();
@@ -114,6 +117,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * Scrape specific platform
      */
+    /**
+     * ScrapePlatform
+     */
     public function scrapePlatform(string $platform, array $criteria): array
     {
         $this->ensureInitialized();
@@ -131,6 +137,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * Get available platforms
      */
+    /**
+     * Get  available platforms
+     */
     public function getAvailablePlatforms(): array
     {
         return $this->adapterFactory->getAvailablePlatforms();
@@ -138,6 +147,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
 
     /**
      * Enable platform
+     */
+    /**
+     * EnablePlatform
      */
     public function enablePlatform(string $platform): void
     {
@@ -149,6 +161,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
 
     /**
      * Disable platform
+     */
+    /**
+     * DisablePlatform
      */
     public function disablePlatform(string $platform): void
     {
@@ -162,6 +177,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * Get scraping statistics
      */
+    /**
+     * Get  scraping statistics
+     */
     public function getScrapingStatistics(): array
     {
         return [
@@ -173,6 +191,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
 
     /**
      * Schedule recurring scraping job
+     */
+    /**
+     * ScheduleRecurringScraping
      */
     public function scheduleRecurringScraping(array $criteria, int $intervalMinutes = 30): string
     {
@@ -191,6 +212,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
 
     /**
      * Update scraping criteria for scheduled job
+     */
+    /**
+     * UpdateScheduledScraping
      */
     public function updateScheduledScraping(string $jobId, array $criteria): bool
     {
@@ -212,6 +236,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * Cancel scheduled scraping
      */
+    /**
+     * Check if can cel scheduled scraping
+     */
     public function cancelScheduledScraping(string $jobId): bool
     {
         $scheduleKey = "scraping_schedule_{$jobId}";
@@ -219,6 +246,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
         return Cache::forget($scheduleKey);
     }
 
+    /**
+     * OnInitialize
+     */
     protected function onInitialize(): void
     {
         $this->validateDependencies(['cacheService', 'analyticsService']);
@@ -238,6 +268,11 @@ class ScrapingService extends BaseService implements ScrapingInterface
 
     /**
      * Private helper methods
+     *
+     * @param mixed $adapter
+     */
+    /**
+     * ScrapePlatformWithAdapter
      *
      * @param mixed $adapter
      */
@@ -273,22 +308,34 @@ class ScrapingService extends BaseService implements ScrapingInterface
         }
     }
 
+    /**
+     * Check if  platform enabled
+     */
     private function isPlatformEnabled(string $platform): bool
     {
         return in_array($platform, $this->enabledPlatforms, TRUE)
                && $this->adapterFactory->isAvailable($platform);
     }
 
+    /**
+     * LoadScrapingMetrics
+     */
     private function loadScrapingMetrics(): void
     {
         $this->scrapingMetrics = Cache::get('scraping_metrics', []);
     }
 
+    /**
+     * SaveEnabledPlatforms
+     */
     private function saveEnabledPlatforms(): void
     {
         Cache::put('enabled_scraping_platforms', $this->enabledPlatforms, 86400 * 30);
     }
 
+    /**
+     * UpdatePlatformMetrics
+     */
     private function updatePlatformMetrics(string $platform, bool $success, int $resultCount): void
     {
         $metricsKey = "platform_metrics_{$platform}";
@@ -312,6 +359,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
         Cache::put($metricsKey, $metrics, 86400 * 30);
     }
 
+    /**
+     * Get  platform statistics
+     */
     private function getPlatformStatistics(): array
     {
         $stats = [];
@@ -324,6 +374,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
         return $stats;
     }
 
+    /**
+     * Get  overall statistics
+     */
     private function getOverallStatistics(): array
     {
         $allStats = $this->getPlatformStatistics();
@@ -342,6 +395,9 @@ class ScrapingService extends BaseService implements ScrapingInterface
         ];
     }
 
+    /**
+     * Get  scraping health status
+     */
     private function getScrapingHealthStatus(): array
     {
         $stats = $this->getPlatformStatistics();

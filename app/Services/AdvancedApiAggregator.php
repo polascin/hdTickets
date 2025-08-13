@@ -26,6 +26,9 @@ class AdvancedApiAggregator
     /**
      * Advanced multi-source data aggregation
      */
+    /**
+     * AggregateTicketData
+     */
     public function aggregateTicketData(array $searchCriteria): array
     {
         $results = [];
@@ -57,6 +60,9 @@ class AdvancedApiAggregator
     /**
      * Execute batch of API calls
      */
+    /**
+     * ExecuteBatch
+     */
     protected function executeBatch(array $batch): array
     {
         $results = [];
@@ -82,6 +88,9 @@ class AdvancedApiAggregator
 
     /**
      * Intelligent data deduplication and enrichment
+     */
+    /**
+     * DeduplicateAndEnrich
      */
     protected function deduplicateAndEnrich(array $results): array
     {
@@ -110,6 +119,9 @@ class AdvancedApiAggregator
 
     /**
      * Group similar events using fuzzy matching
+     */
+    /**
+     * GroupSimilarEvents
      */
     protected function groupSimilarEvents(array $events): array
     {
@@ -144,6 +156,9 @@ class AdvancedApiAggregator
 
     /**
      * Check if two events are similar
+     */
+    /**
+     * EventsAreSimilar
      */
     protected function eventsAreSimilar(array $event1, array $event2): bool
     {
@@ -180,6 +195,9 @@ class AdvancedApiAggregator
 
     /**
      * Merge group of similar events
+     */
+    /**
+     * MergeEventGroup
      */
     protected function mergeEventGroup(array $eventGroup): array
     {
@@ -240,6 +258,9 @@ class AdvancedApiAggregator
     /**
      * Calculate confidence score for event data
      */
+    /**
+     * CalculateConfidenceScore
+     */
     protected function calculateConfidenceScore(array $event): float
     {
         $score = 0;
@@ -280,6 +301,9 @@ class AdvancedApiAggregator
     /**
      * Adapt search criteria for specific platform
      */
+    /**
+     * AdaptCriteriaForPlatform
+     */
     protected function adaptCriteriaForPlatform(array $criteria, string $platform): array
     {
         $adapted = $criteria;
@@ -307,6 +331,9 @@ class AdvancedApiAggregator
     /**
      * Initialize API clients
      */
+    /**
+     * InitializeClients
+     */
     protected function initializeClients(): void
     {
         $configs = config('ticket_apis');
@@ -320,6 +347,9 @@ class AdvancedApiAggregator
         }
     }
 
+    /**
+     * ProcessApiResponse
+     */
     protected function processApiResponse(array $data, string $platform): array
     {
         $client = $this->clients[$platform];

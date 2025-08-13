@@ -25,6 +25,9 @@ class AutomatedPurchaseController extends Controller
     /**
      * Evaluate purchase decision for a specific ticket
      */
+    /**
+     * EvaluatePurchaseDecision
+     */
     public function evaluatePurchaseDecision(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -60,6 +63,9 @@ class AutomatedPurchaseController extends Controller
 
     /**
      * Compare prices across multiple platforms for an event
+     */
+    /**
+     * CompareMultiPlatformPrices
      */
     public function compareMultiPlatformPrices(Request $request): JsonResponse
     {
@@ -104,6 +110,9 @@ class AutomatedPurchaseController extends Controller
 
     /**
      * Execute automated purchase
+     */
+    /**
+     * ExecuteAutomatedPurchase
      */
     public function executeAutomatedPurchase(Request $request): JsonResponse
     {
@@ -171,6 +180,9 @@ class AutomatedPurchaseController extends Controller
     /**
      * Track and optimize purchase performance
      */
+    /**
+     * TrackAndOptimize
+     */
     public function trackAndOptimize(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -209,6 +221,9 @@ class AutomatedPurchaseController extends Controller
     /**
      * Get purchase automation configuration
      */
+    /**
+     * Get  configuration
+     */
     public function getConfiguration(): JsonResponse
     {
         try {
@@ -245,6 +260,9 @@ class AutomatedPurchaseController extends Controller
 
     /**
      * Update user's automated purchase preferences
+     */
+    /**
+     * UpdateUserPreferences
      */
     public function updateUserPreferences(Request $request): JsonResponse
     {
@@ -317,6 +335,9 @@ class AutomatedPurchaseController extends Controller
 
     /**
      * Get purchase automation statistics and insights
+     */
+    /**
+     * Get  automation statistics
      */
     public function getAutomationStatistics(Request $request): JsonResponse
     {
@@ -411,6 +432,9 @@ class AutomatedPurchaseController extends Controller
 
     /**
      * Generate recommendations based on statistics
+     */
+    /**
+     * GenerateStatisticsRecommendations
      */
     private function generateStatisticsRecommendations(array $stats): array
     {

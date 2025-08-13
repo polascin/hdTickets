@@ -44,6 +44,9 @@ class UserFavoriteVenue extends Model
     /**
      * Get the user that owns this favorite venue
      */
+    /**
+     * User
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -152,6 +155,9 @@ class UserFavoriteVenue extends Model
     /**
      * Get the full venue display name
      */
+    /**
+     * Get  full name attribute
+     */
     public function getFullNameAttribute(): string
     {
         $location = collect([$this->city, $this->state_province, $this->country])
@@ -163,6 +169,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Generate venue slug from name and location
+     */
+    /**
+     * GenerateSlug
      */
     public function generateSlug(): string
     {
@@ -176,6 +185,11 @@ class UserFavoriteVenue extends Model
      *
      * @param mixed $value
      */
+    /**
+     * Set  venue slug attribute
+     *
+     * @param mixed $value
+     */
     public function setVenueSlugAttribute($value): void
     {
         $this->attributes['venue_slug'] = $value ?: $this->generateSlug();
@@ -183,6 +197,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Get all available venue types
+     */
+    /**
+     * Get  available venue types
      */
     public static function getAvailableVenueTypes(): array
     {
@@ -203,6 +220,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Get popular venues for autocomplete
+     */
+    /**
+     * Get  popular venues
      */
     public static function getPopularVenues(?string $city = NULL): array
     {
@@ -234,6 +254,9 @@ class UserFavoriteVenue extends Model
     /**
      * Check if venue matches search criteria
      */
+    /**
+     * MatchesSearch
+     */
     public function matchesSearch(string $term): bool
     {
         $term = strtolower($term);
@@ -249,6 +272,9 @@ class UserFavoriteVenue extends Model
     /**
      * Get notification settings as array
      */
+    /**
+     * Get  notification settings
+     */
     public function getNotificationSettings(): array
     {
         return [
@@ -261,6 +287,9 @@ class UserFavoriteVenue extends Model
     /**
      * Update notification settings
      */
+    /**
+     * UpdateNotificationSettings
+     */
     public function updateNotificationSettings(array $settings): void
     {
         $this->update([
@@ -272,6 +301,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Calculate distance to venue from given coordinates
+     */
+    /**
+     * DistanceFrom
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
@@ -296,6 +328,9 @@ class UserFavoriteVenue extends Model
     /**
      * Get venue capacity tier
      */
+    /**
+     * Get  capacity tier attribute
+     */
     public function getCapacityTierAttribute(): string
     {
         if (! $this->capacity) {
@@ -318,6 +353,9 @@ class UserFavoriteVenue extends Model
     /**
      * Check if venue is outdoors
      */
+    /**
+     * Check if  outdoor
+     */
     public function isOutdoor(): bool
     {
         $outdoorTypes = ['stadium', 'amphitheater', 'outdoor_venue', 'racetrack', 'golf_course'];
@@ -327,6 +365,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Get venue statistics for dashboard
+     */
+    /**
+     * Get  venue stats
      */
     public static function getVenueStats(int $userId): array
     {
@@ -357,6 +398,9 @@ class UserFavoriteVenue extends Model
 
     /**
      * Suggest similar venues
+     */
+    /**
+     * Get  similar venues
      */
     public function getSimilarVenues(int $limit = 5): array
     {

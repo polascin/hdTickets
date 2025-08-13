@@ -12,6 +12,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
+    /**
+     * InitializePlugin
+     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Paris Saint-Germain';
@@ -26,6 +29,9 @@ class PsgPlugin extends BaseScraperPlugin
 
     /**
      * Get plugin capabilities
+     */
+    /**
+     * Get  capabilities
      */
     protected function getCapabilities(): array
     {
@@ -45,6 +51,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Get supported search criteria
      */
+    /**
+     * Get  supported criteria
+     */
     protected function getSupportedCriteria(): array
     {
         return [
@@ -60,6 +69,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Get test URL for connectivity check
      */
+    /**
+     * Get  test url
+     */
     protected function getTestUrl(): string
     {
         return $this->baseUrl . '/billetterie';
@@ -67,6 +79,9 @@ class PsgPlugin extends BaseScraperPlugin
 
     /**
      * Build search URL from criteria
+     */
+    /**
+     * BuildSearchUrl
      */
     protected function buildSearchUrl(array $criteria): string
     {
@@ -96,6 +111,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Map competition names to French equivalents
      */
+    /**
+     * MapCompetition
+     */
     protected function mapCompetition(string $competition): string
     {
         $mapping = [
@@ -113,6 +131,9 @@ class PsgPlugin extends BaseScraperPlugin
 
     /**
      * Parse search results from HTML
+     */
+    /**
+     * ParseSearchResults
      */
     protected function parseSearchResults(string $html): array
     {
@@ -160,6 +181,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for event name (French)
      */
+    /**
+     * Get  event name selectors
+     */
     protected function getEventNameSelectors(): string
     {
         return '.match-title, .titre-match, .event-title, .titre-evenement, .nom-match, .adversaire, .opponent, h3, h2, .title, .titre';
@@ -167,6 +191,9 @@ class PsgPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for date (French)
+     */
+    /**
+     * Get  date selectors
      */
     protected function getDateSelectors(): string
     {
@@ -176,6 +203,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for venue (French)
      */
+    /**
+     * Get  venue selectors
+     */
     protected function getVenueSelectors(): string
     {
         return '.venue, .stade, .location, .lieu, .emplacement';
@@ -184,6 +214,9 @@ class PsgPlugin extends BaseScraperPlugin
     /**
      * Get CSS selectors for price (French)
      */
+    /**
+     * Get  price selectors
+     */
     protected function getPriceSelectors(): string
     {
         return '.price, .prix, .cout, .cost, .a-partir-de, .from, .prix-billet, .tarif';
@@ -191,6 +224,9 @@ class PsgPlugin extends BaseScraperPlugin
 
     /**
      * Get CSS selectors for availability (French)
+     */
+    /**
+     * Get  availability selectors
      */
     protected function getAvailabilitySelectors(): string
     {

@@ -10,6 +10,9 @@ class PlatformOrderingService
     /**
      * Get all platforms in the correct display order
      */
+    /**
+     * Get  all platforms
+     */
     public static function getAllPlatforms(): array
     {
         return collect(config('platforms.display_order'))
@@ -21,6 +24,9 @@ class PlatformOrderingService
     /**
      * Get platform keys in the correct order
      */
+    /**
+     * Get  platform keys
+     */
     public static function getPlatformKeys(): array
     {
         return config('platforms.ordered_keys');
@@ -29,8 +35,11 @@ class PlatformOrderingService
     /**
      * Get platforms for dropdown/select elements
      *
-     * @param array $includeOnly      Only include specific platforms
-     * @param array $excludePlatforms Exclude specific platforms
+     * @param array<string, mixed> $includeOnly      Only include specific platforms
+     * @param array<string, mixed> $excludePlatforms Exclude specific platforms
+     */
+    /**
+     * Get  platforms for select
      */
     public static function getPlatformsForSelect(array $includeOnly = [], array $excludePlatforms = []): array
     {
@@ -57,6 +66,9 @@ class PlatformOrderingService
     /**
      * Get platform display name by key
      */
+    /**
+     * Get  platform display name
+     */
     public static function getPlatformDisplayName(string $key): string
     {
         $platforms = config('platforms.display_order');
@@ -67,6 +79,9 @@ class PlatformOrderingService
     /**
      * Check if a platform key is valid
      */
+    /**
+     * Check if  valid platform
+     */
     public static function isValidPlatform(string $key): bool
     {
         return array_key_exists($key, config('platforms.display_order'));
@@ -74,6 +89,9 @@ class PlatformOrderingService
 
     /**
      * Sort an array of platform keys according to the standard order
+     */
+    /**
+     * SortPlatformKeys
      */
     public static function sortPlatformKeys(array $platformKeys): array
     {
@@ -94,6 +112,9 @@ class PlatformOrderingService
      * Get JavaScript array of platforms for frontend components
      *
      * @return string JSON string
+     */
+    /**
+     * Get  platforms for java script
      */
     public static function getPlatformsForJavaScript(): string
     {

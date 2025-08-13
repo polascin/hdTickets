@@ -33,6 +33,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     private $importedUsers = [];
 
+    /**
+     * Collection
+     */
     public function collection(Collection $collection): void
     {
         foreach ($collection as $row) {
@@ -83,6 +86,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Validation rules for the import
      */
+    /**
+     * Rules
+     */
     public function rules(): array
     {
         return [
@@ -100,6 +106,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Custom error messages
      */
+    /**
+     * CustomValidationMessages
+     */
     public function customValidationMessages(): array
     {
         return [
@@ -115,6 +124,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Batch size for processing
      */
+    /**
+     * BatchSize
+     */
     public function batchSize(): int
     {
         return 100;
@@ -123,6 +135,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Chunk size for reading
      */
+    /**
+     * ChunkSize
+     */
     public function chunkSize(): int
     {
         return 200;
@@ -130,6 +145,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     /**
      * Get import statistics
+     */
+    /**
+     * Get  import stats
      */
     public function getImportStats(): array
     {
@@ -145,6 +163,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Get row count
      */
+    /**
+     * Get  row count
+     */
     public function getRowCount(): int
     {
         return $this->rowCount;
@@ -152,6 +173,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     /**
      * Get success count
+     */
+    /**
+     * Get  success count
      */
     public function getSuccessCount(): int
     {
@@ -161,6 +185,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Get error count
      */
+    /**
+     * Get  error count
+     */
     public function getErrorCount(): int
     {
         return $this->errorCount;
@@ -169,6 +196,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Get detailed errors
      */
+    /**
+     * Get  errors
+     */
     public function getErrors(): array
     {
         return $this->errors;
@@ -176,6 +206,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     /**
      * Generate import report
+     */
+    /**
+     * GenerateImportReport
      */
     public function generateImportReport(): array
     {
@@ -211,6 +244,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     /**
      * Validate individual row data
+     */
+    /**
+     * ValidateRow
      */
     private function validateRow(array $row): array
     {
@@ -259,6 +295,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Perform custom business logic validations
      */
+    /**
+     * PerformCustomValidations
+     */
     private function performCustomValidations(array $row): array
     {
         $errors = [];
@@ -306,6 +345,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     /**
      * Create or update user from validated data
      */
+    /**
+     * CreateOrUpdateUser
+     */
     private function createOrUpdateUser(array $data): ?User
     {
         // Generate username from name and surname
@@ -335,6 +377,9 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     /**
      * Generate unique username from name and surname
+     */
+    /**
+     * GenerateUniqueUsername
      */
     private function generateUniqueUsername(string $name, string $surname): string
     {

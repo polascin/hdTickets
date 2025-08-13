@@ -14,29 +14,41 @@ class TicketAvailabilityUpdated implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public $ticketUuid;
+    /**
+     * The unique identifier for the ticket
+     * Can be string UUID or integer ID depending on platform
+     */
+    public string|int $ticketUuid;
 
-    public $status;
+    /**
+     * The availability status of the ticket
+     * Values: 'available', 'sold_out', 'limited', 'unavailable'
+     */
+    public string $status;
 
-    public $timestamp;
+    /** Timestamp when the availability was updated */
+    public string $timestamp;
 
     /**
      * Create a new event instance.
      *
-     * @param mixed $ticketUuid
-     * @param mixed $status
+     * @param int|string $ticketUuid The unique identifier for the ticket
+     * @param string     $status     The availability status of the ticket
      */
-    public function __construct($ticketUuid, $status)
+    public function __construct(string|int $ticketUuid, string $status)
     {
         $this->ticketUuid = $ticketUuid;
         $this->status = $status;
-        $this->timestamp = now();
+        $this->timestamp = now()->toISOString() ?? now()->toDateTimeString();
     }
 
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, Channel>
+     */
+    /**
+     * BroadcastOn
      */
     public function broadcastOn(): array
     {
@@ -48,6 +60,9 @@ class TicketAvailabilityUpdated implements ShouldBroadcast
     /**
      * The event's broadcast name.
      */
+    /**
+     * BroadcastAs
+     */
     public function broadcastAs(): string
     {
         return 'ticket.availability.updated';
@@ -55,6 +70,11 @@ class TicketAvailabilityUpdated implements ShouldBroadcast
 
     /**
      * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    /**
+     * BroadcastWith
      */
     public function broadcastWith(): array
     {

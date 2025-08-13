@@ -39,6 +39,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         $this->initializeHttpClient();
     }
 
+    /**
+     * Get  info
+     */
     public function getInfo(): array
     {
         return [
@@ -60,29 +63,44 @@ class TicketekUKPlugin implements ScraperPluginInterface
         ];
     }
 
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
+    /**
+     * Enable
+     */
     public function enable(): void
     {
         $this->enabled = TRUE;
         Log::info('Ticketek UK plugin enabled');
     }
 
+    /**
+     * Disable
+     */
     public function disable(): void
     {
         $this->enabled = FALSE;
         Log::info('Ticketek UK plugin disabled');
     }
 
+    /**
+     * Configure
+     */
     public function configure(array $config): void
     {
         $this->config = array_merge($this->config, $config);
         Log::info('Ticketek UK plugin configured', ['config' => $config]);
     }
 
+    /**
+     * Scrape
+     */
     public function scrape(array $criteria): array
     {
         if (! $this->enabled) {
@@ -114,6 +132,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * Test
+     */
     public function test(): array
     {
         try {
@@ -134,6 +155,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * InitializeHttpClient
+     */
     private function initializeHttpClient(): void
     {
         $this->httpClient = new Client([
@@ -149,6 +173,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         ]);
     }
 
+    /**
+     * BuildSearchUrl
+     */
     private function buildSearchUrl(array $criteria): string
     {
         $params = [];
@@ -166,6 +193,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return $this->baseUrl . $this->searchEndpoint . '?' . $queryString;
     }
 
+    /**
+     * ParseSearchResults
+     */
     private function parseSearchResults(string $html): array
     {
         $events = [];
@@ -203,6 +233,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return $events;
     }
 
+    /**
+     * ExtractText
+     */
     private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -210,6 +243,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
     }
 
+    /**
+     * ExtractUrl
+     */
     private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
     {
         $nodes = $xpath->query($selector, $context);
@@ -222,6 +258,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return '';
     }
 
+    /**
+     * ExtractPrice
+     */
     private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
     {
         $priceText = $this->extractText($xpath, $selector, $context);
@@ -233,6 +272,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return NULL;
     }
 
+    /**
+     * ExtractAndParseDate
+     */
     private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
     {
         $dateText = $this->extractText($xpath, $selector, $context);
@@ -252,6 +294,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         }
     }
 
+    /**
+     * ExtractAvailabilityStatus
+     */
     private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
     {
         $statusIndicators = [
@@ -270,6 +315,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return 'unknown';
     }
 
+    /**
+     * FilterResults
+     */
     private function filterResults(array $events, array $criteria): array
     {
         $maxResults = $criteria['max_results'] ?? 50;
@@ -277,6 +325,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         return array_slice(array_values($events), 0, $maxResults);
     }
 
+    /**
+     * EnforceRateLimit
+     */
     private function enforceRateLimit(): void
     {
         $lastRequest = Cache::get('ticketek_uk_last_request', 0);
@@ -290,6 +341,9 @@ class TicketekUKPlugin implements ScraperPluginInterface
         Cache::put('ticketek_uk_last_request', microtime(TRUE), 60);
     }
 
+    /**
+     * MakeRequest
+     */
     private function makeRequest(string $url): string
     {
         try {

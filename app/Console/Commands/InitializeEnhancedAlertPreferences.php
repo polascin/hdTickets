@@ -11,16 +11,19 @@ use Illuminate\Support\Facades\DB;
 class InitializeEnhancedAlertPreferences extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'enhanced-alerts:init-preferences 
+    protected $signature = 'enhanced-alerts:init-preferences 
                             {--user= : Specific user ID to initialize}
                             {--force : Force reinitialize existing preferences}
                             {--dry-run : Show what would be done without making changes}';
 
     /** The console command description. */
-    protected string $description = 'Initialize enhanced alert preferences for users';
+    protected $description = 'Initialize enhanced alert preferences for users';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -112,6 +115,9 @@ class InitializeEnhancedAlertPreferences extends Command
     /**
      * Initialize preferences for a specific user.
      */
+    /**
+     * InitializeUserPreferences
+     */
     protected function initializeUserPreferences(User $user, bool $force, bool $dryRun): string
     {
         // Check if user already has preferences
@@ -144,6 +150,9 @@ class InitializeEnhancedAlertPreferences extends Command
 
     /**
      * Show detailed help information.
+     */
+    /**
+     * ShowHelp
      */
     protected function showHelp(): void
     {

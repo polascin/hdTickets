@@ -12,13 +12,16 @@ use function sprintf;
 class ShowHighDemandSports extends Command
 {
     /** The name and signature of the console command. */
-    protected string $signature = 'tickets:show-high-demand-sports {--max-price=500} {--limit=20}';
+    protected $signature = 'tickets:show-high-demand-sports {--max-price=500} {--limit=20}';
 
     /** The console command description. */
-    protected string $description = 'Show high-demand sports tickets from all supported platforms';
+    protected $description = 'Show high-demand sports tickets from all supported platforms';
 
     /**
      * Execute the console command.
+     */
+    /**
+     * Handle
      */
     public function handle(): int
     {
@@ -109,7 +112,8 @@ class ShowHighDemandSports extends Command
         $this->info("\n🎫 Found " . count($filteredEvents) . ' high-demand events (max price: $' . $maxPrice . "):\n");
 
         foreach ($filteredEvents as $index => $event) {
-            $demandColor = match ($event['demand_level']) {
+            $demandLevel = $event['demand_level'];
+            $demandColor = match ($demandLevel) {
                 'MAXIMUM'        => 'red',
                 'EXTREMELY HIGH' => 'yellow',
                 'VERY HIGH'      => 'cyan',

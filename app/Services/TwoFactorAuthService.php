@@ -31,6 +31,9 @@ class TwoFactorAuthService
     /**
      * Generate a new secret key for 2FA
      */
+    /**
+     * GenerateSecretKey
+     */
     public function generateSecretKey(): string
     {
         return $this->google2fa->generateSecretKey();
@@ -38,6 +41,9 @@ class TwoFactorAuthService
 
     /**
      * Generate QR code URL for authenticator app setup
+     */
+    /**
+     * Get  q r code url
      */
     public function getQRCodeUrl(User $user, string $secretKey): string
     {
@@ -52,6 +58,9 @@ class TwoFactorAuthService
 
     /**
      * Generate QR code SVG for display
+     */
+    /**
+     * Get  q r code svg
      */
     public function getQRCodeSvg(User $user, string $secretKey): string
     {
@@ -70,6 +79,9 @@ class TwoFactorAuthService
     /**
      * Verify TOTP code
      */
+    /**
+     * VerifyCode
+     */
     public function verifyCode(string $secretKey, string $code): bool
     {
         return $this->google2fa->verifyKey($secretKey, $code);
@@ -77,6 +89,9 @@ class TwoFactorAuthService
 
     /**
      * Enable 2FA for a user
+     */
+    /**
+     * EnableTwoFactor
      */
     public function enableTwoFactor(User $user, string $secretKey, string $verificationCode): bool
     {
@@ -110,6 +125,9 @@ class TwoFactorAuthService
     /**
      * Disable 2FA for a user
      */
+    /**
+     * DisableTwoFactor
+     */
     public function disableTwoFactor(User $user): bool
     {
         $user->update([
@@ -138,6 +156,9 @@ class TwoFactorAuthService
     /**
      * @return array<string>
      */
+    /**
+     * GenerateRecoveryCodes
+     */
     public function generateRecoveryCodes(): array
     {
         $codes = [];
@@ -153,6 +174,9 @@ class TwoFactorAuthService
      */
     /**
      * @return array<string>
+     */
+    /**
+     * RegenerateRecoveryCodes
      */
     public function regenerateRecoveryCodes(User $user): array
     {
@@ -177,6 +201,9 @@ class TwoFactorAuthService
 
     /**
      * Verify recovery code
+     */
+    /**
+     * VerifyRecoveryCode
      */
     public function verifyRecoveryCode(User $user, string $code): bool
     {
@@ -214,6 +241,9 @@ class TwoFactorAuthService
     /**
      * Get remaining recovery codes count
      */
+    /**
+     * Get  remaining recovery codes count
+     */
     public function getRemainingRecoveryCodesCount(User $user): int
     {
         if (! $user->two_factor_recovery_codes) {
@@ -227,6 +257,9 @@ class TwoFactorAuthService
 
     /**
      * Send SMS 2FA code (backup method)
+     */
+    /**
+     * SendSmsCode
      */
     public function sendSmsCode(User $user): bool
     {
@@ -261,6 +294,9 @@ class TwoFactorAuthService
     /**
      * Verify SMS 2FA code
      */
+    /**
+     * VerifySmsCode
+     */
     public function verifySmsCode(User $user, string $code): bool
     {
         $storedCode = Cache::get("sms_2fa_code:{$user->id}");
@@ -287,6 +323,9 @@ class TwoFactorAuthService
 
     /**
      * Send email 2FA code (backup method)
+     */
+    /**
+     * SendEmailCode
      */
     public function sendEmailCode(User $user): bool
     {
@@ -340,6 +379,9 @@ class TwoFactorAuthService
     /**
      * Verify email 2FA code
      */
+    /**
+     * VerifyEmailCode
+     */
     public function verifyEmailCode(User $user, string $code): bool
     {
         $storedCode = Cache::get("email_2fa_code:{$user->id}");
@@ -367,6 +409,9 @@ class TwoFactorAuthService
     /**
      * Check if user has 2FA enabled
      */
+    /**
+     * Check if  enabled
+     */
     public function isEnabled(User $user): bool
     {
         return $user->two_factor_enabled && $user->two_factor_secret;
@@ -374,6 +419,9 @@ class TwoFactorAuthService
 
     /**
      * Get user's 2FA secret (decrypted)
+     */
+    /**
+     * Get  secret
      */
     public function getSecret(User $user): ?string
     {
@@ -393,6 +441,9 @@ class TwoFactorAuthService
      */
     /**
      * @return array<string>
+     */
+    /**
+     * Get  recovery codes
      */
     public function getRecoveryCodes(User $user): array
     {
@@ -414,6 +465,9 @@ class TwoFactorAuthService
      */
     /**
      * @return array<string, mixed>
+     */
+    /**
+     * ValidateSetupRequirements
      */
     public function validateSetupRequirements(User $user): array
     {
@@ -437,6 +491,9 @@ class TwoFactorAuthService
     /**
      * @return array<string, mixed>
      */
+    /**
+     * Get  two factor stats
+     */
     public function getTwoFactorStats(): array
     {
         $totalUsers = User::count();
@@ -458,6 +515,9 @@ class TwoFactorAuthService
      */
     /**
      * @return array<string>
+     */
+    /**
+     * GenerateAdminBackupCodes
      */
     public function generateAdminBackupCodes(User $admin, User $targetUser): array
     {
@@ -494,6 +554,9 @@ class TwoFactorAuthService
 
     /**
      * Verify admin backup code
+     */
+    /**
+     * VerifyAdminBackupCode
      */
     public function verifyAdminBackupCode(User $user, string $code): bool
     {

@@ -14,6 +14,9 @@ class ConfirmablePasswordController extends Controller
     /**
      * Show the confirm password view.
      */
+    /**
+     * Show
+     */
     public function show(): View
     {
         return view('auth.confirm-password');
@@ -21,6 +24,9 @@ class ConfirmablePasswordController extends Controller
 
     /**
      * Confirm the user's password.
+     */
+    /**
+     * Store
      */
     public function store(Request $request): RedirectResponse
     {

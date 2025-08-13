@@ -36,6 +36,11 @@ class NotificationManager
      *
      * @param mixed $notification
      */
+    /**
+     * Notify
+     *
+     * @param mixed $notification
+     */
     public function notify(User $user, $notification, ?array $channels = NULL): bool
     {
         try {
@@ -68,6 +73,11 @@ class NotificationManager
      *
      * @param mixed $notification
      */
+    /**
+     * NotifyMany
+     *
+     * @param mixed $notification
+     */
     public function notifyMany(iterable $users, $notification, ?array $channels = NULL): array
     {
         $results = [];
@@ -81,6 +91,11 @@ class NotificationManager
 
     /**
      * Send notification to anonymous notifiable (email, phone, etc.)
+     *
+     * @param mixed $notification
+     */
+    /**
+     * NotifyAnonymous
      *
      * @param mixed $notification
      */
@@ -115,6 +130,9 @@ class NotificationManager
     /**
      * Send email notification
      */
+    /**
+     * SendEmail
+     */
     public function sendEmail(string $email, string $subject, string $message, array $data = []): bool
     {
         try {
@@ -136,6 +154,9 @@ class NotificationManager
 
     /**
      * Send Slack notification
+     */
+    /**
+     * SendSlack
      */
     public function sendSlack(string $message, ?string $channel = NULL): bool
     {
@@ -164,6 +185,9 @@ class NotificationManager
     /**
      * Send Discord notification
      */
+    /**
+     * SendDiscord
+     */
     public function sendDiscord(string $message, ?string $webhook = NULL): bool
     {
         if (! $this->channels['discord']) {
@@ -191,6 +215,9 @@ class NotificationManager
     /**
      * Get notification preferences for user
      */
+    /**
+     * Get  user preferences
+     */
     public function getUserPreferences(User $user): array
     {
         return $user->preferences['notifications'] ?? [
@@ -204,6 +231,9 @@ class NotificationManager
 
     /**
      * Update notification preferences for user
+     */
+    /**
+     * UpdateUserPreferences
      */
     public function updateUserPreferences(User $user, array $preferences): bool
     {
@@ -231,6 +261,9 @@ class NotificationManager
     /**
      * Check if channel is enabled
      */
+    /**
+     * Check if  channel enabled
+     */
     public function isChannelEnabled(string $channel): bool
     {
         return $this->channels[$channel] ?? FALSE;
@@ -239,6 +272,9 @@ class NotificationManager
     /**
      * Get available channels
      */
+    /**
+     * Get  available channels
+     */
     public function getAvailableChannels(): array
     {
         return array_keys(array_filter($this->channels));
@@ -246,6 +282,11 @@ class NotificationManager
 
     /**
      * Queue notification for later sending
+     *
+     * @param mixed $notification
+     */
+    /**
+     * QueueNotification
      *
      * @param mixed $notification
      */
@@ -274,6 +315,9 @@ class NotificationManager
 
     /**
      * Get notification statistics
+     */
+    /**
+     * Get  statistics
      */
     public function getStatistics(int $days = 30): array
     {

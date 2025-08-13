@@ -24,6 +24,9 @@ class AccountDeletionController extends Controller
     /**
      * Show account deletion warning page
      */
+    /**
+     * ShowWarning
+     */
     public function showWarning(Request $request): View
     {
         $user = $request->user();
@@ -49,6 +52,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Initiate account deletion process
+     */
+    /**
+     * Initiate
      */
     public function initiate(Request $request): RedirectResponse
     {
@@ -79,6 +85,9 @@ class AccountDeletionController extends Controller
     /**
      * Confirm deletion via email token
      */
+    /**
+     * Confirm
+     */
     public function confirm(Request $request, string $token): View|RedirectResponse
     {
         try {
@@ -98,6 +107,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Show cancellation page
+     */
+    /**
+     * ShowCancel
      */
     public function showCancel(Request $request, string $token): View
     {
@@ -119,6 +131,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Cancel deletion request
+     */
+    /**
+     * Check if can cel
      */
     public function cancel(Request $request, string $token): RedirectResponse
     {
@@ -150,6 +165,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Request data export
+     */
+    /**
+     * RequestDataExport
      */
     public function requestDataExport(Request $request): RedirectResponse
     {
@@ -183,6 +201,9 @@ class AccountDeletionController extends Controller
     /**
      * Download data export
      */
+    /**
+     * DownloadExport
+     */
     public function downloadExport(Request $request, DataExportRequest $exportRequest): RedirectResponse
     {
         $user = $request->user();
@@ -207,6 +228,9 @@ class AccountDeletionController extends Controller
     /**
      * Show account recovery page
      */
+    /**
+     * ShowRecovery
+     */
     public function showRecovery(): View
     {
         return view('account.deletion.recovery');
@@ -214,6 +238,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Process account recovery
+     */
+    /**
+     * Recover
      */
     public function recover(Request $request): RedirectResponse
     {
@@ -253,6 +280,9 @@ class AccountDeletionController extends Controller
     /**
      * Show deletion audit log
      */
+    /**
+     * AuditLog
+     */
     public function auditLog(Request $request): View
     {
         $user = $request->user();
@@ -272,6 +302,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Admin: View all deletion requests
+     */
+    /**
+     * AdminIndex
      */
     public function adminIndex(Request $request): View
     {
@@ -303,6 +336,9 @@ class AccountDeletionController extends Controller
 
     /**
      * Admin: View specific deletion request
+     */
+    /**
+     * AdminShow
      */
     public function adminShow(Request $request, AccountDeletionRequest $deletionRequest): View
     {
