@@ -15,7 +15,7 @@ use Log;
 
 class AlertController extends Controller
 {
-    protected \App\Services\AdvancedAlertSystem $alertSystem;
+    protected EnhancedAlertSystem $alertSystem;
 
     public function __construct(EnhancedAlertSystem $alertSystem)
     {

@@ -4,6 +4,7 @@ export default {
     './resources/views/**/*.blade.php',
     './resources/js/**/*.{vue,js,ts}',
     './resources/**/*.{vue,js,ts,php}',
+    './resources/css/**/*.css',
     './public/**/*.html',
   ],
   darkMode: 'class',
@@ -225,5 +226,26 @@ export default {
       strategy: 'class',
     }),
     require('@tailwindcss/typography'),
+    
+    // Custom component utilities
+    function({ addComponents }) {
+      addComponents({
+        '.hd-card': {
+          '@apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700': {},
+        },
+        '.hd-card--elevated': {
+          '@apply shadow-md': {},
+        },
+        '.hd-card--interactive': {
+          '@apply hover:shadow-lg transition-shadow duration-200': {},
+        },
+        '.hd-card--flat': {
+          '@apply shadow-none': {},
+        },
+        '.hd-card--outline': {
+          '@apply border-2': {},
+        },
+      })
+    }
   ],
 }
