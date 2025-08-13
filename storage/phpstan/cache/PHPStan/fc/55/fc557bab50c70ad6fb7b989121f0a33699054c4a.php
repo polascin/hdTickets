@@ -223,7 +223,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Providers/DomainDrivenDesignServiceProvider.php' => 
     array (
-      0 => '3ff3dbe2274ba17c50fe36dce3e1b8b672d58a74',
+      0 => 'abe06bcbebac8133bf43a7d8deddf3c19218502f',
       1 => 
       array (
         0 => 'app\\providers\\domaindrivendesignserviceprovider',
@@ -10659,7 +10659,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Services/Analytics/TicketMetricsService.php' => 
     array (
-      0 => '481e1f02d46a97e5beb34be2ee05a5debede414d',
+      0 => '85d10dc152ebbb42c351d79a12c7807f1fbb566c',
       1 => 
       array (
         0 => 'app\\services\\analytics\\ticketmetricsservice',
