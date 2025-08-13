@@ -7579,7 +7579,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Http/Controllers/Api/AlertController.php' => 
     array (
-      0 => '1bb7dbded9e459c9d2921420dd997285c7135cfd',
+      0 => 'fcd760835bd9e370ec25b264278878d5610967a4',
       1 => 
       array (
         0 => 'app\\http\\controllers\\api\\alertcontroller',
