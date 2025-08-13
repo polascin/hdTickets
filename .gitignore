@@ -29,12 +29,28 @@
 /dist/
 /build/
 
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Vite and modern build tools
+.vite/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Tailwind CSS
+tailwind.config.js.bak
+
+# PostCSS
+.postcssrc.json.bak
+
 # Logs
 *.log
 logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Runtime data
 pids/
@@ -76,6 +92,13 @@ Desktop.ini
 /.npm/
 /.eslintcache
 .stylelintcache
+.turbo/
+
+# Modern bundler cache
+/.rollup.cache/
+/.vite-inspect/
+/public/mockServiceWorker.js
+/.wireit/
 
 # Temporary files
 *.tmp
@@ -125,6 +148,11 @@ yarn.lock.bak
 /.nyc_output/
 /.phpunit.result.cache
 /phpunit.xml.bak
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # Backup files
 *.bak
@@ -182,3 +210,45 @@ config/local.php
 # Laravel Homestead
 /Homestead.json
 /Homestead.yaml
+
+# Modern Development Tools
+# Storybook
+storybook-static/
+
+# Next.js (if used)
+.next/
+.vercel/
+
+# Nuxt.js (if used)
+.nuxt/
+.output/
+.nitro/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Editor directories and files
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+*.code-workspace
+
+# Local env files with secrets
+.env.local
+.env.*.local
+.env.secret
+
+# Generated types
+types/auto-imports.d.ts
+types/components.d.ts
+
+# PWA files
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+
+# Analytics and monitoring
+.sentryclirc
