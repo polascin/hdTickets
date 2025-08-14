@@ -45,8 +45,14 @@
 
 .hd-btn--primary:hover:not(:disabled) {
   background-color: var(--hd-primary-700);
-  transform: translateY(-1px);
-  box-shadow: var(--hd-shadow-md);
+  transform: translateY(-2px);
+  box-shadow: var(--hd-shadow-lg);
+}
+
+.hd-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--hd-shadow-sm);
+  transition-duration: var(--hd-transition-75);
 }
 
 .hd-btn--secondary {
@@ -225,6 +231,146 @@
 
 .hd-btn--icon.hd-btn--lg {
   min-width: var(--hd-btn-height-lg);
+}
+
+/* Modern button variants */
+.hd-btn--glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--hd-text-primary);
+}
+
+.hd-btn--glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--hd-shadow-glass);
+}
+
+.hd-btn--glass:active:not(:disabled) {
+  transform: translateY(0);
+  background: rgba(255, 255, 255, 0.08);
+  transition-duration: var(--hd-transition-75);
+}
+
+.hd-btn--neu {
+  background: var(--hd-gray-100);
+  border: none;
+  box-shadow: var(--hd-shadow-neu);
+  color: var(--hd-text-primary);
+}
+
+.hd-btn--neu:hover:not(:disabled) {
+  box-shadow: 12px 12px 24px rgba(163, 177, 198, 0.8), -12px -12px 24px rgba(255, 255, 255, 0.7);
+}
+
+.hd-btn--neu:active:not(:disabled) {
+  box-shadow: var(--hd-shadow-neu-inset);
+  transition-duration: var(--hd-transition-100);
+}
+
+.hd-btn--gradient {
+  background: linear-gradient(135deg, var(--hd-primary-500), var(--hd-secondary-500));
+  border: none;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-btn--gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--hd-transition-500) var(--hd-ease-out);
+}
+
+.hd-btn--gradient:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.hd-btn--gradient:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--hd-primary-600), var(--hd-secondary-600));
+  transform: translateY(-2px);
+  box-shadow: var(--hd-shadow-lg);
+}
+
+/* Ripple effect */
+.hd-btn--ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-btn--ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width var(--hd-transition-300) var(--hd-ease-out), height var(--hd-transition-300) var(--hd-ease-out);
+}
+
+.hd-btn--ripple:active:not(:disabled)::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Magnetic hover effect */
+.hd-btn--magnetic {
+  transition: transform var(--hd-transition-200) var(--hd-ease-out);
+}
+
+/* Shimmer effect */
+.hd-btn--shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-btn--shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: hd-shimmer 2s infinite;
+}
+
+@keyframes hd-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Pulse effect */
+.hd-btn--pulse {
+  animation: hd-pulse 2s infinite;
+}
+
+@keyframes hd-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--hd-primary-400);
+  }
+  50% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+/* Glow effect */
+.hd-btn--glow {
+  position: relative;
+}
+
+.hd-btn--glow:hover:not(:disabled) {
+  box-shadow: 0 0 20px var(--hd-primary-400), 0 0 40px var(--hd-primary-300), 0 0 80px var(--hd-primary-200);
 }
 
 /* Full-width button */

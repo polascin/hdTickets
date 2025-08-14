@@ -1,0 +1,408 @@
+/**
+ * HD Tickets Notification System Styles v2.1.0
+ * Modern notification UI with glassmorphism design
+ */
+
+/* Notification Container */
+.hd-notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Individual Notification */
+.hd-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--text-color, #ffffff);
+  cursor: pointer;
+  pointer-events: all;
+  transform: translateX(420px);
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hd-notification:hover {
+  transform: translateX(0) scale(1.02);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.hd-notification.removing {
+  animation: slideOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Notification Icon */
+.hd-notification-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.8), 
+    rgba(147, 51, 234, 0.8)
+  );
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.hd-notification-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Icon variants */
+.hd-notification-icon.price-alert {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.8), 
+    rgba(5, 150, 105, 0.8)
+  );
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.hd-notification-icon.system-alert {
+  background: linear-gradient(135deg, 
+    rgba(245, 158, 11, 0.8), 
+    rgba(217, 119, 6, 0.8)
+  );
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.hd-notification-icon.ticket-alert {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.8), 
+    rgba(124, 58, 237, 0.8)
+  );
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Notification Content */
+.hd-notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hd-notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  color: var(--text-color, #ffffff);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.hd-notification-body {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted, rgba(255, 255, 255, 0.85));
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+/* Close Button */
+.hd-notification-close {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted, rgba(255, 255, 255, 0.7));
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.hd-notification-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-color, #ffffff);
+  transform: scale(1.1);
+}
+
+.hd-notification-close:active {
+  transform: scale(0.95);
+}
+
+/* Toast Messages (fallback) */
+.hd-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(0, 0, 0, 0.9);
+  color: #ffffff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  max-width: 320px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hd-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.hd-toast strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.hd-toast p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Animations */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(420px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(420px) scale(0.9);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .hd-notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .hd-notification {
+    padding: 14px 16px;
+    transform: translateY(-100px);
+    animation: slideInMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .hd-notification:hover {
+    transform: translateY(0) scale(1.01);
+  }
+  
+  .hd-notification.removing {
+    animation: slideOutMobile 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+  
+  .hd-notification-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .hd-notification-title {
+    font-size: 13px;
+  }
+  
+  .hd-notification-body {
+    font-size: 12px;
+  }
+  
+  .hd-toast {
+    bottom: 80px; /* Account for mobile navigation */
+    left: 10px;
+    right: 10px;
+    max-width: none;
+    transform: translateY(100px);
+  }
+  
+  .hd-toast.show {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInMobile {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOutMobile {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.9);
+  }
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .hd-notification {
+    background: rgba(10, 10, 11, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  .hd-notification-body {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .hd-notification-close {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .hd-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+}
+
+/* Light Mode Adjustments */
+@media (prefers-color-scheme: light) {
+  .hd-notification {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1f2937;
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      0 2px 8px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .hd-notification-body {
+    color: rgba(31, 41, 55, 0.8);
+  }
+  
+  .hd-notification-close {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(31, 41, 55, 0.7);
+  }
+  
+  .hd-notification-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #1f2937;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .hd-notification {
+    border: 2px solid currentColor;
+    backdrop-filter: none;
+    background: var(--bg-color, #000000);
+  }
+  
+  .hd-notification-close {
+    border: 1px solid currentColor;
+    backdrop-filter: none;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .hd-notification {
+    animation: none;
+    transform: translateX(0);
+  }
+  
+  .hd-notification:hover {
+    transform: translateX(0);
+  }
+  
+  .hd-notification.removing {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .hd-toast {
+    transition: opacity 0.2s ease;
+  }
+  
+  @keyframes slideIn,
+  @keyframes slideOut,
+  @keyframes slideInMobile,
+  @keyframes slideOutMobile {
+    0%, 100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Focus Management */
+.hd-notification:focus {
+  outline: 2px solid var(--focus-color, #3b82f6);
+  outline-offset: 2px;
+}
+
+.hd-notification-close:focus {
+  outline: 2px solid var(--focus-color, #3b82f6);
+  outline-offset: 1px;
+}
+
+/* Print Styles */
+@media print {
+  .hd-notification-container,
+  .hd-toast {
+    display: none;
+  }
+}

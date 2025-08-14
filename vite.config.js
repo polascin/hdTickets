@@ -5,7 +5,6 @@ import { VitePWA } from 'vite-plugin-pwa';
 import eslint from 'vite-plugin-eslint';
 import { resolve } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -45,6 +44,35 @@ export default defineConfig(({ command, mode }) => {
         ]
       }),
 
+      // PWA Configuration
+      VitePWA({
+        registerType: 'autoUpdate',
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        },
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        manifest: {
+          name: 'HD Tickets - Sports Events Platform',
+          short_name: 'HD Tickets',
+          description: 'Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System',
+          theme_color: '#3b82f6',
+          background_color: '#ffffff',
+          display: 'standalone',
+          icons: [
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png'
+            }
+          ]
+        }
+      }),
+
       // Bundle analyzer
       ...(isAnalyze ? [
         visualizer({
@@ -70,12 +98,15 @@ export default defineConfig(({ command, mode }) => {
       }
     },
 
+    publicDir: 'resources/public',
+    
     build: {
       outDir: 'public/build',
       assetsDir: 'assets',
       sourcemap: !isProduction,
       minify: isProduction ? 'terser' : false,
       cssMinify: isProduction,
+      emptyOutDir: true,
       terserOptions: isProduction ? {
         compress: {
           drop_console: true,
@@ -111,8 +142,8 @@ export default defineConfig(({ command, mode }) => {
         output: {
           // Advanced manual chunking strategy
           manualChunks: (id) => {
-            // Core Vue ecosystem
-            if (id.includes('vue') && !id.includes('node_modules/@vue')) {
+            // Core Vue ecosystem - Fixed to prevent empty chunks
+            if (id.includes('node_modules/vue/') && !id.includes('vue-router') && !id.includes('pinia')) {
               return 'vue-core';
             }
             if (id.includes('vue-router')) {
@@ -198,6 +229,7 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 5173,
       host: true,
+      strictPort: false,
       hmr: {
         port: 5173,
       },
@@ -220,10 +252,30 @@ export default defineConfig(({ command, mode }) => {
     },
 
     css: {
+      devSourcemap: !isProduction,
       preprocessorOptions: {
         scss: {
           additionalData: '@import "@css/variables.scss";'
         }
+      },
+      // Critical CSS extraction and optimization
+      postcss: {
+        plugins: [
+          require('autoprefixer'),
+          ...(isProduction ? [
+            require('cssnano')({
+              preset: ['default', {
+                discardComments: {
+                  removeAll: true,
+                },
+                normalizeWhitespace: true,
+                minifyFontValues: true,
+                minifySelectors: true,
+                reduceIdents: false, // Keep CSS custom properties
+              }]
+            })
+          ] : [])
+        ]
       }
     },
 

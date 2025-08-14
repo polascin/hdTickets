@@ -17,7 +17,7 @@
   box-shadow: var(--hd-shadow-md);
 }
 
-/* Card variants */
+/* Modern Card variants */
 .hd-card--elevated {
   box-shadow: var(--hd-shadow-lg);
 }
@@ -28,28 +28,101 @@
 
 .hd-card--interactive {
   cursor: pointer;
-  transition: all var(--hd-transition-200) var(--hd-ease-out);
+  transition: all var(--hd-transition-300) var(--hd-ease-out);
+  transform-origin: center;
 }
 
 .hd-card--interactive:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--hd-shadow-lg);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--hd-shadow-xl);
 }
 
 .hd-card--interactive:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(1.01);
   box-shadow: var(--hd-shadow-md);
+  transition-duration: var(--hd-transition-100);
 }
 
 .hd-card--flat {
   border: none;
   box-shadow: none;
+  background-color: var(--hd-bg-primary);
 }
 
 .hd-card--outline {
   background-color: transparent;
   border: 2px solid var(--hd-border-primary);
   box-shadow: none;
+}
+
+/* Glassmorphism card variant */
+.hd-card--glass {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--hd-shadow-glass);
+}
+
+.hd-card--glass:hover {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: var(--hd-shadow-glass-lg);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Neumorphism card variant */
+.hd-card--neu {
+  background: var(--hd-gray-100);
+  border: none;
+  box-shadow: var(--hd-shadow-neu);
+  border-radius: var(--hd-radius-2xl);
+}
+
+.hd-card--neu:hover {
+  box-shadow: 12px 12px 24px rgba(163, 177, 198, 0.8), -12px -12px 24px rgba(255, 255, 255, 0.7);
+}
+
+.hd-card--neu-inset {
+  background: var(--hd-gray-100);
+  border: none;
+  box-shadow: var(--hd-shadow-neu-inset);
+  border-radius: var(--hd-radius-2xl);
+}
+
+/* Modern gradient card */
+.hd-card--gradient {
+  background: linear-gradient(135deg, var(--hd-primary-500), var(--hd-secondary-500));
+  color: white;
+  border: none;
+}
+
+.hd-card--gradient .hd-card__title,
+.hd-card--gradient .hd-card__subtitle,
+.hd-card--gradient .hd-card__description {
+  color: white;
+}
+
+.hd-card--gradient:hover {
+  background: linear-gradient(135deg, var(--hd-primary-600), var(--hd-secondary-600));
+  transform: translateY(-2px);
+}
+
+/* Frosted glass variant */
+.hd-card--frosted {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Soft shadow variant */
+.hd-card--soft {
+  box-shadow: 0 2px 16px rgba(59, 130, 246, 0.08), 0 8px 32px rgba(139, 92, 246, 0.04);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.hd-card--soft:hover {
+  box-shadow: 0 4px 24px rgba(59, 130, 246, 0.12), 0 12px 48px rgba(139, 92, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 /* Card parts */

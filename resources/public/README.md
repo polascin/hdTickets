@@ -1,0 +1,1 @@
+# Vite public assets directory

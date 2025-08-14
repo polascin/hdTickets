@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" class="js-enabled">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>HD Tickets - Mobile Optimization Demo</title>
+    
+    <!-- Mobile meta tags -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#10b981">
+    
+    <!-- Load mobile enhancements CSS -->
+    <link rel="stylesheet" href="public/css/mobile-enhancements.css">
+    <link rel="stylesheet" href="public/css/hd-accessibility.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+        }
+        
+        .demo-header {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .demo-section {
+            padding: 1.5rem;
+            margin: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .demo-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .demo-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .button-demo {
+            display: grid;
+            gap: 0.5rem;
+            grid-template-columns: 1fr;
+        }
+        
+        @media (min-width: 768px) {
+            .button-demo {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .demo-btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+            transition: all 0.2s ease;
+        }
+        
+        .demo-btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        
+        .demo-btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .demo-btn:active {
+            transform: scale(0.96);
+        }
+        
+        .form-demo {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .demo-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        
+        .demo-input {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 44px;
+        }
+        
+        .demo-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .card-demo {
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .card-demo:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .mobile-notifications {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .status-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .status-online {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .touch-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .touch-target {
+            aspect-ratio: 1;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            min-width: 44px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connection-status {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="mobile-viewport-fix">
+    <div class="demo-header safe-area-top">
+        <h1>HD Tickets Mobile Demo</h1>
+        <p>Sports Event Tickets Mobile Optimization</p>
+    </div>
+
+    <!-- Mobile notifications container -->
+    <div class="mobile-notifications" id="notifications-container"></div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">Touch Targets & Haptic Feedback</h2>
+        <p class="demo-description">
+            All interactive elements meet the minimum 44x44px touch target size with haptic feedback on supported devices.
+        </p>
+        <div class="touch-demo">
+            <button class="touch-target touch-target-enhanced" onclick="testHaptic('light')">Light</button>
+            <button class="touch-target touch-target-enhanced" onclick="testHaptic('medium')">Medium</button>
+            <button class="touch-target touch-target-enhanced" onclick="testHaptic('heavy')">Heavy</button>
+            <button class="touch-target touch-target-enhanced" onclick="testHaptic('success')">Success</button>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">Mobile-Optimized Forms</h2>
+        <p class="demo-description">
+            Forms with 16px font size to prevent zoom, appropriate input types, and enhanced validation.
+        </p>
+        <form class="form-demo" onsubmit="testFormSubmit(event)">
+            <div class="input-group">
+                <label class="demo-label" for="email">Email Address</label>
+                <input class="demo-input" type="email" id="email" placeholder="your@email.com" inputmode="email" required>
+            </div>
+            <div class="input-group">
+                <label class="demo-label" for="phone">Phone Number</label>
+                <input class="demo-input" type="tel" id="phone" placeholder="(555) 123-4567" inputmode="tel">
+            </div>
+            <div class="input-group">
+                <label class="demo-label" for="tickets">Number of Tickets</label>
+                <input class="demo-input" type="number" id="tickets" placeholder="2" inputmode="numeric" min="1" max="10">
+            </div>
+            <button type="submit" class="demo-btn demo-btn-primary">Purchase Tickets</button>
+        </form>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">Responsive Cards</h2>
+        <p class="demo-description">
+            Event cards optimized for mobile viewing with touch-friendly interactions.
+        </p>
+        
+        <div class="card-demo swipe-container">
+            <h3>Lakers vs Warriors</h3>
+            <p>Jan 15, 2025 - 7:30 PM</p>
+            <p>Crypto.com Arena</p>
+            <div class="status-indicators">
+                <span class="status-indicator status-online">Available</span>
+                <strong>$85-$250</strong>
+            </div>
+        </div>
+
+        <div class="card-demo swipe-container">
+            <h3>Dodgers vs Giants</h3>
+            <p>Apr 22, 2025 - 1:10 PM</p>
+            <p>Dodger Stadium</p>
+            <div class="status-indicators">
+                <span class="status-indicator status-online">Available</span>
+                <strong>$45-$180</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2 class="demo-title">Mobile Actions</h2>
+        <p class="demo-description">
+            Test various mobile-specific features and optimizations.
+        </p>
+        <div class="button-demo">
+            <button class="demo-btn demo-btn-primary" onclick="testNotification('success')">Show Success</button>
+            <button class="demo-btn demo-btn-primary" onclick="testNotification('error')">Show Error</button>
+            <button class="demo-btn demo-btn-primary" onclick="testNotification('warning')">Show Warning</button>
+            <button class="demo-btn demo-btn-primary" onclick="testScrollTo()">Scroll to Top</button>
+            <button class="demo-btn demo-btn-secondary" onclick="testOrientation()">Check Orientation</button>
+            <button class="demo-btn demo-btn-secondary" onclick="testConnection()">Test Connection</button>
+        </div>
+    </div>
+
+    <!-- Connection status indicator -->
+    <div class="connection-status" id="connection-status">
+        <span class="connection-indicator"></span>
+        <span id="connection-text">Checking connection...</span>
+    </div>
+
+    <!-- Load mobile touch utilities -->
+    <script src="public/resources/js/utils/mobileTouchUtils.js"></script>
+    
+    <script>
+        // Initialize mobile features when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.mobileTouchUtils) {
+                window.mobileTouchUtils.initializeAllFeatures();
+            }
+            
+            // Update device info
+            updateDeviceInfo();
+            updateConnectionStatus();
+            
+            console.log('📱 Mobile demo initialized');
+        });
+        
+        function testHaptic(type) {
+            if (window.mobileTouchUtils) {
+                window.mobileTouchUtils.triggerHaptic(type);
+                showNotification(`Triggered ${type} haptic feedback`, 'info');
+            } else {
+                showNotification('Mobile utilities not loaded', 'error');
+            }
+        }
+        
+        function testNotification(type) {
+            const messages = {
+                success: 'Tickets purchased successfully!',
+                error: 'Failed to purchase tickets. Please try again.',
+                warning: 'Limited tickets remaining for this event.'
+            };
+            
+            if (window.mobileTouchUtils) {
+                window.mobileTouchUtils.showMobileNotification(messages[type], type);
+            } else {
+                showNotification(messages[type], type);
+            }
+        }
+        
+        function testFormSubmit(event) {
+            event.preventDefault();
+            
+            // Validate form
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const tickets = document.getElementById('tickets').value;
+            
+            if (!email || !tickets) {
+                if (window.mobileTouchUtils) {
+                    window.mobileTouchUtils.scrollToFormErrors();
+                }
+                return;
+            }
+            
+            testNotification('success');
+            
+            // Reset form after success
+            setTimeout(() => {
+                event.target.reset();
+            }, 1000);
+        }
+        
+        function testScrollTo() {
+            if (window.mobileTouchUtils) {
+                window.mobileTouchUtils.smoothScrollToElement(document.body, 0);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        function testOrientation() {
+            const orientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+            const deviceType = window.mobileTouchUtils ? window.mobileTouchUtils.getDeviceType() : 'unknown';
+            
+            showNotification(`${orientation} - ${deviceType}`, 'info');
+        }
+        
+        function testConnection() {
+            const status = navigator.onLine ? 'online' : 'offline';
+            showNotification(`Connection status: ${status}`, status === 'online' ? 'success' : 'warning');
+        }
+        
+        function updateDeviceInfo() {
+            const deviceType = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+            const orientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+            
+            document.documentElement.classList.add(deviceType, orientation);
+            
+            // Update on resize
+            window.addEventListener('resize', () => {
+                const newDeviceType = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+                const newOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+                
+                document.documentElement.classList.remove('mobile', 'desktop', 'portrait', 'landscape');
+                document.documentElement.classList.add(newDeviceType, newOrientation);
+            });
+        }
+        
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            const textElement = document.getElementById('connection-text');
+            const indicator = document.querySelector('.connection-indicator');
+            
+            function update() {
+                if (navigator.onLine) {
+                    indicator.classList.add('online');
+                    indicator.classList.remove('offline');
+                    textElement.textContent = 'Online';
+                    statusElement.style.background = '#dcfce7';
+                    statusElement.style.color = '#166534';
+                } else {
+                    indicator.classList.add('offline');
+                    indicator.classList.remove('online');
+                    textElement.textContent = 'Offline';
+                    statusElement.style.background = '#fee2e2';
+                    statusElement.style.color = '#991b1b';
+                }
+            }
+            
+            window.addEventListener('online', update);
+            window.addEventListener('offline', update);
+            update();
+        }
+        
+        // Fallback notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `mobile-notification ${type} show`;
+            notification.innerHTML = `
+                <div class="mobile-notification-content">
+                    <div class="mobile-notification-message">${message}</div>
+                </div>
+                <button class="mobile-notification-close" onclick="this.parentNode.remove()">×</button>
+            `;
+            
+            const container = document.getElementById('notifications-container');
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+        
+        // Add swipe gesture support
+        document.addEventListener('swipe-left', function(e) {
+            if (e.detail.element.classList.contains('swipe-container')) {
+                showNotification('Swiped left on card', 'info');
+            }
+        });
+        
+        document.addEventListener('swipe-right', function(e) {
+            if (e.detail.element.classList.contains('swipe-container')) {
+                showNotification('Swiped right on card', 'info');
+            }
+        });
+        
+        // Handle form validation errors
+        window.addEventListener('invalid', function(e) {
+            e.target.classList.add('is-invalid');
+        }, true);
+        
+        window.addEventListener('input', function(e) {
+            if (e.target.classList.contains('is-invalid')) {
+                e.target.classList.remove('is-invalid');
+            }
+        }, true);
+    </script>
+</body>
+</html>

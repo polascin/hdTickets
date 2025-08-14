@@ -7,10 +7,12 @@
 /* Import comprehensive HD Design System */
 @import './design-system.css';
 
+/* Import specialized page styles */
+@import './auth/login.css';
+
 /* Tailwind CSS imports (kept for backward compatibility) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@reference tailwindcss/utilities;
 
 /* Base styles with CSS custom properties */
 @layer base {
@@ -81,22 +83,54 @@
 @layer components {
     /* Dashboard Cards - Compatibility with existing classes */
     .dashboard-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
-        @apply hover:shadow-lg transition-shadow duration-200;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        border: 1px solid rgb(229 231 235);
+        transition: box-shadow 200ms;
         padding: var(--hd-card-padding);
         contain: layout style paint;
     }
     
+    .dashboard-card:hover {
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .dashboard-card {
+            background-color: rgb(31 41 55);
+            border-color: rgb(55 65 81);
+        }
+    }
+    
     .modern-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700;
-        @apply hover:shadow-lg transition-shadow duration-200;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 1px solid rgb(229 231 235);
+        transition: box-shadow 200ms;
         border-radius: var(--hd-radius-2xl);
         contain: layout style paint;
     }
     
+    .modern-card:hover {
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+        .modern-card {
+            background-color: rgb(31 41 55);
+            border-color: rgb(55 65 81);
+        }
+    }
+    
     /* Stat Cards with performance optimizations */
     .stat-card {
-        @apply hd-stat-card;
+        /* Use CSS custom properties instead of @apply */
+        background: var(--hd-gradient-primary, linear-gradient(135deg, #3b82f6, #8b5cf6));
+        border-radius: var(--hd-radius-lg, 0.5rem);
+        padding: var(--hd-spacing-6, 1.5rem);
+        box-shadow: var(--hd-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
         contain: layout style paint;
     }
     
@@ -115,30 +149,85 @@
         letter-spacing: var(--hd-tracking-wide);
     }
     
-    /* Form compatibility */
+    /* Form compatibility - Using CSS properties instead of @extend */
     .form-input {
-        @extend .hd-input;
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--hd-text-primary, #1f2937);
+        background-color: var(--hd-bg-primary, #ffffff);
+        border: 1px solid var(--hd-border-color, #d1d5db);
+        border-radius: var(--hd-radius, 0.375rem);
+        transition: var(--hd-transition-colors);
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--hd-primary, #3b82f6);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
     
     .form-select {
-        @extend .hd-input;
-        @extend .hd-select;
+        display: block;
+        width: 100%;
+        padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--hd-text-primary, #1f2937);
+        background-color: var(--hd-bg-primary, #ffffff);
+        border: 1px solid var(--hd-border-color, #d1d5db);
+        border-radius: var(--hd-radius, 0.375rem);
+        transition: var(--hd-transition-colors);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        appearance: none;
     }
     
     /* Button compatibility */
+    .btn-primary, .btn-secondary, .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: var(--hd-radius, 0.375rem);
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: var(--hd-transition-colors);
+        text-decoration: none;
+        min-height: var(--hd-btn-height, 2.5rem);
+    }
+    
     .btn-primary {
-        @extend .hd-btn;
-        @extend .hd-btn--primary;
+        background-color: var(--hd-primary, #3b82f6);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--hd-primary-600, #2563eb);
     }
     
     .btn-secondary {
-        @extend .hd-btn;
-        @extend .hd-btn--secondary;
+        background-color: var(--hd-secondary, #8b5cf6);
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background-color: var(--hd-secondary-600, #7c3aed);
     }
     
     .btn-danger {
-        @extend .hd-btn;
-        @extend .hd-btn--danger;
+        background-color: var(--hd-danger, #ef4444);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: var(--hd-danger-600, #dc2626);
     }
     
     /* Navigation compatibility */
@@ -173,7 +262,18 @@
 @layer utilities {
     /* Critical loading states */
     .loading-shimmer {
-        @extend .hd-loading-skeleton;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
     }
     
     /* Glass morphism effect with performance optimization */
@@ -190,15 +290,44 @@
         transition: var(--hd-transition-colors) !important;
     }
     
-    /* Touch-friendly improvements */
+    /* Touch-friendly improvements - Enhanced for Mobile First */
     .touch-target {
-        min-height: 44px;
-        min-width: 44px;
+        min-height: var(--hd-touch-target-min);
+        min-width: var(--hd-touch-target-min);
         display: flex;
         align-items: center;
         justify-content: center;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .touch-target--recommended {
+        min-height: var(--hd-touch-target-recommended);
+        min-width: var(--hd-touch-target-recommended);
+    }
+    
+    .touch-target--large {
+        min-height: var(--hd-touch-target-large);
+        min-width: var(--hd-touch-target-large);
+    }
+    
+    /* Touch feedback */
+    .touch-target::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background-color: currentColor;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+        pointer-events: none;
+    }
+    
+    .touch-target:active::before {
+        opacity: 0.1;
     }
     
     /* Performance optimizations */

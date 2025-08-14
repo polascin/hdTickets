@@ -908,24 +908,6 @@ input[type="radio"]:checked::before {
   outline-offset: 2px;
 }
 
-/* Skip to main content link */
-.skip-to-main {
-  position: absolute;
-  top: -40px;
-  left: 16px;
-  background: var(--hd-primary);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  z-index: 1000;
-  transition: top 0.3s ease;
-}
-
-.skip-to-main:focus {
-  top: 16px;
-}
 
 /* ================================
    MOBILE STATES & ANIMATIONS

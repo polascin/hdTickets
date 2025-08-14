@@ -52,21 +52,23 @@ return [
     'channels' => [
         'stack' => [
             'driver'            => 'stack',
-            'channels'          => ['single'],
+            'channels'          => explode(',', env('LOG_STACK_CHANNELS', 'single,performance')),
             'ignore_exceptions' => FALSE,
         ],
 
         'single' => [
-            'driver' => 'single',
-            'path'   => storage_path('logs/laravel.log'),
-            'level'  => env('LOG_LEVEL', 'debug'),
+            'driver'               => 'single',
+            'path'                 => storage_path('logs/laravel.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => TRUE,
         ],
 
         'daily' => [
-            'driver' => 'daily',
-            'path'   => storage_path('logs/laravel.log'),
-            'level'  => env('LOG_LEVEL', 'debug'),
-            'days'   => 14,
+            'driver'               => 'daily',
+            'path'                 => storage_path('logs/laravel.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'days'                 => 30,
+            'replace_placeholders' => TRUE,
         ],
 
         'slack' => [
@@ -162,6 +164,7 @@ return [
             'path'   => storage_path('logs/performance.log'),
             'level'  => env('LOG_LEVEL', 'info'),
             'days'   => 14,
+            'tap'    => [App\Logging\PerformanceLogger::class],
         ],
 
         /*
@@ -223,6 +226,69 @@ return [
             'path'   => storage_path('logs/auth_debug.log'),
             'level'  => env('LOG_LEVEL', 'debug'),
             'days'   => 7, // Keep auth debug logs for 7 days
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Database Query Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Dedicated channel for logging database queries for performance optimization.
+        | Logs slow queries and query patterns for analysis.
+        |
+        */
+        'query' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/queries.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 7,
+            'tap'    => [App\Logging\QueryLogger::class],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Error Tracking Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Dedicated channel for structured error tracking and analysis.
+        |
+        */
+        'error_tracking' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/error_tracking.log'),
+            'level'  => 'error',
+            'days'   => 30,
+            'tap'    => [App\Logging\ErrorTrackingLogger::class],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | System Metrics Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Channel for logging system metrics like CPU, memory, disk usage.
+        |
+        */
+        'metrics' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/metrics.log'),
+            'level'  => 'info',
+            'days'   => 30,
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Request/Response Log Channel
+        |--------------------------------------------------------------------------
+        |
+        | Channel for logging HTTP requests and responses for debugging and monitoring.
+        |
+        */
+        'requests' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/requests.log'),
+            'level'  => env('LOG_LEVEL', 'info'),
+            'days'   => 7,
         ],
     ],
 ];

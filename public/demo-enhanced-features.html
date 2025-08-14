@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="demo-token">
+    <title>HD Tickets Enhanced Features Demo</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Enhanced CSS -->
+    <link href="/css/hd-notifications.css" rel="stylesheet">
+    
+    <!-- Enhanced JavaScript -->
+    <script src="/js/notificationManager.js" defer></script>
+    <script src="/js/performanceMonitor.js" defer></script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-height: 44px;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .demo-button:active {
+            transform: translateY(0);
+        }
+        
+        .demo-button.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .demo-button.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .demo-button.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .metrics-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.online {
+            background-color: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-indicator.offline {
+            background-color: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+        
+        h1, h2 {
+            margin-top: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .demo-section {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 HD Tickets Enhanced Features Demo</h1>
+        <p>Test all the new modernized features including notifications, performance monitoring, and PWA capabilities.</p>
+        
+        <!-- Notification System Demo -->
+        <div class="demo-section">
+            <h2>📢 Enhanced Notification System</h2>
+            <p>Test real-time notifications with modern glassmorphism design.</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>Price Alerts</h3>
+                    <button class="demo-button success" onclick="testPriceDropNotification()">
+                        💰 Price Drop Alert
+                    </button>
+                    <button class="demo-button warning" onclick="testPriceIncreaseNotification()">
+                        📈 Price Increase Alert
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>System Notifications</h3>
+                    <button class="demo-button" onclick="testTicketUpdateNotification()">
+                        🎫 Ticket Update
+                    </button>
+                    <button class="demo-button danger" onclick="testSystemAlert()">
+                        ⚠️ System Alert
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Notification Controls</h3>
+                    <button class="demo-button" onclick="requestNotificationPermission()">
+                        🔔 Enable Notifications
+                    </button>
+                    <button class="demo-button" onclick="testToastFallback()">
+                        💬 Test Toast Fallback
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Monitor Demo -->
+        <div class="demo-section">
+            <h2>📊 Performance Monitoring</h2>
+            <p>Monitor web vitals, API performance, and user interactions.</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>Performance Controls</h3>
+                    <button class="demo-button" onclick="showPerformanceMetrics()">
+                        📈 Show Current Metrics
+                    </button>
+                    <button class="demo-button" onclick="testAPICall()">
+                        🌐 Test API Performance
+                    </button>
+                    <button class="demo-button warning" onclick="triggerTestError()">
+                        ⚠️ Trigger Test Error
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Web Vitals</h3>
+                    <button class="demo-button" onclick="showWebVitals()">
+                        💻 Show Web Vitals
+                    </button>
+                    <button class="demo-button success" onclick="simulateInteraction()">
+                        👆 Simulate User Interaction
+                    </button>
+                </div>
+            </div>
+            
+            <div class="metrics-display" id="metricsDisplay">
+                Click any button above to see performance metrics...
+            </div>
+        </div>
+        
+        <!-- PWA Features Demo -->
+        <div class="demo-section">
+            <h2>📱 PWA Features</h2>
+            <p>Test Progressive Web App capabilities including offline mode and installation.</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>PWA Controls</h3>
+                    <button class="demo-button" onclick="testOfflineMode()">
+                        🔄 Test Offline Mode
+                    </button>
+                    <button class="demo-button" onclick="checkPWAStatus()">
+                        📋 Check PWA Status
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>Service Worker</h3>
+                    <button class="demo-button" onclick="checkServiceWorker()">
+                        ⚙️ Check Service Worker
+                    </button>
+                    <button class="demo-button success" onclick="updateServiceWorker()">
+                        🔄 Update Service Worker
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Connection Status -->
+        <div class="demo-section">
+            <h2>🌐 Connection Status</h2>
+            <p>
+                <span class="status-indicator online" id="connectionStatus"></span>
+                <span id="connectionText">Checking connection...</span>
+            </p>
+            <button class="demo-button" onclick="toggleConnectionSimulation()">
+                🔀 Simulate Connection Change
+            </button>
+        </div>
+        
+        <!-- Feature Status -->
+        <div class="demo-section">
+            <h2>🎛️ Feature Status</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Notifications</h3>
+                    <p id="notificationStatus">Checking...</p>
+                </div>
+                <div class="card">
+                    <h3>Performance Monitor</h3>
+                    <p id="performanceStatus">Checking...</p>
+                </div>
+                <div class="card">
+                    <h3>Service Worker</h3>
+                    <p id="serviceWorkerStatus">Checking...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Demo Functions
+        
+        let metricsDisplay;
+        let connectionStatusEl;
+        let connectionTextEl;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            metricsDisplay = document.getElementById('metricsDisplay');
+            connectionStatusEl = document.getElementById('connectionStatus');
+            connectionTextEl = document.getElementById('connectionText');
+            
+            // Update feature status
+            updateFeatureStatus();
+            updateConnectionStatus();
+            
+            // Setup connection monitoring
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+        });
+        
+        // Notification System Tests
+        function testPriceDropNotification() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.handlePriceAlert({
+                    event_name: 'Lakers vs Warriors - Game 7',
+                    old_price: 450,
+                    new_price: 275,
+                    ticket_id: 'demo-123'
+                });
+            } else {
+                alert('Notification manager not loaded yet. Please wait and try again.');
+            }
+        }
+        
+        function testPriceIncreaseNotification() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.handlePriceAlert({
+                    event_name: 'Super Bowl LVIII',
+                    old_price: 800,
+                    new_price: 1200,
+                    ticket_id: 'demo-456'
+                });
+            }
+        }
+        
+        function testTicketUpdateNotification() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.handleTicketUpdate({
+                    event_name: 'Champions League Final',
+                    message: 'New premium seats available!',
+                    ticket_id: 'demo-789'
+                });
+            }
+        }
+        
+        function testSystemAlert() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.handleSystemAlert({
+                    message: 'System maintenance scheduled for tonight at 2 AM EST',
+                    priority: 'high',
+                    id: 'demo-alert-' + Date.now()
+                });
+            }
+        }
+        
+        function requestNotificationPermission() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.requestPermission().then(permission => {
+                    updateFeatureStatus();
+                    if (permission === 'granted') {
+                        testTicketUpdateNotification();
+                    }
+                });
+            }
+        }
+        
+        function testToastFallback() {
+            if (window.hdNotificationManager) {
+                window.hdNotificationManager.showToast(
+                    '🎉 Toast Notification',
+                    'This is a fallback toast message for browsers that don\'t support native notifications.'
+                );
+            }
+        }
+        
+        // Performance Monitor Tests
+        function showPerformanceMetrics() {
+            if (window.hdPerformanceMonitor) {
+                const metrics = window.hdPerformanceMonitor.getMetrics();
+                displayMetrics('Performance Metrics', metrics);
+            } else {
+                displayMetrics('Performance Monitor', { error: 'Performance monitor not available' });
+            }
+        }
+        
+        function testAPICall() {
+            // Simulate API call
+            fetch('/api/demo/test', {
+                method: 'GET'
+            }).then(response => {
+                return response.json();
+            }).catch(error => {
+                console.log('API test completed (expected to fail in demo)');
+            });
+            
+            setTimeout(() => {
+                if (window.hdPerformanceMonitor) {
+                    const apiMetrics = window.hdPerformanceMonitor.getMetrics().api;
+                    displayMetrics('API Performance', { api_calls: apiMetrics });
+                }
+            }, 1000);
+        }
+        
+        function triggerTestError() {
+            try {
+                // Intentionally trigger error
+                throw new Error('Demo error for testing performance monitoring');
+            } catch (error) {
+                console.error('Test error triggered:', error);
+            }
+            
+            setTimeout(() => {
+                if (window.hdPerformanceMonitor) {
+                    const errorMetrics = window.hdPerformanceMonitor.getMetrics().errors;
+                    displayMetrics('Error Tracking', { errors: errorMetrics });
+                }
+            }, 500);
+        }
+        
+        function showWebVitals() {
+            if (window.hdPerformanceMonitor) {
+                const vitals = window.hdPerformanceMonitor.getWebVitals();
+                displayMetrics('Web Vitals', vitals);
+            }
+        }
+        
+        function simulateInteraction() {
+            // Simulate user interaction
+            document.body.click();
+            
+            setTimeout(() => {
+                if (window.hdPerformanceMonitor) {
+                    const interactions = window.hdPerformanceMonitor.getMetrics().interactions;
+                    displayMetrics('User Interactions', { 
+                        recent_interactions: interactions.slice(-5) 
+                    });
+                }
+            }, 500);
+        }
+        
+        // PWA Tests
+        function testOfflineMode() {
+            // Test service worker cache
+            fetch('/css/hd-notifications.css').then(response => {
+                displayMetrics('Offline Test', {
+                    status: response.ok ? 'Cache working' : 'Cache miss',
+                    from_cache: response.headers.get('sw-cache-time') ? true : false
+                });
+            });
+        }
+        
+        function checkPWAStatus() {
+            const pwaStatus = {
+                service_worker: 'serviceWorker' in navigator,
+                notifications: 'Notification' in window,
+                push_manager: 'PushManager' in window,
+                background_sync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
+                manifest: document.querySelector('link[rel="manifest"]') !== null
+            };
+            
+            displayMetrics('PWA Features', pwaStatus);
+        }
+        
+        function checkServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    displayMetrics('Service Worker', {
+                        active: registration.active ? true : false,
+                        state: registration.active?.state || 'none',
+                        scope: registration.scope,
+                        update_found: registration.waiting ? true : false
+                    });
+                });
+            } else {
+                displayMetrics('Service Worker', { error: 'Not supported' });
+            }
+        }
+        
+        function updateServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.update().then(() => {
+                        displayMetrics('Service Worker Update', { status: 'Update check completed' });
+                    });
+                });
+            }
+        }
+        
+        // Connection Status
+        function updateConnectionStatus() {
+            const isOnline = navigator.onLine;
+            
+            if (connectionStatusEl) {
+                connectionStatusEl.className = 'status-indicator ' + (isOnline ? 'online' : 'offline');
+            }
+            
+            if (connectionTextEl) {
+                connectionTextEl.textContent = isOnline ? 'Online' : 'Offline';
+            }
+        }
+        
+        function toggleConnectionSimulation() {
+            // Simulate connection change
+            const event = navigator.onLine ? 'offline' : 'online';
+            window.dispatchEvent(new Event(event));
+            
+            setTimeout(() => {
+                // Restore actual connection status
+                updateConnectionStatus();
+            }, 3000);
+        }
+        
+        // Utility Functions
+        function displayMetrics(title, data) {
+            if (metricsDisplay) {
+                const timestamp = new Date().toLocaleTimeString();
+                const content = `[${timestamp}] ${title}:\n${JSON.stringify(data, null, 2)}\n\n`;
+                metricsDisplay.textContent = content + metricsDisplay.textContent;
+                metricsDisplay.scrollTop = 0;
+            }
+        }
+        
+        function updateFeatureStatus() {
+            // Update notification status
+            const notificationStatus = document.getElementById('notificationStatus');
+            if (notificationStatus) {
+                if (window.hdNotificationManager) {
+                    const isEnabled = window.hdNotificationManager.isEnabled();
+                    notificationStatus.textContent = isEnabled ? '✅ Active' : '⚠️ Permission needed';
+                } else {
+                    notificationStatus.textContent = '⏳ Loading...';
+                }
+            }
+            
+            // Update performance status
+            const performanceStatus = document.getElementById('performanceStatus');
+            if (performanceStatus) {
+                performanceStatus.textContent = window.hdPerformanceMonitor ? '✅ Active' : '❌ Not available';
+            }
+            
+            // Update service worker status
+            const serviceWorkerStatus = document.getElementById('serviceWorkerStatus');
+            if (serviceWorkerStatus) {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        serviceWorkerStatus.textContent = registration.active ? '✅ Active' : '⏳ Installing...';
+                    });
+                } else {
+                    serviceWorkerStatus.textContent = '❌ Not supported';
+                }
+            }
+        }
+        
+        // Refresh status periodically
+        setInterval(updateFeatureStatus, 5000);
+    </script>
+</body>
+</html>

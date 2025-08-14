@@ -227,24 +227,34 @@ export default {
     }),
     require('@tailwindcss/typography'),
     
-    // Custom component utilities
+    // Custom component utilities - Using CSS properties instead of @apply
     function({ addComponents }) {
       addComponents({
         '.hd-card': {
-          '@apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700': {},
+          'background-color': 'white',
+          'border-radius': '0.5rem',
+          'box-shadow': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+          'border': '1px solid rgb(229 231 235)',
+          '@media (prefers-color-scheme: dark)': {
+            'background-color': 'rgb(31 41 55)',
+            'border-color': 'rgb(55 65 81)'
+          }
         },
         '.hd-card--elevated': {
-          '@apply shadow-md': {},
+          'box-shadow': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
         },
         '.hd-card--interactive': {
-          '@apply hover:shadow-lg transition-shadow duration-200': {},
+          'transition': 'box-shadow 200ms',
+          '&:hover': {
+            'box-shadow': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+          }
         },
         '.hd-card--flat': {
-          '@apply shadow-none': {},
+          'box-shadow': 'none'
         },
         '.hd-card--outline': {
-          '@apply border-2': {},
-        },
+          'border-width': '2px'
+        }
       })
     }
   ],

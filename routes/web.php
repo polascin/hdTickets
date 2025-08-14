@@ -367,6 +367,12 @@ Route::get('health', [HealthController::class, 'index'])->name('health.index');
 Route::get('health/database', [HealthController::class, 'database'])->name('health.database');
 Route::get('health/redis', [HealthController::class, 'redis'])->name('health.redis');
 
+// Production Health Check Routes (Comprehensive Monitoring)
+Route::get('health/production', [App\Http\Controllers\ProductionHealthController::class, 'comprehensive'])
+    ->name('health.production');
+Route::get('health/comprehensive', [App\Http\Controllers\ProductionHealthController::class, 'comprehensive'])
+    ->name('health.comprehensive');
+
 // Public Account Deletion Routes (no authentication required)
 Route::prefix('account/deletion')->name('account.deletion.')->group(function (): void {
     Route::get('/confirm/{token}', [App\Http\Controllers\AccountDeletionController::class, 'confirm'])->name('confirm');

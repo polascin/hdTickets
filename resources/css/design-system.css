@@ -7,6 +7,8 @@
 @import './components/hd-buttons.css';
 @import './components/hd-forms.css';
 @import './components/hd-cards.css';
+@import './components/hd-backgrounds.css';
+@import './components/hd-skeleton.css';
 @import './utils/hd-utils.css';
 
 /* ================================

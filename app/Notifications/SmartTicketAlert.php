@@ -61,8 +61,8 @@ class SmartTicketAlert extends Notification implements ShouldQueue
         $ticket = $this->alertData['ticket'];
         $priority = $this->alertData['priority_label'] ?? 'Normal';
 
-        $message = new MailMessage()
-            ->subject("🎫 {$priority} Priority Ticket Alert - {$ticket['event_name']}")
+        $message = new MailMessage();
+        $message->subject("🎫 {$priority} Priority Ticket Alert - {$ticket['event_name']}")
             ->greeting("Hello {$notifiable->name}!")
             ->line('We found tickets matching your alert criteria:');
 

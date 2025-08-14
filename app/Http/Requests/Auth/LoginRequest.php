@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Rules\HoneypotRule;
 use App\Services\TwoFactorAuthService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -39,6 +40,7 @@ class LoginRequest extends FormRequest
         return [
             'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'website'  => [new HoneypotRule('website')], // Honeypot field
         ];
     }
 
@@ -79,8 +81,9 @@ class LoginRequest extends FormRequest
                 }
             }
 
+            // Generic error message to prevent user enumeration
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Invalid login credentials. Please check your email and password.',
             ]);
         }
 
@@ -171,12 +174,17 @@ class LoginRequest extends FormRequest
         event(new Lockout($this));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
+        $minutes = ceil($seconds / 60);
+
+        // Enhanced rate limit message with security context
+        $message = 'Too many login attempts. For security reasons, this account is temporarily locked.';
+        $message .= " Please try again in {$minutes} minute(s) ({$seconds} seconds).";
+        $message .= ' If you continue to have issues, please contact support.';
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email'                 => $message,
+            'rate_limit_seconds'    => $seconds, // For JS countdown timer
+            'rate_limit_expires_at' => now()->addSeconds($seconds)->toISOString(),
         ]);
     }
 

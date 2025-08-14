@@ -17,6 +17,9 @@
         <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+        <!-- Accessibility Styles -->
+        <link href="{{ asset('css/hd-accessibility.css') }}" rel="stylesheet">
+        
         <!-- Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -451,9 +454,83 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main id="main-content" role="main">
                 {{ $slot }}
             </main>
         </div>
+        
+        <!-- Accessibility JavaScript Module -->
+        <script src="{{ asset('js/hd-accessibility.js') }}" defer></script>
+        
+        <!-- Password Toggle Functionality -->
+        <script>
+            function togglePasswordVisibility(inputId) {
+                const passwordInput = document.getElementById(inputId);
+                const toggleButton = document.getElementById(inputId + '-toggle');
+                const toggleDescription = document.getElementById(inputId + '-toggle-description');
+                const passwordIcon = document.getElementById(inputId + '-icon');
+                
+                if (passwordInput && toggleButton) {
+                    const isPassword = passwordInput.type === 'password';
+                    
+                    // Toggle input type
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    
+                    // Update button label
+                    toggleButton.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                    
+                    // Update screen reader description
+                    if (toggleDescription) {
+                        toggleDescription.textContent = `Click to toggle password visibility. Current state: ${isPassword ? 'visible' : 'hidden'}`;
+                    }
+                    
+                    // Update icon
+                    if (passwordIcon) {
+                        if (isPassword) {
+                            // Eye icon (visible)
+                            passwordIcon.innerHTML = '<title>Hide password</title><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+                        } else {
+                            // Eye-slash icon (hidden)
+                            passwordIcon.innerHTML = '<title>Show password</title><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m-3.122-3.122l4.243 4.243M12 12l6.12 6.12M12 12L9.88 9.88m8.242 8.242L21 21M12 12l2.88-2.88"></path>';
+                        }
+                    }
+                    
+                    // Announce state change to screen readers
+                    if (window.hdAccessibility) {
+                        window.hdAccessibility.announceToScreenReader(
+                            `Password is now ${isPassword ? 'visible' : 'hidden'}`,
+                            'polite'
+                        );
+                    }
+                }
+            }
+            
+            // Enhanced form submission with accessibility announcements
+            document.addEventListener('DOMContentLoaded', function() {
+                const forms = document.querySelectorAll('form.hd-form');
+                
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        const loadingElement = form.querySelector('#login-loading');
+                        
+                        if (submitButton && loadingElement) {
+                            submitButton.disabled = true;
+                            submitButton.setAttribute('aria-busy', 'true');
+                            loadingElement.textContent = 'Signing you in, please wait...';
+                            
+                            // Re-enable button after timeout (in case of client-side validation errors)
+                            setTimeout(() => {
+                                if (submitButton.disabled) {
+                                    submitButton.disabled = false;
+                                    submitButton.setAttribute('aria-busy', 'false');
+                                    loadingElement.textContent = '';
+                                }
+                            }, 5000);
+                        }
+                    });
+                });
+            });
+        </script>
     </body>
 </html>

@@ -1,856 +1,82 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Parameter \$category of method App\\Exports\\CategoryAnalysisExport\:\:map\(\) has invalid type App\\Exports\\App\\Models\\Category\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exports/CategoryAnalysisExport.php
-
-		-
-			message: '#^Access to undefined constant PhpOffice\\PhpSpreadsheet\\Chart\\DataSeries\:\:TYPE_COLUMNCHART\.$#'
-			identifier: classConstant.notFound
-			count: 1
-			path: app/Exports/PriceFluctuationExport.php
-
-		-
-			message: '#^Parameter \$ticket of method App\\Exports\\ScrapedTicketsExport\:\:map\(\) has invalid type App\\Exports\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exports/ScrapedTicketsExport.php
-
-		-
-			message: '#^Parameter \$user of method App\\Exports\\UsersExport\:\:map\(\) has invalid type App\\Exports\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exports/UsersExport.php
-
-		-
-			message: '#^Call to static method loadView\(\) on an unknown class Barryvdh\\DomPDF\\Facades\\Pdf\.$#'
-			identifier: class.notFound
-			count: 7
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportAgentPerformance\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportCategoryAnalysis\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportResponseTime\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportTickets\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Parameter \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportAgentPerformance\(\) has invalid type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Parameter \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportCategoryAnalysis\(\) has invalid type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Parameter \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportResponseTime\(\) has invalid type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Parameter \$request of method App\\Http\\Controllers\\Admin\\ReportsController\:\:exportTickets\(\) has invalid type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\Request\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ReportsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ScrapingController\:\:getStats\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\ScrapingController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/ScrapingController.php
-
-		-
-			message: '#^Relation ''user'' is not found in App\\Models\\ScrapingStats model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Admin/ScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\SystemController\:\:getDatabaseInfo\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/SystemController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\SystemController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/SystemController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\UserManagementController\:\:create\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/UserManagementController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\UserManagementController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Admin\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/UserManagementController.php
-
-		-
-			message: '#^Relation ''roles'' is not found in App\\Models\\User model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Admin/UserManagementController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Ajax\\DashboardController\:\:liveTickets\(\) has invalid return type App\\Http\\Controllers\\Ajax\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Ajax/DashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Ajax\\DashboardController\:\:platformHealth\(\) has invalid return type App\\Http\\Controllers\\Ajax\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Ajax/DashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Ajax\\DashboardController\:\:priceAlerts\(\) has invalid return type App\\Http\\Controllers\\Ajax\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Ajax/DashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Ajax\\DashboardController\:\:userRecommendations\(\) has invalid return type App\\Http\\Controllers\\Ajax\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Ajax/DashboardController.php
-
-		-
-			message: '#^Parameter \$ticket of method App\\Http\\Controllers\\Ajax\\TicketLazyLoadController\:\:formatPrice\(\) has invalid type App\\Http\\Controllers\\Ajax\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
+			message: '#^Anonymous function should return Illuminate\\Support\\Collection\<int, array\{id\: int, title\: string\|null, venue\: string\|null, date\: string, price\: string, platform\: string, url\: string\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, title\: string\|null, venue\: string\|null, date\: string, price\: string, platform\: string, url\: string\}\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/Ajax/TicketLazyLoadController.php
 
 		-
-			message: '#^Undefined variable\: \$hours$#'
-			identifier: variable.undefined
+			message: '#^Anonymous function should return Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, description\: string, is_active\: bool, platforms\: array\{string, string, string\}, keywords\: array\{0\: string, 1\: string, 2\?\: string\}, venue_keywords\: array\{\}\|array\{string, string\}, price_range\: array\{min\: int, max\: int\}, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, description\: string, is_active\: bool, platforms\: array\{string, string, string\}, keywords\: array\{0\: string, 1\: string, 2\?\: string\}, venue_keywords\: array\{\}\|array\{string, string\}, price_range\: array\{min\: int, max\: int\}, \.\.\.\}\>\.$#'
+			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/Api/AnalyticsController.php
+			path: app/Http/Controllers/Api/TicketCriteriaController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Api\\DashboardController\:\:getRecentAlerts\(\) invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
+			message: '#^Strict comparison using \!\=\= between ''degraded''\|''healthy''\|''warning'' and ''critical'' will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
 			count: 1
-			path: app/Http/Controllers/Api/DashboardController.php
+			path: app/Http/Controllers/ProductionHealthController.php
 
 		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\Api\\DashboardController\:\:getUserMetrics\(\) has invalid type App\\Http\\Controllers\\Api\\App\\Models\\User\.$#'
-			identifier: class.notFound
+			message: '#^Comparison operation "\>" between array\<string, string\>\|string\|null and 10485760 results in an error\.$#'
+			identifier: greater.invalid
 			count: 1
-			path: app/Http/Controllers/Api/DashboardController.php
+			path: app/Http/Middleware/ApiSecurityMiddleware.php
 
 		-
-			message: '#^Parameter \$ticket of method App\\Http\\Controllers\\Api\\EnhancedAlertsController\:\:getPredictions\(\) has invalid type App\\Http\\Controllers\\Api\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
+			message: '#^Method App\\Http\\Middleware\\SecureErrorMessages\:\:getSanitizedMessage\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
 			count: 1
-			path: app/Http/Controllers/Api/EnhancedAlertsController.php
+			path: app/Http/Middleware/SecureErrorMessages.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Api\\EnhancedAnalyticsController\:\:getSpecificChartData\(\) has invalid return type App\\Http\\Controllers\\Api\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
+			message: '#^Parameter \#1 \$response of method App\\Http\\Middleware\\SecureErrorMessages\:\:sanitizeJsonErrors\(\) expects Illuminate\\Http\\Response, Symfony\\Component\\HttpFoundation\\Response given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Api/EnhancedAnalyticsController.php
+			path: app/Http/Middleware/SecureErrorMessages.php
 
 		-
-			message: '#^Relation ''ticket'' is not found in App\\Models\\TicketAlert model\.$#'
-			identifier: larastan.relationExistence
+			message: '#^Instanceof between array and Monolog\\LogRecord will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
 			count: 1
-			path: app/Http/Controllers/Api/MonitoringController.php
+			path: app/Logging/PerformanceLogger.php
 
 		-
-			message: '#^Static method App\\Models\\UserPreference\:\:getValue\(\) invoked with 2 parameters, 3\-4 required\.$#'
-			identifier: arguments.count
+			message: '#^Offset 0 on array\{float, float, float\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
 			count: 1
-			path: app/Http/Controllers/Api/NotificationPreferencesController.php
+			path: app/Logging/PerformanceLogger.php
 
 		-
-			message: '#^Static method App\\Models\\UserPreference\:\:setValue\(\) invoked with 3 parameters, 4\-5 required\.$#'
-			identifier: arguments.count
+			message: '#^PHPDoc tag @param for parameter \$record with type mixed is not subtype of native type array\.$#'
+			identifier: parameter.phpDocType
 			count: 1
-			path: app/Http/Controllers/Api/NotificationPreferencesController.php
+			path: app/Logging/PerformanceLogger.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Api\\PerformanceMetricsController\:\:getDashboardData\(\) has invalid return type App\\Http\\Controllers\\Api\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
+			message: '#^Parameter \#1 \$callback of method Monolog\\Handler\\AbstractProcessingHandler\:\:pushProcessor\(\) expects callable\(Monolog\\LogRecord\)\: Monolog\\LogRecord, array\{\$this\(App\\Logging\\PerformanceLogger\), ''addPerformanceConte…''\} given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Api/PerformanceMetricsController.php
+			path: app/Logging/PerformanceLogger.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Api\\PerformanceMetricsController\:\:receiveMetrics\(\) has invalid return type App\\Http\\Controllers\\Api\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
+			message: '#^Parameter \#1 \$callback of method Monolog\\Handler\\AbstractProcessingHandler\:\:pushProcessor\(\) expects callable\(Monolog\\LogRecord\)\: Monolog\\LogRecord, array\{\$this\(App\\Logging\\QueryLogger\), ''addQueryContext''\} given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/Api/PerformanceMetricsController.php
+			path: app/Logging/QueryLogger.php
 
 		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\Api\\PushSubscriptionController\:\:sendTestPushNotification\(\) has invalid type App\\Http\\Controllers\\Api\\App\\Models\\User\.$#'
-			identifier: class.notFound
+			message: '#^Trait Laravel\\Passport\\HasApiTokens requires using class to implement Laravel\\Passport\\Contracts\\OAuthenticatable, but App\\Models\\User does not\.$#'
+			identifier: class.missingImplements
 			count: 1
-			path: app/Http/Controllers/Api/PushSubscriptionController.php
+			path: app/Models/User.php
 
 		-
-			message: '#^Call to static method createStatusChangeComment\(\) on an unknown class App\\Models\\Comment\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Api/TicketController.php
-
-		-
-			message: '#^Relation ''attachments'' is not found in App\\Models\\Ticket model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Api/TicketController.php
-
-		-
-			message: '#^Relation ''comments'' is not found in App\\Models\\Ticket model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Api/TicketController.php
-
-		-
-			message: '#^Static method Redis\:\:set\(\) invoked with 4 parameters, 2\-3 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Http/Controllers/HealthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getAverageScrapeTime\(\) invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getDataFreshness\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getDataFreshness\(\) invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getDataQualityScore\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getDataQualityScore\(\) invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getJobDetails\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:getRealtimeMetrics\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ScraperDashboardController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getActiveJobs\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getActiveScrapingJobs\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getCompletedJobsToday\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getDailyStats\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getDefaultActivity\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getErrorAnalysis\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getFailedJobsToday\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getHourlyPerformance\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getMonthlyStats\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPerformanceData\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPlatformBreakdown\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPlatformStats\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getPlatformsMonitored\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getProxyRotationHealth\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getQueuedJobs\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getRecentScrapingActivity\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScraperMetrics\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScraperSuccessRate\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingJobData\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getScrapingStatistics\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getSuccessfulScrapesToday\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getTicketsScrapedToday\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getUpcomingSchedules\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Controllers\\ScraperDashboardController\:\:getWeeklyStats\(\) has invalid type App\\Http\\Controllers\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/ScraperDashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\SettingsExportController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/SettingsExportController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketApiController\:\:getEvent\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketApiController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketApiController\:\:importEvents\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketApiController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketApiController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketApiController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketApiController\:\:search\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketApiController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:alerts\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:bestDeals\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:checkAlerts\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:createAlert\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:highDemandSports\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:manchesterUnited\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:purchase\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:search\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\JsonResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:show\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:stats\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:trending\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketScrapingController\:\:updateAlert\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Undefined variable\: \$alert$#'
-			identifier: variable.undefined
-			count: 4
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Undefined variable\: \$request$#'
-			identifier: variable.undefined
-			count: 21
-			path: app/Http/Controllers/TicketScrapingController.php
-
-		-
-			message: '#^Call to function compact\(\) contains undefined variable \$ticketSource\.$#'
-			identifier: variable.undefined
+			message: '#^Parameter \#2 \$syntax of method Carbon\\Carbon\:\:diffForHumans\(\) expects array\|int\|null, true given\.$#'
+			identifier: argument.type
 			count: 2
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:apiIndex\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:bulkAction\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:create\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:destroy\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:edit\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:export\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:show\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:store\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TicketSourceController\:\:update\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Relation ''category'' is not found in App\\Models\\TicketSource model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Static call to instance method App\\Models\\TicketSource\:\:getCountries\(\)\.$#'
-			identifier: method.staticCall
-			count: 2
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Static call to instance method App\\Models\\TicketSource\:\:getStatuses\(\)\.$#'
-			identifier: method.staticCall
-			count: 5
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Undefined variable\: \$request$#'
-			identifier: variable.undefined
-			count: 26
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Undefined variable\: \$ticketSource$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Variable \$message might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Http/Controllers/TicketSourceController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserActivityController\:\:exportActivityData\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserActivityController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserContributionController\:\:create\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserContributionController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserContributionController\:\:store\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserContributionController.php
-
-		-
-			message: '#^Static call to instance method App\\Models\\TicketSource\:\:getStatuses\(\)\.$#'
-			identifier: method.staticCall
-			count: 2
-			path: app/Http/Controllers/UserContributionController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserFavoriteTeamController\:\:export\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserFavoriteTeamController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserFavoriteVenueController\:\:export\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserFavoriteVenueController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserPreferencesController\:\:index\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Contracts\\View\\View\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserPreferencesController.php
-
-		-
-			message: '#^Static method App\\Models\\UserPreference\:\:setValue\(\) invoked with 3 parameters, 4\-5 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: app/Http/Controllers/UserPreferencesController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\UserPricePreferenceController\:\:export\(\) has invalid return type App\\Http\\Controllers\\Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/UserPricePreferenceController.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Middleware\\RequireTwoFactorMiddleware\:\:requiresTwoFactor\(\) has invalid type App\\Http\\Middleware\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Middleware/RequireTwoFactorMiddleware.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Middleware\\TrackUserActivity\:\:trackPageActivity\(\) has invalid type App\\Http\\Middleware\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Middleware/TrackUserActivity.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Middleware\\TrackUserActivity\:\:trackUserActivity\(\) has invalid type App\\Http\\Middleware\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Middleware/TrackUserActivity.php
-
-		-
-			message: '#^Parameter \$user of method App\\Http\\Middleware\\TrackUserActivity\:\:updateUserLastActive\(\) has invalid type App\\Http\\Middleware\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Middleware/TrackUserActivity.php
-
-		-
-			message: '#^Method App\\Models\\AccountDeletionRequest\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/AccountDeletionRequest.php
-
-		-
-			message: '#^Method App\\Models\\AlertEscalation\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/AlertEscalation.php
-
-		-
-			message: '#^Undefined variable\: \$userId$#'
-			identifier: variable.undefined
-			count: 2
-			path: app/Models/AnalyticsDashboard.php
-
-		-
-			message: '#^Method App\\Models\\Category\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/Category.php
-
-		-
-			message: '#^Method App\\Models\\DataExportRequest\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/DataExportRequest.php
-
-		-
-			message: '#^Method App\\Models\\PaymentPlan\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/PaymentPlan.php
-
-		-
-			message: '#^Method App\\Models\\PriceAlertThreshold\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/PriceAlertThreshold.php
-
-		-
-			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
-			identifier: larastan.noUnnecessaryCollectionCall
-			count: 1
-			path: app/Models/ScrapingStats.php
-
-		-
-			message: '#^Class App\\Events\\TicketAvailabilityUpdated constructor invoked with 1 parameter, 2 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Models/Ticket.php
-
-		-
-			message: '#^Method App\\Models\\TicketAlert\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/TicketAlert.php
-
-		-
-			message: '#^Method App\\Models\\TicketSource\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/TicketSource.php
-
-		-
-			message: '#^Static method App\\Models\\UserPreference\:\:setValue\(\) invoked with 3 parameters, 4\-5 required\.$#'
-			identifier: arguments.count
-			count: 2
-			path: app/Models/UserPreference.php
-
-		-
-			message: '#^Call to private static method castValue\(\) of class App\\Models\\UserPreference\.$#'
-			identifier: staticMethod.private
-			count: 1
-			path: app/Models/UserPreferencePreset.php
-
-		-
-			message: '#^Call to private static method processValue\(\) of class App\\Models\\UserPreference\.$#'
-			identifier: staticMethod.private
-			count: 1
-			path: app/Models/UserPreferencePreset.php
-
-		-
-			message: '#^Method App\\Models\\UserPreferencePreset\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/UserPreferencePreset.php
-
-		-
-			message: '#^Method App\\Models\\UserPricePreference\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/UserPricePreference.php
-
-		-
-			message: '#^Method App\\Models\\UserSession\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
 			path: app/Models/UserSession.php
-
-		-
-			message: '#^Method App\\Models\\UserSubscription\:\:scopeActive\(\) has invalid return type App\\Models\\Illuminate\\Database\\Eloquent\\Builder\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Models/UserSubscription.php
-
-		-
-			message: '#^Function str_slug not found\.$#'
-			identifier: function.notFound
-			count: 1
-			path: app/Notifications/SmartTicketAlert.php
 
 		-
 			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
@@ -859,469 +85,115 @@ parameters:
 			path: app/Providers/EnvServiceProvider.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\ScrapingStats\:\:active\(\)\.$#'
+			message: '#^Call to function in_array\(\) with arguments mixed, array\{\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: app/Providers/HorizonServiceProvider.php
+
+		-
+			message: '#^Property App\\Rules\\HoneypotRule\:\:\$fieldName is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Rules/HoneypotRule.php
+
+		-
+			message: '#^Access to constant CAPABILITY on an unknown class Facebook\\WebDriver\\Chrome\\ChromeOptions\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/DuskTestCase.php
+
+		-
+			message: '#^Call to an undefined static method Tests\\DuskTestCase\:\:startChromeDriver\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Class App\\Services\\AutomatedPurchaseEngine constructor invoked with 0 parameters, 2 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
-
-		-
-			message: '#^Class App\\Services\\MultiPlatformManager constructor invoked with 0 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\PluginBasedScraperManager constructor invoked with 0 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
-
-		-
-			message: '#^Undefined variable\: \$callback$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
-
-		-
-			message: '#^Undefined variable\: \$name$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Providers/RefactoredAppServiceProvider.php
-
-		-
-			message: '#^Instantiated class BeyondCode\\LaravelWebSockets\\WebSocketsServiceProvider not found\.$#'
+			message: '#^Call to method addArguments\(\) on an unknown class Facebook\\WebDriver\\Chrome\\ChromeOptions\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Providers/WebSocketServiceProvider.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Method App\\Services\\AdvancedAnalyticsDashboard\:\:getPriceTrendAnalysis\(\) invoked with 1 parameter, 0 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Services/AdvancedAnalyticsDashboard.php
-
-		-
-			message: '#^Relation ''scrapedTicket'' is not found in App\\Models\\TicketAlert model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/AdvancedAnalyticsDashboard.php
-
-		-
-			message: '#^Undefined variable\: \$filters$#'
-			identifier: variable.undefined
-			count: 2
-			path: app/Services/AdvancedAnalyticsDashboard.php
-
-		-
-			message: '#^Call to static method loadView\(\) on an unknown class Barryvdh\\DomPDF\\Facades\\Pdf\.$#'
+			message: '#^Call to static method chrome\(\) on an unknown class Facebook\\WebDriver\\Remote\\DesiredCapabilities\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Services/AdvancedReportingService.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Parameter \$user of method App\\Services\\AnalyticsInsightsService\:\:calculateEngagementFrequency\(\) has invalid type App\\Services\\App\\Models\\User\.$#'
+			message: '#^Call to static method create\(\) on an unknown class Facebook\\WebDriver\\Remote\\RemoteWebDriver\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Services/AnalyticsInsightsService.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Relation ''priceHistory'' is not found in App\\Models\\ScrapedTicket model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/AnalyticsInsightsService.php
-
-		-
-			message: '#^Parameter \$ticket of method App\\Services\\AutomatedPurchaseEngine\:\:calculateValueScore\(\) has invalid type App\\Services\\App\\Models\\Ticket\.$#'
+			message: '#^Instantiated class Facebook\\WebDriver\\Chrome\\ChromeOptions not found\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Parameter \$ticket of method App\\Services\\AutomatedPurchaseEngine\:\:createPurchaseQueueItem\(\) has invalid type App\\Services\\App\\Models\\Ticket\.$#'
+			message: '#^Method Tests\\DuskTestCase\:\:driver\(\) has invalid return type Facebook\\WebDriver\\Remote\\RemoteWebDriver\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
+			path: tests/DuskTestCase.php
 
 		-
-			message: '#^Parameter \$ticket of method App\\Services\\AutomatedPurchaseEngine\:\:estimatePlatformFees\(\) has invalid type App\\Services\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Parameter \$ticket of method App\\Services\\AutomatedPurchaseEngine\:\:identifyRiskFactors\(\) has invalid type App\\Services\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/AutomatedPurchaseEngine.php
-
-		-
-			message: '#^Class App\\Services\\Core\\PurchaseAutomationService has an uninitialized property \$decisionChain\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Core/PurchaseAutomationService.php
-
-		-
-			message: '#^Class App\\Services\\Core\\PurchaseAutomationService has an uninitialized property \$strategyFactory\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Core/PurchaseAutomationService.php
-
-		-
-			message: '#^Class App\\Services\\Patterns\\ChainOfResponsibility\\PurchaseDecisionChain does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: app/Services/Core/PurchaseAutomationService.php
-
-		-
-			message: '#^Class App\\Services\\Core\\ScrapingService has an uninitialized property \$adapterFactory\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Core/ScrapingService.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\Adapters\\PlatformAdapterFactory does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: app/Services/Core/ScrapingService.php
-
-		-
-			message: '#^Variable \$historyData on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: app/Services/Core/TicketMonitoringService.php
-
-		-
-			message: '#^Variable \$priceHistoryData on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: app/Services/Core/TicketMonitoringService.php
-
-		-
-			message: '#^Call to static method loadView\(\) on an unknown class Barryvdh\\DomPDF\\Facades\\Pdf\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/DataExportService.php
-
-		-
-			message: '#^Undefined variable\: \$cacheKey$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Services/Enhanced/AdvancedCacheService.php
-
-		-
-			message: '#^Parameter \$ticket of method App\\Services\\Enhanced\\AdvancedTicketCachingService\:\:cacheIndividualTicket\(\) has invalid type App\\Services\\Enhanced\\App\\Models\\Ticket\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Undefined variable\: \$cacheKey$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Variable \$preferredCategories in empty\(\) always exists and is always falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/Enhanced/AdvancedTicketCachingService.php
-
-		-
-			message: '#^Parameter \$user of method App\\Services\\Enhanced\\ViewFragmentCachingService\:\:getUserStats\(\) has invalid type App\\Services\\Enhanced\\App\\Models\\User\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/Enhanced/ViewFragmentCachingService.php
-
-		-
-			message: '#^Undefined variable\: \$cacheKey$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Services/Enhanced/ViewFragmentCachingService.php
-
-		-
-			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
-			identifier: larastan.noEnvCallsOutsideOfConfig
-			count: 2
-			path: app/Services/MultiPlatformManager.php
-
-		-
-			message: '#^Class App\\Services\\NotificationChannels\\ChannelFactory does not have a constructor and must be instantiated without any parameters\.$#'
-			identifier: new.noConstructor
-			count: 1
-			path: app/Services/NotificationService.php
-
-		-
-			message: '#^Class App\\Services\\NotificationService has an uninitialized property \$channelFactory\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/NotificationService.php
-
-		-
-			message: '#^Instantiated class App\\Events\\SystemNotification not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/NotificationService.php
-
-		-
-			message: '#^Undefined variable\: \$channalName$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Services/NotificationSystem/Channels/PusherChannel.php
-
-		-
-			message: '#^Call to static method create\(\) on an unknown class Minishlink\\WebPush\\Subscription\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/NotificationSystem/Channels/WebPushChannel.php
-
-		-
-			message: '#^Instantiated class Minishlink\\WebPush\\WebPush not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/NotificationSystem/Channels/WebPushChannel.php
-
-		-
-			message: '#^Variable \$hashPrefix on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: app/Services/PasswordCompromiseCheckService.php
-
-		-
-			message: '#^Relation ''ticket'' is not found in App\\Models\\TicketAlert model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Services/RealTimeMonitoringService.php
-
-		-
-			message: '#^Access to an uninitialized property App\\Services\\Scraping\\BaseScraperPlugin\:\:\$pluginName\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$antiDetection\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$baseUrl\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$description\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$highDemandScraper\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$platform\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$pluginName\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Class App\\Services\\Scraping\\BaseScraperPlugin has an uninitialized property \$venue\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Variable \$response might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Services/Scraping/BaseScraperPlugin.php
-
-		-
-			message: '#^Variable \$params in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: app/Services/Scraping/HighDemandTicketScraperService.php
-
-		-
-			message: '#^Constant fixtureNode not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: app/Services/Scraping/Plugins/ManchesterUnitedPlugin.php
-
-		-
-			message: '#^Static method Illuminate\\Support\\Facades\\Cache\:\:increment\(\) invoked with 3 parameters, 1\-2 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: app/Services/Security/ApiSecurityService.php
-
-		-
-			message: '#^Variable \$response on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: app/Services/TicketApiManager.php
-
-		-
-			message: '#^Caught class App\\Services\\Exception not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/TicketScrapingService.php
-
-		-
-			message: '#^Instantiated class BaconQrCode\\Renderer\\ImageRenderer not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/TwoFactorAuthService.php
-
-		-
-			message: '#^Instantiated class BaconQrCode\\Renderer\\Image\\SvgImageBackEnd not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/TwoFactorAuthService.php
-
-		-
-			message: '#^Instantiated class BaconQrCode\\Renderer\\RendererStyle\\RendererStyle not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/TwoFactorAuthService.php
-
-		-
-			message: '#^Instantiated class BaconQrCode\\Writer not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Services/TwoFactorAuthService.php
-
-		-
-			message: '#^Class Sentry\\Integration\\EnvironmentIntegration not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: config/sentry.php
-
-		-
-			message: '#^Class Sentry\\Integration\\FrameContextifierIntegration not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: config/sentry.php
-
-		-
-			message: '#^Class Sentry\\Integration\\RequestIntegration not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: config/sentry.php
-
-		-
-			message: '#^Class Sentry\\Integration\\TransactionIntegration not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: config/sentry.php
-
-		-
-			message: '#^Undefined variable\: \$this$#'
-			identifier: variable.undefined
-			count: 2
-			path: routes/health.php
-
-		-
-			message: '#^Class App\\Jobs\\ProcessPurchaseAttempt not found\.$#'
-			identifier: class.notFound
+			message: '#^Offset ''currency'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
 			count: 1
 			path: tests/EndToEnd/UserJourneyTest.php
 
 		-
-			message: '#^Class Tests\\Integration\\Api\\TicketApiTest has an uninitialized property \$admin\. Give it default value or assign it in the constructor\.$#'
+			message: '#^Class Tests\\Feature\\AccessibilityTest has an uninitialized property \$testUser\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
 			count: 1
-			path: tests/Integration/Api/TicketApiTest.php
+			path: tests/Feature/AccessibilityTest.php
 
 		-
-			message: '#^Class Tests\\Integration\\Api\\TicketApiTest has an uninitialized property \$user\. Give it default value or assign it in the constructor\.$#'
+			message: '#^Property Tests\\Feature\\AccessibilityTest\:\:\$testUser is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: tests/Feature/AccessibilityTest.php
+
+		-
+			message: '#^Class Tests\\Feature\\LoginValidationTest has an uninitialized property \$inactiveUser\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
 			count: 1
-			path: tests/Integration/Api/TicketApiTest.php
+			path: tests/Feature/LoginValidationTest.php
 
 		-
-			message: '#^Class App\\Jobs\\SendBulkNotifications not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: tests/Performance/SystemPerformanceTest.php
-
-		-
-			message: '#^Class Tests\\TestCase has an uninitialized property \$testDataFactory\. Give it default value or assign it in the constructor\.$#'
+			message: '#^Class Tests\\Feature\\LoginValidationTest has an uninitialized property \$lockedUser\. Give it default value or assign it in the constructor\.$#'
 			identifier: property.uninitialized
 			count: 1
-			path: tests/TestCase.php
+			path: tests/Feature/LoginValidationTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:available\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Class Tests\\Feature\\LoginValidationTest has an uninitialized property \$validUser\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
 			count: 1
-			path: tests/Unit/Models/TicketTest.php
+			path: tests/Feature/LoginValidationTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:bySport\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Class Tests\\Feature\\SportsTicketSystemTest has an uninitialized property \$admin\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
 			count: 1
-			path: tests/Unit/Models/TicketTest.php
+			path: tests/Feature/SportsTicketSystemTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:inCity\(\)\.$#'
-			identifier: staticMethod.notFound
+			message: '#^Class Tests\\Feature\\SportsTicketSystemTest has an uninitialized property \$user\. Give it default value or assign it in the constructor\.$#'
+			identifier: property.uninitialized
 			count: 1
-			path: tests/Unit/Models/TicketTest.php
+			path: tests/Feature/SportsTicketSystemTest.php
 
 		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:inPriceRange\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Unit/Models/TicketTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:upcoming\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Unit/Models/TicketTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\Ticket\:\:withTeam\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 2
-			path: tests/Unit/Models/TicketTest.php
-
-		-
-			message: '#^Call to an undefined static method App\\Models\\User\:\:active\(\)\.$#'
-			identifier: staticMethod.notFound
-			count: 1
-			path: tests/Unit/Models/UserTest.php
-
-		-
-			message: '#^Class App\\Services\\NotificationService constructor invoked with 3 parameters, 0 required\.$#'
-			identifier: arguments.count
+			message: '#^Offset ''notifications'' does not exist on string\.$#'
+			identifier: offsetAccess.notFound
 			count: 1
 			path: tests/Unit/Services/NotificationServiceTest.php
 
 		-
-			message: '#^Class Tests\\Unit\\Services\\NotificationServiceTest has an uninitialized property \$notificationService\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
+			message: '#^Property ValidationTestSuite\:\:\$viewports is never read, only written\.$#'
+			identifier: property.onlyWritten
 			count: 1
-			path: tests/Unit/Services/NotificationServiceTest.php
-
-		-
-			message: '#^Class Tests\\Unit\\Services\\ScrapingServiceTest has an uninitialized property \$scrapingService\. Give it default value or assign it in the constructor\.$#'
-			identifier: property.uninitialized
-			count: 1
-			path: tests/Unit/Services/ScrapingServiceTest.php
+			path: tests/validation_test_suite.php

@@ -1,0 +1,165 @@
+# HD Tickets SSL Virtual Host Configuration
+# Sports Events Entry Tickets Monitoring System - Production SSL Setup
+# Author: Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
+# Environment: Ubuntu 24.04 LTS, Apache2, PHP8.4, Laravel 12
+
+# Global Security Settings
+ServerTokens Prod
+
+# HTTP Virtual Host - Redirect all HTTP traffic to HTTPS
+<VirtualHost *:80>
+    ServerName hdtickets.local
+    ServerAlias www.hdtickets.local
+    DocumentRoot /var/www/hdtickets/public
+    
+    # Security Headers for HTTP requests (before redirect)
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Redirect all HTTP traffic to HTTPS
+    Redirect permanent / https://hdtickets.local/
+    
+    # Log configuration
+    ErrorLog ${APACHE_LOG_DIR}/hdtickets-error.log
+    CustomLog ${APACHE_LOG_DIR}/hdtickets-access.log combined
+</VirtualHost>
+
+# HTTPS Virtual Host - Main SSL Configuration
+<VirtualHost *:443>
+    ServerName hdtickets.local
+    ServerAlias www.hdtickets.local
+    DocumentRoot /var/www/hdtickets/public
+    
+    # SSL Engine Configuration
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/hdtickets/hdtickets.local.crt
+    SSLCertificateKeyFile /etc/ssl/hdtickets/hdtickets.local.key
+    
+    # Modern SSL/TLS Configuration - High Security
+    SSLProtocol -all +TLSv1.2 +TLSv1.3
+    SSLCipherSuite ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+    SSLHonorCipherOrder off
+    SSLSessionTickets off
+    
+    # OCSP Stapling (uncomment when using real certificates)
+    # SSLUseStapling on
+    # SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+    
+    # Laravel/PHP Configuration
+    <Directory /var/www/hdtickets/public>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+        
+        # Laravel-specific directives
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            
+            # Handle Angular routes in case of SPA integration
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule ^(.*)$ index.php [QSA,L]
+        </IfModule>
+        
+        # Security: Deny access to sensitive files
+        <FilesMatch "^\.">
+            Order allow,deny
+            Deny from all
+        </FilesMatch>
+        
+        <FilesMatch "\.(env|log|md|sql|json|lock)$">
+            Order allow,deny
+            Deny from all
+        </FilesMatch>
+    </Directory>
+    
+    # Additional Security Headers for HTTPS
+    # Note: Laravel SecurityHeadersMiddleware handles most headers, but we add belt-and-suspenders approach
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    Header always set X-Content-Type-Others "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+    
+    # Remove server information
+    Header always unset Server
+    Header always unset X-Powered-By
+    
+    # Cache Control for Static Assets (Sports Events Media)
+    <LocationMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set X-Content-Type-Options "nosniff"
+    </LocationMatch>
+    
+    # Special handling for API endpoints
+    <LocationMatch "^/api/">
+        Header always set X-Frame-Options "DENY"
+        Header always set X-Content-Type-Options "nosniff"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </LocationMatch>
+    
+    # WebSocket support for real-time ticket updates
+    <LocationMatch "^/ws">
+        ProxyPass ws://127.0.0.1:6001/
+        ProxyPassReverse ws://127.0.0.1:6001/
+        ProxyPreserveHost On
+        RequestHeader set X-Forwarded-Proto "https"
+        RequestHeader set X-Forwarded-Port "443"
+    </LocationMatch>
+    
+    # PHP Configuration (note: these require mod_php or use .htaccess instead)
+    # php_admin_value expose_php Off
+    # php_admin_value display_errors Off
+    # php_admin_value log_errors On
+    # php_admin_value memory_limit 256M
+    # php_admin_value max_execution_time 300
+    # php_admin_value upload_max_filesize 20M
+    # php_admin_value post_max_size 25M
+    
+    # Logging Configuration
+    ErrorLog ${APACHE_LOG_DIR}/hdtickets-ssl-error.log
+    CustomLog ${APACHE_LOG_DIR}/hdtickets-ssl-access.log combined
+    
+    # Security Log for SSL
+    CustomLog ${APACHE_LOG_DIR}/hdtickets-ssl-security.log "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\" \"%{SSL_PROTOCOL}x\" \"%{SSL_CIPHER}x\""
+</VirtualHost>
+
+# Global SSL Configuration
+<IfModule mod_ssl.c>
+    # SSL Session Cache
+    SSLSessionCache "shmcb:/var/run/apache2/ssl_gcache_data(512000)"
+    SSLSessionCacheTimeout 300
+    
+    # Random seed
+    SSLRandomSeed startup builtin
+    SSLRandomSeed connect builtin
+</IfModule>
+
+# Security Configuration for HD Tickets
+<IfModule mod_security2.c>
+    # Basic ModSecurity rules for Laravel applications
+    SecRuleEngine On
+    SecRequestBodyAccess On
+    SecResponseBodyAccess Off
+    SecRequestBodyLimit 20971520
+    SecRequestBodyNoFilesLimit 131072
+    SecRequestBodyLimitAction Reject
+    
+    # Disable rules that might interfere with Laravel
+    SecRuleRemoveById 981173
+    SecRuleRemoveById 200003
+</IfModule>
+
+# Rate Limiting (if mod_security is not available, use mod_rewrite)
+<IfModule mod_rewrite.c>
+    # Basic rate limiting for ticket scraping protection
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/api/scraping
+    RewriteCond %{HTTP:X-Forwarded-For} ^(.*)$
+    RewriteRule ^(.*)$ - [E=CLIENT_IP:%1,L]
+</IfModule>

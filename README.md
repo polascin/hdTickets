@@ -90,7 +90,7 @@ HDTickets is a comprehensive, high-performance Sports Events Entry Tickets Monit
 - **Composer**: 2.x (Latest stable version)
 - **Web Server**: Apache2 with PHP 8.4 module
 - **Operating System**: Ubuntu 24.04 LTS (Production environment)
-- **SSL/TLS**: OpenSSL for secure connections
+- **SSL/TLS**: OpenSSL for secure connections (mkcert for local development)
 - **Memory**: Minimum 4GB RAM (8GB recommended for production)
 - **Disk Space**: Minimum 10GB available space
 
@@ -188,6 +188,67 @@ TWILIO_TOKEN=your_twilio_token
 # Application Monitoring (Optional)
 TELESCOPE_ENABLED=false  # Set to true for debugging
 ```
+
+## 🔒 SSL/HTTPS Configuration
+
+### Local Development with mkcert
+
+For secure local development, the HD Tickets system uses **mkcert** to generate locally-trusted SSL certificates. This eliminates browser security warnings when testing HTTPS functionality locally.
+
+#### Quick Setup for New Developers
+
+```bash
+# Install mkcert
+curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+chmod +x mkcert-v*-linux-amd64
+sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+
+# Install local CA and generate certificates
+mkcert -install
+cd /etc/ssl/hdtickets/mkcert
+sudo mkcert localhost 127.0.0.1 hdtickets.local *.hdtickets.local
+
+# Set proper permissions for Apache
+sudo chown www-data:www-data localhost+*.pem localhost+*-key.pem
+sudo chmod 644 localhost+*.pem
+sudo chmod 600 localhost+*-key.pem
+```
+
+#### SSL Certificate Management
+
+- **Certificate Location**: `/etc/ssl/hdtickets/mkcert/`
+- **Documentation**: Complete setup guide at `/etc/ssl/hdtickets/mkcert/README.md`
+- **Team Sharing**: Export CA for team members with `mkcert -CAROOT`
+- **Regeneration**: Certificates valid for 2+ years, can be regenerated as needed
+
+#### Apache SSL Configuration
+
+Example virtual host configuration:
+```apache
+<VirtualHost *:443>
+    ServerName hdtickets.local
+    DocumentRoot /var/www/hdtickets/public
+    
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/hdtickets/mkcert/localhost+3.pem
+    SSLCertificateKeyFile /etc/ssl/hdtickets/mkcert/localhost+3-key.pem
+    
+    # Standard SSL security headers
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    Header always set X-Frame-Options DENY
+    Header always set X-Content-Type-Options nosniff
+</VirtualHost>
+```
+
+### Production SSL
+
+For production deployments:
+- Use Let's Encrypt or commercial SSL certificates
+- Configure proper SSL/TLS security headers
+- Implement HSTS (HTTP Strict Transport Security)
+- Regular certificate renewal and monitoring
+
+For detailed SSL setup instructions, see the dedicated documentation at `/etc/ssl/hdtickets/mkcert/README.md`.
 
 ## 📱 Usage Guide
 

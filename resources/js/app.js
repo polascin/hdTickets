@@ -16,6 +16,9 @@ import cssTimestamp from '@utils/cssTimestamp';
 import { ChartJS } from '@utils/chartConfig';
 import websocketManager from '@utils/websocketManager';
 
+// Import form enhancements
+import '@components/enhanced-form-ux.js';
+
 // Import router
 import router from './router/index.js';
 

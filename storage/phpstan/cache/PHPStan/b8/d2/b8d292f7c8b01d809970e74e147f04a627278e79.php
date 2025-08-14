@@ -119,39 +119,6 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
       ),
     ),
-    '/var/www/hdtickets/tests/Performance/SystemPerformanceTest.php' => 
-    array (
-      0 => '8ac6045a5b45c6a6c87f4f833ed576f41bac13f8',
-      1 => 
-      array (
-        0 => 'tests\\performance\\systemperformancetest',
-      ),
-      2 => 
-      array (
-        0 => 'tests\\performance\\it_can_handle_high_volume_ticket_listing_requests',
-        1 => 'tests\\performance\\it_can_handle_complex_ticket_filtering_efficiently',
-        2 => 'tests\\performance\\it_can_handle_concurrent_user_registrations',
-        3 => 'tests\\performance\\it_can_handle_bulk_purchase_attempts_efficiently',
-        4 => 'tests\\performance\\database_queries_are_optimized_for_ticket_listing',
-        5 => 'tests\\performance\\scraping_service_performs_efficiently_under_load',
-        6 => 'tests\\performance\\notification_service_handles_bulk_notifications_efficiently',
-        7 => 'tests\\performance\\cache_improves_api_response_times',
-        8 => 'tests\\performance\\purchase_engine_processes_queue_efficiently',
-        9 => 'tests\\performance\\memory_usage_remains_stable_during_long_operations',
-        10 => 'tests\\performance\\api_rate_limiting_performs_efficiently',
-        11 => 'tests\\performance\\database_connection_pool_handles_concurrent_requests',
-        12 => 'tests\\performance\\search_functionality_performs_well_with_large_dataset',
-        13 => 'tests\\performance\\pagination_performs_efficiently_across_large_datasets',
-        14 => 'tests\\performance\\createlargeticketdataset',
-        15 => 'tests\\performance\\createmultipleticketsources',
-        16 => 'tests\\performance\\createmultipleusers',
-        17 => 'tests\\performance\\createmultipletickets',
-        18 => 'tests\\performance\\createpurchaseattempt',
-      ),
-      3 => 
-      array (
-      ),
-    ),
     '/var/www/hdtickets/tests/TestCase.php' => 
     array (
       0 => '3c2ac313835b435e0e1bdb18db56c6229d9e28e1',
@@ -421,6 +388,151 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
         5 => 'tests\\endtoend\\user_account_management_and_privacy_journey',
         6 => 'tests\\endtoend\\error_handling_and_recovery_journey',
         7 => 'tests\\endtoend\\mobile_app_user_journey',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/tests/Feature/AccessibilityTest.php' => 
+    array (
+      0 => '6db77d6382441f9c84abf118f9b455805cd83fff',
+      1 => 
+      array (
+        0 => 'tests\\feature\\accessibilitytest',
+      ),
+      2 => 
+      array (
+        0 => 'tests\\feature\\setup',
+        1 => 'tests\\feature\\test_login_form_has_proper_labels',
+        2 => 'tests\\feature\\test_form_elements_have_aria_attributes',
+        3 => 'tests\\feature\\test_skip_navigation_links_present',
+        4 => 'tests\\feature\\test_screen_reader_only_content_present',
+        5 => 'tests\\feature\\test_error_messages_have_proper_aria_attributes',
+        6 => 'tests\\feature\\test_form_has_proper_heading_structure',
+        7 => 'tests\\feature\\test_color_contrast_elements_have_proper_classes',
+        8 => 'tests\\feature\\test_form_elements_have_autocomplete_attributes',
+        9 => 'tests\\feature\\test_form_has_proper_tabindex_structure',
+        10 => 'tests\\feature\\test_images_have_proper_alt_text_or_aria_hidden',
+        11 => 'tests\\feature\\test_focus_management_elements_present',
+        12 => 'tests\\feature\\test_keyboard_navigation_support',
+        13 => 'tests\\feature\\test_form_validation_accessibility',
+        14 => 'tests\\feature\\test_live_region_announcements',
+        15 => 'tests\\feature\\test_fieldset_and_legend_structure',
+        16 => 'tests\\feature\\test_button_accessibility_attributes',
+        17 => 'tests\\feature\\test_link_accessibility',
+        18 => 'tests\\feature\\test_spellcheck_and_language_attributes',
+        19 => 'tests\\feature\\test_error_prevention_features',
+        20 => 'tests\\feature\\test_progressive_enhancement_support',
+        21 => 'tests\\feature\\test_mobile_accessibility_features',
+        22 => 'tests\\feature\\test_security_and_privacy_accessibility',
+        23 => 'tests\\feature\\test_contextual_help_and_instructions',
+        24 => 'tests\\feature\\test_error_recovery_accessibility',
+        25 => 'tests\\feature\\test_semantic_html_structure',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/tests/Feature/SportsTicketSystemTest.php' => 
+    array (
+      0 => '35d17119a91596f4adb2fa9bd96d3add43d85ff5',
+      1 => 
+      array (
+        0 => 'tests\\feature\\sportsticketsystemtest',
+      ),
+      2 => 
+      array (
+        0 => 'tests\\feature\\test_web_scraping_functionality',
+        1 => 'tests\\feature\\test_ticket_availability_monitoring',
+        2 => 'tests\\feature\\test_sms_notification_system',
+        3 => 'tests\\feature\\test_pusher_notification_system',
+        4 => 'tests\\feature\\test_payment_integration',
+        5 => 'tests\\feature\\test_two_factor_authentication',
+        6 => 'tests\\feature\\test_activity_logging',
+        7 => 'tests\\feature\\test_export_functionality',
+        8 => 'tests\\feature\\test_real_time_websocket_updates',
+        9 => 'tests\\feature\\test_system_integration_flow',
+        10 => 'tests\\feature\\test_error_handling_and_resilience',
+        11 => 'tests\\feature\\setup',
+        12 => 'tests\\feature\\teardown',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/tests/Feature/LoginValidationTest.php' => 
+    array (
+      0 => '09c26d1c3e927688481e8e6b4b7df54ad9ce260b',
+      1 => 
+      array (
+        0 => 'tests\\feature\\loginvalidationtest',
+      ),
+      2 => 
+      array (
+        0 => 'tests\\feature\\setup',
+        1 => 'tests\\feature\\test_login_displays_form',
+        2 => 'tests\\feature\\test_login_with_valid_credentials_succeeds',
+        3 => 'tests\\feature\\test_login_with_remember_me_sets_cookie',
+        4 => 'tests\\feature\\test_login_with_invalid_email_fails',
+        5 => 'tests\\feature\\test_login_with_invalid_password_fails',
+        6 => 'tests\\feature\\test_login_with_inactive_account_fails',
+        7 => 'tests\\feature\\test_login_with_locked_account_fails',
+        8 => 'tests\\feature\\test_account_locks_after_five_failed_attempts',
+        9 => 'tests\\feature\\test_failed_attempts_reset_on_successful_login',
+        10 => 'tests\\feature\\test_honeypot_protection_blocks_bots',
+        11 => 'tests\\feature\\test_csrf_protection_is_enforced',
+        12 => 'tests\\feature\\test_rate_limiting_prevents_brute_force',
+        13 => 'tests\\feature\\test_email_validation_rules',
+        14 => 'tests\\feature\\test_password_validation_rules',
+        15 => 'tests\\feature\\test_user_login_activity_logging',
+        16 => 'tests\\feature\\test_login_with_two_factor_authentication_enabled',
+        17 => 'tests\\feature\\test_scraper_users_cannot_login',
+        18 => 'tests\\feature\\test_login_form_accessibility_attributes',
+        19 => 'tests\\feature\\test_login_session_regeneration',
+        20 => 'tests\\feature\\teardown',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/tests/validation_test_suite.php' => 
+    array (
+      0 => 'fa3355673c76daf0d2255465585d9c37eb0a65bb',
+      1 => 
+      array (
+        0 => 'validationtestsuite',
+      ),
+      2 => 
+      array (
+        0 => '__construct',
+        1 => 'runalltests',
+        2 => 'testauthentication',
+        3 => 'testrouting',
+        4 => 'testresponsivedesign',
+        5 => 'testperformance',
+        6 => 'testaccessibility',
+        7 => 'testbrowsersupport',
+        8 => 'makerequest',
+        9 => 'recordtest',
+        10 => 'printsummaryreport',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/tests/DuskTestCase.php' => 
+    array (
+      0 => '636addb5b3f8fe62ef418fafa6f1ba3292337796',
+      1 => 
+      array (
+        0 => 'tests\\dusktestcase',
+      ),
+      2 => 
+      array (
+        0 => 'tests\\prepare',
+        1 => 'tests\\hasheadlessdisabled',
+        2 => 'tests\\runninginsail',
+        3 => 'tests\\driver',
       ),
       3 => 
       array (

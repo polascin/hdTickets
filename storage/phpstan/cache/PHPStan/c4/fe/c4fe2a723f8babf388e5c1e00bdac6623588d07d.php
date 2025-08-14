@@ -33,7 +33,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/routes/api.php' => 
     array (
-      0 => '0f60abf62f1aab6e101f7c5e0cedbf5d56d1db33',
+      0 => '26b190f58cf7bbd8916e9e53f66b911b4761edba',
       1 => 
       array (
       ),
@@ -113,7 +113,20 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/routes/web.php' => 
     array (
-      0 => 'fa9dc2f7491f7d53aadc05eebf6d06c0683922d7',
+      0 => 'cdf1b78b7b38537415415d1ebe5bdc99600caf9b',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/routes/api-session.php' => 
+    array (
+      0 => '07eef9fb424ad3cfc817f2db22c97c8c3ef0419b',
       1 => 
       array (
       ),

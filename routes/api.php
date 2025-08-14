@@ -150,6 +150,68 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     Route::get('/auth/profile', [AuthController::class, 'profile']);
     Route::post('/auth/revoke-tokens', [AuthController::class, 'revokeAllTokens']);
 
+    // Session Management Routes for Professional Auth Features
+    Route::post('/session/extend', function (Request $request) {
+        try {
+            if (! Illuminate\Support\Facades\Auth::check()) {
+                return response()->json([
+                    'success' => FALSE,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
+
+            $request->session()->regenerate();
+            $request->session()->put('last_activity', time());
+
+            Illuminate\Support\Facades\Log::info('Session extended for user', [
+                'user_id'    => Illuminate\Support\Facades\Auth::id(),
+                'email'      => Illuminate\Support\Facades\Auth::user()->email,
+                'ip'         => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp'  => now()->toDateTimeString(),
+            ]);
+
+            return response()->json([
+                'success'    => TRUE,
+                'message'    => 'Session extended successfully',
+                'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
+            ]);
+        } catch (Exception $e) {
+            Illuminate\Support\Facades\Log::error('Session extension failed', [
+                'user_id'   => Illuminate\Support\Facades\Auth::id() ?? 'unknown',
+                'error'     => $e->getMessage(),
+                'ip'        => $request->ip(),
+                'timestamp' => now()->toDateTimeString(),
+            ]);
+
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Session extension failed',
+            ], 500);
+        }
+    });
+
+    Route::get('/session/status', function (Request $request) {
+        if (! Illuminate\Support\Facades\Auth::check()) {
+            return response()->json([
+                'success'       => FALSE,
+                'authenticated' => FALSE,
+            ], 401);
+        }
+
+        $sessionLifetime = config('session.lifetime') * 60;
+        $lastActivity = $request->session()->get('last_activity', time());
+        $timeRemaining = $sessionLifetime - (time() - $lastActivity);
+
+        return response()->json([
+            'success'          => TRUE,
+            'authenticated'    => TRUE,
+            'session_lifetime' => $sessionLifetime,
+            'time_remaining'   => max(0, $timeRemaining),
+            'expires_at'       => now()->addSeconds(max(0, $timeRemaining))->toISOString(),
+        ]);
+    });
+
     // Get current user
     Route::get('/user', function (Request $request) {
         return $request->user();

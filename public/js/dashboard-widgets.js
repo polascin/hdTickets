@@ -97,20 +97,20 @@ class DashboardWidgets {
     }
 
     /**
-     * Animate progress indicator
+     * Animate progress indicator with modern easing
      */
     animateProgress(widget, targetStrokeDasharray, targetValue, label, percentage) {
         const startValue = widget.value || 0;
         const valueChange = targetValue - startValue;
-        const duration = 1000; // 1 second
-        const startTime = Date.now();
+        const duration = 800; // Reduced to 0.8 seconds for snappier feel
+        const startTime = performance.now();
         
-        const animate = () => {
-            const elapsed = Date.now() - startTime;
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Easing function (ease-out)
-            const eased = 1 - Math.pow(1 - progress, 3);
+            // Modern cubic-bezier easing (ease-out-quart)
+            const eased = 1 - Math.pow(1 - progress, 4);
             
             const currentValue = Math.round(startValue + (valueChange * eased));
             const currentPercentage = (currentValue / 100) * 100;
@@ -118,19 +118,19 @@ class DashboardWidgets {
             const currentStrokeDasharray = `${(currentPercentage / 100) * circumference} ${circumference}`;
             
             widget.circle.style.strokeDasharray = currentStrokeDasharray;
+            widget.circle.style.transition = 'stroke 0.3s ease';
             widget.label.textContent = currentValue;
             widget.text.textContent = label;
             widget.value = currentValue;
             
-            // Color coding based on percentage
+            // Smooth color transitions based on percentage
+            widget.circle.classList.remove('warning', 'error', 'success');
             if (percentage > 80) {
                 widget.circle.classList.add('error');
-                widget.circle.classList.remove('warning');
             } else if (percentage > 60) {
                 widget.circle.classList.add('warning');
-                widget.circle.classList.remove('error');
-            } else {
-                widget.circle.classList.remove('warning', 'error');
+            } else if (percentage > 30) {
+                widget.circle.classList.add('success');
             }
             
             if (progress < 1) {

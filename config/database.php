@@ -58,7 +58,13 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA                 => env('MYSQL_ATTR_SSL_CA'),
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => FALSE,
                 PDO::MYSQL_ATTR_LOCAL_INFILE           => TRUE,
+                // Enable MySQL slow query log integration
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'",
             ]) : [],
+            // Performance monitoring options
+            'slow_query_threshold' => env('DB_SLOW_QUERY_THRESHOLD', 1.0), // seconds
+            'log_queries'          => env('DB_LOG_QUERIES', FALSE),
+            'log_slow_queries'     => env('DB_LOG_SLOW_QUERIES', TRUE),
         ],
 
         'mariadb' => [
@@ -78,7 +84,13 @@ return [
             'engine'         => NULL,
             'options'        => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                // Enable MySQL slow query log integration
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'",
             ]) : [],
+            // Performance monitoring options
+            'slow_query_threshold' => env('DB_SLOW_QUERY_THRESHOLD', 1.0), // seconds
+            'log_queries'          => env('DB_LOG_QUERIES', FALSE),
+            'log_slow_queries'     => env('DB_LOG_SLOW_QUERIES', TRUE),
         ],
 
         'pgsql' => [

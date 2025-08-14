@@ -150,7 +150,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/config/app.php' => 
     array (
-      0 => '8bdb9a7738f8ebde9a6d210603f4b02663559ff4',
+      0 => 'ec4f3e377a26d6bcdbc3c1f16a263c84a8070523',
       1 => 
       array (
       ),
@@ -163,7 +163,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/config/logging.php' => 
     array (
-      0 => '91c69bea8a62c06c2db01a9b65d756859f6497b1',
+      0 => '0076643d05bb9ab716edd507e61055c636615c05',
       1 => 
       array (
       ),
@@ -215,7 +215,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/config/auth.php' => 
     array (
-      0 => 'f7d429b89341206d47c0cfdbd916ea8508d2c11f',
+      0 => '845a8a5741258314317c7b7d77796f676c52d5c2',
       1 => 
       array (
       ),
@@ -267,7 +267,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/config/database.php' => 
     array (
-      0 => '39deb81192e9bda55db9b9fa71c64e5edd7f4fb1',
+      0 => '67b6853db5821df20e78a95a37435241469e0eac',
       1 => 
       array (
       ),
@@ -359,6 +359,32 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     '/var/www/hdtickets/config/notifications.php' => 
     array (
       0 => '43c88aa890ff744ff57df91e88622a0b9260e987',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/config/error-tracking.php' => 
+    array (
+      0 => '913f0bc126d643647710ef1df27d83b5c5d707c6',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/config/horizon.php' => 
+    array (
+      0 => '00532e2538b6d6dda1a0fb8b98ae65749898e942',
       1 => 
       array (
       ),

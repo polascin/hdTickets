@@ -3,11 +3,11 @@
 
 :root {
   /* ================================
-     HD BRAND COLORS
+     HD MODERN BRAND COLORS
      ================================ */
   
-  /* Primary Brand Colors */
-  --hd-primary: #2563eb;
+  /* Primary Brand Colors - Modern Electric Blue */
+  --hd-primary: #3b82f6;
   --hd-primary-50: #eff6ff;
   --hd-primary-100: #dbeafe;
   --hd-primary-200: #bfdbfe;
@@ -19,8 +19,8 @@
   --hd-primary-800: #1e40af;
   --hd-primary-900: #1e3a8a;
   
-  /* Secondary Colors */
-  --hd-secondary: #7c3aed;
+  /* Secondary Colors - Modern Purple */
+  --hd-secondary: #8b5cf6;
   --hd-secondary-50: #f5f3ff;
   --hd-secondary-100: #ede9fe;
   --hd-secondary-200: #ddd6fe;
@@ -32,18 +32,18 @@
   --hd-secondary-800: #5b21b6;
   --hd-secondary-900: #4c1d95;
   
-  /* Accent Colors */
-  --hd-accent: #06b6d4;
-  --hd-accent-50: #ecfeff;
-  --hd-accent-100: #cffafe;
-  --hd-accent-200: #a5f3fc;
-  --hd-accent-300: #67e8f9;
-  --hd-accent-400: #22d3ee;
-  --hd-accent-500: #06b6d4;
-  --hd-accent-600: #0891b2;
-  --hd-accent-700: #0e7490;
-  --hd-accent-800: #155e75;
-  --hd-accent-900: #164e63;
+  /* Accent Colors - Modern Teal/Cyan */
+  --hd-accent: #14b8a6;
+  --hd-accent-50: #f0fdfa;
+  --hd-accent-100: #ccfbf1;
+  --hd-accent-200: #99f6e4;
+  --hd-accent-300: #5eead4;
+  --hd-accent-400: #2dd4bf;
+  --hd-accent-500: #14b8a6;
+  --hd-accent-600: #0d9488;
+  --hd-accent-700: #0f766e;
+  --hd-accent-800: #115e59;
+  --hd-accent-900: #134e4a;
   
   /* ================================
      HD STATUS COLORS
@@ -156,10 +156,11 @@
      HD TYPOGRAPHY
      ================================ */
   
-  /* Font Families */
-  --hd-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --hd-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-  --hd-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  /* Modern Font Families */
+  --hd-font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --hd-font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --hd-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, 'SF Mono', 'Cascadia Code', 'Roboto Mono', monospace;
+  --hd-font-display: 'Space Grotesk', 'Plus Jakarta Sans', 'Inter', sans-serif;
   
   /* Font Weights */
   --hd-font-thin: 100;
@@ -258,17 +259,25 @@
   --hd-radius-full: 9999px;
   
   /* ================================
-     HD SHADOWS
+     HD MODERN SHADOWS
      ================================ */
   
-  --hd-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --hd-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --hd-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --hd-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --hd-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --hd-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --hd-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --hd-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --hd-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  --hd-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 2px 8px 0 rgba(0, 0, 0, 0.02);
+  --hd-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --hd-shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.08), 0 8px 20px -4px rgba(0, 0, 0, 0.06);
+  --hd-shadow-lg: 0 8px 16px -4px rgba(0, 0, 0, 0.1), 0 16px 32px -8px rgba(0, 0, 0, 0.08);
+  --hd-shadow-xl: 0 16px 32px -8px rgba(0, 0, 0, 0.12), 0 32px 64px -16px rgba(0, 0, 0, 0.1);
+  --hd-shadow-2xl: 0 24px 48px -12px rgba(0, 0, 0, 0.15), 0 48px 96px -24px rgba(0, 0, 0, 0.12);
+  --hd-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  
+  /* Glassmorphism shadows */
+  --hd-shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --hd-shadow-glass-lg: 0 16px 64px rgba(0, 0, 0, 0.16);
+  
+  /* Neumorphism shadows */
+  --hd-shadow-neu: 8px 8px 16px rgba(163, 177, 198, 0.6), -8px -8px 16px rgba(255, 255, 255, 0.5);
+  --hd-shadow-neu-inset: inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
   
   /* ================================
      HD ANIMATIONS & TRANSITIONS
@@ -329,13 +338,22 @@
   --hd-sidebar-width: 16rem;      /* 256px */
   --hd-sidebar-collapsed-width: 4rem; /* 64px */
   
-  /* Breakpoints (for reference in container queries) */
-  --hd-screen-xs: 375px;
-  --hd-screen-sm: 640px;
-  --hd-screen-md: 768px;
-  --hd-screen-lg: 1024px;
-  --hd-screen-xl: 1280px;
-  --hd-screen-2xl: 1536px;
+  /* Mobile-first Breakpoints (Enhanced for sports ticket platform) */
+  --hd-screen-xs: 375px;      /* Mobile Portrait */
+  --hd-screen-sm: 640px;      /* Mobile Landscape */
+  --hd-screen-md: 768px;      /* Tablet Portrait */
+  --hd-screen-lg: 1024px;     /* Tablet Landscape */
+  --hd-screen-xl: 1280px;     /* Desktop */
+  --hd-screen-2xl: 1536px;    /* Large Desktop */
+  
+  /* Touch Target Standards */
+  --hd-touch-target-min: 44px;         /* Minimum WCAG AA */
+  --hd-touch-target-recommended: 48px;  /* WCAG AAA */
+  --hd-touch-target-large: 56px;       /* Comfortable touch */
+  
+  /* Mobile Navigation Heights */
+  --hd-mobile-nav-height: 64px;
+  --hd-mobile-bottom-nav-height: 72px;
   
   /* Container Max Widths */
   --hd-container-xs: 20rem;      /* 320px */

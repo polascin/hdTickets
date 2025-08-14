@@ -14,8 +14,21 @@ class EnvServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind the 'env' service to the container
-        $this->app->instance('env', env('APP_ENV', 'production'));
+        // Register a custom environment service that doesn't conflict with Laravel's core
+        $this->app->singleton('app.environment', function ($app) {
+            return $app->environment();
+        });
+
+        // Register environment-specific configurations
+        $this->app->singleton('environment.config', function () {
+            return [
+                'name'          => env('APP_ENV', 'production'),
+                'debug'         => env('APP_DEBUG', FALSE),
+                'is_production' => config('APP_ENV') === 'production',
+                'is_local'      => config('APP_ENV') === 'local',
+                'is_testing'    => config('APP_ENV') === 'testing',
+            ];
+        });
     }
 
     /**

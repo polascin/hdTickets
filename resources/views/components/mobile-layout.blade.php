@@ -761,18 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function setupAccessibilityEnhancements() {
-        // Add skip to main content link
-        const skipLink = document.createElement('a');
-        skipLink.href = '#main-content';
-        skipLink.className = 'skip-to-main sr-only focus:not-sr-only';
-        skipLink.textContent = 'Skip to main content';
-        document.body.insertBefore(skipLink, document.body.firstChild);
-        
-        // Ensure main content has ID
-        const mainContent = document.querySelector('main, [role="main"], .main-content');
-        if (mainContent && !mainContent.id) {
-            mainContent.id = 'main-content';
-        }
+        // Accessibility enhancements without skip link
         
         // Add keyboard navigation support
         document.addEventListener('keydown', function(e) {

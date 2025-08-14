@@ -2,11 +2,19 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="authenticated" content="{{ auth()->check() ? 'true' : 'false' }}">
         
         <!-- Enhanced Mobile Meta Tags -->
-        <x-mobile.mobile-meta />
+        <meta name="format-detection" content="telephone=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="HD Tickets">
+        
+        <!-- Prevent iOS zoom on form fields -->
+        <meta name="disable-ios-zoom" content="true">
 
         <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
@@ -81,13 +89,27 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="{{ css_with_timestamp('https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap') }}" rel="stylesheet" />
+        
+        <!-- Enhanced HD Tickets CSS -->
+        <link href="{{ asset('css/hd-notifications.css') }}?v={{ filemtime(public_path('css/hd-notifications.css')) }}" rel="stylesheet">
+        
         <!-- Bootstrap CSS -->
         <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+        <!-- Enhanced HD Tickets JavaScript -->
+        <script src="{{ asset('js/notificationManager.js') }}?v={{ filemtime(public_path('js/notificationManager.js')) }}" defer></script>
+        <script src="{{ asset('js/performanceMonitor.js') }}?v={{ filemtime(public_path('js/performanceMonitor.js')) }}" defer></script>
 
+        <!-- Inline Critical CSS for Above-the-Fold Content -->
+        <style>
+            {!! file_get_contents(resource_path('css/critical.css')) !!}
+        </style>
+        
         <!-- Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-@vite(['resources/css/app.css', 'resources/js/app.js'])
+            @vite(['resources/css/app.css', 'resources/js/app.js'])
+            <script type="module" src="{{ asset('resources/js/utils/assetOptimizer.js') }}"></script>
         @else
             <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -284,6 +306,91 @@
         <link rel="stylesheet" href="{{ asset('css/mobile-enhancements.css') }}?t={{ time() }}">
         <!-- Mobile Touch Utilities -->
         <script src="{{ asset('resources/js/utils/mobileTouchUtils.js') }}?t={{ time() }}" defer></script>
+        
+        <!-- Additional Mobile Optimizations -->
+        <script>
+            // Initialize comprehensive mobile enhancements
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.mobileTouchUtils) {
+                    window.mobileTouchUtils.initializeAllFeatures();
+                }
+                
+                // Add mobile-specific CSS classes for progressive enhancement
+                const deviceType = window.innerWidth <= 768 ? 'mobile' : 'desktop';
+                document.documentElement.classList.add(deviceType);
+                
+                // Handle viewport orientation changes
+                function handleOrientationChange() {
+                    setTimeout(() => {
+                        // Update viewport height
+                        const vh = window.innerHeight * 0.01;
+                        document.documentElement.style.setProperty('--vh', `${vh}px`);
+                        
+                        // Update device orientation class
+                        const orientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+                        document.documentElement.classList.remove('portrait', 'landscape');
+                        document.documentElement.classList.add(orientation);
+                    }, 150);
+                }
+                
+                window.addEventListener('orientationchange', handleOrientationChange);
+                window.addEventListener('resize', handleOrientationChange);
+                
+                // Initial orientation setup
+                handleOrientationChange();
+                
+                // Enhanced form handling for mobile
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        // Add loading state
+                        const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = submitBtn.textContent.replace(/^(?!.*Loading)/, 'Loading... ');
+                            
+                            // Re-enable after timeout (safety net)
+                            setTimeout(() => {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = submitBtn.textContent.replace('Loading... ', '');
+                            }, 30000);
+                        }
+                    });
+                });
+                
+                // Mobile-specific error handling
+                window.addEventListener('error', function(e) {
+                    if (window.mobileTouchUtils) {
+                        window.mobileTouchUtils.showMobileNotification(
+                            'Something went wrong. Please try again.',
+                            'error',
+                            5000
+                        );
+                    }
+                });
+                
+                // Network status notifications
+                window.addEventListener('online', function() {
+                    if (window.mobileTouchUtils) {
+                        window.mobileTouchUtils.showMobileNotification(
+                            'Connection restored',
+                            'success',
+                            2000
+                        );
+                    }
+                });
+                
+                window.addEventListener('offline', function() {
+                    if (window.mobileTouchUtils) {
+                        window.mobileTouchUtils.showMobileNotification(
+                            'No internet connection',
+                            'warning',
+                            5000
+                        );
+                    }
+                });
+            });
+        </script>
         <!-- Dashboard Manager Component -->
         <script src="{{ asset('resources/js/components/dashboardManager.js') }}?t={{ time() }}" defer></script>
         <script>

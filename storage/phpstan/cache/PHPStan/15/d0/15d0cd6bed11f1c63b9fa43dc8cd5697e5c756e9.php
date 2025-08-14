@@ -865,5 +865,65 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
       ),
     ),
+    '/var/www/hdtickets/database/migrations/2025_08_14_103436_fix_oauth_access_tokens_client_id_field.php' => 
+    array (
+      0 => '08be9f750cbba786971d3b5612bf251ff10b965d',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_08_14_103223_fix_oauth_clients_uuid_field.php' => 
+    array (
+      0 => '470058937818004379c0f448308e4053c5961942',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_08_14_103459_fix_oauth_auth_codes_client_id_field.php' => 
+    array (
+      0 => 'f18577a8f7580963f30db916c0828e28e06f7c67',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_08_14_103508_fix_oauth_personal_access_clients_client_id_field.php' => 
+    array (
+      0 => '4f4f2fbc696710e34fa8b71744fa3cbe31eb4cae',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
   ),
 ));

@@ -44,7 +44,9 @@
                     <p class="text-sm text-gray-600 mt-1">Fill in the details below to create a new user account</p>
                 </div>
 
-                <form method="POST" action="{{ route('admin.register') }}" class="p-6 space-y-6">
+                <form method="POST" action="{{ route('admin.register') }}" class="p-6 space-y-6 enhanced-form" id="register-form">
+                    <!-- Honeypot field for bot protection -->
+                    <input type="text" name="website_url" style="display: none;" tabindex="-1" autocomplete="off" />
                     @csrf
 
                     <!-- Name -->

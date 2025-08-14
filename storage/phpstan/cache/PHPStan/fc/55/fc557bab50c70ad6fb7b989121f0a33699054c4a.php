@@ -390,7 +390,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Providers/EnvServiceProvider.php' => 
     array (
-      0 => 'd8b92a475feedaf653fed3bafe98f7d8beeaef47',
+      0 => '803be0e20efadccf8a3b1c4be1c8008c9bc5f997',
       1 => 
       array (
         0 => 'app\\providers\\envserviceprovider',
@@ -443,7 +443,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Providers/AuthServiceProvider.php' => 
     array (
-      0 => '53e5841d9f7532ba917fddaba75eeedbdc6751e5',
+      0 => 'aa239a4669beeed83101bb04621d3b0856cb8359',
       1 => 
       array (
         0 => 'app\\providers\\authserviceprovider',
@@ -1315,7 +1315,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Models/User.php' => 
     array (
-      0 => '823908b2bcc8dbed3e7b3f12ba7c983957d213ea',
+      0 => '8c3599343b8d01379b14cb0a59432449c4513e70',
       1 => 
       array (
         0 => 'app\\models\\user',
@@ -6850,7 +6850,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Notifications/SmartTicketAlert.php' => 
     array (
-      0 => 'a7c14b3710f6cc3e4dea5079930568c14d9f23ee',
+      0 => '45ddf865caff48d8a3e361a293c2790d09775970',
       1 => 
       array (
         0 => 'app\\notifications\\smartticketalert',
@@ -7306,7 +7306,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Http/Requests/Auth/LoginRequest.php' => 
     array (
-      0 => '4e07c9f82fa90a98b60e1c688fe1da6e7486e9f6',
+      0 => '71a7c1a76b1a18de164d174416382f8b050e0abd',
       1 => 
       array (
         0 => 'app\\http\\requests\\auth\\loginrequest',
@@ -10684,6 +10684,219 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
         0 => 'app\\contracts\\analytics\\recordpricechange',
         1 => 'app\\contracts\\analytics\\recordavailabilitychange',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Rules/HoneypotRule.php' => 
+    array (
+      0 => '6d1423873622b83f900f3f5e11c19f78c277e81f',
+      1 => 
+      array (
+        0 => 'app\\rules\\honeypotrule',
+      ),
+      2 => 
+      array (
+        0 => 'app\\rules\\__construct',
+        1 => 'app\\rules\\validate',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Providers/HorizonServiceProvider.php' => 
+    array (
+      0 => 'eb20a639790dc0aff3fec04c1586f67afb192907',
+      1 => 
+      array (
+        0 => 'app\\providers\\horizonserviceprovider',
+      ),
+      2 => 
+      array (
+        0 => 'app\\providers\\boot',
+        1 => 'app\\providers\\gate',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Http/Controllers/ProductionHealthController.php' => 
+    array (
+      0 => '827802b321714029ed636df0c524cd30cc980b73',
+      1 => 
+      array (
+        0 => 'app\\http\\controllers\\productionhealthcontroller',
+      ),
+      2 => 
+      array (
+        0 => 'app\\http\\controllers\\comprehensive',
+        1 => 'app\\http\\controllers\\checkapplication',
+        2 => 'app\\http\\controllers\\checkdatabasehealth',
+        3 => 'app\\http\\controllers\\checkperformancemetrics',
+        4 => 'app\\http\\controllers\\checkhorizonstatus',
+        5 => 'app\\http\\controllers\\checkticketscrapinghealth',
+        6 => 'app\\http\\controllers\\getsysteminfo',
+        7 => 'app\\http\\controllers\\getperformancesummary',
+        8 => 'app\\http\\controllers\\getdatabasestats',
+        9 => 'app\\http\\controllers\\getslowquerycount',
+        10 => 'app\\http\\controllers\\getdatabaseconnections',
+        11 => 'app\\http\\controllers\\getaverageresponsetime',
+        12 => 'app\\http\\controllers\\getmemoryusage',
+        13 => 'app\\http\\controllers\\getcpuusage',
+        14 => 'app\\http\\controllers\\getdiskusage',
+        15 => 'app\\http\\controllers\\geterrorrate',
+        16 => 'app\\http\\controllers\\getqueuesizes',
+        17 => 'app\\http\\controllers\\parsememorysize',
+        18 => 'app\\http\\controllers\\getuptime',
+        19 => 'app\\http\\controllers\\getrequestsperminute',
+        20 => 'app\\http\\controllers\\getaveragememoryusage',
+        21 => 'app\\http\\controllers\\getcachehitratio',
+        22 => 'app\\http\\controllers\\getredisversion',
+        23 => 'app\\http\\controllers\\getdatabaseversion',
+        24 => 'app\\http\\controllers\\checksportseventssystem',
+        25 => 'app\\http\\controllers\\checkexternalapis',
+        26 => 'app\\http\\controllers\\checkerrortracking',
+        27 => 'app\\http\\controllers\\checksecuritystatus',
+        28 => 'app\\http\\controllers\\checkmonitoringhealth',
+        29 => 'app\\http\\controllers\\checkcachesystem',
+        30 => 'app\\http\\controllers\\checkqueuesystem',
+        31 => 'app\\http\\controllers\\checkstoragehealth',
+        32 => 'app\\http\\controllers\\checksystemresources',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Http/Middleware/SecureErrorMessages.php' => 
+    array (
+      0 => '46edfbe4a8355d1388fe06931812d2a980bbdfc8',
+      1 => 
+      array (
+        0 => 'app\\http\\middleware\\secureerrormessages',
+      ),
+      2 => 
+      array (
+        0 => 'app\\http\\middleware\\handle',
+        1 => 'app\\http\\middleware\\isauthroute',
+        2 => 'app\\http\\middleware\\sanitizejsonerrors',
+        3 => 'app\\http\\middleware\\sanitizefielderrors',
+        4 => 'app\\http\\middleware\\getsanitizedmessage',
+        5 => 'app\\http\\middleware\\logsecurityevent',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Logging/PerformanceLogger.php' => 
+    array (
+      0 => 'b37884070198f1cefc1aa4f812203d076d728eea',
+      1 => 
+      array (
+        0 => 'app\\logging\\performancelogger',
+      ),
+      2 => 
+      array (
+        0 => 'app\\logging\\addperformancecontext',
+        1 => 'app\\logging\\getresponsetime',
+        2 => 'app\\logging\\getcpuusage',
+        3 => 'app\\logging\\getloadaverage',
+        4 => 'app\\logging\\getconnectioncount',
+        5 => 'app\\logging\\__invoke',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Logging/QueryLogger.php' => 
+    array (
+      0 => '76139f17512ec3f925c86501062e79d1e8f8f990',
+      1 => 
+      array (
+        0 => 'app\\logging\\querylogger',
+      ),
+      2 => 
+      array (
+        0 => 'app\\logging\\addquerycontext',
+        1 => 'app\\logging\\getquerytype',
+        2 => 'app\\logging\\extracttables',
+        3 => 'app\\logging\\categorizeperformance',
+        4 => 'app\\logging\\__invoke',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Exceptions/DatabaseErrorHandler.php' => 
+    array (
+      0 => '4a9a0988a7efac115cab09b93b8373810fd70df6',
+      1 => 
+      array (
+        0 => 'app\\exceptions\\databaseerrorhandler',
+      ),
+      2 => 
+      array (
+        0 => 'app\\exceptions\\handle',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Exceptions/ScrapingErrorHandler.php' => 
+    array (
+      0 => '21df4dc46824f6d9865cb9594fd16af5fe1b54c3',
+      1 => 
+      array (
+        0 => 'app\\exceptions\\scrapingerrorhandler',
+      ),
+      2 => 
+      array (
+        0 => 'app\\exceptions\\handle',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Exceptions/ApiErrorHandler.php' => 
+    array (
+      0 => '5bcc82e9967dd4b48ad8faba9de01d5363322d7f',
+      1 => 
+      array (
+        0 => 'app\\exceptions\\apierrorhandler',
+      ),
+      2 => 
+      array (
+        0 => 'app\\exceptions\\handle',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Exceptions/PaymentErrorHandler.php' => 
+    array (
+      0 => 'a40c39e3d0b81cfde85a33d750bedb10f3cb5e47',
+      1 => 
+      array (
+        0 => 'app\\exceptions\\paymenterrorhandler',
+      ),
+      2 => 
+      array (
+        0 => 'app\\exceptions\\handle',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/app/Logging/ErrorTrackingLogger.php' => 
+    array (
+      0 => '8d39ec24a6126dc030215dfc0e83e12610780e1a',
+      1 => 
+      array (
+        0 => 'app\\logging\\errortrackinglogger',
+      ),
+      2 => 
+      array (
+        0 => 'app\\logging\\__invoke',
       ),
       3 => 
       array (

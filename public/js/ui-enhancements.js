@@ -5,19 +5,71 @@
 
 class UIEnhancements {
     constructor() {
+        this.animationSupport = {
+            intersectionObserver: 'IntersectionObserver' in window,
+            requestAnimationFrame: 'requestAnimationFrame' in window,
+            cssTransitions: this.checkCSSTransitionSupport(),
+            reducedMotion: this.checkReducedMotionPreference()
+        };
+        
         this.init();
     }
 
     init() {
-        this.setupLoadingStates();
-        this.setupFormEnhancements();
-        this.setupButtonHoverEffects();
-        this.setupScrollEffects();
-        this.setupKeyboardNavigation();
-        this.setupTooltips();
-        this.setupAnimations();
+        try {
+            this.setupLoadingStates();
+            this.setupFormEnhancements();
+            this.setupButtonHoverEffects();
+            this.setupScrollEffects();
+            this.setupKeyboardNavigation();
+            this.setupTooltips();
+            this.setupAnimations();
+            
+            console.log('HD Tickets UI Enhancements loaded successfully');
+        } catch (error) {
+            console.error('Error initializing UI enhancements:', error);
+            this.initFallbacks();
+        }
+    }
+
+    checkCSSTransitionSupport() {
+        const el = document.createElement('div');
+        const transitions = {
+            'transition': 'transitionend',
+            'OTransition': 'oTransitionEnd',
+            'MozTransition': 'transitionend',
+            'WebkitTransition': 'webkitTransitionEnd'
+        };
         
-        console.log('HD Tickets UI Enhancements loaded');
+        for (let t in transitions) {
+            if (el.style[t] !== undefined) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    checkReducedMotionPreference() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    initFallbacks() {
+        console.log('Initializing fallback UI enhancements');
+        // Basic functionality without animations
+        this.setupBasicInteractions();
+    }
+
+    setupBasicInteractions() {
+        // Minimal functionality for unsupported browsers
+        const interactiveElements = document.querySelectorAll('.btn-primary, .btn-secondary, button');
+        interactiveElements.forEach(element => {
+            element.addEventListener('click', () => {
+                element.style.opacity = '0.8';
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                }, 150);
+            });
+        });
     }
 
     /**
@@ -54,28 +106,61 @@ class UIEnhancements {
     addLoadingState(element) {
         const originalText = element.textContent.trim();
         element.dataset.originalText = originalText;
+        element.style.transition = 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out';
         element.style.opacity = '0.7';
         element.style.pointerEvents = 'none';
+        element.style.transform = 'scale(0.98)';
         
         // Add loading spinner if it's a button
         if (element.tagName === 'BUTTON') {
             const spinner = document.createElement('span');
-            spinner.className = 'loading-spinner inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2';
+            spinner.className = 'loading-spinner inline-block w-4 h-4 mr-2';
+            spinner.innerHTML = `
+                <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-opacity="0.3"/>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+                        <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+                        <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+            `;
             element.prepend(spinner);
         }
         
         element.classList.add('loading');
+        element.setAttribute('aria-busy', 'true');
+        
+        // Add ARIA label for accessibility
+        const originalAriaLabel = element.getAttribute('aria-label') || element.textContent;
+        element.setAttribute('data-original-aria-label', originalAriaLabel);
+        element.setAttribute('aria-label', `Loading ${originalAriaLabel}`);
     }
 
     removeLoadingState(element) {
         const spinner = element.querySelector('.loading-spinner');
         if (spinner) {
-            spinner.remove();
+            // Fade out spinner before removing
+            spinner.style.opacity = '0';
+            spinner.style.transform = 'scale(0)';
+            setTimeout(() => {
+                if (spinner.parentNode) {
+                    spinner.remove();
+                }
+            }, 200);
         }
         
         element.style.opacity = '1';
         element.style.pointerEvents = 'auto';
+        element.style.transform = 'scale(1)';
         element.classList.remove('loading');
+        element.removeAttribute('aria-busy');
+        
+        // Restore original aria-label
+        const originalAriaLabel = element.getAttribute('data-original-aria-label');
+        if (originalAriaLabel) {
+            element.setAttribute('aria-label', originalAriaLabel);
+            element.removeAttribute('data-original-aria-label');
+        }
     }
 
     /**
@@ -203,63 +288,177 @@ class UIEnhancements {
     }
 
     /**
-     * Enhanced button hover effects
+     * Enhanced button hover effects with modern interactions
      */
     setupButtonHoverEffects() {
-        const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .btn-danger, button, .dashboard-card');
+        const interactiveElements = document.querySelectorAll('.btn-primary, .btn-secondary, .btn-danger, button, .dashboard-card, .ticket-card, .modern-card');
         
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', () => {
-                if (!button.disabled && !button.classList.contains('loading')) {
-                    button.style.transform = 'translateY(-1px)';
-                    button.style.transition = 'all 0.2s ease';
+        interactiveElements.forEach(element => {
+            element.style.position = 'relative';
+            element.style.overflow = 'hidden';
+
+            element.addEventListener('mouseenter', (e) => {
+                if (!element.disabled && !element.classList.contains('loading')) {
+                    const isCard = element.classList.contains('dashboard-card') || 
+                                  element.classList.contains('ticket-card') || 
+                                  element.classList.contains('modern-card');
+                    
+                    if (isCard) {
+                        element.style.transform = 'translateY(-4px) scale(1.02)';
+                        element.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                        element.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+                    } else {
+                        element.style.transform = 'translateY(-2px)';
+                        element.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)';
+                    }
                 }
             });
             
-            button.addEventListener('mouseleave', () => {
-                button.style.transform = 'translateY(0)';
+            element.addEventListener('mouseleave', () => {
+                element.style.transform = 'translateY(0) scale(1)';
+                element.style.boxShadow = '';
+            });
+
+            element.addEventListener('click', (e) => {
+                if (!element.disabled && !element.classList.contains('loading')) {
+                    this.createRippleEffect(e, element);
+                }
             });
         });
+    }
+
+    createRippleEffect(event, element) {
+        const circle = document.createElement('span');
+        const diameter = Math.max(element.clientWidth, element.clientHeight);
+        const radius = diameter / 2;
+
+        circle.style.width = circle.style.height = `${diameter}px`;
+        const rect = element.getBoundingClientRect();
+        circle.style.left = `${event.clientX - rect.left - radius}px`;
+        circle.style.top = `${event.clientY - rect.top - radius}px`;
+        circle.classList.add('ripple');
+
+        const existingRipple = element.querySelector('.ripple');
+        if (existingRipple) {
+            existingRipple.remove();
+        }
+
+        element.appendChild(circle);
+
+        setTimeout(() => {
+            circle.remove();
+        }, 600);
     }
 
     /**
      * Scroll-based animations and effects
      */
     setupScrollEffects() {
-        // Smooth scroll for anchor links
+        try {
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        // Check if smooth scroll is supported
+                        if ('scrollBehavior' in document.documentElement.style) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        } else {
+                            // Fallback for browsers without smooth scroll support
+                            target.scrollIntoView();
+                        }
+                    }
+                });
+            });
+
+            // Setup fade-in animations based on browser support
+            this.setupFadeInAnimations();
+        } catch (error) {
+            console.error('Error setting up scroll effects:', error);
+            this.setupFallbackScrollEffects();
+        }
+    }
+
+    setupFadeInAnimations() {
+        const animatableElements = document.querySelectorAll('.dashboard-card, .stat-card, .feature-card, .ticket-card');
+        
+        // Skip if reduced motion is preferred
+        if (this.animationSupport.reducedMotion) {
+            animatableElements.forEach(el => {
+                el.classList.add('fade-in-visible');
+            });
+            return;
+        }
+
+        // Use Intersection Observer if available
+        if (this.animationSupport.intersectionObserver) {
+            try {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const delay = Math.min((parseInt(entry.target.dataset.staggerIndex || '0')) * 100, 1000);
+                            
+                            if (this.animationSupport.requestAnimationFrame) {
+                                requestAnimationFrame(() => {
+                                    setTimeout(() => {
+                                        entry.target.classList.add('fade-in-visible');
+                                    }, delay);
+                                });
+                            } else {
+                                setTimeout(() => {
+                                    entry.target.classList.add('fade-in-visible');
+                                }, delay);
+                            }
+                            
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                });
+
+                // Observe elements with staggered indices
+                animatableElements.forEach((el, index) => {
+                    el.classList.add('fade-in-prepare');
+                    el.dataset.staggerIndex = Math.min(index, 10).toString(); // Cap at 10 for performance
+                    observer.observe(el);
+                });
+                
+            } catch (error) {
+                console.error('Error with Intersection Observer:', error);
+                this.setupFallbackFadeIn(animatableElements);
+            }
+        } else {
+            this.setupFallbackFadeIn(animatableElements);
+        }
+    }
+
+    setupFallbackFadeIn(elements) {
+        // Fallback: Add visible class with timeout to simulate staggered animation
+        elements.forEach((el, index) => {
+            const delay = Math.min(index * 100, 1000);
+            setTimeout(() => {
+                el.classList.add('fade-in-visible');
+            }, delay);
+        });
+    }
+
+    setupFallbackScrollEffects() {
+        // Basic scroll functionality without animations
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    target.scrollIntoView();
                 }
             });
         });
-
-        // Intersection Observer for fade-in animations
-        if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            });
-
-            // Observe elements that should fade in
-            document.querySelectorAll('.dashboard-card, .stat-card, .feature-card').forEach(el => {
-                el.classList.add('fade-in-prepare');
-                observer.observe(el);
-            });
-        }
     }
 
     /**
@@ -333,32 +532,81 @@ class UIEnhancements {
     }
 
     /**
-     * CSS animations
+     * CSS animations with modern effects
      */
     setupAnimations() {
-        // Add CSS for fade-in animations
+        // Add CSS for modern animations and effects
         const style = document.createElement('style');
         style.textContent = `
+            /* Modern fade-in animations with staggered effect */
             .fade-in-prepare {
                 opacity: 0;
-                transform: translateY(20px);
-                transition: all 0.6s ease;
+                transform: translateY(30px) scale(0.95);
+                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             }
             
+            .fade-in-visible {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            
+            /* Legacy support for existing fade-in class */
             .fade-in {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
+            }
+
+            /* Ripple effect for button clicks */
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+                pointer-events: none;
             }
             
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+
+            /* Enhanced hover effects for cards and buttons */
+            .btn-primary, .btn-secondary, .btn-danger, button {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: transform, box-shadow;
+            }
+
+            .dashboard-card, .ticket-card, .modern-card {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: transform, box-shadow;
+            }
+            
+            /* Loading states with smooth transitions */
+            .loading {
+                transition: opacity 0.3s ease-in-out;
+            }
+            
+            /* Keyboard navigation focus styles */
             .keyboard-navigation *:focus {
                 outline: 2px solid #3b82f6 !important;
                 outline-offset: 2px;
+                transition: outline 0.15s ease-in-out;
+            }
+            
+            /* Tooltip styles */
+            .tooltip {
+                z-index: 9999;
+                backdrop-filter: blur(4px);
             }
             
             .tooltip.show {
                 opacity: 1;
             }
             
+            /* Loading spinner with smooth animation */
             .loading-spinner {
                 animation: spin 1s linear infinite;
             }
@@ -367,14 +615,55 @@ class UIEnhancements {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
-            
+
+            /* Performance optimizations */
+            .fade-in-prepare,
+            .fade-in-visible,
+            .ripple {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+            }
+
+            /* Dark theme compatibility for ripple effect */
+            .dark .ripple,
+            [data-theme="dark"] .ripple {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            /* Reduced motion accessibility */
             @media (prefers-reduced-motion: reduce) {
                 .fade-in-prepare,
+                .fade-in-visible,
                 .fade-in,
                 .loading-spinner,
-                * {
-                    animation: none !important;
-                    transition: none !important;
+                .ripple,
+                .btn-primary,
+                .btn-secondary,
+                .btn-danger,
+                button,
+                .dashboard-card,
+                .ticket-card,
+                .modern-card {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+                
+                .ripple {
+                    display: none;
+                }
+            }
+
+            /* High contrast mode support */
+            @media (prefers-contrast: high) {
+                .ripple {
+                    background-color: currentColor;
+                    opacity: 0.3;
+                }
+                
+                .tooltip {
+                    border: 1px solid currentColor;
                 }
             }
         `;

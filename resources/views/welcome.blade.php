@@ -10,6 +10,10 @@
     
     <title>HD Tickets - Sports Ticket Monitoring</title>
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700&display=swap" rel="stylesheet" />
+    
     <!-- Primary CSS Framework -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -23,10 +27,10 @@
         }
         
         html, body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #ffffff;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 35%, #8b5cf6 70%, #1e40af 100%);
             min-height: 100vh;
         }
         
@@ -41,14 +45,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2rem 0;
-            margin-bottom: 3rem;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
         }
         
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             font-size: 1.5rem;
             font-weight: 700;
             color: #60a5fa;
+        }
+        
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            object-fit: contain;
         }
         
         .nav-button {
@@ -79,121 +93,195 @@
             background: #b91c1c;
         }
         
-        /* Main Content */
+        /* Main Content - Compact Layout */
         .hero-section {
             text-align: center;
-            padding: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            display: block;
+            border-radius: 1rem;
+            object-fit: contain;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .hero-logo:hover {
+            transform: scale(1.05);
         }
         
         .hero-title {
-            font-size: 3rem;
+            font-size: 2.25rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             background: linear-gradient(45deg, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            line-height: 1.1;
         }
         
         .hero-subtitle {
-            font-size: 1.25rem;
+            font-size: 1rem;
             color: #60a5fa;
-            margin-bottom: 2rem;
+            margin-bottom: 0.75rem;
         }
         
         .hero-description {
-            font-size: 1rem;
+            font-size: 0.875rem;
             color: #d1d5db;
-            max-width: 600px;
-            margin: 0 auto 3rem auto;
-            line-height: 1.7;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
         }
         
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        /* Stats Bar - Horizontal Inline Display */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             gap: 2rem;
-            max-width: 500px;
-            margin: 0 auto 3rem auto;
+            height: 80px;
+            background: rgba(31, 41, 55, 0.4);
+            border-radius: 0.75rem;
+            margin: 1rem 0;
+            padding: 0 1rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(75, 85, 99, 0.2);
         }
         
         .stat-item {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: left;
         }
         
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin: 0;
         }
         
         .stat-label {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .green { color: #10b981; }
         .blue { color: #3b82f6; }
         .purple { color: #8b5cf6; }
         
-        /* Features Grid */
+        /* Features Section - Optimized Horizontal Cards */
+        .features-section {
+            margin: 1.5rem 0;
+        }
+        
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
         }
         
         .feature-card {
-            background: rgba(31, 41, 55, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 1.5rem;
+            background: rgba(31, 41, 55, 0.4);
+            backdrop-filter: blur(8px);
+            padding: 1rem;
             border-radius: 0.75rem;
-            border: 1px solid rgba(75, 85, 99, 0.3);
+            border: 1px solid rgba(75, 85, 99, 0.2);
             transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-4px);
+            background: rgba(31, 41, 55, 0.7);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981, #f59e0b);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
         
         .feature-title {
-            font-size: 1.125rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             color: #f9fafb;
+            line-height: 1.2;
         }
         
         .feature-description {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: #9ca3af;
+            line-height: 1.4;
         }
+        
+        /* Icon colors */
+        .icon-monitoring { color: #3b82f6; }
+        .icon-pricing { color: #10b981; }
+        .icon-coverage { color: #8b5cf6; }
+        .icon-mobile { color: #f59e0b; }
         
         /* Welcome Message */
         .welcome-message {
             background: linear-gradient(135deg, #059669, #047857);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
             text-align: center;
         }
         
         /* CTA Section */
         .cta-section {
             text-align: center;
-            padding: 2rem 0;
+            padding: 1rem 0;
+            margin-top: 1rem;
         }
         
         .cta-button {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
             text-decoration: none;
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 600;
             display: inline-block;
             transition: all 0.3s ease;
@@ -202,17 +290,17 @@
         }
         
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
         }
         
         .registration-notice {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1px solid rgba(75, 85, 99, 0.3);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            max-width: 400px;
-            margin: 2rem auto;
+            background: rgba(31, 41, 55, 0.4);
+            border: 1px solid rgba(75, 85, 99, 0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            max-width: 350px;
+            margin: 1rem auto 0;
             text-align: center;
         }
         
@@ -223,18 +311,58 @@
         }
         
         /* Responsive Design */
+        @media (max-width: 1024px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+        
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2rem;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr;
+            .hero-section {
+                padding: 1rem;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .features-grid {
+                grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+            
+            .feature-card {
+                padding: 1.25rem;
+            }
+            
+            .feature-icon {
+                font-size: 2rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .feature-title {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .feature-description {
+                font-size: 0.875rem;
+            }
+            
+            .stats-bar {
+                gap: 1rem;
+                height: 70px;
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+            
+            .stat-item {
+                gap: 0.25rem;
+            }
+            
+            .stat-number {
+                font-size: 1.25rem;
             }
             
             .container {
@@ -274,7 +402,10 @@
     <div class="container">
         <!-- Navigation -->
         <nav class="navbar">
-            <div class="logo">HD Tickets</div>
+            <div class="logo">
+                <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo">
+                HD Tickets
+            </div>
             <div>
                 @if (Route::has('login'))
                     @auth
@@ -292,6 +423,7 @@
 
         <!-- Main Content -->
         <main class="hero-section">
+            <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo" class="hero-logo">
             <h1 class="hero-title">HD Tickets</h1>
             <p class="hero-subtitle">Never Miss Your Team Again</p>
             
@@ -300,8 +432,8 @@
                 Track prices across 50+ platforms and never miss your favorite games.
             </p>
 
-            <!-- Stats -->
-            <div class="stats-grid">
+            <!-- Stats Bar -->
+            <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-number green">50+</div>
                     <div class="stat-label">Platforms</div>
@@ -319,28 +451,24 @@
             <!-- Features -->
             <div class="features-grid">
                 <div class="feature-card">
-                    <h3 class="feature-title">Real-time Alerts</h3>
-                    <p class="feature-description">Get instant notifications when tickets become available for your favorite teams</p>
+                    <div class="feature-icon icon-monitoring">🔔</div>
+                    <h3 class="feature-title">Real-time Monitoring</h3>
+                    <p class="feature-description">24/7 alerts + continuous monitoring across all platforms</p>
                 </div>
                 <div class="feature-card">
-                    <h3 class="feature-title">Price Tracking</h3>
-                    <p class="feature-description">Monitor ticket prices across multiple platforms and get the best deals</p>
+                    <div class="feature-icon icon-pricing">💰</div>
+                    <h3 class="feature-title">Smart Pricing</h3>
+                    <p class="feature-description">Price tracking + automated smart purchasing decisions</p>
                 </div>
                 <div class="feature-card">
-                    <h3 class="feature-title">24/7 Monitoring</h3>
-                    <p class="feature-description">Continuous monitoring ensures you never miss an opportunity to buy</p>
+                    <div class="feature-icon icon-coverage">🌐</div>
+                    <h3 class="feature-title">Multi-Platform Coverage</h3>
+                    <p class="feature-description">50+ platforms + comprehensive sports coverage</p>
                 </div>
                 <div class="feature-card">
-                    <h3 class="feature-title">Smart Purchasing</h3>
-                    <p class="feature-description">Automated purchasing system secures tickets the moment they're available</p>
-                </div>
-                <div class="feature-card">
-                    <h3 class="feature-title">Multi-Sport Coverage</h3>
-                    <p class="feature-description">Football, basketball, baseball, hockey, and more - all major sports covered</p>
-                </div>
-                <div class="feature-card">
-                    <h3 class="feature-title">Mobile Alerts</h3>
-                    <p class="feature-description">Stay connected with instant mobile notifications wherever you are</p>
+                    <div class="feature-icon icon-mobile">📱</div>
+                    <h3 class="feature-title">Mobile Experience</h3>
+                    <p class="feature-description">Optimized mobile app with instant notifications</p>
                 </div>
             </div>
 

@@ -1,0 +1,262 @@
+# HD Tickets - Performance Optimization .htaccess
+# Apache configuration for asset optimization and caching
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Handle Laravel routing
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+
+# ==========================================
+# CACHE OPTIMIZATION
+# ==========================================
+
+# Enable expires module
+<IfModule mod_expires.c>
+    ExpiresActive on
+    
+    # Images - 1 year
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # Fonts - 1 year
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+    ExpiresByType font/opentype "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    
+    # CSS and JavaScript - 1 month
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # HTML - 1 day
+    ExpiresByType text/html "access plus 1 day"
+    
+    # Manifest files - 1 week
+    ExpiresByType application/manifest+json "access plus 1 week"
+    ExpiresByType text/cache-manifest "access plus 1 week"
+    
+    # Default - 1 day
+    ExpiresDefault "access plus 1 day"
+</IfModule>
+
+# ==========================================
+# CACHE HEADERS
+# ==========================================
+
+<IfModule mod_headers.c>
+    # Images - Immutable cache
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp|avif|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header unset ETag
+    </FilesMatch>
+    
+    # Fonts - Immutable cache
+    <FilesMatch "\.(woff|woff2|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header unset ETag
+        # Enable CORS for fonts
+        Header always set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+    
+    # CSS and JS with versioning
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=2592000"
+        Header unset ETag
+    </FilesMatch>
+    
+    # HTML files
+    <FilesMatch "\.html$">
+        Header set Cache-Control "public, max-age=86400"
+    </FilesMatch>
+    
+    # Service worker - no cache
+    <Files "sw.js">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </Files>
+    
+    # Manifest files
+    <FilesMatch "\.(json|xml)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+    
+    # Security headers
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy for HD Tickets
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://fonts.bunny.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.bunny.net https://fonts.googleapis.com; font-src 'self' https://fonts.bunny.net https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' ws: wss:; frame-ancestors 'none';"
+</IfModule>
+
+# ==========================================
+# COMPRESSION
+# ==========================================
+
+<IfModule mod_deflate.c>
+    # Enable compression for text files
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/ld+json
+    AddOutputFilterByType DEFLATE application/manifest+json
+    AddOutputFilterByType DEFLATE image/svg+xml
+    
+    # Don't compress images
+    SetEnvIfNoCase Request_URI \
+        \.(?:gif|jpe?g|png|webp|avif)$ no-gzip dont-vary
+    SetEnvIfNoCase Request_URI \
+        \.(?:exe|t?gz|zip|bz2|sit|rar)$ no-gzip dont-vary
+</IfModule>
+
+# ==========================================
+# BROTLI COMPRESSION (if available)
+# ==========================================
+
+<IfModule mod_brotli.c>
+    BrotliCompressionQuality 6
+    AddOutputFilterByType BROTLI_COMPRESS text/plain
+    AddOutputFilterByType BROTLI_COMPRESS text/html
+    AddOutputFilterByType BROTLI_COMPRESS text/xml
+    AddOutputFilterByType BROTLI_COMPRESS text/css
+    AddOutputFilterByType BROTLI_COMPRESS text/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/xml
+    AddOutputFilterByType BROTLI_COMPRESS application/xhtml+xml
+    AddOutputFilterByType BROTLI_COMPRESS application/rss+xml
+    AddOutputFilterByType BROTLI_COMPRESS application/javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/x-javascript
+    AddOutputFilterByType BROTLI_COMPRESS application/json
+    AddOutputFilterByType BROTLI_COMPRESS application/ld+json
+    AddOutputFilterByType BROTLI_COMPRESS application/manifest+json
+    AddOutputFilterByType BROTLI_COMPRESS image/svg+xml
+</IfModule>
+
+# ==========================================
+# IMAGE OPTIMIZATION
+# ==========================================
+
+# Serve WebP images when supported
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Check if WebP is accepted and file exists
+    RewriteCond %{HTTP_ACCEPT} image/webp
+    RewriteCond %{REQUEST_FILENAME} \.(jpe?g|png)$
+    RewriteCond %{REQUEST_FILENAME}.webp -f
+    RewriteRule ^(.+)\.(jpe?g|png)$ $1.$2.webp [T=image/webp,E=accept:1,L]
+    
+    # Serve correct MIME type for WebP
+    RewriteCond %{ENV:accept} =1
+    RewriteRule ^(.+)$ - [T=image/webp]
+</IfModule>
+
+# Set MIME types for modern image formats
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+    AddType image/avif .avif
+</IfModule>
+
+# ==========================================
+# PRELOAD HINTS
+# ==========================================
+
+<IfModule mod_headers.c>
+    # Preload critical assets for all pages
+    Header always append Link "</assets/images/hdTicketsLogo.webp>; rel=preload; as=image; type=image/webp"
+    Header always append Link "</assets/images/hdTicketsLogo.png>; rel=preload; as=image; type=image/png"
+    
+    # DNS prefetch for external resources
+    Header always append Link "<https://fonts.bunny.net>; rel=dns-prefetch"
+    Header always append Link "<https://cdn.jsdelivr.net>; rel=dns-prefetch"
+    Header always append Link "<https://unpkg.com>; rel=dns-prefetch"
+    
+    # Preconnect to font providers
+    Header always append Link "<https://fonts.bunny.net>; rel=preconnect; crossorigin=anonymous"
+</IfModule>
+
+# ==========================================
+# ERROR PAGES
+# ==========================================
+
+# Custom error pages with consistent branding
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+ErrorDocument 503 /503.html
+
+# ==========================================
+# SECURITY
+# ==========================================
+
+# Hide server information
+ServerTokens Prod
+Header unset Server
+
+# Prevent access to sensitive files
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.lock">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "package-lock.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Block access to version control
+<DirectoryMatch "\.git">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# ==========================================
+# PERFORMANCE
+# ==========================================
+
+# Remove ETags for better caching
+<IfModule mod_headers.c>
+    Header unset ETag
+</IfModule>
+
+FileETag None
+
+# Disable server signature
+ServerSignature Off
+
+# Set timezone for consistent timestamps
+SetEnv TZ Europe/Bratislava

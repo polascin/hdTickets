@@ -67,7 +67,7 @@ jobs:
         run: |
           ./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --verbose --show-progress=dots
 
-      - name: 🎨 Alternative: Check Code Style (Laravel Pint)  
+      - name: "🎨 Alternative: Check Code Style (Laravel Pint)"
         run: |
           ./vendor/bin/pint --test --verbose
 
