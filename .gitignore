@@ -10,16 +10,24 @@
 /.env.production.local
 /.env.backup
 /.env.*
+/.env.example.bak
+
+# Laravel specific environment
+/config/database.php.bak
+/config/app.php.bak
 
 # Laravel specific
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep
 /storage/*.key
-/storage/logs/*.log
+/storage/logs/*
+!/storage/logs/.gitkeep
 /storage/framework/cache/data/*
 /storage/framework/sessions/*
 /storage/framework/testing/*
 /storage/framework/views/*
+/storage/app/public/*
+!/storage/app/public/.gitkeep
 /public/hot
 /public/storage
 
@@ -51,6 +59,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
+
+# Laravel logs (already handled in Laravel section above)
+# Additional log patterns
+error.log
+access.log
+apache_error.log
+nginx_error.log
 
 # Runtime data
 pids/
@@ -75,6 +91,9 @@ pids/
 !/.vscode/keybindings.json
 !/.vscode/snippets/
 !/.vscode/*.code-workspace
+# But ignore personal VS Code files
+/.vscode/extensions.json
+/.vscode/tasks.json
 .classpath
 .c9/
 *.launch
@@ -150,11 +169,14 @@ yarn.lock.bak
 *.key
 !public.key
 
-# Testing
+# Testing and Quality Assurance
 /coverage/
 /.nyc_output/
 /.phpunit.result.cache
 /phpunit.xml.bak
+/storage/phpstan/
+/.php-cs-fixer.cache
+/phpstan-baseline*.neon.bak
 # Playwright
 /test-results/
 /playwright-report/
@@ -185,13 +207,17 @@ yarn.lock.bak
 *.o
 *.so
 
-# Application specific - Sports Events Tickets Monitoring
+# Application specific - hdTickets Laravel Project
+/storage/app/uploads/*
+!/storage/app/uploads/.gitkeep
 /storage/app/public/uploads/*
 !/storage/app/public/uploads/.gitkeep
 /public/uploads/
-scraper_data/
-ticket_data/
-event_images/
+/storage/scraper_data/
+/storage/ticket_data/
+/storage/event_images/
+ticket_exports/
+scraper_logs/
 *.csv
 *.xlsx
 *.xls
@@ -210,9 +236,6 @@ pip-delete-this-directory.txt
 
 # Local configuration overrides
 config/local.php
-
-# PHPStan cache
-/storage/phpstan/cache/
 
 # Laravel Homestead
 /Homestead.json
@@ -234,13 +257,14 @@ storybook-static/
 # Docker
 docker-compose.override.yml
 .docker/
+Dockerfile.local
+docker-compose.local.yml
 
-# Editor directories and files - these are now handled above in the IDEs section
-# .vscode/settings.json
-# .vscode/tasks.json
-# .vscode/launch.json
-# .vscode/extensions.json
-# *.code-workspace
+# Deployment and CI/CD
+deploy.php
+/.deployment
+/deployment-logs/
+.deployer/
 
 # Local env files with secrets
 .env.local
