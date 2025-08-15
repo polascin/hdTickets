@@ -1,0 +1,81 @@
+[
+  // Git shortcuts
+  {
+    "key": "ctrl+shift+g ctrl+c",
+    "command": "git.commitStaged",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+a",
+    "command": "git.stageAll",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+p",
+    "command": "git.push",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+l",
+    "command": "git.pull",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+s",
+    "command": "git.sync",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+b",
+    "command": "git.branch",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+o",
+    "command": "git.checkout",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+d",
+    "command": "git.openChange",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+h",
+    "command": "git.viewHistory",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+u",
+    "command": "git.unstage",
+    "when": "!inQuickOpen"
+  },
+  // GitLens shortcuts (if installed)
+  {
+    "key": "ctrl+shift+g ctrl+r",
+    "command": "gitlens.showRepositoryView",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+t",
+    "command": "gitlens.toggleCodeLens",
+    "when": "!inQuickOpen"
+  },
+  {
+    "key": "ctrl+shift+g ctrl+f",
+    "command": "gitlens.showQuickFileHistory", 
+    "when": "!inQuickOpen"
+  },
+  // Source Control View
+  {
+    "key": "ctrl+shift+g ctrl+v",
+    "command": "workbench.view.scm",
+    "when": "!inQuickOpen"
+  },
+  // Git Graph (if installed)
+  {
+    "key": "ctrl+shift+g ctrl+g",
+    "command": "git-graph.view",
+    "when": "!inQuickOpen"
+  }
+]

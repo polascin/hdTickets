@@ -1,0 +1,122 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Workspace-specific Git Settings
+    "git.path": "/usr/bin/git",
+    "git.enabled": true,
+    "git.decorations.enabled": true,
+    
+    // Laravel/PHP Project Specific
+    "php.suggest.basic": false,
+    "php.validate.run": "onType",
+    
+    // Git Commit Template
+    "git.inputValidation": true,
+    "git.inputValidationLength": 72,
+    "git.inputValidationSubjectLength": 50,
+    
+    // Recommended Extensions for Git workflow
+    "extensions.recommendations": [
+      "eamodio.gitlens",
+      "mhutchie.git-graph",
+      "github.vscode-pull-request-github",
+      "ms-vscode.vscode-git-graph",
+      "bmalehorn.vscode-fish",
+      "donjayamanne.githistory"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "eamodio.gitlens",
+      "mhutchie.git-graph",
+      "github.vscode-pull-request-github",
+      "ms-vscode.vscode-git-graph",
+      "donjayamanne.githistory",
+      "waderyan.gitblame",
+      "codezombiech.gitignore"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Git: Quick Commit & Push",
+        "type": "shell",
+        "command": "git",
+        "args": ["add", "-A", "&&", "git", "commit", "-m", "${input:commitMessage}", "&&", "git", "push"],
+        "group": {
+          "kind": "build",
+          "isDefault": false
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Git: Status Check",
+        "type": "shell",
+        "command": "git",
+        "args": ["status", "--porcelain"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "Git: Branch Info",
+        "type": "shell",
+        "command": "git",
+        "args": ["branch", "-vv"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        }
+      },
+      {
+        "label": "PHPStan: Check Staged Files",
+        "type": "shell",
+        "command": "./vendor/bin/phpstan",
+        "args": ["analyse", "--memory-limit=2G", "--configuration=phpstan.neon"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared"
+        },
+        "problemMatcher": {
+          "owner": "phpstan",
+          "fileLocation": "absolute",
+          "pattern": {
+            "regexp": "^\\s+(.*):(\\d+):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "message": 3
+          }
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "id": "commitMessage",
+        "description": "Enter commit message",
+        "default": "Update: $(date)",
+        "type": "promptString"
+      }
+    ]
+  }
+}

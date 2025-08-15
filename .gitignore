@@ -60,7 +60,6 @@ pids/
 
 # IDEs and editors
 /.idea/
-/.vscode/
 /.fleet/
 *.swp
 *.swo
@@ -68,6 +67,14 @@ pids/
 *.sublime-project
 *.sublime-workspace
 .project
+
+# VS Code - Allow shared configurations, ignore personal ones
+/.vscode/
+!/.vscode/settings.json
+!/.vscode/launch.json
+!/.vscode/keybindings.json
+!/.vscode/snippets/
+!/.vscode/*.code-workspace
 .classpath
 .c9/
 *.launch
@@ -228,12 +235,12 @@ storybook-static/
 docker-compose.override.yml
 .docker/
 
-# Editor directories and files
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
-*.code-workspace
+# Editor directories and files - these are now handled above in the IDEs section
+# .vscode/settings.json
+# .vscode/tasks.json
+# .vscode/launch.json
+# .vscode/extensions.json
+# *.code-workspace
 
 # Local env files with secrets
 .env.local

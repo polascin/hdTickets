@@ -1,0 +1,77 @@
+{
+  "Fix bug": {
+    "prefix": "fix",
+    "body": "Fix: ${1:description of the bug fix}",
+    "description": "Bug fix commit message"
+  },
+  "Add feature": {
+    "prefix": "feat",
+    "body": "Add: ${1:description of the new feature}",
+    "description": "New feature commit message"
+  },
+  "Update code": {
+    "prefix": "update",
+    "body": "Update: ${1:description of the update}",
+    "description": "General update commit message"
+  },
+  "Refactor code": {
+    "prefix": "refactor",
+    "body": "Refactor: ${1:description of the refactoring}",
+    "description": "Refactoring commit message"
+  },
+  "Improve performance": {
+    "prefix": "perf",
+    "body": "Performance: ${1:description of the performance improvement}",
+    "description": "Performance improvement commit message"
+  },
+  "Add tests": {
+    "prefix": "test",
+    "body": "Test: ${1:description of the tests added}",
+    "description": "Test addition commit message"
+  },
+  "Update documentation": {
+    "prefix": "docs",
+    "body": "Docs: ${1:description of documentation changes}",
+    "description": "Documentation update commit message"
+  },
+  "Code style changes": {
+    "prefix": "style",
+    "body": "Style: ${1:description of style changes}",
+    "description": "Code style commit message"
+  },
+  "Remove code": {
+    "prefix": "remove",
+    "body": "Remove: ${1:description of what was removed}",
+    "description": "Code removal commit message"
+  },
+  "Security fix": {
+    "prefix": "security",
+    "body": "Security: ${1:description of the security fix}",
+    "description": "Security fix commit message"
+  },
+  "Configuration change": {
+    "prefix": "config",
+    "body": "Config: ${1:description of configuration change}",
+    "description": "Configuration change commit message"
+  },
+  "Database migration": {
+    "prefix": "migration",
+    "body": "Migration: ${1:description of database migration}",
+    "description": "Database migration commit message"
+  },
+  "Laravel specific": {
+    "prefix": "laravel",
+    "body": "Laravel: ${1:description of Laravel-specific change}",
+    "description": "Laravel-specific commit message"
+  },
+  "API change": {
+    "prefix": "api",
+    "body": "API: ${1:description of API change}",
+    "description": "API change commit message"
+  },
+  "UI/UX improvement": {
+    "prefix": "ui",
+    "body": "UI: ${1:description of UI/UX improvement}",
+    "description": "UI/UX improvement commit message"
+  }
+}

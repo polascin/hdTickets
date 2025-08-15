@@ -1,0 +1,116 @@
+{
+  // Editor Settings
+  "editor.tabSize": 2,
+  "workbench.tree.indent": 16,
+  "editor.wordWrap": "on",
+
+  // Git Settings
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.autofetchPeriod": 180,
+  "git.autoStash": true,
+  "git.pullBeforeCheckout": true,
+  "git.fetchOnPull": true,
+  "git.pruneOnFetch": true,
+  "git.showPushSuccessNotification": true,
+  "git.followTagsWhenSync": true,
+  "git.alwaysSignOff": false,
+  "git.allowForcePush": false,
+  "git.useCommitInputAsStashMessage": true,
+  "git.timeline.showAuthor": true,
+  "git.timeline.date": "committed",
+  "git.defaultCloneDirectory": "/var/www",
+  "git.openRepositoryInParentFolders": "always",
+  "git.repositoryScanMaxDepth": 2,
+  "git.scanRepositories": ["/var/www"],
+  "git.decorations.enabled": true,
+  "git.branchProtection": ["main", "master"],
+  "git.branchValidationRegex": "^[a-z]+(/[a-z]+)*$",
+  "git.requireGitSuffix": false,
+  "git.ignoreLimitWarning": true,
+  "git.ignoreRebaseWarning": true,
+
+  // Git Graph Extension Settings (if installed)
+  "git-graph.repository.onLoad.showCheckedOutBranch": true,
+  "git-graph.repository.commits.showSignatureStatus": true,
+  "git-graph.date.format": "Date & Time",
+  "git-graph.defaultColumnVisibility": {
+    "Date": true,
+    "Author": true,
+    "Commit": true,
+    "Description": true
+  },
+
+  // GitLens Extension Settings (if installed)
+  "gitlens.currentLine.enabled": true,
+  "gitlens.codeLens.enabled": true,
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.blame.avatars": true,
+  "gitlens.blame.format": "${author|18} ${agoOrDate|14-}",
+  "gitlens.blame.highlight.enabled": true,
+  "gitlens.statusBar.enabled": true,
+  "gitlens.views.repositories.branches.layout": "tree",
+  "gitlens.views.fileHistory.enabled": true,
+  "gitlens.views.lineHistory.enabled": true,
+
+  // Source Control View
+  "scm.alwaysShowActions": true,
+  "scm.alwaysShowRepositories": true,
+  "scm.autoReveal": true,
+  "scm.countBadge": "all",
+  "scm.defaultViewMode": "tree",
+  "scm.showActionButton": true,
+
+  // Diff Editor Settings
+  "diffEditor.ignoreTrimWhitespace": false,
+  "diffEditor.renderSideBySide": true,
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "diffEditor.experimental.showMoves": true,
+
+  // Terminal Integration
+  "terminal.integrated.env.linux": {
+    "GIT_EDITOR": "code --wait"
+  },
+
+  // File Explorer Git Integration
+  "explorer.decorations.colors": true,
+  "explorer.decorations.badges": true,
+
+  // Search Settings (Git-aware)
+  "search.useGlobalIgnoreFiles": true,
+  "search.useIgnoreFiles": true,
+  "search.followSymlinks": false,
+
+  // PHP & Laravel Specific Settings
+  "php.validate.enable": true,
+  "php.validate.executablePath": "/usr/bin/php",
+  "phpstan.enabled": true,
+  "phpstan.path": "./vendor/bin/phpstan",
+  "phpstan.configFile": "./phpstan.neon",
+
+  // Files to ignore in git operations
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/storage/logs/**": false,
+    "**/storage/framework/cache/**": true,
+    "**/storage/framework/sessions/**": true,
+    "**/storage/framework/views/**": true,
+    "**/.php-cs-fixer.cache": true,
+    "**/.phpunit.result.cache": true
+  },
+
+  // Auto-save settings for git workflow
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Formatting on save (important for pre-commit hooks)
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  }
+}

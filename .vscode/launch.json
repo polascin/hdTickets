@@ -1,0 +1,58 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Git: Interactive Rebase",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "git rebase -i HEAD~${input:commitCount}",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Git: Merge Branch",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "git merge ${input:branchName}",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Git: Create Branch",
+      "type": "node-terminal",
+      "request": "launch", 
+      "command": "git checkout -b ${input:newBranchName}",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "PHPStan: Full Analysis",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "./vendor/bin/phpstan analyse --memory-limit=2G --configuration=phpstan.neon --error-format=table",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "PHP CS Fixer: Fix All Files", 
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --verbose",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitCount",
+      "description": "Number of commits to rebase",
+      "default": "3",
+      "type": "promptString"
+    },
+    {
+      "id": "branchName", 
+      "description": "Branch name to merge",
+      "type": "promptString"
+    },
+    {
+      "id": "newBranchName",
+      "description": "New branch name",
+      "type": "promptString"
+    }
+  ]
+}
