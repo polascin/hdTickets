@@ -98,7 +98,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/routes/health.php' => 
     array (
-      0 => 'e2dffb1f9dbc5e84a4875c0f8cb62e1d547ecc7f',
+      0 => '55a28d1631b7016c9bd232a3c5911346412f80c6',
       1 => 
       array (
       ),

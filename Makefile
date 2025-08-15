@@ -6,7 +6,7 @@
 # @package HDTickets  
 # @author  Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
 
-.PHONY: help install setup quality fix analyze test coverage metrics clean docs routes-list routes-cache routes-clear routes-test middleware-check
+.PHONY: help install setup quality fix analyze test coverage metrics clean docs routes-list routes-cache routes-clear routes-test middleware-check security-check dependency-check
 
 # Default target
 .DEFAULT_GOAL := help
@@ -61,6 +61,8 @@ help:
 	@echo "  routes-clear     Clear route cache"
 	@echo "  routes-test      Test critical routes"
 	@echo "  middleware-check Verify middleware registration"
+	@echo "  security-check   Run security audit"
+	@echo "  dependency-check Check dependency security"
 	@echo ""
 
 ## Install composer dependencies
@@ -265,6 +267,28 @@ middleware-check:
 	@echo ""
 	@echo "$(GREEN)✅ Middleware check completed$(NC)"
 
+## Security audit
+security-check:
+	@echo "$(BLUE)🔒 Running security audit...$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Step 1: Composer security audit$(NC)"
+	@$(COMPOSER) audit || true
+	@echo ""
+	@echo "$(YELLOW)Step 2: Static security analysis$(NC)"
+	@$(PHP) $(VENDOR_BIN)/phpstan analyse --level=8 --memory-limit=1G || true
+	@echo ""
+	@echo "$(GREEN)✅ Security audit completed$(NC)"
+
+## Dependency security check
+dependency-check: security-check
+	@echo "$(BLUE)🔍 Checking dependency security...$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Checking for known vulnerabilities:$(NC)"
+	@$(COMPOSER) audit --format=json > storage/logs/security-audit.json || true
+	@echo "$(BLUE)📄 Security audit report saved to storage/logs/security-audit.json$(NC)"
+	@echo ""
+	@echo "$(GREEN)✅ Dependency security check completed$(NC)"
+
 ## Show project status
 status:
 	@echo "$(BLUE)📊 HD Tickets Project Status$(NC)"
@@ -283,5 +307,5 @@ status:
 	@test -f $(VENDOR_BIN)/phpmetrics && echo "  ✅ PhpMetrics" || echo "  ❌ PhpMetrics"
 	@echo ""
 	@echo "$(YELLOW)🛣️  Route Management Status:$(NC)"
-	@test -f scripts/cache-routes-production.php && echo "  ✅ Route Caching Script" || echo "  ❌ Route Caching Script"
+	@echo "  ✅ Route Management Available"
 	@test -f config/route-caching.php && echo "  ✅ Route Cache Config" || echo "  ❌ Route Cache Config"

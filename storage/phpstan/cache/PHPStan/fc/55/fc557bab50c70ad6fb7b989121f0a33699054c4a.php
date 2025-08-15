@@ -8907,7 +8907,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/app/Http/Controllers/HealthCheckController.php' => 
     array (
-      0 => 'c33520c235edd42065c81cc7d77454b3756d2616',
+      0 => 'a787526a5745deaae5d2a1a72336cfe32952bab4',
       1 => 
       array (
         0 => 'app\\http\\controllers\\healthcheckcontroller',
@@ -8916,7 +8916,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
         0 => 'app\\http\\controllers\\basic',
         1 => 'app\\http\\controllers\\detailed',
-        2 => 'app\\http\\controllers\\deploymentstatus',
+        2 => 'app\\http\\controllers\\applicationstatus',
         3 => 'app\\http\\controllers\\checkdatabase',
         4 => 'app\\http\\controllers\\checkcache',
         5 => 'app\\http\\controllers\\checkqueue',

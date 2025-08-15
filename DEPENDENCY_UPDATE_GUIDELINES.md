@@ -549,48 +549,15 @@ php artisan test --filter=SeatGeekTest
 
 ### 2. **Automation Tools**
 
-#### GitHub Actions Workflow
-```yaml
-# .github/workflows/dependency-update.yml
-name: Dependency Security Check
+#### Local Security Monitoring
+Regular manual security audits using:
+```bash
+# Security audit commands
+composer audit
+npm audit
 
-on:
-  schedule:
-    - cron: '0 9 * * MON'  # Weekly Monday 9 AM
-  workflow_dispatch:
-
-jobs:
-  security-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22.18.0'
-          
-      - name: Security Audit
-        run: |
-          composer audit
-          npm audit
-          
-      - name: Create Issue on Vulnerabilities
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Security vulnerabilities detected',
-              body: 'Automated security audit found vulnerabilities. Please review and update dependencies.'
-            })
+# Weekly dependency review
+make dependency-check
 ```
 
 ## 📊 Success Metrics

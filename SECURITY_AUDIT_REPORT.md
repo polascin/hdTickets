@@ -600,30 +600,15 @@ class GDPRComplianceService
 
 ### 8.1 Automated Security Testing
 
-#### Recommended Tools:
-```yaml
-# .github/workflows/security-scan.yml
-name: Security Scan
-on: [push, pull_request]
+#### Local Security Tools:
+```bash
+# Manual security checks
+composer audit
+./vendor/bin/phpstan analyse --level=8
+./vendor/bin/psalm --show-info=true
 
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: PHP Security Check
-        run: |
-          composer install
-          ./vendor/bin/security-checker security:check
-          
-      - name: Static Analysis
-        run: |
-          ./vendor/bin/phpstan analyse --level=8
-          
-      - name: Code Quality
-        run: |
-          ./vendor/bin/psalm --show-info=true
+# Regular security audits
+make security-check
 ```
 
 #### Security Monitoring Implementation:
