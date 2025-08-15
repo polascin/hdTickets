@@ -4,7 +4,7 @@
  * HD Tickets Health Check Routes
  * Sports Events Entry Tickets Monitoring System
  *
- * Routes for deployment monitoring, health checks, and system status
+ * Routes for health checks and system status monitoring
  */
 
 use App\Http\Controllers\HealthCheckController;
@@ -32,11 +32,11 @@ Route::get('/health/detailed', [HealthCheckController::class, 'detailed'])
     ->withoutMiddleware(['auth'])
     ->middleware(['throttle:health']);
 
-// Deployment status for blue-green deployment monitoring
-Route::get('/deployment/status', [HealthCheckController::class, 'deploymentStatus'])
-    ->name('deployment.status')
+// Application status monitoring
+Route::get('/application/status', [HealthCheckController::class, 'applicationStatus'])
+    ->name('application.status')
     ->withoutMiddleware(['auth'])
-    ->middleware(['throttle:deployment']);
+    ->middleware(['throttle:health']);
 
 // Legacy aliases for backward compatibility
 Route::get('/status', [HealthCheckController::class, 'basic'])

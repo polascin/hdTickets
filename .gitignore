@@ -247,7 +247,6 @@ storybook-static/
 
 # Next.js (if used)
 .next/
-.vercel/
 
 # Nuxt.js (if used)
 .nuxt/
@@ -259,12 +258,6 @@ docker-compose.override.yml
 .docker/
 Dockerfile.local
 docker-compose.local.yml
-
-# Deployment and CI/CD
-deploy.php
-/.deployment
-/deployment-logs/
-.deployer/
 
 # Local env files with secrets
 .env.local

@@ -17,7 +17,7 @@ use function ini_get;
  * HD Tickets Health Check Controller
  * Sports Events Entry Tickets Monitoring System
  *
- * Comprehensive health checks for deployment monitoring
+ * Comprehensive health checks for application monitoring
  */
 class HealthCheckController extends Controller
 {
@@ -115,23 +115,20 @@ class HealthCheckController extends Controller
     }
 
     /**
-     * Deployment status endpoint
+     * Application status endpoint
      */
     /**
-     * DeploymentStatus
+     * ApplicationStatus
      */
-    public function deploymentStatus(): JsonResponse
+    public function applicationStatus(): JsonResponse
     {
         $environment = config('app.env');
-        $color = config('deployment.environments.' . $environment . '.deployment_color', 'unknown');
 
         return response()->json([
-            'deployment' => [
+            'application' => [
                 'environment' => $environment,
-                'color'       => $color,
                 'version'     => config('app.version', '1.0.0'),
-                'deployed_at' => config('app.deployed_at', NULL),
-                'commit_hash' => config('app.commit_hash', NULL),
+                'name'        => config('app.name', 'hdTickets'),
             ],
             'status'    => 'active',
             'timestamp' => now()->toISOString(),
@@ -487,8 +484,8 @@ class HealthCheckController extends Controller
         $apiChecks = [];
         $overallStatus = 'healthy';
 
-        // Check configured ticket platforms
-        $platforms = config('deployment.environments.' . config('app.env') . '.ticket_platforms', []);
+        // Check configured ticket platforms - using default configuration since deployment config was removed
+        $platforms = config('app.ticket_platforms', []);
 
         foreach ($platforms as $platform => $config) {
             if (! ($config['enabled'] ?? FALSE)) {

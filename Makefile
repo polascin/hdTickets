@@ -6,7 +6,7 @@
 # @package HDTickets  
 # @author  Lubomir Polascin (Ľubomír Polaščín) aka Walter Csoelle
 
-.PHONY: help install setup quality fix analyze test coverage metrics clean docs routes-list routes-cache routes-clear routes-test middleware-check deploy-production
+.PHONY: help install setup quality fix analyze test coverage metrics clean docs routes-list routes-cache routes-clear routes-test middleware-check
 
 # Default target
 .DEFAULT_GOAL := help
@@ -61,7 +61,6 @@ help:
 	@echo "  routes-clear     Clear route cache"
 	@echo "  routes-test      Test critical routes"
 	@echo "  middleware-check Verify middleware registration"
-	@echo "  deploy-production Full production deployment"
 	@echo ""
 
 ## Install composer dependencies
@@ -265,34 +264,6 @@ middleware-check:
 	@$(PHP) artisan route:list --columns=middleware | grep -E "(role|admin|agent|scraper|customer)" | sort | uniq
 	@echo ""
 	@echo "$(GREEN)✅ Middleware check completed$(NC)"
-
-## Full production deployment
-deploy-production: routes-clear middleware-check
-	@echo "$(BLUE)🚀 Starting production deployment...$(NC)"
-	@echo ""
-	@echo "$(YELLOW)Step 1: Environment check$(NC)"
-	@if [ "$(APP_ENV)" != "production" ]; then \
-		echo "$(YELLOW)⚠️  Warning: APP_ENV is not set to 'production'$(NC)"; \
-		echo "Current environment: $(APP_ENV)"; \
-	fi
-	@echo ""
-	@echo "$(YELLOW)Step 2: Clear all caches$(NC)"
-	@$(PHP) artisan cache:clear
-	@$(PHP) artisan config:clear
-	@$(PHP) artisan view:clear
-	@echo ""
-	@echo "$(YELLOW)Step 3: Cache routes with validation$(NC)"
-	@$(PHP) scripts/cache-routes-production.php
-	@echo ""
-	@echo "$(YELLOW)Step 4: Optimize autoloader$(NC)"
-	@$(COMPOSER) dump-autoload --optimize
-	@echo ""
-	@echo "$(GREEN)✅ Production deployment completed!$(NC)"
-	@echo ""
-	@echo "$(BLUE)📋 Post-deployment verification:$(NC)"
-	@echo "1. Test critical routes: make routes-test"
-	@echo "2. Check application health"
-	@echo "3. Verify role-based access control manually"
 
 ## Show project status
 status:
