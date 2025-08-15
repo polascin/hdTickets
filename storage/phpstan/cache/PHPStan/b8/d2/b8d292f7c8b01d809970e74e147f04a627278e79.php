@@ -522,7 +522,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/tests/DuskTestCase.php' => 
     array (
-      0 => '636addb5b3f8fe62ef418fafa6f1ba3292337796',
+      0 => '11c95ab25f37eacbdb5b382531bb181a0516bb9a',
       1 => 
       array (
         0 => 'tests\\dusktestcase',
