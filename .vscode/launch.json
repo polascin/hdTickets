@@ -1,6 +1,28 @@
 {
   "version": "0.2.0",
   "configurations": [
+    
+
+    {
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "request": "attach",
+      "type": "chrome",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Electron Main",
+      "program": "${workspaceFolder}/main.js",
+      "request": "launch",
+      "runtimeExecutable": "electron",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+
+
+
     {
       "name": "Git: Interactive Rebase",
       "type": "node-terminal",
