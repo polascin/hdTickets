@@ -26,9 +26,9 @@ class PerformanceLogger
      * Add performance context to log records
      * Compatible with both Monolog v2 (array) and v3+ (LogRecord)
      *
-     * @param mixed $record
+     * @param array|LogRecord $record
      */
-    public function addPerformanceContext(array $record): array
+    public function addPerformanceContext(array|LogRecord $record): array|LogRecord
     {
         // Handle both Monolog v2 (array) and v3+ (LogRecord object)
         if ($record instanceof LogRecord) {
