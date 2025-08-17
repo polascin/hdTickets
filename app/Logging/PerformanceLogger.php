@@ -25,8 +25,6 @@ class PerformanceLogger
     /**
      * Add performance context to log records
      * Compatible with both Monolog v2 (array) and v3+ (LogRecord)
-     *
-     * @param array|LogRecord $record
      */
     public function addPerformanceContext(array|LogRecord $record): array|LogRecord
     {

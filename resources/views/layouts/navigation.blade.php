@@ -6,6 +6,9 @@
     - Role-based access control
     - Uses registered Alpine.js navigationData component
 --}}
+@php
+    use Illuminate\Support\Facades\Request;
+@endphp
 <nav x-data="navigationData()" 
      x-init="console.log('🔧 Navigation initialized:', $data)" 
      class="bg-white border-b border-gray-100 shadow-sm"
@@ -33,7 +36,7 @@
                 <!-- Desktop Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     {{-- Dashboard Link - Available to all users --}}
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
@@ -47,7 +50,7 @@
                             {{-- Agent has access to these features --}}
                         @endif
                         {{-- Sports Tickets --}}
-                        <x-nav-link :href="route('tickets.scraping.index')" :active="request()->routeIs('tickets.scraping.*')">
+                        <x-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z"></path>
                             </svg>
@@ -55,7 +58,7 @@
                         </x-nav-link>
                         
                         {{-- Ticket Alerts --}}
-                        <x-nav-link :href="route('tickets.alerts.index')" :active="request()->routeIs('tickets.alerts.*')">
+                        <x-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
                             </svg>
@@ -63,7 +66,7 @@
                         </x-nav-link>
                         
                         {{-- Purchase Queue --}}
-                        <x-nav-link :href="route('purchase-decisions.index')" :active="request()->routeIs('purchase-decisions.*')">
+                        <x-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zm-8 4a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
@@ -71,7 +74,7 @@
                         </x-nav-link>
                         
                         {{-- Ticket Sources --}}
-                        <x-nav-link :href="route('ticket-sources.index')" :active="request()->routeIs('ticket-sources.*')">
+                        <x-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                             </svg>
@@ -80,7 +83,7 @@
                     @endif
 
                     {{-- Profile Link with Completion Indicator - Available to all users --}}
-                    <x-nav-link :href="route('profile.show')" :active="request()->routeIs('profile.*')" class="relative">
+                    <x-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')" class="relative">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
@@ -123,7 +126,7 @@
                                  @click="adminDropdownOpen = false">
                                 {{-- Admin Dashboard --}}
                                 <a href="{{ route('admin.dashboard') }}" 
-                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.dashboard') ? 'bg-gray-50 text-blue-600' : '' }}">
+                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ Request::routeIs('admin.dashboard') ? 'bg-gray-50 text-blue-600' : '' }}">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
@@ -132,7 +135,7 @@
                                 
                                 {{-- Reports --}}
                                 <a href="{{ route('admin.reports.index') }}" 
-                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.reports.*') ? 'bg-gray-50 text-blue-600' : '' }}">
+                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ Request::routeIs('admin.reports.*') ? 'bg-gray-50 text-blue-600' : '' }}">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                     </svg>
@@ -144,7 +147,7 @@
                                 
                                 @if(Auth::user()->canManageUsers())
                                     <a href="{{ route('admin.users.index') }}" 
-                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ request()->routeIs('admin.users.*') ? 'bg-gray-50 text-blue-600' : '' }}">
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ Request::routeIs('admin.users.*') ? 'bg-gray-50 text-blue-600' : '' }}">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                                         </svg>
@@ -285,7 +288,7 @@
         <div class="container mx-auto px-4">
         <div class="pt-2 pb-3 space-y-1">
             {{-- Dashboard Link --}}
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <x-responsive-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')">
                 <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
@@ -295,7 +298,7 @@
 
             @if(Auth::user()->isAdmin() || Auth::user()->isAgent())
                 {{-- Sports Tickets --}}
-                <x-responsive-nav-link :href="route('tickets.scraping.index')" :active="request()->routeIs('tickets.scraping.*')">
+                <x-responsive-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')">
                     <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z"></path>
                     </svg>
@@ -303,7 +306,7 @@
                 </x-responsive-nav-link>
                 
                 {{-- Ticket Alerts --}}
-                <x-responsive-nav-link :href="route('tickets.alerts.index')" :active="request()->routeIs('tickets.alerts.*')">
+                <x-responsive-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')">
                     <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
                     </svg>
@@ -311,7 +314,7 @@
                 </x-responsive-nav-link>
                 
                 {{-- Purchase Queue --}}
-                <x-responsive-nav-link :href="route('purchase-decisions.index')" :active="request()->routeIs('purchase-decisions.*')">
+                <x-responsive-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')">
                     <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zm-8 4a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
@@ -319,7 +322,7 @@
                 </x-responsive-nav-link>
                 
                 {{-- Ticket Sources --}}
-                <x-responsive-nav-link :href="route('ticket-sources.index')" :active="request()->routeIs('ticket-sources.*')">
+                <x-responsive-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')">
                     <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                     </svg>
@@ -328,7 +331,7 @@
             @endif
 
             {{-- Profile Link --}}
-            <x-responsive-nav-link :href="route('profile.show')" :active="request()->routeIs('profile.*')">
+            <x-responsive-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')">
                 <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -343,7 +346,7 @@
                     </div>
                     
                     {{-- Admin Dashboard --}}
-                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="Request::routeIs('admin.dashboard')">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
@@ -351,7 +354,7 @@
                     </x-responsive-nav-link>
                     
                     {{-- Reports --}}
-                    <x-responsive-nav-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')">
+                    <x-responsive-nav-link :href="route('admin.reports.index')" :active="Request::routeIs('admin.reports.*')">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -359,7 +362,7 @@
                     </x-responsive-nav-link>
                     
                     @if(Auth::user()->canManageUsers())
-                        <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        <x-responsive-nav-link :href="route('admin.users.index')" :active="Request::routeIs('admin.users.*')">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                             </svg>

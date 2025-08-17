@@ -133,7 +133,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
      * Controller: DashboardController@index
      * View: resources/views/dashboard/customer.blade.php
      */
-    Route::middleware(['customer.role'])->get('/customer', [DashboardController::class, 'index'])
+    Route::middleware([App\Http\Middleware\CustomerMiddleware::class])->get('/customer', [DashboardController::class, 'index'])
         ->name('customer'); // Route: dashboard.customer
 
     /*
@@ -144,7 +144,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
      * Controller: AgentDashboardController@index
      * View: resources/views/dashboard/agent.blade.php
      */
-    Route::middleware(['agent'])->get('/agent', [App\Http\Controllers\AgentDashboardController::class, 'index'])
+    Route::middleware([App\Http\Middleware\AgentMiddleware::class])->get('/agent', [App\Http\Controllers\AgentDashboardController::class, 'index'])
         ->name('agent'); // Route: dashboard.agent
 
     /*
@@ -156,7 +156,7 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
      * View: resources/views/dashboard/scraper.blade.php
      * Note: Scraper users typically don't access web interface (API-only)
      */
-    Route::middleware(['scraper'])->get('/scraper', [App\Http\Controllers\ScraperDashboardController::class, 'index'])
+    Route::middleware([App\Http\Middleware\ScraperMiddleware::class])->get('/scraper', [App\Http\Controllers\ScraperDashboardController::class, 'index'])
         ->name('scraper'); // Route: dashboard.scraper
 });
 
@@ -231,6 +231,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/tickets', function () {
         return redirect()->route('tickets.scraping.index');
     })->name('tickets.redirect');
+
+    // Temporary test route for debugging dashboard and navigation
+    Route::get('/dashboard-test', function () {
+        return view('dashboard-test');
+    })->name('dashboard.test');
 });
 
 Route::middleware(['auth', 'verified'])->group(function (): void {

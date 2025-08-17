@@ -49,7 +49,7 @@ class TicketAssigned extends Notification implements ShouldQueue
      */
     public function toMail($notifiable): MailMessage
     {
-        return (new MailMessage)
+        return new MailMessage()
             ->subject('Ticket Assigned to You: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('A ticket has been assigned to you:')

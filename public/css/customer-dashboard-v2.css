@@ -461,6 +461,157 @@ a:hover {
   transform: scale(1.1);
 }
 
+/* ==========================================================================
+   Icon Size Optimization
+   ========================================================================== */
+
+/* Fix oversized dashboard icons */
+.dashboard-container svg {
+  max-width: 1.25rem;
+  max-height: 1.25rem;
+}
+
+/* Specific size adjustments for dashboard elements */
+.stat-icon svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+
+.action-card svg {
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+}
+
+/* Header action button icons */
+.header-actions svg {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Navigation and menu icons - make them smaller */
+.nav-icon svg,
+.menu-icon svg {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* Main navigation bar icons */
+nav svg {
+  max-width: 0.875rem !important;
+  max-height: 0.875rem !important;
+}
+
+/* Specifically target navigation links */
+.nav-link svg,
+x-nav-link svg {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* Mobile bottom navigation - make smaller */
+.mobile-bottom-nav .nav-icon {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
+/* Header icons */
+.header-content svg,
+.header-left svg,
+.header-right svg {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+}
+
+/* FontAwesome icons in navigation */
+nav .fas,
+.nav-link .fas,
+.header-content .fas {
+  font-size: 0.75rem !important;
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* Additional comprehensive navigation icon targeting */
+#main-navigation svg,
+.shrink-0 svg,
+.items-center svg {
+  max-width: 0.875rem !important;
+  max-height: 0.875rem !important;
+}
+
+/* Target Tailwind utility classes used in navigation */
+.w-4.h-4 {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+.w-5.h-5 {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+}
+
+/* Theme toggle and profile icons */
+.theme-toggle svg,
+.profile-dropdown svg {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+}
+
+/* Responsive navigation icons */
+x-responsive-nav-link svg {
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+}
+
+/* Override Tailwind's oversized utility classes in dashboard */
+.dashboard-container .w-6 {
+  width: 1.125rem !important;
+}
+
+.dashboard-container .h-6 {
+  height: 1.125rem !important;
+}
+
+.dashboard-container .w-12 {
+  width: 2.5rem !important;
+}
+
+.dashboard-container .h-12 {
+  height: 2.5rem !important;
+}
+
+/* Responsive icon scaling */
+@media (max-width: 768px) {
+  .dashboard-container svg {
+    max-width: 1rem;
+    max-height: 1rem;
+  }
+  
+  .stat-icon svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+  
+  .action-card svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+}
+
+/* Ensure proper icon container sizing */
+.dashboard-container .stat-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-container .action-card .flex-shrink-0 > div {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
 .action-card h4 {
   font-size: var(--font-size-lg);
   font-weight: 600;
