@@ -69,6 +69,7 @@
     "@vue/compiler-sfc": "^3.5.18",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.21",
+    "cssnano": "^7.1.0",
     "eslint": "^9.33.0",
     "eslint-plugin-vue": "^10.4.0",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",

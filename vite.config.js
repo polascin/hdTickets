@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import eslint from 'vite-plugin-eslint';
 import { resolve } from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -261,9 +263,9 @@ export default defineConfig(({ command, mode }) => {
       // Critical CSS extraction and optimization
       postcss: {
         plugins: [
-          require('autoprefixer'),
+          autoprefixer(),
           ...(isProduction ? [
-            require('cssnano')({
+            cssnano({
               preset: ['default', {
                 discardComments: {
                   removeAll: true,
