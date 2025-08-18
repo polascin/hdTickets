@@ -30,7 +30,7 @@ class TicketScrapingController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(Request $request): Illuminate\Contracts\View\View
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>', now())
@@ -265,7 +265,7 @@ class TicketScrapingController extends Controller
     /**
      * CreateAlert
      */
-    public function createAlert(): Illuminate\Contracts\View\View
+    public function createAlert(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name'                => 'required|string|max:255',
@@ -323,7 +323,7 @@ class TicketScrapingController extends Controller
     /**
      * UpdateAlert
      */
-    public function updateAlert(): Illuminate\Http\RedirectResponse
+    public function updateAlert(Request $request, TicketAlert $alert): JsonResponse
     {
         // Ensure user owns the alert
         if ($alert->user_id !== Auth::id()) {
