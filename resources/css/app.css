@@ -1,18 +1,17 @@
 /* HD Tickets - Consolidated CSS Architecture */
 /* =========================================== */
 
-/* CSS Layer organization for better cascade management */
-@layer variables, base, components, utilities, mobile;
+/* Tailwind CSS imports for v4 */
+@import "tailwindcss";
 
-/* Import comprehensive HD Design System */
+/* Import HD Design System after Tailwind base */
 @import './design-system.css';
 
 /* Import specialized page styles */
 @import './auth/login.css';
 
-/* Tailwind CSS imports (kept for backward compatibility) */
-@import "tailwindcss";
-@reference tailwindcss/utilities;
+/* CSS Layer organization for better cascade management */
+@layer hd-base, hd-components, hd-utilities;
 
 /* Base styles with CSS custom properties */
 @layer base {

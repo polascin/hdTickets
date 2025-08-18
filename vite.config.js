@@ -144,14 +144,14 @@ export default defineConfig(({ command, mode }) => {
         output: {
           // Advanced manual chunking strategy
           manualChunks: (id) => {
-            // Core Vue ecosystem - Fixed to prevent empty chunks
-            if (id.includes('node_modules/vue/') && !id.includes('vue-router') && !id.includes('pinia')) {
+            // Core Vue ecosystem - Fix empty chunks by ensuring proper module detection
+            if (id.includes('node_modules/vue/dist/vue') && !id.includes('vue-router') && !id.includes('pinia')) {
               return 'vue-core';
             }
-            if (id.includes('vue-router')) {
+            if (id.includes('vue-router') || id.includes('@vue/router')) {
               return 'vue-router';
             }
-            if (id.includes('pinia')) {
+            if (id.includes('pinia') || id.includes('@pinia')) {
               return 'vue-store';
             }
             
@@ -180,13 +180,16 @@ export default defineConfig(({ command, mode }) => {
               return 'animations';
             }
             
-            // Large third-party libraries
+            // Large third-party libraries - Be more specific to avoid empty chunks
             if (id.includes('node_modules')) {
               // Split large vendors into separate chunks
-              if (id.includes('zod') || id.includes('fuse.js')) {
+              if (id.includes('zod') || id.includes('fuse.js') || id.includes('sweetalert2')) {
                 return 'vendor-large';
               }
-              return 'vendor';
+              // Only bundle actual vendor modules, not build artifacts
+              if (!id.includes('.vite') && !id.includes('?') && !id.includes('virtual:')) {
+                return 'vendor';
+              }
             }
             
             // Application code splitting by directory
