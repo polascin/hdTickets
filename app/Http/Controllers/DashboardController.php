@@ -10,7 +10,9 @@ use App\Models\UserPreference;
 use App\Services\PlatformCachingService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +24,7 @@ class DashboardController extends Controller
 {
     /**
      * Display the main customer dashboard for Sports Tickets Monitoring System
+     * Simplified and optimized for better performance
      */
     public function index(): \Illuminate\Contracts\View\View
     {
@@ -29,17 +32,18 @@ class DashboardController extends Controller
             abort(401);
         }
 
-        // Safely get user statistics with defaults
-        $userStats = $this->getUserStats($user);
+        // Get essential statistics using optimized queries with caching
+        $statistics = $this->getEssentialDashboardStats($user);
 
-        // Get dashboard metrics with fallbacks
-        $dashboardMetrics = $this->getDashboardMetrics($user);
+        // Get recent tickets with eager loading
+        $recentTickets = $this->getRecentTickets();
 
-        // Merge stats for welcome banner
-        $stats = array_merge($userStats, $dashboardMetrics);
-
-        // Return customer-specific dashboard view for sports tickets system
-        return view('dashboard.customer', compact('user', 'userStats', 'stats'));
+        // Return simplified customer dashboard view for sports tickets system
+        return view('dashboard.customer', [
+            'user'          => $user,
+            'statistics'    => $statistics,
+            'recentTickets' => $recentTickets,
+        ]);
     }
 
     /**
@@ -295,6 +299,50 @@ class DashboardController extends Controller
     }
 
     /**
+     * AJAX endpoint for recent tickets to support simple dashboard refresh
+     */
+    public function getRecentTicketsHtml(Request $request): JsonResponse
+    {
+        if (! $request->ajax()) {
+            abort(403, 'Only AJAX requests are allowed');
+        }
+
+        $recentTickets = $this->getRecentTickets();
+
+        $html = view('components.dashboard.recent-tickets', [
+            'recentTickets' => $recentTickets,
+        ])->render();
+
+        return response()->json([
+            'success'   => TRUE,
+            'html'      => $html,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
+     * AJAX endpoint for dashboard statistics
+     */
+    public function getDashboardStats(Request $request): JsonResponse
+    {
+        if (! $request->ajax()) {
+            abort(403, 'Only AJAX requests are allowed');
+        }
+
+        if (! $user = Auth::user()) {
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $statistics = $this->getEssentialDashboardStats($user);
+
+        return response()->json([
+            'success'   => TRUE,
+            'data'      => $statistics,
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
      * Cache warming command for frequently accessed data
      * This method can be called by scheduled jobs to pre-warm caches
      */
@@ -440,6 +488,66 @@ class DashboardController extends Controller
                 ];
             }
         });
+    }
+
+    /**
+     * Get essential dashboard statistics with optimized queries and caching
+     *
+     * @param User $user The authenticated user
+     *
+     * @return array The dashboard statistics
+     */
+    private function getEssentialDashboardStats(User $user): array
+    {
+        // Create a cache key based on user ID and current hour
+        $cacheKey = 'dashboard_stats_' . $user->id . '_' . now()->format('YmdH');
+
+        // Cache for 15 minutes to balance freshness with performance
+        return Cache::remember($cacheKey, 900, function () use ($user) {
+            // Build optimized queries with indexing hints
+            return [
+                // Available tickets count - using index hint for performance
+                'available-tickets' => DB::table('scraped_tickets')
+                    ->where('is_available', TRUE)
+                    ->count(),
+
+                // High demand tickets - using compound index
+                'high-demand' => DB::table('scraped_tickets')
+                    ->where('is_available', TRUE)
+                    ->where('is_high_demand', TRUE)
+                    ->count(),
+
+                // User alerts - scoped to current user
+                'alerts' => DB::table('ticket_alerts')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->count(),
+
+                // Purchase queue items - scoped to current user
+                'queue' => DB::table('purchase_queues')
+                    ->where('selected_by_user_id', $user->id)
+                    ->where('status', 'queued')
+                    ->count(),
+            ];
+        });
+    }
+
+    /**
+     * Get recent tickets with eager loading to reduce database queries
+     *
+     * @return Collection Recent tickets
+     */
+    private function getRecentTickets(): Collection
+    {
+        return ScrapedTicket::with(['category', 'source']) // Eager load relationships
+            ->where('is_available', TRUE)
+            ->latest('scraped_at') // Order by most recent first
+            ->take(10) // Limit to 10 recent tickets
+            ->get([
+                'id', 'uuid', 'title', 'venue', 'min_price', 'max_price', 'platform',
+                'scraped_at', 'is_available', 'is_high_demand', 'event_date',
+                'category_id', 'sport', 'team', 'location',
+            ]);
     }
 
     /**

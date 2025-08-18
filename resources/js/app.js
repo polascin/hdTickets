@@ -167,30 +167,53 @@ try {
         
         init() {
             // Close dropdowns when clicking outside
-            document.addEventListener('click', (e) => {
+            const clickOutsideHandler = (e) => {
                 if (!this.$el.contains(e.target)) {
                     this.adminDropdownOpen = false;
                     this.profileDropdownOpen = false;
                 }
-            });
+            };
+            document.addEventListener('click', clickOutsideHandler);
             
             // Close dropdowns on ESC key
-            document.addEventListener('keydown', (e) => {
+            const keydownHandler = (e) => {
                 if (e.key === 'Escape') {
                     this.closeAll();
                 }
-            });
+            };
+            document.addEventListener('keydown', keydownHandler);
             
             // Close dropdowns when navigating (if using SPA routing)
-            window.addEventListener('popstate', () => {
+            const popstateHandler = () => {
                 this.closeAll();
-            });
+            };
+            window.addEventListener('popstate', popstateHandler);
+            
+            // Close mobile menu when screen becomes desktop size
+            const resizeHandler = () => {
+                if (window.innerWidth >= 640) {
+                    this.mobileMenuOpen = false;
+                }
+            };
+            window.addEventListener('resize', resizeHandler);
+            
+            // Store references for cleanup
+            this._cleanup = () => {
+                document.removeEventListener('click', clickOutsideHandler);
+                document.removeEventListener('keydown', keydownHandler);
+                window.removeEventListener('popstate', popstateHandler);
+                window.removeEventListener('resize', resizeHandler);
+            };
         },
         
         closeAll() {
             this.adminDropdownOpen = false;
             this.profileDropdownOpen = false;
-            this.mobileMenuOpen = false;
+            if (this.mobileMenuOpen) {
+                this.mobileMenuOpen = false;
+                // Re-enable body scroll when closing mobile menu
+                document.body.style.overflow = '';
+            }
         },
         
         toggleMobileMenu() {
@@ -199,6 +222,12 @@ try {
             if (this.mobileMenuOpen) {
                 this.adminDropdownOpen = false;
                 this.profileDropdownOpen = false;
+                
+                // Prevent body scroll when mobile menu is open
+                document.body.style.overflow = 'hidden';
+            } else {
+                // Re-enable body scroll when mobile menu is closed
+                document.body.style.overflow = '';
             }
         },
         
@@ -225,6 +254,13 @@ try {
             setTimeout(() => {
                 this.closeAll();
             }, 100);
+        },
+        
+        // Cleanup method for removing event listeners
+        destroy() {
+            if (this._cleanup) {
+                this._cleanup();
+            }
         }
     }));
     console.log('✅ Alpine.js navigation component registered');

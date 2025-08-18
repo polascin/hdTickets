@@ -224,6 +224,15 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
     Route::get('dashboard/price-alerts', [App\Http\Controllers\Ajax\DashboardController::class, 'priceAlerts'])
         ->middleware('throttle:30,1')
         ->name('dashboard.price-alerts');
+
+    // Simple dashboard AJAX endpoints
+    Route::get('dashboard/stats', [App\Http\Controllers\DashboardController::class, 'getDashboardStats'])
+        ->middleware('throttle:60,1')
+        ->name('dashboard.stats');
+    
+    Route::get('dashboard/recent-tickets', [App\Http\Controllers\DashboardController::class, 'getRecentTicketsHtml'])
+        ->middleware('throttle:60,1')
+        ->name('dashboard.recent-tickets');
 });
 
 // Main tickets route redirects to sports event ticket scraping

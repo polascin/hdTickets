@@ -598,6 +598,328 @@ x-responsive-nav-link svg {
   }
 }
 
+/* ==========================================================================
+   Navigation Bar Fixes and Enhancements
+   ========================================================================== */
+
+/* Primary navigation container */
+nav[role="navigation"] {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Navigation content wrapper */
+.container.mx-auto {
+  max-width: 1280px;
+  padding: 0 var(--spacing-4);
+}
+
+/* Navigation header */
+.flex.justify-between.h-16 {
+  min-height: 4rem;
+  align-items: center;
+}
+
+/* Logo section */
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Desktop navigation links container */
+.hidden.space-x-8.sm\:-my-px.sm\:ms-10.sm\:flex {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hidden.space-x-8.sm\:-my-px.sm\:ms-10.sm\:flex {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6);
+    margin-left: 2rem;
+  }
+}
+
+/* Navigation link styling improvements */
+x-nav-link,
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--gray-700);
+  transition: all var(--transition-normal);
+  position: relative;
+  white-space: nowrap;
+}
+
+x-nav-link:hover,
+.nav-link:hover {
+  background-color: var(--gray-50);
+  color: var(--gray-900);
+  transform: translateY(-1px);
+}
+
+x-nav-link[active="true"],
+.nav-link.active {
+  background-color: var(--primary-blue-light);
+  color: var(--primary-blue-dark);
+  font-weight: 600;
+}
+
+/* Icon fixes for navigation */
+x-nav-link svg:not(.h-9):not(.w-auto),
+.nav-link svg:not(.h-9):not(.w-auto),
+nav[role="navigation"] svg:not(.h-9):not(.w-auto) {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+  flex-shrink: 0;
+  color: currentColor;
+  margin-right: 0.5rem;
+}
+
+/* Profile dropdown button styling */
+.hidden.sm\:flex.sm\:items-center button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  background-color: var(--white);
+  color: var(--gray-700);
+  transition: all var(--transition-fast);
+}
+
+.hidden.sm\:flex.sm\:items-center button:hover {
+  background-color: var(--gray-50);
+  border-color: var(--gray-300);
+  transform: translateY(-1px);
+}
+
+/* Profile avatar styling */
+.w-8.h-8.rounded-full {
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 50%;
+  border: 2px solid var(--gray-200);
+  transition: all var(--transition-fast);
+}
+
+.w-8.h-8.rounded-full:hover {
+  border-color: var(--primary-blue);
+  transform: scale(1.05);
+}
+
+/* Dropdown menu improvements */
+.absolute.z-50.mt-1,
+.absolute.z-50.mt-2 {
+  background-color: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-2);
+  min-width: 220px;
+}
+
+/* Dropdown item styling */
+.flex.items-center.px-4.py-2 {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+}
+
+.flex.items-center.px-4.py-2:hover {
+  background-color: var(--gray-50);
+  color: var(--gray-900);
+}
+
+/* Mobile hamburger button */
+.hd-mobile-hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hd-mobile-hamburger:hover {
+  background-color: var(--gray-100);
+}
+
+.hd-mobile-hamburger__icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 1.25rem;
+  height: 1rem;
+}
+
+.hd-mobile-hamburger__line {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background-color: var(--gray-700);
+  border-radius: 1px;
+  transition: all var(--transition-fast);
+}
+
+/* Mobile hamburger animation - improved */
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(2) {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.hd-mobile-hamburger--open .hd-mobile-hamburger__line:nth-child(3) {
+  transform: rotate(-45deg) translate(4px, -4px);
+}
+
+/* Mobile navigation menu */
+.hidden.sm\:hidden {
+  background-color: var(--white);
+  border-top: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mobile navigation links */
+x-responsive-nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-left: 4px solid transparent;
+  color: var(--gray-700);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+x-responsive-nav-link:hover {
+  background-color: var(--gray-50);
+  border-left-color: var(--gray-300);
+  color: var(--gray-900);
+}
+
+x-responsive-nav-link[active="true"] {
+  background-color: var(--primary-blue-light);
+  border-left-color: var(--primary-blue);
+  color: var(--primary-blue-dark);
+  font-weight: 600;
+}
+
+/* Theme toggle button */
+#theme-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  border: none;
+  background-color: transparent;
+  color: var(--gray-500);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+#theme-toggle:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+/* FontAwesome icon in theme toggle */
+#theme-toggle .fas {
+  font-size: 1rem !important;
+}
+
+/* ==========================================================================
+   Dashboard Layout Improvements
+   ========================================================================== */
+
+/* Main dashboard container */
+.min-h-screen.bg-gray-100 {
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  min-height: 100vh;
+}
+
+/* Page content wrapper */
+.max-w-7xl.mx-auto.px-4 main {
+  padding: var(--spacing-6) 0;
+}
+
+/* Fix for mobile spacing */
+@media (max-width: 640px) {
+  .container.mx-auto {
+    padding: 0 var(--spacing-3);
+  }
+  
+  nav[role="navigation"] .flex.justify-between {
+    padding: 0 var(--spacing-3);
+  }
+  
+  .max-w-7xl.mx-auto {
+    padding-left: var(--spacing-3);
+    padding-right: var(--spacing-3);
+  }
+}
+
+/* ==========================================================================
+   Component Integration Fixes
+   ========================================================================== */
+
+/* Fix for x-nav-link components */
+x-nav-link {
+  --nav-link-color: var(--gray-700);
+  --nav-link-hover-color: var(--gray-900);
+  --nav-link-active-color: var(--primary-blue-dark);
+  --nav-link-hover-bg: var(--gray-50);
+  --nav-link-active-bg: var(--primary-blue-light);
+}
+
+/* Fix for x-responsive-nav-link components */
+x-responsive-nav-link {
+  --responsive-nav-link-color: var(--gray-700);
+  --responsive-nav-link-hover-color: var(--gray-900);
+  --responsive-nav-link-active-color: var(--primary-blue-dark);
+  --responsive-nav-link-hover-bg: var(--gray-50);
+  --responsive-nav-link-active-bg: var(--primary-blue-light);
+}
+
+/* Header section styling */
+.bg-white.shadow {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+/* Logo hover effect */
+x-application-logo {
+  transition: transform var(--transition-normal);
+}
+
+x-application-logo:hover {
+  transform: scale(1.05);
+}
+
 /* Ensure proper icon container sizing */
 .dashboard-container .stat-icon {
   width: 2.5rem;

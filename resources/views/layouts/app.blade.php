@@ -93,6 +93,9 @@
         <!-- Enhanced HD Tickets CSS -->
         <link href="{{ asset('css/hd-notifications.css') }}?v={{ filemtime(public_path('css/hd-notifications.css')) }}" rel="stylesheet">
         
+        <!-- Navigation & Dashboard Fixes -->
+        <link href="{{ asset('css/navigation-dashboard-fixes.css') }}?v={{ filemtime(public_path('css/navigation-dashboard-fixes.css')) }}" rel="stylesheet">
+        
         <!-- Bootstrap CSS -->
         <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
