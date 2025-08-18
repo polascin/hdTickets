@@ -1,56 +1,34 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "es6"],
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["resources/js/*"],
-      "@components/*": ["resources/js/components/*"],
-      "@composables/*": ["resources/js/composables/*"],
-      "@stores/*": ["resources/js/stores/*"],
-      "@utils/*": ["resources/js/utils/*"],
-      "@types/*": ["resources/js/types/*"],
-      "@assets/*": ["resources/assets/*"],
-      "@css/*": ["resources/css/*"]
-    },
-    "types": ["vite/client", "node"],
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "include": [
-    "resources/js/**/*",
-    "resources/js/**/*.vue",
-    "resources/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "public",
-    "storage",
-    "vendor",
-    "bootstrap/cache",
-    "tests"
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/styles/*": ["./src/styles/*"],
+      "@/app/*": ["./src/app/*"]
     }
-  ]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -1,0 +1,67 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Laravel backend (keep Laravel files)
+!/app/
+!/bootstrap/
+!/config/
+!/database/
+!/routes/
+!/storage/
+!/tests/
+!/artisan
+!/composer.json
+!/composer.lock
+!/.env.example
+
+# Laravel dependencies
+/vendor/
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/bootstrap/cache/
+
+# Laravel specific
+.env
+.php-cs-fixer.cache
+.phpunit.result.cache

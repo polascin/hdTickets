@@ -82,7 +82,32 @@
   "search.useIgnoreFiles": true,
   "search.followSymlinks": false,
 
-  // PHP & Laravel Specific Settings
+  // React & TypeScript Specific Settings
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "emmet.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascriptreact"
+  },
+  "emmet.showExpandedAbbreviation": "always",
+  "emmet.triggerExpansionOnTab": true,
+  
+  // Tailwind CSS
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    "tw`([^`]*)`",
+    "tw\\.[^`]+`([^`]*)`",
+    ["tw\\(.*?\\)`([^`]*)`", "tw\\(([^)]*)\\)"]
+  ],
+  
+  // PHP & Laravel Specific Settings (for backend)
   "php.validate.enable": true,
   "php.validate.executablePath": "/usr/bin/php",
   "phpstan.enabled": true,
