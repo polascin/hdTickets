@@ -1,0 +1,13 @@
+<template>
+  <div class="placeholder-component">
+    <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+      RecentActivity Component Placeholder
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'RecentActivity'
+}
+</script>
