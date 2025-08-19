@@ -26,7 +26,7 @@ class TwoFactorController extends Controller
     /**
      * Challenge
      */
-    public function challenge(): View
+    public function challenge(): View|RedirectResponse
     {
         if (! Session::has('2fa_user_id')) {
             return redirect()->route('login');
@@ -143,7 +143,7 @@ class TwoFactorController extends Controller
     /**
      * Set up
      */
-    public function setup(): View
+    public function setup(): View|RedirectResponse
     {
         $user = Auth::user();
 
@@ -205,7 +205,7 @@ class TwoFactorController extends Controller
     /**
      * RecoveryCodes
      */
-    public function recoveryCodes(): View
+    public function recoveryCodes(): View|RedirectResponse
     {
         $user = Auth::user();
 

@@ -1,0 +1,605 @@
+/*!
+ * HD Tickets - Sports-Themed Background Components
+ * 
+ * Professional sports event ticket system backgrounds with:
+ * - Enterprise-grade design patterns
+ * - Performance-optimized animations
+ * - Mobile-responsive scaling
+ * - Accessibility considerations
+ * - Professional color schemes
+ */
+
+/* ==========================================================================
+   SPORTS-THEMED GRADIENTS
+   ========================================================================== */
+
+/* Primary HD Tickets gradient for login pages */
+.hd-sports-gradient-primary {
+    background: linear-gradient(135deg, 
+        #1e40af 0%,     /* Professional Blue */
+        #3b82f6 25%,    /* Lighter Blue */
+        #6366f1 50%,    /* Indigo */
+        #8b5cf6 75%,    /* Purple */
+        #1e40af 100%    /* Back to Professional Blue */
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+/* Secondary gradient for dashboard headers */
+.hd-sports-gradient-secondary {
+    background: linear-gradient(135deg,
+        #0f172a 0%,     /* Slate Dark */
+        #1e293b 25%,    /* Slate */
+        #334155 50%,    /* Slate Medium */
+        #475569 75%,    /* Slate Light */
+        #64748b 100%    /* Slate Lighter */
+    );
+}
+
+/* Success gradient for completed actions */
+.hd-sports-gradient-success {
+    background: linear-gradient(135deg,
+        #15803d 0%,     /* Green Dark */
+        #16a34a 25%,    /* Green */
+        #22c55e 50%,    /* Green Light */
+        #4ade80 75%,    /* Green Lighter */
+        #15803d 100%    /* Back to Green Dark */
+    );
+}
+
+/* Alert gradient for warnings */
+.hd-sports-gradient-alert {
+    background: linear-gradient(135deg,
+        #c2410c 0%,     /* Orange Dark */
+        #ea580c 25%,    /* Orange */
+        #f97316 50%,    /* Orange Light */
+        #fb923c 75%,    /* Orange Lighter */
+        #c2410c 100%    /* Back to Orange Dark */
+    );
+}
+
+/* ==========================================================================
+   ANIMATED BACKGROUND PATTERNS
+   ========================================================================== */
+
+/* Subtle sports venue pattern overlay */
+.hd-sports-pattern-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        /* Subtle ticket perforations pattern */
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        /* Stadium seating pattern */
+        linear-gradient(90deg, transparent 48%, rgba(255, 255, 255, 0.02) 50%, transparent 52%),
+        linear-gradient(0deg, transparent 48%, rgba(255, 255, 255, 0.02) 50%, transparent 52%);
+    background-size: 
+        80px 80px,
+        40px 40px,
+        100px 100px,
+        100px 100px;
+    background-position:
+        0 0,
+        20px 20px,
+        0 0,
+        0 0;
+    animation: hd-pattern-float 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes hd-pattern-float {
+    0%, 100% { 
+        transform: translateX(0) translateY(0) rotate(0deg);
+        opacity: 0.6;
+    }
+    25% { 
+        transform: translateX(5px) translateY(-3px) rotate(1deg);
+        opacity: 0.8;
+    }
+    50% { 
+        transform: translateX(-3px) translateY(-7px) rotate(-0.5deg);
+        opacity: 0.7;
+    }
+    75% { 
+        transform: translateX(-7px) translateY(2px) rotate(0.8deg);
+        opacity: 0.9;
+    }
+}
+
+/* Stadium floodlight effect */
+.hd-sports-floodlight {
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 60%;
+    height: 120%;
+    background: radial-gradient(
+        ellipse 40% 80% at 50% 20%,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 30%,
+        rgba(255, 255, 255, 0.03) 60%,
+        transparent 100%
+    );
+    animation: hd-floodlight-pulse 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes hd-floodlight-pulse {
+    0%, 100% { 
+        opacity: 0.4;
+        transform: scale(1) rotate(0deg);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.05) rotate(2deg);
+    }
+}
+
+/* Sports field lines effect */
+.hd-sports-field-lines {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        /* Horizontal field lines */
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 98px,
+            rgba(255, 255, 255, 0.03) 100px,
+            rgba(255, 255, 255, 0.03) 102px,
+            transparent 104px
+        ),
+        /* Vertical field lines */
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 148px,
+            rgba(255, 255, 255, 0.02) 150px,
+            rgba(255, 255, 255, 0.02) 152px,
+            transparent 154px
+        );
+    animation: hd-field-shift 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes hd-field-shift {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(200px) translateY(200px); }
+}
+
+/* ==========================================================================
+   TICKET-THEMED DECORATIVE ELEMENTS
+   ========================================================================== */
+
+/* Ticket stub decoration */
+.hd-ticket-stub {
+    position: absolute;
+    top: 15%;
+    right: 8%;
+    width: 180px;
+    height: 60px;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    border-radius: 8px;
+    border-left: 3px dashed rgba(255, 255, 255, 0.2);
+    border-right: 3px dashed rgba(255, 255, 255, 0.2);
+    transform: rotate(-15deg);
+    animation: hd-ticket-float 12s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hd-ticket-stub::before {
+    content: '';
+    position: absolute;
+    left: 20%;
+    top: 50%;
+    width: 60%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-50%);
+}
+
+.hd-ticket-stub::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes hd-ticket-float {
+    0%, 100% { 
+        transform: rotate(-15deg) translateY(0px);
+        opacity: 0.6;
+    }
+    50% { 
+        transform: rotate(-12deg) translateY(-8px);
+        opacity: 0.8;
+    }
+}
+
+/* Stadium architecture silhouette */
+.hd-stadium-silhouette {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.05) 60%,
+        transparent 100%
+    );
+    clip-path: polygon(
+        0% 100%,
+        5% 85%,
+        12% 80%,
+        20% 82%,
+        28% 78%,
+        35% 81%,
+        42% 77%,
+        50% 79%,
+        58% 76%,
+        65% 80%,
+        72% 78%,
+        80% 83%,
+        88% 81%,
+        95% 86%,
+        100% 100%
+    );
+    animation: hd-stadium-glow 15s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes hd-stadium-glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}
+
+/* ==========================================================================
+   SPORTS EQUIPMENT DECORATIONS
+   ========================================================================== */
+
+/* Abstract ball elements */
+.hd-sports-balls {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hd-sports-balls::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: -5%;
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 70%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    animation: hd-ball-bounce 8s ease-in-out infinite;
+}
+
+.hd-sports-balls::after {
+    content: '';
+    position: absolute;
+    bottom: 25%;
+    right: -3%;
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.03) 70%,
+        transparent 100%
+    );
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: hd-ball-bounce 10s ease-in-out infinite reverse;
+}
+
+@keyframes hd-ball-bounce {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.4;
+    }
+    25% { 
+        transform: translateY(-15px) rotate(90deg);
+        opacity: 0.6;
+    }
+    50% { 
+        transform: translateY(-8px) rotate(180deg);
+        opacity: 0.7;
+    }
+    75% { 
+        transform: translateY(-20px) rotate(270deg);
+        opacity: 0.5;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE SPORTS BACKGROUNDS
+   ========================================================================== */
+
+/* Large Desktop Optimizations */
+@media (min-width: 1920px) {
+    .hd-sports-pattern-overlay {
+        background-size: 
+            120px 120px,
+            60px 60px,
+            150px 150px,
+            150px 150px;
+    }
+    
+    .hd-ticket-stub {
+        width: 220px;
+        height: 75px;
+        top: 12%;
+        right: 10%;
+    }
+    
+    .hd-sports-floodlight {
+        width: 70%;
+        height: 140%;
+    }
+}
+
+/* Tablet Optimizations */
+@media (max-width: 1023px) {
+    .hd-sports-pattern-overlay {
+        background-size: 
+            60px 60px,
+            30px 30px,
+            80px 80px,
+            80px 80px;
+        animation-duration: 20s;
+    }
+    
+    .hd-ticket-stub {
+        width: 140px;
+        height: 45px;
+        top: 18%;
+        right: 5%;
+    }
+    
+    .hd-sports-floodlight {
+        width: 80%;
+        height: 100%;
+        top: -15%;
+    }
+    
+    .hd-stadium-silhouette {
+        height: 25%;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767px) {
+    .hd-sports-pattern-overlay {
+        background-size: 
+            40px 40px,
+            20px 20px,
+            60px 60px,
+            60px 60px;
+        animation-duration: 15s;
+    }
+    
+    .hd-ticket-stub {
+        width: 100px;
+        height: 35px;
+        top: 15%;
+        right: 8%;
+        transform: rotate(-12deg);
+    }
+    
+    .hd-sports-floodlight {
+        width: 100%;
+        height: 80%;
+        top: -10%;
+        right: -20%;
+    }
+    
+    .hd-sports-balls::before {
+        width: 25px;
+        height: 25px;
+        top: 25%;
+        left: -3%;
+    }
+    
+    .hd-sports-balls::after {
+        width: 18px;
+        height: 18px;
+        bottom: 30%;
+        right: -2%;
+    }
+    
+    .hd-stadium-silhouette {
+        height: 20%;
+    }
+}
+
+/* ==========================================================================
+   PERFORMANCE AND ACCESSIBILITY
+   ========================================================================== */
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .hd-sports-pattern-overlay,
+    .hd-sports-floodlight,
+    .hd-sports-field-lines,
+    .hd-ticket-stub,
+    .hd-stadium-silhouette,
+    .hd-sports-balls::before,
+    .hd-sports-balls::after {
+        animation: none !important;
+    }
+    
+    .hd-sports-pattern-overlay {
+        opacity: 0.3;
+    }
+    
+    .hd-sports-floodlight {
+        opacity: 0.4;
+    }
+}
+
+/* Performance optimizations */
+.hd-sports-pattern-overlay,
+.hd-sports-floodlight,
+.hd-sports-field-lines,
+.hd-ticket-stub,
+.hd-stadium-silhouette,
+.hd-sports-balls {
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .hd-sports-pattern-overlay,
+    .hd-sports-floodlight,
+    .hd-sports-field-lines,
+    .hd-ticket-stub,
+    .hd-stadium-silhouette,
+    .hd-sports-balls::before,
+    .hd-sports-balls::after {
+        opacity: 0.1 !important;
+    }
+}
+
+/* ==========================================================================
+   THEMED COMPONENT COMBINATIONS
+   ========================================================================== */
+
+/* Complete sports stadium background */
+.hd-sports-stadium-bg {
+    position: relative;
+    overflow: hidden;
+}
+
+.hd-sports-stadium-bg .hd-sports-gradient-primary {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hd-sports-stadium-bg .hd-sports-pattern-overlay {
+    z-index: 1;
+}
+
+.hd-sports-stadium-bg .hd-sports-floodlight {
+    z-index: 2;
+}
+
+.hd-sports-stadium-bg .hd-ticket-stub {
+    z-index: 3;
+}
+
+.hd-sports-stadium-bg .hd-stadium-silhouette {
+    z-index: 1;
+}
+
+.hd-sports-stadium-bg .hd-sports-balls {
+    z-index: 1;
+}
+
+/* Login page specific background */
+.hd-login-sports-bg {
+    background: linear-gradient(135deg, 
+        #1e40af 0%,
+        #3b82f6 35%,
+        #8b5cf6 70%,
+        #1e40af 100%
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.hd-login-sports-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: hd-pattern-float 20s ease-in-out infinite;
+    z-index: 0;
+}
+
+.hd-login-sports-bg::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: hd-floodlight-pulse 6s ease-in-out infinite;
+    z-index: 1;
+}
+
+/* Dark mode support for sports themes */
+@media (prefers-color-scheme: dark) {
+    .hd-sports-gradient-primary {
+        background: linear-gradient(135deg, 
+            #0f172a 0%,
+            #1e293b 25%,
+            #334155 50%,
+            #475569 75%,
+            #0f172a 100%
+        );
+    }
+    
+    .hd-sports-pattern-overlay {
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.05) 2px, transparent 2px),
+            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, transparent 48%, rgba(255, 255, 255, 0.01) 50%, transparent 52%),
+            linear-gradient(0deg, transparent 48%, rgba(255, 255, 255, 0.01) 50%, transparent 52%);
+    }
+}
+
+/* Print styles - minimal backgrounds for printing */
+@media print {
+    .hd-sports-pattern-overlay,
+    .hd-sports-floodlight,
+    .hd-sports-field-lines,
+    .hd-ticket-stub,
+    .hd-stadium-silhouette,
+    .hd-sports-balls,
+    .hd-sports-gradient-primary,
+    .hd-sports-gradient-secondary,
+    .hd-login-sports-bg::before,
+    .hd-login-sports-bg::after {
+        display: none !important;
+    }
+    
+    .hd-sports-gradient-primary,
+    .hd-login-sports-bg {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+}
