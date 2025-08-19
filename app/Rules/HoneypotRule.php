@@ -28,7 +28,8 @@ class HoneypotRule implements ValidationRule
         if (! empty($value)) {
             // Log potential bot activity
             Log::channel('security')->warning('Potential bot detected: Honeypot field filled', [
-                'field'      => $attribute,
+                'honeypot_field' => $this->fieldName,
+                'submitted_field' => $attribute,
                 'value'      => $value,
                 'ip'         => request()->ip(),
                 'user_agent' => request()->userAgent(),

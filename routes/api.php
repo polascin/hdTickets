@@ -87,6 +87,30 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
             'environment' => 'Ubuntu 24.04 LTS, Apache2, PHP8.4, MySQL/MariaDB 10.4',
         ]);
     });
+
+    /*
+     * Welcome Page Statistics Endpoint
+     * Purpose: Real-time stats for the welcome page
+     * Access: Public (no authentication required)
+     * Used by: Welcome page for displaying live statistics
+     */
+    Route::get('/stats/welcome', [App\Http\Controllers\Api\WelcomeStatsController::class, 'index']);
+
+    /*
+     * Analytics Event Tracking Endpoint
+     * Purpose: Receive analytics events from frontend
+     * Access: Public (no authentication required)
+     * Used by: JavaScript analytics service for event tracking
+     */
+    Route::post('/analytics/event', [App\Http\Controllers\Api\AnalyticsController::class, 'receiveEvent']);
+
+    /*
+     * Analytics Dashboard Data Endpoint
+     * Purpose: Provide analytics dashboard data
+     * Access: Public (no authentication required)
+     * Used by: Analytics dashboard components
+     */
+    Route::get('/analytics/dashboard', [App\Http\Controllers\Api\AnalyticsController::class, 'getDashboardData']);
 });
 
 // Scraping routes

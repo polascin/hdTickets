@@ -1,0 +1,233 @@
+/* Welcome Page Specific Styles */
+
+@import 'app.css';
+
+/* Stadium background animation */
+.stadium-bg {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 35%, #8b5cf6 70%, #1e40af 100%);
+  background-size: 400% 400%;
+  animation: stadiumGradient 15s ease infinite;
+}
+
+@keyframes stadiumGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animated sports field pattern */
+.field-pattern {
+  background-image: 
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: fieldMove 20s linear infinite;
+}
+
+@keyframes fieldMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 50px; }
+}
+
+/* Ticket stub animation */
+.ticket-stub {
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-stub::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.ticket-stub:hover::before {
+  left: 100%;
+}
+
+/* Sports scoreboard style stats */
+.scoreboard-stat {
+  font-family: 'JetBrains Mono', monospace;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  border: 2px solid #4f46e5;
+  position: relative;
+  overflow: hidden;
+}
+
+.scoreboard-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4, #10b981, #f59e0b);
+  animation: scanline 2s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Stadium lights effect */
+.stadium-lights {
+  position: relative;
+}
+
+.stadium-lights::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%);
+  animation: lightsPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes lightsPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+/* Feature card hover effects */
+.feature-card-enhanced {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.feature-card-enhanced:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Particle effect for celebrations */
+.celebration-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fbbf24;
+  border-radius: 50%;
+  animation: particleFall 3s linear infinite;
+}
+
+@keyframes particleFall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Interactive team colors */
+.team-color-football { --team-color: #16a34a; }
+.team-color-basketball { --team-color: #dc2626; }
+.team-color-baseball { --team-color: #2563eb; }
+.team-color-hockey { --team-color: #7c3aed; }
+
+.team-themed {
+  border-color: var(--team-color);
+  box-shadow: 0 0 20px rgba(var(--team-color), 0.3);
+}
+
+/* Loading states for welcome page */
+.welcome-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite;
+}
+
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Enhanced Hero Title Styling */
+.hero-title-enhanced {
+  font-weight: 950;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(37, 99, 235, 0.4),
+    0 8px 16px rgba(139, 92, 246, 0.3),
+    0 16px 32px rgba(30, 64, 175, 0.2),
+    0 0 40px rgba(96, 165, 250, 0.1);
+  letter-spacing: -0.025em;
+  filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.3));
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.8),
+      0 4px 8px rgba(37, 99, 235, 0.4),
+      0 8px 16px rgba(139, 92, 246, 0.3),
+      0 16px 32px rgba(30, 64, 175, 0.2),
+      0 0 40px rgba(96, 165, 250, 0.1);
+  }
+  100% {
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.9),
+      0 4px 8px rgba(37, 99, 235, 0.6),
+      0 8px 16px rgba(139, 92, 246, 0.5),
+      0 16px 32px rgba(30, 64, 175, 0.4),
+      0 0 50px rgba(96, 165, 250, 0.3);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stadium-bg {
+    animation-duration: 10s;
+  }
+  
+  .field-pattern {
+    background-size: 25px 25px;
+    animation-duration: 15s;
+  }
+  
+  .feature-card-enhanced:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .welcome-skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  }
+}
+
+/* Print styles */
+@media print {
+  .stadium-bg,
+  .field-pattern,
+  .stadium-lights {
+    background: white !important;
+    animation: none !important;
+  }
+  
+  .celebration-particles {
+    display: none !important;
+  }
+}

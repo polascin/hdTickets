@@ -104,8 +104,8 @@
                             <div class="hd-text-small text-gray-600">Days Active</div>
                         </div>
                         <div class="text-center">
-                            <div class="hd-heading-3 !mb-0 text-green-600">{{ $user->loginSessions()->count() }}</div>
-                            <div class="hd-text-small text-gray-600">Sessions</div>
+                            <div class="hd-heading-3 !mb-0 text-green-600">{{ $user->login_count ?? 0 }}</div>
+                            <div class="hd-text-small text-gray-600">Logins</div>
                         </div>
                     </div>
                 </div>
@@ -268,7 +268,7 @@
                     </x-ui.button>
                     
                     <x-ui.button 
-                        href="{{ route('profile.preferences') }}" 
+                        href="{{ route('preferences.index') }}" 
                         variant="outline" 
                         fullWidth="true"
                         class="justify-center">

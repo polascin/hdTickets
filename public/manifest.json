@@ -4,8 +4,8 @@
   "description": "Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f9fafb",
-  "theme_color": "#1e40af",
+  "background_color": "#1e40af",
+  "theme_color": "#2563eb",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

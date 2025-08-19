@@ -20,6 +20,7 @@ class TicketCriteriaController extends Controller
         $userId = auth()->id();
         $cacheKey = "ticket_criteria_{$userId}";
 
+        /** @phpstan-ignore-next-line */
         $criteria = Cache::remember($cacheKey, 1800, function () {
             return collect([
                 [

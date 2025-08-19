@@ -48,7 +48,10 @@ class DashboardController extends Controller
             $cacheKey = 'dashboard_stats_' . now()->format('YmdH');
 
             $stats = Cache::remember($cacheKey, 300, function () { // Cache for 5 minutes
-                return [
+                // Get enhanced stats for customer dashboard compatibility
+                $data = $this->getEnhancedDashboardStats();
+                
+                return array_merge($data, [
                     'active_monitors'    => $this->getActiveMonitorsCount(),
                     'tickets_found'      => $this->getTicketsFoundToday(),
                     'price_alerts'       => $this->getPriceAlertsCount(),
@@ -56,7 +59,7 @@ class DashboardController extends Controller
                     'platform_stats'     => $this->getPlatformStats(),
                     'high_demand_events' => $this->getHighDemandEvents(),
                     'recent_updates'     => $this->getRecentUpdates(),
-                ];
+                ]);
             });
 
             Log::info('Dashboard stats generated successfully');
@@ -1498,5 +1501,97 @@ class DashboardController extends Controller
         }
 
         return 'info';
+    }
+    
+    /**
+     * Get enhanced dashboard statistics for customer dashboard compatibility
+     */
+    private function getEnhancedDashboardStats(): array
+    {
+        try {
+            $stats = [];
+
+            // Available tickets count
+            if (DB::getSchemaBuilder()->hasTable('scraped_tickets')) {
+                $stats['availableTickets'] = DB::table('scraped_tickets')
+                    ->where('is_available', true)
+                    ->count();
+                
+                $stats['available-tickets'] = $stats['availableTickets']; // Backward compatibility
+            } else {
+                $stats['availableTickets'] = 0;
+                $stats['available-tickets'] = 0;
+            }
+
+            // High demand tickets count
+            if (DB::getSchemaBuilder()->hasTable('scraped_tickets')) {
+                $stats['highDemand'] = DB::table('scraped_tickets')
+                    ->where('is_high_demand', true)
+                    ->where('is_available', true)
+                    ->count();
+                
+                $stats['high-demand'] = $stats['highDemand']; // Backward compatibility
+            } else {
+                $stats['highDemand'] = 0;
+                $stats['high-demand'] = 0;
+            }
+
+            // Active alerts count
+            if (DB::getSchemaBuilder()->hasTable('ticket_alerts')) {
+                $stats['alerts'] = DB::table('ticket_alerts')
+                    ->where('is_active', true)
+                    ->count();
+            } else {
+                $stats['alerts'] = 0;
+            }
+
+            // Purchase queue count
+            if (DB::getSchemaBuilder()->hasTable('purchase_decisions')) {
+                $stats['queue'] = DB::table('purchase_decisions')
+                    ->where('status', 'pending')
+                    ->count();
+            } else {
+                $stats['queue'] = 0;
+            }
+
+            // Additional real-time metrics
+            if (DB::getSchemaBuilder()->hasTable('scraped_tickets')) {
+                $stats['totalTickets'] = DB::table('scraped_tickets')->count();
+                $stats['recentTickets'] = DB::table('scraped_tickets')
+                    ->where('scraped_at', '>=', now()->subHours(24))
+                    ->count();
+            } else {
+                $stats['totalTickets'] = 0;
+                $stats['recentTickets'] = 0;
+            }
+
+            if (DB::getSchemaBuilder()->hasTable('ticket_sources')) {
+                $stats['activePlatforms'] = DB::table('ticket_sources')
+                    ->where('is_active', true)
+                    ->count();
+            } else {
+                $stats['activePlatforms'] = 0;
+            }
+
+        } catch (Exception $e) {
+            Log::warning('Error generating enhanced dashboard stats', [
+                'error' => $e->getMessage()
+            ]);
+
+            // Provide fallback values
+            $stats = array_merge([
+                'availableTickets' => 0,
+                'available-tickets' => 0,
+                'highDemand' => 0,
+                'high-demand' => 0,
+                'alerts' => 0,
+                'queue' => 0,
+                'totalTickets' => 0,
+                'recentTickets' => 0,
+                'activePlatforms' => 0,
+            ], $stats ?? []);
+        }
+
+        return $stats;
     }
 }

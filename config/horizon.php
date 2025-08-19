@@ -211,7 +211,7 @@ return [
                 'memory'              => 512,
                 'tries'               => 5,
                 'timeout'             => 180,
-                'nice'                => -5,
+                'nice'                => 0,
                 'balanceMaxShift'     => 2,
                 'balanceCooldown'     => 2,
             ],
@@ -245,7 +245,7 @@ return [
                 'memory'              => 512,
                 'tries'               => 3,
                 'timeout'             => 600, // 10 minutes for scraping
-                'nice'                => 5,
+                'nice'                => 0,
                 'balanceMaxShift'     => 1,
                 'balanceCooldown'     => 5,
             ],
@@ -279,7 +279,7 @@ return [
                 'memory'              => 256,
                 'tries'               => 2,
                 'timeout'             => 900, // 15 minutes
-                'nice'                => 10,
+                'nice'                => 0,
                 'balanceMaxShift'     => 1,
                 'balanceCooldown'     => 5,
             ],

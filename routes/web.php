@@ -196,6 +196,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 //     Route::get('/event/{platform}/{eventId}', [App\Http\Controllers\TicketApiController::class, 'getEvent'])->name('ticket-api.event');
 // });
 
+
 // API routes for ticket sources
 Route::middleware(['auth:sanctum'])->prefix('api')->group(function (): void {
     Route::get('ticket-sources', [App\Http\Controllers\TicketSourceController::class, 'apiIndex']);
@@ -226,11 +227,11 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
         ->name('dashboard.price-alerts');
 
     // Simple dashboard AJAX endpoints
-    Route::get('dashboard/stats', [App\Http\Controllers\DashboardController::class, 'getDashboardStats'])
+    Route::get('dashboard/stats', [DashboardController::class, 'getDashboardStats'])
         ->middleware('throttle:60,1')
         ->name('dashboard.stats');
-    
-    Route::get('dashboard/recent-tickets', [App\Http\Controllers\DashboardController::class, 'getRecentTicketsHtml'])
+
+    Route::get('dashboard/recent-tickets', [DashboardController::class, 'getRecentTicketsHtml'])
         ->middleware('throttle:60,1')
         ->name('dashboard.recent-tickets');
 });

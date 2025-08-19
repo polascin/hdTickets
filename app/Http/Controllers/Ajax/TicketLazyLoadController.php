@@ -156,6 +156,7 @@ class TicketLazyLoadController extends Controller
         $cacheKey = 'ticket_search_' . md5($query . $limit);
 
         $results = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($query, $limit) {
+            /** @phpstan-ignore-next-line */
             return ScrapedTicket::where('title', 'like', '%' . $query . '%')
                 ->orWhere('description', 'like', '%' . $query . '%')
                 ->orWhere('venue', 'like', '%' . $query . '%')

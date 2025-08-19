@@ -22,11 +22,11 @@ class EnvServiceProvider extends ServiceProvider
         // Register environment-specific configurations
         $this->app->singleton('environment.config', function () {
             return [
-                'name'          => env('APP_ENV', 'production'),
-                'debug'         => env('APP_DEBUG', FALSE),
-                'is_production' => config('APP_ENV') === 'production',
-                'is_local'      => config('APP_ENV') === 'local',
-                'is_testing'    => config('APP_ENV') === 'testing',
+                'name'          => config('app.env', 'production'),
+                'debug'         => config('app.debug', false),
+                'is_production' => config('app.env') === 'production',
+                'is_local'      => config('app.env') === 'local',
+                'is_testing'    => config('app.env') === 'testing',
             ];
         });
     }

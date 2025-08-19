@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Tickets Title Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="css/customer-dashboard-v2.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .preview-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .comparison {
+            display: grid;
+            gap: 3rem;
+        }
+        .before-after {
+            padding: 2rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .before-after h2 {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .old-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+        .demo-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="dashboard-container">
+    <div class="preview-container">
+        <div class="comparison">
+            <!-- Before: Standard Title -->
+            <div class="before-after">
+                <h2>Before: Standard Title</h2>
+                <h1 class="old-title">HD Tickets Dashboard</h1>
+                <p style="margin: 0.5rem 0 0; color: #6b7280;">Standard font weight, no shadow effects</p>
+            </div>
+            
+            <!-- After: Enhanced Title -->
+            <div class="demo-header">
+                <h2 style="color: #6b7280; font-size: 1rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">After: Enhanced HD Tickets Title</h2>
+                <h1 class="page-title">HD Tickets Dashboard</h1>
+                <p class="page-subtitle">Your gateway to premium sports event tickets</p>
+            </div>
+            
+            <!-- Style Features -->
+            <div class="before-after">
+                <h2>Enhanced Features</h2>
+                <ul style="color: #374151; line-height: 1.6;">
+                    <li><strong>Font Weight 900:</strong> Extra bold typography for maximum impact</li>
+                    <li><strong>Multi-layer Shadow:</strong> Three levels of shadow for depth and dimension</li>
+                    <li><strong>Gradient Text:</strong> Beautiful gradient from dark gray to blue</li>
+                    <li><strong>Responsive Design:</strong> Scales beautifully across all device sizes</li>
+                    <li><strong>Modern Typography:</strong> Optimized letter spacing and line height</li>
+                    <li><strong>Glass Morphism:</strong> Subtle backdrop blur and transparency effects</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

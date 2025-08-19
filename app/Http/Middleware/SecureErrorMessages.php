@@ -64,7 +64,7 @@ class SecureErrorMessages
     /**
      * Sanitize JSON error responses to prevent user enumeration
      */
-    private function sanitizeJsonErrors(Response $response, Request $request): Response
+    private function sanitizeJsonErrors(SymfonyResponse $response, Request $request): SymfonyResponse
     {
         $content = json_decode((string) $response->getContent(), TRUE);
 
@@ -108,7 +108,7 @@ class SecureErrorMessages
     /**
      * Get a sanitized version of the error message
      */
-    private function getSanitizedMessage(string $field, string $message, Request $request): ?string
+    private function getSanitizedMessage(string $field, string $message, Request $request): string
     {
         // Map of potentially revealing messages to generic ones
         $messageMap = [

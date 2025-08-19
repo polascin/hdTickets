@@ -60,16 +60,19 @@ class ProductionHealthController extends Controller
 
             // Determine overall status
             foreach ($checks as $check) {
-                if ($check['status'] === 'critical') {
+                /** @var string $checkStatus */
+                $checkStatus = $check['status'];
+                
+                if ($checkStatus === 'critical') {
                     $overallStatus = 'critical';
                     $httpStatus = Response::HTTP_SERVICE_UNAVAILABLE;
-
                     break;
                 }
-                if ($check['status'] === 'warning' && $overallStatus !== 'critical') {
+                
+                if ($checkStatus === 'warning' && $overallStatus !== 'critical') {
                     $overallStatus = 'warning';
                     $httpStatus = Response::HTTP_OK; // Still operational
-                } elseif ($check['status'] === 'degraded' && $overallStatus === 'healthy') {
+                } elseif ($checkStatus === 'degraded' && $overallStatus === 'healthy') {
                     $overallStatus = 'degraded';
                 }
             }

@@ -1,0 +1,121 @@
+/* Critical CSS for above-the-fold content */
+/* HD Tickets Sports Theme - Critical Loading Styles */
+
+/* Basic reset and layout */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #1f2937;
+    background-color: #f9fafb;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Critical layout styles */
+.min-h-screen {
+    min-height: 100vh;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.max-w-md {
+    max-width: 28rem;
+}
+
+/* Sports theme colors */
+:root {
+    --primary-color: #1e40af;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #059669;
+    --accent-color: #dc2626;
+    --bg-color: #f8fafc;
+    --text-color: #1f2937;
+    --border-color: #d1d5db;
+}
+
+/* Loading animation for critical rendering */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Form critical styles */
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Button critical styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Hide non-critical content during load */
+.non-critical {
+    visibility: hidden;
+}
+
+/* Sports theme gradient background */
+.sports-gradient {
+    background: linear-gradient(135deg, #1e40af 0%, #059669 100%);
+}
+
+/* Logo container critical sizing */
+.logo-container {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 2rem;
+}

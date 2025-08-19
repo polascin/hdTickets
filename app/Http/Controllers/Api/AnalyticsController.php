@@ -8,6 +8,8 @@ use App\Services\PlatformMonitoringService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 use function in_array;
 
@@ -557,5 +559,253 @@ class AnalyticsController extends Controller
     {
         // Implementation for price-demand correlation
         return [];
+    }
+
+    /**
+     * Receive analytics events from the frontend
+     */
+    public function receiveEvent(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'event' => 'required|string|max:100',
+            'data' => 'required|array',
+            'timestamp' => 'required|date_format:Y-m-d\TH:i:s.v\Z'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid event data',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+
+        try {
+            $this->processAnalyticsEvent($request->all());
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Event recorded'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Analytics event processing failed', [
+                'error' => $e->getMessage(),
+                'event_data' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Event processing failed'
+            ], 500);
+        }
+    }
+
+    /**
+     * Process analytics event
+     */
+    private function processAnalyticsEvent(array $eventData): void
+    {
+        $event = $eventData['event'];
+        $data = $eventData['data'];
+        $timestamp = $eventData['timestamp'];
+
+        // Log to application logs for debugging
+        Log::info('Analytics Event', [
+            'event' => $event,
+            'category' => $data['event_category'] ?? 'unknown',
+            'user_agent' => request()->userAgent(),
+            'ip' => request()->ip(),
+            'timestamp' => $timestamp
+        ]);
+
+        // Store in cache for real-time analytics
+        $this->updateRealTimeStats($event, $data);
+
+        // Process specific event types
+        switch ($data['event_category']) {
+            case 'sports_interaction':
+                $this->processSportsEvent($event, $data);
+                break;
+            case 'performance':
+                $this->processPerformanceEvent($event, $data);
+                break;
+            case 'error_tracking':
+                $this->processErrorEvent($event, $data);
+                break;
+            case 'conversion':
+                $this->processConversionEvent($event, $data);
+                break;
+        }
+    }
+
+    /**
+     * Update real-time statistics
+     */
+    private function updateRealTimeStats(string $event, array $data): void
+    {
+        $today = now()->format('Y-m-d');
+        $hour = now()->format('H');
+        
+        // Increment counters
+        Cache::increment("analytics:events:$today", 1, 86400);
+        Cache::increment("analytics:events:$today:$hour", 1, 3600);
+        Cache::increment("analytics:event_types:$event:$today", 1, 86400);
+        
+        // Track unique sessions
+        if (isset($data['session_id'])) {
+            $sessionsKey = "analytics:sessions:$today";
+            $sessions = Cache::get($sessionsKey, []);
+            if (!in_array($data['session_id'], $sessions)) {
+                $sessions[] = $data['session_id'];
+                Cache::put($sessionsKey, $sessions, 86400);
+            }
+        }
+    }
+
+    /**
+     * Process sports-specific events
+     */
+    private function processSportsEvent(string $event, array $data): void
+    {
+        $sport = $data['sport_type'] ?? null;
+        $team = $data['team_preference'] ?? null;
+        
+        if ($sport) {
+            Cache::increment("analytics:sports:$sport:" . now()->format('Y-m-d'), 1, 86400);
+        }
+        
+        if ($team) {
+            Cache::increment("analytics:teams:$team:" . now()->format('Y-m-d'), 1, 86400);
+        }
+    }
+
+    /**
+     * Process performance events
+     */
+    private function processPerformanceEvent(string $event, array $data): void
+    {
+        $value = $data['value'] ?? 0;
+        $today = now()->format('Y-m-d');
+        
+        // Store performance metrics
+        $metricsKey = "analytics:performance:$event:$today";
+        $metrics = Cache::get($metricsKey, []);
+        $metrics[] = $value;
+        
+        // Keep only last 100 measurements
+        if (count($metrics) > 100) {
+            $metrics = array_slice($metrics, -100);
+        }
+        
+        Cache::put($metricsKey, $metrics, 86400);
+    }
+
+    /**
+     * Process error events
+     */
+    private function processErrorEvent(string $event, array $data): void
+    {
+        $errorType = $data['error_type'] ?? 'unknown';
+        $today = now()->format('Y-m-d');
+        
+        // Log error for monitoring
+        Log::warning('Frontend Error Tracked', [
+            'error_type' => $errorType,
+            'error_message' => $data['error_message'] ?? 'No message',
+            'user_agent' => request()->userAgent(),
+            'url' => $data['page_location'] ?? 'unknown'
+        ]);
+        
+        // Increment error counters
+        Cache::increment("analytics:errors:$errorType:$today", 1, 86400);
+        Cache::increment("analytics:errors:total:$today", 1, 86400);
+    }
+
+    /**
+     * Process conversion events
+     */
+    private function processConversionEvent(string $event, array $data): void
+    {
+        $funnelName = $data['funnel_name'] ?? 'unknown';
+        $stepNumber = $data['step_number'] ?? 0;
+        $today = now()->format('Y-m-d');
+        
+        // Track funnel progression
+        Cache::increment("analytics:funnel:$funnelName:step_$stepNumber:$today", 1, 86400);
+    }
+
+    /**
+     * Get analytics dashboard data for frontend
+     */
+    public function getDashboardData(): JsonResponse
+    {
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+        
+        return response()->json([
+            'events' => [
+                'today' => Cache::get("analytics:events:$today", 0),
+                'yesterday' => Cache::get("analytics:events:$yesterday", 0)
+            ],
+            'sessions' => [
+                'today' => count(Cache::get("analytics:sessions:$today", [])),
+                'yesterday' => count(Cache::get("analytics:sessions:$yesterday", []))
+            ],
+            'errors' => [
+                'today' => Cache::get("analytics:errors:total:$today", 0),
+                'yesterday' => Cache::get("analytics:errors:total:$yesterday", 0)
+            ],
+            'top_sports' => $this->getTopSportsAnalytics($today),
+            'performance_metrics' => $this->getPerformanceMetricsAnalytics($today)
+        ]);
+    }
+
+    /**
+     * Get top sports by interaction
+     */
+    private function getTopSportsAnalytics(string $date): array
+    {
+        $sports = ['football', 'basketball', 'baseball', 'hockey', 'soccer', 'tennis'];
+        $sportData = [];
+        
+        foreach ($sports as $sport) {
+            $count = Cache::get("analytics:sports:$sport:$date", 0);
+            if ($count > 0) {
+                $sportData[] = [
+                    'sport' => $sport,
+                    'interactions' => $count
+                ];
+            }
+        }
+        
+        // Sort by interactions
+        usort($sportData, function($a, $b) {
+            return $b['interactions'] - $a['interactions'];
+        });
+        
+        return array_slice($sportData, 0, 5);
+    }
+
+    /**
+     * Get performance metrics summary
+     */
+    private function getPerformanceMetricsAnalytics(string $date): array
+    {
+        $metrics = ['web_vitals_lcp', 'web_vitals_fid', 'web_vitals_cls'];
+        $performanceData = [];
+        
+        foreach ($metrics as $metric) {
+            $values = Cache::get("analytics:performance:$metric:$date", []);
+            if (!empty($values)) {
+                $performanceData[$metric] = [
+                    'average' => round(array_sum($values) / count($values), 2),
+                    'min' => min($values),
+                    'max' => max($values),
+                    'count' => count($values)
+                ];
+            }
+        }
+        
+        return $performanceData;
     }
 }

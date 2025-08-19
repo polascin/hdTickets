@@ -5,6 +5,7 @@ namespace App\Logging;
 use Illuminate\Log\Logger;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
+use Monolog\LogRecord;
 
 /**
  * Query Logger
@@ -16,31 +17,52 @@ class QueryLogger
 {
     /**
      * Add query context to log records
+     * Compatible with both Monolog v2 (array) and v3+ (LogRecord)
      */
-    /**
-     * @param array<string, mixed> $record
-     *
-     * @return array<string, mixed>
-     */
-    public function addQueryContext(array $record): array
+    public function addQueryContext(array|LogRecord $record): array|LogRecord
     {
-        // Add database connection information
+        // Handle both Monolog v2 (array) and v3+ (LogRecord object)
+        if ($record instanceof LogRecord) {
+            // Monolog v3+ uses LogRecord objects
+            $extra = $record->extra;
+            $context = $record->context;
+            
+            $extra['db_connection'] = config('database.default');
+            $extra['timestamp'] = now()->toDateTimeString();
+            
+            // Parse query information from message if available
+            if (isset($context['query'])) {
+                $extra['query_type'] = $this->getQueryType($context['query']);
+                $extra['tables_involved'] = $this->extractTables($context['query']);
+            }
+            
+            // Add performance thresholds
+            if (isset($context['time'])) {
+                $time = (float) $context['time'];
+                $extra['is_slow_query'] = $time > config('error-tracking.performance.slow_query_threshold', 1000);
+                $extra['performance_category'] = $this->categorizePerformance($time);
+            }
+            
+            return $record->with(extra: $extra);
+        }
+        
+        // Monolog v2 uses arrays
         $record['extra']['db_connection'] = config('database.default');
         $record['extra']['timestamp'] = now()->toDateTimeString();
-
+        
         // Parse query information from message if available
         if (isset($record['context']['query'])) {
             $record['extra']['query_type'] = $this->getQueryType($record['context']['query']);
             $record['extra']['tables_involved'] = $this->extractTables($record['context']['query']);
         }
-
+        
         // Add performance thresholds
         if (isset($record['context']['time'])) {
             $time = (float) $record['context']['time'];
             $record['extra']['is_slow_query'] = $time > config('error-tracking.performance.slow_query_threshold', 1000);
             $record['extra']['performance_category'] = $this->categorizePerformance($time);
         }
-
+        
         return $record;
     }
 

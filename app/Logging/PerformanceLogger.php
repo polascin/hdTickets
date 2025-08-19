@@ -68,7 +68,7 @@ class PerformanceLogger
         if (function_exists('sys_getloadavg')) {
             $load = sys_getloadavg() ?: [0.0, 0.0, 0.0];
 
-            return round(($load[0] ?? 0) * 100, 2);
+            return round($load[0] * 100, 2);
         }
 
         return 0.0;

@@ -192,10 +192,10 @@ class UserSession extends Model
     public function getSessionDurationAttribute(): string
     {
         if ($this->expires_at) {
-            return $this->created_at->diffForHumans($this->expires_at, TRUE);
+            return $this->created_at->diffForHumans($this->expires_at, ['syntax' => 1]);
         }
 
-        return $this->created_at->diffForHumans(now(), TRUE);
+        return $this->created_at->diffForHumans(now(), ['syntax' => 1]);
     }
 
     /**
