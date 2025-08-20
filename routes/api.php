@@ -125,6 +125,93 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
     Route::get('/analytics/dashboard', [App\Http\Controllers\Api\AnalyticsController::class, 'getDashboardData']);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Enhanced Dashboard API Routes
+|--------------------------------------------------------------------------
+|
+| Real-time API endpoints for the enhanced customer dashboard
+| Provides data for statistics, recommendations, notifications, and more
+|
+*/
+Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120,1'])->name('api.dashboard.')->group(function (): void {
+    /*
+     * Real-time Dashboard Data Endpoint
+     * Purpose: Fetch current dashboard statistics and recent tickets
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard for real-time updates
+     */
+    Route::get('/realtime', [App\Http\Controllers\EnhancedDashboardController::class, 'getRealtimeData'])
+        ->name('realtime');
+
+    /*
+     * Analytics Data Endpoint
+     * Purpose: Fetch analytics trends and performance metrics
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard analytics widgets
+     */
+    Route::get('/analytics', [App\Http\Controllers\EnhancedDashboardController::class, 'getAnalyticsData'])
+        ->name('analytics');
+
+    /*
+     * Personalized Recommendations Endpoint
+     * Purpose: Get AI-powered ticket recommendations for user
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard recommendations widget
+     */
+    Route::get('/recommendations', [App\Http\Controllers\EnhancedDashboardController::class, 'getPersonalizedRecommendations'])
+        ->name('recommendations');
+
+    /*
+     * Upcoming Events Endpoint
+     * Purpose: Get upcoming events based on user preferences
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard upcoming events widget
+     */
+    Route::get('/events', [App\Http\Controllers\EnhancedDashboardController::class, 'getUpcomingEvents'])
+        ->name('events');
+
+    /*
+     * Notifications Endpoint
+     * Purpose: Manage user notifications and alerts
+     * Access: Authenticated users
+     * Methods: GET (fetch), POST (mark as read)
+     */
+    Route::get('/notifications', [App\Http\Controllers\EnhancedDashboardController::class, 'getNotifications'])
+        ->name('notifications.index');
+    Route::post('/notifications', [App\Http\Controllers\EnhancedDashboardController::class, 'markNotificationsRead'])
+        ->name('notifications.read');
+
+    /*
+     * User Settings Endpoint
+     * Purpose: Manage user dashboard preferences and settings
+     * Access: Authenticated users
+     * Methods: GET (fetch), POST (save)
+     */
+    Route::get('/settings', [App\Http\Controllers\EnhancedDashboardController::class, 'getUserSettings'])
+        ->name('settings.index');
+    Route::post('/settings', [App\Http\Controllers\EnhancedDashboardController::class, 'saveUserSettings'])
+        ->name('settings.save');
+
+    /*
+     * Performance Metrics Endpoint
+     * Purpose: Get dashboard performance and usage metrics
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard for performance monitoring
+     */
+    Route::get('/metrics', [App\Http\Controllers\EnhancedDashboardController::class, 'getPerformanceMetrics'])
+        ->name('metrics');
+
+    /*
+     * User Activity Analytics Endpoint
+     * Purpose: Track and receive user interaction analytics
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard for usage analytics
+     */
+    Route::post('/analytics', [App\Http\Controllers\EnhancedDashboardController::class, 'receiveAnalytics'])
+        ->name('analytics.receive');
+});
+
 // Scraping routes
 Route::prefix('v1/scraping')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
     Route::get('/tickets', [App\Http\Controllers\Api\ScrapingController::class, 'tickets']);

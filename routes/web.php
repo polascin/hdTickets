@@ -127,14 +127,25 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
 
     /*
      * Customer Dashboard
-     * Purpose: Basic sports events ticket monitoring for end users
+     * Purpose: Enhanced sports events ticket monitoring for end users
+     * Access: Users with 'customer' role + admin inheritance
+     * Features: Real-time data, analytics, personalized recommendations, modern UX
+     * Controller: EnhancedDashboardController@index
+     * View: resources/views/dashboard/customer-enhanced.blade.php
+     */
+    Route::middleware([App\Http\Middleware\CustomerMiddleware::class])->get('/customer', [App\Http\Controllers\EnhancedDashboardController::class, 'index'])
+        ->name('customer'); // Route: dashboard.customer
+
+    /*
+     * Legacy Customer Dashboard
+     * Purpose: Basic sports events ticket monitoring (legacy support)
      * Access: Users with 'customer' role + admin inheritance
      * Features: Event browsing, basic alerts, personal preferences
      * Controller: DashboardController@index
      * View: resources/views/dashboard/customer.blade.php
      */
-    Route::middleware([App\Http\Middleware\CustomerMiddleware::class])->get('/customer', [DashboardController::class, 'index'])
-        ->name('customer'); // Route: dashboard.customer
+    Route::middleware([App\Http\Middleware\CustomerMiddleware::class])->get('/customer/legacy', [DashboardController::class, 'index'])
+        ->name('customer.legacy'); // Route: dashboard.customer.legacy
 
     /*
      * Agent Dashboard
