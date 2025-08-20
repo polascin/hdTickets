@@ -44,10 +44,10 @@
     "version": "2.0.0",
     "tasks": [
       {
-        "label": "Git: Quick Commit & Push",
+        "label": "Git: Stage All Changes",
         "type": "shell",
         "command": "git",
-        "args": ["add", "-A", "&&", "git", "commit", "-m", "${input:commitMessage}", "&&", "git", "push"],
+        "args": ["add", "-A"],
         "group": {
           "kind": "build",
           "isDefault": false

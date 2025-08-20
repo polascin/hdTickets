@@ -16,7 +16,7 @@
   "git.showPushSuccessNotification": true,
   "git.followTagsWhenSync": true,
   "git.alwaysSignOff": false,
-  "git.allowForcePush": true,
+  "git.allowForcePush": false,
   "git.useCommitInputAsStashMessage": true,
   "git.timeline.showAuthor": true,
   "git.timeline.date": "committed",
@@ -140,5 +140,5 @@
   },
   "git.postCommitCommand": "sync",
   "githubPullRequests.codingAgent.autoCommitAndPush": false,
-  "git.allowNoVerifyCommit": true
+  "git.allowNoVerifyCommit": false
 }
