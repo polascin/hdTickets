@@ -132,7 +132,7 @@ class TicketDiscoveredHandler
     {
         // Check if any user alerts match this ticket
         $matchingAlerts = DB::table('ticket_alerts')
-            ->where('is_active', TRUE)
+            ->where('status', 'active')
             ->where(function ($query) use ($event): void {
                 $query->where('event_name', 'like', '%' . $event->eventName . '%')
                     ->orWhere('venue', 'like', '%' . $event->venue . '%')

@@ -44,11 +44,11 @@ class MonitoringController extends Controller
                 $yesterday = Carbon::yesterday();
 
                 // Active monitors count
-                $activeMonitors = TicketAlert::where('is_active', TRUE)
+                $activeMonitors = TicketAlert::where('status', 'active')
                     ->where('user_id', auth()->id())
                     ->count();
 
-                $yesterdayMonitors = TicketAlert::where('is_active', TRUE)
+                $yesterdayMonitors = TicketAlert::where('status', 'active')
                     ->where('user_id', auth()->id())
                     ->whereDate('created_at', $yesterday)
                     ->count();
@@ -118,7 +118,7 @@ class MonitoringController extends Controller
                     'error_count',
                     'total_requests',
                 ])
-                    ->where('is_active', TRUE)
+                    ->where('status', 'active')
                     ->get()
                     ->map(function ($platform) {
                         return [

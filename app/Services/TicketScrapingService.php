@@ -668,7 +668,7 @@ class TicketScrapingService
     protected function triggerHighDemandAlert($ticketData): void
     {
         // Find users with alerts for this type of event
-        $alerts = TicketAlert::where('is_active', TRUE)
+        $alerts = TicketAlert::where('status', 'active')
             ->where(function ($query) use ($ticketData): void {
                 $query->where('keywords', 'like', '%' . $ticketData['search_keyword'] . '%')
                     ->orWhere('keywords', 'like', '%Manchester United%')

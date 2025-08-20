@@ -673,7 +673,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/ScrapedTicketFactory.php' => 
     array (
-      0 => 'e184617efe6cc228e5a466b268aadca94f6d2f41',
+      0 => '12ee9149bd7f1f98662cb054a6186686b336aa5d',
       1 => 
       array (
         0 => 'database\\factories\\scrapedticketfactory',
@@ -920,6 +920,51 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
         0 => 'up',
         1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_08_20_102948_add_popularity_score_to_scraped_tickets_table.php' => 
+    array (
+      0 => '1201d09aa63690da79a775aab7b44bfac8e3a664',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_08_20_105032_create_alert_triggers_table.php' => 
+    array (
+      0 => 'b6057f5759d145fbbad3109ee38b66b63a82f95e',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/factories/AlertTriggerFactory.php' => 
+    array (
+      0 => '4322426fb338733aed83b7eeae2bfc213249f9cf',
+      1 => 
+      array (
+        0 => 'database\\factories\\alerttriggerfactory',
+      ),
+      2 => 
+      array (
+        0 => 'database\\factories\\definition',
       ),
       3 => 
       array (

@@ -69,6 +69,14 @@ class TicketAlert extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Alert matches/triggers - tracks when this alert has been triggered
+     */
+    public function matches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\AlertTrigger::class, 'ticket_alert_id');
+    }
+
     // Scopes
     /**
      * ScopeActive

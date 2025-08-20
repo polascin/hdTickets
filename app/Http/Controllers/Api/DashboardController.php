@@ -960,7 +960,7 @@ class DashboardController extends Controller
 
         return [
             'average_by_day' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                ->selectRaw('DATE(scraped_at) as date, AVG(price) as avg_price')
+                ->selectRaw('DATE(scraped_at) as date, AVG((min_price + max_price) / 2) as avg_price')
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get()
@@ -971,7 +971,7 @@ class DashboardController extends Controller
                 ->toArray(),
             'by_platform' => ScrapedTicket::where('scraped_at', '>=', $startDate)
                 ->select('platform')
-                ->selectRaw('AVG(price) as avg_price, MIN(price) as min_price, MAX(price) as max_price')
+                ->selectRaw('AVG((min_price + max_price) / 2) as avg_price, MIN(min_price) as min_price, MAX(max_price) as max_price')
                 ->groupBy('platform')
                 ->get()
                 ->map(fn ($item) => [

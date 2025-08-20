@@ -72,7 +72,7 @@ Route::get('/metrics/sports-events', function () {
             ],
             'user_activity' => [
                 'total_users'            => DB::table('users')->count(),
-                'active_alerts'          => DB::table('user_alerts')->where('is_active', TRUE)->count(),
+                'active_alerts'          => DB::table('ticket_alerts')->where('status', 'active')->count(),
                 'alerts_triggered_today' => DB::table('alert_triggers')->whereDate('triggered_at', today())->count(),
             ],
             'system_activity' => [

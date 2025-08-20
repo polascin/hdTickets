@@ -45,10 +45,11 @@ class AnalyticsController extends Controller
                     'platforms_monitored' => ScrapedTicket::where('scraped_at', '>=', $startDate)
                         ->distinct('platform')->count(),
                     'avg_price' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                        ->avg('price') ?? 0,
+                        ->selectRaw('AVG((min_price + max_price) / 2) as avg_price')
+                        ->value('avg_price') ?? 0,
                     'price_range' => [
-                        'min' => ScrapedTicket::where('scraped_at', '>=', $startDate)->min('price') ?? 0,
-                        'max' => ScrapedTicket::where('scraped_at', '>=', $startDate)->max('price') ?? 0,
+                        'min' => ScrapedTicket::where('scraped_at', '>=', $startDate)->min('min_price') ?? 0,
+                        'max' => ScrapedTicket::where('scraped_at', '>=', $startDate)->max('max_price') ?? 0,
                     ],
                 ],
                 'trends'             => $this->getTicketTrends($days),
@@ -87,9 +88,9 @@ class AnalyticsController extends Controller
                 ->selectRaw("DATE_FORMAT(scraped_at, '{$dateFormat}') AS period")
                 ->selectRaw('COUNT(*) as tickets_found')
                 ->selectRaw('COUNT(DISTINCT event_title) as unique_events')
-                ->selectRaw('AVG(price) as avg_price')
-                ->selectRaw('MIN(price) as min_price')
-                ->selectRaw('MAX(price) as max_price')
+                ->selectRaw('AVG((min_price + max_price) / 2) as avg_price')
+                ->selectRaw('MIN(min_price) as min_price')
+                ->selectRaw('MAX(max_price) as max_price')
                 ->groupBy('period')
                 ->orderBy('period')
                 ->get();
@@ -208,10 +209,10 @@ class AnalyticsController extends Controller
             }
 
             $priceStats = $query->selectRaw('
-                AVG(price) as avg_price,
-                MIN(price) as min_price,
-                MAX(price) as max_price,
-                STDDEV(price) as price_stddev,
+                AVG((min_price + max_price) / 2) as avg_price,
+                MIN(min_price) as min_price,
+                MAX(max_price) as max_price,
+                STDDEV((min_price + max_price) / 2) as price_stddev,
                 COUNT(*) as total_tickets
             ')->first();
 
@@ -344,7 +345,7 @@ class AnalyticsController extends Controller
 
         return ScrapedTicket::where('scraped_at', '>=', $startDate)
             ->select('event_title', 'venue')
-            ->selectRaw('COUNT(*) as ticket_count, AVG(price) as avg_price')
+            ->selectRaw('COUNT(*) as ticket_count, AVG((min_price + max_price) / 2) as avg_price')
             ->groupBy('event_title', 'venue')
             ->orderBy('ticket_count', 'desc')
             ->limit(10)
@@ -367,7 +368,7 @@ class AnalyticsController extends Controller
 
         return ScrapedTicket::where('scraped_at', '>=', $startDate)
             ->select('platform')
-            ->selectRaw('COUNT(*) as ticket_count, AVG(price) as avg_price')
+            ->selectRaw('COUNT(*) as ticket_count, AVG((min_price + max_price) / 2) as avg_price')
             ->groupBy('platform')
             ->orderBy('ticket_count', 'desc')
             ->get()

@@ -185,7 +185,7 @@ class EnhancedDashboardController extends Controller
 
         return [
             'total_alerts' => $alerts->count(),
-            'active_alerts' => $alerts->where('is_active', true)->count(),
+            'active_alerts' => $alerts->where('status', 'active')->count(),
             'triggered_today' => $alerts->sum(function ($alert) {
                 return $alert->matches()->whereDate('created_at', Carbon::today())->count();
             }),
@@ -255,11 +255,9 @@ class EnhancedDashboardController extends Controller
     {
         return [
             'active_alerts' => TicketAlert::where('user_id', $user->id)
-                ->where('alert_type', 'price_drop')
-                ->where('is_active', true)
+                ->where('status', 'active')
                 ->count(),
             'recent_triggers' => TicketAlert::where('user_id', $user->id)
-                ->where('alert_type', 'price_drop')
                 ->whereHas('matches', function ($query) {
                     $query->whereDate('created_at', Carbon::today());
                 })
@@ -415,7 +413,7 @@ class EnhancedDashboardController extends Controller
     private function getUserAlertsCount(User $user): int
     {
         return TicketAlert::where('user_id', $user->id)
-            ->where('is_active', true)
+            ->where('status', 'active')
             ->count();
     }
 
@@ -467,7 +465,6 @@ class EnhancedDashboardController extends Controller
     private function getPriceDropAlerts(User $user): int
     {
         return TicketAlert::where('user_id', $user->id)
-            ->where('alert_type', 'price_drop')
             ->whereHas('matches', function ($query) {
                 $query->whereDate('created_at', Carbon::today());
             })
@@ -539,7 +536,8 @@ class EnhancedDashboardController extends Controller
     private function getAvgPriceForDate(Carbon $date): float
     {
         return ScrapedTicket::whereDate('scraped_at', $date)
-            ->avg('price') ?? 0.0;
+            ->selectRaw('AVG((min_price + max_price) / 2) as avg_price')
+            ->value('avg_price') ?? 0.0;
     }
 
     private function getPeakHours(): array
