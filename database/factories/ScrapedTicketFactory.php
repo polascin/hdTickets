@@ -63,6 +63,7 @@ class ScrapedTicketFactory extends Factory
             'availability'   => fake()->randomElement($availability),
             'is_available'   => fake()->boolean(80), // 80% chance of being available
             'is_high_demand' => fake()->boolean(30), // 30% chance of high demand
+            'popularity_score' => fake()->randomFloat(2, 20, 95), // Random popularity score
             'status'         => fake()->randomElement(['active', 'sold_out', 'cancelled']),
             'ticket_url'     => fake()->url(),
             'search_keyword' => strtolower($team1),

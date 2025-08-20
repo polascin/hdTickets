@@ -82,6 +82,7 @@ class ScrapedTicket extends Model
         'metadata',
         'scraped_at',
         'category_id',
+        'popularity_score',
     ];
 
     /**
@@ -90,14 +91,15 @@ class ScrapedTicket extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'event_date'     => 'datetime',
-        'min_price'      => 'decimal:2',
-        'max_price'      => 'decimal:2',
-        'availability'   => 'integer',
-        'is_available'   => 'boolean',
-        'is_high_demand' => 'boolean',
-        'scraped_at'     => 'datetime',
-        'metadata'       => 'array',
+        'event_date'       => 'datetime',
+        'min_price'        => 'decimal:2',
+        'max_price'        => 'decimal:2',
+        'availability'     => 'integer',
+        'is_available'     => 'boolean',
+        'is_high_demand'   => 'boolean',
+        'scraped_at'       => 'datetime',
+        'metadata'         => 'array',
+        'popularity_score' => 'decimal:2',
     ];
 
     protected $dates = [
@@ -138,6 +140,11 @@ class ScrapedTicket extends Model
     public function scopeAvailable($query)
     {
         return $query->where('is_available', TRUE);
+    }
+
+    public function scopePopular($query, $threshold = 80)
+    {
+        return $query->where('popularity_score', '>', $threshold);
     }
 
     public function scopeForEvent($query, $keywords)
