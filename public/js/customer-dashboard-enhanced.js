@@ -12,12 +12,12 @@ const DASHBOARD_CONFIG = {
     debounceDelay: 300,
     animationDuration: 300,
     endpoints: {
-        realtime: '/api/dashboard/realtime',
-        analytics: '/api/dashboard/analytics',
-        recommendations: '/api/dashboard/recommendations',
-        notifications: '/api/dashboard/notifications',
-        settings: '/api/dashboard/settings',
-        events: '/api/dashboard/events'
+        realtime: '/api/v1/dashboard/realtime',
+        analytics: '/api/v1/dashboard/analytics-data',
+        recommendations: '/api/v1/dashboard/recommendations',
+        notifications: '/api/v1/dashboard/notifications',
+        settings: '/api/v1/dashboard/settings',
+        events: '/api/v1/dashboard/events'
     }
 };
 
