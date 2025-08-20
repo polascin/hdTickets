@@ -129,16 +129,22 @@
   },
 
   // Auto-save settings for git workflow
-  "files.autoSave": "afterDelay",
+  "files.autoSave": "onFocusChange",
   "files.autoSaveDelay": 1000,
 
   // Formatting on save (important for pre-commit hooks)
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
   },
   "git.postCommitCommand": "sync",
   "githubPullRequests.codingAgent.autoCommitAndPush": false,
-  "git.allowNoVerifyCommit": false
+  "git.allowNoVerifyCommit": false,
+  "editor.fontSize": 12,
+  "editor.defaultFormatter": null,
+  "workbench.colorTheme": "Default Dark+",
+  "editor.aiStats.enabled": true,
+  "editor.allowVariableFontsInAccessibilityMode": true,
+  "editor.autoIndentOnPaste": true
 }
