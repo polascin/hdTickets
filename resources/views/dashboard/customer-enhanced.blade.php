@@ -6,8 +6,8 @@
     <link href="{{ asset('css/dashboard-common.css') }}" rel="stylesheet">
     <link href="{{ asset('css/customer-dashboard-enhanced.css') }}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="dashboard-api" content="{{ route('api.dashboard.enhanced.realtime') }}">
-    <meta name="analytics-api" content="{{ route('api.dashboard.enhanced.analytics') }}">
+    <meta name="dashboard-api" content="{{ route('api.dashboard.realtime') }}">
+    <meta name="analytics-api" content="{{ route('api.dashboard.analytics.data') }}">
 @endpush
 
 @section('content')
@@ -588,10 +588,10 @@
 <script src="{{ asset('js/customer-dashboard-enhanced.js') }}"></script>
 <script>
 // Initialize dashboard data
-window.dashboardInitialData = @json([
+window.dashboardInitialData = {!! json_encode([
     'statistics' => $statistics ?? [],
     'recentTickets' => $recentTickets ?? [],
     'userPreferences' => $userPreferences ?? [],
-]);
+]) !!};
 </script>
 @endpush

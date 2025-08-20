@@ -150,8 +150,8 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard analytics widgets
      */
-    Route::get('/analytics', [App\Http\Controllers\EnhancedDashboardController::class, 'getAnalyticsData'])
-        ->name('analytics');
+    Route::get('/analytics-data', [App\Http\Controllers\EnhancedDashboardController::class, 'getAnalytics'])
+        ->name('analytics.data');
 
     /*
      * Personalized Recommendations Endpoint
