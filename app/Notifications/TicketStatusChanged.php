@@ -55,7 +55,7 @@ class TicketStatusChanged extends Notification implements ShouldQueue
         $statusFrom = ucwords(str_replace('_', ' ', $this->oldStatus));
         $statusTo = ucwords(str_replace('_', ' ', $this->ticket->status));
 
-        return new MailMessage()
+        return (new MailMessage)
             ->subject('Ticket Status Updated: ' . $this->ticket->title)
             ->greeting('Hello ' . $notifiable->username . '!')
             ->line('The status of ticket #' . $this->ticket->id . ' has been updated:')

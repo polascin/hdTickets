@@ -45,6 +45,7 @@ use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketmasterController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
+use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\AutomatedPurchaseController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
@@ -71,6 +72,17 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
      * Returns: API access token for subsequent requests
      */
     Route::post('/auth/login', [AuthController::class, 'login']);
+
+    /*
+     * Authentication Enhancement Endpoints
+     * Purpose: Enhanced security and UX features for login
+     * Rate Limit: 10 requests/minute per IP
+     * Used by: Enhanced login form for progressive validation and security
+     */
+    Route::post('/auth/check-email', [LoginEnhancementController::class, 'checkEmail']);
+    Route::post('/auth/validate-password', [LoginEnhancementController::class, 'validatePassword']);
+    Route::get('/auth/security-info', [LoginEnhancementController::class, 'getSecurityInfo']);
+    Route::post('/auth/log-security-event', [LoginEnhancementController::class, 'logSecurityEvent']);
 
     /*
      * System Status Endpoint
@@ -173,6 +185,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/profile', [AuthController::class, 'profile']);
     Route::post('/auth/revoke-tokens', [AuthController::class, 'revokeAllTokens']);
+
+    // Authentication Enhancement Routes (Authenticated)
+    Route::get('/session/status', [LoginEnhancementController::class, 'getSessionStatus']);
 
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
