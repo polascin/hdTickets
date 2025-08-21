@@ -33,35 +33,60 @@ class ProfileController extends Controller
         // Get profile completion data
         $profileCompletion = $user->getProfileCompletion();
 
-        // Calculate user statistics
+        // Calculate enhanced user statistics
         $userStats = [
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
-            'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(NULL, TRUE) : 'Never',
-            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : NULL,
-            // Ticket statistics
+            'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Never',
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : null,
+            
+            // Ticket statistics with error handling
             'active_tickets'   => $user->tickets()->whereIn('status', ['open', 'in_progress'])->count(),
             'total_tickets'    => $user->tickets()->count(),
             'resolved_tickets' => $user->tickets()->where('status', 'resolved')->count(),
             'pending_tickets'  => $user->tickets()->where('status', 'pending')->count(),
+            
+            // Activity statistics
+            'profile_views'       => $user->profile_views ?? 0,
+            'account_age_months'  => $user->created_at->diffInMonths(now()),
+            'last_activity'       => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never active',
         ];
 
-        // Security and verification status
+        // Enhanced security and verification status
         $securityStatus = [
-            'email_verified'     => (bool) $user->email_verified_at,
-            'two_factor_enabled' => (bool) $user->two_factor_secret,
-            'profile_complete'   => $profileCompletion['percentage'] >= 100,
+            'email_verified'       => (bool) $user->email_verified_at,
+            'two_factor_enabled'   => (bool) $user->two_factor_secret,
+            'profile_complete'     => $profileCompletion['percentage'] >= 100,
+            'password_age_days'    => $user->password_changed_at ? 
+                                     $user->password_changed_at->diffInDays(now()) : 
+                                     $user->created_at->diffInDays(now()),
+            'trusted_devices_count' => count($user->trusted_devices ?? []),
+            'active_sessions_count' => 1, // Default to current session
         ];
 
-        // Calculate joined days ago for display
-        $joinedDaysAgo = $user->created_at->diffInDays(now());
+        // Recent activity data
+        $recentActivity = [
+            'last_login' => $user->last_login_at,
+            'login_count' => $user->login_count ?? 0,
+            'recent_ips' => [$user->last_login_ip],
+            'account_changes' => $user->updated_at->diffForHumans(),
+        ];
+
+        // Profile insights and recommendations
+        $profileInsights = [
+            'completion_status' => $profileCompletion['status'],
+            'missing_critical_fields' => array_intersect($profileCompletion['missing_fields'], ['phone', 'two_factor_enabled']),
+            'security_score' => $this->calculateSecurityScore($user, $securityStatus),
+            'recommendations' => $this->generateProfileRecommendations($user, $profileCompletion, $securityStatus),
+        ];
 
         return view('profile.show', compact(
             'user',
             'profileCompletion',
             'userStats',
             'securityStatus',
-            'joinedDaysAgo'
+            'recentActivity',
+            'profileInsights'
         ));
     }
 
@@ -325,5 +350,112 @@ class ProfileController extends Controller
         }
 
         return back()->with('info', 'No other sessions to revoke.');
+    }
+
+    /**
+     * Calculate user security score based on various factors
+     */
+    private function calculateSecurityScore($user, $securityStatus): int
+    {
+        $score = 0;
+        $maxScore = 100;
+
+        // Email verification (20 points)
+        if ($securityStatus['email_verified']) {
+            $score += 20;
+        }
+
+        // Two-factor authentication (30 points)
+        if ($securityStatus['two_factor_enabled']) {
+            $score += 30;
+        }
+
+        // Profile completion (20 points)
+        if ($securityStatus['profile_complete']) {
+            $score += 20;
+        }
+
+        // Password age (15 points - newer passwords get more points)
+        $passwordAgeDays = $securityStatus['password_age_days'];
+        if ($passwordAgeDays <= 90) {
+            $score += 15;
+        } elseif ($passwordAgeDays <= 180) {
+            $score += 10;
+        } elseif ($passwordAgeDays <= 365) {
+            $score += 5;
+        }
+
+        // Recent activity (10 points)
+        if ($user->last_login_at && $user->last_login_at->isAfter(now()->subDays(7))) {
+            $score += 10;
+        }
+
+        // Phone number provided (5 points)
+        if (!empty($user->phone)) {
+            $score += 5;
+        }
+
+        return min($score, $maxScore);
+    }
+
+    /**
+     * Generate profile recommendations based on user data
+     */
+    private function generateProfileRecommendations($user, $profileCompletion, $securityStatus): array
+    {
+        $recommendations = [];
+
+        // Profile completion recommendations
+        if ($profileCompletion['percentage'] < 90) {
+            $recommendations[] = [
+                'type' => 'profile',
+                'priority' => 'high',
+                'title' => 'Complete Your Profile',
+                'description' => 'Add missing information to unlock all features.',
+                'action' => 'Complete Profile',
+                'route' => 'profile.edit',
+                'icon' => 'user-circle',
+            ];
+        }
+
+        // Security recommendations
+        if (!$securityStatus['email_verified']) {
+            $recommendations[] = [
+                'type' => 'security',
+                'priority' => 'high',
+                'title' => 'Verify Your Email',
+                'description' => 'Verify your email address to secure your account.',
+                'action' => 'Verify Email',
+                'route' => null,
+                'icon' => 'mail',
+            ];
+        }
+
+        if (!$securityStatus['two_factor_enabled']) {
+            $recommendations[] = [
+                'type' => 'security',
+                'priority' => 'medium',
+                'title' => 'Enable Two-Factor Authentication',
+                'description' => 'Add an extra layer of security to your account.',
+                'action' => 'Enable 2FA',
+                'route' => 'profile.security',
+                'icon' => 'shield-check',
+            ];
+        }
+
+        // Password age recommendation
+        if ($securityStatus['password_age_days'] > 180) {
+            $recommendations[] = [
+                'type' => 'security',
+                'priority' => 'medium',
+                'title' => 'Update Your Password',
+                'description' => 'Consider updating your password for better security.',
+                'action' => 'Change Password',
+                'route' => 'profile.security',
+                'icon' => 'key',
+            ];
+        }
+
+        return $recommendations;
     }
 }
