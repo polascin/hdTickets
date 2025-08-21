@@ -83,7 +83,7 @@ class TicketAlert extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'active');
     }

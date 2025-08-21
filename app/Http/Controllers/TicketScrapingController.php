@@ -249,7 +249,7 @@ class TicketScrapingController extends Controller
     /**
      * Alerts
      */
-    public function alerts(Request $request): Illuminate\Http\RedirectResponse
+    public function alerts(Request $request): \Illuminate\View\View
     {
         $alerts = TicketAlert::forUser(Auth::id())
             ->with(['user'])
