@@ -32,38 +32,113 @@ class TicketScrapingController extends Controller
      */
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
-        $query = ScrapedTicket::query()
-            ->where('event_date', '>', now())
-            ->orderBy('scraped_at', 'desc');
+        try {
+            $query = ScrapedTicket::query()
+                ->where('event_date', '>', now())
+                ->orderBy('scraped_at', 'desc');
 
-        // Apply filters
-        if ($request->filled('platform')) {
-            $query->byPlatform($request->platform);
+            // Apply filters with validation
+            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo'])) {
+                $query->byPlatform($request->platform);
+            }
+
+            if ($request->filled('keywords')) {
+                $keywords = trim($request->keywords);
+                if (strlen($keywords) >= 2) {
+                    $query->forEvent($keywords);
+                }
+            }
+
+            // Enhanced price filtering with validation
+            $minPrice = $request->filled('min_price') ? (float)$request->min_price : null;
+            $maxPrice = $request->filled('max_price') ? (float)$request->max_price : null;
+            
+            if ($minPrice || $maxPrice) {
+                // Ensure min is not greater than max
+                if ($minPrice && $maxPrice && $minPrice > $maxPrice) {
+                    $temp = $minPrice;
+                    $minPrice = $maxPrice;
+                    $maxPrice = $temp;
+                }
+                $query->priceRange($minPrice, $maxPrice);
+            }
+
+            if ($request->boolean('high_demand_only')) {
+                $query->highDemand();
+            }
+
+            if ($request->boolean('available_only')) {
+                $query->available();
+            } else {
+                // Include all tickets but prioritize available ones
+                $query->orderByDesc('is_available');
+            }
+
+            // Sorting options
+            $sortBy = $request->get('sort_by', 'scraped_at');
+            $sortDir = $request->get('sort_dir', 'desc');
+            
+            $allowedSorts = ['scraped_at', 'event_date', 'min_price', 'max_price', 'title'];
+            if (in_array($sortBy, $allowedSorts)) {
+                if ($sortBy === 'min_price' || $sortBy === 'max_price') {
+                    // Handle price sorting - use COALESCE to handle null values
+                    $query->orderByRaw("COALESCE({$sortBy}, 999999) {$sortDir}");
+                } else {
+                    $query->orderBy($sortBy, $sortDir);
+                }
+            }
+
+            $tickets = $query->with(['category'])->paginate(20);
+
+            // Enhanced statistics
+            $stats = [
+                'total_tickets'         => ScrapedTicket::count(),
+                'available_tickets'     => ScrapedTicket::available()->count(),
+                'high_demand_tickets'   => ScrapedTicket::highDemand()->count(),
+                'active_alerts'         => TicketAlert::active()->forUser(Auth::id())->count(),
+                'recent_matches'        => TicketAlert::forUser(Auth::id())->sum('matches_found'),
+                'platforms'            => ScrapedTicket::distinct('platform')->count('platform'),
+                'avg_price'            => ScrapedTicket::available()->avg('min_price'),
+                'price_range'          => [
+                    'min' => ScrapedTicket::available()->min('min_price'),
+                    'max' => ScrapedTicket::available()->max('max_price'),
+                ],
+            ];
+
+            // Add filter summary for user feedback
+            $activeFilters = [
+                'platform' => $request->platform,
+                'keywords' => $request->keywords,
+                'min_price' => $minPrice,
+                'max_price' => $maxPrice,
+                'high_demand_only' => $request->boolean('high_demand_only'),
+                'available_only' => $request->boolean('available_only'),
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
+            ];
+
+            return view('tickets.scraping.index', compact('tickets', 'stats', 'activeFilters'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading tickets page: ' . $e->getMessage());
+            
+            // Return with error state
+            $tickets = collect()->paginate(0);
+            $stats = [
+                'total_tickets' => 0,
+                'available_tickets' => 0,
+                'high_demand_tickets' => 0,
+                'active_alerts' => 0,
+                'recent_matches' => 0,
+                'platforms' => 0,
+                'avg_price' => 0,
+                'price_range' => ['min' => 0, 'max' => 0],
+            ];
+            $activeFilters = [];
+            
+            return view('tickets.scraping.index', compact('tickets', 'stats', 'activeFilters'))
+                ->with('error', 'Unable to load tickets at this time. Please try again later.');
         }
-
-        if ($request->filled('keywords')) {
-            $query->forEvent($request->keywords);
-        }
-
-        if ($request->filled('min_price') || $request->filled('max_price')) {
-            $query->priceRange($request->min_price, $request->max_price);
-        }
-
-        if ($request->boolean('high_demand_only')) {
-            $query->highDemand();
-        }
-
-        $tickets = $query->available()->paginate(20);
-
-        // Get recent stats
-        $stats = [
-            'total_tickets'       => ScrapedTicket::count(),
-            'high_demand_tickets' => ScrapedTicket::highDemand()->count(),
-            'active_alerts'       => TicketAlert::active()->forUser(Auth::id())->count(),
-            'recent_matches'      => TicketAlert::forUser(Auth::id())->sum('matches_found'),
-        ];
-
-        return view('tickets.scraping.index', compact('tickets', 'stats'));
     }
 
     /**
