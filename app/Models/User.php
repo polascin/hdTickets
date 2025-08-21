@@ -190,7 +190,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         // Encrypt sensitive fields on save
         static::saving(function ($model): void {
             foreach ($model->getEncryptedFields() as $field) {
-                if (! empty($model->$field)) {
+                if (!empty($model->$field)) {
                     $model->$field = $model->encryptionService->encrypt($model->$field);
                 }
             }
@@ -199,7 +199,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         // Decrypt sensitive fields on retrieve
         static::retrieved(function ($model): void {
             foreach ($model->getEncryptedFields() as $field) {
-                if (! empty($model->$field)) {
+                if (!empty($model->$field)) {
                     $model->$field = $model->encryptionService->decrypt($model->$field);
                 }
             }
@@ -424,7 +424,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function canAccessSystem(): bool
     {
-        return ! $this->isScraper();
+        return !$this->isScraper();
     }
 
     /**
@@ -435,7 +435,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function canLoginToWeb(): bool
     {
-        return ! $this->isScraper();
+        return !$this->isScraper();
     }
 
     /**
@@ -458,6 +458,25 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function getFullNameAttribute(): string
     {
         return trim($this->name . ' ' . $this->surname);
+    }
+
+    /**
+     * Get the profile photo URL attribute
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+
+        // Return default avatar based on initials
+        return 'https://ui-avatars.com/api/?' . http_build_query([
+            'name'       => $this->name,
+            'color'      => '7C3AED',
+            'background' => 'EDE9FE',
+            'size'       => 200,
+            'bold'       => 'true',
+        ]);
     }
 
     /**
@@ -494,7 +513,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function isUsernameUnique($username, $excludeId = NULL): bool
     {
-        return ! static::uniqueUsername($username, $excludeId)->exists();
+        return !static::uniqueUsername($username, $excludeId)->exists();
     }
 
     /**
@@ -547,7 +566,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function getLastLoginInfo()
     {
-        if (! $this->last_login_at) {
+        if (!$this->last_login_at) {
             return [
                 'formatted'  => 'Never logged in',
                 'datetime'   => NULL,
@@ -640,13 +659,13 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function getProfileCompletion()
     {
         $fields = [
-            'name'               => ! empty($this->name),
-            'surname'            => ! empty($this->surname),
-            'phone'              => ! empty($this->phone),
-            'bio'                => ! empty($this->bio),
-            'profile_picture'    => ! empty($this->profile_picture),
-            'timezone'           => ! empty($this->timezone),
-            'language'           => ! empty($this->language),
+            'name'               => !empty($this->name),
+            'surname'            => !empty($this->surname),
+            'phone'              => !empty($this->phone),
+            'bio'                => !empty($this->bio),
+            'profile_picture'    => !empty($this->profile_picture),
+            'timezone'           => !empty($this->timezone),
+            'language'           => !empty($this->language),
             'two_factor_enabled' => $this->two_factor_enabled ?? FALSE,
         ];
 
@@ -667,7 +686,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'percentage'       => $completionPercentage,
             'status'           => $status,
             'completed_fields' => $completedFields,
-            'missing_fields'   => array_keys(array_filter($fields, fn ($value) => ! $value)),
+            'missing_fields'   => array_keys(array_filter($fields, fn ($value) => !$value)),
             'total_fields'     => count($fields),
             'completed_count'  => count($completedFields),
             'is_complete'      => $completionPercentage >= 90,
@@ -696,7 +715,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         return [
             'picture_url'  => $pictureUrl,
             'initials'     => $initials,
-            'has_picture'  => ! empty($this->profile_picture),
+            'has_picture'  => !empty($this->profile_picture),
             'full_name'    => $this->getFullNameAttribute(),
             'display_name' => $this->getFullNameAttribute() ?: $this->username ?: $this->email,
             'bio'          => $this->bio,
@@ -713,7 +732,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function getProfilePictureSizes(): array
     {
-        if (! $this->profile_picture || ! $this->id) {
+        if (!$this->profile_picture || !$this->id) {
             return [];
         }
 
@@ -959,7 +978,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         $plan = $this->getCurrentPlan();
 
-        if (! $plan) {
+        if (!$plan) {
             return FALSE; // No plan = no access
         }
 
@@ -981,7 +1000,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         $plan = $this->getCurrentPlan();
 
-        if (! $plan || $plan->hasUnlimitedTickets()) {
+        if (!$plan || $plan->hasUnlimitedTickets()) {
             return -1; // Unlimited
         }
 

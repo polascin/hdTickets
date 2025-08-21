@@ -24,16 +24,36 @@ class ProfileController extends Controller
     }
 
     /**
-     * Display the user's profile view.
-     */
-    /**
-     * Show
+     * Display the user's profile view with enhanced data.
      */
     public function show(Request $request): View
     {
-        return view('profile.show', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user();
+
+        // Get profile completion data
+        $profileCompletion = $user->getProfileCompletion();
+
+        // Calculate user statistics
+        $userStats = [
+            'joined_days_ago'      => $user->created_at->diffInDays(now()),
+            'login_count'          => $user->login_count ?? 0,
+            'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(NULL, TRUE) : 'Never',
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : NULL,
+        ];
+
+        // Security and verification status
+        $securityStatus = [
+            'email_verified'     => (bool) $user->email_verified_at,
+            'two_factor_enabled' => (bool) $user->two_factor_secret,
+            'profile_complete'   => $profileCompletion['percentage'] >= 100,
+        ];
+
+        return view('profile.show', compact(
+            'user',
+            'profileCompletion',
+            'userStats',
+            'securityStatus'
+        ));
     }
 
     /**
@@ -90,6 +110,51 @@ class ProfileController extends Controller
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Upload profile photo
+     */
+    public function uploadPhoto(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        try {
+            $user = $request->user();
+
+            if ($request->hasFile('photo')) {
+                // Delete old photo if exists
+                if ($user->profile_photo_path) {
+                    \Storage::disk('public')->delete($user->profile_photo_path);
+                }
+
+                // Store new photo
+                $path = $request->file('photo')->store('profile-photos', 'public');
+
+                // Update user profile
+                $user->update([
+                    'profile_photo_path' => $path,
+                ]);
+
+                return response()->json([
+                    'success'   => TRUE,
+                    'message'   => 'Profile photo updated successfully!',
+                    'photo_url' => $user->profile_photo_url,
+                ]);
+            }
+
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'No photo uploaded',
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Failed to upload photo: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -153,7 +218,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (! $this->twoFactorService->isEnabled($user)) {
+        if (!$this->twoFactorService->isEnabled($user)) {
             return back()->withErrors(['error' => 'Two-factor authentication is not enabled.']);
         }
 
