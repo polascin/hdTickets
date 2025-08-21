@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ScrapedTicket;
+use App\Models\Ticket;
 use App\Models\TicketAlert;
 use App\Services\TicketScrapingService;
 use Exception;
@@ -268,11 +269,13 @@ class TicketScrapingController extends Controller
      *
      * @param mixed $ticket
      */
-    /**
-     * Show
-     */
     public function show($ticket): \Illuminate\Contracts\View\View
     {
+        // If $ticket is a string/ID, find the model
+        if (is_string($ticket) || is_numeric($ticket)) {
+            $ticket = ScrapedTicket::findOrFail($ticket);
+        }
+
         $ticket->load(['metadata']);
 
         return view('tickets.scraping.show', compact('ticket'));
@@ -493,13 +496,13 @@ class TicketScrapingController extends Controller
     /**
      * Trending
      */
-    public function trending(Request $request): \Illuminate\Http\RedirectResponse
+    public function trending(Request $request): \Illuminate\Http\JsonResponse
     {
         $limit = $request->get('limit', 20);
         $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
 
         return response()->json([
-            'success' => TRUE,
+            'success' => true,
             'tickets' => $tickets,
             'count'   => $tickets->count(),
         ]);
@@ -511,7 +514,7 @@ class TicketScrapingController extends Controller
     /**
      * BestDeals
      */
-    public function bestDeals(Request $request): \Illuminate\Http\RedirectResponse
+    public function bestDeals(Request $request): \Illuminate\Http\JsonResponse
     {
         $sport = $request->get('sport', 'football');
         $limit = $request->get('limit', 50);
@@ -519,7 +522,7 @@ class TicketScrapingController extends Controller
         $deals = $this->scrapingService->getBestSportsDeals($sport, $limit);
 
         return response()->json([
-            'success' => TRUE,
+            'success' => true,
             'deals'   => $deals,
             'count'   => $deals->count(),
             'sport'   => $sport,
@@ -532,13 +535,13 @@ class TicketScrapingController extends Controller
     /**
      * CheckAlerts
      */
-    public function checkAlerts(Request $request): \Illuminate\Http\RedirectResponse
+    public function checkAlerts(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $alertsChecked = $this->scrapingService->checkAlerts();
 
             return response()->json([
-                'success'        => TRUE,
+                'success'        => true,
                 'alerts_checked' => $alertsChecked,
                 'message'        => "Checked {$alertsChecked} alerts",
             ]);
@@ -546,7 +549,7 @@ class TicketScrapingController extends Controller
             Log::error('Manual alert check error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => FALSE,
+                'success' => false,
                 'message' => 'Failed to check alerts',
             ], 500);
         }
@@ -558,7 +561,7 @@ class TicketScrapingController extends Controller
     /**
      * Stats
      */
-    public function stats(Request $request): \Illuminate\Http\RedirectResponse
+    public function stats(Request $request): \Illuminate\Http\JsonResponse
     {
         $period = $request->get('period', '24h'); // 24h, 7d, 30d
 
@@ -591,7 +594,7 @@ class TicketScrapingController extends Controller
         ];
 
         return response()->json([
-            'success' => TRUE,
+            'success' => true,
             'period'  => $period,
             'stats'   => $stats,
         ]);
