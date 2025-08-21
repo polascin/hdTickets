@@ -30,7 +30,7 @@ class TicketScrapingController extends Controller
     /**
      * Index
      */
-    public function index(Request $request): Illuminate\Contracts\View\View
+    public function index(Request $request): \Illuminate\Contracts\View\View
     {
         $query = ScrapedTicket::query()
             ->where('event_date', '>', now())
@@ -72,7 +72,7 @@ class TicketScrapingController extends Controller
     /**
      * Search
      */
-    public function search(Request $request): Illuminate\Http\JsonResponse
+    public function search(Request $request): \Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'keywords'    => 'required|string|max:255',
@@ -132,7 +132,7 @@ class TicketScrapingController extends Controller
     /**
      * ManchesterUnited
      */
-    public function manchesterUnited(Request $request): Illuminate\Http\RedirectResponse
+    public function manchesterUnited(Request $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $maxPrice = $request->get('max_price');
@@ -161,7 +161,7 @@ class TicketScrapingController extends Controller
     /**
      * HighDemandSports
      */
-    public function highDemandSports(Request $request): Illuminate\Http\RedirectResponse
+    public function highDemandSports(Request $request): \Illuminate\Http\RedirectResponse
     {
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
@@ -196,7 +196,7 @@ class TicketScrapingController extends Controller
     /**
      * Show
      */
-    public function show($ticket): Illuminate\Contracts\View\View
+    public function show($ticket): \Illuminate\Contracts\View\View
     {
         $ticket->load(['metadata']);
 
@@ -209,7 +209,7 @@ class TicketScrapingController extends Controller
     /**
      * Purchase
      */
-    public function purchase(Request $request, ScrapedTicket $ticket): Illuminate\Http\RedirectResponse
+    public function purchase(Request $request, ScrapedTicket $ticket): \Illuminate\Http\RedirectResponse
     {
         $validator = Validator::make($request->all(), [
             'max_price' => 'required|numeric|min:0',
@@ -418,7 +418,7 @@ class TicketScrapingController extends Controller
     /**
      * Trending
      */
-    public function trending(Request $request): Illuminate\Http\RedirectResponse
+    public function trending(Request $request): \Illuminate\Http\RedirectResponse
     {
         $limit = $request->get('limit', 20);
         $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
@@ -436,7 +436,7 @@ class TicketScrapingController extends Controller
     /**
      * BestDeals
      */
-    public function bestDeals(Request $request): Illuminate\Http\RedirectResponse
+    public function bestDeals(Request $request): \Illuminate\Http\RedirectResponse
     {
         $sport = $request->get('sport', 'football');
         $limit = $request->get('limit', 50);
@@ -457,7 +457,7 @@ class TicketScrapingController extends Controller
     /**
      * CheckAlerts
      */
-    public function checkAlerts(Request $request): Illuminate\Http\RedirectResponse
+    public function checkAlerts(Request $request): \Illuminate\Http\RedirectResponse
     {
         try {
             $alertsChecked = $this->scrapingService->checkAlerts();
@@ -483,7 +483,7 @@ class TicketScrapingController extends Controller
     /**
      * Stats
      */
-    public function stats(Request $request): Illuminate\Http\RedirectResponse
+    public function stats(Request $request): \Illuminate\Http\RedirectResponse
     {
         $period = $request->get('period', '24h'); // 24h, 7d, 30d
 
