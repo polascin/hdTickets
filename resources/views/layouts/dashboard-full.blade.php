@@ -44,6 +44,30 @@
                         console.log('🔧 NavigationData fallback component initialized');
                     },
 
+                    toggleAdminDropdown() {
+                        this.adminDropdownOpen = !this.adminDropdownOpen;
+                        // Close other dropdowns
+                        this.profileDropdownOpen = false;
+                        this.mobileMenuOpen = false;
+                        console.log('🔧 Admin dropdown:', this.adminDropdownOpen ? 'OPEN' : 'CLOSED');
+                    },
+
+                    toggleProfileDropdown() {
+                        this.profileDropdownOpen = !this.profileDropdownOpen;
+                        // Close other dropdowns
+                        this.adminDropdownOpen = false;
+                        this.mobileMenuOpen = false;
+                        console.log('👤 Profile dropdown:', this.profileDropdownOpen ? 'OPEN' : 'CLOSED');
+                    },
+
+                    toggleMobileMenu() {
+                        this.mobileMenuOpen = !this.mobileMenuOpen;
+                        // Close other dropdowns
+                        this.adminDropdownOpen = false;
+                        this.profileDropdownOpen = false;
+                        console.log('📱 Mobile menu:', this.mobileMenuOpen ? 'OPEN' : 'CLOSED');
+                    },
+
                     closeAll() {
                         this.adminDropdownOpen = false;
                         this.profileDropdownOpen = false;
