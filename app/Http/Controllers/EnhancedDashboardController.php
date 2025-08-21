@@ -160,7 +160,7 @@ class EnhancedDashboardController extends Controller
         }
 
         if (!empty($priceRange) && isset($priceRange['max'])) {
-            $query->where('price', '<=', $priceRange['max']);
+            $query->where('min_price', '<=', $priceRange['max']);
         }
 
         return $query->limit(5)->get()->map(function ($ticket) {

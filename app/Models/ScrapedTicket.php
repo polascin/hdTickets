@@ -239,6 +239,14 @@ class ScrapedTicket extends Model
 
     // Helpers
     /**
+     * Get price attribute (defaults to min_price for compatibility)
+     */
+    public function getPriceAttribute(): int
+    {
+        return $this->min_price ?? 0;
+    }
+
+    /**
      * Get  formatted price attribute
      */
     public function getFormattedPriceAttribute(): float
