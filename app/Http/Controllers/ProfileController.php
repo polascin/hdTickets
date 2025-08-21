@@ -39,6 +39,11 @@ class ProfileController extends Controller
             'login_count'          => $user->login_count ?? 0,
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(NULL, TRUE) : 'Never',
             'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : NULL,
+            // Ticket statistics
+            'active_tickets'   => $user->tickets()->whereIn('status', ['open', 'in_progress'])->count(),
+            'total_tickets'    => $user->tickets()->count(),
+            'resolved_tickets' => $user->tickets()->where('status', 'resolved')->count(),
+            'pending_tickets'  => $user->tickets()->where('status', 'pending')->count(),
         ];
 
         // Security and verification status
@@ -48,11 +53,15 @@ class ProfileController extends Controller
             'profile_complete'   => $profileCompletion['percentage'] >= 100,
         ];
 
+        // Calculate joined days ago for display
+        $joinedDaysAgo = $user->created_at->diffInDays(now());
+
         return view('profile.show', compact(
             'user',
             'profileCompletion',
             'userStats',
-            'securityStatus'
+            'securityStatus',
+            'joinedDaysAgo'
         ));
     }
 
