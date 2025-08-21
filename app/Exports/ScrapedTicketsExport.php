@@ -127,7 +127,7 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping
         foreach ($this->fields as $field) {
             $data[] = match ($field) {
                 'event_date' => $ticket->event_date ? $ticket->event_date->format('Y-m-d H:i:s') : '',
-                'price'      => '$' . number_format($ticket->price, 2),
+                'price'      => '$' . number_format((float)$ticket->price, 2),
                 'platform'   => ucfirst($ticket->platform),
                 'status'     => ucfirst($ticket->status),
                 'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->format('Y-m-d H:i:s') : '',

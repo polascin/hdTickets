@@ -253,7 +253,7 @@ class DashboardController extends Controller
                         'event_title'        => $ticket->event_title,
                         'venue'              => $ticket->venue,
                         'event_date'         => $ticket->event_date?->toISOString(),
-                        'price'              => $ticket->formatted_price ?? '$' . number_format($ticket->price, 2),
+                        'price'              => $ticket->formatted_price ?? '$' . number_format((float)$ticket->price, 2),
                         'section'            => $ticket->section,
                         'row'                => $ticket->row,
                         'quantity_available' => $ticket->quantity_available,

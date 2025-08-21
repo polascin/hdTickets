@@ -217,13 +217,13 @@ class TicketLazyLoadController extends Controller
     private function formatPrice(App\Models\Ticket $ticket): string
     {
         if ($ticket->min_price && $ticket->max_price) {
-            return $ticket->currency . ' ' . number_format($ticket->min_price, 2) . ' - ' . number_format($ticket->max_price, 2);
+            return $ticket->currency . ' ' . number_format((float)$ticket->min_price, 2) . ' - ' . number_format((float)$ticket->max_price, 2);
         }
         if ($ticket->max_price) {
-            return $ticket->currency . ' ' . number_format($ticket->max_price, 2);
+            return $ticket->currency . ' ' . number_format((float)$ticket->max_price, 2);
         }
         if ($ticket->min_price) {
-            return $ticket->currency . ' ' . number_format($ticket->min_price, 2);
+            return $ticket->currency . ' ' . number_format((float)$ticket->min_price, 2);
         }
 
         return 'Price on request';

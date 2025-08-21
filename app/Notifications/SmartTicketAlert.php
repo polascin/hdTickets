@@ -68,7 +68,7 @@ class SmartTicketAlert extends Notification implements ShouldQueue
 
         // Event details
         $message->line("**Event:** {$ticket['event_name']}")
-            ->line('**Price:** $' . number_format($ticket['price'], 2))
+            ->line('**Price:** $' . number_format((float)$ticket['price'], 2))
             ->line("**Available:** {$ticket['quantity']} tickets")
             ->line("**Platform:** {$ticket['platform']}");
 
