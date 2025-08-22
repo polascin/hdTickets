@@ -413,25 +413,35 @@
 
                     <!-- User Dropdown -->
                     @auth
-                        <div class="relative" x-data="{ userDropdownOpen: false }">
-                            <button @click="userDropdownOpen = !userDropdownOpen"
-                                class="flex items-center gap-2 p-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg transition-colors">
+                        <div class="relative">
+                            <button @click="toggleProfileDropdown()"
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                :aria-expanded="profileDropdownOpen" aria-haspopup="true">
                                 @php $user = Auth::user(); @endphp
-                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                                    <span class="text-white text-sm font-medium">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                                    </span>
+                                <div class="flex items-center">
+                                    <div
+                                        class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                            <span class="text-xs font-medium text-gray-700">
+                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>{{ $user->name }}</div>
                                 </div>
-                                <span class="hidden md:block text-sm font-medium">{{ $user->name }}</span>
-                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': userDropdownOpen }"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
+
+                                <div class="ms-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
                             </button>
 
                             <!-- Dropdown Menu -->
-                            <div x-show="userDropdownOpen" x-cloak @click.outside="userDropdownOpen = false"
+                            <div x-show="profileDropdownOpen" x-cloak @click.outside="profileDropdownOpen = false"
                                 x-transition:enter="transform ease-out duration-200"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -467,7 +477,7 @@
                                 <div class="py-1">
                                     <a href="{{ route('profile.show') }}"
                                         class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                        @click="userDropdownOpen = false">
+                                        @click="profileDropdownOpen = false">
                                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -479,7 +489,7 @@
 
                                     <a href="{{ route('dashboard') }}"
                                         class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                        @click="userDropdownOpen = false">
+                                        @click="profileDropdownOpen = false">
                                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -495,7 +505,7 @@
                                         <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                                         <a href="{{ route('admin.dashboard') }}"
                                             class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                            @click="userDropdownOpen = false">
+                                            @click="profileDropdownOpen = false">
                                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -576,6 +586,7 @@
                 sidebarOpen: false,
                 isMobile: false,
                 darkMode: localStorage.getItem('darkMode') === 'true',
+                profileDropdownOpen: false,
 
                 init() {
                     this.checkMobile();
@@ -606,6 +617,10 @@
                     this.darkMode = !this.darkMode;
                     localStorage.setItem('darkMode', this.darkMode);
                     document.documentElement.classList.toggle('dark', this.darkMode);
+                },
+
+                toggleProfileDropdown() {
+                    this.profileDropdownOpen = !this.profileDropdownOpen;
                 }
             }
         }
