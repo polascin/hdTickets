@@ -410,6 +410,123 @@
                             </path>
                         </svg>
                     </button>
+
+                    <!-- User Dropdown -->
+                    @auth
+                        <div class="relative" x-data="{ userDropdownOpen: false }">
+                            <button @click="userDropdownOpen = !userDropdownOpen"
+                                class="flex items-center gap-2 p-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg transition-colors">
+                                @php $user = Auth::user(); @endphp
+                                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                                    <span class="text-white text-sm font-medium">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </span>
+                                </div>
+                                <span class="hidden md:block text-sm font-medium">{{ $user->name }}</span>
+                                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': userDropdownOpen }"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div x-show="userDropdownOpen" x-cloak @click.outside="userDropdownOpen = false"
+                                x-transition:enter="transform ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transform ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+
+                                <!-- User Profile Section -->
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                                            <span class="text-white text-lg font-medium">
+                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            </span>
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                {{ $user->name }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                {{ $user->email }}</p>
+                                            <span
+                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mt-1">
+                                                {{ ucfirst($user->role ?? 'User') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Menu Items -->
+                                <div class="py-1">
+                                    <a href="{{ route('profile.show') }}"
+                                        class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        @click="userDropdownOpen = false">
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                            </path>
+                                        </svg>
+                                        Profile Settings
+                                    </a>
+
+                                    <a href="{{ route('dashboard') }}"
+                                        class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        @click="userDropdownOpen = false">
+                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 5v4l3-3-3-3z"></path>
+                                        </svg>
+                                        Dashboard
+                                    </a>
+
+                                    @if (method_exists($user, 'isAdmin') && $user->isAdmin())
+                                        <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                        <a href="{{ route('admin.dashboard') }}"
+                                            class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                            @click="userDropdownOpen = false">
+                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            Admin Panel
+                                        </a>
+                                    @endif
+
+                                    <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="flex items-center w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors">
+                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                                </path>
+                                            </svg>
+                                            Sign Out
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endauth
                 </div>
             </header>
 

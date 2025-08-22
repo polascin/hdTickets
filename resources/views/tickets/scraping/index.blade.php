@@ -198,40 +198,28 @@
     </x-ui.card>
 
     <!-- Results Summary and Actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-        <div class="flex items-center space-x-4">
-            <p class="hd-text-base">
-                <span class="font-semibold">{{ $tickets->total() }}</span> tickets found
-                @if ($tickets->total() !== $tickets->count())
-                    <span class="text-gray-500">(showing {{ $tickets->count() }})</span>
-                @endif
-            </p>
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div class="flex items-center gap-4">
+            <h2 class="hd-heading-2 font-semibold text-gray-900">Ticket Results</h2>
+            <span class="hd-text-base text-gray-600">({{ $tickets->total() }} found)</span>
             @if (isset($stats['avg_price']) && $stats['avg_price'] > 0)
-                <p class="hd-text-small text-gray-600">
-                    Avg: ${{ number_format((float) $stats['avg_price'], 2) }}
-                </p>
+                <span class="hd-text-small text-gray-600">Avg:
+                    ${{ number_format((float) $stats['avg_price'], 2) }}</span>
             @endif
         </div>
-
-        <div class="flex items-center space-x-2">
-            <div class="flex items-center space-x-2">
-                <span class="hd-text-small text-gray-600">View:</span>
-                <button id="grid-view" class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Grid View">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                        </path>
-                    </svg>
-                </button>
-                <button id="list-view" class="p-2 text-gray-600 hover:text-gray-800 transition-colors"
-                    title="List View">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+        <div class="flex items-center gap-2">
+            <button id="grid-view-toggle" class="hd-btn hd-btn--ghost" title="Grid View">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+            </button>
+            <button id="list-view-toggle" class="hd-btn hd-btn--ghost" title="List View">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -414,7 +402,7 @@
                                 <div class="flex items-start justify-between mb-2">
                                     <h3 class="hd-text-lg font-semibold text-gray-900 truncate mr-4"
                                         title="{{ $ticket->title }}">
-                                        {{ $ticket->title }}
+                                        {{ $ticket->title ?: 'N/A' }}
                                     </h3>
                                     @if ($ticket->is_high_demand)
                                         <span
@@ -432,28 +420,26 @@
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                             </path>
                                         </svg>
-                                        {{ \Carbon\Carbon::parse($ticket->event_date)->format('M j, Y g:i A') }}
+                                        {{ $ticket->event_date ? \Carbon\Carbon::parse($ticket->event_date)->format('M j, Y g:i A') : 'N/A' }}
                                     </span>
-                                    @if ($ticket->venue)
-                                        <span class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                            {{ $ticket->venue }}
-                                        </span>
-                                    @endif
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        {{ $ticket->venue ?: 'N/A' }}
+                                    </span>
                                     <span class="flex items-center capitalize font-medium">
                                         <div
                                             class="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center mr-1">
                                             <span
-                                                class="text-xs font-bold text-blue-600">{{ strtoupper(substr($ticket->platform, 0, 1)) }}</span>
+                                                class="text-xs font-bold text-blue-600">{{ $ticket->platform ? strtoupper(substr($ticket->platform, 0, 1)) : '?' }}</span>
                                         </div>
-                                        {{ $ticket->platform }}
+                                        {{ $ticket->platform ?: 'N/A' }}
                                     </span>
                                 </div>
                             </div>
@@ -934,36 +920,57 @@
             }
         }
 
+        // Modal for ticket details
         function viewTicketDetails(ticketId) {
-            // Create a modal or redirect to details page
-            console.log('Viewing ticket details for ID:', ticketId);
-            // For now, you could implement a modal or redirect
-            // window.location.href = `/tickets/details/${ticketId}`;
-
-            // Show a simple alert for now
-            alert('Ticket details functionality would be implemented here for ticket ID: ' + ticketId);
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+                    <h2 class="text-xl font-bold mb-4">Ticket Details</h2>
+                    <p>ID: ${ticketId}</p>
+                    <p>More details would be loaded here...</p>
+                    <button class="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" id="close-details-modal">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('close-details-modal').onclick = () => modal.remove();
         }
 
+        // Modal for creating alert
         function createAlert(ticketId = null) {
-            console.log('Creating alert for ticket ID:', ticketId);
-            // Implement alert creation modal
-            showCreateAlertModal(ticketId);
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+                    <h2 class="text-xl font-bold mb-4">Create Alert</h2>
+                    <form id="create-alert-form">
+                        <input type="hidden" name="ticket_id" value="${ticketId ?? ''}">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Keywords</label>
+                            <input type="text" name="keywords" class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-1">Max Price</label>
+                            <input type="number" name="max_price" class="w-full border rounded px-3 py-2">
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Create</button>
+                        <button type="button" class="ml-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" id="close-alert-modal">Cancel</button>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('close-alert-modal').onclick = () => modal.remove();
+            document.getElementById('create-alert-form').onsubmit = function(e) {
+                e.preventDefault();
+                // Here you would send the alert to backend via AJAX
+                alert('Alert created!');
+                modal.remove();
+            };
         }
-
-        function showCreateAlertModal(ticketId = null) {
-            // Simple implementation - you'd want to create a proper modal
-            const keywords = prompt('Enter keywords for your alert (optional):');
-            const maxPrice = prompt('Enter maximum price for alerts (optional):');
-
-            if (keywords !== null || maxPrice !== null) {
-                // Here you would submit the alert to your backend
-                console.log('Creating alert with:', {
-                    ticketId,
-                    keywords: keywords || '',
-                    maxPrice: maxPrice || ''
-                });
-                alert('Alert created successfully! You will be notified when matching tickets are found.');
-            }
+        maxPrice: maxPrice || ''
+        });
+        alert('Alert created successfully! You will be notified when matching tickets are found.');
+        }
         }
 
         function showSearchSuggestions() {
