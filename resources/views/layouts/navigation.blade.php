@@ -9,12 +9,19 @@
 @php
     use Illuminate\Support\Facades\Request;
 @endphp
-<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-100 shadow-sm" role="navigation"
+<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40" role="navigation"
     aria-label="Main navigation" id="main-navigation">
 
     <!-- Primary Navigation Menu -->
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between h-16">
+    <div class="hd-container">
+        <div class="flex justify-between items-center" style="height: var(--hd-header-height-desktop);">
+            @media (max-width: 767px) {
+                <style>
+                    #main-navigation .hd-container > div {
+                        height: var(--hd-header-height-mobile) !important;
+                    }
+                </style>
+            @endmedia
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">

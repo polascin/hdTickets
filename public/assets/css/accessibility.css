@@ -1,0 +1,763 @@
+/*
+ * HD Tickets Accessibility Enhancement Stylesheet
+ *
+ * This file provides comprehensive accessibility improvements including:
+ * - Focus indicators and keyboard navigation
+ * - Skip links for navigation
+ * - Screen reader optimizations
+ * - High contrast mode support
+ * - Reduced motion preferences
+ * - Touch target optimization
+ * - ARIA enhancements
+ */
+
+/* ==========================================================================
+   FOCUS INDICATORS & KEYBOARD NAVIGATION
+   ========================================================================== */
+
+/* Reset browser default focus styles */
+*:focus {
+    outline: none;
+}
+
+/* Consistent focus indicators across all interactive elements */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus,
+[tabindex]:focus,
+.hd-card--interactive:focus,
+.hd-stat-card--interactive:focus,
+.hd-btn:focus,
+[role="button"]:focus,
+[role="menuitem"]:focus,
+[role="tab"]:focus,
+[role="link"]:focus {
+    outline: 2px solid var(--hd-focus-color, #3b82f6);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Enhanced focus for dark backgrounds */
+.bg-dark *:focus,
+.dark *:focus,
+[data-theme="dark"] *:focus {
+    outline-color: var(--hd-focus-color-dark, #60a5fa);
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+/* Focus within containers */
+.hd-card:focus-within,
+.hd-stat-card:focus-within,
+.hd-modal__content:focus-within {
+    border-color: var(--hd-focus-color, #3b82f6);
+    box-shadow: 0 0 0 1px var(--hd-focus-color, #3b82f6);
+}
+
+/* Keyboard-only focus (hide focus for mouse users) */
+.js-focus-visible *:focus:not(.focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Enhanced focus for form controls */
+.hd-input:focus,
+.hd-select:focus,
+textarea.hd-input:focus {
+    border-color: var(--hd-focus-color, #3b82f6);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: 2px solid var(--hd-focus-color, #3b82f6);
+    outline-offset: -2px;
+}
+
+/* Focus for checkboxes and radio buttons */
+.hd-checkbox:focus,
+.hd-radio:focus {
+    outline: 2px solid var(--hd-focus-color, #3b82f6);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+/* ==========================================================================
+   SKIP LINKS
+   ========================================================================== */
+
+/* Skip link styling */
+.hd-skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--hd-primary, #3b82f6);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 0 0 4px 4px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 9999;
+    transition: top 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.hd-skip-link:focus {
+    top: 6px;
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* Multiple skip links container */
+.hd-skip-links {
+    position: absolute;
+    top: -200px;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(59, 130, 246, 0.95);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    transition: top 0.3s ease;
+}
+
+.hd-skip-links:focus-within {
+    top: 0;
+}
+
+.hd-skip-links a {
+    background: white;
+    color: var(--hd-primary, #3b82f6);
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.hd-skip-links a:hover,
+.hd-skip-links a:focus {
+    background: var(--hd-primary-50, #eff6ff);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   SCREEN READER & ASSISTIVE TECHNOLOGY OPTIMIZATIONS
+   ========================================================================== */
+
+/* Screen reader only text */
+.sr-only,
+.hd-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Screen reader text that can be focused */
+.sr-only-focusable:focus,
+.hd-sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 4px 8px;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    background: var(--hd-primary, #3b82f6);
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Live regions for screen reader announcements */
+.hd-live-region {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.hd-live-region[aria-live="polite"] {
+    /* Polite announcements */
+}
+
+.hd-live-region[aria-live="assertive"] {
+    /* Urgent announcements */
+}
+
+/* Status messages styling */
+.hd-status-message {
+    padding: 12px 16px;
+    border-radius: var(--hd-radius);
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.hd-status-message--success {
+    background: var(--hd-success-100, #dcfce7);
+    color: var(--hd-success-800, #166534);
+    border: 1px solid var(--hd-success-300, #86efac);
+}
+
+.hd-status-message--error {
+    background: var(--hd-error-100, #fee2e2);
+    color: var(--hd-error-800, #991b1b);
+    border: 1px solid var(--hd-error-300, #fca5a5);
+}
+
+.hd-status-message--warning {
+    background: var(--hd-warning-100, #fef3c7);
+    color: var(--hd-warning-800, #92400e);
+    border: 1px solid var(--hd-warning-300, #fcd34d);
+}
+
+.hd-status-message--info {
+    background: var(--hd-info-100, #dbeafe);
+    color: var(--hd-info-800, #1e40af);
+    border: 1px solid var(--hd-info-300, #93c5fd);
+}
+
+/* ==========================================================================
+   LANDMARK REGIONS & SEMANTIC STRUCTURE
+   ========================================================================== */
+
+/* Enhanced landmark styling */
+main[role="main"],
+main {
+    min-height: 200px;
+}
+
+nav[role="navigation"] {
+    position: relative;
+}
+
+/* Navigation landmarks */
+.hd-nav-primary {
+    /* Primary navigation styling */
+}
+
+.hd-nav-secondary {
+    /* Secondary navigation styling */
+}
+
+.hd-nav-breadcrumb {
+    /* Breadcrumb navigation styling */
+}
+
+/* Content landmarks */
+.hd-main-content {
+    scroll-margin-top: 80px; /* Account for fixed headers */
+}
+
+.hd-content-section {
+    margin-bottom: var(--hd-spacing-8);
+}
+
+/* Heading hierarchy indicators (dev mode) */
+body[data-debug="headings"] h1::before { content: "H1: "; color: #dc2626; font-weight: bold; }
+body[data-debug="headings"] h2::before { content: "H2: "; color: #ea580c; font-weight: bold; }
+body[data-debug="headings"] h3::before { content: "H3: "; color: #d97706; font-weight: bold; }
+body[data-debug="headings"] h4::before { content: "H4: "; color: #ca8a04; font-weight: bold; }
+body[data-debug="headings"] h5::before { content: "H5: "; color: #65a30d; font-weight: bold; }
+body[data-debug="headings"] h6::before { content: "H6: "; color: #16a34a; font-weight: bold; }
+
+/* ==========================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ========================================================================== */
+
+/* Windows High Contrast Mode */
+@media (prefers-contrast: high), (-ms-high-contrast: active) {
+    /* Force strong borders and backgrounds */
+    .hd-card,
+    .hd-stat-card,
+    .hd-modal__content,
+    .hd-input,
+    .hd-btn {
+        border: 2px solid ButtonText !important;
+        background: ButtonFace !important;
+        color: ButtonText !important;
+    }
+    
+    .hd-btn--primary,
+    .hd-btn[aria-pressed="true"] {
+        background: Highlight !important;
+        color: HighlightText !important;
+        border-color: Highlight !important;
+    }
+    
+    /* Enhanced focus in high contrast */
+    *:focus {
+        outline: 3px solid Highlight !important;
+        outline-offset: 2px;
+        background: HighlightText !important;
+        color: Highlight !important;
+    }
+    
+    /* Links in high contrast */
+    a:link {
+        color: LinkText !important;
+    }
+    
+    a:visited {
+        color: VisitedText !important;
+    }
+    
+    /* Images and icons */
+    img,
+    svg {
+        filter: contrast(1.2) brightness(1.1);
+    }
+    
+    /* Status indicators */
+    .hd-status-message--success {
+        background: ButtonFace !important;
+        color: ButtonText !important;
+        border: 2px solid ButtonText !important;
+    }
+    
+    .hd-status-message--error {
+        background: ButtonFace !important;
+        color: ButtonText !important;
+        border: 2px solid ButtonText !important;
+    }
+    
+    /* Remove subtle styling */
+    .hd-card__subtitle,
+    .hd-text-muted {
+        color: ButtonText !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Forced Colors Mode (Edge/Chrome) */
+@media (forced-colors: active) {
+    .hd-card,
+    .hd-stat-card {
+        border: 1px solid CanvasText;
+        background: Canvas;
+        color: CanvasText;
+        forced-color-adjust: none;
+    }
+    
+    .hd-btn {
+        border: 1px solid ButtonText;
+        background: ButtonFace;
+        color: ButtonText;
+        forced-color-adjust: none;
+    }
+    
+    .hd-btn--primary {
+        background: Highlight;
+        color: HighlightText;
+        border-color: Highlight;
+    }
+    
+    /* Focus indicators */
+    *:focus {
+        outline: 2px solid Highlight;
+        outline-offset: 2px;
+        forced-color-adjust: none;
+    }
+}
+
+/* ==========================================================================
+   REDUCED MOTION PREFERENCES
+   ========================================================================== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    /* Disable all animations and transitions */
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    /* Remove transform animations */
+    .hd-card--interactive:hover,
+    .hd-stat-card--interactive:hover,
+    .hd-btn:hover {
+        transform: none !important;
+    }
+    
+    /* Remove loading animations */
+    .hd-loading__spinner,
+    .hd-loading__dots,
+    .hd-loading__pulse,
+    .hd-loading__skeleton-line {
+        animation: none !important;
+    }
+    
+    /* Static loading indicators */
+    .hd-loading__skeleton-line {
+        background: var(--hd-gray-200, #e5e7eb) !important;
+    }
+    
+    /* Remove parallax and smooth scroll */
+    .hd-parallax {
+        transform: none !important;
+    }
+    
+    /* Remove modal entrance animations */
+    .hd-modal {
+        transition: none !important;
+    }
+    
+    .hd-modal__content {
+        transform: none !important;
+    }
+    
+    /* Keep essential feedback animations */
+    button:active,
+    .hd-btn:active {
+        transform: scale(0.98) !important;
+        transition: transform 0.1s !important;
+    }
+}
+
+/* ==========================================================================
+   TOUCH TARGET OPTIMIZATION
+   ========================================================================== */
+
+/* Ensure minimum 44px touch targets (WCAG AA) */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+.hd-btn,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+a[href] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: max(8px, calc((44px - 1em) / 2)) 16px;
+    position: relative;
+}
+
+/* Touch target expansion for small elements */
+.hd-touch-target::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+    z-index: -1;
+}
+
+/* Ensure form controls meet touch target requirements */
+.hd-input,
+.hd-select,
+textarea.hd-input {
+    min-height: 44px;
+    padding: 12px;
+}
+
+/* Larger touch targets on mobile */
+@media (max-width: 768px) {
+    button,
+    input[type="button"],
+    input[type="submit"],
+    .hd-btn,
+    [role="button"] {
+        min-height: 48px;
+        padding: 12px 16px;
+    }
+    
+    .hd-input,
+    .hd-select,
+    textarea.hd-input {
+        min-height: 48px;
+        padding: 14px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}
+
+/* ==========================================================================
+   ARIA ENHANCEMENTS
+   ========================================================================== */
+
+/* ARIA state indicators */
+[aria-expanded="true"] .hd-expand-icon {
+    transform: rotate(180deg);
+}
+
+[aria-expanded="false"] .hd-expand-icon {
+    transform: rotate(0deg);
+}
+
+/* ARIA pressed state */
+[aria-pressed="true"] {
+    background: var(--hd-primary-100, #dbeafe);
+    border-color: var(--hd-primary, #3b82f6);
+    color: var(--hd-primary-700, #1d4ed8);
+}
+
+/* ARIA selected state */
+[aria-selected="true"] {
+    background: var(--hd-primary-50, #eff6ff);
+    border-left: 3px solid var(--hd-primary, #3b82f6);
+}
+
+/* ARIA disabled state */
+[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ARIA invalid state */
+[aria-invalid="true"] {
+    border-color: var(--hd-error, #ef4444);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* ARIA describedby connection indicator */
+[aria-describedby]:focus + [id],
+[aria-labelledby]:focus + [id] {
+    outline: 1px dashed var(--hd-primary, #3b82f6);
+    background: rgba(59, 130, 246, 0.05);
+    padding: 4px;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   KEYBOARD NAVIGATION ENHANCEMENTS
+   ========================================================================== */
+
+/* Tab order visualization (dev mode) */
+body[data-debug="tabindex"] [tabindex] {
+    position: relative;
+}
+
+body[data-debug="tabindex"] [tabindex]::after {
+    content: attr(tabindex);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc2626;
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+/* Skip to content functionality */
+.hd-skip-to-content:focus {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    background: var(--hd-primary, #3b82f6);
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+}
+
+/* Roving tabindex support */
+.hd-roving-tabindex [role="tab"],
+.hd-roving-tabindex [role="menuitem"],
+.hd-roving-tabindex [role="option"] {
+    tabindex: -1;
+}
+
+.hd-roving-tabindex [role="tab"][aria-selected="true"],
+.hd-roving-tabindex [role="menuitem"]:focus,
+.hd-roving-tabindex [role="option"][aria-selected="true"] {
+    tabindex: 0;
+}
+
+/* ==========================================================================
+   ERROR HANDLING & FORM VALIDATION
+   ========================================================================== */
+
+/* Error message styling */
+.hd-error-message {
+    color: var(--hd-error, #ef4444);
+    font-size: 14px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hd-error-message::before {
+    content: '⚠️';
+    font-size: 12px;
+}
+
+/* Success message styling */
+.hd-success-message {
+    color: var(--hd-success, #10b981);
+    font-size: 14px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hd-success-message::before {
+    content: '✓';
+    font-weight: bold;
+}
+
+/* Required field indicators */
+.hd-required::after {
+    content: ' *';
+    color: var(--hd-error, #ef4444);
+}
+
+.hd-optional::after {
+    content: ' (optional)';
+    color: var(--hd-text-muted, #6b7280);
+    font-size: 0.9em;
+}
+
+/* ==========================================================================
+   RESPONSIVE ACCESSIBILITY
+   ========================================================================== */
+
+/* Mobile accessibility improvements */
+@media (max-width: 768px) {
+    /* Larger tap targets */
+    .hd-tap-target {
+        min-height: 48px;
+        min-width: 48px;
+    }
+    
+    /* Better spacing for touch */
+    button + button,
+    .hd-btn + .hd-btn {
+        margin-left: 8px;
+        margin-top: 8px;
+    }
+    
+    /* Mobile skip links */
+    .hd-skip-link:focus {
+        left: 16px;
+        right: 16px;
+        width: auto;
+        text-align: center;
+    }
+}
+
+/* Desktop keyboard navigation */
+@media (min-width: 769px) {
+    /* Enhanced focus for desktop */
+    .hd-focus-enhanced *:focus {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Accessibility utility classes */
+.hd-focusable {
+    tabindex: 0;
+}
+
+.hd-not-focusable {
+    tabindex: -1;
+}
+
+.hd-announce-polite {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.hd-announce-assertive {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Text alternatives */
+.hd-text-alternative {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* High contrast testing */
+.hd-contrast-test {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: center;
+}
+
+.hd-contrast-test.inverse {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+}
+
+/* ==========================================================================
+   PRINT ACCESSIBILITY
+   ========================================================================== */
+
+@media print {
+    /* Ensure focus indicators are visible in print */
+    *:focus {
+        outline: 2px solid #000000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* Print URLs for links */
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 12px;
+        color: #666;
+    }
+    
+    /* Skip decorative images */
+    img[alt=""],
+    img[role="presentation"] {
+        display: none;
+    }
+    
+    /* Ensure adequate contrast */
+    * {
+        color: #000000 !important;
+        background: #ffffff !important;
+    }
+}

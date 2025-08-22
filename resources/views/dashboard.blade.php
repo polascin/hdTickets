@@ -55,7 +55,7 @@
         @endif
     
         <!-- Stats Cards -->
-        <div class="hd-grid-4 mb-8">
+        <div class="hd-grid hd-grid-1 hd-md-grid-2 hd-lg-grid-4 mb-8">
             <x-ui.card hover="true" class="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                 <x-ui.card-content>
                     <div class="flex items-center justify-between">

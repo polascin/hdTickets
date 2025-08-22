@@ -1,0 +1,484 @@
+/**
+ * HD Tickets Shared Design Tokens
+ * 
+ * Common design system variables accessible by both Laravel Blade and React components
+ * These tokens ensure consistency across the entire application
+ */
+
+:root {
+  /* =================================================================
+     SPACING SYSTEM
+     ================================================================= */
+  
+  /* Base spacing unit: 4px */
+  --hd-space-0: 0;
+  --hd-space-1: 0.25rem;   /* 4px */
+  --hd-space-2: 0.5rem;    /* 8px */
+  --hd-space-3: 0.75rem;   /* 12px */
+  --hd-space-4: 1rem;      /* 16px */
+  --hd-space-5: 1.25rem;   /* 20px */
+  --hd-space-6: 1.5rem;    /* 24px */
+  --hd-space-8: 2rem;      /* 32px */
+  --hd-space-10: 2.5rem;   /* 40px */
+  --hd-space-12: 3rem;     /* 48px */
+  --hd-space-16: 4rem;     /* 64px */
+  --hd-space-20: 5rem;     /* 80px */
+  --hd-space-24: 6rem;     /* 96px */
+  --hd-space-32: 8rem;     /* 128px */
+
+  /* Component specific spacing */
+  --hd-navbar-height: 4rem;          /* 64px */
+  --hd-navbar-height-mobile: 3.5rem; /* 56px */
+  --hd-sidebar-width: 17.5rem;       /* 280px */
+  --hd-sidebar-width-collapsed: 4rem; /* 64px */
+  --hd-bottom-nav-height: 3.5rem;    /* 56px */
+  
+  /* =================================================================
+     COLOR SYSTEM
+     ================================================================= */
+  
+  /* Primary Brand Colors */
+  --hd-primary-50: #eff6ff;
+  --hd-primary-100: #dbeafe;
+  --hd-primary-200: #bfdbfe;
+  --hd-primary-300: #93c5fd;
+  --hd-primary-400: #60a5fa;
+  --hd-primary-500: #3b82f6;
+  --hd-primary-600: #2563eb;
+  --hd-primary-700: #1d4ed8;
+  --hd-primary-800: #1e40af;
+  --hd-primary-900: #1e3a8a;
+  --hd-primary: var(--hd-primary-600);
+
+  /* Secondary Colors */
+  --hd-secondary-50: #f8fafc;
+  --hd-secondary-100: #f1f5f9;
+  --hd-secondary-200: #e2e8f0;
+  --hd-secondary-300: #cbd5e1;
+  --hd-secondary-400: #94a3b8;
+  --hd-secondary-500: #64748b;
+  --hd-secondary-600: #475569;
+  --hd-secondary-700: #334155;
+  --hd-secondary-800: #1e293b;
+  --hd-secondary-900: #0f172a;
+  --hd-secondary: var(--hd-secondary-600);
+
+  /* Sports Theme Accent Colors */
+  --hd-sport-basketball: #ff6b35;
+  --hd-sport-football: #2e7d32;
+  --hd-sport-baseball: #1976d2;
+  --hd-sport-hockey: #424242;
+  --hd-sport-soccer: #388e3c;
+  --hd-sport-tennis: #fbc02d;
+
+  /* Status Colors */
+  --hd-success-50: #f0fdf4;
+  --hd-success-100: #dcfce7;
+  --hd-success-200: #bbf7d0;
+  --hd-success-300: #86efac;
+  --hd-success-400: #4ade80;
+  --hd-success-500: #22c55e;
+  --hd-success-600: #16a34a;
+  --hd-success-700: #15803d;
+  --hd-success-800: #166534;
+  --hd-success-900: #14532d;
+  --hd-success: var(--hd-success-600);
+
+  --hd-warning-50: #fffbeb;
+  --hd-warning-100: #fef3c7;
+  --hd-warning-200: #fde68a;
+  --hd-warning-300: #fcd34d;
+  --hd-warning-400: #fbbf24;
+  --hd-warning-500: #f59e0b;
+  --hd-warning-600: #d97706;
+  --hd-warning-700: #b45309;
+  --hd-warning-800: #92400e;
+  --hd-warning-900: #78350f;
+  --hd-warning: var(--hd-warning-600);
+
+  --hd-error-50: #fef2f2;
+  --hd-error-100: #fee2e2;
+  --hd-error-200: #fecaca;
+  --hd-error-300: #fca5a5;
+  --hd-error-400: #f87171;
+  --hd-error-500: #ef4444;
+  --hd-error-600: #dc2626;
+  --hd-error-700: #b91c1c;
+  --hd-error-800: #991b1b;
+  --hd-error-900: #7f1d1d;
+  --hd-error: var(--hd-error-600);
+
+  --hd-info-50: #eff6ff;
+  --hd-info-100: #dbeafe;
+  --hd-info-200: #bfdbfe;
+  --hd-info-300: #93c5fd;
+  --hd-info-400: #60a5fa;
+  --hd-info-500: #3b82f6;
+  --hd-info-600: #2563eb;
+  --hd-info-700: #1d4ed8;
+  --hd-info-800: #1e40af;
+  --hd-info-900: #1e3a8a;
+  --hd-info: var(--hd-info-600);
+
+  /* Neutral Colors */
+  --hd-gray-50: #f9fafb;
+  --hd-gray-100: #f3f4f6;
+  --hd-gray-200: #e5e7eb;
+  --hd-gray-300: #d1d5db;
+  --hd-gray-400: #9ca3af;
+  --hd-gray-500: #6b7280;
+  --hd-gray-600: #4b5563;
+  --hd-gray-700: #374151;
+  --hd-gray-800: #1f2937;
+  --hd-gray-900: #111827;
+
+  /* Semantic Colors */
+  --hd-background: #ffffff;
+  --hd-surface: #f9fafb;
+  --hd-text-primary: var(--hd-gray-900);
+  --hd-text-secondary: var(--hd-gray-600);
+  --hd-text-muted: var(--hd-gray-500);
+  --hd-text-inverse: #ffffff;
+  --hd-border: var(--hd-gray-200);
+  --hd-border-hover: var(--hd-gray-300);
+  --hd-focus: var(--hd-primary-600);
+
+  /* =================================================================
+     TYPOGRAPHY SYSTEM
+     ================================================================= */
+  
+  /* Font Families */
+  --hd-font-sans: 'Figtree', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --hd-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  /* Font Sizes */
+  --hd-text-xs: 0.75rem;    /* 12px */
+  --hd-text-sm: 0.875rem;   /* 14px */
+  --hd-text-base: 1rem;     /* 16px */
+  --hd-text-lg: 1.125rem;   /* 18px */
+  --hd-text-xl: 1.25rem;    /* 20px */
+  --hd-text-2xl: 1.5rem;    /* 24px */
+  --hd-text-3xl: 1.875rem;  /* 30px */
+  --hd-text-4xl: 2.25rem;   /* 36px */
+  --hd-text-5xl: 3rem;      /* 48px */
+  --hd-text-6xl: 3.75rem;   /* 60px */
+
+  /* Line Heights */
+  --hd-leading-none: 1;
+  --hd-leading-tight: 1.25;
+  --hd-leading-snug: 1.375;
+  --hd-leading-normal: 1.5;
+  --hd-leading-relaxed: 1.625;
+  --hd-leading-loose: 2;
+
+  /* Font Weights */
+  --hd-font-thin: 100;
+  --hd-font-extralight: 200;
+  --hd-font-light: 300;
+  --hd-font-normal: 400;
+  --hd-font-medium: 500;
+  --hd-font-semibold: 600;
+  --hd-font-bold: 700;
+  --hd-font-extrabold: 800;
+  --hd-font-black: 900;
+
+  /* =================================================================
+     BORDER & RADIUS SYSTEM
+     ================================================================= */
+  
+  /* Border Radius */
+  --hd-radius-none: 0;
+  --hd-radius-sm: 0.125rem;   /* 2px */
+  --hd-radius: 0.25rem;       /* 4px */
+  --hd-radius-md: 0.375rem;   /* 6px */
+  --hd-radius-lg: 0.5rem;     /* 8px */
+  --hd-radius-xl: 0.75rem;    /* 12px */
+  --hd-radius-2xl: 1rem;      /* 16px */
+  --hd-radius-3xl: 1.5rem;    /* 24px */
+  --hd-radius-full: 9999px;
+
+  /* Border Widths */
+  --hd-border-0: 0;
+  --hd-border: 1px;
+  --hd-border-2: 2px;
+  --hd-border-4: 4px;
+  --hd-border-8: 8px;
+
+  /* =================================================================
+     SHADOW SYSTEM
+     ================================================================= */
+  
+  --hd-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --hd-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --hd-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --hd-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --hd-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --hd-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --hd-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --hd-shadow-none: 0 0 #0000;
+
+  /* =================================================================
+     Z-INDEX SYSTEM
+     ================================================================= */
+  
+  --hd-z-auto: auto;
+  --hd-z-0: 0;
+  --hd-z-10: 10;
+  --hd-z-20: 20;
+  --hd-z-30: 30;
+  --hd-z-40: 40;
+  --hd-z-50: 50;
+  --hd-z-dropdown: 100;
+  --hd-z-sticky: 200;
+  --hd-z-fixed: 300;
+  --hd-z-modal-backdrop: 400;
+  --hd-z-modal: 500;
+  --hd-z-popover: 600;
+  --hd-z-tooltip: 700;
+  --hd-z-toast: 800;
+  --hd-z-loading: 900;
+  --hd-z-max: 9999;
+
+  /* =================================================================
+     ANIMATION & TRANSITION SYSTEM
+     ================================================================= */
+  
+  /* Transition Duration */
+  --hd-duration-75: 75ms;
+  --hd-duration-100: 100ms;
+  --hd-duration-150: 150ms;
+  --hd-duration-200: 200ms;
+  --hd-duration-300: 300ms;
+  --hd-duration-500: 500ms;
+  --hd-duration-700: 700ms;
+  --hd-duration-1000: 1000ms;
+
+  /* Transition Timing */
+  --hd-ease-linear: linear;
+  --hd-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --hd-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --hd-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Common Transitions */
+  --hd-transition-all: all var(--hd-duration-150) var(--hd-ease-in-out);
+  --hd-transition-colors: color var(--hd-duration-150) var(--hd-ease-in-out), background-color var(--hd-duration-150) var(--hd-ease-in-out), border-color var(--hd-duration-150) var(--hd-ease-in-out);
+  --hd-transition-opacity: opacity var(--hd-duration-150) var(--hd-ease-in-out);
+  --hd-transition-shadow: box-shadow var(--hd-duration-150) var(--hd-ease-in-out);
+  --hd-transition-transform: transform var(--hd-duration-150) var(--hd-ease-in-out);
+
+  /* =================================================================
+     BREAKPOINT SYSTEM
+     ================================================================= */
+  
+  --hd-screen-sm: 640px;   /* Small devices (landscape phones, 640px and up) */
+  --hd-screen-md: 768px;   /* Medium devices (tablets, 768px and up) */
+  --hd-screen-lg: 1024px;  /* Large devices (desktops, 1024px and up) */
+  --hd-screen-xl: 1280px;  /* Extra large devices (large desktops, 1280px and up) */
+  --hd-screen-2xl: 1536px; /* 2X large devices (larger desktops, 1536px and up) */
+
+  /* Container Max Widths */
+  --hd-container-sm: 100%;
+  --hd-container-md: 768px;
+  --hd-container-lg: 1024px;
+  --hd-container-xl: 1280px;
+  --hd-container-2xl: 1536px;
+
+  /* =================================================================
+     COMPONENT SPECIFIC TOKENS
+     ================================================================= */
+  
+  /* Button System */
+  --hd-btn-height: 2.5rem;        /* 40px */
+  --hd-btn-height-sm: 2rem;       /* 32px */
+  --hd-btn-height-lg: 3rem;       /* 48px */
+  --hd-btn-padding-x: var(--hd-space-4);
+  --hd-btn-padding-x-sm: var(--hd-space-3);
+  --hd-btn-padding-x-lg: var(--hd-space-6);
+  --hd-btn-border-radius: var(--hd-radius-lg);
+  --hd-btn-font-weight: var(--hd-font-semibold);
+  --hd-btn-font-size: var(--hd-text-sm);
+  --hd-btn-font-size-lg: var(--hd-text-base);
+
+  /* Input System */
+  --hd-input-height: 2.5rem;      /* 40px */
+  --hd-input-height-sm: 2rem;     /* 32px */
+  --hd-input-height-lg: 3rem;     /* 48px */
+  --hd-input-padding-x: var(--hd-space-3);
+  --hd-input-padding-y: var(--hd-space-2);
+  --hd-input-border-radius: var(--hd-radius-md);
+  --hd-input-border-width: var(--hd-border);
+  --hd-input-font-size: var(--hd-text-sm);
+  --hd-input-font-size-lg: var(--hd-text-base);
+
+  /* Card System */
+  --hd-card-padding: var(--hd-space-6);
+  --hd-card-padding-sm: var(--hd-space-4);
+  --hd-card-border-radius: var(--hd-radius-xl);
+  --hd-card-border-width: var(--hd-border);
+  --hd-card-shadow: var(--hd-shadow);
+  --hd-card-shadow-hover: var(--hd-shadow-lg);
+
+  /* Modal System */
+  --hd-modal-backdrop: rgba(0, 0, 0, 0.5);
+  --hd-modal-border-radius: var(--hd-radius-xl);
+  --hd-modal-padding: var(--hd-space-6);
+  --hd-modal-max-width: 32rem;     /* 512px */
+  --hd-modal-max-width-lg: 42rem;  /* 672px */
+  --hd-modal-max-width-xl: 48rem;  /* 768px */
+
+  /* Table System */
+  --hd-table-cell-padding: var(--hd-space-3) var(--hd-space-4);
+  --hd-table-header-font-weight: var(--hd-font-semibold);
+  --hd-table-border-color: var(--hd-border);
+  --hd-table-hover-bg: var(--hd-gray-50);
+  --hd-table-selected-bg: var(--hd-primary-50);
+
+  /* Navigation System */
+  --hd-nav-item-padding: var(--hd-space-2) var(--hd-space-4);
+  --hd-nav-item-border-radius: var(--hd-radius-md);
+  --hd-nav-item-font-weight: var(--hd-font-medium);
+  --hd-nav-active-bg: var(--hd-primary-100);
+  --hd-nav-active-text: var(--hd-primary-700);
+  --hd-nav-hover-bg: var(--hd-gray-100);
+
+  /* Badge/Tag System */
+  --hd-badge-padding: var(--hd-space-1) var(--hd-space-2);
+  --hd-badge-font-size: var(--hd-text-xs);
+  --hd-badge-font-weight: var(--hd-font-semibold);
+  --hd-badge-border-radius: var(--hd-radius-full);
+  
+  /* Status Badge Colors */
+  --hd-badge-success-bg: var(--hd-success-100);
+  --hd-badge-success-text: var(--hd-success-800);
+  --hd-badge-warning-bg: var(--hd-warning-100);
+  --hd-badge-warning-text: var(--hd-warning-800);
+  --hd-badge-error-bg: var(--hd-error-100);
+  --hd-badge-error-text: var(--hd-error-800);
+  --hd-badge-info-bg: var(--hd-info-100);
+  --hd-badge-info-text: var(--hd-info-800);
+
+  /* =================================================================
+     LAYOUT SYSTEM
+     ================================================================= */
+  
+  /* Grid System */
+  --hd-grid-columns: 12;
+  --hd-grid-gap: var(--hd-space-6);
+  --hd-grid-gap-sm: var(--hd-space-4);
+  --hd-grid-gap-lg: var(--hd-space-8);
+
+  /* Container System */
+  --hd-container-padding: var(--hd-space-4);
+  --hd-container-padding-lg: var(--hd-space-8);
+
+  /* Content Width Limits */
+  --hd-content-max-width: 65ch;    /* Optimal reading width */
+  --hd-prose-max-width: 75ch;      /* For long-form content */
+}
+
+/* =================================================================
+   DARK MODE TOKENS
+   ================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Override semantic colors for dark mode */
+    --hd-background: #0f172a;
+    --hd-surface: #1e293b;
+    --hd-text-primary: #f1f5f9;
+    --hd-text-secondary: #cbd5e1;
+    --hd-text-muted: #94a3b8;
+    --hd-border: #334155;
+    --hd-border-hover: #475569;
+    
+    /* Adjust component backgrounds */
+    --hd-card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --hd-modal-backdrop: rgba(0, 0, 0, 0.8);
+    --hd-table-hover-bg: #334155;
+    --hd-nav-hover-bg: #334155;
+  }
+}
+
+/* Dark mode class override for manual toggling */
+.dark {
+  --hd-background: #0f172a;
+  --hd-surface: #1e293b;
+  --hd-text-primary: #f1f5f9;
+  --hd-text-secondary: #cbd5e1;
+  --hd-text-muted: #94a3b8;
+  --hd-border: #334155;
+  --hd-border-hover: #475569;
+  
+  --hd-card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --hd-modal-backdrop: rgba(0, 0, 0, 0.8);
+  --hd-table-hover-bg: #334155;
+  --hd-nav-hover-bg: #334155;
+}
+
+/* =================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ================================================================= */
+
+@media (prefers-contrast: high) {
+  :root {
+    --hd-border: #000000;
+    --hd-text-primary: #000000;
+    --hd-background: #ffffff;
+    --hd-shadow: 0 0 0 2px #000000;
+    --hd-focus: #000000;
+  }
+}
+
+/* =================================================================
+   REDUCED MOTION SUPPORT
+   ================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hd-duration-75: 0ms;
+    --hd-duration-100: 0ms;
+    --hd-duration-150: 0ms;
+    --hd-duration-200: 0ms;
+    --hd-duration-300: 0ms;
+    --hd-duration-500: 0ms;
+    --hd-duration-700: 0ms;
+    --hd-duration-1000: 0ms;
+    
+    --hd-transition-all: none;
+    --hd-transition-colors: none;
+    --hd-transition-opacity: none;
+    --hd-transition-shadow: none;
+    --hd-transition-transform: none;
+  }
+}
+
+/* =================================================================
+   COMPONENT UTILITY CLASSES
+   ================================================================= */
+
+/* Quick access to design tokens via utility classes */
+.hd-text-primary { color: var(--hd-text-primary); }
+.hd-text-secondary { color: var(--hd-text-secondary); }
+.hd-text-muted { color: var(--hd-text-muted); }
+.hd-bg-surface { background-color: var(--hd-surface); }
+.hd-border-default { border-color: var(--hd-border); }
+.hd-shadow-default { box-shadow: var(--hd-shadow); }
+.hd-radius-default { border-radius: var(--hd-radius-lg); }
+
+/* Focus utilities */
+.hd-focus-ring:focus {
+  outline: 2px solid var(--hd-focus);
+  outline-offset: 2px;
+}
+
+.hd-focus-ring:focus-visible {
+  outline: 2px solid var(--hd-focus);
+  outline-offset: 2px;
+}
+
+/* Transition utilities */
+.hd-transition { transition: var(--hd-transition-all); }
+.hd-transition-colors { transition: var(--hd-transition-colors); }
+.hd-transition-opacity { transition: var(--hd-transition-opacity); }
+.hd-transition-shadow { transition: var(--hd-transition-shadow); }
+.hd-transition-transform { transition: var(--hd-transition-transform); }

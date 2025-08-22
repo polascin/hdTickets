@@ -3,32 +3,37 @@
     'subtitle' => null,
     'icon' => null,
     'action' => null,
-    'gradient' => false,
+    'variant' => 'default', // default, elevated, interactive, outline, ticket, stat
     'hover' => true,
     'loading' => false,
-    'compact' => false,
+    'size' => 'default', // compact, default, large
     'border' => true,
     'shadow' => 'sm'
 ])
 
 @php
+    // Use design system classes for consistent styling
     $classes = collect([
-        'modern-card',
-        'bg-white dark:bg-slate-800',
-        'rounded-2xl',
-        'transition-all duration-300',
-        $border ? 'border border-gray-100 dark:border-slate-700' : '',
-        $hover ? 'hover:shadow-xl hover:-translate-y-2' : '',
-        $gradient ? 'bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900' : '',
-        $compact ? 'p-4' : 'p-6',
-        match($shadow) {
-            'none' => '',
-            'sm' => 'shadow-sm',
-            'md' => 'shadow-md',
-            'lg' => 'shadow-lg',
-            'xl' => 'shadow-xl',
-            default => 'shadow-sm'
-        }
+        'hd-card',
+        // Variant classes
+        match($variant) {
+            'elevated' => 'hd-card--elevated',
+            'interactive' => 'hd-card--interactive',
+            'outline' => 'hd-card--outline',
+            'ticket' => 'hd-ticket-card',
+            'stat' => 'hd-stat-card',
+            default => ''
+        },
+        // Size classes - following design system mobile-first approach
+        match($size) {
+            'compact' => 'hd-card--compact',
+            'large' => 'hd-card--large',
+            default => ''
+        },
+        // Hover effects
+        $hover ? 'hd-card--hover' : '',
+        // Additional Tailwind classes for dark mode compatibility
+        'dark:bg-slate-800 dark:border-slate-700'
     ])->filter()->implode(' ');
 @endphp
 

@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#2563eb">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
         <title>{{ config('app.name', 'HD Tickets') }} - @isset($title){{ $title }}@else Dashboard @endisset</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
         <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="{{ css_with_timestamp('https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap') }}" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet">
         
-        <!-- Bootstrap CSS -->
-        <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-        <!-- Accessibility Styles -->
-        <link href="{{ asset('css/hd-accessibility.css') }}" rel="stylesheet">
+        <!-- Design System CSS -->
+        <link rel="stylesheet" href="{{ asset('css/design-system.css') }}?v={{ time() }}">
         
         <!-- Scripts -->
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -440,21 +440,29 @@
             </style>
         @endif
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="h-full font-sans antialiased">
+        <!-- Skip to main content link for accessibility -->
+        <a href="#main-content" class="hd-sr-only focus:absolute focus:top-4 focus:left-4 z-50 hd-button hd-button--primary" 
+           style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;"
+           onfocus="this.style.cssText = 'position: absolute; top: 1rem; left: 1rem; z-index: 50;';"
+           onblur="this.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';">
+            Skip to main content
+        </a>
+
+        <div class="h-full bg-gray-100 flex flex-col">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
                 <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div class="hd-container py-6">
                         {{ $header }}
                     </div>
                 </header>
             @endisset
 
             <!-- Page Content -->
-            <main id="main-content" role="main">
+            <main id="main-content" role="main" class="flex-1 hd-container py-6">
                 {{ $slot }}
             </main>
         </div>

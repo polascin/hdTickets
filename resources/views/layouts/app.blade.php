@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="no-js">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
@@ -15,6 +15,9 @@
         
         <!-- Prevent iOS zoom on form fields -->
         <meta name="disable-ios-zoom" content="true">
+        
+        <!-- Feature Detection Script (loads immediately for browser compatibility) -->
+        <script src="{{ asset('assets/js/feature-detection.js') }}"></script>
 
         <title>{{ config('app.name', 'HD Tickets') }} - @yield('title', 'Dashboard')</title>
         <meta name="description" content="Professional sports ticket monitoring and alerting platform">
@@ -89,6 +92,21 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="{{ css_with_timestamp('https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap') }}" rel="stylesheet" />
+        
+        <!-- Shared Design Tokens (must load first) -->
+        <link href="{{ asset('assets/css/shared-design-tokens.css') }}" rel="stylesheet">
+        
+        <!-- Design System CSS -->
+        <link href="{{ asset('assets/css/design-system.css') }}" rel="stylesheet">
+        
+        <!-- Standardized Components CSS -->
+        <link href="{{ asset('assets/css/components.css') }}" rel="stylesheet">
+        
+        <!-- Browser Compatibility CSS -->
+        <link href="{{ asset('assets/css/browser-compatibility.css') }}" rel="stylesheet">
+        
+        <!-- Accessibility Enhancement CSS -->
+        <link href="{{ asset('assets/css/accessibility.css') }}" rel="stylesheet">
         
         <!-- Enhanced HD Tickets CSS -->
         <link href="{{ asset('css/hd-notifications.css') }}?v={{ filemtime(public_path('css/hd-notifications.css')) }}" rel="stylesheet">
@@ -310,6 +328,17 @@
         <!-- Mobile Touch Utilities -->
         <script src="{{ asset('resources/js/utils/mobileTouchUtils.js') }}?t={{ time() }}" defer></script>
         
+        <!-- Accessibility Enhancement Utilities -->
+        <script src="{{ asset('assets/js/accessibility-utils.js') }}" defer></script>
+        
+        <!-- Performance Optimization Scripts -->
+        <script src="{{ asset('assets/js/performance-monitor.js') }}" defer></script>
+        <script src="{{ asset('assets/js/lazy-loading.js') }}" defer></script>
+        <script src="{{ asset('assets/js/critical-css-optimizer.js') }}" defer></script>
+        
+        <!-- React-Blade Integration Bridge -->
+        <script src="{{ asset('assets/js/react-blade-bridge.js') }}" defer></script>
+        
         <!-- Additional Mobile Optimizations -->
         <script>
             // Initialize comprehensive mobile enhancements
@@ -470,12 +499,31 @@
         </style>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+        <!-- Skip Links for Screen Reader Navigation -->
+        <div class="hd-skip-links">
+            <a href="#main-content" class="hd-skip-link">Skip to main content</a>
+            <a href="#navigation" class="hd-skip-link">Skip to navigation</a>
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <a href="#admin-tools" class="hd-skip-link">Skip to admin tools</a>
+                @endif
+            @endauth
+        </div>
 
-            <!-- Page Heading -->
+        <!-- Live Regions for Screen Reader Announcements (created by JS but adding fallback) -->
+        <div id="hd-live-polite" class="hd-live-region" aria-live="polite" aria-atomic="true"></div>
+        <div id="hd-live-assertive" class="hd-live-region" aria-live="assertive" aria-atomic="true"></div>
+        <div id="hd-status-region" class="hd-live-region" role="status" aria-live="polite"></div>
+
+        <div class="min-h-screen bg-gray-100">
+            <!-- Primary Navigation Landmark -->
+            <nav id="navigation" role="navigation" aria-label="Primary navigation">
+                @include('layouts.navigation')
+            </nav>
+
+            <!-- Page Header Landmark -->
             @hasSection('header')
-                <header class="bg-white shadow">
+                <header class="bg-white shadow" role="banner">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         @yield('header')
                     </div>
@@ -484,11 +532,131 @@
 
             <!-- Main Content Container -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Page Content -->
-                <main class="py-6">
+                <!-- Main Content Landmark -->
+                <main id="main-content" role="main" class="py-6 hd-main-content" tabindex="-1">
+                    <!-- Status/Alert Messages -->
+                    @if(session('success'))
+                        <div role="alert" class="hd-alert hd-alert--success hd-status-message hd-status-message--success" aria-live="polite">
+                            <span class="hd-sr-only">Success:</span>
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    
+                    @if(session('error'))
+                        <div role="alert" class="hd-alert hd-alert--error hd-status-message hd-status-message--error" aria-live="assertive">
+                            <span class="hd-sr-only">Error:</span>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    
+                    @if($errors->any())
+                        <div role="alert" class="hd-alert hd-alert--error hd-status-message hd-status-message--error" aria-live="assertive">
+                            <span class="hd-sr-only">Form errors:</span>
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Page Content -->
                     @yield('content')
                 </main>
             </div>
+
+            <!-- Footer Landmark (if needed) -->
+            @hasSection('footer')
+                <footer role="contentinfo" class="bg-white border-t">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        @yield('footer')
+                    </div>
+                </footer>
+            @endif
         </div>
+
+        <!-- Accessibility Enhancement Initialization -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize accessibility utilities if available
+                if (window.HDTickets && window.HDTickets.AccessibilityUtils) {
+                    console.log('🔍 HD Tickets Accessibility Utils loaded and initialized');
+                }
+                
+                // Enhanced keyboard navigation for the application
+                document.addEventListener('keydown', function(e) {
+                    // Global keyboard shortcuts with accessibility in mind
+                    if (e.altKey) {
+                        switch(e.key) {
+                            case 'h': // Alt+H: Go to home/dashboard
+                                e.preventDefault();
+                                const homeLink = document.querySelector('a[href*="dashboard"], a[href="/"]');
+                                if (homeLink) {
+                                    window.HDTickets?.AccessibilityUtils?.announce('Navigating to dashboard');
+                                    homeLink.click();
+                                }
+                                break;
+                            case 'm': // Alt+M: Focus main content
+                                e.preventDefault();
+                                const mainContent = document.getElementById('main-content');
+                                if (mainContent) {
+                                    mainContent.focus();
+                                    window.HDTickets?.AccessibilityUtils?.announce('Focused main content');
+                                }
+                                break;
+                            case 'n': // Alt+N: Focus navigation
+                                e.preventDefault();
+                                const navigation = document.getElementById('navigation');
+                                if (navigation) {
+                                    const firstLink = navigation.querySelector('a, button');
+                                    if (firstLink) {
+                                        firstLink.focus();
+                                        window.HDTickets?.AccessibilityUtils?.announce('Focused navigation menu');
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                });
+                
+                // Enhanced form accessibility
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    // Add form landmarks if they don't exist
+                    if (!form.hasAttribute('role') && form.querySelectorAll('input, select, textarea').length > 1) {
+                        form.setAttribute('role', 'form');
+                    }
+                    
+                    // Enhanced form submission feedback
+                    form.addEventListener('submit', function(e) {
+                        if (window.HDTickets?.AccessibilityUtils) {
+                            window.HDTickets.AccessibilityUtils.announceStatus('Form submitted, processing...');
+                        }
+                    });
+                });
+                
+                // Auto-announce page changes for SPA-like behavior
+                const originalPushState = history.pushState;
+                const originalReplaceState = history.replaceState;
+                
+                history.pushState = function() {
+                    originalPushState.apply(history, arguments);
+                    setTimeout(() => {
+                        if (window.HDTickets?.AccessibilityUtils) {
+                            window.HDTickets.AccessibilityUtils.announce('Page navigation completed');
+                        }
+                    }, 100);
+                };
+                
+                history.replaceState = function() {
+                    originalReplaceState.apply(history, arguments);
+                    setTimeout(() => {
+                        if (window.HDTickets?.AccessibilityUtils) {
+                            window.HDTickets.AccessibilityUtils.announce('Page content updated');
+                        }
+                    }, 100);
+                };
+            });
+        </script>
     </body>
 </html>
