@@ -37,6 +37,7 @@ use Illuminate\Support\Str;
  * @property Carbon        $created_at
  * @property Carbon        $updated_at
  * @property Category|null $category
+ * @property float         $price
  * @property string        $formatted_price
  * @property float         $total_price
  * @property bool          $is_recent
@@ -241,9 +242,9 @@ class ScrapedTicket extends Model
     /**
      * Get price attribute (defaults to min_price for compatibility)
      */
-    public function getPriceAttribute(): int
+    public function getPriceAttribute(): float
     {
-        return $this->min_price ?? 0;
+        return (float) ($this->min_price ?? 0);
     }
 
     /**
@@ -259,9 +260,9 @@ class ScrapedTicket extends Model
     /**
      * Get  total price attribute
      */
-    public function getTotalPriceAttribute(): int
+    public function getTotalPriceAttribute(): float
     {
-        return $this->max_price ?? $this->min_price ?? 0;
+        return (float) ($this->max_price ?? $this->min_price ?? 0);
     }
 
     public function getIsRecentAttribute()

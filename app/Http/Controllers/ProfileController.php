@@ -40,11 +40,11 @@ class ProfileController extends Controller
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Never',
             'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : null,
             
-            // Ticket statistics with error handling
-            'active_tickets'   => $user->tickets()->whereIn('status', ['open', 'in_progress'])->count(),
-            'total_tickets'    => $user->tickets()->count(),
-            'resolved_tickets' => $user->tickets()->where('status', 'resolved')->count(),
-            'pending_tickets'  => $user->tickets()->where('status', 'pending')->count(),
+            // Sports Events Monitoring Statistics
+            'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
+            'total_alerts'     => $user->ticketAlerts()->count(),
+            'recent_purchases' => 0, // Placeholder for purchase history when implemented
+            'active_searches'  => $user->ticketAlerts()->where('status', 'active')->where('created_at', '>=', now()->subMonth())->count(),
             
             // Activity statistics
             'profile_views'       => $user->profile_views ?? 0,

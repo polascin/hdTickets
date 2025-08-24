@@ -208,15 +208,15 @@ class UserPreferencePreset extends Model
         $query = UserPreference::where('user_id', $userId);
 
         if ($categories) {
-            $query->whereIn('preference_category', $categories);
+            $query->whereIn('category', $categories);
         }
 
         $preferences = $query->get()
-            ->groupBy('preference_category')
+            ->groupBy('category')
             ->map(function ($categoryPrefs) {
                 return $categoryPrefs->mapWithKeys(function ($pref) {
-                    return [$pref->preference_key => [
-                        'value'     => UserPreference::castValue($pref->preference_value, $pref->data_type),
+                    return [$pref->key => [
+                        'value'     => UserPreference::castValue($pref->value, $pref->data_type),
                         'data_type' => $pref->data_type,
                     ]];
                 });
@@ -255,13 +255,13 @@ class UserPreferencePreset extends Model
 
                     UserPreference::updateOrCreate(
                         [
-                            'user_id'             => $userId,
-                            'preference_category' => $category,
-                            'preference_key'      => $key,
+                            'user_id'  => $userId,
+                            'category' => $category,
+                            'key'      => $key,
                         ],
                         [
-                            'preference_value' => UserPreference::processValue($value, $dataType),
-                            'data_type'        => $dataType,
+                            'value'     => UserPreference::processValue($value, $dataType),
+                            'data_type' => $dataType,
                         ],
                     );
 

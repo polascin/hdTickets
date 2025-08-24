@@ -216,6 +216,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
 Route::prefix('v1/scraping')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
     Route::get('/tickets', [App\Http\Controllers\Api\ScrapingController::class, 'tickets']);
     Route::get('/tickets/{uuid}', [App\Http\Controllers\Api\ScrapingController::class, 'show']);
+    Route::get('/ticket-details/{id}', [App\Http\Controllers\Api\ScrapingController::class, 'getTicketDetails'])->where('id', '[0-9]+');
     Route::post('/start-scraping', [App\Http\Controllers\Api\ScrapingController::class, 'startScraping']);
     Route::get('/statistics', [App\Http\Controllers\Api\ScrapingController::class, 'statistics']);
     Route::get('/platforms', [App\Http\Controllers\Api\ScrapingController::class, 'platforms']);

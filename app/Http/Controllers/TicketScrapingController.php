@@ -118,10 +118,10 @@ class TicketScrapingController extends Controller
                 'sort_dir' => $sortDir,
             ];
 
-            return view('tickets.scraping.index', compact('tickets', 'stats', 'activeFilters'));
+            return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'));
             
         } catch (\Exception $e) {
-            \Log::error('Error loading tickets page: ' . $e->getMessage());
+            \Log::error('Error loading sports tickets page: ' . $e->getMessage());
             
             // Return with error state
             $tickets = collect()->paginate(0);
@@ -137,8 +137,8 @@ class TicketScrapingController extends Controller
             ];
             $activeFilters = [];
             
-            return view('tickets.scraping.index', compact('tickets', 'stats', 'activeFilters'))
-                ->with('error', 'Unable to load tickets at this time. Please try again later.');
+            return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'))
+                ->with('error', 'Unable to load sports event tickets at this time. Please try again later or contact support if the problem persists.');
         }
     }
 
@@ -491,21 +491,64 @@ class TicketScrapingController extends Controller
     }
 
     /**
-     * Get trending Manchester United tickets
+     * Get trending sports event tickets
      */
     /**
      * Trending
      */
-    public function trending(Request $request): \Illuminate\Http\JsonResponse
+    public function trending(Request $request)
     {
-        $limit = $request->get('limit', 20);
-        $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
-
-        return response()->json([
-            'success' => true,
-            'tickets' => $tickets,
-            'count'   => $tickets->count(),
-        ]);
+        try {
+            $limit = $request->get('limit', 20);
+            $sport = $request->get('sport', 'all'); // Allow filtering by sport
+            
+            // Get trending tickets from the service
+            $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
+            
+            // If this is an API request, return JSON
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'tickets' => $tickets,
+                    'count'   => $tickets->count(),
+                ]);
+            }
+            
+            // For web requests, return the view with trending tickets data
+            $stats = [
+                'total_trending' => $tickets->count(),
+                'platforms' => $tickets->groupBy('platform')->map->count(),
+                'avg_price' => $tickets->avg('min_price'),
+                'date_range' => [
+                    'from' => $tickets->min('event_date'),
+                    'to' => $tickets->max('event_date')
+                ]
+            ];
+            
+            return view('tickets.scraping.trending', compact('tickets', 'stats'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Error loading trending tickets: ' . $e->getMessage());
+            
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to load trending tickets'
+                ], 500);
+            }
+            
+            // For web requests, return view with error state
+            $tickets = collect();
+            $stats = [
+                'total_trending' => 0,
+                'platforms' => [],
+                'avg_price' => 0,
+                'date_range' => ['from' => null, 'to' => null]
+            ];
+            
+            return view('tickets.scraping.trending', compact('tickets', 'stats'))
+                ->with('error', 'Unable to load trending tickets at this time.');
+        }
     }
 
     /**

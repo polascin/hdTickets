@@ -47,12 +47,7 @@ class UserActivityController extends Controller
     /**
      * AJAX endpoint for loading specific widget data
      */
-    /**
-     * Get  widget data
-     *
-     * @return array<string, mixed>
-     */
-    public function getWidgetData(Request $request): array
+    public function getWidgetData(Request $request)
     {
         $widget = $request->get('widget');
         $userId = Auth::id();
@@ -78,10 +73,7 @@ class UserActivityController extends Controller
     /**
      * Export activity data
      */
-    /**
-     * ExportActivityData
-     */
-    public function exportActivityData(Request $request): Illuminate\Http\RedirectResponse
+    public function exportActivityData(Request $request)
     {
         $user = Auth::user();
         $dateRange = $request->get('date_range', '30');
@@ -221,9 +213,9 @@ class UserActivityController extends Controller
     {
         // Get search preferences from user preferences
         $searchPreferences = UserPreference::where('user_id', $userId)
-            ->where('preference_category', 'searches')
+            ->where('category', 'searches')
             ->get()
-            ->pluck('preference_value', 'preference_key');
+            ->pluck('value', 'key');
 
         // Get frequent search terms from alerts (they represent common searches)
         $frequentQueries = TicketAlert::forUser($userId)

@@ -126,6 +126,13 @@
   --hd-z-50: 50;
   --hd-z-tooltip: 1000;
   --hd-z-modal: 1050;
+  
+  /* Sports Theme Backgrounds */
+  --hd-bg-field-light: #f8fafc;
+  --hd-bg-field-lighter: #ffffff;
+  --hd-bg-stadium-gray: #f1f5f9;
+  --hd-bg-turf-green: #f0fdf4;
+  --hd-bg-court-blue: #f0f9ff;
 }
 
 /* ==========================================================================

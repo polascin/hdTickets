@@ -15,13 +15,13 @@
     <!-- Primary Navigation Menu -->
     <div class="hd-container">
         <div class="flex justify-between items-center" style="height: var(--hd-header-height-desktop);">
-            @media (max-width: 767px) {
-                <style>
+            <style>
+                @media (max-width: 767px) {
                     #main-navigation .hd-container > div {
                         height: var(--hd-header-height-mobile) !important;
                     }
-                </style>
-            @endmedia
+                }
+            </style>
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">

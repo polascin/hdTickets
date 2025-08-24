@@ -1,4 +1,4 @@
-<x-modern-app-layout title="Dashboard">
+<x-unified-layout title="Dashboard" subtitle="Your Sports Ticket Monitoring Hub">
     <x-slot name="headerActions">
         <div class="flex items-center space-x-3">
             <x-ui.badge variant="success" dot="true">Live</x-ui.badge>
@@ -323,4 +323,4 @@
     });
     </script>
     @endpush
-</x-modern-app-layout>
+</x-unified-layout>

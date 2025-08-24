@@ -45,7 +45,7 @@
         .hd-app-layout {
             display: flex;
             height: 100vh;
-            background-color: var(--hd-gray-50);
+            background-color: #f8fafc;
         }
 
         .hd-sidebar {
@@ -121,6 +121,7 @@
             flex: 1;
             overflow-y: auto;
             padding: var(--hd-space-6);
+            background-color: #f8fafc;
         }
 
         .hd-mobile-overlay {

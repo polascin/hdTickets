@@ -50,10 +50,10 @@ const navigationItems: NavItem[] = [
     href: '/',
   },
   {
-    id: 'search',
+    id: 'discover',
     label: 'Discover',
     icon: Search,
-    href: '/search',
+    href: '/discover',
   },
   {
     id: 'alerts',
@@ -69,7 +69,7 @@ const navigationItems: NavItem[] = [
     href: '/trending',
   },
   {
-    id: 'calendar',
+    id: 'schedule',
     label: 'Schedule',
     icon: Calendar,
     href: '/schedule',

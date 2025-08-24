@@ -43,7 +43,7 @@ class EnhancedDashboardController extends Controller
         // Get comprehensive dashboard data
         $dashboardData = $this->getComprehensiveDashboardData($user);
 
-        return view('dashboard.customer-enhanced', $dashboardData);
+        return view('dashboard.customer-enhanced-fixed', $dashboardData);
     }
 
     /**
@@ -486,7 +486,7 @@ class EnhancedDashboardController extends Controller
 
     private function calculateRecommendationScore($ticket): float
     {
-        return $ticket->popularity_score ?? 50.0;
+        return (float)($ticket->popularity_score ?? 50.0);
     }
 
     private function calculateUrgencyLevel($ticket): string
@@ -535,9 +535,11 @@ class EnhancedDashboardController extends Controller
 
     private function getAvgPriceForDate(Carbon $date): float
     {
-        return ScrapedTicket::whereDate('scraped_at', $date)
+        $avgPrice = ScrapedTicket::whereDate('scraped_at', $date)
             ->selectRaw('AVG((min_price + max_price) / 2) as avg_price')
-            ->value('avg_price') ?? 0.0;
+            ->value('avg_price');
+        
+        return (float)($avgPrice ?? 0.0);
     }
 
     private function getPeakHours(): array

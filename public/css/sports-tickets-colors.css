@@ -1,0 +1,985 @@
+/* HD Tickets - Enhanced Sports Tickets Color Scheme */
+
+:root {
+  /* Sports-Themed Primary Colors */
+  --hd-sports-primary: #1a365d;      /* Deep stadium blue */
+  --hd-sports-primary-light: #2d4a73; /* Lighter stadium blue */
+  --hd-sports-secondary: #e53e3e;    /* Sports red/energy */
+  --hd-sports-accent: #38a169;       /* Victory green */
+  --hd-sports-warning: #dd6b20;      /* Championship orange */
+  --hd-sports-info: #3182ce;         /* Information blue */
+  
+  /* Enhanced Background Colors */
+  --hd-bg-primary: #f7fafc;          /* Light gray-blue background */
+  --hd-bg-card: #ffffff;             /* Pure white cards */
+  --hd-bg-header: linear-gradient(135deg, #1a365d 0%, #2d4a73 100%);
+  --hd-bg-section: #edf2f7;          /* Section backgrounds */
+  
+  /* Ticket Card Colors */
+  --hd-ticket-available: #48bb78;    /* Available tickets - green */
+  --hd-ticket-limited: #ed8936;      /* Limited availability - orange */
+  --hd-ticket-sold-out: #e53e3e;     /* Sold out - red */
+  --hd-ticket-high-demand: #9f7aea;  /* High demand - purple */
+  
+  /* Platform-Specific Colors */
+  --hd-platform-stubhub: #0070f3;    /* StubHub blue */
+  --hd-platform-ticketmaster: #026cdf; /* Ticketmaster blue */
+  --hd-platform-viagogo: #ff6900;    /* Viagogo orange */
+  
+  /* Status Colors with Better Contrast */
+  --hd-status-success: #38a169;
+  --hd-status-success-bg: #f0fff4;
+  --hd-status-success-border: #9ae6b4;
+  
+  --hd-status-warning: #dd6b20;
+  --hd-status-warning-bg: #fffaf0;
+  --hd-status-warning-border: #fbd38d;
+  
+  --hd-status-error: #e53e3e;
+  --hd-status-error-bg: #fed7d7;
+  --hd-status-error-border: #feb2b2;
+  
+  --hd-status-info: #3182ce;
+  --hd-status-info-bg: #ebf8ff;
+  --hd-status-info-border: #90cdf4;
+  
+  /* Price Colors */
+  --hd-price-excellent: #38a169;     /* Great deal - green */
+  --hd-price-good: #68d391;          /* Good deal - light green */
+  --hd-price-fair: #ed8936;          /* Fair price - orange */
+  --hd-price-expensive: #e53e3e;     /* Expensive - red */
+  
+  /* Interactive States */
+  --hd-hover-primary: #2c5282;
+  --hd-hover-secondary: #c53030;
+  --hd-focus-ring: rgba(49, 130, 206, 0.4);
+  
+  /* Shadows with Color Tints */
+  --hd-shadow-sports: 0 4px 6px -1px rgba(26, 54, 93, 0.1), 0 2px 4px -1px rgba(26, 54, 93, 0.06);
+  --hd-shadow-hover: 0 10px 15px -3px rgba(26, 54, 93, 0.15), 0 4px 6px -2px rgba(26, 54, 93, 0.1);
+}
+
+/* Enhanced Layout Background */
+body {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  min-height: 100vh;
+}
+
+/* Header Action Buttons with Sports Theme */
+.hd-button--primary {
+  background: linear-gradient(135deg, var(--hd-sports-primary) 0%, var(--hd-sports-primary-light) 100%);
+  border: none;
+  color: white;
+  box-shadow: var(--hd-shadow-sports);
+  transition: all 0.2s ease;
+}
+
+.hd-button--primary:hover {
+  background: linear-gradient(135deg, var(--hd-hover-primary) 0%, var(--hd-sports-primary) 100%);
+  box-shadow: var(--hd-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.hd-button--outline {
+  border: 2px solid var(--hd-sports-primary);
+  color: var(--hd-sports-primary);
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.hd-button--outline:hover {
+  background: var(--hd-sports-primary);
+  color: white;
+  box-shadow: var(--hd-shadow-sports);
+}
+
+.hd-button--ghost {
+  color: var(--hd-sports-primary);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.hd-button--ghost:hover {
+  background: var(--hd-status-info-bg);
+  color: var(--hd-hover-primary);
+}
+
+/* Enhanced Filter Panel */
+.filter-panel {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(247,250,252,0.95) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(26, 54, 93, 0.1);
+  box-shadow: var(--hd-shadow-sports);
+}
+
+/* Active Filters with Sports Colors */
+.active-filter-chip {
+  background: linear-gradient(135deg, var(--hd-status-info-bg) 0%, var(--hd-status-info-border) 100%);
+  border: 1px solid var(--hd-status-info-border);
+  color: var(--hd-sports-primary);
+}
+
+.active-filter-chip:hover {
+  background: var(--hd-status-info);
+  color: white;
+}
+
+/* Enhanced Ticket Cards */
+.ticket-card {
+  background: white;
+  border: 1px solid rgba(26, 54, 93, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(26, 54, 93, 0.06);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.ticket-card:hover {
+  box-shadow: var(--hd-shadow-hover);
+  transform: translateY(-2px);
+  border-color: var(--hd-sports-primary);
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hd-sports-primary) 0%, var(--hd-sports-accent) 100%);
+}
+
+/* High Demand Tickets */
+.ticket-card.high-demand::before {
+  background: linear-gradient(90deg, var(--hd-sports-secondary) 0%, var(--hd-sports-warning) 100%);
+}
+
+.ticket-card.high-demand {
+  border-color: rgba(229, 62, 62, 0.2);
+}
+
+/* Platform-Specific Styling */
+.platform-stubhub {
+  border-left: 4px solid var(--hd-platform-stubhub);
+}
+
+.platform-ticketmaster {
+  border-left: 4px solid var(--hd-platform-ticketmaster);
+}
+
+.platform-viagogo {
+  border-left: 4px solid var(--hd-platform-viagogo);
+}
+
+/* Enhanced Price Display */
+.price-container {
+  background: linear-gradient(135deg, 
+    rgba(56, 161, 105, 0.05) 0%, 
+    rgba(72, 187, 120, 0.05) 50%, 
+    rgba(56, 161, 105, 0.05) 100%
+  );
+  border: 1px solid rgba(56, 161, 105, 0.2);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.price-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--hd-ticket-available) 0%, var(--hd-sports-accent) 100%);
+}
+
+.price-excellent {
+  color: var(--hd-price-excellent);
+  font-weight: 700;
+}
+
+.price-good {
+  color: var(--hd-price-good);
+  font-weight: 600;
+}
+
+.price-fair {
+  color: var(--hd-price-fair);
+  font-weight: 600;
+}
+
+.price-expensive {
+  color: var(--hd-price-expensive);
+  font-weight: 700;
+}
+
+/* Enhanced Statistics Cards */
+.stats-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--hd-shadow-sports);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card:hover {
+  box-shadow: var(--hd-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.stats-card.total-tickets {
+  background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+  border: 1px solid #90cdf4;
+}
+
+.stats-card.available-tickets {
+  background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+  border: 1px solid #9ae6b4;
+}
+
+.stats-card.avg-price {
+  background: linear-gradient(135deg, #fffaf0 0%, #fbd38d 100%);
+  border: 1px solid #f6ad55;
+}
+
+.stats-card.platforms {
+  background: linear-gradient(135deg, #faf5ff 0%, #e9d8fd 100%);
+  border: 1px solid #d6bcfa;
+}
+
+/* Enhanced Loading States */
+.loading-indicator {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+.loading-spinner {
+  border-color: rgba(26, 54, 93, 0.1);
+  border-top-color: var(--hd-sports-primary);
+}
+
+/* Enhanced Form Elements */
+.form-input {
+  border: 2px solid rgba(26, 54, 93, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.form-input:focus {
+  border-color: var(--hd-sports-primary);
+  box-shadow: 0 0 0 3px var(--hd-focus-ring);
+  outline: none;
+}
+
+.form-select {
+  border: 2px solid rgba(26, 54, 93, 0.1);
+  border-radius: 8px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus {
+  border-color: var(--hd-sports-primary);
+  box-shadow: 0 0 0 3px var(--hd-focus-ring);
+}
+
+/* Enhanced Action Buttons */
+.btn-buy-now {
+  background: linear-gradient(135deg, var(--hd-sports-accent) 0%, #48bb78 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-buy-now:hover {
+  background: linear-gradient(135deg, #2f855a 0%, var(--hd-sports-accent) 100%);
+  box-shadow: var(--hd-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.btn-details {
+  border: 2px solid var(--hd-sports-primary);
+  color: var(--hd-sports-primary);
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.btn-details:hover {
+  background: var(--hd-sports-primary);
+  color: white;
+  box-shadow: var(--hd-shadow-sports);
+}
+
+.btn-alert {
+  background: rgba(26, 54, 93, 0.1);
+  color: var(--hd-sports-primary);
+  border: none;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-alert:hover {
+  background: var(--hd-sports-primary);
+  color: white;
+  box-shadow: var(--hd-shadow-sports);
+}
+
+/* View Toggle Buttons */
+.view-toggle {
+  background: white;
+  border: 2px solid rgba(26, 54, 93, 0.1);
+  color: var(--hd-sports-primary);
+  transition: all 0.2s ease;
+}
+
+.view-toggle.active,
+.view-toggle:hover {
+  background: var(--hd-sports-primary);
+  color: white;
+  border-color: var(--hd-sports-primary);
+}
+
+/* Enhanced Accessibility */
+.focus-visible {
+  outline: 3px solid var(--hd-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Responsive Color Adjustments */
+@media (max-width: 768px) {
+  .ticket-card {
+    border-radius: 8px;
+  }
+  
+  .stats-card {
+    border-radius: 12px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hd-bg-primary: #1a202c;
+    --hd-bg-card: #2d3748;
+    --hd-bg-section: #2d3748;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  }
+  
+  .ticket-card {
+    background: var(--hd-bg-card);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .stats-card {
+    background: var(--hd-bg-card);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .form-input,
+  .form-select {
+    background: var(--hd-bg-card);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+}
+
+/* Animation Classes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .ticket-card {
+    border: 3px solid var(--hd-sports-primary);
+  }
+  
+  .hd-button--outline {
+    border-width: 3px;
+  }
+  
+  .form-input,
+  .form-select {
+    border-width: 3px;
+  }
+}
+
+/* ============================================================================
+   ENHANCED TICKET DETAILS MODAL STYLES
+   Sports-themed styling for comprehensive ticket details modal
+   ============================================================================ */
+
+/* Modal Backdrop */
+.hd-modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: modalBackdropFadeIn 0.3s ease-out;
+}
+
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.hd-modal-container {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Header */
+.hd-modal-header {
+  background: linear-gradient(135deg, var(--hd-sports-primary) 0%, #1e40af 50%, var(--hd-sports-accent) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+              linear-gradient(-45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%),
+              linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.1) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.hd-sports-icon {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+}
+
+.hd-sports-icon:hover {
+  transform: rotate(0deg) scale(1.1);
+}
+
+.hd-close-btn {
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.hd-close-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Modal Body */
+.hd-modal-body {
+  background: linear-gradient(180deg, #fafafa 0%, #f9fafb 100%);
+}
+
+/* Loading Spinner */
+.hd-loading-spinner {
+  border-top-color: var(--hd-sports-primary);
+  border-right-color: var(--hd-sports-accent);
+  border-bottom-color: var(--hd-sports-energy);
+  border-left-color: transparent;
+  animation: spinGradient 1s linear infinite;
+}
+
+@keyframes spinGradient {
+  0% {
+    transform: rotate(0deg);
+    border-top-color: var(--hd-sports-primary);
+    border-right-color: var(--hd-sports-accent);
+    border-bottom-color: var(--hd-sports-energy);
+  }
+  33% {
+    border-top-color: var(--hd-sports-accent);
+    border-right-color: var(--hd-sports-energy);
+    border-bottom-color: var(--hd-sports-primary);
+  }
+  66% {
+    border-top-color: var(--hd-sports-energy);
+    border-right-color: var(--hd-sports-primary);
+    border-bottom-color: var(--hd-sports-accent);
+  }
+  100% {
+    transform: rotate(360deg);
+    border-top-color: var(--hd-sports-primary);
+    border-right-color: var(--hd-sports-accent);
+    border-bottom-color: var(--hd-sports-energy);
+  }
+}
+
+/* Tab Navigation */
+.hd-tab-btn {
+  position: relative;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 12px 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.hd-tab-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  color: var(--hd-sports-primary);
+  transform: translateY(-2px);
+}
+
+.hd-tab-btn[aria-selected="true"] {
+  background: linear-gradient(135deg, #dbeafe, #d1fae5);
+  color: var(--hd-sports-primary);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.hd-tab-btn[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, var(--hd-sports-accent));
+  border-radius: 2px;
+}
+
+/* Tab Content */
+.hd-tab-content {
+  animation: tabContentFadeIn 0.4s ease-out;
+}
+
+@keyframes tabContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sports-themed Information Cards */
+.hd-info-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.hd-info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-color: #3b82f6;
+}
+
+.hd-info-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--hd-sports-primary), var(--hd-sports-accent), var(--hd-sports-energy), var(--hd-sports-warning));
+}
+
+/* Price Display */
+.hd-price-display {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+  border: 2px solid var(--hd-sports-accent);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-price-display::before {
+  content: '💰';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 24px;
+  opacity: 0.3;
+}
+
+.hd-price-display .price-amount {
+  background: linear-gradient(135deg, var(--hd-sports-accent), #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Status Badges */
+.hd-status-available {
+  background: linear-gradient(135deg, var(--hd-sports-accent), #059669);
+  color: white;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: var(--hd-shadow-sports);
+  animation: statusPulse 2s infinite;
+}
+
+.hd-status-sold-out {
+  background: linear-gradient(135deg, var(--hd-sports-warning), #dc2626);
+  color: white;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+}
+
+.hd-status-high-demand {
+  background: linear-gradient(135deg, var(--hd-sports-energy), #d97706);
+  color: white;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+  animation: highDemandPulse 1.5s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    box-shadow: var(--hd-shadow-sports);
+  }
+  50% {
+    box-shadow: 0 4px 20px 0 rgba(16, 185, 129, 0.6);
+  }
+}
+
+@keyframes highDemandPulse {
+  0%, 100% {
+    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 4px 20px 0 rgba(245, 158, 11, 0.7);
+    transform: scale(1.05);
+  }
+}
+
+/* Recommendation Score */
+.hd-recommendation-bar {
+  height: 12px;
+  background: linear-gradient(90deg, var(--hd-sports-warning) 0%, var(--hd-sports-energy) 30%, var(--hd-sports-accent) 60%, #059669 100%);
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hd-recommendation-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Platform Reliability */
+.hd-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.hd-platform-stubhub {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: var(--hd-sports-primary);
+  border-color: #3b82f6;
+}
+
+.hd-platform-ticketmaster {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  color: #991b1b;
+  border-color: var(--hd-sports-warning);
+}
+
+.hd-platform-viagogo {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #065f46;
+  border-color: var(--hd-sports-accent);
+}
+
+.hd-platform-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Price History Table */
+.hd-price-history-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.hd-price-history-table thead {
+  background: linear-gradient(135deg, var(--hd-sports-primary), #1e3a8a);
+  color: white;
+}
+
+.hd-price-history-table th {
+  padding: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+
+.hd-price-history-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.hd-price-history-table tbody tr:hover {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+}
+
+.hd-price-increase {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  color: #991b1b;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.hd-price-decrease {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  color: #166534;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Action Buttons in Modal Footer */
+.hd-modal-footer {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top: 1px solid #e5e7eb;
+}
+
+.hd-action-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.hd-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.hd-action-button:hover::before {
+  left: 100%;
+}
+
+.hd-create-alert-btn {
+  background: linear-gradient(135deg, var(--hd-sports-energy), #d97706);
+  color: white;
+  box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+}
+
+.hd-create-alert-btn:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(245, 158, 11, 0.5);
+}
+
+.hd-buy-now-btn {
+  background: linear-gradient(135deg, var(--hd-sports-accent), #059669);
+  color: white;
+  box-shadow: var(--hd-shadow-sports);
+}
+
+.hd-buy-now-btn:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.5);
+}
+
+/* Live Data Indicator */
+.hd-live-indicator {
+  background: linear-gradient(135deg, var(--hd-sports-accent), #059669);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: liveDataPulse 2s infinite;
+}
+
+.hd-live-dot {
+  width: 8px;
+  height: 8px;
+  background: #34d399;
+  border-radius: 50%;
+  animation: liveDotPulse 1s infinite;
+}
+
+@keyframes liveDataPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes liveDotPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hd-modal-container {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+  }
+  
+  .hd-modal-header {
+    padding: 16px;
+  }
+  
+  .hd-price-display {
+    padding: 16px;
+  }
+  
+  .hd-price-display .price-amount {
+    font-size: 2rem;
+  }
+  
+  .hd-tab-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .hd-price-history-table th,
+  .hd-price-history-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+  
+  .hd-action-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Dark mode support for modal */
+@media (prefers-color-scheme: dark) {
+  .hd-modal-container {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .hd-modal-body {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  }
+  
+  .hd-info-card {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border-color: #4b5563;
+  }
+  
+  .hd-price-history-table {
+    background: #374151;
+  }
+  
+  .hd-price-history-table tbody tr:hover {
+    background: linear-gradient(135deg, #4b5563, #374151);
+  }
+}

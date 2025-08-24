@@ -68,7 +68,7 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button id="save-password-btn" disabled>{{ __('Save') }}</x-primary-button>
+            <x-primary-button id="save-password-btn" disabled>{{ __('Update Password') }}</x-primary-button>
 
             @if (session('status') === 'password-updated')
                 <p

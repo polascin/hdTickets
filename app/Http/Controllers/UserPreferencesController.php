@@ -387,13 +387,13 @@ class UserPreferencesController extends Controller
             // Update or create preference
             $preference = UserPreference::updateOrCreate(
                 [
-                    'user_id'             => $user->id,
-                    'preference_category' => $category,
-                    'preference_key'      => $key,
+                    'user_id'  => $user->id,
+                    'category' => $category,
+                    'key'      => $key,
                 ],
                 [
-                    'preference_value' => $processedValue,
-                    'data_type'        => $dataType,
+                    'value'     => $processedValue,
+                    'data_type' => $dataType,
                 ],
             );
 
@@ -471,13 +471,13 @@ class UserPreferencesController extends Controller
                     // Update or create preference
                     $preference = UserPreference::updateOrCreate(
                         [
-                            'user_id'             => $user->id,
-                            'preference_category' => $category,
-                            'preference_key'      => $key,
+                            'user_id'  => $user->id,
+                            'category' => $category,
+                            'key'      => $key,
                         ],
                         [
-                            'preference_value' => $processedValue,
-                            'data_type'        => $dataType,
+                            'value'     => $processedValue,
+                            'data_type' => $dataType,
                         ],
                     );
 
@@ -532,17 +532,17 @@ class UserPreferencesController extends Controller
             $user = Auth::user();
 
             $preferences = UserPreference::where('user_id', $user->id)
-                ->select('preference_category', 'preference_key', 'preference_value', 'data_type')
+                ->select('category', 'key', 'value', 'data_type')
                 ->get()
-                ->groupBy('preference_category');
+                ->groupBy('category');
 
             $exportData = [
                 'user_id'     => $user->id,
                 'exported_at' => now()->toISOString(),
                 'preferences' => $preferences->map(function ($categoryPrefs, $category) {
                     return $categoryPrefs->mapWithKeys(function ($pref) {
-                        return [$pref->preference_key => [
-                            'value'     => $this->castPreferenceValue($pref->preference_value, $pref->data_type),
+                        return [$pref->key => [
+                            'value'     => $this->castPreferenceValue($pref->value, $pref->data_type),
                             'data_type' => $pref->data_type,
                         ]];
                     });
@@ -594,7 +594,7 @@ class UserPreferencesController extends Controller
             $query = UserPreference::where('user_id', $user->id);
 
             if ($categories) {
-                $query->whereIn('preference_category', $categories);
+                $query->whereIn('category', $categories);
             }
 
             $deletedCount = $query->delete();
@@ -676,13 +676,13 @@ class UserPreferencesController extends Controller
 
                         $preference = UserPreference::updateOrCreate(
                             [
-                                'user_id'             => $user->id,
-                                'preference_category' => $category,
-                                'preference_key'      => $key,
+                                'user_id'  => $user->id,
+                                'category' => $category,
+                                'key'      => $key,
                             ],
                             [
-                                'preference_value' => $processedValue,
-                                'data_type'        => $dataType,
+                                'value'     => $processedValue,
+                                'data_type' => $dataType,
                             ],
                         );
 

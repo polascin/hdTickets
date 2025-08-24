@@ -18,15 +18,14 @@ class UserPreference extends Model
 
     protected $fillable = [
         'user_id',
-        'preference_category',
-        'preference_key',
-        'preference_value',
-        'data_type',
-        'is_default',
+        'category',
+        'key',
+        'value',
+        'type',
     ];
 
     protected $casts = [
-        'is_default' => 'boolean',
+        'value' => 'array',
     ];
 
     /**
@@ -47,7 +46,7 @@ class UserPreference extends Model
      */
     public function scopeForKey($query, string $key)
     {
-        return $query->where('preference_key', $key);
+        return $query->where('key', $key);
     }
 
     /**
@@ -57,7 +56,7 @@ class UserPreference extends Model
      */
     public function scopeForCategory($query, string $category)
     {
-        return $query->where('preference_category', $category);
+        return $query->where('category', $category);
     }
 
     /**
@@ -68,8 +67,8 @@ class UserPreference extends Model
     public static function getValue(int $userId, string $category, string $key, $default = NULL)
     {
         $preference = static::where('user_id', $userId)
-            ->where('preference_category', $category)
-            ->where('preference_key', $key)
+            ->where('category', $category)
+            ->where('key', $key)
             ->first();
 
         if (! $preference) {
@@ -77,7 +76,7 @@ class UserPreference extends Model
         }
 
         // Cast value based on data type
-        return static::castValue($preference->preference_value, $preference->data_type);
+        return static::castValue($preference->value, $preference->type);
     }
 
     /**
@@ -94,13 +93,13 @@ class UserPreference extends Model
     {
         static::updateOrCreate(
             [
-                'user_id'             => $userId,
-                'preference_category' => $category,
-                'preference_key'      => $key,
+                'user_id'  => $userId,
+                'category' => $category,
+                'key'      => $key,
             ],
             [
-                'preference_value' => static::processValue($value, $dataType),
-                'data_type'        => $dataType,
+                'value' => static::processValue($value, $dataType),
+                'type'  => $dataType,
             ],
         );
     }
@@ -114,10 +113,10 @@ class UserPreference extends Model
     public static function getByCategory(int $userId, string $category): array
     {
         return static::where('user_id', $userId)
-            ->where('preference_category', $category)
+            ->where('category', $category)
             ->get()
             ->mapWithKeys(function ($pref) {
-                return [$pref->preference_key => static::castValue($pref->preference_value, $pref->data_type)];
+                return [$pref->key => static::castValue($pref->value, $pref->type)];
             })
             ->toArray();
     }
@@ -181,7 +180,7 @@ class UserPreference extends Model
         $defaults = static::getDefaultPreferences();
 
         foreach ($defaults as $key => $value) {
-            static::setValue($userId, $key, $value, 'json', static::getCategoryForKey($key));
+            static::setValue($userId, static::getCategoryForKey($key), $key, $value, 'json');
         }
     }
 
@@ -244,9 +243,9 @@ class UserPreference extends Model
      */
     public static function getNotificationPreferences(int $userId): array
     {
-        $channels = static::getValue($userId, 'notification_channels', []);
-        $timing = static::getValue($userId, 'alert_timing', []);
-        $escalation = static::getValue($userId, 'escalation_settings', []);
+        $channels = static::getValue($userId, 'notifications', 'notification_channels', []);
+        $timing = static::getValue($userId, 'notifications', 'alert_timing', []);
+        $escalation = static::getValue($userId, 'notifications', 'escalation_settings', []);
 
         return array_merge($channels, $timing, $escalation);
     }
@@ -260,11 +259,11 @@ class UserPreference extends Model
     public static function getAlertPreferences(int $userId): array
     {
         return [
-            'favorite_teams'   => static::getValue($userId, 'favorite_teams', []),
-            'preferred_venues' => static::getValue($userId, 'preferred_venues', []),
-            'event_types'      => static::getValue($userId, 'event_types', []),
-            'price_thresholds' => static::getValue($userId, 'price_thresholds', []),
-            'ml_settings'      => static::getValue($userId, 'ml_settings', []),
+            'favorite_teams'   => static::getValue($userId, 'preferences', 'favorite_teams', []),
+            'preferred_venues' => static::getValue($userId, 'preferences', 'preferred_venues', []),
+            'event_types'      => static::getValue($userId, 'preferences', 'event_types', []),
+            'price_thresholds' => static::getValue($userId, 'alerts', 'price_thresholds', []),
+            'ml_settings'      => static::getValue($userId, 'system', 'ml_settings', []),
         ];
     }
 
@@ -281,7 +280,7 @@ class UserPreference extends Model
 
         foreach ($preferences as $key => $value) {
             if (static::validatePreference($key, $value)) {
-                static::setValue($userId, $key, $value);
+                static::setValue($userId, static::getCategoryForKey($key), $key, $value, 'json');
                 $updated[] = $key;
             } else {
                 $errors[] = "Invalid value for preference: {$key}";
@@ -307,7 +306,7 @@ class UserPreference extends Model
 
         foreach ($keysToReset as $key) {
             if (isset($defaults[$key])) {
-                static::setValue($userId, $key, $defaults[$key]);
+                static::setValue($userId, static::getCategoryForKey($key), $key, $defaults[$key], 'json');
             }
         }
     }
@@ -357,7 +356,7 @@ class UserPreference extends Model
                 }
 
                 if (static::validatePreference($key, $value)) {
-                    static::setValue($userId, $key, $value, $type, $category);
+                    static::setValue($userId, $category, $key, $value, $type);
                     $imported[] = $key;
                 } else {
                     $errors[] = "Invalid preference data for: {$key}";

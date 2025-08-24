@@ -349,6 +349,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     });
 });
 
+
 // Ticket Scraping Routes
 Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->group(function (): void {
     // Scraping dashboard and listing
@@ -400,6 +401,8 @@ Route::get('health/production', [App\Http\Controllers\ProductionHealthController
 Route::get('health/comprehensive', [App\Http\Controllers\ProductionHealthController::class, 'comprehensive'])
     ->name('health.comprehensive');
 
+
+
 // Public Account Deletion Routes (no authentication required)
 Route::prefix('account/deletion')->name('account.deletion.')->group(function (): void {
     Route::get('/confirm/{token}', [App\Http\Controllers\AccountDeletionController::class, 'confirm'])->name('confirm');
@@ -412,3 +415,5 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function ():
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
+
+

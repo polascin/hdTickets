@@ -49,7 +49,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21 15v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Choose Image
+                        Upload Photo
                     </button>
                     
                     @if($user->profile_picture)
@@ -57,7 +57,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 6h18M8 6V4c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v2M19 6v14c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Remove Picture
+                        Remove Photo
                     </button>
                     @endif
                 </div>
@@ -91,7 +91,7 @@
         
         <div class="crop-modal-buttons">
             <button type="button" id="cancel-crop-btn" class="btn btn-outline">Cancel</button>
-            <button type="button" id="apply-crop-btn" class="btn btn-primary">Apply & Upload</button>
+            <button type="button" id="apply-crop-btn" class="btn btn-primary">Save Cropped Photo</button>
         </div>
     </div>
 </div>

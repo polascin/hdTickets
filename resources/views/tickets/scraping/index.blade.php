@@ -1,4 +1,4 @@
-<x-modern-app-layout title="Sports Tickets" subtitle="Browse and search for sports tickets across multiple platforms">
+<x-unified-layout title="Sports Tickets" subtitle="Browse and search for sports tickets across multiple platforms">
     <x-slot name="headerActions">
         <div class="flex flex-col sm:flex-row gap-3">
             <x-ui.button id="refresh-tickets" icon="refresh" variant="outline">
@@ -29,7 +29,7 @@
 
     <!-- Active Filters Summary -->
     @if (isset($activeFilters) && array_filter($activeFilters))
-        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
             <div class="flex items-start justify-between">
                 <div>
                     <h4 class="font-medium text-blue-900 mb-2">Active Filters:</h4>
@@ -288,7 +288,7 @@
                         @endif
 
                         <!-- Price Information -->
-                        <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 border border-blue-100">
+                        <div class="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-lg p-4 border border-emerald-100">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <p class="hd-text-xs text-gray-500 uppercase tracking-wide font-medium">From</p>
@@ -528,7 +528,7 @@
     <!-- Enhanced Pagination -->
     @if ($tickets->hasPages())
         <div
-            class="flex flex-col sm:flex-row justify-between items-center bg-white border border-gray-200 rounded-lg px-6 py-4 shadow-sm mb-8">
+            class="flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-white to-slate-50 border border-gray-200 rounded-lg px-6 py-4 shadow-sm mb-8">
             <div class="flex items-center space-x-4 text-gray-600 mb-4 sm:mb-0">
                 <span class="hd-text-small">
                     Showing <span class="font-semibold">{{ $tickets->firstItem() }}</span>
@@ -562,7 +562,7 @@
                 </x-ui.card-header>
                 <x-ui.card-content class="pt-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-blue-600 text-sm font-medium uppercase tracking-wide">Total Tickets
@@ -581,16 +581,16 @@
                         </div>
 
                         <div
-                            class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                            class="bg-gradient-to-br from-emerald-50 to-green-100 rounded-lg p-4 border border-green-200 shadow-sm hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-green-600 text-sm font-medium uppercase tracking-wide">Available</p>
-                                    <p class="text-2xl font-bold text-green-900 mt-1">
+                                    <p class="text-emerald-600 text-sm font-medium uppercase tracking-wide">Available</p>
+                                    <p class="text-2xl font-bold text-emerald-900 mt-1">
                                         {{ $stats['available_tickets'] ?? $tickets->where('is_available', true)->count() }}
                                     </p>
                                 </div>
-                                <div class="bg-green-200 rounded-full p-3">
-                                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="bg-emerald-200 rounded-full p-3">
+                                    <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                             clip-rule="evenodd"></path>
@@ -600,12 +600,12 @@
                         </div>
 
                         <div
-                            class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                            class="bg-gradient-to-br from-amber-50 to-orange-100 rounded-lg p-4 border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-orange-600 text-sm font-medium uppercase tracking-wide">Avg Price
+                                    <p class="text-amber-600 text-sm font-medium uppercase tracking-wide">Avg Price
                                     </p>
-                                    <p class="text-2xl font-bold text-orange-900 mt-1">
+                                    <p class="text-2xl font-bold text-amber-900 mt-1">
                                         @if (isset($stats['avg_price']) && $stats['avg_price'] > 0)
                                             ${{ number_format((float) $stats['avg_price'], 2) }}
                                         @else
@@ -613,8 +613,8 @@
                                         @endif
                                     </p>
                                 </div>
-                                <div class="bg-orange-200 rounded-full p-3">
-                                    <svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="bg-amber-200 rounded-full p-3">
+                                    <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                             d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z">
                                         </path>
@@ -627,16 +627,16 @@
                         </div>
 
                         <div
-                            class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                            class="bg-gradient-to-br from-indigo-50 to-purple-100 rounded-lg p-4 border border-indigo-200 shadow-sm hover:shadow-md transition-shadow">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-purple-600 text-sm font-medium uppercase tracking-wide">Platforms
+                                    <p class="text-indigo-600 text-sm font-medium uppercase tracking-wide">Platforms
                                     </p>
-                                    <p class="text-2xl font-bold text-purple-900 mt-1">{{ $stats['platforms'] ?? 3 }}
+                                    <p class="text-2xl font-bold text-indigo-900 mt-1">{{ $stats['platforms'] ?? 3 }}
                                     </p>
                                 </div>
-                                <div class="bg-purple-200 rounded-full p-3">
-                                    <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="bg-indigo-200 rounded-full p-3">
+                                    <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                             d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z">
                                         </path>
@@ -646,10 +646,10 @@
                         </div>
                     </div>
 
-                    @if (isset($stats['price_range']) && !empty($stats['price_range']))
+                        @if (isset($stats['price_range']) && !empty($stats['price_range']))
                         <div class="mt-6 pt-6 border-t border-gray-200">
                             <h4 class="font-medium text-gray-900 mb-3">Price Range</h4>
-                            <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg p-4 border border-slate-200">
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-gray-600">Lowest Price</span>
                                     <span class="font-semibold text-green-600">
@@ -1097,4 +1097,4 @@
             transition: transform 0.3s ease-in-out;
         }
     </style>
-</x-modern-app-layout>
+</x-unified-layout>

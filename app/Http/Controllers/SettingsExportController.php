@@ -449,9 +449,9 @@ class SettingsExportController extends Controller
     private function exportPreferences(User $user): array
     {
         $preferences = UserPreference::where('user_id', $user->id)
-            ->select('preference_category', 'preference_key', 'preference_value', 'data_type')
+            ->select('category', 'key', 'value', 'data_type')
             ->get()
-            ->groupBy('preference_category');
+            ->groupBy('category');
 
         $exportPreferences = [];
 
@@ -460,12 +460,12 @@ class SettingsExportController extends Controller
 
             foreach ($categoryPrefs as $pref) {
                 // Skip sensitive preferences
-                if ($this->isSensitivePreference($pref->preference_key)) {
+                if ($this->isSensitivePreference($pref->key)) {
                     continue;
                 }
 
-                $exportPreferences[$category][$pref->preference_key] = [
-                    'value'     => $this->castPreferenceValue($pref->preference_value, $pref->data_type),
+                $exportPreferences[$category][$pref->key] = [
+                    'value'     => $this->castPreferenceValue($pref->value, $pref->data_type),
                     'data_type' => $pref->data_type,
                 ];
             }
@@ -878,7 +878,7 @@ class SettingsExportController extends Controller
         $existingPrefs = UserPreference::where('user_id', $user->id)
             ->get()
             ->mapWithKeys(function ($pref) {
-                return ["{$pref->preference_category}.{$pref->preference_key}" => $pref];
+                return ["{$pref->category}.{$pref->key}" => $pref];
             });
 
         foreach ($data as $category => $preferences) {
@@ -887,7 +887,7 @@ class SettingsExportController extends Controller
 
                 if (isset($existingPrefs[$fullKey])) {
                     $existing = $existingPrefs[$fullKey];
-                    $existingValue = $this->castPreferenceValue($existing->preference_value, $existing->data_type);
+                    $existingValue = $this->castPreferenceValue($existing->value, $existing->data_type);
 
                     if ($existingValue !== $prefData['value']) {
                         if ($mergeStrategy === 'skip_existing') {
@@ -1264,8 +1264,8 @@ class SettingsExportController extends Controller
             foreach ($preferences as $key => $prefData) {
                 try {
                     $existing = UserPreference::where('user_id', $user->id)
-                        ->where('preference_category', $category)
-                        ->where('preference_key', $key)
+                        ->where('category', $category)
+                        ->where('key', $key)
                         ->first();
 
                     if ($existing && $mergeStrategy === 'skip_existing') {
@@ -1283,13 +1283,13 @@ class SettingsExportController extends Controller
 
                     UserPreference::updateOrCreate(
                         [
-                            'user_id'             => $user->id,
-                            'preference_category' => $category,
-                            'preference_key'      => $key,
+                            'user_id'  => $user->id,
+                            'category' => $category,
+                            'key'      => $key,
                         ],
                         [
-                            'preference_value' => is_array($value) ? json_encode($value) : $value,
-                            'data_type'        => $dataType,
+                            'value'     => is_array($value) ? json_encode($value) : $value,
+                            'data_type' => $dataType,
                         ],
                     );
 
