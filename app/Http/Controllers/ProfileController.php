@@ -91,6 +91,29 @@ class ProfileController extends Controller
     }
 
     /**
+     * Get current user statistics for AJAX updates
+     */
+    public function stats(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        
+        $userStats = [
+            'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
+            'total_alerts'     => $user->ticketAlerts()->count(),
+            'active_searches'  => $user->ticketAlerts()->where('status', 'active')->where('created_at', '>=', now()->subMonth())->count(),
+            'recent_purchases' => 0, // Placeholder for purchase history when implemented
+            'login_count'      => $user->login_count ?? 0,
+            'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'stats' => $userStats,
+            'updated_at' => now()->toISOString()
+        ]);
+    }
+
+    /**
      * Display the user's profile form.
      */
     /**

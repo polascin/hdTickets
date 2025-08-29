@@ -1,418 +1,425 @@
-<x-app-layout>
-  <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-      {{ __('Profile Settings') }}
-    </h2>
-  </x-slot>
+@extends('layouts.app')
 
-  <div class="py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+@section('title', 'Edit Profile')
 
-      {{-- Success Messages --}}
-      @if (session('status'))
-        <div class="alert alert-success">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          {{ session('status') }}
-        </div>
-      @endif
-
-      @if (session('success'))
-        <div class="alert alert-success">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          {{ session('success') }}
-        </div>
-      @endif
-
-      {{-- Error Messages --}}
-      @if (session('error'))
-        <div class="alert alert-danger">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          {{ session('error') }}
-        </div>
-      @endif
-
-      {{-- Validation Errors Summary --}}
-      @if (isset($errors) && $errors->any())
-        <div class="alert alert-warning">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z">
-            </path>
-          </svg>
-          <div>
-            <strong>Please correct the following errors:</strong>
-            <ul class="mt-2 ml-6 list-disc">
-              @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        </div>
-      @endif
-
-      {{-- JavaScript disabled fallback --}}
-      <x-no-js-fallback feature="advanced profile features">
-        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 class="font-medium text-blue-900">Basic Profile Management</h4>
-          <p class="text-sm text-blue-700 mt-1">You can still update your profile information using the forms
-            below. Some advanced features like real-time validation and drag-and-drop uploads require
-            JavaScript.</p>
-        </div>
-      </x-no-js-fallback>
-
-      {{-- Profile Completion Indicator --}}
-      <x-profile-completion-progress :user="$user" />
-
-      {{-- Quick Navigation --}}
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
-          <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-            </path>
-          </svg>
-          Quick Navigation
-        </h3>
-        <div class="flex flex-wrap gap-2">
-          <a href="#profile-picture-section"
-            class="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
-            📷 Profile Picture
-          </a>
-          <a href="#personal-info-section"
-            class="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
-            👤 Personal Info
-          </a>
-          <a href="#security-section"
-            class="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
-            🔒 Password & Security
-          </a>
-          <a href="#user-info-section"
-            class="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
-            📊 Account Info
-          </a>
-          <a href="#danger-zone-section"
-            class="inline-flex items-center px-3 py-1 text-xs font-medium bg-red-100 hover:bg-red-200 text-red-700 rounded-full transition-colors">
-            ⚠️ Danger Zone
-          </a>
-        </div>
-      </div>
-
-      {{-- Profile Picture Section --}}
-      <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg" id="profile-picture-section">
-        <div class="max-w-md mx-auto">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Profile Picture</h3>
-          @include('components.profile-picture-upload')
-        </div>
-      </div>
-
-      {{-- Personal Information --}}
-      <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg" id="personal-info-section">
-        <div class="max-w-md mx-auto">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-          @include('profile.partials.update-profile-information-form')
-        </div>
-      </div>
-
-      {{-- Password & Security --}}
-      <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg" id="security-section">
-        <div class="max-w-md mx-auto">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Password & Security</h3>
-          @include('profile.partials.update-password-form')
-
-          <div class="mt-6 pt-6 border-t border-gray-200">
-            <a href="{{ route('profile.security') }}"
-              class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                </path>
-              </svg>
-              Security & Two-Factor Auth
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {{-- Enhanced User Info --}}
-      <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg" id="user-info-section">
-        <div class="max-w-md mx-auto">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
-          @include('profile.partials.enhanced-user-info')
-        </div>
-      </div>
-
-      {{-- Account Deletion --}}
-      <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg border border-red-200" id="danger-zone-section">
-        <div class="max-w-md mx-auto">
-          <h3 class="text-lg font-medium text-red-900 mb-4">Danger Zone</h3>
-          @include('profile.partials.delete-user-form')
-        </div>
+@section('header')
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+    <div>
+      <h1 class="h3 mb-0 text-gray-900">
+        <i class="fas fa-user-edit text-primary me-2"></i>
+        Edit Profile
+      </h1>
+      <nav aria-label="breadcrumb" class="mt-1">
+        <ol class="breadcrumb breadcrumb-sm mb-0">
+          <li class="breadcrumb-item">
+            <a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ route('profile.show') }}" class="text-decoration-none">Profile</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Edit</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="mt-3 mt-md-0">
+      <div class="btn-group" role="group" aria-label="Profile actions">
+        <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-eye me-1"></i> View Profile
+        </a>
+        <a href="{{ route('profile.security') }}" class="btn btn-outline-success btn-sm">
+          <i class="fas fa-shield-alt me-1"></i> Security
+        </a>
+        <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info btn-sm">
+          <i class="fas fa-chart-bar me-1"></i> Activity
+        </a>
       </div>
     </div>
   </div>
+@endsection
 
-  {{-- Include enhanced JavaScript --}}
-  @push('scripts')
-    <script type="module">
-      import {
-        FormValidator
-      } from '{{ asset('js/components/form-validation.js') }}';
-      import {
-        LoadingManager
-      } from '{{ asset('js/components/loading-manager.js') }}';
+@section('content')
+  <div class="container-fluid px-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-8">
 
-      // Initialize form validation for all forms
-      document.querySelectorAll('form[data-validate-form]').forEach(form => {
-        new FormValidator(form, {
-          errorContainer: form.querySelector('.form-errors'),
-          customMessages: {
-            'name.required': 'Please enter your full name',
-            'email.required': 'Please enter your email address',
-            'email.email': 'Please enter a valid email address',
-            'current_password.required': 'Please enter your current password',
-            'password.required': 'Please enter a new password',
-            'password.password-strength': 'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
-            'password_confirmation.confirm': 'Password confirmation does not match'
-          }
+        {{-- Success Messages --}}
+        @if (session('status') === 'profile-updated')
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              <strong>Success!</strong> Your profile has been updated successfully.
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
+        @if (session('status') === 'password-updated')
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-shield-alt text-success me-2"></i>
+              <strong>Password Updated!</strong> Your password has been changed successfully.
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
+        @if (session('success'))
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-info-circle text-success me-2"></i>
+              {{ session('success') }}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
+        {{-- Error Messages --}}
+        @if (session('error'))
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+              <strong>Error:</strong> {{ session('error') }}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
+        {{-- Validation Errors Summary --}}
+        @if (isset($errors) && $errors->any())
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-start">
+              <i class="fas fa-exclamation-triangle text-warning me-2 mt-1"></i>
+              <div>
+                <strong>Please correct the following errors:</strong>
+                <ul class="mb-0 mt-2 small">
+                  @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+        <ul class="mt-2 ml-6 list-disc">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    </div>
+    @endif
+
+    {{-- JavaScript disabled fallback --}}
+    <x-no-js-fallback feature="advanced profile features">
+      <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h4 class="font-medium text-blue-900">Basic Profile Management</h4>
+        <p class="text-sm text-blue-700 mt-1">You can still update your profile information using the forms
+          below. Some advanced features like real-time validation and drag-and-drop uploads require
+          JavaScript.</p>
+      </div>
+    </x-no-js-fallback>
+
+    {{-- Profile Completion Indicator --}}
+    <x-profile-completion-progress :user="$user" />
+
+    {{-- Quick Navigation --}}
+    {{-- Quick Navigation Menu --}}
+    <div class="card mb-4 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-center">
+          <div class="btn-group" role="group" aria-label="Profile sections navigation">
+            <button type="button" class="btn btn-outline-primary btn-sm"
+              onclick="scrollToSection('profile-picture-section')">
+              <i class="fas fa-camera me-1"></i> Picture
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm"
+              onclick="scrollToSection('personal-info-section')">
+              <i class="fas fa-user me-1"></i> Personal
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="scrollToSection('security-section')">
+              <i class="fas fa-lock me-1"></i> Security
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm"
+              onclick="scrollToSection('preferences-section')">
+              <i class="fas fa-cog me-1"></i> Preferences
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="scrollToSection('user-info-section')">
+              <i class="fas fa-info-circle me-1"></i> Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- Profile Picture Section --}}
+    <div class="card border-0 shadow-sm mb-4" id="profile-picture-section">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-camera text-primary me-2"></i>
+          Profile Picture
+        </h5>
+      </div>
+      <div class="card-body">
+        @include('components.profile-picture-upload')
+      </div>
+    </div>
+
+    {{-- Personal Information --}}
+    <div class="card border-0 shadow-sm mb-4" id="personal-info-section">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-user text-primary me-2"></i>
+          Personal Information
+        </h5>
+      </div>
+      <div class="card-body">
+        @include('profile.partials.update-profile-information-form')
+      </div>
+    </div>
+
+    {{-- Password & Security --}}
+    <div class="card border-0 shadow-sm mb-4" id="security-section">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-lock text-primary me-2"></i>
+          Password & Security
+        </h5>
+      </div>
+      <div class="card-body">
+        @include('profile.partials.update-password-form')
+
+        <div class="mt-4 pt-4 border-top">
+          <div class="row">
+            <div class="col-md-6">
+              <a href="{{ route('profile.security') }}" class="btn btn-outline-success w-100 mb-2 mb-md-0">
+                <i class="fas fa-shield-alt me-2"></i>
+                Security Settings
+              </a>
+            </div>
+            <div class="col-md-6">
+              <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info w-100">
+                <i class="fas fa-history me-2"></i>
+                Login History
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- User Preferences --}}
+    <div class="card border-0 shadow-sm mb-4" id="preferences-section">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-cog text-primary me-2"></i>
+          Preferences & Settings
+        </h5>
+      </div>
+      <div class="card-body">
+        <form id="preferences-form" method="POST" action="{{ route('profile.update') }}" class="needs-validation"
+          novalidate>
+          @csrf
+          @method('patch')
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="timezone" class="form-label">
+                <i class="fas fa-clock text-muted me-1"></i>
+                Timezone
+              </label>
+              <select class="form-select" id="timezone" name="timezone">
+                <option value="">Select timezone...</option>
+                @foreach (timezone_identifiers_list() as $timezone)
+                  <option value="{{ $timezone }}"
+                    {{ old('timezone', $user->timezone ?? '') === $timezone ? 'selected' : '' }}>
+                    {{ $timezone }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="language" class="form-label">
+                <i class="fas fa-language text-muted me-1"></i>
+                Language
+              </label>
+              <select class="form-select" id="language" name="language">
+                <option value="en" {{ old('language', $user->language ?? 'en') === 'en' ? 'selected' : '' }}>
+                  English</option>
+                <option value="es" {{ old('language', $user->language ?? 'en') === 'es' ? 'selected' : '' }}>
+                  Español</option>
+                <option value="fr" {{ old('language', $user->language ?? 'en') === 'fr' ? 'selected' : '' }}>
+                  Français</option>
+                <option value="de" {{ old('language', $user->language ?? 'en') === 'de' ? 'selected' : '' }}>
+                  Deutsch</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="bio" class="form-label">
+              <i class="fas fa-pen text-muted me-1"></i>
+              Bio
+            </label>
+            <textarea class="form-control" id="bio" name="bio" rows="3"
+              placeholder="Tell us about yourself...">{{ old('bio', $user->bio ?? '') }}</textarea>
+            <div class="form-text">Brief description about yourself (max 500 characters)</div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>
+              Save Preferences
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {{-- Enhanced User Info --}}
+    <div class="card border-0 shadow-sm mb-4" id="user-info-section">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-info-circle text-primary me-2"></i>
+          Account Information
+        </h5>
+      </div>
+      <div class="card-body">
+        @include('profile.partials.enhanced-user-info')
+      </div>
+    </div>
+
+    {{-- Danger Zone --}}
+    <div class="card border-danger shadow-sm mb-4" id="danger-zone-section">
+      <div class="card-header bg-danger bg-opacity-10 border-bottom-0">
+        <h5 class="card-title mb-0 text-danger">
+          <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+          Danger Zone
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Warning:</strong> Actions in this section are permanent and cannot be undone.
+        </div>
+        @include('profile.partials.delete-user-form')
+      </div>
+    </div>
+
+  </div>
+  </div>
+  </div>
+@endsection
+
+@push('scripts')
+  <script type="module" src="{{ asset('js/components/form-validation.js') }}"></script>
+  <script type="module" src="{{ asset('js/components/loading-manager.js') }}"></script>
+
+  <script>
+    // Smooth scrolling to sections
+    function scrollToSection(sectionId) {
+      document.getElementById(sectionId).scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-save draft functionality
+      const forms = document.querySelectorAll('form:not([data-no-autosave])');
+
+      forms.forEach(form => {
+        const inputs = form.querySelectorAll('input, textarea, select');
+
+        inputs.forEach(input => {
+          input.addEventListener('input', debounce(function() {
+            saveDraft(form);
+          }, 500));
         });
+
+        // Load draft on page load
+        loadDraft(form);
       });
 
-      // Enhanced AJAX form submissions
-      document.addEventListener('submit', async (e) => {
-        const form = e.target;
-        if (!form.dataset.ajaxSubmit) return;
+      // Form validation
+      const validationForms = document.querySelectorAll('.needs-validation');
 
-        e.preventDefault();
-
-        try {
-          const formData = new FormData(form);
-
-          // Clear previous messages
-          const successContainer = form.querySelector('#profile-success-message, .alert');
-          if (successContainer && successContainer.id === 'profile-success-message') {
-            successContainer.classList.add('hidden');
+      Array.from(validationForms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
           }
+          form.classList.add('was-validated');
+        }, false);
+      });
 
-          const response = await LoadingManager.wrapAjax(form,
-            fetch(form.action, {
-              method: form.method,
-              body: formData,
-              headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': formData.get('_token')
-              }
-            })
-          );
+      // Initialize tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
 
-          if (response.ok) {
-            const data = await response.json();
+    // Debounce function for auto-save
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
 
-            // Show success message
-            const successMsg = form.querySelector('#profile-success-message');
-            const successText = form.querySelector('#profile-success-text');
+    // Save form data as draft
+    function saveDraft(form) {
+      try {
+        const formData = new FormData(form);
+        const draftData = {};
 
-            if (successMsg && successText) {
-              successText.textContent = data.message || 'Changes saved successfully!';
-              successMsg.classList.remove('hidden');
+        for (let [key, value] of formData.entries()) {
+          if (key !== '_token' && key !== '_method') {
+            draftData[key] = value;
+          }
+        }
 
-              // Auto-hide after 5 seconds
-              setTimeout(() => successMsg.classList.add('hidden'), 5000);
+        localStorage.setItem('profile_draft_' + form.id, JSON.stringify(draftData));
+      } catch (e) {
+        console.warn('Failed to save draft data:', e);
+      }
+    }
+
+    // Load draft data
+    function loadDraft(form) {
+      try {
+        const draftData = localStorage.getItem('profile_draft_' + form.id);
+        if (draftData) {
+          const data = JSON.parse(draftData);
+
+          Object.keys(data).forEach(key => {
+            const input = form.querySelector(`[name="${key}"]`);
+            if (input && !input.value) {
+              input.value = data[key];
             }
-
-            // Trigger custom event for other components
-            document.dispatchEvent(new CustomEvent('formSubmissionSuccess', {
-              detail: {
-                form,
-                data
-              }
-            }));
-
-            // Reset form changed flag
-            formChanged = false;
-
-          } else {
-            // Handle HTTP errors
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to save changes');
-          }
-
-        } catch (error) {
-          console.error('Form submission error:', error);
-
-          // Show error message
-          const errorAlert = document.createElement('div');
-          errorAlert.className = 'alert alert-danger';
-          errorAlert.innerHTML = `
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    ${error.message || 'An error occurred while saving your changes.'}
-                `;
-          form.insertBefore(errorAlert, form.firstChild);
-
-          // Auto-hide after 7 seconds
-          setTimeout(() => errorAlert.remove(), 7000);
+          });
         }
-      });
-
-      // Real-time profile picture feedback
-      document.addEventListener('profilePictureUpdated', (e) => {
-        const successMessage = document.createElement('div');
-        successMessage.className = 'alert alert-success mt-3';
-        successMessage.textContent = 'Profile picture updated successfully!';
-
-        const section = document.getElementById('profile-picture-section');
-        if (section) {
-          section.appendChild(successMessage);
-          setTimeout(() => successMessage.remove(), 5000);
-        }
-      });
-
-      // Form change detection
-      let formChanged = false;
-      document.addEventListener('input', () => {
-        formChanged = true;
-      });
-
-      // Warn before leaving with unsaved changes
-      window.addEventListener('beforeunload', (e) => {
-        if (formChanged) {
-          e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-          return e.returnValue;
-        }
-      });
-
-      // Reset form changed flag on successful submission
-      document.addEventListener('formSubmissionSuccess', () => {
-        formChanged = false;
-      });
-
-      // Smooth scrolling for navigation links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute('href'));
-          if (target) {
-            target.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-
-            // Add a subtle highlight animation
-            target.style.transition = 'box-shadow 0.3s ease';
-            target.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.3)';
-            setTimeout(() => {
-              target.style.boxShadow = '';
-            }, 2000);
-          }
-        });
-      });
-
-      // Auto-save draft functionality (optional enhancement)
-      let autoSaveTimer;
-      document.addEventListener('input', (e) => {
-        if (e.target.form && e.target.form.dataset.validateForm) {
-          clearTimeout(autoSaveTimer);
-          autoSaveTimer = setTimeout(() => {
-            // Save form data to localStorage as draft
-            const formData = new FormData(e.target.form);
-            const draftData = Object.fromEntries(formData.entries());
-            localStorage.setItem('profile_draft_' + e.target.form.id, JSON.stringify(draftData));
-          }, 2000);
-        }
-      });
-
-      // Load draft data on page load
-      window.addEventListener('load', () => {
-        document.querySelectorAll('form[data-validate-form]').forEach(form => {
-          const draftData = localStorage.getItem('profile_draft_' + form.id);
-          if (draftData) {
-            try {
-              const data = JSON.parse(draftData);
-              Object.entries(data).forEach(([key, value]) => {
-                const field = form.querySelector(`[name="${key}"]`);
-                if (field && field.type !== 'password' && field.value === '') {
-                  field.value = value;
-                  // Show subtle indication that draft was loaded
-                  field.style.backgroundColor = '#fef3c7';
-                  setTimeout(() => {
-                    field.style.backgroundColor = '';
-                  }, 3000);
-                }
-              });
-            } catch (e) {
-              console.warn('Failed to load draft data:', e);
-            }
-          }
-        });
-      });
-
-      // Clear draft data on successful form submission
-      document.addEventListener('formSubmissionSuccess', (e) => {
-        localStorage.removeItem('profile_draft_' + e.detail.form.id);
-      });
-    </script>
-  @endpush
-
-  {{-- Include enhanced styles --}}
-  @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/profile.css') }}?t={{ time() }}">
-    <style>
-      .alert {
-        padding: 1rem;
-        border-radius: 0.375rem;
-        margin-bottom: 1rem;
+      } catch (e) {
+        console.warn('Failed to load draft data:', e);
       }
+    }
 
-      .alert-success {
-        background-color: #d1fae5;
-        border: 1px solid #a7f3d0;
-        color: #065f46;
-      }
+    // Clear draft data on successful form submission
+    document.addEventListener('formSubmissionSuccess', (e) => {
+      localStorage.removeItem('profile_draft_' + e.detail.form.id);
+    });
+  </script>
+@endpush
 
-      .alert-danger {
-        background-color: #fee2e2;
-        border: 1px solid #fecaca;
-        color: #dc2626;
-      }
-
-      .form-errors {
-        margin-bottom: 1rem;
-      }
-
-      .field-error-message {
-        color: #dc2626;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-      }
-
-      .is-invalid {
-        border-color: #dc2626;
-        box-shadow: 0 0 0 1px #dc2626;
-      }
-
-      .is-valid {
-        border-color: #059669;
-        box-shadow: 0 0 0 1px #059669;
-      }
-
-      @media (max-width: 640px) {
-        .max-w-4xl {
-          padding-left: 1rem;
-          padding-right: 1rem;
-        }
-
-        .p-4.sm\:p-8 {
-          padding: 1rem;
-        }
-      }
-    </style>
-  @endpush
-</x-app-layout>
+@push('styles')
+  <link rel="stylesheet" href="{{ asset('css/profile.css') }}?t={{ time() }}">
+@endpush
