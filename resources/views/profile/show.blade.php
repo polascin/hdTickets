@@ -104,7 +104,7 @@
 @endpush
 
 @section('content')
-  <div class="container-xl">
+  <div class="container-fluid px-4">
     <!-- Enhanced Flash Messages -->
     @if (session('status') === 'profile-updated')
       <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
@@ -489,6 +489,67 @@
   </div>
 @endsection
 
+@push('styles')
+  <style>
+    /* Ensure profile page is fully visible */
+    html,
+    body {
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .container-fluid {
+      min-height: 100vh !important;
+      padding-bottom: 2rem;
+    }
+
+    /* Fix any potential z-index issues */
+    .main-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Ensure cards are visible */
+    .card {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    /* Progress rings styling */
+    .progress-ring {
+      transform: rotate(-90deg);
+      width: 100px;
+      height: 100px;
+    }
+
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s;
+      transform: rotate(90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Responsive fixes */
+    @media (max-width: 768px) {
+      .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .card {
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Debug styles for visibility testing */
+    .debug-visible {
+      border: 2px solid red !important;
+      background: rgba(255, 0, 0, 0.1) !important;
+    }
+  </style>
+@endpush
+
 @push('scripts')
   <script>
     // Profile photo upload handler
@@ -543,17 +604,55 @@
 
     // Animate progress rings on page load
     document.addEventListener('DOMContentLoaded', function() {
-      const progressRings = document.querySelectorAll('.progress-ring circle:last-child');
-      progressRings.forEach(ring => {
-        const circumference = 2 * Math.PI * 40;
-        ring.style.strokeDasharray = circumference;
-        ring.style.strokeDashoffset = circumference;
+      console.log('Profile page loading...');
 
-        // Animate
-        setTimeout(() => {
-          ring.style.strokeDashoffset = ring.getAttribute('stroke-dashoffset');
-        }, 500);
+      // Debug: Check page visibility and dimensions
+      console.log('Document dimensions:', {
+        width: document.documentElement.scrollWidth,
+        height: document.documentElement.scrollHeight,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight
       });
+
+      // Ensure main container is properly sized
+      const mainContainer = document.querySelector('.container-fluid');
+      if (mainContainer) {
+        mainContainer.style.minHeight = '100vh';
+        mainContainer.style.overflow = 'visible';
+        console.log('Main container sized properly');
+      }
+
+      // Check for any layout issues
+      const cards = document.querySelectorAll('.card');
+      console.log('Found', cards.length, 'cards on page');
+
+      // Initialize progress rings
+      const progressRings = document.querySelectorAll('.progress-ring circle:last-child');
+      progressRings.forEach((ring, index) => {
+        try {
+          const circumference = 2 * Math.PI * 40;
+          ring.style.strokeDasharray = circumference;
+          ring.style.strokeDashoffset = circumference;
+
+          // Animate with delay
+          setTimeout(() => {
+            const dashOffset = ring.getAttribute('stroke-dashoffset');
+            ring.style.strokeDashoffset = dashOffset;
+            console.log('Progress ring', index, 'animated');
+          }, 500 + (index * 200));
+        } catch (error) {
+          console.warn('Error animating progress ring:', error);
+        }
+      });
+
+      // Force layout recalculation
+      setTimeout(() => {
+        document.body.style.display = 'block';
+        window.dispatchEvent(new Event('resize'));
+        console.log('Layout recalculated');
+      }, 100);
+
+      console.log('Profile page initialization complete');
     });
   </script>
 @endpush

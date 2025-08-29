@@ -261,6 +261,10 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile-debug', function(Request $request) {
+        $user = $request->user();
+        return view('profile.show-debug', compact('user'));
+    })->name('profile.show.debug');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
     Route::get('/profile/stats', [ProfileController::class, 'stats'])->name('profile.stats');
