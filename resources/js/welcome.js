@@ -190,7 +190,10 @@ document.addEventListener('alpine:init', () => {
     // Enhanced click handlers
     handleFeatureClick(featureName) {
       // Debug info only in development
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1'
+      ) {
         console.info(`Feature clicked: ${featureName}`);
       }
 

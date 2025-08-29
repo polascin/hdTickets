@@ -69,7 +69,10 @@ document.addEventListener('alpine:init', () => {
     updateStats(newStats) {
       // Animate number changes
       Object.keys(newStats).forEach(key => {
-        if (Object.prototype.hasOwnProperty.call(this.stats, key) && key !== 'monitoring') {
+        if (
+          Object.prototype.hasOwnProperty.call(this.stats, key) &&
+          key !== 'monitoring'
+        ) {
           this.animateNumber(key, this.stats[key], newStats[key]);
         } else {
           this.stats[key] = newStats[key];

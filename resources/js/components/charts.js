@@ -133,7 +133,9 @@ document.addEventListener('alpine:init', () => {
       if (!this.chart) return;
 
       const textColor = isDark ? '#e5e7eb' : '#374151';
-      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      const gridColor = isDark
+        ? 'rgba(255, 255, 255, 0.1)'
+        : 'rgba(0, 0, 0, 0.1)';
 
       this.chart.options.plugins.legend.labels.color = textColor;
       this.chart.options.scales.x.ticks.color = textColor;
@@ -154,127 +156,133 @@ document.addEventListener('alpine:init', () => {
 
   // Real-time stats chart
   Alpine.data('statsChart', () => ({
-    ...Alpine.raw(Alpine.data('chartComponent')({
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: 'Platform Status',
-            data: [],
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-            fill: true,
-          },
-          {
-            label: 'Active Users',
-            data: [],
-            borderColor: 'rgb(34, 197, 94)',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            tension: 0.4,
-            fill: true,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-          duration: 750,
-          easing: 'easeInOutQuart',
+    ...Alpine.raw(
+      Alpine.data('chartComponent')({
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Platform Status',
+              data: [],
+              borderColor: 'rgb(59, 130, 246)',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              tension: 0.4,
+              fill: true,
+            },
+            {
+              label: 'Active Users',
+              data: [],
+              borderColor: 'rgb(34, 197, 94)',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              tension: 0.4,
+              fill: true,
+            },
+          ],
         },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 750,
+            easing: 'easeInOutQuart',
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+            },
           },
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-          },
-        },
-      },
-    })),
+      })
+    ),
   }));
 
   // Queue performance chart
   Alpine.data('queueChart', () => ({
-    ...Alpine.raw(Alpine.data('chartComponent')({
-      type: 'bar',
-      data: {
-        labels: ['Processed', 'Failed', 'Pending'],
-        datasets: [
-          {
-            label: 'Jobs',
-            data: [0, 0, 0],
-            backgroundColor: [
-              'rgba(34, 197, 94, 0.8)',
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(245, 158, 11, 0.8)',
-            ],
-            borderColor: [
-              'rgb(34, 197, 94)',
-              'rgb(239, 68, 68)',
-              'rgb(245, 158, 11)',
-            ],
-            borderWidth: 1,
+    ...Alpine.raw(
+      Alpine.data('chartComponent')({
+        type: 'bar',
+        data: {
+          labels: ['Processed', 'Failed', 'Pending'],
+          datasets: [
+            {
+              label: 'Jobs',
+              data: [0, 0, 0],
+              backgroundColor: [
+                'rgba(34, 197, 94, 0.8)',
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(245, 158, 11, 0.8)',
+              ],
+              borderColor: [
+                'rgb(34, 197, 94)',
+                'rgb(239, 68, 68)',
+                'rgb(245, 158, 11)',
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
           },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
           },
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    })),
+      })
+    ),
   }));
 
   // Error distribution chart
   Alpine.data('errorChart', () => ({
-    ...Alpine.raw(Alpine.data('chartComponent')({
-      type: 'doughnut',
-      data: {
-        labels: ['Network Errors', 'Server Errors', 'Client Errors', 'Other'],
-        datasets: [
-          {
-            data: [0, 0, 0, 0],
-            backgroundColor: [
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(245, 158, 11, 0.8)',
-              'rgba(59, 130, 246, 0.8)',
-              'rgba(107, 114, 128, 0.8)',
-            ],
-            borderColor: [
-              'rgb(239, 68, 68)',
-              'rgb(245, 158, 11)',
-              'rgb(59, 130, 246)',
-              'rgb(107, 114, 128)',
-            ],
-            borderWidth: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
+    ...Alpine.raw(
+      Alpine.data('chartComponent')({
+        type: 'doughnut',
+        data: {
+          labels: ['Network Errors', 'Server Errors', 'Client Errors', 'Other'],
+          datasets: [
+            {
+              data: [0, 0, 0, 0],
+              backgroundColor: [
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(245, 158, 11, 0.8)',
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(107, 114, 128, 0.8)',
+              ],
+              borderColor: [
+                'rgb(239, 68, 68)',
+                'rgb(245, 158, 11)',
+                'rgb(59, 130, 246)',
+                'rgb(107, 114, 128)',
+              ],
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
           },
         },
-      },
-    })),
+      })
+    ),
   }));
 });
