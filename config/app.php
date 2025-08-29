@@ -187,7 +187,7 @@ return [
         App\Providers\PurchaseServiceProvider::class,
         App\Providers\DomainDrivenDesignServiceProvider::class,
         App\Providers\EventDrivenArchitectureServiceProvider::class,
-        App\Providers\TelescopeServiceProvider::class,
+        // App\Providers\TelescopeServiceProvider::class, // Temporarily disabled until dev dependencies are installed
         App\Providers\EnvServiceProvider::class,
     ])->toArray(),
 
