@@ -149,5 +149,6 @@
   "html.format.indentInnerHtml": true,
   "vue.format.script.initialIndent": true,
   "vue.format.style.initialIndent": true,
-  "editor.trimWhitespaceOnDelete": true
+  "editor.trimWhitespaceOnDelete": true,
+  "chat.agent.maxRequests": 250
 }
