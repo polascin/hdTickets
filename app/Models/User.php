@@ -185,22 +185,33 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->encryptionService = new EncryptionService();
+        
+        try {
+            $this->encryptionService = new EncryptionService();
+        } catch (Exception $e) {
+            // Log the error but continue without encryption
+            logger('EncryptionService failed to initialize: ' . $e->getMessage());
+            $this->encryptionService = null;
+        }
 
         // Encrypt sensitive fields on save
         static::saving(function ($model): void {
-            foreach ($model->getEncryptedFields() as $field) {
-                if (!empty($model->$field)) {
-                    $model->$field = $model->encryptionService->encrypt($model->$field);
+            if ($model->encryptionService) {
+                foreach ($model->getEncryptedFields() as $field) {
+                    if (!empty($model->$field)) {
+                        $model->$field = $model->encryptionService->encrypt($model->$field);
+                    }
                 }
             }
         });
 
         // Decrypt sensitive fields on retrieve
         static::retrieved(function ($model): void {
-            foreach ($model->getEncryptedFields() as $field) {
-                if (!empty($model->$field)) {
-                    $model->$field = $model->encryptionService->decrypt($model->$field);
+            if ($model->encryptionService) {
+                foreach ($model->getEncryptedFields() as $field) {
+                    if (!empty($model->$field)) {
+                        $model->$field = $model->encryptionService->decrypt($model->$field);
+                    }
                 }
             }
         });
@@ -1190,19 +1201,9 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         try {
             return app(EncryptionService::class);
         } catch (Exception $e) {
-            // During testing or when EncryptionService is not available,
-            // return a mock that just returns the value as-is
-            return new class() {
-                public function encrypt($value)
-                {
-                    return $value;
-                }
-
-                public function decrypt($value)
-                {
-                    return $value;
-                }
-            };
+            // Log the error and return null instead of anonymous class
+            logger('EncryptionService not available: ' . $e->getMessage());
+            return null;
         }
     }
 

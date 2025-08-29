@@ -413,6 +413,13 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function ():
     Route::post('/recovery', [App\Http\Controllers\AccountDeletionController::class, 'recover'])->name('recovery');
 });
 
+// AJAX endpoint for ticket details (web-authenticated)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/ajax/ticket-details/{id}', [App\Http\Controllers\Api\ScrapingController::class, 'getTicketDetails'])
+        ->where('id', '[0-9]+')
+        ->name('ajax.ticket-details');
+});
+
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
 

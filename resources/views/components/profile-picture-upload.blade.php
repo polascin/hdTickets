@@ -49,15 +49,15 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21 15v4c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Upload Photo
+                        Choose Photo
                     </button>
                     
                     @if($user->profile_picture)
-                    <button type="button" id="profile-picture-delete-btn" class="btn btn-danger">
+                    <button type="button" id="profile-picture-delete-btn" class="btn btn-outline-danger">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 6h18M8 6V4c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v2M19 6v14c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Remove Photo
+                        Remove
                     </button>
                     @endif
                 </div>
@@ -90,14 +90,14 @@
         </div>
         
         <div class="crop-modal-buttons">
-            <button type="button" id="cancel-crop-btn" class="btn btn-outline">Cancel</button>
-            <button type="button" id="apply-crop-btn" class="btn btn-primary">Save Cropped Photo</button>
+            <button type="button" id="cancel-crop-btn" class="btn btn-outline-secondary">Cancel</button>
+            <button type="button" id="apply-crop-btn" class="btn btn-primary">Save Photo</button>
         </div>
     </div>
 </div>
 
 @push('styles')
-<link href="{{ asset('css/profile-picture.css') }}?v={{ app('css.timestamp') }}" rel="stylesheet">
+<link href="{{ css_timestamp('css/profile-picture.css') }}" rel="stylesheet">
 <!-- Cropper.js CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cyzxRvewl+7jiNzQQw2sFOOlUY28D5dSlqpKBOvt7sLw0xFfkBnz4RUIDlgd8WvUSKyf4UKvJJJ8V8oQr5WFkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
@@ -106,5 +106,5 @@
 <!-- Cropper.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Profile Picture Manager -->
-<script src="{{ asset('js/profile-picture-manager.js') }}?v={{ app('css.timestamp') }}"></script>
+<script src="{{ css_timestamp('js/profile-picture-manager.js') }}"></script>
 @endpush

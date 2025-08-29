@@ -9,15 +9,15 @@
 @php
     use Illuminate\Support\Facades\Request;
 @endphp
-<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40" role="navigation"
-    aria-label="Main navigation" id="main-navigation">
+<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40"
+    role="navigation" aria-label="Main navigation" id="main-navigation">
 
     <!-- Primary Navigation Menu -->
     <div class="hd-container">
         <div class="flex justify-between items-center" style="height: var(--hd-header-height-desktop);">
             <style>
                 @media (max-width: 767px) {
-                    #main-navigation .hd-container > div {
+                    #main-navigation .hd-container>div {
                         height: var(--hd-header-height-mobile) !important;
                     }
                 }
@@ -45,9 +45,9 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    @if (Auth::user()->isAdmin() || Auth::user()->isAgent())
+                    @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isAgent()))
                         {{-- Agent-specific check for debugging --}}
-                        @if (Auth::user()->isAgent())
+                        @if (Auth::check() && Auth::user()->isAgent())
                             {{-- Agent has access to these features --}}
                         @endif
                         {{-- Sports Tickets --}}
@@ -99,18 +99,20 @@
                         {{ __('Profile') }}
 
                         {{-- Profile completion indicator --}}
-                        @php
-                            $profileCompletion = Auth::user()->getProfileCompletion();
-                        @endphp
-                        @if ($profileCompletion['percentage'] < 90)
-                            <span
-                                class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-yellow-500 rounded-full">
-                                !
-                            </span>
+                        @if (Auth::check())
+                            @php
+                                $profileCompletion = Auth::user()->getProfileCompletion();
+                            @endphp
+                            @if ($profileCompletion['percentage'] < 90)
+                                <span
+                                    class="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-yellow-500 rounded-full">
+                                    !
+                                </span>
+                            @endif
                         @endif
                     </x-nav-link>
 
-                    @if (Auth::user()->isAdmin())
+                    @if (Auth::check() && Auth::user()->isAdmin())
                         {{-- Admin Dropdown --}}
                         <div class="relative" @click.outside="adminDropdownOpen = false">
                             <button @click="toggleAdminDropdown();"
@@ -164,7 +166,7 @@
                                 {{-- Separator --}}
                                 <div class="border-t border-gray-100 my-1"></div>
 
-                                @if (Auth::user()->canManageUsers())
+                                @if (Auth::check() && Auth::user()->canManageUsers())
                                     <a href="{{ route('admin.users.index') }}"
                                         class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150 ease-in-out {{ Request::routeIs('admin.users.*') ? 'bg-gray-50 text-blue-600' : '' }}">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
@@ -244,9 +246,24 @@
                     <button @click="toggleProfileDropdown()"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
                         :aria-expanded="profileDropdownOpen" aria-haspopup="true">
-                        @php
-                            $profileDisplay = Auth::user()->getProfileDisplay();
-                        @endphp
+                        @if (Auth::check())
+                            @php
+                                $profileDisplay = Auth::user()->getProfileDisplay();
+                            @endphp
+                        @else
+                            @php
+                                $profileDisplay = [
+                                    'has_picture' => false,
+                                    'initials' => 'G',
+                                    'display_name' => 'Guest',
+                                    'full_name' => 'Guest User',
+                                    'picture_url' => null,
+                                    'bio' => null,
+                                    'timezone' => 'UTC',
+                                    'language' => 'en',
+                                ];
+                            @endphp
+                        @endif
                         <div class="flex items-center">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
                                 @if ($profileDisplay['has_picture'])
@@ -335,7 +352,7 @@
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
 
-                @if (Auth::user()->isAdmin() || Auth::user()->isAgent())
+                @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isAgent()))
                     {{-- Sports Tickets --}}
                     <x-responsive-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')">
                         <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -385,7 +402,7 @@
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 
-                @if (Auth::user()->isAdmin())
+                @if (Auth::check() && Auth::user()->isAdmin())
                     {{-- Admin Section --}}
                     <div class="border-t border-gray-200 mt-3 pt-3">
                         <div class="px-4 py-2">
@@ -415,7 +432,7 @@
                             {{ __('Reports') }}
                         </x-responsive-nav-link>
 
-                        @if (Auth::user()->canManageUsers())
+                        @if (Auth::check() && Auth::user()->canManageUsers())
                             <x-responsive-nav-link :href="route('admin.users.index')" :active="Request::routeIs('admin.users.*')">
                                 <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -464,9 +481,20 @@
             <div class="pt-4 pb-1 border-t border-gray-200">
                 <div class="px-4 flex items-center justify-between">
                     <div class="flex items-center">
-                        @php
-                            $mobileProfileDisplay = Auth::user()->getProfileDisplay();
-                        @endphp
+                        @if (Auth::check())
+                            @php
+                                $mobileProfileDisplay = Auth::user()->getProfileDisplay();
+                            @endphp
+                        @else
+                            @php
+                                $mobileProfileDisplay = [
+                                    'has_picture' => false,
+                                    'initials' => 'G',
+                                    'display_name' => 'Guest',
+                                    'picture_url' => null,
+                                ];
+                            @endphp
+                        @endif
                         <div
                             class="relative w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
                             @if ($mobileProfileDisplay['has_picture'])
@@ -482,30 +510,38 @@
                             @endif
 
                             {{-- Profile completion indicator for mobile --}}
-                            @php
-                                $mobileProfileCompletion = Auth::user()->getProfileCompletion();
-                            @endphp
-                            @if ($mobileProfileCompletion['percentage'] < 90)
-                                <div class="absolute -bottom-0.5 -right-0.5">
-                                    <x-profile-completion-indicator :user="Auth::user()" position="sidebar"
-                                        :showLabel="false" size="xs" />
-                                </div>
+                            @if (Auth::check())
+                                @php
+                                    $mobileProfileCompletion = Auth::user()->getProfileCompletion();
+                                @endphp
+                                @if ($mobileProfileCompletion['percentage'] < 90)
+                                    <div class="absolute -bottom-0.5 -right-0.5">
+                                        <x-profile-completion-indicator :user="Auth::user()" position="sidebar"
+                                            :showLabel="false" size="xs" />
+                                    </div>
+                                @endif
                             @endif
                         </div>
                         <div>
                             <div class="font-medium text-base text-gray-800">
                                 {{ $mobileProfileDisplay['display_name'] }}</div>
-                            <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                            <div class="font-medium text-sm text-gray-500">
+                                {{ Auth::check() ? Auth::user()->email : 'guest@example.com' }}</div>
                         </div>
                     </div>
 
                     {{-- Profile completion status for mobile --}}
-                    @if ($mobileProfileCompletion['percentage'] < 90)
-                        <div class="text-right">
-                            <div class="text-xs font-medium text-yellow-600">
-                                {{ $mobileProfileCompletion['percentage'] }}%</div>
-                            <div class="text-xs text-gray-500">Complete</div>
-                        </div>
+                    @if (Auth::check())
+                        @php
+                            $mobileProfileCompletion = Auth::user()->getProfileCompletion();
+                        @endphp
+                        @if ($mobileProfileCompletion['percentage'] < 90)
+                            <div class="text-right">
+                                <div class="text-xs font-medium text-yellow-600">
+                                    {{ $mobileProfileCompletion['percentage'] }}%</div>
+                                <div class="text-xs text-gray-500">Complete</div>
+                            </div>
+                        @endif
                     @endif
                 </div>
 

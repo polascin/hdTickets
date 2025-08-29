@@ -1058,13 +1058,14 @@
             contentEl.classList.add('hidden');
             errorEl.classList.add('hidden');
             
-            // Make AJAX request to the API
-            fetch(`/api/v1/scraping/ticket-details/${ticketId}`, {
+            // Make AJAX request to the web endpoint
+            fetch(`/ajax/ticket-details/${ticketId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                 },
                 credentials: 'same-origin'
             })
