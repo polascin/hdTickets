@@ -37,7 +37,7 @@ class ProfileController extends Controller
         $userStats = [
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
-            'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans(null, true) : 'Never',
+            'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
             'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : null,
             
             // Sports Events Monitoring Statistics

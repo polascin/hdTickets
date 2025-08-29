@@ -3,7 +3,6 @@
   "editor.tabSize": 2,
   "workbench.tree.indent": 16,
   "editor.wordWrap": "on",
-
   // Git Settings
   "git.enableSmartCommit": true,
   "git.confirmSync": false,
@@ -23,14 +22,18 @@
   "git.defaultCloneDirectory": "/var/www",
   "git.openRepositoryInParentFolders": "always",
   "git.repositoryScanMaxDepth": 2,
-  "git.scanRepositories": ["/var/www"],
+  "git.scanRepositories": [
+    "/var/www"
+  ],
   "git.decorations.enabled": true,
-  "git.branchProtection": ["main", "master"],
+  "git.branchProtection": [
+    "main",
+    "master"
+  ],
   "git.branchValidationRegex": "^[a-z]+(/[a-z]+)*$",
   "git.requireGitSuffix": false,
   "git.ignoreLimitWarning": true,
   "git.ignoreRebaseWarning": true,
-
   // Git Graph Extension Settings (if installed)
   "git-graph.repository.onLoad.showCheckedOutBranch": true,
   "git-graph.repository.commits.showSignatureStatus": true,
@@ -41,7 +44,6 @@
     "Commit": true,
     "Description": true
   },
-
   // GitLens Extension Settings (if installed)
   "gitlens.currentLine.enabled": true,
   "gitlens.codeLens.enabled": true,
@@ -53,7 +55,6 @@
   "gitlens.views.repositories.branches.layout": "tree",
   "gitlens.views.fileHistory.enabled": true,
   "gitlens.views.lineHistory.enabled": true,
-
   // Source Control View
   "scm.alwaysShowActions": true,
   "scm.alwaysShowRepositories": true,
@@ -61,27 +62,22 @@
   "scm.countBadge": "all",
   "scm.defaultViewMode": "tree",
   "scm.showActionButton": true,
-
   // Diff Editor Settings
   "diffEditor.ignoreTrimWhitespace": false,
   "diffEditor.renderSideBySide": true,
   "diffEditor.hideUnchangedRegions.enabled": true,
   "diffEditor.experimental.showMoves": true,
-
   // Terminal Integration
   "terminal.integrated.env.linux": {
     "GIT_EDITOR": "code --wait"
   },
-
   // File Explorer Git Integration
   "explorer.decorations.colors": true,
   "explorer.decorations.badges": true,
-
   // Search Settings (Git-aware)
   "search.useGlobalIgnoreFiles": true,
   "search.useIgnoreFiles": true,
   "search.followSymlinks": false,
-
   // React & TypeScript Specific Settings
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
@@ -93,27 +89,33 @@
   },
   "emmet.showExpandedAbbreviation": "always",
   "emmet.triggerExpansionOnTab": true,
-  
   // Tailwind CSS
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
     "typescriptreact": "javascriptreact"
   },
   "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "cx\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ],
     "tw`([^`]*)`",
     "tw\\.[^`]+`([^`]*)`",
-    ["tw\\(.*?\\)`([^`]*)`", "tw\\(([^)]*)\\)"]
+    [
+      "tw\\(.*?\\)`([^`]*)`",
+      "tw\\(([^)]*)\\)"
+    ]
   ],
-  
   // PHP & Laravel Specific Settings (for backend)
   "php.validate.enable": true,
   "php.validate.executablePath": "/usr/bin/php",
   "phpstan.enabled": true,
   "phpstan.path": "./vendor/bin/phpstan",
   "phpstan.configFile": "./phpstan.neon",
-
   // Files to ignore in git operations
   "files.exclude": {
     "**/node_modules": true,
@@ -127,11 +129,9 @@
     "**/.php-cs-fixer.cache": true,
     "**/.phpunit.result.cache": true
   },
-
   // Auto-save settings for git workflow
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
-
   // Formatting on save (important for pre-commit hooks)
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
@@ -140,5 +140,14 @@
   },
   "git.postCommitCommand": "sync",
   "githubPullRequests.codingAgent.autoCommitAndPush": false,
-  "git.allowNoVerifyCommit": false
+  "git.allowNoVerifyCommit": false,
+  "editor.autoIndentOnPaste": true,
+  "editor.detectIndentation": false,
+  "bladeFormatter.format.indentInnerHtml": true,
+  "bladeFormatter.format.indentSize": 2,
+  "html.format.indentHandlebars": true,
+  "html.format.indentInnerHtml": true,
+  "vue.format.script.initialIndent": true,
+  "vue.format.style.initialIndent": true,
+  "editor.trimWhitespaceOnDelete": true
 }

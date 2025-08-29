@@ -970,5 +970,20 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
       ),
     ),
+    '/var/www/hdtickets/database/migrations/2025_08_25_180816_create_cache_table.php' => 
+    array (
+      0 => '1e63143baede25661ec2075259ba517cbf2c2400',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
   ),
 ));
