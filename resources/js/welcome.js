@@ -189,7 +189,10 @@ document.addEventListener('alpine:init', () => {
 
     // Enhanced click handlers
     handleFeatureClick(featureName) {
-      console.log(`Feature clicked: ${featureName}`);
+      // Debug info only in development
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.info(`Feature clicked: ${featureName}`);
+      }
 
       // Add haptic feedback if supported
       if (navigator.vibrate) {
@@ -262,7 +265,7 @@ window.WelcomePage = {
         await navigator.share(data);
         return true;
       } catch (err) {
-        console.log('Error sharing:', err);
+        console.warn('Error sharing:', err);
       }
     }
     return false;

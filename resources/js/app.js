@@ -1,13 +1,14 @@
-import './bootstrap';
 import Alpine from 'alpinejs';
+import './bootstrap';
 
 // Make Alpine available globally
 window.Alpine = Alpine;
 
 // Alpine components
-import './components/theme-switcher';
-import './components/real-time-stats';
+import './components/charts';
 import './components/notification-system';
+import './components/real-time-stats';
+import './components/theme-switcher';
 
 // Initialize Alpine
 Alpine.start();
@@ -18,10 +19,10 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
       .then(registration => {
-        console.log('SW registered: ', registration);
+        console.info('SW registered: ', registration);
       })
       .catch(registrationError => {
-        console.log('SW registration failed: ', registrationError);
+        console.error('SW registration failed: ', registrationError);
       });
   });
 }
@@ -41,9 +42,9 @@ window.addEventListener('beforeinstallprompt', e => {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(choiceResult => {
         if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
+          console.info('User accepted the install prompt');
         } else {
-          console.log('User dismissed the install prompt');
+          console.warn('User dismissed the install prompt');
         }
         deferredPrompt = null;
       });

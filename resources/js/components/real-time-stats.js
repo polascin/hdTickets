@@ -69,7 +69,7 @@ document.addEventListener('alpine:init', () => {
     updateStats(newStats) {
       // Animate number changes
       Object.keys(newStats).forEach(key => {
-        if (this.stats.hasOwnProperty(key) && key !== 'monitoring') {
+        if (Object.prototype.hasOwnProperty.call(this.stats, key) && key !== 'monitoring') {
           this.animateNumber(key, this.stats[key], newStats[key]);
         } else {
           this.stats[key] = newStats[key];
@@ -80,7 +80,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     updateMetric(metric, value) {
-      if (this.stats.hasOwnProperty(metric)) {
+      if (Object.prototype.hasOwnProperty.call(this.stats, metric)) {
         this.animateNumber(metric, this.stats[metric], value);
       }
     },
@@ -152,7 +152,7 @@ document.addEventListener('alpine:init', () => {
       const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
 
       setTimeout(() => {
-        console.log(
+        console.warn(
           `Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`
         );
         this.connectWebSocket();

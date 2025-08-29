@@ -44,7 +44,7 @@ class AnalyticsService {
       this.initializeErrorTracking();
 
       this.initialized = true;
-      console.log('✅ HD Tickets Analytics initialized');
+      console.info('✅ HD Tickets Analytics initialized');
     } catch (error) {
       console.error('❌ Analytics initialization failed:', error);
     }
@@ -140,7 +140,9 @@ class AnalyticsService {
     // Update conversion funnels
     this.updateConversionFunnel(eventName, eventData);
 
-    console.log('📊 Analytics Event:', eventName, eventData);
+    if (this.debugMode) {
+      console.info('📊 Analytics Event:', eventName, eventData);
+    }
   }
 
   /**
