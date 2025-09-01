@@ -91,20 +91,8 @@ class TicketScrapingController extends Controller
 
             $tickets = $query->with(['category'])->paginate(20);
 
-            // Enhanced statistics
-            $stats = [
-                'total_tickets'         => ScrapedTicket::count(),
-                'available_tickets'     => ScrapedTicket::available()->count(),
-                'high_demand_tickets'   => ScrapedTicket::highDemand()->count(),
-                'active_alerts'         => TicketAlert::active()->forUser(Auth::id())->count(),
-                'recent_matches'        => TicketAlert::forUser(Auth::id())->sum('matches_found'),
-                'platforms'            => ScrapedTicket::distinct('platform')->count('platform'),
-                'avg_price'            => ScrapedTicket::available()->avg('min_price'),
-                'price_range'          => [
-                    'min' => ScrapedTicket::available()->min('min_price'),
-                    'max' => ScrapedTicket::available()->max('max_price'),
-                ],
-            ];
+            // Enhanced statistics with error handling
+            $stats = $this->generateStats();
 
             // Add filter summary for user feedback
             $activeFilters = [
@@ -125,21 +113,54 @@ class TicketScrapingController extends Controller
             
             // Return with error state
             $tickets = collect()->paginate(0);
-            $stats = [
-                'total_tickets' => 0,
-                'available_tickets' => 0,
-                'high_demand_tickets' => 0,
-                'active_alerts' => 0,
-                'recent_matches' => 0,
-                'platforms' => 0,
-                'avg_price' => 0,
-                'price_range' => ['min' => 0, 'max' => 0],
-            ];
+            $stats = $this->getDefaultStats();
             $activeFilters = [];
             
             return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'))
                 ->with('error', 'Unable to load sports event tickets at this time. Please try again later or contact support if the problem persists.');
         }
+    }
+
+    /**
+     * Generate statistics with error handling
+     */
+    private function generateStats(): array
+    {
+        try {
+            return [
+                'total_tickets'         => ScrapedTicket::count(),
+                'available_tickets'     => ScrapedTicket::available()->count(),
+                'high_demand_tickets'   => ScrapedTicket::highDemand()->count(),
+                'active_alerts'         => TicketAlert::active()->forUser(Auth::id())->count(),
+                'recent_matches'        => TicketAlert::forUser(Auth::id())->sum('matches_found'),
+                'platforms'            => ScrapedTicket::distinct('platform')->count('platform'),
+                'avg_price'            => round(ScrapedTicket::available()->avg('min_price') ?? 0, 2),
+                'price_range'          => [
+                    'min' => ScrapedTicket::available()->min('min_price') ?? 0,
+                    'max' => ScrapedTicket::available()->max('max_price') ?? 0,
+                ],
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error generating stats: ' . $e->getMessage());
+            return $this->getDefaultStats();
+        }
+    }
+
+    /**
+     * Get default stats when database error occurs
+     */
+    private function getDefaultStats(): array
+    {
+        return [
+            'total_tickets' => 0,
+            'available_tickets' => 0,
+            'high_demand_tickets' => 0,
+            'active_alerts' => 0,
+            'recent_matches' => 0,
+            'platforms' => 0,
+            'avg_price' => 0,
+            'price_range' => ['min' => 0, 'max' => 0],
+        ];
     }
 
     /**
@@ -177,7 +198,10 @@ class TicketScrapingController extends Controller
                 ],
             );
 
-            $totalFound = array_sum(array_map('count', $results));
+            $totalFound = 0;
+            foreach ($results as $platform => $tickets) {
+                $totalFound += is_array($tickets) ? count($tickets) : 0;
+            }
 
             return response()->json([
                 'success' => TRUE,
@@ -186,18 +210,20 @@ class TicketScrapingController extends Controller
                     'total_found'        => $totalFound,
                     'platforms_searched' => count($results),
                     'search_keywords'    => $request->keywords,
-                    'timestamp'          => now(),
+                    'timestamp'          => now()->toISOString(),
                 ],
             ]);
         } catch (Exception $e) {
             Log::error('Ticket search error: ' . $e->getMessage(), [
                 'keywords' => $request->keywords,
                 'user_id'  => Auth::id(),
+                'stack_trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Search failed. Please try again.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
