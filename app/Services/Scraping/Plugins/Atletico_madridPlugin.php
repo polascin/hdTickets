@@ -12,14 +12,11 @@ class Atletico_madridPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
-    /**
-     * InitializePlugin
-     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'Atlético Madrid';
         $this->platform = 'atletico_madrid';
-        $this->description = 'Official Atlético Madrid tickets - La Liga, Champions League, Copa del Rey';
+        $this->description = 'Official Atlético Madrid tickets - La Liga, Champions League, Copa del Rey, Madrid Derby';
         $this->baseUrl = 'https://www.atleticodemadrid.com';
         $this->venue = 'Riyadh Air Metropolitano';
         $this->currency = 'EUR';
@@ -30,9 +27,6 @@ class Atletico_madridPlugin extends BaseScraperPlugin
     /**
      * Get plugin capabilities
      */
-    /**
-     * Get  capabilities
-     */
     protected function getCapabilities(): array
     {
         return [
@@ -40,17 +34,18 @@ class Atletico_madridPlugin extends BaseScraperPlugin
             'champions_league',
             'copa_del_rey',
             'europa_league',
+            'supercopa_espana',
             'hospitality_packages',
             'season_tickets',
             'madrid_derby',
+            'womens_football',
+            'metropolitano_tours',
+            'indians_tickets', // nickname for Atlético fans
         ];
     }
 
     /**
      * Get supported search criteria
-     */
-    /**
-     * Get  supported criteria
      */
     protected function getSupportedCriteria(): array
     {
@@ -61,6 +56,8 @@ class Atletico_madridPlugin extends BaseScraperPlugin
             'match_type',
             'opponent',
             'section',
+            'price_range',
+            'team', // masculino/femenino
         ];
     }
 

@@ -497,6 +497,29 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      * Filter results based on criteria
      */
     /**
+     * Parse date string into standardized format
+     */
+    protected function parseDate(string $dateText): ?string
+    {
+        if (empty($dateText)) {
+            return null;
+        }
+
+        try {
+            // Try to parse the date
+            $date = \DateTime::createFromFormat('Y-m-d H:i:s', $dateText);
+            if ($date === false) {
+                $date = new \DateTime($dateText);
+            }
+            
+            return $date->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            Log::warning("Failed to parse date: {$dateText}", ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
      * FilterResults
      */
     protected function filterResults(array $events, array $criteria): array

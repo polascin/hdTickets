@@ -2,363 +2,499 @@
 
 namespace App\Services\Scraping\Plugins;
 
-use App\Services\ProxyRotationService;
-use App\Services\Scraping\ScraperPluginInterface;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
+use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Log;
+use Symfony\Component\DomCrawler\Crawler;
 
-use function array_slice;
-use function count;
-
-class TottenhamPlugin implements ScraperPluginInterface
+class TottenhamPlugin extends BaseScraperPlugin
 {
-    private $enabled = TRUE;
-
-    private $config = [];
-
-    private $proxyService;
-
-    private $httpClient;
-
-    private $baseUrl = 'https://www.tottenhamhotspur.com';
-
-    private $ticketsEndpoint = '/tickets';
-
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-    public function __construct(?ProxyRotationService $proxyService = NULL)
+    /**
+     * Initialize plugin-specific settings
+     */
+    protected function initializePlugin(): void
     {
-        $this->proxyService = $proxyService;
-        $this->initializeHttpClient();
+        $this->pluginName = 'Tottenham Hotspur';
+        $this->platform = 'tottenham';
+        $this->description = 'Official Tottenham Hotspur tickets - Premier League, Champions League, FA Cup, Carabao Cup';
+        $this->baseUrl = 'https://www.tottenhamhotspur.com';
+        $this->venue = 'Tottenham Hotspur Stadium';
+        $this->currency = 'GBP';
+        $this->language = 'en-GB';
+        $this->rateLimitSeconds = 2;
     }
 
     /**
-     * Get  info
+     * Get plugin capabilities
      */
-    public function getInfo(): array
+    protected function getCapabilities(): array
     {
         return [
-            'name'               => 'Tottenham Hotspur',
-            'description'        => 'Official Tottenham Hotspur tickets - New stadium, Premier League, European competitions',
-            'version'            => '1.0.0',
-            'platform'           => 'tottenham',
-            'capabilities'       => ['official_tickets', 'premium_seating', 'hospitality_packages'],
-            'rate_limit'         => '1 request per 2 seconds',
-            'supported_criteria' => ['keyword', 'date_range'],
-            'venue'              => 'Tottenham Hotspur Stadium',
+            'premier_league',
+            'champions_league',
+            'europa_league',
+            'fa_cup',
+            'carabao_cup',
+            'hospitality_packages',
+            'season_tickets',
+            'stadium_tours',
+            'north_london_derby',
+            'womens_football',
+            'youth_teams',
+            'legends_matches',
         ];
     }
 
     /**
-     * Check if  enabled
+     * Get supported search criteria
      */
-    public function isEnabled(): bool
+    protected function getSupportedCriteria(): array
     {
-        return $this->enabled;
+        return [
+            'keyword',
+            'date_range',
+            'competition',
+            'match_type',
+            'opponent',
+            'section',
+            'price_range',
+            'ticket_type',
+            'team', // first-team/women/academy
+        ];
     }
 
     /**
-     * Enable
+     * Get test URL for connectivity check
      */
-    public function enable(): void
+    protected function getTestUrl(): string
     {
-        $this->enabled = TRUE;
-        Log::info('Tottenham Hotspur plugin enabled');
+        return $this->baseUrl . '/tickets';
     }
 
     /**
-     * Disable
+     * Build search URL from criteria
      */
-    public function disable(): void
+    protected function buildSearchUrl(array $criteria): string
     {
-        $this->enabled = FALSE;
-        Log::info('Tottenham Hotspur plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-        Log::info('Tottenham Hotspur plugin configured', ['config' => $config]);
-    }
-
-    /**
-     * Scrape
-     */
-    public function scrape(array $criteria): array
-    {
-        if (! $this->enabled) {
-            throw new Exception('Tottenham Hotspur plugin is disabled');
-        }
-
-        Log::info('Starting Tottenham Hotspur scraping', $criteria);
-
-        try {
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $this->enforceRateLimit();
-            $response = $this->makeRequest($searchUrl);
-            $events = $this->parseSearchResults($response);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info('Tottenham Hotspur scraping completed', [
-                'url'           => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error('Tottenham Hotspur scraping failed', [
-                'criteria' => $criteria,
-                'error'    => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
-    }
-
-    /**
-     * Test
-     */
-    public function test(): array
-    {
-        try {
-            $testCriteria = ['keyword' => 'tickets', 'max_results' => 1];
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'Tottenham Hotspur plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'Tottenham Hotspur plugin test failed: ' . $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * InitializeHttpClient
-     */
-    private function initializeHttpClient(): void
-    {
-        $this->httpClient = new Client([
-            'timeout' => 30,
-            'verify'  => FALSE,
-            'headers' => [
-                'User-Agent'      => $this->userAgent,
-                'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-GB,en;q=0.9',
-                'Cache-Control'   => 'no-cache',
-                'Pragma'          => 'no-cache',
-            ],
-        ]);
-    }
-
-    /**
-     * BuildSearchUrl
-     */
-    private function buildSearchUrl(array $criteria): string
-    {
+        $baseSearchUrl = $this->baseUrl . '/tickets';
+        
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
+        if (!empty($criteria['keyword'])) {
+            $params['search'] = $criteria['keyword'];
         }
 
-        $queryString = http_build_query($params);
+        if (!empty($criteria['competition'])) {
+            $params['competition'] = $this->mapCompetition($criteria['competition']);
+        }
 
-        return $this->baseUrl . $this->ticketsEndpoint . '?' . $queryString;
+        if (!empty($criteria['team'])) {
+            $params['team'] = $criteria['team'];
+        }
+
+        if (!empty($criteria['date_from'])) {
+            $params['from'] = $criteria['date_from'];
+        }
+
+        if (!empty($criteria['date_to'])) {
+            $params['to'] = $criteria['date_to'];
+        }
+
+        if (!empty($criteria['ticket_type'])) {
+            $params['type'] = $criteria['ticket_type'];
+        }
+
+        // Remove empty parameters
+        $params = array_filter($params, function($value) {
+            return !empty($value);
+        });
+
+        if (!empty($params)) {
+            return $baseSearchUrl . '?' . http_build_query($params);
+        }
+
+        return $baseSearchUrl;
     }
 
     /**
-     * ParseSearchResults
+     * Map competition names to Tottenham terms
      */
-    private function parseSearchResults(string $html): array
+    private function mapCompetition(string $competition): string
     {
-        $events = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
-
-        $eventNodes = $xpath->query('//div[contains(@class, "event")] | //div[contains(@class, "fixture")] | //article[contains(@class, "ticket-card")]');
-
-        foreach ($eventNodes as $eventNode) {
-            try {
-                $event = [
-                    'platform'            => 'tottenham',
-                    'event_name'          => $this->extractText($xpath, './/h3 | .//h2 | .//*[contains(@class, "title")]', $eventNode),
-                    'venue'               => 'Tottenham Hotspur Stadium',
-                    'event_date'          => $this->extractAndParseDate($xpath, './/*[contains(@class, "date")]', $eventNode),
-                    'price_min'           => $this->extractPrice($xpath, './/*[contains(@class, "price")] | .//*[contains(text(), "£")]', $eventNode),
-                    'url'                 => $this->extractUrl($xpath, './/a[contains(@href, "/tickets")]', $eventNode),
-                    'availability_status' => $this->extractAvailabilityStatus($xpath, $eventNode),
-                    'description'         => '⚪🔵 Tottenham Hotspur Official - Tottenham Hotspur Stadium experience',
-                    'last_checked'        => now(),
-                    'scraped_at'          => now()->toISOString(),
-                ];
-
-                if (! empty($event['event_name'])) {
-                    $events[] = $event;
-                }
-            } catch (Exception $e) {
-                Log::warning('Failed to parse Tottenham Hotspur event', ['error' => $e->getMessage()]);
-
-                continue;
-            }
-        }
-
-        return $events;
-    }
-
-    /**
-     * ExtractText
-     */
-    private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
-    }
-
-    /**
-     * ExtractUrl
-     */
-    private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-        if ($nodes->length > 0) {
-            $href = $nodes->item(0)->getAttribute('href');
-
-            return strpos($href, 'http') === 0 ? $href : $this->baseUrl . $href;
-        }
-
-        return '';
-    }
-
-    /**
-     * ExtractPrice
-     */
-    private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
-    {
-        $priceText = $this->extractText($xpath, $selector, $context);
-
-        if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return NULL;
-    }
-
-    /**
-     * ExtractAndParseDate
-     */
-    private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
-    {
-        $dateText = $this->extractText($xpath, $selector, $context);
-
-        if (empty($dateText)) {
-            return NULL;
-        }
-
-        try {
-            $date = Carbon::parse($dateText);
-
-            return $date->toISOString();
-        } catch (Exception $e) {
-            Log::warning('Failed to parse Tottenham Hotspur date', ['date_text' => $dateText]);
-
-            return NULL;
-        }
-    }
-
-    /**
-     * ExtractAvailabilityStatus
-     */
-    private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
-    {
-        $statusIndicators = [
-            './/*[contains(text(), "Sold Out")]'  => 'sold_out',
-            './/*[contains(text(), "Available")]' => 'available',
-            './/*[contains(@class, "price")]'     => 'available',
+        $competitions = [
+            'premier_league' => 'Premier League',
+            'champions_league' => 'Champions League',
+            'europa_league' => 'Europa League',
+            'fa_cup' => 'FA Cup',
+            'carabao_cup' => 'Carabao Cup',
+            'league_cup' => 'Carabao Cup',
+            'north_london_derby' => 'North London Derby',
+            'womens_super_league' => 'Women\'s Super League',
         ];
 
-        foreach ($statusIndicators as $selector => $status) {
-            $nodes = $xpath->query($selector, $eventNode);
-            if ($nodes->length > 0) {
-                return $status;
+        return $competitions[strtolower($competition)] ?? $competition;
+    }
+
+    /**
+     * Scrape tickets from Tottenham
+     */
+    protected function scrapeTickets(array $criteria): array
+    {
+        $searchUrl = $this->buildSearchUrl($criteria);
+        
+        try {
+            Log::info("Tottenham Plugin: Scraping tickets from: $searchUrl");
+            
+            $response = $this->makeHttpRequest($searchUrl);
+            if (!$response) {
+                return [];
             }
+
+            $crawler = new Crawler($response);
+            $tickets = [];
+
+            // Tottenham ticket selectors
+            $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets) {
+                try {
+                    $ticket = $this->extractTicketData($node);
+                    if ($ticket && $this->validateTicketData($ticket)) {
+                        $tickets[] = $ticket;
+                    }
+                } catch (Exception $e) {
+                    Log::warning("Tottenham Plugin: Error extracting ticket: " . $e->getMessage());
+                }
+            });
+
+            Log::info("Tottenham Plugin: Found " . count($tickets) . " tickets");
+            return $tickets;
+
+        } catch (Exception $e) {
+            Log::error("Tottenham Plugin: Scraping error: " . $e->getMessage());
+            return [];
         }
-
-        return 'unknown';
     }
 
     /**
-     * FilterResults
+     * Extract ticket data from DOM node
      */
-    private function filterResults(array $events, array $criteria): array
-    {
-        $maxResults = $criteria['max_results'] ?? 50;
-
-        return array_slice(array_values($events), 0, $maxResults);
-    }
-
-    /**
-     * EnforceRateLimit
-     */
-    private function enforceRateLimit(): void
-    {
-        $lastRequest = Cache::get('tottenham_last_request', 0);
-        $timeSinceLastRequest = microtime(TRUE) - $lastRequest;
-
-        if ($timeSinceLastRequest < 2) {
-            $sleepTime = 2 - $timeSinceLastRequest;
-            usleep($sleepTime * 1000000);
-        }
-
-        Cache::put('tottenham_last_request', microtime(TRUE), 60);
-    }
-
-    /**
-     * MakeRequest
-     */
-    private function makeRequest(string $url): string
+    private function extractTicketData(Crawler $node): ?array
     {
         try {
-            $options = [];
+            // Extract match information
+            $homeTeam = $this->extractText($node, '.home-team, .tottenham, .spurs');
+            $awayTeam = $this->extractText($node, '.away-team, .opponent, .visiting-team');
+            $date = $this->extractText($node, '.match-date, .fixture-date, .kickoff-date');
+            $time = $this->extractText($node, '.match-time, .kickoff-time, .ko-time');
+            $competition = $this->extractText($node, '.competition, .tournament, .comp-name');
+            $priceText = $this->extractText($node, '.price, .cost, .from, .ticket-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
 
-            if ($this->proxyService) {
-                $proxy = $this->proxyService->getNextProxy();
-                if ($proxy) {
-                    $options['proxy'] = $proxy;
+            // Create match title - Tottenham is always home at their stadium
+            $title = 'Tottenham';
+            if (!empty($awayTeam)) {
+                $title .= ' vs ' . $awayTeam;
+            } else {
+                // Fallback to extract from general title
+                $generalTitle = $this->extractText($node, '.match-title, .fixture-title, h3, h2');
+                if (!empty($generalTitle)) {
+                    $title = $generalTitle;
                 }
             }
 
-            $response = $this->httpClient->get($url, $options);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception('HTTP ' . $response->getStatusCode() . ' error');
+            if (empty($title) || $title === 'Tottenham') {
+                return null;
             }
 
-            return $response->getBody()->getContents();
-        } catch (RequestException $e) {
-            Log::error('Tottenham Hotspur HTTP request failed', [
-                'url'   => $url,
-                'error' => $e->getMessage(),
-            ]);
+            // Parse price
+            $price = $this->parsePrice($priceText);
 
-            throw new Exception('Failed to fetch Tottenham Hotspur page: ' . $e->getMessage());
+            // Parse date and time
+            $eventDate = $this->parseDateTime($date, $time);
+
+            // Build full URL if relative
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            return [
+                'title' => $title,
+                'price' => $price['min'],
+                'price_range' => $price,
+                'currency' => $this->currency,
+                'venue' => $this->venue,
+                'event_date' => $eventDate,
+                'link' => $link,
+                'platform' => $this->platform,
+                'category' => 'football',
+                'competition' => $competition ?: 'Premier League',
+                'home_team' => 'Tottenham',
+                'away_team' => $awayTeam,
+                'availability' => $this->determineAvailability($node),
+                'scraped_at' => now(),
+            ];
+
+        } catch (Exception $e) {
+            Log::warning("Tottenham Plugin: Error extracting ticket data: " . $e->getMessage());
+            return null;
         }
+    }
+
+    /**
+     * Parse search results from HTML
+     */
+    protected function parseSearchResults(string $html): array
+    {
+        $crawler = new Crawler($html);
+        $tickets = [];
+
+        $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets) {
+            try {
+                $ticket = $this->extractTicketData($node);
+                if ($ticket && $this->validateTicketData($ticket)) {
+                    $tickets[] = $ticket;
+                }
+            } catch (Exception $e) {
+                Log::warning("Tottenham Plugin: Error extracting ticket: " . $e->getMessage());
+            }
+        });
+
+        return $tickets;
+    }
+
+    /**
+     * Parse date and time together
+     */
+    private function parseDateTime(string $date, string $time): ?string
+    {
+        $eventDate = $this->parseDate($date);
+        
+        if ($eventDate && !empty($time)) {
+            $timeFormatted = $this->parseTime($time);
+            if ($timeFormatted) {
+                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
+            }
+        }
+        
+        return $eventDate;
+    }
+
+    /**
+     * Parse time from British text
+     */
+    private function parseTime(string $time): ?string
+    {
+        // Handle British time formats like "15:00", "3:00 PM", "3pm"
+        if (preg_match('/(\d{1,2}):(\d{2})\s*(AM|PM)?/i', $time, $matches)) {
+            $hour = (int)$matches[1];
+            $minute = (int)$matches[2];
+            $period = $matches[3] ?? '';
+            
+            if (strtoupper($period) === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif (strtoupper($period) === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+            
+            return sprintf('%02d:%02d', $hour, $minute);
+        }
+        
+        // Handle "3pm" format
+        if (preg_match('/(\d{1,2})\s*(AM|PM)/i', $time, $matches)) {
+            $hour = (int)$matches[1];
+            $period = strtoupper($matches[2]);
+            
+            if ($period === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif ($period === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+            
+            return sprintf('%02d:00', $hour);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get event name selectors
+     */
+    protected function getEventNameSelectors(): string
+    {
+        return '.match-title, .fixture-title, .event-title, h2, h3';
+    }
+
+    /**
+     * Get date selectors
+     */
+    protected function getDateSelectors(): string
+    {
+        return '.match-date, .fixture-date, .kickoff-date, .ko-date';
+    }
+
+    /**
+     * Get venue selectors
+     */
+    protected function getVenueSelectors(): string
+    {
+        return '.venue, .stadium, .ground';
+    }
+
+    /**
+     * Get price selectors
+     */
+    protected function getPriceSelectors(): string
+    {
+        return '.price, .cost, .from, .ticket-price';
+    }
+
+    /**
+     * Get availability selectors
+     */
+    protected function getAvailabilitySelectors(): string
+    {
+        return '.availability, .status, .sold-out, .on-sale';
+    }
+
+    /**
+     * Parse price from British text
+     */
+    private function parsePrice(string $priceText): array
+    {
+        if (empty($priceText)) {
+            return ['min' => null, 'max' => null];
+        }
+
+        // Handle British price formats
+        $priceText = str_replace(['from ', 'From £', 'from £', '£'], '', strtolower($priceText));
+        
+        // Extract numeric values from price text
+        preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
+        $prices = array_map(function($price) {
+            return (float) str_replace(',', '', $price);
+        }, $matches[0]);
+
+        if (empty($prices)) {
+            return ['min' => null, 'max' => null];
+        }
+
+        return [
+            'min' => min($prices),
+            'max' => count($prices) > 1 ? max($prices) : min($prices)
+        ];
+    }
+
+    /**
+     * Determine ticket availability
+     */
+    private function determineAvailability(Crawler $node): string
+    {
+        $availabilityText = $this->extractText($node, '.availability, .status, .ticket-status');
+        
+        if (preg_match('/sold.?out|unavailable|not available/i', $availabilityText)) {
+            return 'sold_out';
+        }
+        if (preg_match('/limited|few left|selling fast/i', $availabilityText)) {
+            return 'limited';
+        }
+        if (preg_match('/on sale|available|buy now/i', $availabilityText)) {
+            return 'available';
+        }
+        if (preg_match('/coming soon|not on sale yet/i', $availabilityText)) {
+            return 'not_on_sale';
+        }
+        
+        return 'available'; // Default for Tottenham
+    }
+
+    /**
+     * Get search suggestions for Tottenham
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Competitions' => [
+                'Premier League',
+                'Champions League',
+                'Europa League',
+                'FA Cup',
+                'Carabao Cup',
+                'North London Derby',
+                'Women\'s Super League'
+            ],
+            'Major Opponents' => [
+                'Arsenal',
+                'Chelsea',
+                'Manchester United',
+                'Manchester City',
+                'Liverpool',
+                'West Ham',
+                'Real Madrid',
+                'Barcelona',
+                'Bayern Munich'
+            ],
+            'Ticket Types' => [
+                'General Admission',
+                'Season Tickets',
+                'Hospitality Packages',
+                'VIP Experiences',
+                'Family Tickets',
+                'Disabled Access',
+                'Away Tickets'
+            ],
+            'Teams' => [
+                'First Team',
+                'Women\'s Team',
+                'Academy',
+                'Legends'
+            ]
+        ];
+    }
+
+    /**
+     * Check if plugin supports a specific competition
+     */
+    public function supportsCompetition(string $competition): bool
+    {
+        $supportedCompetitions = [
+            'premier league', 'premier', 'epl',
+            'champions league', 'champions', 'ucl',
+            'europa league', 'europa', 'uel',
+            'fa cup', 'facup', 'the fa cup',
+            'carabao cup', 'league cup', 'efl cup',
+            'north london derby', 'derby',
+            'womens super league', 'wsl'
+        ];
+
+        return in_array(strtolower($competition), $supportedCompetitions);
+    }
+
+    /**
+     * Check if plugin supports a specific opponent
+     */
+    public function supportsOpponent(string $opponent): bool
+    {
+        // Tottenham plays against all Premier League teams and various European teams
+        $majorOpponents = [
+            'arsenal', 'chelsea', 'manchester united', 'united', 'manchester city', 'city',
+            'liverpool', 'west ham', 'crystal palace', 'brighton',
+            'real madrid', 'barcelona', 'bayern munich', 'juventus'
+        ];
+
+        return in_array(strtolower($opponent), $majorOpponents);
+    }
+
+    /**
+     * Get venue capacity information
+     */
+    public function getVenueInfo(): array
+    {
+        return [
+            'name' => 'Tottenham Hotspur Stadium',
+            'capacity' => 62850,
+            'location' => 'London, England',
+            'nickname' => 'The New White Hart Lane',
+            'opened' => 2019,
+            'surface' => 'Grass'
+        ];
     }
 }

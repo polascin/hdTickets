@@ -36,7 +36,7 @@ class TicketScrapingController extends Controller
                 ->orderBy('scraped_at', 'desc');
 
             // Apply filters with validation
-            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo'])) {
+            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo', 'seetickets', 'ticketek', 'eventim', 'axs', 'gigantic', 'skiddle', 'ticketone', 'stargreen', 'ticketswap', 'livenation'])) {
                 $query->byPlatform($request->platform);
             }
 
@@ -192,7 +192,7 @@ class TicketScrapingController extends Controller
         $validator = Validator::make($request->all(), [
             'keywords'    => 'required|string|max:255',
             'platforms'   => 'array',
-            'platforms.*' => 'in:stubhub,ticketmaster,viagogo',
+            'platforms.*' => 'in:stubhub,ticketmaster,viagogo,seetickets,ticketek,eventim,axs,gigantic,skiddle,ticketone,stargreen,ticketswap,livenation',
             'max_price'   => 'nullable|numeric|min:0',
             'currency'    => 'string|size:3',
             'filters'     => 'array',
@@ -209,7 +209,7 @@ class TicketScrapingController extends Controller
             $results = $this->scrapingService->searchTickets(
                 $request->keywords,
                 [
-                    'platforms' => $request->get('platforms', ['stubhub', 'ticketmaster', 'viagogo']),
+                    'platforms' => $request->get('platforms', ['stubhub', 'ticketmaster', 'viagogo', 'seetickets', 'eventim', 'axs', 'gigantic', 'skiddle', 'ticketone', 'stargreen', 'ticketswap', 'livenation']),
                     'max_price' => $request->max_price,
                     'currency'  => $request->get('currency', 'USD'),
                     'filters'   => $request->get('filters', []),
@@ -377,7 +377,7 @@ class TicketScrapingController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                => 'required|string|max:255',
             'keywords'            => 'required|string|max:500',
-            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo,funzone,test',
+            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo,funzone,test,seetickets,ticketek,eventim,axs,gigantic,skiddle,ticketone,stargreen,ticketswap,livenation',
             'max_price'           => 'nullable|numeric|min:0',
             'currency'            => 'string|size:3',
             'filters'             => 'array',
@@ -440,7 +440,7 @@ class TicketScrapingController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                => 'sometimes|string|max:255',
             'keywords'            => 'sometimes|string|max:500',
-            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo',
+            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo,seetickets,ticketek,eventim,axs,gigantic,skiddle,ticketone,stargreen,ticketswap,livenation',
             'max_price'           => 'nullable|numeric|min:0',
             'currency'            => 'sometimes|string|size:3',
             'filters'             => 'array',

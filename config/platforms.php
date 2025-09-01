@@ -67,6 +67,69 @@ return [
             'display_name' => 'Manchester United Official App',
             'order'        => 8,
         ],
+        // European Football Platforms - Spain
+        'real_madrid' => [
+            'key'          => 'real_madrid',
+            'name'         => 'Real Madrid CF',
+            'display_name' => 'Real Madrid CF',
+            'order'        => 9,
+        ],
+        'barcelona' => [
+            'key'          => 'barcelona',
+            'name'         => 'FC Barcelona',
+            'display_name' => 'FC Barcelona',
+            'order'        => 10,
+        ],
+        'atletico_madrid' => [
+            'key'          => 'atletico_madrid',
+            'name'         => 'Atlético Madrid',
+            'display_name' => 'Atlético Madrid',
+            'order'        => 11,
+        ],
+        'entradium_spain' => [
+            'key'          => 'entradium_spain',
+            'name'         => 'Entradium Spain',
+            'display_name' => 'Entradium Spain',
+            'order'        => 12,
+        ],
+        // European Football Platforms - Germany
+        'bayern_munich' => [
+            'key'          => 'bayern_munich',
+            'name'         => 'FC Bayern Munich',
+            'display_name' => 'FC Bayern Munich',
+            'order'        => 13,
+        ],
+        'borussia_dortmund' => [
+            'key'          => 'borussia_dortmund',
+            'name'         => 'Borussia Dortmund',
+            'display_name' => 'Borussia Dortmund',
+            'order'        => 14,
+        ],
+        'stadionwelt_germany' => [
+            'key'          => 'stadionwelt_germany',
+            'name'         => 'StadionWelt Germany',
+            'display_name' => 'StadionWelt Germany',
+            'order'        => 15,
+        ],
+        // European Football Platforms - Italy
+        'juventus' => [
+            'key'          => 'juventus',
+            'name'         => 'Juventus FC',
+            'display_name' => 'Juventus FC',
+            'order'        => 16,
+        ],
+        'ac_milan' => [
+            'key'          => 'ac_milan',
+            'name'         => 'AC Milan',
+            'display_name' => 'AC Milan',
+            'order'        => 17,
+        ],
+        'ticketone_italy' => [
+            'key'          => 'ticketone_italy',
+            'name'         => 'TicketOne Italy',
+            'display_name' => 'TicketOne Italy',
+            'order'        => 18,
+        ],
     ],
 
     /*
@@ -96,5 +159,18 @@ return [
         'eventbrite',
         'bandsintown',
         'manchester_united',
+        // European Football - Spain
+        'real_madrid',
+        'barcelona',
+        'atletico_madrid',
+        'entradium_spain',
+        // European Football - Germany
+        'bayern_munich',
+        'borussia_dortmund',
+        'stadionwelt_germany',
+        // European Football - Italy
+        'juventus',
+        'ac_milan',
+        'ticketone_italy',
     ],
 ];

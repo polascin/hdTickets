@@ -12,14 +12,11 @@ class Bayern_munichPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
-    /**
-     * InitializePlugin
-     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'FC Bayern Munich';
         $this->platform = 'bayern_munich';
-        $this->description = 'Official FC Bayern Munich tickets - Bundesliga, Champions League, DFB-Pokal';
+        $this->description = 'Official FC Bayern Munich tickets - Bundesliga, Champions League, DFB-Pokal, Der Klassiker';
         $this->baseUrl = 'https://fcbayern.com';
         $this->venue = 'Allianz Arena';
         $this->currency = 'EUR';
@@ -30,26 +27,25 @@ class Bayern_munichPlugin extends BaseScraperPlugin
     /**
      * Get plugin capabilities
      */
-    /**
-     * Get  capabilities
-     */
     protected function getCapabilities(): array
     {
         return [
             'bundesliga',
             'champions_league',
             'dfb_pokal',
+            'europa_league',
+            'super_cup',
             'hospitality_packages',
             'season_tickets',
             'allianz_arena_tours',
+            'der_klassiker', // vs Borussia Dortmund
+            'womens_football',
+            'youth_teams',
         ];
     }
 
     /**
      * Get supported search criteria
-     */
-    /**
-     * Get  supported criteria
      */
     protected function getSupportedCriteria(): array
     {
@@ -60,6 +56,8 @@ class Bayern_munichPlugin extends BaseScraperPlugin
             'match_type',
             'opponent',
             'section',
+            'price_range',
+            'team', // Herren/Damen/Jugend
         ];
     }
 

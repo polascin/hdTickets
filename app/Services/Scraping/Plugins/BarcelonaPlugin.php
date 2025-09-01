@@ -12,16 +12,13 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Initialize plugin-specific settings
      */
-    /**
-     * InitializePlugin
-     */
     protected function initializePlugin(): void
     {
         $this->pluginName = 'FC Barcelona';
         $this->platform = 'barcelona';
         $this->description = 'Official FC Barcelona tickets - La Liga, Champions League, Copa del Rey, El Clásico';
         $this->baseUrl = 'https://www.fcbarcelona.com';
-        $this->venue = 'Camp Nou';
+        $this->venue = 'Camp Nou / Estadi Olímpic Lluís Companys';
         $this->currency = 'EUR';
         $this->language = 'es-ES';
         $this->rateLimitSeconds = 4; // Spanish sites are stricter
@@ -30,27 +27,25 @@ class BarcelonaPlugin extends BaseScraperPlugin
     /**
      * Get plugin capabilities
      */
-    /**
-     * Get  capabilities
-     */
     protected function getCapabilities(): array
     {
         return [
             'la_liga',
             'champions_league',
             'copa_del_rey',
+            'supercopa_espana',
             'el_clasico',
             'hospitality_packages',
             'season_tickets',
             'camp_nou_tours',
+            'womens_football',
+            'el_clasico_femenino',
+            'temporary_venue', // Due to Camp Nou renovation
         ];
     }
 
     /**
      * Get supported search criteria
-     */
-    /**
-     * Get  supported criteria
      */
     protected function getSupportedCriteria(): array
     {
@@ -61,6 +56,8 @@ class BarcelonaPlugin extends BaseScraperPlugin
             'match_type',
             'opponent',
             'section',
+            'team', // masculino/femenino
+            'price_range',
         ];
     }
 

@@ -2,512 +2,498 @@
 
 namespace App\Services\Scraping\Plugins;
 
-use App\Services\ProxyRotationService;
-use App\Services\Scraping\ScraperPluginInterface;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
+use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Log;
+use Symfony\Component\DomCrawler\Crawler;
 
-use function count;
-
-class ManchesterUnitedPlugin implements ScraperPluginInterface
+class ManchesterUnitedPlugin extends BaseScraperPlugin
 {
-    private $enabled = TRUE;
-
-    private $config = [];
-
-    private $proxyService;
-
-    private $httpClient;
-
-    // Manchester United specific configuration
-    private $baseUrl = 'https://www.manutd.com';
-
-    private $ticketsEndpoint = '/tickets-and-hospitality';
-
-    private $fixturesEndpoint = '/fixtures';
-
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-    public function __construct(?ProxyRotationService $proxyService = NULL)
+    /**
+     * Initialize plugin-specific settings
+     */
+    protected function initializePlugin(): void
     {
-        $this->proxyService = $proxyService;
-        $this->initializeHttpClient();
+        $this->pluginName = 'Manchester United FC';
+        $this->platform = 'manchester_united';
+        $this->description = 'Official Manchester United FC tickets - Premier League, Champions League, FA Cup, Carabao Cup';
+        $this->baseUrl = 'https://www.manutd.com';
+        $this->venue = 'Old Trafford';
+        $this->currency = 'GBP';
+        $this->language = 'en-GB';
+        $this->rateLimitSeconds = 3;
     }
 
     /**
-     * Get  info
+     * Get plugin capabilities
      */
-    public function getInfo(): array
+    protected function getCapabilities(): array
     {
         return [
-            'name'         => 'Manchester United',
-            'description'  => 'Official Manchester United ticket scraper for Old Trafford matches',
-            'version'      => '1.0.0',
-            'platform'     => 'official',
-            'venue'        => 'Old Trafford',
-            'capabilities' => [
-                'premier_league_matches',
-                'champions_league_matches',
-                'cup_matches',
-                'hospitality_packages',
-                'season_tickets',
-            ],
-            'rate_limit'         => '1 request per 3 seconds',
-            'supported_criteria' => [
-                'match_type', 'date_range', 'competition', 'ticket_type',
-            ],
+            'premier_league',
+            'champions_league',
+            'europa_league',
+            'fa_cup',
+            'carabao_cup',
+            'hospitality_packages',
+            'season_tickets',
+            'old_trafford_tours',
+            'manchester_derby',
+            'womens_football',
+            'youth_teams',
+            'legends_matches',
         ];
     }
 
     /**
-     * Check if  enabled
+     * Get supported search criteria
      */
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
-    /**
-     * Enable
-     */
-    public function enable(): void
-    {
-        $this->enabled = TRUE;
-        Log::info('Manchester United plugin enabled');
-    }
-
-    /**
-     * Disable
-     */
-    public function disable(): void
-    {
-        $this->enabled = FALSE;
-        Log::info('Manchester United plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-
-        if (isset($config['base_url'])) {
-            $this->baseUrl = $config['base_url'];
-        }
-
-        if (isset($config['user_agent'])) {
-            $this->userAgent = $config['user_agent'];
-            $this->initializeHttpClient();
-        }
-
-        Log::info('Manchester United plugin configured', ['config' => $config]);
-    }
-
-    /**
-     * Scrape
-     */
-    public function scrape(array $criteria): array
-    {
-        if (! $this->enabled) {
-            throw new Exception('Manchester United plugin is disabled');
-        }
-
-        Log::info('Starting Manchester United ticket scraping', $criteria);
-
-        try {
-            // Get fixture data first
-            $fixtures = $this->scrapeFixtures($criteria);
-
-            // Get ticket availability for each fixture
-            $ticketData = [];
-            foreach ($fixtures as $fixture) {
-                $this->enforceRateLimit();
-                $tickets = $this->scrapeTicketAvailability($fixture);
-                if (! empty($tickets)) {
-                    $ticketData = array_merge($ticketData, $tickets);
-                }
-            }
-
-            Log::info('Manchester United scraping completed', [
-                'fixtures_found' => count($fixtures),
-                'tickets_found'  => count($ticketData),
-            ]);
-
-            return $ticketData;
-        } catch (Exception $e) {
-            Log::error('Manchester United scraping failed', [
-                'criteria' => $criteria,
-                'error'    => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
-    }
-
-    /**
-     * Test
-     */
-    public function test(): array
-    {
-        try {
-            Log::info('Testing Manchester United plugin');
-
-            $testCriteria = [
-                'date_from' => now()->toDateString(),
-                'date_to'   => now()->addMonths(3)->toDateString(),
-            ];
-
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'Manchester United plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'Manchester United plugin test failed: ' . $e->getMessage(),
-            ];
-        }
-    }
-
-    /**
-     * InitializeHttpClient
-     */
-    private function initializeHttpClient(): void
-    {
-        $this->httpClient = new Client([
-            'timeout' => 30,
-            'verify'  => FALSE,
-            'headers' => [
-                'User-Agent'      => $this->userAgent,
-                'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-GB,en;q=0.9',
-                'Cache-Control'   => 'no-cache',
-                'Pragma'          => 'no-cache',
-                'DNT'             => '1',
-            ],
-        ]);
-    }
-
-    /**
-     * ScrapeFixtures
-     */
-    private function scrapeFixtures(array $criteria): array
-    {
-        $url = $this->baseUrl . $this->fixturesEndpoint;
-        $html = $this->makeRequest($url);
-
-        $fixtures = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
-
-        // Manchester United fixture selectors (these would need to be updated based on actual website structure)
-        $fixtureNodes = $xpath->query('//div[contains(@class, "fixture-item")] | //div[contains(@class, "match-item")]');
-
-        foreach ($fixtureNodes as $fixtureNode) {
-            try {
-                $fixture = $this->extractFixtureData($xpath, $fixtureNode);
-
-                // Filter by criteria
-                if ($this->matchesCriteria($fixture, $criteria)) {
-                    $fixtures[] = $fixture;
-                }
-            } catch (Exception $e) {
-                Log::warning('Failed to parse Manchester United fixture', ['error' => $e->getMessage()]);
-
-                continue;
-            }
-        }
-
-        return $fixtures;
-    }
-
-    /**
-     * ExtractFixtureData
-     */
-    private function extractFixtureData(DOMXPath $xpath, DOMElement $fixtureNode): array
+    protected function getSupportedCriteria(): array
     {
         return [
-            'id'          => $this->extractAttribute($xpath, './/@data-fixture-id | .//@id', $fixtureNode),
-            'opponent'    => $this->extractText($xpath, './/*[contains(@class, "opponent")] | .//*[contains(@class, "team-away")]', $fixtureNode),
-            'date'        => $this->extractAndParseFixtureDate($xpath, './/*[contains(@class, "date")] | .//*[contains(@class, "kickoff")]', $fixtureNode),
-            'competition' => $this->extractText($xpath, './/*[contains(@class, "competition")] | .//*[contains(@class, "tournament")]', $fixtureNode),
-            'venue'       => $this->extractText($xpath, './/*[contains(@class, "venue")]', $fixtureNode) ?: 'Old Trafford',
-            'status'      => $this->extractText($xpath, './/*[contains(@class, "status")]', $fixtureNode),
-            'ticket_url'  => $this->extractTicketUrl($xpath, fixtureNode),
+            'keyword',
+            'date_range',
+            'competition',
+            'match_type',
+            'opponent',
+            'section',
+            'price_range',
+            'ticket_type',
+            'team', // first-team/women/academy
         ];
     }
 
     /**
-     * ExtractTicketUrl
+     * Get test URL for connectivity check
      */
-    private function extractTicketUrl(DOMXPath $xpath, DOMElement $fixtureNode): string
+    protected function getTestUrl(): string
     {
-        $ticketLinks = $xpath->query('.//a[contains(@href, "ticket") or contains(text(), "Tickets") or contains(@class, "ticket")]', $fixtureNode);
-
-        if ($ticketLinks->length > 0) {
-            $href = $ticketLinks->item(0)->getAttribute('href');
-
-            return strpos($href, 'http') === 0 ? $href : $this->baseUrl . $href;
-        }
-
-        return '';
+        return $this->baseUrl . '/tickets-and-hospitality';
     }
 
     /**
-     * ScrapeTicketAvailability
+     * Build search URL from criteria
      */
-    private function scrapeTicketAvailability(array $fixture): array
+    protected function buildSearchUrl(array $criteria): string
     {
-        if (empty($fixture['ticket_url'])) {
-            return [];
+        $baseSearchUrl = $this->baseUrl . '/tickets-and-hospitality/tickets';
+        
+        $params = [];
+
+        if (!empty($criteria['keyword'])) {
+            $params['search'] = $criteria['keyword'];
         }
 
+        if (!empty($criteria['competition'])) {
+            $params['competition'] = $this->mapCompetition($criteria['competition']);
+        }
+
+        if (!empty($criteria['team'])) {
+            $params['team'] = $criteria['team'];
+        }
+
+        if (!empty($criteria['date_from'])) {
+            $params['from'] = $criteria['date_from'];
+        }
+
+        if (!empty($criteria['date_to'])) {
+            $params['to'] = $criteria['date_to'];
+        }
+
+        if (!empty($criteria['ticket_type'])) {
+            $params['type'] = $criteria['ticket_type'];
+        }
+
+        // Remove empty parameters
+        $params = array_filter($params, function($value) {
+            return !empty($value);
+        });
+
+        if (!empty($params)) {
+            return $baseSearchUrl . '?' . http_build_query($params);
+        }
+
+        return $baseSearchUrl;
+    }
+
+    /**
+     * Map competition names to Manchester United terms
+     */
+    private function mapCompetition(string $competition): string
+    {
+        $competitions = [
+            'premier_league' => 'Premier League',
+            'champions_league' => 'Champions League',
+            'europa_league' => 'Europa League',
+            'fa_cup' => 'FA Cup',
+            'carabao_cup' => 'Carabao Cup',
+            'league_cup' => 'Carabao Cup',
+            'manchester_derby' => 'Manchester Derby',
+            'womens_super_league' => 'Women\'s Super League',
+        ];
+
+        return $competitions[strtolower($competition)] ?? $competition;
+    }
+
+    /**
+     * Scrape tickets from Manchester United
+     */
+    protected function scrapeTickets(array $criteria): array
+    {
+        $searchUrl = $this->buildSearchUrl($criteria);
+        
         try {
-            $html = $this->makeRequest($fixture['ticket_url']);
+            Log::info("Manchester United Plugin: Scraping tickets from: $searchUrl");
+            
+            $response = $this->makeHttpRequest($searchUrl);
+            if (!$response) {
+                return [];
+            }
 
-            return $this->parseTicketAvailability($html, $fixture);
+            $crawler = new Crawler($response);
+            $tickets = [];
+
+            // Manchester United ticket selectors
+            $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card')->each(function (Crawler $node) use (&$tickets) {
+                try {
+                    $ticket = $this->extractTicketData($node);
+                    if ($ticket && $this->validateTicketData($ticket)) {
+                        $tickets[] = $ticket;
+                    }
+                } catch (Exception $e) {
+                    Log::warning("Manchester United Plugin: Error extracting ticket: " . $e->getMessage());
+                }
+            });
+
+            Log::info("Manchester United Plugin: Found " . count($tickets) . " tickets");
+            return $tickets;
+
         } catch (Exception $e) {
-            Log::warning('Failed to scrape ticket availability for fixture', [
-                'fixture_id' => $fixture['id'],
-                'error'      => $e->getMessage(),
-            ]);
-
+            Log::error("Manchester United Plugin: Scraping error: " . $e->getMessage());
             return [];
         }
     }
 
     /**
-     * ParseTicketAvailability
+     * Extract ticket data from DOM node
      */
-    private function parseTicketAvailability(string $html, array $fixture): array
+    private function extractTicketData(Crawler $node): ?array
     {
+        try {
+            // Extract match information
+            $homeTeam = $this->extractText($node, '.home-team, .manchester-united, .united');
+            $awayTeam = $this->extractText($node, '.away-team, .opponent, .visiting-team');
+            $date = $this->extractText($node, '.match-date, .fixture-date, .kickoff-date');
+            $time = $this->extractText($node, '.match-time, .kickoff-time, .ko-time');
+            $competition = $this->extractText($node, '.competition, .tournament, .comp-name');
+            $priceText = $this->extractText($node, '.price, .cost, .from, .ticket-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Create match title - Manchester United is always home at Old Trafford
+            $title = 'Manchester United';
+            if (!empty($awayTeam)) {
+                $title .= ' vs ' . $awayTeam;
+            } else {
+                // Fallback to extract from general title
+                $generalTitle = $this->extractText($node, '.match-title, .fixture-title, h3, h2');
+                if (!empty($generalTitle)) {
+                    $title = $generalTitle;
+                }
+            }
+
+            if (empty($title) || $title === 'Manchester United') {
+                return null;
+            }
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date and time
+            $eventDate = $this->parseDateTime($date, $time);
+
+            // Build full URL if relative
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            return [
+                'title' => $title,
+                'price' => $price['min'],
+                'price_range' => $price,
+                'currency' => $this->currency,
+                'venue' => $this->venue,
+                'event_date' => $eventDate,
+                'link' => $link,
+                'platform' => $this->platform,
+                'category' => 'football',
+                'competition' => $competition ?: 'Premier League',
+                'home_team' => 'Manchester United',
+                'away_team' => $awayTeam,
+                'availability' => $this->determineAvailability($node),
+                'scraped_at' => now(),
+            ];
+
+        } catch (Exception $e) {
+            Log::warning("Manchester United Plugin: Error extracting ticket data: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Parse search results from HTML
+     */
+    protected function parseSearchResults(string $html): array
+    {
+        $crawler = new Crawler($html);
         $tickets = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
 
-        // Ticket availability selectors
-        $ticketSections = $xpath->query('//div[contains(@class, "ticket-section")] | //div[contains(@class, "seating-area")]');
-
-        foreach ($ticketSections as $sectionNode) {
+        $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card')->each(function (Crawler $node) use (&$tickets) {
             try {
-                $ticketInfo = $this->extractTicketInfo($xpath, $sectionNode, $fixture);
-                if (! empty($ticketInfo)) {
-                    $tickets[] = $ticketInfo;
+                $ticket = $this->extractTicketData($node);
+                if ($ticket && $this->validateTicketData($ticket)) {
+                    $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning('Failed to parse ticket section', ['error' => $e->getMessage()]);
-
-                continue;
+                Log::warning("Manchester United Plugin: Error extracting ticket: " . $e->getMessage());
             }
-        }
+        });
 
         return $tickets;
     }
 
     /**
-     * ExtractTicketInfo
+     * Parse date and time together
      */
-    private function extractTicketInfo(DOMXPath $xpath, DOMElement $sectionNode, array $fixture): array
+    private function parseDateTime(string $date, string $time): ?string
     {
-        $availability = $this->extractText($xpath, './/*[contains(@class, "availability")] | .//*[contains(@class, "status")]', $sectionNode);
+        $eventDate = $this->parseDate($date);
+        
+        if ($eventDate && !empty($time)) {
+            $timeFormatted = $this->parseTime($time);
+            if ($timeFormatted) {
+                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
+            }
+        }
+        
+        return $eventDate;
+    }
+
+    /**
+     * Parse time from British text
+     */
+    private function parseTime(string $time): ?string
+    {
+        // Handle British time formats like "15:00", "3:00 PM", "3pm"
+        if (preg_match('/(\d{1,2}):(\d{2})\s*(AM|PM)?/i', $time, $matches)) {
+            $hour = (int)$matches[1];
+            $minute = (int)$matches[2];
+            $period = $matches[3] ?? '';
+            
+            if (strtoupper($period) === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif (strtoupper($period) === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+            
+            return sprintf('%02d:%02d', $hour, $minute);
+        }
+        
+        // Handle "3pm" format
+        if (preg_match('/(\d{1,2})\s*(AM|PM)/i', $time, $matches)) {
+            $hour = (int)$matches[1];
+            $period = strtoupper($matches[2]);
+            
+            if ($period === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif ($period === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+            
+            return sprintf('%02d:00', $hour);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get event name selectors
+     */
+    protected function getEventNameSelectors(): string
+    {
+        return '.match-title, .fixture-title, .event-title, h2, h3';
+    }
+
+    /**
+     * Get date selectors
+     */
+    protected function getDateSelectors(): string
+    {
+        return '.match-date, .fixture-date, .kickoff-date, .ko-date';
+    }
+
+    /**
+     * Get venue selectors
+     */
+    protected function getVenueSelectors(): string
+    {
+        return '.venue, .stadium, .ground';
+    }
+
+    /**
+     * Get price selectors
+     */
+    protected function getPriceSelectors(): string
+    {
+        return '.price, .cost, .from, .ticket-price';
+    }
+
+    /**
+     * Get availability selectors
+     */
+    protected function getAvailabilitySelectors(): string
+    {
+        return '.availability, .status, .sold-out, .on-sale';
+    }
+
+    /**
+     * Parse price from British text
+     */
+    private function parsePrice(string $priceText): array
+    {
+        if (empty($priceText)) {
+            return ['min' => null, 'max' => null];
+        }
+
+        // Handle British price formats
+        $priceText = str_replace(['from ', 'From £', 'from £', '£'], '', strtolower($priceText));
+        
+        // Extract numeric values from price text
+        preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
+        $prices = array_map(function($price) {
+            return (float) str_replace(',', '', $price);
+        }, $matches[0]);
+
+        if (empty($prices)) {
+            return ['min' => null, 'max' => null];
+        }
 
         return [
-            'platform'            => 'official',
-            'source'              => 'manchester_united',
-            'event_name'          => 'Manchester United vs ' . ($fixture['opponent'] ?? 'TBC'),
-            'venue'               => $fixture['venue'] ?? 'Old Trafford',
-            'date'                => $fixture['date'],
-            'competition'         => $fixture['competition'] ?? 'Premier League',
-            'section'             => $this->extractText($xpath, './/*[contains(@class, "section")] | .//*[contains(@class, "area-name")]', $sectionNode),
-            'price_min'           => $this->extractPrice($xpath, './/*[contains(@class, "price-from")] | .//*[contains(@class, "min-price")]', $sectionNode),
-            'price_max'           => $this->extractPrice($xpath, './/*[contains(@class, "price-to")] | .//*[contains(@class, "max-price")]', $sectionNode),
-            'availability_status' => $this->mapAvailabilityStatus($availability),
-            'ticket_type'         => $this->extractText($xpath, './/*[contains(@class, "ticket-type")]', $sectionNode) ?: 'General Admission',
-            'url'                 => $fixture['ticket_url'],
-            'fixture_id'          => $fixture['id'] ?? NULL,
-            'scraped_at'          => now()->toISOString(),
+            'min' => min($prices),
+            'max' => count($prices) > 1 ? max($prices) : min($prices)
         ];
     }
 
     /**
-     * MapAvailabilityStatus
+     * Determine ticket availability
      */
-    private function mapAvailabilityStatus(string $availability): string
+    private function determineAvailability(Crawler $node): string
     {
-        $availability = strtolower($availability);
-
-        if (strpos($availability, 'sold out') !== FALSE || strpos($availability, 'unavailable') !== FALSE) {
+        $availabilityText = $this->extractText($node, '.availability, .status, .ticket-status');
+        
+        if (preg_match('/sold.?out|unavailable|not available/i', $availabilityText)) {
             return 'sold_out';
         }
-
-        if (strpos($availability, 'limited') !== FALSE || strpos($availability, 'few left') !== FALSE) {
-            return 'low_inventory';
+        if (preg_match('/limited|few left|selling fast/i', $availabilityText)) {
+            return 'limited';
         }
-
-        if (strpos($availability, 'available') !== FALSE || strpos($availability, 'on sale') !== FALSE) {
+        if (preg_match('/on sale|available|buy now/i', $availabilityText)) {
             return 'available';
         }
-
-        if (strpos($availability, 'not on sale') !== FALSE || strpos($availability, 'coming soon') !== FALSE) {
+        if (preg_match('/coming soon|not on sale yet/i', $availabilityText)) {
             return 'not_on_sale';
         }
-
-        return 'unknown';
+        
+        return 'available'; // Default for Manchester United
     }
 
     /**
-     * MatchesCriteria
+     * Get search suggestions for Manchester United
      */
-    private function matchesCriteria(array $fixture, array $criteria): bool
+    public function getSearchSuggestions(): array
     {
-        // Filter by date range
-        if (! empty($criteria['date_from']) && ! empty($fixture['date'])) {
-            $fixtureDate = Carbon::parse($fixture['date']);
-            $fromDate = Carbon::parse($criteria['date_from']);
-            if ($fixtureDate->lt($fromDate)) {
-                return FALSE;
-            }
-        }
-
-        if (! empty($criteria['date_to']) && ! empty($fixture['date'])) {
-            $fixtureDate = Carbon::parse($fixture['date']);
-            $toDate = Carbon::parse($criteria['date_to']);
-            if ($fixtureDate->gt($toDate)) {
-                return FALSE;
-            }
-        }
-
-        // Filter by competition
-        if (! empty($criteria['competition'])) {
-            $competition = strtolower($fixture['competition'] ?? '');
-            $targetCompetition = strtolower($criteria['competition']);
-            if (strpos($competition, $targetCompetition) === FALSE) {
-                return FALSE;
-            }
-        }
-
-        return TRUE;
+        return [
+            'Competitions' => [
+                'Premier League',
+                'Champions League',
+                'Europa League',
+                'FA Cup',
+                'Carabao Cup',
+                'Manchester Derby',
+                'Women\'s Super League'
+            ],
+            'Major Opponents' => [
+                'Manchester City',
+                'Liverpool',
+                'Arsenal',
+                'Chelsea',
+                'Tottenham',
+                'Real Madrid',
+                'Barcelona',
+                'Bayern Munich'
+            ],
+            'Ticket Types' => [
+                'General Admission',
+                'Season Tickets',
+                'Hospitality Packages',
+                'VIP Experiences',
+                'Family Tickets',
+                'Disabled Access',
+                'Away Tickets'
+            ],
+            'Teams' => [
+                'First Team',
+                'Women\'s Team',
+                'Academy',
+                'Legends'
+            ]
+        ];
     }
 
     /**
-     * ExtractText
+     * Check if plugin supports a specific competition
      */
-    private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
+    public function supportsCompetition(string $competition): bool
     {
-        $nodes = $xpath->query($selector, $context);
+        $supportedCompetitions = [
+            'premier league', 'premier', 'epl',
+            'champions league', 'champions', 'ucl',
+            'europa league', 'europa', 'uel',
+            'fa cup', 'facup', 'the fa cup',
+            'carabao cup', 'league cup', 'efl cup',
+            'manchester derby', 'derby',
+            'womens super league', 'wsl'
+        ];
 
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
+        return in_array(strtolower($competition), $supportedCompetitions);
     }
 
     /**
-     * ExtractAttribute
+     * Check if plugin supports a specific opponent
      */
-    private function extractAttribute(DOMXPath $xpath, string $selector, DOMElement $context): string
+    public function supportsOpponent(string $opponent): bool
     {
-        $nodes = $xpath->query($selector, $context);
+        // Manchester United plays against all Premier League teams and various European teams
+        $majorOpponents = [
+            'manchester city', 'city', 'liverpool', 'arsenal', 'chelsea',
+            'tottenham', 'spurs', 'everton', 'leeds', 'newcastle',
+            'real madrid', 'barcelona', 'bayern munich', 'juventus'
+        ];
 
-        return $nodes->length > 0 ? trim($nodes->item(0)->nodeValue) : '';
+        return in_array(strtolower($opponent), $majorOpponents);
     }
 
     /**
-     * ExtractPrice
+     * Get venue capacity information
      */
-    private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
+    public function getVenueInfo(): array
     {
-        $priceText = $this->extractText($xpath, $selector, $context);
-
-        // Handle British pound prices
-        if (preg_match('/£?(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return NULL;
-    }
-
-    /**
-     * ExtractAndParseFixtureDate
-     */
-    private function extractAndParseFixtureDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
-    {
-        $dateText = $this->extractText($xpath, $selector, $context);
-
-        if (empty($dateText)) {
-            return NULL;
-        }
-
-        try {
-            // Try to parse various date formats used by Manchester United
-            $date = Carbon::parse($dateText);
-
-            return $date->toISOString();
-        } catch (Exception $e) {
-            Log::warning('Failed to parse Manchester United fixture date', ['date_text' => $dateText]);
-
-            return NULL;
-        }
-    }
-
-    /**
-     * EnforceRateLimit
-     */
-    private function enforceRateLimit(): void
-    {
-        $lastRequest = Cache::get('manchester_united_last_request', 0);
-        $timeSinceLastRequest = microtime(TRUE) - $lastRequest;
-
-        if ($timeSinceLastRequest < 3) {
-            $sleepTime = 3 - $timeSinceLastRequest;
-            usleep($sleepTime * 1000000);
-        }
-
-        Cache::put('manchester_united_last_request', microtime(TRUE), 60);
-    }
-
-    /**
-     * MakeRequest
-     */
-    private function makeRequest(string $url): string
-    {
-        try {
-            $options = [];
-
-            // Use proxy if available
-            if ($this->proxyService) {
-                $proxy = $this->proxyService->getNextProxy();
-                if ($proxy) {
-                    $options['proxy'] = $proxy;
-                    Log::debug('Using proxy for Manchester United request', ['proxy' => $proxy]);
-                }
-            }
-
-            $response = $this->httpClient->get($url, $options);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception('HTTP ' . $response->getStatusCode() . ' error');
-            }
-
-            return $response->getBody()->getContents();
-        } catch (RequestException $e) {
-            Log::error('Manchester United HTTP request failed', [
-                'url'   => $url,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new Exception('Failed to fetch Manchester United page: ' . $e->getMessage());
-        }
+        return [
+            'name' => 'Old Trafford',
+            'capacity' => 74310,
+            'location' => 'Manchester, England',
+            'nickname' => 'The Theatre of Dreams',
+            'opened' => 1910,
+            'surface' => 'Grass'
+        ];
     }
 }
