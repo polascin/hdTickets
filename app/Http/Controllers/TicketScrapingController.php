@@ -377,7 +377,7 @@ class TicketScrapingController extends Controller
         $validator = Validator::make($request->all(), [
             'name'                => 'required|string|max:255',
             'keywords'            => 'required|string|max:500',
-            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo',
+            'platform'            => 'nullable|in:stubhub,ticketmaster,viagogo,funzone,test',
             'max_price'           => 'nullable|numeric|min:0',
             'currency'            => 'string|size:3',
             'filters'             => 'array',

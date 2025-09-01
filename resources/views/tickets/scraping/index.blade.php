@@ -384,7 +384,7 @@
               <div class="flex space-x-2">
                 <button onclick="createAlert({{ $ticket->id }})"
                   class="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50"
-                  title="Create Alert">
+                  title="Create Alert" aria-label="Create alert for this ticket">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M15 17h5l-5 5v-5zM4.5 19.5l15-15M4.5 19.5L19 5"></path>
@@ -500,9 +500,10 @@
                 <div class="flex space-x-2">
                   <button onclick="createAlert({{ $ticket->id }})"
                     class="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50"
-                    title="Create Alert">
+                    title="Create Alert" aria-label="Create alert for this ticket">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-5 5v-5zM4.5 19.5l15-15M4.5 19.5L19 5">
                       </path>
                     </svg>
                   </button>
@@ -1128,41 +1129,208 @@
       document.getElementById('close-details-modal').onclick = () => modal.remove();
     }
 
-    // Modal for creating alert
+    // Enhanced Modal for creating alert with proper functionality
     function createAlert(ticketId = null) {
       const modal = document.createElement('div');
       modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'create-alert-title');
+
       modal.innerHTML = `
-                <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-                    <h2 class="text-xl font-bold mb-4">Create Alert</h2>
-                    <form id="create-alert-form">
-                        <input type="hidden" name="ticket_id" value="${ticketId ?? ''}">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-1">Keywords</label>
-                            <input type="text" name="keywords" class="w-full border rounded px-3 py-2">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-1">Max Price</label>
-                            <input type="number" name="max_price" class="w-full border rounded px-3 py-2">
-                        </div>
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Create</button>
-                        <button type="button" class="ml-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" id="close-alert-modal">Cancel</button>
-                    </form>
-                </div>
-            `;
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full mx-4 transform transition-all">
+          <div class="flex items-center justify-between mb-6">
+            <h2 id="create-alert-title" class="text-xl font-bold text-gray-900">Create Sports Ticket Alert</h2>
+            <button type="button" id="close-alert-modal" class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded" aria-label="Close modal">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <form id="create-alert-form" class="space-y-4">
+            <input type="hidden" name="ticket_id" value="${ticketId || ''}">
+            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}">
+            
+            <div>
+              <label for="alert-name" class="block text-sm font-medium text-gray-700 mb-1">Alert Name <span class="text-red-500">*</span></label>
+              <input type="text" 
+                     id="alert-name" 
+                     name="name" 
+                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                     placeholder="e.g., Manchester United vs Liverpool" 
+                     required>
+              <p class="text-xs text-gray-500 mt-1">Give your alert a memorable name</p>
+            </div>
+            
+            <div>
+              <label for="alert-keywords" class="block text-sm font-medium text-gray-700 mb-1">Keywords <span class="text-red-500">*</span></label>
+              <input type="text" 
+                     id="alert-keywords" 
+                     name="keywords" 
+                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                     placeholder="e.g., Manchester United, Premier League, Old Trafford" 
+                     required>
+              <p class="text-xs text-gray-500 mt-1">Enter keywords to match against event names, teams, or venues</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="alert-platform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                <select id="alert-platform" 
+                        name="platform" 
+                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Any Platform</option>
+                  <option value="stubhub">StubHub</option>
+                  <option value="ticketmaster">Ticketmaster</option>
+                  <option value="viagogo">Viagogo</option>
+                  <option value="funzone">FunZone</option>
+                  <option value="test">Test Platform</option>
+                </select>
+              </div>
+              
+              <div>
+                <label for="alert-max-price" class="block text-sm font-medium text-gray-700 mb-1">Max Price ($)</label>
+                <input type="number" 
+                       id="alert-max-price" 
+                       name="max_price" 
+                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                       placeholder="e.g., 200" 
+                       min="0" 
+                       step="0.01">
+              </div>
+            </div>
+            
+            <div class="border-t pt-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-3">Notification Preferences</h4>
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <input type="checkbox" id="email-notifications" name="email_notifications" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="ml-2 text-sm text-gray-700">Email notifications</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" id="sms-notifications" name="sms_notifications" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                  <span class="ml-2 text-sm text-gray-700">SMS notifications</span>
+                </label>
+              </div>
+            </div>
+            
+            <div id="alert-error" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
+              <div class="flex">
+                <svg class="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="text-sm text-red-700" id="alert-error-message"></div>
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4">
+              <button type="button" id="cancel-alert" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Cancel
+              </button>
+              <button type="submit" id="submit-alert" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="flex items-center">
+                  <svg class="w-4 h-4 mr-2 hidden" id="alert-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" class="animate-spin"></path>
+                  </svg>
+                  Create Alert
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
       document.body.appendChild(modal);
-      document.getElementById('close-alert-modal').onclick = () => modal.remove();
-      document.getElementById('create-alert-form').onsubmit = function(e) {
-        e.preventDefault();
-        // Here you would send the alert to backend via AJAX
-        alert('Alert created!');
+
+      // Focus the first input
+      setTimeout(() => {
+        modal.querySelector('#alert-name').focus();
+      }, 100);
+
+      // Event handlers
+      const closeModal = () => {
         modal.remove();
       };
-    }
-    maxPrice: maxPrice || ''
-    });
-    alert('Alert created successfully! You will be notified when matching tickets are found.');
-    }
+
+      modal.querySelector('#close-alert-modal').addEventListener('click', closeModal);
+      modal.querySelector('#cancel-alert').addEventListener('click', closeModal);
+
+      // Close on backdrop click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      // Close on escape key
+      modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+
+      // Form submission with AJAX
+      modal.querySelector('#create-alert-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const form = e.target;
+        const submitBtn = form.querySelector('#submit-alert');
+        const spinner = form.querySelector('#alert-spinner');
+        const errorDiv = form.querySelector('#alert-error');
+        const errorMsg = form.querySelector('#alert-error-message');
+
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('hidden');
+        errorDiv.classList.add('hidden');
+
+        try {
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData);
+
+          const response = await fetch('{{ route('tickets.alerts.create') }}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': data._token,
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Success - show notification and close modal
+            showNotification('success', result.message ||
+              'Ticket alert created successfully! You will be notified when matching tickets are found.');
+            closeModal();
+
+            // Optionally refresh the page or update the UI
+            if (window.location.pathname.includes('/alerts')) {
+              window.location.reload();
+            }
+          } else {
+            // Handle validation errors
+            if (result.errors) {
+              const errorMessages = Object.values(result.errors).flat().join(', ');
+              errorMsg.textContent = errorMessages;
+            } else {
+              errorMsg.textContent = result.message || 'Failed to create alert. Please try again.';
+            }
+            errorDiv.classList.remove('hidden');
+          }
+        } catch (error) {
+          console.error('Alert creation error:', error);
+          errorMsg.textContent = 'Network error. Please check your connection and try again.';
+          errorDiv.classList.remove('hidden');
+        } finally {
+          // Reset loading state
+          submitBtn.disabled = false;
+          spinner.classList.add('hidden');
+        }
+      });
     }
 
     function showSearchSuggestions() {
@@ -1217,6 +1385,90 @@
       const suggestionsDiv = document.getElementById('search-suggestions');
       if (suggestionsDiv) {
         suggestionsDiv.classList.add('hidden');
+      }
+    }
+
+    function showCreateAlertModal() {
+      createAlert();
+    }
+
+    // Enhanced notification system
+    function showNotification(type = 'info', message = '', duration = 5000) {
+      const notification = document.createElement('div');
+      notification.className =
+        `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg transform transition-all duration-300 max-w-sm ${getNotificationClasses(type)}`;
+      notification.style.transform = 'translateX(100%)';
+
+      notification.innerHTML = `
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            ${getNotificationIcon(type)}
+          </div>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium">${message}</p>
+          </div>
+          <div class="ml-4 flex-shrink-0">
+            <button type="button" class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none" onclick="this.parentElement.parentElement.parentElement.remove()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+      }, 50);
+
+      // Auto remove
+      if (duration > 0) {
+        setTimeout(() => {
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.remove();
+            }
+          }, 300);
+        }, duration);
+      }
+    }
+
+    function getNotificationClasses(type) {
+      switch (type) {
+        case 'success':
+          return 'bg-green-50 border border-green-200 text-green-800';
+        case 'error':
+          return 'bg-red-50 border border-red-200 text-red-800';
+        case 'warning':
+          return 'bg-yellow-50 border border-yellow-200 text-yellow-800';
+        default:
+          return 'bg-blue-50 border border-blue-200 text-blue-800';
+      }
+    }
+
+    function getNotificationIcon(type) {
+      const iconClass = 'w-5 h-5';
+      switch (type) {
+        case 'success':
+          return `<svg class="${iconClass} text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>`;
+        case 'error':
+          return `<svg class="${iconClass} text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>`;
+        case 'warning':
+          return `<svg class="${iconClass} text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  </svg>`;
+        default:
+          return `<svg class="${iconClass} text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>`;
       }
     }
 
