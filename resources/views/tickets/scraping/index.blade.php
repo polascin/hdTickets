@@ -61,14 +61,17 @@
   @endif
 
   <!-- Advanced Search & Filters Panel -->
-  <x-ui.card class="mb-6">
-    <x-ui.card-header title="Search & Filters">
-      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-      </svg>
-    </x-ui.card-header>
-    <x-ui.card-content>
+  <div class="hd-card hd-card--default hd-card--md mb-6">
+    <div class="hd-card__header hd-card__header--bordered border-b">
+      <h3 class="hd-card__title flex items-center">
+        <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Search & Filters
+      </h3>
+    </div>
+    <div class="hd-card__content">
       <form id="filters-form" class="space-y-6">
         <!-- Search Input with Enhanced Features -->
         <div class="relative">
@@ -190,8 +193,8 @@
           </div>
         </div>
       </form>
-    </x-ui.card-content>
-  </x-ui.card>
+    </div>
+  </div>
 
   <!-- Results Summary and Actions -->
   <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">

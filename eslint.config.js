@@ -61,7 +61,15 @@ export default [
       "no-var": "error",
       "no-unused-vars": "off",
       "no-prototype-builtins": "warn",
-      "no-empty": "warn"
+      "no-empty": "warn",
+
+      // Semicolon consistency and ASI prevention
+      "semi": ["error", "always"],
+      "semi-style": ["error", "last"],
+      "semi-spacing": ["error", { "before": false, "after": true }],
+      "no-extra-semi": "error",
+      "no-unexpected-multiline": "error",
+      "no-unreachable": "error"
     }
   },
   {
