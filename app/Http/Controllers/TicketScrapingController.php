@@ -134,7 +134,7 @@ class TicketScrapingController extends Controller
                 'active_alerts'         => TicketAlert::active()->forUser(Auth::id())->count(),
                 'recent_matches'        => TicketAlert::forUser(Auth::id())->sum('matches_found'),
                 'platforms'            => ScrapedTicket::distinct('platform')->count('platform'),
-                'avg_price'            => round(ScrapedTicket::available()->avg('min_price') ?? 0, 2),
+                'avg_price'            => round((float)(ScrapedTicket::available()->avg('min_price') ?? 0), 2),
                 'price_range'          => [
                     'min' => ScrapedTicket::available()->min('min_price') ?? 0,
                     'max' => ScrapedTicket::available()->max('max_price') ?? 0,
@@ -544,7 +544,7 @@ class TicketScrapingController extends Controller
             $stats = [
                 'total_trending' => $tickets->count(),
                 'platforms' => $tickets->groupBy('platform')->map->count(),
-                'avg_price' => $tickets->avg('min_price'),
+                'avg_price' => round((float)($tickets->avg('min_price') ?? 0), 2),
                 'date_range' => [
                     'from' => $tickets->min('event_date'),
                     'to' => $tickets->max('event_date')
