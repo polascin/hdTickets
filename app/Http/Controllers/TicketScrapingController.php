@@ -28,9 +28,6 @@ class TicketScrapingController extends Controller
     /**
      * Display scraped tickets dashboard
      */
-    /**
-     * Index
-     */
     public function index(Request $request): \Illuminate\Contracts\View\View
     {
         try {
@@ -51,9 +48,9 @@ class TicketScrapingController extends Controller
             }
 
             // Enhanced price filtering with validation
-            $minPrice = $request->filled('min_price') ? (float)$request->min_price : null;
-            $maxPrice = $request->filled('max_price') ? (float)$request->max_price : null;
-            
+            $minPrice = $request->filled('min_price') ? (float) $request->min_price : NULL;
+            $maxPrice = $request->filled('max_price') ? (float) $request->max_price : NULL;
+
             if ($minPrice || $maxPrice) {
                 // Ensure min is not greater than max
                 if ($minPrice && $maxPrice && $minPrice > $maxPrice) {
@@ -78,7 +75,7 @@ class TicketScrapingController extends Controller
             // Sorting options
             $sortBy = $request->get('sort_by', 'scraped_at');
             $sortDir = $request->get('sort_dir', 'desc');
-            
+
             $allowedSorts = ['scraped_at', 'event_date', 'min_price', 'max_price', 'title'];
             if (in_array($sortBy, $allowedSorts)) {
                 if ($sortBy === 'min_price' || $sortBy === 'max_price') {
@@ -96,26 +93,25 @@ class TicketScrapingController extends Controller
 
             // Add filter summary for user feedback
             $activeFilters = [
-                'platform' => $request->platform,
-                'keywords' => $request->keywords,
-                'min_price' => $minPrice,
-                'max_price' => $maxPrice,
+                'platform'         => $request->platform,
+                'keywords'         => $request->keywords,
+                'min_price'        => $minPrice,
+                'max_price'        => $maxPrice,
                 'high_demand_only' => $request->boolean('high_demand_only'),
-                'available_only' => $request->boolean('available_only'),
-                'sort_by' => $sortBy,
-                'sort_dir' => $sortDir,
+                'available_only'   => $request->boolean('available_only'),
+                'sort_by'          => $sortBy,
+                'sort_dir'         => $sortDir,
             ];
 
             return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'));
-            
         } catch (\Exception $e) {
-            \Log::error('Error loading sports tickets page: ' . $e->getMessage());
-            
+            Log::error('Error loading sports tickets page: ' . $e->getMessage());
+
             // Return with error state
             $tickets = collect()->paginate(0);
             $stats = $this->getDefaultStats();
             $activeFilters = [];
-            
+
             return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'))
                 ->with('error', 'Unable to load sports event tickets at this time. Please try again later or contact support if the problem persists.');
         }
@@ -128,20 +124,21 @@ class TicketScrapingController extends Controller
     {
         try {
             return [
-                'total_tickets'         => ScrapedTicket::count(),
-                'available_tickets'     => ScrapedTicket::available()->count(),
-                'high_demand_tickets'   => ScrapedTicket::highDemand()->count(),
-                'active_alerts'         => TicketAlert::active()->forUser(Auth::id())->count(),
-                'recent_matches'        => TicketAlert::forUser(Auth::id())->sum('matches_found'),
-                'platforms'            => ScrapedTicket::distinct('platform')->count('platform'),
-                'avg_price'            => round((float)(ScrapedTicket::available()->avg('min_price') ?? 0), 2),
-                'price_range'          => [
+                'total_tickets'       => ScrapedTicket::count(),
+                'available_tickets'   => ScrapedTicket::available()->count(),
+                'high_demand_tickets' => ScrapedTicket::highDemand()->count(),
+                'active_alerts'       => TicketAlert::active()->forUser(Auth::id())->count(),
+                'recent_matches'      => TicketAlert::forUser(Auth::id())->sum('matches_found'),
+                'platforms'           => ScrapedTicket::distinct('platform')->count('platform'),
+                'avg_price'           => round((float) (ScrapedTicket::available()->avg('min_price') ?? 0), 2),
+                'price_range'         => [
                     'min' => ScrapedTicket::available()->min('min_price') ?? 0,
                     'max' => ScrapedTicket::available()->max('max_price') ?? 0,
                 ],
             ];
         } catch (\Exception $e) {
-            \Log::error('Error generating stats: ' . $e->getMessage());
+            Log::error('Error generating stats: ' . $e->getMessage());
+
             return $this->getDefaultStats();
         }
     }
@@ -152,24 +149,21 @@ class TicketScrapingController extends Controller
     private function getDefaultStats(): array
     {
         return [
-            'total_tickets' => 0,
-            'available_tickets' => 0,
+            'total_tickets'       => 0,
+            'available_tickets'   => 0,
             'high_demand_tickets' => 0,
-            'active_alerts' => 0,
-            'recent_matches' => 0,
-            'platforms' => 0,
-            'avg_price' => 0,
-            'price_range' => ['min' => 0, 'max' => 0],
+            'active_alerts'       => 0,
+            'recent_matches'      => 0,
+            'platforms'           => 0,
+            'avg_price'           => 0,
+            'price_range'         => ['min' => 0, 'max' => 0],
         ];
     }
 
     /**
      * Search for tickets
      */
-    /**
-     * Search
-     */
-    public function search(Request $request): \Illuminate\Http\JsonResponse
+    public function search(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'keywords'    => 'required|string|max:255',
@@ -199,7 +193,7 @@ class TicketScrapingController extends Controller
             );
 
             $totalFound = 0;
-            foreach ($results as $platform => $tickets) {
+            foreach ($results as $tickets) {
                 $totalFound += is_array($tickets) ? count($tickets) : 0;
             }
 
@@ -215,15 +209,15 @@ class TicketScrapingController extends Controller
             ]);
         } catch (Exception $e) {
             Log::error('Ticket search error: ' . $e->getMessage(), [
-                'keywords' => $request->keywords,
-                'user_id'  => Auth::id(),
+                'keywords'    => $request->keywords,
+                'user_id'     => Auth::id(),
                 'stack_trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
-                'success' => FALSE,
-                'message' => 'Search failed. Please try again.',
-                'error_details' => config('app.debug') ? $e->getMessage() : null,
+                'success'       => FALSE,
+                'message'       => 'Search failed. Please try again.',
+                'error_details' => config('app.debug') ? $e->getMessage() : NULL,
             ], 500);
         }
     }
@@ -231,10 +225,7 @@ class TicketScrapingController extends Controller
     /**
      * Get Manchester United tickets
      */
-    /**
-     * ManchesterUnited
-     */
-    public function manchesterUnited(Request $request): \Illuminate\Http\RedirectResponse
+    public function manchesterUnited(Request $request): JsonResponse
     {
         try {
             $maxPrice = $request->get('max_price');
@@ -260,10 +251,7 @@ class TicketScrapingController extends Controller
     /**
      * Get high-demand sports tickets
      */
-    /**
-     * HighDemandSports
-     */
-    public function highDemandSports(Request $request): \Illuminate\Http\RedirectResponse
+    public function highDemandSports(Request $request)
     {
         // If this is an AJAX request, return JSON data
         if ($request->expectsJson() || $request->ajax()) {
@@ -310,9 +298,6 @@ class TicketScrapingController extends Controller
     /**
      * Purchase ticket (redirect to platform)
      */
-    /**
-     * Purchase
-     */
     public function purchase(Request $request, ScrapedTicket $ticket): \Illuminate\Http\RedirectResponse
     {
         $validator = Validator::make($request->all(), [
@@ -350,10 +335,7 @@ class TicketScrapingController extends Controller
     /**
      * List user's ticket alerts
      */
-    /**
-     * Alerts
-     */
-    public function alerts(Request $request): \Illuminate\View\View
+    public function alerts(): \Illuminate\View\View
     {
         $alerts = TicketAlert::forUser(Auth::id())
             ->with(['user'])
@@ -365,9 +347,6 @@ class TicketScrapingController extends Controller
 
     /**
      * Create new ticket alert
-     */
-    /**
-     * CreateAlert
      */
     public function createAlert(Request $request): JsonResponse
     {
@@ -423,9 +402,6 @@ class TicketScrapingController extends Controller
 
     /**
      * Update ticket alert
-     */
-    /**
-     * UpdateAlert
      */
     public function updateAlert(Request $request, TicketAlert $alert): JsonResponse
     {
@@ -483,9 +459,6 @@ class TicketScrapingController extends Controller
     /**
      * Delete ticket alert
      */
-    /**
-     * DeleteAlert
-     */
     public function deleteAlert(TicketAlert $alert): JsonResponse
     {
         // Ensure user owns the alert
@@ -519,59 +492,54 @@ class TicketScrapingController extends Controller
     /**
      * Get trending sports event tickets
      */
-    /**
-     * Trending
-     */
     public function trending(Request $request)
     {
         try {
             $limit = $request->get('limit', 20);
-            $sport = $request->get('sport', 'all'); // Allow filtering by sport
-            
+
             // Get trending tickets from the service
             $tickets = $this->scrapingService->getTrendingManchesterUnitedTickets($limit);
-            
+
             // If this is an API request, return JSON
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => true,
+                    'success' => TRUE,
                     'tickets' => $tickets,
                     'count'   => $tickets->count(),
                 ]);
             }
-            
+
             // For web requests, return the view with trending tickets data
             $stats = [
                 'total_trending' => $tickets->count(),
-                'platforms' => $tickets->groupBy('platform')->map->count(),
-                'avg_price' => round((float)($tickets->avg('min_price') ?? 0), 2),
-                'date_range' => [
+                'platforms'      => $tickets->groupBy('platform')->map->count(),
+                'avg_price'      => round((float) ($tickets->avg('min_price') ?? 0), 2),
+                'date_range'     => [
                     'from' => $tickets->min('event_date'),
-                    'to' => $tickets->max('event_date')
-                ]
+                    'to'   => $tickets->max('event_date'),
+                ],
             ];
-            
+
             return view('tickets.scraping.trending', compact('tickets', 'stats'));
-            
         } catch (\Exception $e) {
-            \Log::error('Error loading trending tickets: ' . $e->getMessage());
-            
+            Log::error('Error loading trending tickets: ' . $e->getMessage());
+
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to load trending tickets'
+                    'success' => FALSE,
+                    'message' => 'Failed to load trending tickets',
                 ], 500);
             }
-            
+
             // For web requests, return view with error state
             $tickets = collect();
             $stats = [
                 'total_trending' => 0,
-                'platforms' => [],
-                'avg_price' => 0,
-                'date_range' => ['from' => null, 'to' => null]
+                'platforms'      => [],
+                'avg_price'      => 0,
+                'date_range'     => ['from' => NULL, 'to' => NULL],
             ];
-            
+
             return view('tickets.scraping.trending', compact('tickets', 'stats'))
                 ->with('error', 'Unable to load trending tickets at this time.');
         }
@@ -580,10 +548,7 @@ class TicketScrapingController extends Controller
     /**
      * Get best sports deals
      */
-    /**
-     * BestDeals
-     */
-    public function bestDeals(Request $request): \Illuminate\Http\JsonResponse
+    public function bestDeals(Request $request): JsonResponse
     {
         $sport = $request->get('sport', 'football');
         $limit = $request->get('limit', 50);
@@ -591,7 +556,7 @@ class TicketScrapingController extends Controller
         $deals = $this->scrapingService->getBestSportsDeals($sport, $limit);
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'deals'   => $deals,
             'count'   => $deals->count(),
             'sport'   => $sport,
@@ -601,16 +566,13 @@ class TicketScrapingController extends Controller
     /**
      * Manual check alerts
      */
-    /**
-     * CheckAlerts
-     */
-    public function checkAlerts(Request $request): \Illuminate\Http\JsonResponse
+    public function checkAlerts(): JsonResponse
     {
         try {
             $alertsChecked = $this->scrapingService->checkAlerts();
 
             return response()->json([
-                'success'        => true,
+                'success'        => TRUE,
                 'alerts_checked' => $alertsChecked,
                 'message'        => "Checked {$alertsChecked} alerts",
             ]);
@@ -618,7 +580,7 @@ class TicketScrapingController extends Controller
             Log::error('Manual alert check error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to check alerts',
             ], 500);
         }
@@ -627,10 +589,7 @@ class TicketScrapingController extends Controller
     /**
      * Get scraping statistics
      */
-    /**
-     * Stats
-     */
-    public function stats(Request $request): \Illuminate\Http\JsonResponse
+    public function stats(Request $request): JsonResponse
     {
         $period = $request->get('period', '24h'); // 24h, 7d, 30d
 
@@ -663,7 +622,7 @@ class TicketScrapingController extends Controller
         ];
 
         return response()->json([
-            'success' => true,
+            'success' => TRUE,
             'period'  => $period,
             'stats'   => $stats,
         ]);
