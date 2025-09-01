@@ -75,13 +75,33 @@
       <form id="filters-form" class="space-y-6">
         <!-- Search Input with Enhanced Features -->
         <div class="relative">
-          <x-ui.input name="keywords" label="Search Tickets" placeholder="Search by event, team, venue, or keyword..."
-            value="{{ request('keywords') }}" variant="search" icon="search" iconPosition="left" class="pl-10" />
-          <div class="absolute left-3 top-1/2 transform -translate-y-1/2 mt-6">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+          <label for="keywords" class="hd-label">Search Tickets</label>
+          <div class="relative">
+            <input type="text" name="keywords" id="keywords" class="hd-input pl-10 pr-10"
+              placeholder="Search by event, team, venue, or keyword..." value="{{ request('keywords') }}"
+              autocomplete="off" aria-describedby="keywords-help" data-search-input>
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <button type="button"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
+              id="clear-search" aria-label="Clear search">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <small id="keywords-help" class="text-xs text-gray-500 mt-1 block">Search across event names, teams, venues,
+            and descriptions</small>
+
+          <!-- Search Suggestions Dropdown -->
+          <div id="search-suggestions"
+            class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg hidden max-h-48 overflow-y-auto">
+            <div class="p-2 text-xs text-gray-500 border-b">Popular searches:</div>
+            <div id="suggestions-list" class="py-1"></div>
           </div>
         </div>
 
@@ -90,14 +110,15 @@
           <!-- Platform Filter -->
           <div>
             <label for="platform" class="hd-label">Platform</label>
-            <select name="platform" id="platform" class="hd-input">
+            <select name="platform" id="platform" class="hd-input" aria-describedby="platform-help">
               <option value="">All Platforms</option>
-              <option value="stubhub" {{ request('platform') == 'stubhub' ? 'selected' : '' }}>StubHub
+              <option value="stubhub" {{ request('platform') == 'stubhub' ? 'selected' : '' }}>StubHub</option>
+              <option value="ticketmaster" {{ request('platform') == 'ticketmaster' ? 'selected' : '' }}>Ticketmaster
               </option>
-              <option value="ticketmaster" {{ request('platform') == 'ticketmaster' ? 'selected' : '' }}>
-                Ticketmaster</option>
-              <option value="viagogo" {{ request('platform') == 'viagogo' ? 'selected' : '' }}>Viagogo
-              </option>
+              <option value="viagogo" {{ request('platform') == 'viagogo' ? 'selected' : '' }}>Viagogo</option>
+              <option value="funzone" {{ request('platform') == 'funzone' ? 'selected' : '' }}>FunZone</option>
+            </select>
+            <small id="platform-help" class="text-xs text-gray-500 mt-1 block">Filter tickets by platform</small>
             </select>
           </div>
 
@@ -109,22 +130,31 @@
           <x-ui.input name="max_price" type="number" label="Max Price ($)" placeholder="1000" min="0"
             step="0.01" value="{{ request('max_price') }}" />
 
-          <!-- Sort Options -->
+          <!-- Enhanced Sort Options -->
           <div>
             <label for="sort_by" class="hd-label">Sort By</label>
-            <select name="sort_by" id="sort_by" class="hd-input">
+            <select name="sort_by" id="sort_by" class="hd-select" aria-describedby="sort-help">
+              <option value="">Default Order</option>
               <option value="scraped_at" {{ request('sort_by', 'scraped_at') == 'scraped_at' ? 'selected' : '' }}>
-                Latest
+                Recently Updated
               </option>
-              <option value="event_date" {{ request('sort_by') == 'event_date' ? 'selected' : '' }}>Event
-                Date</option>
-              <option value="min_price" {{ request('sort_by') == 'min_price' ? 'selected' : '' }}>Price
-                (Low to High)</option>
-              <option value="max_price" {{ request('sort_by') == 'max_price' ? 'selected' : '' }}>Price
-                (High to Low)</option>
-              <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>Event Name
+              <option value="event_date" {{ request('sort_by') == 'event_date' ? 'selected' : '' }}>Event Date:
+                Earliest First</option>
+              <option value="event_date_desc" {{ request('sort_by') == 'event_date_desc' ? 'selected' : '' }}>Event
+                Date: Latest First</option>
+              <option value="min_price" {{ request('sort_by') == 'min_price' ? 'selected' : '' }}>Price: Low to High
               </option>
+              <option value="max_price" {{ request('sort_by') == 'max_price' ? 'selected' : '' }}>Price: High to Low
+              </option>
+              <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>Event Name: A-Z</option>
+              <option value="title_desc" {{ request('sort_by') == 'title_desc' ? 'selected' : '' }}>Event Name: Z-A
+              </option>
+              <option value="platform" {{ request('sort_by') == 'platform' ? 'selected' : '' }}>Platform: A-Z</option>
+              <option value="availability" {{ request('sort_by') == 'availability' ? 'selected' : '' }}>Available
+                First</option>
             </select>
+            <small id="sort-help" class="text-xs text-gray-500 mt-1 block">Choose how to order your search
+              results</small>
           </div>
         </div>
 
@@ -222,10 +252,21 @@
     </div>
   </div>
 
-  <!-- Loading Indicator -->
-  <div id="loading-indicator" class="flex flex-col items-center justify-center py-12" style="display: none;">
-    <div class="hd-loading-skeleton hd-loading-skeleton--spinner"></div>
-    <p class="mt-4 hd-text-base">Loading tickets...</p>
+  <!-- Enhanced Loading Indicator -->
+  <div id="loading-indicator" class="flex flex-col items-center justify-center py-12 space-y-4"
+    style="display: none;">
+    <div class="relative">
+      <div class="hd-loading-skeleton hd-loading-skeleton--spinner"></div>
+      <div class="absolute inset-0 hd-loading-skeleton hd-loading-skeleton--spinner opacity-30 animate-ping"></div>
+    </div>
+    <div class="text-center">
+      <p class="loading-text hd-text-base font-medium text-gray-700 mb-2">Loading tickets...</p>
+      <p class="text-sm text-gray-500">Please wait while we fetch the latest data</p>
+    </div>
+    <div class="w-48 bg-gray-200 rounded-full h-1.5">
+      <div class="bg-blue-600 h-1.5 rounded-full progress-bar" style="width: 0%; transition: width 0.5s ease-in-out;">
+      </div>
+    </div>
   </div>
 
   <!-- Tickets Container -->
@@ -683,7 +724,8 @@
         input.addEventListener(eventType, function() {
           clearTimeout(timeout);
           timeout = setTimeout(() => {
-            showLoading();
+            const actionType = input.name === 'keywords' ? 'search' : 'filter';
+            showLoadingWithContext(actionType);
             submitFilters();
           }, input.type === 'checkbox' ? 0 : 500);
         });
@@ -697,7 +739,7 @@
       // Initialize refresh buttons  
       document.querySelectorAll('#refresh-tickets, #refresh-search').forEach(button => {
         button.addEventListener('click', function() {
-          showLoading();
+          showLoadingWithContext('refresh');
           window.location.reload();
         });
       });
@@ -709,15 +751,52 @@
     });
 
     function initializeFilters() {
-      // Advanced search suggestions
+      // Enhanced search input with suggestions and clear button
       const keywordsInput = document.querySelector('input[name="keywords"]');
+      const clearSearchBtn = document.getElementById('clear-search');
+      const suggestionsDiv = document.getElementById('search-suggestions');
+
       if (keywordsInput) {
+        // Show/hide clear button based on input value
+        function toggleClearButton() {
+          if (keywordsInput.value.length > 0) {
+            clearSearchBtn?.classList.remove('hidden');
+          } else {
+            clearSearchBtn?.classList.add('hidden');
+          }
+        }
+
+        // Initialize clear button visibility
+        toggleClearButton();
+
+        // Handle input events
+        keywordsInput.addEventListener('input', function() {
+          toggleClearButton();
+          if (this.value.length > 2) {
+            showSearchSuggestions();
+          } else {
+            hideSearchSuggestions();
+          }
+        });
+
         keywordsInput.addEventListener('focus', function() {
-          showSearchSuggestions();
+          if (this.value.length > 2) {
+            showSearchSuggestions();
+          }
         });
 
         keywordsInput.addEventListener('blur', function() {
           setTimeout(() => hideSearchSuggestions(), 150);
+        });
+
+        // Clear search functionality
+        clearSearchBtn?.addEventListener('click', function() {
+          keywordsInput.value = '';
+          keywordsInput.focus();
+          toggleClearButton();
+          hideSearchSuggestions();
+          showLoadingWithContext('clear');
+          submitFilters();
         });
       }
 
@@ -843,15 +922,88 @@
         params.append('sort_dir', currentSort);
       }
 
+      // Enhanced URL state management
       const newUrl = window.location.pathname + '?' + params.toString();
-      window.history.pushState({}, '', newUrl);
+      window.history.pushState({
+        filters: Object.fromEntries(params)
+      }, '', newUrl);
+
+      // Update page title to reflect current search
+      const keywords = params.get('keywords');
+      const platform = params.get('platform');
+      let title = 'HD Tickets - Sports Events';
+
+      if (keywords || platform) {
+        const parts = [];
+        if (keywords) parts.push(`"${keywords}"`);
+        if (platform) parts.push(platform.toUpperCase());
+        title = `HD Tickets - ${parts.join(' on ')}`;
+      }
+      document.title = title;
+
       window.location.reload();
     }
 
     function clearAllFilters() {
-      showLoading();
+      showLoadingWithContext('clear');
+      // Clear URL parameters and reset title
+      window.history.pushState({}, '', window.location.pathname);
+      document.title = 'HD Tickets - Sports Events';
       window.location.href = window.location.pathname;
     }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+      if (event.state && event.state.filters) {
+        // Restore form state from history
+        const form = document.getElementById('filters-form');
+        Object.keys(event.state.filters).forEach(key => {
+          const input = form.querySelector(`[name="${key}"]`);
+          if (input) {
+            input.value = event.state.filters[key];
+          }
+        });
+      }
+      window.location.reload();
+    });
+
+    // Enhanced keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[name="keywords"]');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+
+      // Ctrl/Cmd + Enter to submit search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        showLoadingWithContext('search');
+        submitFilters();
+      }
+
+      // Escape to clear search when focused
+      if (e.key === 'Escape') {
+        const searchInput = document.querySelector('input[name="keywords"]');
+        if (document.activeElement === searchInput && searchInput.value) {
+          e.preventDefault();
+          searchInput.value = '';
+          const clearBtn = document.getElementById('clear-search');
+          if (clearBtn) clearBtn.click();
+        } else {
+          hideSearchSuggestions();
+        }
+      }
+
+      // Ctrl/Cmd + R to refresh (with loading indicator)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        showLoadingWithContext('refresh');
+      }
+    });
 
     function removeFilter(filterKey) {
       const input = document.querySelector(`[name="${filterKey}"]`);
@@ -865,22 +1017,70 @@
       }
     }
 
-    function showLoading() {
+    // Enhanced loading states with better user feedback
+    function showLoading(message = 'Loading tickets...') {
       const container = document.getElementById('tickets-container');
       const loading = document.getElementById('loading-indicator');
+
       if (container && loading) {
         container.style.display = 'none';
         loading.style.display = 'flex';
+
+        // Update loading message if provided
+        const loadingText = loading.querySelector('.loading-text');
+        if (loadingText && message) {
+          loadingText.textContent = message;
+        }
+
+        // Add loading state to relevant buttons
+        const buttons = document.querySelectorAll('button[type="submit"], .hd-btn');
+        buttons.forEach(btn => {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Show progress indicator on search form
+        const form = document.getElementById('filters-form');
+        if (form) {
+          form.classList.add('loading-state');
+        }
       }
     }
 
     function hideLoading() {
       const container = document.getElementById('tickets-container');
       const loading = document.getElementById('loading-indicator');
+
       if (container && loading) {
         container.style.display = 'block';
         loading.style.display = 'none';
+
+        // Remove loading state from buttons
+        const buttons = document.querySelectorAll('button[type="submit"], .hd-btn');
+        buttons.forEach(btn => {
+          btn.disabled = false;
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+
+        // Remove loading state from search form
+        const form = document.getElementById('filters-form');
+        if (form) {
+          form.classList.remove('loading-state');
+        }
       }
+    }
+
+    // Show specific loading messages for different actions
+    function showLoadingWithContext(action) {
+      const messages = {
+        'search': 'Searching tickets...',
+        'filter': 'Applying filters...',
+        'sort': 'Sorting results...',
+        'refresh': 'Refreshing data...',
+        'clear': 'Clearing filters...'
+      };
+
+      showLoading(messages[action] || 'Loading...');
     }
 
     function validatePriceRange() {
@@ -966,13 +1166,58 @@
     }
 
     function showSearchSuggestions() {
-      // Implementation for search suggestions dropdown
-      console.log('Showing search suggestions...');
-      // You could implement a dropdown with popular search terms
+      const suggestionsDiv = document.getElementById('search-suggestions');
+      const suggestionsList = document.getElementById('suggestions-list');
+      const keywordsInput = document.querySelector('input[name="keywords"]');
+
+      if (!suggestionsDiv || !suggestionsList || !keywordsInput) return;
+
+      // Popular search terms based on current data
+      const popularSearches = [
+        'Basketball', 'Football', 'Concert', 'Theater', 'Baseball',
+        'Hockey', 'Music Festival', 'Comedy Show', 'Opera', 'Ballet'
+      ];
+
+      // Get current search value
+      const currentValue = keywordsInput.value.toLowerCase();
+
+      // Filter suggestions based on current input
+      const filteredSuggestions = popularSearches.filter(term =>
+        term.toLowerCase().includes(currentValue) &&
+        term.toLowerCase() !== currentValue
+      );
+
+      if (filteredSuggestions.length > 0) {
+        // Clear previous suggestions
+        suggestionsList.innerHTML = '';
+
+        // Add filtered suggestions
+        filteredSuggestions.slice(0, 5).forEach(term => {
+          const suggestionItem = document.createElement('div');
+          suggestionItem.className = 'px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm text-gray-700';
+          suggestionItem.textContent = term;
+
+          suggestionItem.addEventListener('click', function() {
+            keywordsInput.value = term;
+            hideSearchSuggestions();
+            showLoadingWithContext('search');
+            submitFilters();
+          });
+
+          suggestionsList.appendChild(suggestionItem);
+        });
+
+        suggestionsDiv.classList.remove('hidden');
+      } else {
+        hideSearchSuggestions();
+      }
     }
 
     function hideSearchSuggestions() {
-      console.log('Hiding search suggestions...');
+      const suggestionsDiv = document.getElementById('search-suggestions');
+      if (suggestionsDiv) {
+        suggestionsDiv.classList.add('hidden');
+      }
     }
 
     // Enhanced error handling

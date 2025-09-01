@@ -72,17 +72,41 @@ class TicketScrapingController extends Controller
                 $query->orderByDesc('is_available');
             }
 
-            // Sorting options
+            // Enhanced sorting options
             $sortBy = $request->get('sort_by', 'scraped_at');
             $sortDir = $request->get('sort_dir', 'desc');
 
-            $allowedSorts = ['scraped_at', 'event_date', 'min_price', 'max_price', 'title'];
+            // Expanded allowed sort options with new functionality
+            $allowedSorts = [
+                'scraped_at', 'event_date', 'event_date_desc', 'min_price', 'max_price', 
+                'title', 'title_desc', 'platform', 'availability'
+            ];
+            
             if (in_array($sortBy, $allowedSorts)) {
-                if ($sortBy === 'min_price' || $sortBy === 'max_price') {
-                    // Handle price sorting - use COALESCE to handle null values
-                    $query->orderByRaw("COALESCE({$sortBy}, 999999) {$sortDir}");
-                } else {
-                    $query->orderBy($sortBy, $sortDir);
+                // Handle special sorting cases
+                switch ($sortBy) {
+                    case 'min_price':
+                    case 'max_price':
+                        // Handle price sorting - use COALESCE to handle null values
+                        $query->orderByRaw("COALESCE({$sortBy}, 999999) {$sortDir}");
+                        break;
+                    case 'event_date_desc':
+                        $query->orderBy('event_date', 'desc');
+                        break;
+                    case 'title_desc':
+                        $query->orderBy('title', 'desc');
+                        break;
+                    case 'availability':
+                        // Sort by availability (available first)
+                        $query->orderByRaw('CASE WHEN is_available = 1 THEN 0 ELSE 1 END')
+                              ->orderBy('scraped_at', 'desc');
+                        break;
+                    case 'platform':
+                        $query->orderBy('platform', 'asc')
+                              ->orderBy('scraped_at', 'desc');
+                        break;
+                    default:
+                        $query->orderBy($sortBy, $sortDir);
                 }
             }
 

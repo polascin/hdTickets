@@ -272,7 +272,7 @@
   </div>
 
   <!-- Loading Indicator -->
-  <div id="loading-indicator" class="flex flex-col items-center justify-center py-12 hidden" role="status"
+  <div id="loading-indicator" class="flex flex-col items-center justify-center py-12" role="status"
     aria-label="Loading tickets">
     <div class="w-8 h-8 border-3 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
     <p class="mt-4 text-gray-600">Loading tickets...</p>
