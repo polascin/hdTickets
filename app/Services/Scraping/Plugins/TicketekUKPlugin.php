@@ -2,374 +2,153 @@
 
 namespace App\Services\Scraping\Plugins;
 
-use App\Services\ProxyRotationService;
-use App\Services\Scraping\ScraperPluginInterface;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
+use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
-use function array_slice;
-use function count;
-
-class TicketekUKPlugin implements ScraperPluginInterface
+class TicketekUKPlugin extends BaseScraperPlugin
 {
-    private $enabled = TRUE;
-
-    private $config = [];
-
-    private $proxyService;
-
-    private $httpClient;
-
-    private $baseUrl = 'https://premier.ticketek.co.uk';
-
-    private $searchEndpoint = '/shows/search.aspx';
-
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-    public function __construct(?ProxyRotationService $proxyService = NULL)
+    /**
+     * Initialize plugin-specific settings
+     */
+    protected function initializePlugin(): void
     {
-        $this->proxyService = $proxyService;
-        $this->initializeHttpClient();
+        $this->pluginName = 'Ticketek UK';
+        $this->platform = 'ticketek_uk';
+        $this->description = 'Ticketek UK tickets - Sports, concerts, theatre and events across the UK';
+        $this->baseUrl = 'https://www.ticketek.co.uk';
+        $this->venue = 'Various UK Venues';
+        $this->currency = 'GBP';
+        $this->language = 'en-GB';
+        $this->rateLimitSeconds = 1;
     }
 
-    /**
-     * Get  info
-     */
-    public function getInfo(): array
+    protected function getCapabilities(): array
     {
-        return [
-            'name'         => 'Ticketek UK',
-            'description'  => 'Major UK ticketing platform for sports, concerts and events',
-            'version'      => '1.0.0',
-            'platform'     => 'ticketek_uk',
-            'capabilities' => [
-                'uk_venues',
-                'sports_events',
-                'concert_tickets',
-                'theater_shows',
-                'premium_seating',
-            ],
-            'rate_limit'         => '1 request per 2 seconds',
-            'supported_criteria' => [
-                'keyword', 'location', 'date_range', 'category',
-            ],
-        ];
+        return ['sports_events', 'concerts', 'theatre', 'family_events', 'festivals'];
     }
 
-    /**
-     * Check if  enabled
-     */
-    public function isEnabled(): bool
+    protected function getSupportedCriteria(): array
     {
-        return $this->enabled;
+        return ['keyword', 'date_range', 'category', 'venue', 'price_range'];
     }
 
-    /**
-     * Enable
-     */
-    public function enable(): void
-    {
-        $this->enabled = TRUE;
-        Log::info('Ticketek UK plugin enabled');
-    }
-
-    /**
-     * Disable
-     */
-    public function disable(): void
-    {
-        $this->enabled = FALSE;
-        Log::info('Ticketek UK plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-        Log::info('Ticketek UK plugin configured', ['config' => $config]);
-    }
-
-    /**
-     * Scrape
-     */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
-            throw new Exception('Ticketek UK plugin is disabled');
+        if (!$this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
-        Log::info('Starting Ticketek UK scraping', $criteria);
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
 
         try {
+            $this->applyRateLimit($this->platform);
+            
             $searchUrl = $this->buildSearchUrl($criteria);
-            $this->enforceRateLimit();
-            $response = $this->makeRequest($searchUrl);
-            $events = $this->parseSearchResults($response);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
             $filteredEvents = $this->filterResults($events, $criteria);
 
-            Log::info('Ticketek UK scraping completed', [
-                'url'           => $searchUrl,
+            Log::info("{$this->pluginName} scraping completed", [
+                'url' => $searchUrl,
                 'results_found' => count($filteredEvents),
             ]);
 
             return $filteredEvents;
         } catch (Exception $e) {
-            Log::error('Ticketek UK scraping failed', [
+            Log::error("{$this->pluginName} scraping failed", [
                 'criteria' => $criteria,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
-
             throw $e;
         }
     }
 
-    /**
-     * Test
-     */
-    public function test(): array
+    protected function buildSearchUrl(array $criteria): string
     {
-        try {
-            $testCriteria = ['keyword' => 'football', 'max_results' => 1];
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'Ticketek UK plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'Ticketek UK plugin test failed: ' . $e->getMessage(),
-            ];
-        }
+        return $this->baseUrl . '/events';
     }
 
-    /**
-     * InitializeHttpClient
-     */
-    private function initializeHttpClient(): void
-    {
-        $this->httpClient = new Client([
-            'timeout' => 30,
-            'verify'  => FALSE,
-            'headers' => [
-                'User-Agent'      => $this->userAgent,
-                'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-GB,en;q=0.9',
-                'Cache-Control'   => 'no-cache',
-                'Pragma'          => 'no-cache',
-            ],
-        ]);
-    }
-
-    /**
-     * BuildSearchUrl
-     */
-    private function buildSearchUrl(array $criteria): string
-    {
-        $params = [];
-
-        if (! empty($criteria['keyword'])) {
-            $params['searchterm'] = urlencode($criteria['keyword']);
-        }
-
-        if (! empty($criteria['location'])) {
-            $params['location'] = urlencode($criteria['location']);
-        }
-
-        $queryString = http_build_query($params);
-
-        return $this->baseUrl . $this->searchEndpoint . '?' . $queryString;
-    }
-
-    /**
-     * ParseSearchResults
-     */
-    private function parseSearchResults(string $html): array
+    protected function parseSearchResults(string $html): array
     {
         $events = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
+        $crawler = new Crawler($html);
 
-        $eventNodes = $xpath->query('//div[contains(@class, "event")] | //div[contains(@class, "show")]');
-
-        foreach ($eventNodes as $eventNode) {
-            try {
-                $event = [
-                    'platform'            => 'ticketek_uk',
-                    'event_name'          => $this->extractText($xpath, './/h3 | .//h2 | .//*[contains(@class, "title")]', $eventNode),
-                    'venue'               => $this->extractText($xpath, './/*[contains(@class, "venue")] | .//*[contains(@class, "location")]', $eventNode),
-                    'event_date'          => $this->extractAndParseDate($xpath, './/*[contains(@class, "date")]', $eventNode),
-                    'price_min'           => $this->extractPrice($xpath, './/*[contains(@class, "price")] | .//*[contains(text(), "£")]', $eventNode),
-                    'url'                 => $this->extractUrl($xpath, './/a[contains(@href, "/show/")]', $eventNode),
-                    'availability_status' => $this->extractAvailabilityStatus($xpath, $eventNode),
-                    'description'         => '🎫 UK\'s leading ticketing platform',
-                    'last_checked'        => now(),
-                    'scraped_at'          => now()->toISOString(),
-                ];
-
-                if (! empty($event['event_name'])) {
-                    $events[] = $event;
+        try {
+            $crawler->filter('.event-item, .listing-item')->each(function (Crawler $node) use (&$events) {
+                try {
+                    $event = $this->parseEventItem($node);
+                    if ($event) {
+                        $events[] = $event;
+                    }
+                } catch (Exception $e) {
+                    Log::debug("Failed to parse Ticketek UK event item", ['error' => $e->getMessage()]);
                 }
-            } catch (Exception $e) {
-                Log::warning('Failed to parse Ticketek UK event', ['error' => $e->getMessage()]);
-
-                continue;
-            }
+            });
+        } catch (Exception $e) {
+            Log::warning("Failed to parse Ticketek UK search results", ['error' => $e->getMessage()]);
         }
 
         return $events;
     }
 
-    /**
-     * ExtractText
-     */
-    private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
+    protected function parseEventItem(Crawler $node): ?array
     {
-        $nodes = $xpath->query($selector, $context);
+        try {
+            $title = $this->extractText($node, '.event-title, h2, h3');
+            $venue = $this->extractText($node, '.venue, .location');
+            $date = $this->extractText($node, '.date, .event-date');
+            $priceText = $this->extractText($node, '.price, .from-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
 
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
-    }
+            if (empty($title)) {
+                return null;
+            }
 
-    /**
-     * ExtractUrl
-     */
-    private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-        if ($nodes->length > 0) {
-            $href = $nodes->item(0)->getAttribute('href');
-
-            return strpos($href, 'http') === 0 ? $href : $this->baseUrl . $href;
+            return [
+                'title' => trim($title),
+                'venue' => trim($venue) ?: $this->venue,
+                'date' => $this->parseDate($date),
+                'price' => $this->parsePrice($priceText),
+                'currency' => $this->currency,
+                'url' => $link ? $this->buildFullUrl($link) : null,
+                'platform' => $this->platform,
+                'scraped_at' => now()->toISOString(),
+            ];
+        } catch (Exception $e) {
+            Log::debug("Failed to parse Ticketek UK event item", ['error' => $e->getMessage()]);
+            return null;
         }
-
-        return '';
     }
 
-    /**
-     * ExtractPrice
-     */
-    private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
+    protected function parsePrice(string $priceText): ?float
     {
-        $priceText = $this->extractText($xpath, $selector, $context);
+        if (empty($priceText)) {
+            return null;
+        }
 
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float) $matches[1];
+            return (float)$matches[1];
         }
 
-        return NULL;
+        return null;
     }
 
-    /**
-     * ExtractAndParseDate
-     */
-    private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
+    protected function buildFullUrl(string $path): string
     {
-        $dateText = $this->extractText($xpath, $selector, $context);
-
-        if (empty($dateText)) {
-            return NULL;
+        if (str_starts_with($path, 'http')) {
+            return $path;
         }
-
-        try {
-            $date = Carbon::parse($dateText);
-
-            return $date->toISOString();
-        } catch (Exception $e) {
-            Log::warning('Failed to parse Ticketek UK date', ['date_text' => $dateText]);
-
-            return NULL;
-        }
+        
+        return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
-    /**
-     * ExtractAvailabilityStatus
-     */
-    private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
-    {
-        $statusIndicators = [
-            './/*[contains(text(), "Sold Out")]'  => 'sold_out',
-            './/*[contains(text(), "Available")]' => 'available',
-            './/*[contains(@class, "price")]'     => 'available',
-        ];
-
-        foreach ($statusIndicators as $selector => $status) {
-            $nodes = $xpath->query($selector, $eventNode);
-            if ($nodes->length > 0) {
-                return $status;
-            }
-        }
-
-        return 'unknown';
-    }
-
-    /**
-     * FilterResults
-     */
-    private function filterResults(array $events, array $criteria): array
-    {
-        $maxResults = $criteria['max_results'] ?? 50;
-
-        return array_slice(array_values($events), 0, $maxResults);
-    }
-
-    /**
-     * EnforceRateLimit
-     */
-    private function enforceRateLimit(): void
-    {
-        $lastRequest = Cache::get('ticketek_uk_last_request', 0);
-        $timeSinceLastRequest = microtime(TRUE) - $lastRequest;
-
-        if ($timeSinceLastRequest < 2) {
-            $sleepTime = 2 - $timeSinceLastRequest;
-            usleep($sleepTime * 1000000);
-        }
-
-        Cache::put('ticketek_uk_last_request', microtime(TRUE), 60);
-    }
-
-    /**
-     * MakeRequest
-     */
-    private function makeRequest(string $url): string
-    {
-        try {
-            $options = [];
-
-            if ($this->proxyService) {
-                $proxy = $this->proxyService->getNextProxy();
-                if ($proxy) {
-                    $options['proxy'] = $proxy;
-                }
-            }
-
-            $response = $this->httpClient->get($url, $options);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception('HTTP ' . $response->getStatusCode() . ' error');
-            }
-
-            return $response->getBody()->getContents();
-        } catch (RequestException $e) {
-            Log::error('Ticketek UK HTTP request failed', [
-                'url'   => $url,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new Exception('Failed to fetch Ticketek UK page: ' . $e->getMessage());
-        }
-    }
+    // Required abstract methods
+    protected function getTestUrl(): string { return $this->baseUrl . '/events'; }
+    protected function getEventNameSelectors(): string { return '.event-title, h2, h3'; }
+    protected function getDateSelectors(): string { return '.date, .event-date'; }
+    protected function getVenueSelectors(): string { return '.venue, .location'; }
+    protected function getPriceSelectors(): string { return '.price, .from-price'; }
+    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
 }

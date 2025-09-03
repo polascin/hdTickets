@@ -2,515 +2,154 @@
 
 namespace App\Services\Scraping\Plugins;
 
-use App\Services\ProxyRotationService;
-use App\Services\Scraping\ScraperPluginInterface;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
+use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
-use function array_slice;
-use function count;
-
-class SeeTicketsUKPlugin implements ScraperPluginInterface
+class SeeTicketsUKPlugin extends BaseScraperPlugin
 {
-    private $enabled = TRUE;
-
-    private $config = [];
-
-    private $proxyService;
-
-    private $httpClient;
-
-    private $baseUrl = 'https://www.seetickets.com';
-
-    private $searchEndpoint = '/search';
-
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-    public function __construct(?ProxyRotationService $proxyService = NULL)
+    /**
+     * Initialize plugin-specific settings
+     */
+    protected function initializePlugin(): void
     {
-        $this->proxyService = $proxyService;
-        $this->initializeHttpClient();
+        $this->pluginName = 'See Tickets UK';
+        $this->platform = 'seetickets_uk';
+        $this->description = 'See Tickets UK - Music, comedy, theatre and entertainment events';
+        $this->baseUrl = 'https://www.seetickets.com';
+        $this->venue = 'Various UK Venues';
+        $this->currency = 'GBP';
+        $this->language = 'en-GB';
+        $this->rateLimitSeconds = 1;
     }
 
-    /**
-     * Get  info
-     */
-    public function getInfo(): array
+    protected function getCapabilities(): array
     {
-        return [
-            'name'         => 'See Tickets UK',
-            'description'  => 'Popular UK ticketing platform for sports, concerts and events',
-            'version'      => '1.0.0',
-            'platform'     => 'seetickets_uk',
-            'capabilities' => [
-                'uk_events',
-                'sports_tickets',
-                'concert_tickets',
-                'theater_shows',
-                'festival_tickets',
-                'comedy_shows',
-            ],
-            'rate_limit'         => '1 request per 2 seconds',
-            'supported_criteria' => [
-                'keyword', 'location', 'date_range', 'category', 'venue',
-            ],
-            'coverage' => 'UK-wide events and venues',
-        ];
+        return ['music_events', 'comedy_shows', 'theatre', 'festivals', 'club_events'];
     }
 
-    /**
-     * Check if  enabled
-     */
-    public function isEnabled(): bool
+    protected function getSupportedCriteria(): array
     {
-        return $this->enabled;
+        return ['keyword', 'date_range', 'genre', 'venue', 'price_range'];
     }
 
-    /**
-     * Enable
-     */
-    public function enable(): void
-    {
-        $this->enabled = TRUE;
-        Log::info('See Tickets UK plugin enabled');
-    }
-
-    /**
-     * Disable
-     */
-    public function disable(): void
-    {
-        $this->enabled = FALSE;
-        Log::info('See Tickets UK plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-
-        if (isset($config['base_url'])) {
-            $this->baseUrl = $config['base_url'];
-        }
-
-        if (isset($config['user_agent'])) {
-            $this->userAgent = $config['user_agent'];
-            $this->initializeHttpClient();
-        }
-
-        Log::info('See Tickets UK plugin configured', ['config' => $config]);
-    }
-
-    /**
-     * Scrape
-     */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
-            throw new Exception('See Tickets UK plugin is disabled');
+        if (!$this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
-        Log::info('Starting See Tickets UK scraping', $criteria);
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
 
         try {
+            $this->applyRateLimit($this->platform);
+            
             $searchUrl = $this->buildSearchUrl($criteria);
-            $this->enforceRateLimit();
-            $response = $this->makeRequest($searchUrl);
-            $events = $this->parseSearchResults($response);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
             $filteredEvents = $this->filterResults($events, $criteria);
 
-            Log::info('See Tickets UK scraping completed', [
-                'url'           => $searchUrl,
+            Log::info("{$this->pluginName} scraping completed", [
+                'url' => $searchUrl,
                 'results_found' => count($filteredEvents),
             ]);
 
             return $filteredEvents;
         } catch (Exception $e) {
-            Log::error('See Tickets UK scraping failed', [
+            Log::error("{$this->pluginName} scraping failed", [
                 'criteria' => $criteria,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
-
             throw $e;
         }
     }
 
-    /**
-     * Test
-     */
-    public function test(): array
+    protected function buildSearchUrl(array $criteria): string
     {
-        try {
-            Log::info('Testing See Tickets UK plugin');
-
-            $testCriteria = [
-                'keyword'     => 'football',
-                'max_results' => 1,
-            ];
-
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'See Tickets UK plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'See Tickets UK plugin test failed: ' . $e->getMessage(),
-            ];
-        }
+        return $this->baseUrl . '/events';
     }
 
-    /**
-     * InitializeHttpClient
-     */
-    private function initializeHttpClient(): void
-    {
-        $this->httpClient = new Client([
-            'timeout' => 30,
-            'verify'  => FALSE,
-            'headers' => [
-                'User-Agent'      => $this->userAgent,
-                'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-GB,en;q=0.9',
-                'Cache-Control'   => 'no-cache',
-                'Pragma'          => 'no-cache',
-            ],
-        ]);
-    }
-
-    /**
-     * BuildSearchUrl
-     */
-    private function buildSearchUrl(array $criteria): string
-    {
-        $params = [];
-
-        if (! empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
-        }
-
-        if (! empty($criteria['location'])) {
-            $params['location'] = urlencode($criteria['location']);
-        }
-
-        if (! empty($criteria['category'])) {
-            $params['category'] = $this->mapCategoryToSeeTickets($criteria['category']);
-        }
-
-        $queryString = http_build_query($params);
-
-        return $this->baseUrl . $this->searchEndpoint . '?' . $queryString;
-    }
-
-    /**
-     * MapCategoryToSeeTickets
-     */
-    private function mapCategoryToSeeTickets(string $category): string
-    {
-        $mapping = [
-            'music'    => 'music',
-            'sports'   => 'sport',
-            'theater'  => 'theatre',
-            'comedy'   => 'comedy',
-            'festival' => 'festivals',
-        ];
-
-        return $mapping[strtolower($category)] ?? 'all';
-    }
-
-    /**
-     * ParseSearchResults
-     */
-    private function parseSearchResults(string $html): array
+    protected function parseSearchResults(string $html): array
     {
         $events = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
+        $crawler = new Crawler($html);
 
-        $eventNodes = $xpath->query('//div[contains(@class, "event")] | //div[contains(@class, "listing")] | //article[contains(@class, "event-card")]');
-
-        foreach ($eventNodes as $eventNode) {
-            try {
-                $event = [
-                    'platform'            => 'seetickets_uk',
-                    'event_name'          => $this->extractText($xpath, './/h3 | .//h2 | .//*[contains(@class, "title")] | .//*[contains(@class, "name")]', $eventNode),
-                    'venue'               => $this->extractText($xpath, './/*[contains(@class, "venue")] | .//*[contains(@class, "location")]', $eventNode),
-                    'event_date'          => $this->extractAndParseDate($xpath, './/*[contains(@class, "date")] | .//*[contains(@class, "time")]', $eventNode),
-                    'price_min'           => $this->extractPrice($xpath, './/*[contains(@class, "price")] | .//*[contains(text(), "£")]', $eventNode),
-                    'price_max'           => $this->extractPrice($xpath, './/*[contains(@class, "price-max")] | .//*[contains(@class, "price-high")]', $eventNode),
-                    'url'                 => $this->extractUrl($xpath, './/a[contains(@href, "/event/") or contains(@href, "/show/")]', $eventNode),
-                    'availability_status' => $this->extractAvailabilityStatus($xpath, $eventNode),
-                    'description'         => $this->buildDescription($xpath, $eventNode),
-                    'category'            => $this->extractCategory($xpath, $eventNode),
-                    'last_checked'        => now(),
-                    'scraped_at'          => now()->toISOString(),
-                ];
-
-                if (! empty($event['event_name'])) {
-                    $events[] = $event;
+        try {
+            $crawler->filter('.event-listing, .show-item')->each(function (Crawler $node) use (&$events) {
+                try {
+                    $event = $this->parseEventItem($node);
+                    if ($event) {
+                        $events[] = $event;
+                    }
+                } catch (Exception $e) {
+                    Log::debug("Failed to parse See Tickets UK event item", ['error' => $e->getMessage()]);
                 }
-            } catch (Exception $e) {
-                Log::warning('Failed to parse See Tickets UK event', ['error' => $e->getMessage()]);
-
-                continue;
-            }
+            });
+        } catch (Exception $e) {
+            Log::warning("Failed to parse See Tickets UK search results", ['error' => $e->getMessage()]);
         }
 
         return $events;
     }
 
-    /**
-     * BuildDescription
-     */
-    private function buildDescription(DOMXPath $xpath, DOMElement $eventNode): string
+    protected function parseEventItem(Crawler $node): ?array
     {
-        $parts = [];
+        try {
+            $title = $this->extractText($node, '.event-name, .show-title, h2, h3');
+            $venue = $this->extractText($node, '.venue-name, .location');
+            $date = $this->extractText($node, '.event-date, .date');
+            $priceText = $this->extractText($node, '.price, .ticket-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
 
-        $description = $this->extractText($xpath, './/*[contains(@class, "description")] | .//*[contains(@class, "summary")]', $eventNode);
-        if (! empty($description)) {
-            $parts[] = $description;
-        }
-
-        // Add See Tickets UK specific features
-        $earlyBird = $this->extractText($xpath, './/*[contains(text(), "Early Bird") or contains(text(), "Discount")]', $eventNode);
-        if (! empty($earlyBird)) {
-            $parts[] = '🎫 Special offers available';
-        }
-
-        $vip = $this->extractText($xpath, './/*[contains(text(), "VIP") or contains(text(), "Premium")]', $eventNode);
-        if (! empty($vip)) {
-            $parts[] = '⭐ VIP/Premium packages available';
-        }
-
-        if (empty($parts)) {
-            $parts[] = '🎪 See Tickets UK - Your ticket to live events';
-        }
-
-        return implode("\n", $parts);
-    }
-
-    /**
-     * ExtractCategory
-     */
-    private function extractCategory(DOMXPath $xpath, DOMElement $eventNode): string
-    {
-        $categoryIndicators = [
-            './/*[contains(text(), "Football") or contains(text(), "Premier League")]' => 'Sports',
-            './/*[contains(text(), "Concert") or contains(text(), "Music")]'           => 'Music',
-            './/*[contains(text(), "Theatre") or contains(text(), "Musical")]'         => 'Theatre',
-            './/*[contains(text(), "Comedy") or contains(text(), "Stand-up")]'         => 'Comedy',
-            './/*[contains(text(), "Festival")]'                                       => 'Festival',
-        ];
-
-        foreach ($categoryIndicators as $selector => $category) {
-            $nodes = $xpath->query($selector, $eventNode);
-            if ($nodes->length > 0) {
-                return $category;
+            if (empty($title)) {
+                return null;
             }
+
+            return [
+                'title' => trim($title),
+                'venue' => trim($venue) ?: $this->venue,
+                'date' => $this->parseDate($date),
+                'price' => $this->parsePrice($priceText),
+                'currency' => $this->currency,
+                'url' => $link ? $this->buildFullUrl($link) : null,
+                'platform' => $this->platform,
+                'category' => 'entertainment',
+                'scraped_at' => now()->toISOString(),
+            ];
+        } catch (Exception $e) {
+            Log::debug("Failed to parse See Tickets UK event item", ['error' => $e->getMessage()]);
+            return null;
         }
-
-        return 'Event';
     }
 
-    /**
-     * ExtractAvailabilityStatus
-     */
-    private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
+    protected function parsePrice(string $priceText): ?float
     {
-        $statusIndicators = [
-            './/*[contains(text(), "Sold Out") or contains(text(), "SOLD OUT")]'    => 'sold_out',
-            './/*[contains(text(), "Few left") or contains(text(), "Limited")]'     => 'low_inventory',
-            './/*[contains(text(), "Available") or contains(text(), "Buy Now")]'    => 'available',
-            './/*[contains(text(), "Pre-sale") or contains(text(), "Coming Soon")]' => 'not_on_sale',
-            './/*[contains(@class, "price")]'                                       => 'available',
-        ];
-
-        foreach ($statusIndicators as $selector => $status) {
-            $nodes = $xpath->query($selector, $eventNode);
-            if ($nodes->length > 0) {
-                return $status;
-            }
+        if (empty($priceText)) {
+            return null;
         }
-
-        return 'unknown';
-    }
-
-    /**
-     * ExtractText
-     */
-    private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
-    }
-
-    /**
-     * ExtractUrl
-     */
-    private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-        if ($nodes->length > 0) {
-            $href = $nodes->item(0)->getAttribute('href');
-
-            return strpos($href, 'http') === 0 ? $href : $this->baseUrl . $href;
-        }
-
-        return '';
-    }
-
-    /**
-     * ExtractPrice
-     */
-    private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
-    {
-        $priceText = $this->extractText($xpath, $selector, $context);
 
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float) $matches[1];
+            return (float)$matches[1];
         }
 
-        return NULL;
+        return null;
     }
 
-    /**
-     * ExtractAndParseDate
-     */
-    private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
+    protected function buildFullUrl(string $path): string
     {
-        $dateText = $this->extractText($xpath, $selector, $context);
-
-        if (empty($dateText)) {
-            return NULL;
+        if (str_starts_with($path, 'http')) {
+            return $path;
         }
-
-        try {
-            // Clean up common date patterns
-            $dateText = preg_replace('/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s*/i', '', $dateText);
-            $dateText = trim($dateText);
-
-            $date = Carbon::parse($dateText);
-
-            return $date->toISOString();
-        } catch (Exception $e) {
-            Log::warning('Failed to parse See Tickets UK date', ['date_text' => $dateText]);
-
-            return NULL;
-        }
+        
+        return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
-    /**
-     * FilterResults
-     */
-    private function filterResults(array $events, array $criteria): array
-    {
-        $filtered = $events;
-
-        // Filter by price range
-        if (! empty($criteria['min_price'])) {
-            $filtered = array_filter($filtered, function ($event) use ($criteria) {
-                return empty($event['price_min']) || $event['price_min'] >= $criteria['min_price'];
-            });
-        }
-
-        if (! empty($criteria['max_price'])) {
-            $filtered = array_filter($filtered, function ($event) use ($criteria) {
-                return empty($event['price_max']) || $event['price_max'] <= $criteria['max_price'];
-            });
-        }
-
-        // Filter by date range
-        if (! empty($criteria['date_from'])) {
-            $fromDate = Carbon::parse($criteria['date_from']);
-            $filtered = array_filter($filtered, function ($event) use ($fromDate) {
-                if (empty($event['event_date'])) {
-                    return TRUE;
-                }
-                $eventDate = Carbon::parse($event['event_date']);
-
-                return $eventDate->gte($fromDate);
-            });
-        }
-
-        if (! empty($criteria['date_to'])) {
-            $toDate = Carbon::parse($criteria['date_to']);
-            $filtered = array_filter($filtered, function ($event) use ($toDate) {
-                if (empty($event['event_date'])) {
-                    return TRUE;
-                }
-                $eventDate = Carbon::parse($event['event_date']);
-
-                return $eventDate->lte($toDate);
-            });
-        }
-
-        // Limit results
-        $maxResults = $criteria['max_results'] ?? 50;
-
-        return array_slice(array_values($filtered), 0, $maxResults);
-    }
-
-    /**
-     * EnforceRateLimit
-     */
-    private function enforceRateLimit(): void
-    {
-        $lastRequest = Cache::get('seetickets_uk_last_request', 0);
-        $timeSinceLastRequest = microtime(TRUE) - $lastRequest;
-
-        if ($timeSinceLastRequest < 2) {
-            $sleepTime = 2 - $timeSinceLastRequest;
-            usleep($sleepTime * 1000000);
-        }
-
-        Cache::put('seetickets_uk_last_request', microtime(TRUE), 60);
-    }
-
-    /**
-     * MakeRequest
-     */
-    private function makeRequest(string $url): string
-    {
-        try {
-            $options = [];
-
-            if ($this->proxyService) {
-                $proxy = $this->proxyService->getNextProxy();
-                if ($proxy) {
-                    $options['proxy'] = $proxy;
-                    Log::debug('Using proxy for See Tickets UK request', ['proxy' => $proxy]);
-                }
-            }
-
-            $response = $this->httpClient->get($url, $options);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception('HTTP ' . $response->getStatusCode() . ' error');
-            }
-
-            return $response->getBody()->getContents();
-        } catch (RequestException $e) {
-            Log::error('See Tickets UK HTTP request failed', [
-                'url'   => $url,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new Exception('Failed to fetch See Tickets UK page: ' . $e->getMessage());
-        }
-    }
+    // Required abstract methods
+    protected function getTestUrl(): string { return $this->baseUrl . '/events'; }
+    protected function getEventNameSelectors(): string { return '.event-name, .show-title, h2, h3'; }
+    protected function getDateSelectors(): string { return '.event-date, .date'; }
+    protected function getVenueSelectors(): string { return '.venue-name, .location'; }
+    protected function getPriceSelectors(): string { return '.price, .ticket-price'; }
+    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
 }

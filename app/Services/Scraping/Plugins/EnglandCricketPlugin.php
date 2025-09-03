@@ -2,363 +2,246 @@
 
 namespace App\Services\Scraping\Plugins;
 
-use App\Services\ProxyRotationService;
-use App\Services\Scraping\ScraperPluginInterface;
-use Carbon\Carbon;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
+use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
-use function array_slice;
-use function count;
-
-class EnglandCricketPlugin implements ScraperPluginInterface
+class EnglandCricketPlugin extends BaseScraperPlugin
 {
-    private $enabled = TRUE;
-
-    private $config = [];
-
-    private $proxyService;
-
-    private $httpClient;
-
-    private $baseUrl = 'https://www.ecb.co.uk';
-
-    private $ticketsEndpoint = '/tickets';
-
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-    public function __construct(?ProxyRotationService $proxyService = NULL)
+    /**
+     * Initialize plugin-specific settings
+     */
+    protected function initializePlugin(): void
     {
-        $this->proxyService = $proxyService;
-        $this->initializeHttpClient();
+        $this->pluginName = 'England Cricket';
+        $this->platform = 'england_cricket';
+        $this->description = 'Official England Cricket tickets - Test matches, ODIs, T20Is across all venues';
+        $this->baseUrl = 'https://www.ecb.co.uk';
+        $this->venue = 'Various England Cricket Grounds';
+        $this->currency = 'GBP';
+        $this->language = 'en-GB';
+        $this->rateLimitSeconds = 2;
     }
 
     /**
-     * Get  info
+     * Get plugin capabilities
      */
-    public function getInfo(): array
+    protected function getCapabilities(): array
     {
         return [
-            'name'               => 'England Cricket',
-            'description'        => 'Official England Cricket tickets - Test matches, ODI, T20 internationals',
-            'version'            => '1.0.0',
-            'platform'           => 'england_cricket',
-            'capabilities'       => ['official_tickets', 'premium_seating', 'hospitality_packages'],
-            'rate_limit'         => '1 request per 2 seconds',
-            'supported_criteria' => ['keyword', 'date_range'],
-            'venue'              => 'Various England Cricket Venues',
+            'test_matches',
+            'odi_matches',
+            't20i_matches',
+            'ashes_series',
+            'world_cup_matches',
+            't20_world_cup',
+            'the_hundred',
+            'county_championship',
+            'vitality_blast',
+            'womens_cricket',
         ];
     }
 
     /**
-     * Check if  enabled
+     * Get supported search criteria
      */
-    public function isEnabled(): bool
+    protected function getSupportedCriteria(): array
     {
-        return $this->enabled;
+        return [
+            'keyword',
+            'date_range',
+            'match_format',
+            'opposition',
+            'venue',
+            'price_range',
+            'ticket_type',
+            'series',
+        ];
     }
 
     /**
-     * Enable
-     */
-    public function enable(): void
-    {
-        $this->enabled = TRUE;
-        Log::info('England Cricket plugin enabled');
-    }
-
-    /**
-     * Disable
-     */
-    public function disable(): void
-    {
-        $this->enabled = FALSE;
-        Log::info('England Cricket plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-        Log::info('England Cricket plugin configured', ['config' => $config]);
-    }
-
-    /**
-     * Scrape
+     * Main scraping method
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
-            throw new Exception('England Cricket plugin is disabled');
+        if (!$this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
-        Log::info('Starting England Cricket scraping', $criteria);
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
 
         try {
+            $this->applyRateLimit($this->platform);
+            
             $searchUrl = $this->buildSearchUrl($criteria);
-            $this->enforceRateLimit();
-            $response = $this->makeRequest($searchUrl);
-            $events = $this->parseSearchResults($response);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
             $filteredEvents = $this->filterResults($events, $criteria);
 
-            Log::info('England Cricket scraping completed', [
-                'url'           => $searchUrl,
+            Log::info("{$this->pluginName} scraping completed", [
+                'url' => $searchUrl,
                 'results_found' => count($filteredEvents),
             ]);
 
             return $filteredEvents;
         } catch (Exception $e) {
-            Log::error('England Cricket scraping failed', [
+            Log::error("{$this->pluginName} scraping failed", [
                 'criteria' => $criteria,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
-
             throw $e;
         }
     }
 
-    /**
-     * Test
-     */
-    public function test(): array
+    protected function buildSearchUrl(array $criteria): string
     {
-        try {
-            $testCriteria = ['keyword' => 'tickets', 'max_results' => 1];
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'England Cricket plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'England Cricket plugin test failed: ' . $e->getMessage(),
-            ];
-        }
+        return $this->baseUrl . '/tickets';
     }
 
-    /**
-     * InitializeHttpClient
-     */
-    private function initializeHttpClient(): void
-    {
-        $this->httpClient = new Client([
-            'timeout' => 30,
-            'verify'  => FALSE,
-            'headers' => [
-                'User-Agent'      => $this->userAgent,
-                'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'en-GB,en;q=0.9',
-                'Cache-Control'   => 'no-cache',
-                'Pragma'          => 'no-cache',
-            ],
-        ]);
-    }
-
-    /**
-     * BuildSearchUrl
-     */
-    private function buildSearchUrl(array $criteria): string
-    {
-        $params = [];
-
-        if (! empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
-        }
-
-        $queryString = http_build_query($params);
-
-        return $this->baseUrl . $this->ticketsEndpoint . '?' . $queryString;
-    }
-
-    /**
-     * ParseSearchResults
-     */
-    private function parseSearchResults(string $html): array
+    protected function parseSearchResults(string $html): array
     {
         $events = [];
-        $dom = new DOMDocument();
-        @$dom->loadHTML($html);
-        $xpath = new DOMXPath($dom);
+        $crawler = new Crawler($html);
 
-        $eventNodes = $xpath->query('//div[contains(@class, "event")] | //div[contains(@class, "fixture")] | //article[contains(@class, "ticket-card")]');
-
-        foreach ($eventNodes as $eventNode) {
-            try {
-                $event = [
-                    'platform'            => 'england_cricket',
-                    'event_name'          => $this->extractText($xpath, './/h3 | .//h2 | .//*[contains(@class, "title")]', $eventNode),
-                    'venue'               => 'Various England Cricket Venues',
-                    'event_date'          => $this->extractAndParseDate($xpath, './/*[contains(@class, "date")]', $eventNode),
-                    'price_min'           => $this->extractPrice($xpath, './/*[contains(@class, "price")] | .//*[contains(text(), "£")]', $eventNode),
-                    'url'                 => $this->extractUrl($xpath, './/a[contains(@href, "/tickets")]', $eventNode),
-                    'availability_status' => $this->extractAvailabilityStatus($xpath, $eventNode),
-                    'description'         => '🏏 England Cricket Official - Various England Cricket Venues experience',
-                    'last_checked'        => now(),
-                    'scraped_at'          => now()->toISOString(),
-                ];
-
-                if (! empty($event['event_name'])) {
-                    $events[] = $event;
+        try {
+            $crawler->filter('.fixture-item, .match-item, .event-item')->each(function (Crawler $node) use (&$events) {
+                try {
+                    $event = $this->parseMatchItem($node);
+                    if ($event) {
+                        $events[] = $event;
+                    }
+                } catch (Exception $e) {
+                    Log::debug("Failed to parse England Cricket match item", ['error' => $e->getMessage()]);
                 }
-            } catch (Exception $e) {
-                Log::warning('Failed to parse England Cricket event', ['error' => $e->getMessage()]);
-
-                continue;
-            }
+            });
+        } catch (Exception $e) {
+            Log::warning("Failed to parse England Cricket search results", ['error' => $e->getMessage()]);
         }
 
         return $events;
     }
 
-    /**
-     * ExtractText
-     */
-    private function extractText(DOMXPath $xpath, string $selector, DOMElement $context): string
+    protected function parseMatchItem(Crawler $node): ?array
     {
-        $nodes = $xpath->query($selector, $context);
-
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
-    }
-
-    /**
-     * ExtractUrl
-     */
-    private function extractUrl(DOMXPath $xpath, string $selector, DOMElement $context): string
-    {
-        $nodes = $xpath->query($selector, $context);
-        if ($nodes->length > 0) {
-            $href = $nodes->item(0)->getAttribute('href');
-
-            return strpos($href, 'http') === 0 ? $href : $this->baseUrl . $href;
-        }
-
-        return '';
-    }
-
-    /**
-     * ExtractPrice
-     */
-    private function extractPrice(DOMXPath $xpath, string $selector, DOMElement $context): ?float
-    {
-        $priceText = $this->extractText($xpath, $selector, $context);
-
-        if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float) $matches[1];
-        }
-
-        return NULL;
-    }
-
-    /**
-     * ExtractAndParseDate
-     */
-    private function extractAndParseDate(DOMXPath $xpath, string $selector, DOMElement $context): ?string
-    {
-        $dateText = $this->extractText($xpath, $selector, $context);
-
-        if (empty($dateText)) {
-            return NULL;
-        }
-
         try {
-            $date = Carbon::parse($dateText);
+            $title = $this->extractText($node, '.match-title, .fixture-title, h2, h3');
+            $opposition = $this->extractText($node, '.opposition, .vs, .teams');
+            $venue = $this->extractText($node, '.venue, .ground');
+            $date = $this->extractText($node, '.date, .match-date');
+            $format = $this->extractText($node, '.format, .match-type');
+            $priceText = $this->extractText($node, '.price, .from-price');
+            $availability = $this->extractText($node, '.availability, .status');
+            $link = $this->extractAttribute($node, 'a', 'href');
 
-            return $date->toISOString();
+            if (empty($title)) {
+                return null;
+            }
+
+            return [
+                'title' => trim($title),
+                'opposition' => trim($opposition),
+                'venue' => trim($venue) ?: $this->venue,
+                'location' => $this->determineLocation($venue),
+                'date' => $this->parseDate($date),
+                'match_format' => $this->determineMatchFormat($format, $title),
+                'price' => $this->parsePrice($priceText),
+                'currency' => $this->currency,
+                'availability' => $this->parseAvailability($availability),
+                'url' => $link ? $this->buildFullUrl($link) : null,
+                'platform' => $this->platform,
+                'category' => 'cricket',
+                'team' => 'England',
+                'scraped_at' => now()->toISOString(),
+            ];
         } catch (Exception $e) {
-            Log::warning('Failed to parse England Cricket date', ['date_text' => $dateText]);
-
-            return NULL;
+            Log::debug("Failed to parse England Cricket match item", ['error' => $e->getMessage()]);
+            return null;
         }
     }
 
-    /**
-     * ExtractAvailabilityStatus
-     */
-    private function extractAvailabilityStatus(DOMXPath $xpath, DOMElement $eventNode): string
+    protected function determineMatchFormat(string $format, string $title): string
     {
-        $statusIndicators = [
-            './/*[contains(text(), "Sold Out")]'  => 'sold_out',
-            './/*[contains(text(), "Available")]' => 'available',
-            './/*[contains(@class, "price")]'     => 'available',
-        ];
+        $lowerFormat = strtolower($format);
+        $lowerTitle = strtolower($title);
 
-        foreach ($statusIndicators as $selector => $status) {
-            $nodes = $xpath->query($selector, $eventNode);
-            if ($nodes->length > 0) {
-                return $status;
-            }
+        if (strpos($lowerFormat, 'test') !== false || strpos($lowerTitle, 'test') !== false) {
+            return 'test';
+        }
+        if (strpos($lowerFormat, 'odi') !== false || strpos($lowerTitle, 'odi') !== false) {
+            return 'odi';
+        }
+        if (strpos($lowerFormat, 't20') !== false || strpos($lowerTitle, 't20') !== false) {
+            return 't20i';
         }
 
         return 'unknown';
     }
 
-    /**
-     * FilterResults
-     */
-    private function filterResults(array $events, array $criteria): array
+    protected function determineLocation(string $venue): string
     {
-        $maxResults = $criteria['max_results'] ?? 50;
+        $lowerVenue = strtolower($venue);
 
-        return array_slice(array_values($events), 0, $maxResults);
-    }
-
-    /**
-     * EnforceRateLimit
-     */
-    private function enforceRateLimit(): void
-    {
-        $lastRequest = Cache::get('england_cricket_last_request', 0);
-        $timeSinceLastRequest = microtime(TRUE) - $lastRequest;
-
-        if ($timeSinceLastRequest < 2) {
-            $sleepTime = 2 - $timeSinceLastRequest;
-            usleep($sleepTime * 1000000);
+        if (strpos($lowerVenue, 'lords') !== false) {
+            return 'London';
+        }
+        if (strpos($lowerVenue, 'oval') !== false) {
+            return 'London';
+        }
+        if (strpos($lowerVenue, 'old trafford') !== false) {
+            return 'Manchester';
+        }
+        if (strpos($lowerVenue, 'headingley') !== false) {
+            return 'Leeds';
+        }
+        if (strpos($lowerVenue, 'edgbaston') !== false) {
+            return 'Birmingham';
         }
 
-        Cache::put('england_cricket_last_request', microtime(TRUE), 60);
+        return 'England';
     }
 
-    /**
-     * MakeRequest
-     */
-    private function makeRequest(string $url): string
+    protected function parseAvailability(string $status): string
     {
-        try {
-            $options = [];
-
-            if ($this->proxyService) {
-                $proxy = $this->proxyService->getNextProxy();
-                if ($proxy) {
-                    $options['proxy'] = $proxy;
-                }
-            }
-
-            $response = $this->httpClient->get($url, $options);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new Exception('HTTP ' . $response->getStatusCode() . ' error');
-            }
-
-            return $response->getBody()->getContents();
-        } catch (RequestException $e) {
-            Log::error('England Cricket HTTP request failed', [
-                'url'   => $url,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new Exception('Failed to fetch England Cricket page: ' . $e->getMessage());
+        $lowerStatus = strtolower($status);
+        
+        if (strpos($lowerStatus, 'sold out') !== false) {
+            return 'sold_out';
         }
+        if (strpos($lowerStatus, 'available') !== false) {
+            return 'available';
+        }
+        
+        return 'check_website';
     }
+
+    protected function parsePrice(string $priceText): ?float
+    {
+        if (empty($priceText)) {
+            return null;
+        }
+
+        if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+            return (float)$matches[1];
+        }
+
+        return null;
+    }
+
+    protected function buildFullUrl(string $path): string
+    {
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+        
+        return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
+    }
+
+    // Required abstract methods
+    protected function getTestUrl(): string { return $this->baseUrl . '/tickets'; }
+    protected function getEventNameSelectors(): string { return '.match-title, .fixture-title, h2, h3'; }
+    protected function getDateSelectors(): string { return '.date, .match-date'; }
+    protected function getVenueSelectors(): string { return '.venue, .ground'; }
+    protected function getPriceSelectors(): string { return '.price, .from-price'; }
+    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
 }
