@@ -528,9 +528,6 @@
           </div>
         @endif
       </div>
-      </svg>
-      {{ __('Profile') }}
-      </x-responsive-nav-link>
 
       @if (Auth::check() && Auth::user()->isAdmin())
         {{-- Admin Section --}}
@@ -558,94 +555,97 @@
               </path>
             </svg>
             {{ __('Reports') }}
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-gray-200">
-              <div class="px-4 flex items-center justify-between">
-                <div class="flex items-center">
-                  @if (Auth::check())
-                    @php
-                      $mobileProfileDisplay = Auth::user()->getProfileDisplay();
-                    @endphp
-                  @else
-                    @php
-                      $mobileProfileDisplay = [
-                          'has_picture' => false,
-                          'initials' => 'G',
-                          'display_name' => 'Guest',
-                          'picture_url' => null,
-                      ];
-                    @endphp
-                  @endif
-                  <div class="relative w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
-                    @if ($mobileProfileDisplay['has_picture'])
-                      <img class="w-10 h-10 rounded-full object-cover"
-                        src="{{ $mobileProfileDisplay['picture_url'] }}"
-                        alt="{{ $mobileProfileDisplay['display_name'] }}">
-                    @else
-                      <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span class="text-sm font-medium text-gray-700">
-                          {{ $mobileProfileDisplay['initials'] }}
-                        </span>
-                      </div>
-                    @endif
+          </x-responsive-nav-link>
+        </div>
+      @endif
 
-                    {{-- Profile completion indicator for mobile --}}
-                    @if (Auth::check())
-                      @php
-                        $mobileProfileCompletion = Auth::user()->getProfileCompletion();
-                      @endphp
-                      @if ($mobileProfileCompletion['percentage'] < 90)
-                        <div class="absolute -bottom-0.5 -right-0.5">
-                          <x-profile-completion-indicator :user="Auth::user()" position="sidebar" :showLabel="false"
-                            size="xs" />
-                        </div>
-                      @endif
-                    @endif
-                  </div>
-                  <div>
-                    <div class="font-medium text-base text-gray-800">
-                      {{ $mobileProfileDisplay['display_name'] }}
-                    </div>
-                    <div class="font-medium text-sm text-gray-500">
-                      {{ Auth::check() ? Auth::user()->email : 'guest@example.com' }}
-                    </div>
-                  </div>
+      {{-- User Profile Section --}}
+      <!-- Responsive Settings Options -->
+      <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="px-4 flex items-center justify-between">
+          <div class="flex items-center">
+            @if (Auth::check())
+              @php
+                $mobileProfileDisplay = Auth::user()->getProfileDisplay();
+              @endphp
+            @else
+              @php
+                $mobileProfileDisplay = [
+                    'has_picture' => false,
+                    'initials' => 'G',
+                    'display_name' => 'Guest',
+                    'picture_url' => null,
+                ];
+              @endphp
+            @endif
+            <div class="relative w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
+              @if ($mobileProfileDisplay['has_picture'])
+                <img class="w-10 h-10 rounded-full object-cover" src="{{ $mobileProfileDisplay['picture_url'] }}"
+                  alt="{{ $mobileProfileDisplay['display_name'] }}">
+              @else
+                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-gray-700">
+                    {{ $mobileProfileDisplay['initials'] }}
+                  </span>
                 </div>
+              @endif
 
-                {{-- Profile completion status for mobile --}}
-                @if (Auth::check())
-                  @php
-                    $mobileProfileCompletion = Auth::user()->getProfileCompletion();
-                  @endphp
-                  @if ($mobileProfileCompletion['percentage'] < 90)
-                    <div class="text-right">
-                      <div class="text-xs font-medium text-yellow-600">
-                        {{ $mobileProfileCompletion['percentage'] }}%
-                      </div>
-                      <div class="text-xs text-gray-500">Complete</div>
-                    </div>
-                  @endif
+              {{-- Profile completion indicator for mobile --}}
+              @if (Auth::check())
+                @php
+                  $mobileProfileCompletion = Auth::user()->getProfileCompletion();
+                @endphp
+                @if ($mobileProfileCompletion['percentage'] < 90)
+                  <div class="absolute -bottom-0.5 -right-0.5">
+                    <x-profile-completion-indicator :user="Auth::user()" position="sidebar" :showLabel="false"
+                      size="xs" />
+                  </div>
                 @endif
+              @endif
+            </div>
+            <div>
+              <div class="font-medium text-base text-gray-800">
+                {{ $mobileProfileDisplay['display_name'] }}
               </div>
-
-              <div class="mt-3 space-y-1">
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                  @csrf
-                  <x-responsive-nav-link :href="route('logout')"
-                    onclick="event.preventDefault(); this.closest('form').submit();" class="mobile-nav-link"
-                    role="menuitem">
-                    <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                      aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                      </path>
-                    </svg>
-                    <span>{{ __('Log Out') }}</span>
-                  </x-responsive-nav-link>
-                </form>
+              <div class="font-medium text-sm text-gray-500">
+                {{ Auth::check() ? Auth::user()->email : 'guest@example.com' }}
               </div>
             </div>
+          </div>
+
+          {{-- Profile completion status for mobile --}}
+          @if (Auth::check())
+            @php
+              $mobileProfileCompletion = Auth::user()->getProfileCompletion();
+            @endphp
+            @if ($mobileProfileCompletion['percentage'] < 90)
+              <div class="text-right">
+                <div class="text-xs font-medium text-yellow-600">
+                  {{ $mobileProfileCompletion['percentage'] }}%
+                </div>
+                <div class="text-xs text-gray-500">Complete</div>
+              </div>
+            @endif
+          @endif
         </div>
+
+        <div class="mt-3 space-y-1">
+          <!-- Authentication -->
+          <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
+              class="mobile-nav-link" role="menuitem">
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                </path>
+              </svg>
+              <span>{{ __('Log Out') }}</span>
+            </x-responsive-nav-link>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </nav>
