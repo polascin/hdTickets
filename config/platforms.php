@@ -130,6 +130,25 @@ return [
             'display_name' => 'TicketOne Italy',
             'order'        => 18,
         ],
+        // Additional UK Platforms
+        'livenation_uk' => [
+            'key'          => 'livenation_uk',
+            'name'         => 'Live Nation UK',
+            'display_name' => 'Live Nation UK',
+            'order'        => 19,
+        ],
+        'gigantic' => [
+            'key'          => 'gigantic',
+            'name'         => 'Gigantic',
+            'display_name' => 'Gigantic',
+            'order'        => 20,
+        ],
+        'skiddle' => [
+            'key'          => 'skiddle',
+            'name'         => 'Skiddle',
+            'display_name' => 'Skiddle',
+            'order'        => 21,
+        ],
     ],
 
     /*
@@ -172,5 +191,9 @@ return [
         'juventus',
         'ac_milan',
         'ticketone_italy',
+        // Additional UK Platforms
+        'livenation_uk',
+        'gigantic',
+        'skiddle',
     ],
 ];

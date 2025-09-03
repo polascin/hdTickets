@@ -7,7 +7,7 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
-class ManchesterUnitedPlugin extends BaseScraperPlugin
+class Manchester_unitedPlugin extends BaseScraperPlugin
 {
     /**
      * Initialize plugin-specific settings
