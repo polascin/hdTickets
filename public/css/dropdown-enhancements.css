@@ -1,0 +1,299 @@
+/* 
+ * Enhanced Dropdown and Select Improvements
+ * Fixes and enhancements for all dropdown menus across the application
+ */
+
+/* ==========================================================================
+   Universal Select/Dropdown Enhancements
+   ========================================================================== */
+
+/* Enhanced select styling for consistency across all forms */
+select,
+.select-enhanced,
+.select-styled {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+  min-height: 44px;
+  /* Touch-friendly size */
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+select:focus,
+.select-enhanced:focus,
+.select-styled:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Multi-select enhancements */
+select[multiple] {
+  background-image: none;
+  padding-right: 0.75rem;
+  min-height: 120px;
+}
+
+/* Custom dropdown arrow for better cross-browser consistency */
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #6b7280;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Alpine.js Dropdown Improvements
+   ========================================================================== */
+
+/* Enhanced Alpine.js dropdown animations */
+[x-cloak] {
+  display: none !important;
+}
+
+.dropdown-fade-enter {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.dropdown-fade-enter-active {
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.dropdown-fade-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.dropdown-fade-leave {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.dropdown-fade-leave-active {
+  transition: opacity 150ms ease-in, transform 150ms ease-in;
+}
+
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+/* ==========================================================================
+   Mobile Touch Optimizations
+   ========================================================================== */
+
+/* Ensure all dropdowns are touch-friendly */
+@media (pointer: coarse) {
+
+  .dropdown-menu a,
+  .dropdown-menu button,
+  select option,
+  .nav-dropdown a,
+  .nav-dropdown button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* Increase spacing for touch */
+  .dropdown-menu,
+  .nav-dropdown {
+    padding: 0.5rem 0;
+  }
+
+  .dropdown-menu .dropdown-divider,
+  .nav-dropdown .dropdown-divider {
+    margin: 0.5rem 0;
+  }
+}
+
+/* ==========================================================================
+   Accessibility Improvements
+   ========================================================================== */
+
+/* Focus indicators for keyboard navigation */
+.dropdown-menu a:focus,
+.dropdown-menu button:focus,
+.nav-dropdown a:focus,
+.nav-dropdown button:focus,
+select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+  .dropdown-menu,
+  .nav-dropdown {
+    border: 2px solid currentColor;
+  }
+
+  .dropdown-menu a:hover,
+  .dropdown-menu button:hover,
+  .nav-dropdown a:hover,
+  .nav-dropdown button:hover {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* ==========================================================================
+   Loading States for Dynamic Dropdowns
+   ========================================================================== */
+
+.dropdown-loading {
+  position: relative;
+}
+
+.dropdown-loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 10;
+}
+
+.dropdown-loading select,
+.dropdown-loading .dropdown-menu {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Error States
+   ========================================================================== */
+
+.dropdown-error select,
+.dropdown-error .dropdown-trigger {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.dropdown-error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Dark Theme Support
+   ========================================================================== */
+
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .nav-dropdown {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .dropdown-menu a,
+[data-theme="dark"] .dropdown-menu button,
+[data-theme="dark"] .nav-dropdown a,
+[data-theme="dark"] .nav-dropdown button {
+  color: #f9fafb;
+}
+
+[data-theme="dark"] .dropdown-menu a:hover,
+[data-theme="dark"] .dropdown-menu button:hover,
+[data-theme="dark"] .nav-dropdown a:hover,
+[data-theme="dark"] .nav-dropdown button:hover {
+  background-color: #374151;
+  color: #ffffff;
+}
+
+[data-theme="dark"] select {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #f9fafb;
+}
+
+[data-theme="dark"] select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* ==========================================================================
+   Performance Optimizations
+   ========================================================================== */
+
+/* Use GPU acceleration for smooth animations */
+.dropdown-menu,
+.nav-dropdown,
+.select-wrapper::after {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 640px) {
+
+  /* Full-width dropdowns on small screens */
+  .dropdown-menu,
+  .nav-dropdown {
+    left: 0 !important;
+    right: 0 !important;
+    width: auto !important;
+    min-width: 100%;
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  /* Adjust positioning */
+  .nav-dropdown--right {
+    right: 1rem !important;
+    left: auto !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+
+  /* Tablet optimizations */
+  .dropdown-menu,
+  .nav-dropdown {
+    min-width: 250px;
+  }
+}

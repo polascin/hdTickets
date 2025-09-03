@@ -125,6 +125,11 @@
       href="{{ asset('css/navigation-enhanced.css') }}?v={{ filemtime(public_path('css/navigation-enhanced.css')) }}"
       rel="stylesheet">
 
+    <!-- Dropdown Enhancements CSS -->
+    <link
+      href="{{ asset('css/dropdown-enhancements.css') }}?v={{ filemtime(public_path('css/dropdown-enhancements.css')) }}"
+      rel="stylesheet">
+
     <!-- Bootstrap CSS -->
     <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}"
       rel="stylesheet">
