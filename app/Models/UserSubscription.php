@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * User Subscription Model
@@ -96,7 +97,7 @@ class UserSubscription extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): Builder
     {
         return $query->where('status', 'active')
             ->where(function ($q): void {

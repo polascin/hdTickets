@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class AccountDeletionRequest extends Model
 {
@@ -263,7 +264,7 @@ class AccountDeletionRequest extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): Builder
     {
         return $query->whereIn('status', [self::STATUS_PENDING, self::STATUS_CONFIRMED]);
     }

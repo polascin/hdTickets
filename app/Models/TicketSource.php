@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 use function in_array;
 
@@ -230,7 +231,7 @@ class TicketSource extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): Builder
     {
         return $query->where('is_active', TRUE);
     }

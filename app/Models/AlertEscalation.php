@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class AlertEscalation extends Model
 {
@@ -66,7 +67,7 @@ class AlertEscalation extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): Builder
     {
         return $query->whereIn('status', ['scheduled', 'retrying']);
     }
