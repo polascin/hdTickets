@@ -671,58 +671,7 @@
 
             <!-- Security Score Card -->
             <div class="col-md-6">
-              @php
-                $securityScore = isset($profileInsights['security_score']) ? $profileInsights['security_score'] : 50;
-              @endphp
-              <article class="card stats-card h-100 border-0 shadow-sm" x-data="{ animateSecurity: false }"
-                x-intersect="animateSecurity = true">
-                <div class="card-body text-center">
-                  <h3 class="card-title text-muted mb-3">
-                    <i class="fas fa-shield-alt text-success me-2" aria-hidden="true"></i>
-                    Security Score
-                  </h3>
-
-                  <!-- Enhanced Security Progress Ring -->
-                  <div class="position-relative d-inline-block mb-3" id="security-score" role="progressbar"
-                    :aria-valuenow="animateSecurity ? {{ $securityScore }} : 0" aria-valuemin="0" aria-valuemax="100"
-                    :aria-label="`Security score: ${animateSecurity ? {{ $securityScore }} : 0} out of 100`">
-                    <svg class="progress-ring" width="100" height="100" aria-hidden="true">
-                      <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
-                        fill="transparent" />
-                      <circle cx="50" cy="50" r="40" stroke="#10b981" stroke-width="8"
-                        fill="transparent" stroke-dasharray="{{ 2 * pi() * 40 }}"
-                        :stroke-dashoffset="animateSecurity ? {{ 2 * pi() * 40 * (1 - $securityScore / 100) }} : {{ 2 * pi() * 40 }}"
-                        stroke-linecap="round" transform="rotate(-90 50 50)"
-                        style="transition: stroke-dashoffset 2s ease-in-out" />
-                    </svg>
-                    <div class="position-absolute top-50 start-50 translate-middle">
-                      <span class="h4 fw-bold text-success progress-text"
-                        x-text="animateSecurity ? '{{ $securityScore }}' : '0'">
-                        {{ $securityScore }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p class="text-muted mb-2">Account Security Level</p>
-
-                  <span
-                    class="badge bg-{{ $securityScore >= 80 ? 'success' : ($securityScore >= 60 ? 'warning' : 'danger') }}"
-                    role="status">
-                    {{ $securityScore >= 80 ? 'Excellent' : ($securityScore >= 60 ? 'Good' : 'Needs Improvement') }}
-                  </span>
-
-                  <!-- Security Action Button -->
-                  @if ($securityScore < 80)
-                    <div class="mt-3">
-                      <a href="{{ route('profile.security') }}" class="btn btn-sm btn-outline-success"
-                        aria-label="Improve your security settings">
-                        <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
-                        Improve Security
-                      </a>
-                    </div>
-                  @endif
-                </div>
-              </article>
+              <x-profile.security-score :score="$profileInsights['security_score'] ?? 50" improveRoute="profile.security" />
             </div>
           </section>
 
@@ -753,64 +702,22 @@
               <div class="row text-center" role="group" aria-labelledby="stats-grid-title">
                 <h4 id="stats-grid-title" class="sr-only">Statistics Overview</h4>
 
-                <!-- Active Alerts -->
+                <!-- Stat Cards -->
                 <div class="col-md-3 col-6 mb-3">
-                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                    @click="$dispatch('show-detail', { type: 'alerts' })"
-                    @keydown.enter="$dispatch('show-detail', { type: 'alerts' })"
-                    aria-labelledby="monitored-events-title">
-                    <i class="fas fa-bell text-warning mb-2 fs-4" aria-hidden="true"></i>
-                    <h4 id="monitored-events-title" class="fw-bold text-primary mb-1"
-                      x-text="statsLoading ? '...' : '{{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}'">
-                      {{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}
-                    </h4>
-                    <small class="text-muted">Active Alerts</small>
-                  </article>
+                  <x-profile.stat-card id="monitored-events" icon="fa-bell" icon-color="text-warning"
+                    label="Active Alerts" :value="isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0" dispatch="alerts" />
                 </div>
-
-                <!-- Total Alerts -->
                 <div class="col-md-3 col-6 mb-3">
-                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                    @click="$dispatch('show-detail', { type: 'total-alerts' })"
-                    @keydown.enter="$dispatch('show-detail', { type: 'total-alerts' })"
-                    aria-labelledby="total-alerts-title">
-                    <i class="fas fa-chart-line text-success mb-2 fs-4" aria-hidden="true"></i>
-                    <h4 id="total-alerts-title" class="fw-bold text-primary mb-1"
-                      x-text="statsLoading ? '...' : '{{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}'">
-                      {{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}
-                    </h4>
-                    <small class="text-muted">Total Alerts</small>
-                  </article>
+                  <x-profile.stat-card id="total-alerts" icon="fa-chart-line" icon-color="text-success"
+                    label="Total Alerts" :value="isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0" dispatch="total-alerts" />
                 </div>
-
-                <!-- Active Searches -->
                 <div class="col-md-3 col-6 mb-3">
-                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                    @click="$dispatch('show-detail', { type: 'searches' })"
-                    @keydown.enter="$dispatch('show-detail', { type: 'searches' })"
-                    aria-labelledby="active-searches-title">
-                    <i class="fas fa-search text-info mb-2 fs-4" aria-hidden="true"></i>
-                    <h4 id="active-searches-title" class="fw-bold text-primary mb-1"
-                      x-text="statsLoading ? '...' : '{{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}'">
-                      {{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}
-                    </h4>
-                    <small class="text-muted">Active Searches</small>
-                  </article>
+                  <x-profile.stat-card id="active-searches" icon="fa-search" icon-color="text-info"
+                    label="Active Searches" :value="isset($userStats['active_searches']) ? $userStats['active_searches'] : 0" dispatch="searches" />
                 </div>
-
-                <!-- Recent Purchases -->
                 <div class="col-md-3 col-6 mb-3">
-                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                    @click="$dispatch('show-detail', { type: 'purchases' })"
-                    @keydown.enter="$dispatch('show-detail', { type: 'purchases' })"
-                    aria-labelledby="recent-purchases-title">
-                    <i class="fas fa-shopping-cart text-success mb-2 fs-4" aria-hidden="true"></i>
-                    <h4 id="recent-purchases-title" class="fw-bold text-primary mb-1"
-                      x-text="statsLoading ? '...' : '{{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}'">
-                      {{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}
-                    </h4>
-                    <small class="text-muted">Recent Purchases</small>
-                  </article>
+                  <x-profile.stat-card id="recent-purchases" icon="fa-shopping-cart" icon-color="text-success"
+                    label="Recent Purchases" :value="isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0" dispatch="purchases" />
                 </div>
               </div>
 
