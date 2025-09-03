@@ -1,6 +1,6 @@
 <x-unified-layout title="Sports Tickets" subtitle="Browse and search for sports tickets across multiple platforms">
   <!-- Enhanced Sports Color Scheme CSS -->
-  <link rel="stylesheet" href="{{ asset('css/sports-tickets-colors.css') }}?v={{ time() }}">
+  <link rel="stylesheet" href="{{ asset('css/sports-tickets-colors.css') }}">
   <x-slot name="headerActions">
     <div class="flex flex-col sm:flex-row gap-3">
       <button id="refresh-tickets" type="button"
@@ -1270,37 +1270,37 @@
                                     
                                     <!-- Statistics -->
                                     ${ticket.statistics ? `
-                                                    <div>
-                                                        <h4 class="text-lg font-semibold text-gray-900 mb-3">Price Statistics</h4>
-                                                        <div class="bg-blue-50 rounded-lg p-4 space-y-3">
-                                                            ${ticket.statistics.avg_price ? `<div class="flex justify-between"><span class="text-gray-600">Average Price:</span><span class="font-medium">${formatPrice(ticket.statistics.avg_price, ticket.currency)}</span></div>` : ''}
-                                                            ${ticket.statistics.lowest_price ? `<div class="flex justify-between"><span class="text-gray-600">Lowest Price:</span><span class="font-medium text-green-600">${formatPrice(ticket.statistics.lowest_price, ticket.currency)}</span></div>` : ''}
-                                                            ${ticket.statistics.highest_price ? `<div class="flex justify-between"><span class="text-gray-600">Highest Price:</span><span class="font-medium text-red-600">${formatPrice(ticket.statistics.highest_price, ticket.currency)}</span></div>` : ''}
-                                                            <div class="flex justify-between">
-                                                                <span class="text-gray-600">Price Trend:</span>
-                                                                <span class="font-medium ${
-                                                                    ticket.statistics.price_trend === 'increasing' ? 'text-red-600' : 
-                                                                    ticket.statistics.price_trend === 'decreasing' ? 'text-green-600' : 
-                                                                    'text-gray-600'
-                                                                }">
-                                                                    ${ticket.statistics.price_trend === 'increasing' ? '📈 Rising' : 
-                                                                      ticket.statistics.price_trend === 'decreasing' ? '📉 Falling' : 
-                                                                      '➡️ Stable'}
-                                                                </span>
-                                                            </div>
-                                                            <div class="flex justify-between">
-                                                                <span class="text-gray-600">Volatility:</span>
-                                                                <span class="font-medium ${
-                                                                    ticket.statistics.price_volatility === 'high' ? 'text-red-600' : 
-                                                                    ticket.statistics.price_volatility === 'medium' ? 'text-yellow-600' : 
-                                                                    'text-green-600'
-                                                                }">
-                                                                    ${ticket.statistics.price_volatility || 'Low'}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                                                      <div>
+                                                          <h4 class="text-lg font-semibold text-gray-900 mb-3">Price Statistics</h4>
+                                                          <div class="bg-blue-50 rounded-lg p-4 space-y-3">
+                                                              ${ticket.statistics.avg_price ? `<div class="flex justify-between"><span class="text-gray-600">Average Price:</span><span class="font-medium">${formatPrice(ticket.statistics.avg_price, ticket.currency)}</span></div>` : ''}
+                                                              ${ticket.statistics.lowest_price ? `<div class="flex justify-between"><span class="text-gray-600">Lowest Price:</span><span class="font-medium text-green-600">${formatPrice(ticket.statistics.lowest_price, ticket.currency)}</span></div>` : ''}
+                                                              ${ticket.statistics.highest_price ? `<div class="flex justify-between"><span class="text-gray-600">Highest Price:</span><span class="font-medium text-red-600">${formatPrice(ticket.statistics.highest_price, ticket.currency)}</span></div>` : ''}
+                                                              <div class="flex justify-between">
+                                                                  <span class="text-gray-600">Price Trend:</span>
+                                                                  <span class="font-medium ${
+                                                                      ticket.statistics.price_trend === 'increasing' ? 'text-red-600' : 
+                                                                      ticket.statistics.price_trend === 'decreasing' ? 'text-green-600' : 
+                                                                      'text-gray-600'
+                                                                  }">
+                                                                      ${ticket.statistics.price_trend === 'increasing' ? '📈 Rising' : 
+                                                                        ticket.statistics.price_trend === 'decreasing' ? '📉 Falling' : 
+                                                                        '➡️ Stable'}
+                                                                  </span>
+                                                              </div>
+                                                              <div class="flex justify-between">
+                                                                  <span class="text-gray-600">Volatility:</span>
+                                                                  <span class="font-medium ${
+                                                                      ticket.statistics.price_volatility === 'high' ? 'text-red-600' : 
+                                                                      ticket.statistics.price_volatility === 'medium' ? 'text-yellow-600' : 
+                                                                      'text-green-600'
+                                                                  }">
+                                                                      ${ticket.statistics.price_volatility || 'Low'}
+                                                                  </span>
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                  ` : ''}
                                 </div>
                                 
                                 <!-- Recommendations & Similar -->
@@ -1326,33 +1326,33 @@
                                     
                                     <!-- Platform Reliability -->
                                     ${ticket.platform_reliability ? `
-                                                    <div>
-                                                        <h4 class="text-lg font-semibold text-gray-900 mb-3">Platform Trust</h4>
-                                                        <div class="bg-blue-50 rounded-lg p-4">
-                                                            <div class="flex items-center justify-between mb-2">
-                                                                <span class="text-gray-700">${ticket.platform_display} Reliability</span>
-                                                                <span class="text-lg font-bold text-blue-600">${ticket.platform_reliability.score}/100</span>
-                                                            </div>
-                                                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
-                                                                <div class="bg-blue-500 h-2 rounded-full" style="width: ${ticket.platform_reliability.score}%"></div>
-                                                            </div>
-                                                            <p class="text-sm text-gray-600 capitalize">Rating: ${ticket.platform_reliability.rating}</p>
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                                                      <div>
+                                                          <h4 class="text-lg font-semibold text-gray-900 mb-3">Platform Trust</h4>
+                                                          <div class="bg-blue-50 rounded-lg p-4">
+                                                              <div class="flex items-center justify-between mb-2">
+                                                                  <span class="text-gray-700">${ticket.platform_display} Reliability</span>
+                                                                  <span class="text-lg font-bold text-blue-600">${ticket.platform_reliability.score}/100</span>
+                                                              </div>
+                                                              <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                                                  <div class="bg-blue-500 h-2 rounded-full" style="width: ${ticket.platform_reliability.score}%"></div>
+                                                              </div>
+                                                              <p class="text-sm text-gray-600 capitalize">Rating: ${ticket.platform_reliability.rating}</p>
+                                                          </div>
+                                                      </div>
+                                                  ` : ''}
                                     
                                     <!-- Similar Tickets -->
                                     ${ticket.similar_tickets_count > 0 ? `
-                                                    <div>
-                                                        <h4 class="text-lg font-semibold text-gray-900 mb-3">Similar Options</h4>
-                                                        <div class="bg-yellow-50 rounded-lg p-4">
-                                                            <p class="text-gray-700 mb-2">
-                                                                <span class="text-xl font-bold text-yellow-600">${ticket.similar_tickets_count}</span> similar tickets available
-                                                            </p>
-                                                            <p class="text-sm text-gray-600">Consider comparing prices and seating options with similar events.</p>
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                                                      <div>
+                                                          <h4 class="text-lg font-semibold text-gray-900 mb-3">Similar Options</h4>
+                                                          <div class="bg-yellow-50 rounded-lg p-4">
+                                                              <p class="text-gray-700 mb-2">
+                                                                  <span class="text-xl font-bold text-yellow-600">${ticket.similar_tickets_count}</span> similar tickets available
+                                                              </p>
+                                                              <p class="text-sm text-gray-600">Consider comparing prices and seating options with similar events.</p>
+                                                          </div>
+                                                      </div>
+                                                  ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -1360,25 +1360,25 @@
                         <!-- Pricing Tab -->
                         <div id="tab-pricing" class="hd-tab-panel hidden">
                             ${ticket.price_history && ticket.price_history.length > 0 ? `
-                                            <h4 class="text-lg font-semibold text-gray-900 mb-4">Price History</h4>
-                                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                                <div class="overflow-x-auto">
-                                                    <table class="min-w-full divide-y divide-gray-200">
-                                                        <thead class="bg-gray-50">
-                                                            <tr>
-                                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
-                                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody class="bg-white divide-y divide-gray-200">
-                                                            ${ticket.price_history.map((entry, index) => {
-                                                                const prevPrice = index > 0 ? ticket.price_history[index - 1].price : entry.price;
-                                                                const change = entry.price - prevPrice;
-                                                                const changePercent = prevPrice !== 0 ? (change / prevPrice * 100).toFixed(1) : 0;
-                                                                
-                                                                return `
+                                              <h4 class="text-lg font-semibold text-gray-900 mb-4">Price History</h4>
+                                              <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                  <div class="overflow-x-auto">
+                                                      <table class="min-w-full divide-y divide-gray-200">
+                                                          <thead class="bg-gray-50">
+                                                              <tr>
+                                                                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                                                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                                                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                                                                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
+                                                              </tr>
+                                                          </thead>
+                                                          <tbody class="bg-white divide-y divide-gray-200">
+                                                              ${ticket.price_history.map((entry, index) => {
+                                                                  const prevPrice = index > 0 ? ticket.price_history[index - 1].price : entry.price;
+                                                                  const change = entry.price - prevPrice;
+                                                                  const changePercent = prevPrice !== 0 ? (change / prevPrice * 100).toFixed(1) : 0;
+                                                                  
+                                                                  return `
                                                         <tr class="hover:bg-gray-50">
                                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                                 ${entry.recorded_human} ${entry.is_mock ? '<span class="text-xs text-gray-400">(demo)</span>' : ''}
@@ -1396,20 +1396,20 @@
                                                             </td>
                                                         </tr>
                                                     `;
-                                                            }).join('')}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        ` : `
-                                            <div class="text-center py-12">
-                                                <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                                </svg>
-                                                <h3 class="text-lg font-medium text-gray-900 mb-2">No Price History Available</h3>
-                                                <p class="text-gray-600">Price history data is not available for this ticket yet.</p>
-                                            </div>
-                                        `}
+                                                              }).join('')}
+                                                          </tbody>
+                                                      </table>
+                                                  </div>
+                                              </div>
+                                          ` : `
+                                              <div class="text-center py-12">
+                                                  <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                                  </svg>
+                                                  <h3 class="text-lg font-medium text-gray-900 mb-2">No Price History Available</h3>
+                                                  <p class="text-gray-600">Price history data is not available for this ticket yet.</p>
+                                              </div>
+                                          `}
                         </div>
                         
                         <!-- Details Tab -->
@@ -1440,13 +1440,13 @@
                                 </div>
                                 
                                 ${ticket.metadata && Object.keys(ticket.metadata).length > 0 ? `
-                                                <div>
-                                                    <h5 class="font-medium text-gray-900 mb-3">Additional Metadata</h5>
-                                                    <div class="bg-blue-50 rounded-lg p-4">
-                                                        <pre class="text-sm text-gray-700 whitespace-pre-wrap">${JSON.stringify(ticket.metadata, null, 2)}</pre>
-                                                    </div>
-                                                </div>
-                                            ` : ''}
+                                                  <div>
+                                                      <h5 class="font-medium text-gray-900 mb-3">Additional Metadata</h5>
+                                                      <div class="bg-blue-50 rounded-lg p-4">
+                                                          <pre class="text-sm text-gray-700 whitespace-pre-wrap">${JSON.stringify(ticket.metadata, null, 2)}</pre>
+                                                      </div>
+                                                  </div>
+                                              ` : ''}
                             </div>
                         </div>
                         
@@ -1466,11 +1466,11 @@
                                             </div>
                                         </div>
                                         ${ticket.platform_reliability ? `
-                                                        <div class="text-right">
-                                                            <p class="text-2xl font-bold text-blue-600">${ticket.platform_reliability.score}/100</p>
-                                                            <p class="text-sm text-gray-600 capitalize">${ticket.platform_reliability.rating}</p>
-                                                        </div>
-                                                    ` : ''}
+                                                          <div class="text-right">
+                                                              <p class="text-2xl font-bold text-blue-600">${ticket.platform_reliability.score}/100</p>
+                                                              <p class="text-sm text-gray-600 capitalize">${ticket.platform_reliability.rating}</p>
+                                                          </div>
+                                                      ` : ''}
                                     </div>
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -1482,17 +1482,17 @@
                                 </div>
                                 
                                 ${ticket.ticket_url ? `
-                                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                                    <h5 class="font-medium text-gray-900 mb-2">External Link</h5>
-                                                    <p class="text-sm text-gray-600 mb-3">View this ticket on the original platform</p>
-                                                    <a href="${ticket.ticket_url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                        </svg>
-                                                        View on ${ticket.platform_display}
-                                                    </a>
-                                                </div>
-                                            ` : ''}
+                                                  <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                                      <h5 class="font-medium text-gray-900 mb-2">External Link</h5>
+                                                      <p class="text-sm text-gray-600 mb-3">View this ticket on the original platform</p>
+                                                      <a href="${ticket.ticket_url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                          </svg>
+                                                          View on ${ticket.platform_display}
+                                                      </a>
+                                                  </div>
+                                              ` : ''}
                             </div>
                         </div>
                     </div>
@@ -1511,10 +1511,10 @@
                                 🔔 Create Alert
                             </button>
                             ${ticket.ticket_url ? `
-                                            <a href="${ticket.ticket_url}" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all transform hover:scale-105">
-                                                🎫 Buy Now
-                                            </a>
-                                        ` : ''}
+                                              <a href="${ticket.ticket_url}" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all transform hover:scale-105">
+                                                  🎫 Buy Now
+                                              </a>
+                                          ` : ''}
                         </div>
                     </div>
                 </div>

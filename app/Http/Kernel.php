@@ -51,6 +51,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             Middleware\ActivityLoggerMiddleware::class,
             Middleware\PreventScraperWebAccess::class,
+            // Append timestamps to all local CSS links automatically
+            Middleware\AppendCssTimestamp::class,
         ],
 
         'api' => [

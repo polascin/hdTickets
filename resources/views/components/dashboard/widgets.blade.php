@@ -19,342 +19,335 @@
     'actions' => [],
     'icon' => '',
     'classes' => '',
-    'size' => 'default'
+    'size' => 'default',
 ])
 
 @php
-    $widgetClasses = [
-        'default' => 'dashboard-widget',
-        'small' => 'dashboard-widget widget-small',
-        'large' => 'dashboard-widget widget-large',
-        'full' => 'dashboard-widget widget-full'
-    ];
+  $widgetClasses = [
+      'default' => 'dashboard-widget',
+      'small' => 'dashboard-widget widget-small',
+      'large' => 'dashboard-widget widget-large',
+      'full' => 'dashboard-widget widget-full',
+  ];
 
-    $defaultIcons = [
-        'progress' => 'fas fa-chart-pie',
-        'heatmap' => 'fas fa-calendar-alt',
-        'seatmap' => 'fas fa-couch',
-        'price-comparison' => 'fas fa-chart-line',
-        'alerts' => 'fas fa-bell',
-        'actions' => 'fas fa-bolt'
-    ];
+  $defaultIcons = [
+      'progress' => 'fas fa-chart-pie',
+      'heatmap' => 'fas fa-calendar-alt',
+      'seatmap' => 'fas fa-couch',
+      'price-comparison' => 'fas fa-chart-line',
+      'alerts' => 'fas fa-bell',
+      'actions' => 'fas fa-bolt',
+  ];
 
-    $defaultTitles = [
-        'progress' => 'Purchase Queue Status',
-        'heatmap' => 'Event Density Calendar',
-        'seatmap' => 'Seat Map Preview',
-        'price-comparison' => 'Price Comparison',
-        'alerts' => 'Alert Management',
-        'actions' => 'Quick Actions'
-    ];
+  $defaultTitles = [
+      'progress' => 'Purchase Queue Status',
+      'heatmap' => 'Event Density Calendar',
+      'seatmap' => 'Seat Map Preview',
+      'price-comparison' => 'Price Comparison',
+      'alerts' => 'Alert Management',
+      'actions' => 'Quick Actions',
+  ];
 
-    $widgetTitle = $title ?: $defaultTitles[$type] ?? 'Widget';
-    $widgetIcon = $icon ?: $defaultIcons[$type] ?? 'fas fa-cog';
-    $widgetClass = $widgetClasses[$size] ?? $widgetClasses['default'];
+  $widgetTitle = $title ?: $defaultTitles[$type] ?? 'Widget';
+  $widgetIcon = $icon ?: $defaultIcons[$type] ?? 'fas fa-cog';
+  $widgetClass = $widgetClasses[$size] ?? $widgetClasses['default'];
 @endphp
 
 <div class="{{ $widgetClass }} {{ $classes }}" data-widget-type="{{ $type }}">
-    {{-- Widget Header --}}
-    <div class="widget-header">
-        <div>
-            <h3 class="widget-title">
-                <i class="{{ $widgetIcon }}"></i>
-                {{ $widgetTitle }}
-            </h3>
-            @if($subtitle)
-                <p class="widget-subtitle">{{ $subtitle }}</p>
-            @endif
-        </div>
-        <div class="widget-actions">
-            @if($type === 'progress')
-                <button class="widget-action" onclick="dashboardWidgets.refreshCircularProgress()">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            @elseif($type === 'heatmap')
-                <button class="widget-action" onclick="dashboardWidgets.refreshHeatMapData()">
-                    <i class="fas fa-expand"></i>
-                </button>
-            @elseif($type === 'seatmap')
-                <button class="widget-action" onclick="window.open('#', '_blank')">
-                    <i class="fas fa-maximize"></i>
-                </button>
-            @elseif($type === 'price-comparison')
-                <button class="widget-action" onclick="dashboardWidgets.refreshPriceData()">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            @elseif($type === 'alerts')
-                <button class="widget-action" onclick="window.location.href='{{ route('tickets.alerts.create') }}'">
-                    <i class="fas fa-plus"></i>
-                </button>
-            @endif
-        </div>
+  {{-- Widget Header --}}
+  <div class="widget-header">
+    <div>
+      <h3 class="widget-title">
+        <i class="{{ $widgetIcon }}"></i>
+        {{ $widgetTitle }}
+      </h3>
+      @if ($subtitle)
+        <p class="widget-subtitle">{{ $subtitle }}</p>
+      @endif
     </div>
+    <div class="widget-actions">
+      @if ($type === 'progress')
+        <button class="widget-action" onclick="dashboardWidgets.refreshCircularProgress()">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      @elseif($type === 'heatmap')
+        <button class="widget-action" onclick="dashboardWidgets.refreshHeatMapData()">
+          <i class="fas fa-expand"></i>
+        </button>
+      @elseif($type === 'seatmap')
+        <button class="widget-action" onclick="window.open('#', '_blank')">
+          <i class="fas fa-maximize"></i>
+        </button>
+      @elseif($type === 'price-comparison')
+        <button class="widget-action" onclick="dashboardWidgets.refreshPriceData()">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      @elseif($type === 'alerts')
+        <button class="widget-action" onclick="window.location.href='{{ route('tickets.alerts.create') }}'">
+          <i class="fas fa-plus"></i>
+        </button>
+      @endif
+    </div>
+  </div>
 
-    {{-- Widget Content --}}
-    <div class="widget-content">
-        @if($type === 'progress')
-            {{-- Circular Progress Indicators --}}
-            <div class="queue-status">
-                @foreach($data as $index => $item)
-                    <div class="queue-item">
-                        <div class="circular-progress" 
-                             data-value="{{ $item['value'] ?? 0 }}" 
-                             data-max="{{ $item['max'] ?? 100 }}" 
-                             data-label="{{ $item['label'] ?? 'Progress' }}">
-                            <svg class="progress-circle {{ $item['status'] ?? '' }}" viewBox="0 0 120 120">
-                                <circle class="progress-circle-bg" cx="60" cy="60" r="54"></circle>
-                                <circle class="progress-circle-fill {{ $item['status'] ?? '' }}" cx="60" cy="60" r="54"></circle>
-                            </svg>
-                            <div class="progress-label">
-                                <div class="progress-value">{{ $item['value'] ?? 0 }}</div>
-                                <div class="progress-text">{{ $item['label'] ?? 'Progress' }}</div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+  {{-- Widget Content --}}
+  <div class="widget-content">
+    @if ($type === 'progress')
+      {{-- Circular Progress Indicators --}}
+      <div class="queue-status">
+        @foreach ($data as $index => $item)
+          <div class="queue-item">
+            <div class="circular-progress" data-value="{{ $item['value'] ?? 0 }}" data-max="{{ $item['max'] ?? 100 }}"
+              data-label="{{ $item['label'] ?? 'Progress' }}">
+              <svg class="progress-circle {{ $item['status'] ?? '' }}" viewBox="0 0 120 120">
+                <circle class="progress-circle-bg" cx="60" cy="60" r="54"></circle>
+                <circle class="progress-circle-fill {{ $item['status'] ?? '' }}" cx="60" cy="60" r="54">
+                </circle>
+              </svg>
+              <div class="progress-label">
+                <div class="progress-value">{{ $item['value'] ?? 0 }}</div>
+                <div class="progress-text">{{ $item['label'] ?? 'Progress' }}</div>
+              </div>
             </div>
-
-        @elseif($type === 'heatmap')
-            {{-- Heat Map Calendar --}}
-            <div class="heat-map-calendar" id="widget-heatmap-{{ uniqid() }}">
-                <!-- Calendar will be generated by JavaScript -->
-            </div>
-            <div class="heat-map-legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #f3f4f6;"></div>
-                    <span>No events</span>
+          </div>
+        @endforeach
+      </div>
+    @elseif($type === 'heatmap')
+      {{-- Heat Map Calendar --}}
+      <div class="heat-map-calendar" id="widget-heatmap-{{ uniqid() }}">
+        <!-- Calendar will be generated by JavaScript -->
+      </div>
+      <div class="heat-map-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f3f4f6;"></div>
+          <span>No events</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #06b6d4;"></div>
+          <span>Low</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f59e0b;"></div>
+          <span>Medium</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #ef4444;"></div>
+          <span>High</span>
+        </div>
+      </div>
+    @elseif($type === 'seatmap')
+      {{-- Interactive Seat Map --}}
+      <div class="seat-map" id="widget-seatmap-{{ uniqid() }}">
+        <!-- Seat map will be generated by JavaScript -->
+      </div>
+    @elseif($type === 'price-comparison')
+      {{-- Price Comparison Chart --}}
+      <div class="price-comparison" id="widget-prices-{{ uniqid() }}">
+        @if (!empty($data))
+          @php
+            $bestPrice = collect($data)->where('available', true)->sortBy('price')->first();
+          @endphp
+          @foreach ($data as $platform)
+            <div class="platform-price {{ $platform === $bestPrice ? 'best-price' : '' }}">
+              <div class="platform-info">
+                <img src="{{ $platform['logo'] ?? '/images/default-platform.png' }}" alt="{{ $platform['name'] }}"
+                  class="platform-logo" onerror="this.style.display='none'">
+                <div>
+                  <div class="platform-name">{{ $platform['name'] }}</div>
+                  <div class="platform-details">{{ $platform['available'] ? 'Available' : 'Sold Out' }}</div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #06b6d4;"></div>
-                    <span>Low</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #f59e0b;"></div>
-                    <span>Medium</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #ef4444;"></div>
-                    <span>High</span>
-                </div>
-            </div>
-
-        @elseif($type === 'seatmap')
-            {{-- Interactive Seat Map --}}
-            <div class="seat-map" id="widget-seatmap-{{ uniqid() }}">
-                <!-- Seat map will be generated by JavaScript -->
-            </div>
-
-        @elseif($type === 'price-comparison')
-            {{-- Price Comparison Chart --}}
-            <div class="price-comparison" id="widget-prices-{{ uniqid() }}">
-                @if(!empty($data))
-                    @php
-                        $bestPrice = collect($data)->where('available', true)->sortBy('price')->first();
-                    @endphp
-                    @foreach($data as $platform)
-                        <div class="platform-price {{ $platform === $bestPrice ? 'best-price' : '' }}">
-                            <div class="platform-info">
-                                <img src="{{ $platform['logo'] ?? '/images/default-platform.png' }}" 
-                                     alt="{{ $platform['name'] }}" 
-                                     class="platform-logo"
-                                     onerror="this.style.display='none'">
-                                <div>
-                                    <div class="platform-name">{{ $platform['name'] }}</div>
-                                    <div class="platform-details">{{ $platform['available'] ? 'Available' : 'Sold Out' }}</div>
-                                </div>
-                            </div>
-                            <div class="platform-price-value">
-                                <div class="current-price">${{ number_format($platform['price'] ?? 0, 2) }}</div>
-                                @if(isset($platform['change']) && $platform['change'] != 0)
-                                    <div class="price-change {{ $platform['change'] > 0 ? 'positive' : 'negative' }}">
-                                        {{ $platform['change'] > 0 ? '↑' : '↓' }} ${{ number_format(abs($platform['change']), 2) }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <p>No price data available</p>
-                    </div>
+              </div>
+              <div class="platform-price-value">
+                <div class="current-price">${{ number_format($platform['price'] ?? 0, 2) }}</div>
+                @if (isset($platform['change']) && $platform['change'] != 0)
+                  <div class="price-change {{ $platform['change'] > 0 ? 'positive' : 'negative' }}">
+                    {{ $platform['change'] > 0 ? '↑' : '↓' }} ${{ number_format(abs($platform['change']), 2) }}
+                  </div>
                 @endif
+              </div>
             </div>
-
-        @elseif($type === 'alerts')
-            {{-- Alert Management Dashboard --}}
-            <div class="alert-dashboard" id="widget-alerts-{{ uniqid() }}">
-                @if(!empty($data))
-                    @foreach($data as $alert)
-                        <div class="alert-item {{ $alert['active'] ? 'active' : '' }} {{ $alert['triggered'] ?? false ? 'triggered' : '' }}">
-                            <div class="alert-info">
-                                <div class="alert-title">{{ $alert['title'] }}</div>
-                                <div class="alert-description">{{ $alert['description'] ?? '' }}</div>
-                                @if(!empty($alert['conditions']))
-                                    <div class="alert-conditions">
-                                        @foreach($alert['conditions'] as $condition)
-                                            <span class="alert-condition">{{ $condition }}</span>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="alert-controls">
-                                <button class="toggle-switch {{ $alert['active'] ? 'active' : '' }}" 
-                                        data-alert-id="{{ $alert['id'] }}"
-                                        onclick="toggleAlert({{ $alert['id'] }})">
-                                    <span class="sr-only">Toggle alert</span>
-                                </button>
-                                <button class="alert-action" onclick="editAlert({{ $alert['id'] }})">Edit</button>
-                                <button class="alert-action danger" onclick="deleteAlert({{ $alert['id'] }})">Delete</button>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <p>No alerts configured</p>
-                        <button class="btn-primary" onclick="window.location.href='{{ route('tickets.alerts.create') }}'">
-                            Create Alert
-                        </button>
-                    </div>
-                @endif
-            </div>
-
-        @elseif($type === 'actions')
-            {{-- Quick Action Buttons --}}
-            <div class="button-group">
-                @if(!empty($actions))
-                    @foreach($actions as $action)
-                        <button class="haptic-button {{ $action['variant'] ?? '' }}" 
-                                data-action="{{ $action['action'] ?? '' }}" 
-                                data-haptic-intensity="{{ $action['intensity'] ?? 'medium' }}"
-                                @if(isset($action['onclick'])) onclick="{{ $action['onclick'] }}" @endif
-                                @if(isset($action['href'])) onclick="window.location.href='{{ $action['href'] }}'" @endif>
-                            <div class="haptic-button-icon">
-                                <i class="{{ $action['icon'] ?? 'fas fa-cog' }}"></i>
-                            </div>
-                            <div class="haptic-button-text">
-                                <div class="haptic-button-label">{{ $action['label'] }}</div>
-                                @if(isset($action['description']))
-                                    <div class="haptic-button-description">{{ $action['description'] }}</div>
-                                @endif
-                            </div>
-                        </button>
-                    @endforeach
-                @else
-                    {{-- Default Action Buttons --}}
-                    <button class="haptic-button" data-action="search" data-haptic-intensity="light">
-                        <div class="haptic-button-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <div class="haptic-button-text">
-                            <div class="haptic-button-label">Search Tickets</div>
-                            <div class="haptic-button-description">Find events and venues</div>
-                        </div>
-                    </button>
-                    
-                    <button class="haptic-button success" data-action="alerts" data-haptic-intensity="medium">
-                        <div class="haptic-button-icon">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <div class="haptic-button-text">
-                            <div class="haptic-button-label">My Alerts</div>
-                            <div class="haptic-button-description">Manage notifications</div>
-                        </div>
-                    </button>
-                @endif
-            </div>
+          @endforeach
+        @else
+          <div class="empty-state">
+            <p>No price data available</p>
+          </div>
         @endif
-    </div>
+      </div>
+    @elseif($type === 'alerts')
+      {{-- Alert Management Dashboard --}}
+      <div class="alert-dashboard" id="widget-alerts-{{ uniqid() }}">
+        @if (!empty($data))
+          @foreach ($data as $alert)
+            <div
+              class="alert-item {{ $alert['active'] ? 'active' : '' }} {{ $alert['triggered'] ?? false ? 'triggered' : '' }}">
+              <div class="alert-info">
+                <div class="alert-title">{{ $alert['title'] }}</div>
+                <div class="alert-description">{{ $alert['description'] ?? '' }}</div>
+                @if (!empty($alert['conditions']))
+                  <div class="alert-conditions">
+                    @foreach ($alert['conditions'] as $condition)
+                      <span class="alert-condition">{{ $condition }}</span>
+                    @endforeach
+                  </div>
+                @endif
+              </div>
+              <div class="alert-controls">
+                <button class="toggle-switch {{ $alert['active'] ? 'active' : '' }}"
+                  data-alert-id="{{ $alert['id'] }}" onclick="toggleAlert({{ $alert['id'] }})">
+                  <span class="sr-only">Toggle alert</span>
+                </button>
+                <button class="alert-action" onclick="editAlert({{ $alert['id'] }})">Edit</button>
+                <button class="alert-action danger" onclick="deleteAlert({{ $alert['id'] }})">Delete</button>
+              </div>
+            </div>
+          @endforeach
+        @else
+          <div class="empty-state">
+            <p>No alerts configured</p>
+            <button class="btn-primary" onclick="window.location.href='{{ route('tickets.alerts.create') }}'">
+              Create Alert
+            </button>
+          </div>
+        @endif
+      </div>
+    @elseif($type === 'actions')
+      {{-- Quick Action Buttons --}}
+      <div class="button-group">
+        @if (!empty($actions))
+          @foreach ($actions as $action)
+            <button class="haptic-button {{ $action['variant'] ?? '' }}" data-action="{{ $action['action'] ?? '' }}"
+              data-haptic-intensity="{{ $action['intensity'] ?? 'medium' }}"
+              @if (isset($action['onclick'])) onclick="{{ $action['onclick'] }}" @endif
+              @if (isset($action['href'])) onclick="window.location.href='{{ $action['href'] }}'" @endif>
+              <div class="haptic-button-icon">
+                <i class="{{ $action['icon'] ?? 'fas fa-cog' }}"></i>
+              </div>
+              <div class="haptic-button-text">
+                <div class="haptic-button-label">{{ $action['label'] }}</div>
+                @if (isset($action['description']))
+                  <div class="haptic-button-description">{{ $action['description'] }}</div>
+                @endif
+              </div>
+            </button>
+          @endforeach
+        @else
+          {{-- Default Action Buttons --}}
+          <button class="haptic-button" data-action="search" data-haptic-intensity="light">
+            <div class="haptic-button-icon">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="haptic-button-text">
+              <div class="haptic-button-label">Search Tickets</div>
+              <div class="haptic-button-description">Find events and venues</div>
+            </div>
+          </button>
+
+          <button class="haptic-button success" data-action="alerts" data-haptic-intensity="medium">
+            <div class="haptic-button-icon">
+              <i class="fas fa-bell"></i>
+            </div>
+            <div class="haptic-button-text">
+              <div class="haptic-button-label">My Alerts</div>
+              <div class="haptic-button-description">Manage notifications</div>
+            </div>
+          </button>
+        @endif
+      </div>
+    @endif
+  </div>
 </div>
 
 {{-- Include CSS and JS only once per page --}}
 @once
-    @push('styles')
-        <link href="{{ asset('css/dashboard-widgets.css') }}?v={{ time() }}" rel="stylesheet">
-    @endpush
+  @push('styles')
+    <link href="{{ asset('css/dashboard-widgets.css') }}" rel="stylesheet">
+  @endpush
 
-    @push('scripts')
-        <script src="{{ asset('js/dashboard-widgets.js') }}?v={{ time() }}"></script>
-        <script>
-            // Helper functions for alert management
-            function toggleAlert(alertId) {
-                if (window.dashboardWidgets) {
-                    // Find the alert widget and toggle
-                    const alertWidgets = Object.keys(window.dashboardWidgets.widgets).filter(id => id.startsWith('alerts-'));
-                    alertWidgets.forEach(widgetId => {
-                        const alert = window.dashboardWidgets.alerts[widgetId]?.find(a => a.id === alertId);
-                        if (alert) {
-                            alert.active = !alert.active;
-                            window.dashboardWidgets.updateAlertOnServer(alertId, { active: alert.active });
-                        }
-                    });
-                }
-                
-                // Trigger haptic feedback
-                if (window.dashboardWidgets) {
-                    window.dashboardWidgets.triggerHapticFeedback('light');
-                }
+  @push('scripts')
+    <script src="{{ asset('js/dashboard-widgets.js') }}"></script>
+    <script>
+      // Helper functions for alert management
+      function toggleAlert(alertId) {
+        if (window.dashboardWidgets) {
+          // Find the alert widget and toggle
+          const alertWidgets = Object.keys(window.dashboardWidgets.widgets).filter(id => id.startsWith('alerts-'));
+          alertWidgets.forEach(widgetId => {
+            const alert = window.dashboardWidgets.alerts[widgetId]?.find(a => a.id === alertId);
+            if (alert) {
+              alert.active = !alert.active;
+              window.dashboardWidgets.updateAlertOnServer(alertId, {
+                active: alert.active
+              });
             }
+          });
+        }
 
-            function editAlert(alertId) {
-                // Redirect to edit page or open modal
-                window.location.href = `/tickets/alerts/${alertId}/edit`;
+        // Trigger haptic feedback
+        if (window.dashboardWidgets) {
+          window.dashboardWidgets.triggerHapticFeedback('light');
+        }
+      }
+
+      function editAlert(alertId) {
+        // Redirect to edit page or open modal
+        window.location.href = `/tickets/alerts/${alertId}/edit`;
+      }
+
+      function deleteAlert(alertId) {
+        if (confirm('Are you sure you want to delete this alert?')) {
+          // Submit delete request
+          fetch(`/api/alerts/${alertId}`, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+              'Content-Type': 'application/json'
             }
-
-            function deleteAlert(alertId) {
-                if (confirm('Are you sure you want to delete this alert?')) {
-                    // Submit delete request
-                    fetch(`/api/alerts/${alertId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                            'Content-Type': 'application/json'
-                        }
-                    }).then(response => {
-                        if (response.ok) {
-                            // Refresh the widget
-                            window.location.reload();
-                        }
-                    });
-                }
+          }).then(response => {
+            if (response.ok) {
+              // Refresh the widget
+              window.location.reload();
             }
+          });
+        }
+      }
 
-            // Initialize widgets when DOM is ready
-            document.addEventListener('DOMContentLoaded', function() {
-                // Ensure dashboard widgets are initialized
-                if (typeof DashboardWidgets !== 'undefined' && !window.dashboardWidgets) {
-                    window.dashboardWidgets = new DashboardWidgets();
-                }
-            });
-        </script>
-    @endpush
+      // Initialize widgets when DOM is ready
+      document.addEventListener('DOMContentLoaded', function() {
+        // Ensure dashboard widgets are initialized
+        if (typeof DashboardWidgets !== 'undefined' && !window.dashboardWidgets) {
+          window.dashboardWidgets = new DashboardWidgets();
+        }
+      });
+    </script>
+  @endpush
 @endonce
 
 <style>
-/* Widget-specific styles */
-.widget-small {
+  /* Widget-specific styles */
+  .widget-small {
     min-height: 200px;
-}
+  }
 
-.widget-large {
+  .widget-large {
     min-height: 500px;
-}
+  }
 
-.widget-full {
+  .widget-full {
     grid-column: 1 / -1;
-}
+  }
 
-.empty-state {
+  .empty-state {
     text-align: center;
     padding: 40px 20px;
     color: #6b7280;
-}
+  }
 
-.empty-state p {
+  .empty-state p {
     margin-bottom: 16px;
     font-size: 0.875rem;
-}
+  }
 
-.btn-primary {
+  .btn-primary {
     background: linear-gradient(135deg, #10b981, #3b82f6);
     color: white;
     border: none;
@@ -363,10 +356,10 @@
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.2s ease;
-}
+  }
 
-.btn-primary:hover {
+  .btn-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+  }
 </style>

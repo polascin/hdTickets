@@ -112,23 +112,16 @@
     <link href="{{ asset('assets/css/accessibility.css') }}" rel="stylesheet">
 
     <!-- Enhanced HD Tickets CSS -->
-    <link href="{{ asset('css/hd-notifications.css') }}?v={{ filemtime(public_path('css/hd-notifications.css')) }}"
-      rel="stylesheet">
+    <link href="{{ asset('css/hd-notifications.css') }}" rel="stylesheet">
 
     <!-- Navigation & Dashboard Fixes -->
-    <link
-      href="{{ asset('css/navigation-dashboard-fixes.css') }}?v={{ filemtime(public_path('css/navigation-dashboard-fixes.css')) }}"
-      rel="stylesheet">
+    <link href="{{ asset('css/navigation-dashboard-fixes.css') }}" rel="stylesheet">
 
     <!-- Enhanced Navigation CSS -->
-    <link
-      href="{{ asset('css/navigation-enhanced.css') }}?v={{ filemtime(public_path('css/navigation-enhanced.css')) }}"
-      rel="stylesheet">
+    <link href="{{ asset('css/navigation-enhanced.css') }}" rel="stylesheet">
 
     <!-- Dropdown Enhancements CSS -->
-    <link
-      href="{{ asset('css/dropdown-enhancements.css') }}?v={{ filemtime(public_path('css/dropdown-enhancements.css')) }}"
-      rel="stylesheet">
+    <link href="{{ asset('css/dropdown-enhancements.css') }}" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}"
@@ -136,10 +129,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Enhanced HD Tickets JavaScript -->
-    <script src="{{ asset('js/notificationManager.js') }}?v={{ filemtime(public_path('js/notificationManager.js')) }}"
-      defer></script>
-    <script src="{{ asset('js/performanceMonitor.js') }}?v={{ filemtime(public_path('js/performanceMonitor.js')) }}"
-      defer></script>
+    <script src="{{ asset('js/notificationManager.js') }}" defer></script>
+    <script src="{{ asset('js/performanceMonitor.js') }}" defer></script>
 
     <!-- Inline Critical CSS for Above-the-Fold Content -->
     <style>
