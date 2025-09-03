@@ -97,23 +97,6 @@ class WimbledonPlugin extends BaseScraperPlugin
             throw $e;
         }
     }
-            'platform'     => 'wimbledon',
-            'capabilities' => [
-                'official_tickets',
-                'centre_court',
-                'hospitality_packages',
-                'debenture_seats',
-                'ground_passes',
-                'premium_experiences',
-            ],
-            'rate_limit'         => '1 request per 2 seconds',
-            'supported_criteria' => [
-                'keyword', 'date_range', 'court', 'ticket_type',
-            ],
-            'venue'            => 'All England Lawn Tennis Club',
-            'tournament_dates' => 'Late June - Early July',
-        ];
-    }
 
     /**
      * Check if  enabled
@@ -150,39 +133,6 @@ class WimbledonPlugin extends BaseScraperPlugin
         Log::info('Wimbledon plugin configured', ['config' => $config]);
     }
 
-    /**
-     * Scrape
-     */
-    public function scrape(array $criteria): array
-    {
-        if (! $this->enabled) {
-            throw new Exception('Wimbledon plugin is disabled');
-        }
-
-        Log::info('Starting Wimbledon scraping', $criteria);
-
-        try {
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $this->enforceRateLimit();
-            $response = $this->makeRequest($searchUrl);
-            $events = $this->parseSearchResults($response);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info('Wimbledon scraping completed', [
-                'url'           => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error('Wimbledon scraping failed', [
-                'criteria' => $criteria,
-                'error'    => $e->getMessage(),
-            ]);
-
-            throw $e;
-        }
-    }
 
     /**
      * Test

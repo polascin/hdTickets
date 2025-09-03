@@ -9,19 +9,21 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class WimbledonPlugin extends BaseScraperPlugin
 {
+    protected string $pluginName = 'Wimbledon Championships';
+    protected string $platform = 'wimbledon';
+    protected string $description = 'Official Wimbledon Championships tickets - The most prestigious tennis tournament';
+    protected string $baseUrl = 'https://www.wimbledon.com';
+    protected string $venue = 'All England Lawn Tennis Club';
+    protected string $currency = 'GBP';
+    protected string $language = 'en-GB';
+    protected int $rateLimitSeconds = 2;
+
     /**
      * Initialize plugin-specific settings
      */
     protected function initializePlugin(): void
     {
-        $this->pluginName = 'Wimbledon Championships';
-        $this->platform = 'wimbledon';
-        $this->description = 'Official Wimbledon Championships tickets - The most prestigious tennis tournament';
-        $this->baseUrl = 'https://www.wimbledon.com';
-        $this->venue = 'All England Lawn Tennis Club';
-        $this->currency = 'GBP';
-        $this->language = 'en-GB';
-        $this->rateLimitSeconds = 2;
+        // Properties are now initialized at the class level.
     }
 
     /**
