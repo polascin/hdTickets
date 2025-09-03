@@ -45,7 +45,7 @@
                     {{ $value }}
                   @endif
                   <button type="button" class="ml-1 text-blue-400 hover:text-blue-600"
-                    onclick="removeFilter('{{ $key }}')">
+                    onclick="removeFilter({{ json_encode($key) }})">
                     ×
                   </button>
                 </span>
