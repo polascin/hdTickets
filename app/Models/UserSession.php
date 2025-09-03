@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserSession extends Model
 {
@@ -60,7 +61,7 @@ class UserSession extends Model
      *
      * @param mixed $query
      */
-    public function scopeActive($query): Illuminate\Database\Eloquent\Builder
+    public function scopeActive($query): Builder
     {
         return $query->where(function ($q): void {
             $q->whereNull('expires_at')
