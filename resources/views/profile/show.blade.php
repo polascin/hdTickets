@@ -379,967 +379,960 @@
     .retry-button {
       margin-top: 1rem;
     }
+
+    .enhanced-feature {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .enhanced-feature.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .progress-ring {
+      transition: stroke-dashoffset 1s ease-in-out;
+    }
+
+    .recommendation-card {
+      border-left: 4px solid #fbbf24;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      transition: all 0.3s ease;
+    }
+
+    .recommendation-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.15);
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+   <defs> <pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"> <circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1" /> </pattern> </defs> <rect width="100" height="100" fill="url(%23pattern)" /> </svg>');
+   pointer-events: none;
+      }
+
+      .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        object-fit: cover;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .profile-avatar:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      .profile-initials {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .profile-initials:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+
+      /* Enhanced responsive design */
+      @media (max-width: 768px) {
+        .card-header {
+          padding: 1rem !important;
+        }
+
+        .profile-stats {
+          margin-bottom: 1rem;
+        }
+
+        .btn-group {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .btn-group .btn {
+          margin-bottom: 0.25rem;
+        }
+      }
   </style>
-@endpush
-.enhanced-feature {
-opacity: 0;
-transform: translateY(20px);
-transition: all 0.5s ease;
-}
-
-.enhanced-feature.visible {
-opacity: 1;
-transform: translateY(0);
-}
-
-.progress-ring {
-transition: stroke-dashoffset 1s ease-in-out;
-}
-
-.recommendation-card {
-border-left: 4px solid #fbbf24;
-background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-transition: all 0.3s ease;
-}
-
-.recommendation-card:hover {
-transform: translateY(-2px);
-box-shadow: 0 8px 25px rgba(251, 191, 36, 0.15);
-}
-
-.profile-header {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-position: relative;
-overflow: hidden;
-}
-
-.profile-header::before {
-content: '';
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs>
-    <pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-      <circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1" />
-    </pattern>
-  </defs>
-  <rect width="100" height="100" fill="url(%23pattern)" />
-</svg>');
-pointer-events: none;
-}
-
-.profile-avatar {
-width: 80px;
-height: 80px;
-border-radius: 50%;
-border: 4px solid rgba(255, 255, 255, 0.2);
-object-fit: cover;
-transition: all 0.3s ease;
-cursor: pointer;
-}
-
-.profile-avatar:hover {
-transform: scale(1.05);
-border-color: rgba(255, 255, 255, 0.4);
-}
-
-.profile-initials {
-width: 80px;
-height: 80px;
-background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 1.5rem;
-font-weight: bold;
-color: white;
-border: 4px solid rgba(255, 255, 255, 0.2);
-transition: all 0.3s ease;
-cursor: pointer;
-}
-
-.profile-initials:hover {
-transform: scale(1.05);
-border-color: rgba(255, 255, 255, 0.4);
-}
-
-/* Enhanced responsive design */
-@media (max-width: 768px) {
-.card-header {
-padding: 1rem !important;
-}
-
-.profile-stats {
-margin-bottom: 1rem;
-}
-
-.btn-group {
-flex-direction: column;
-width: 100%;
-}
-
-.btn-group .btn {
-margin-bottom: 0.25rem;
-}
-}
-</style>
 @endpush
 
 @section('content')
-<!-- Skip Link for Accessibility -->
-<a href="#main-content" class="skip-link">Skip to main content</a>
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<div class="container-fluid px-4" x-data="profilePage()" x-init="init()">
-  <!-- Enhanced Flash Messages with ARIA Live Region -->
-  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
-    @if (session('status') === 'profile-updated')
-      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" x-data="{ show: true }"
-        x-show="show" x-transition>
-        <div class="d-flex align-items-center">
-          <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
-          <strong>Success!</strong> Profile updated successfully!
+  <div class="container-fluid px-4" x-data="profilePage()" x-init="init()">
+    <!-- Enhanced Flash Messages with ARIA Live Region -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+      @if (session('status') === 'profile-updated')
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" x-data="{ show: true }"
+          x-show="show" x-transition>
+          <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+            <strong>Success!</strong> Profile updated successfully!
+          </div>
+          <button type="button" class="btn-close" @click="show = false" aria-label="Close notification"></button>
         </div>
-        <button type="button" class="btn-close" @click="show = false" aria-label="Close notification"></button>
-      </div>
-    @endif
+      @endif
 
-    @if (session('status') === 'password-updated')
-      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" x-data="{ show: true }"
-        x-show="show" x-transition>
-        <div class="d-flex align-items-center">
-          <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
-          <strong>Success!</strong> Password updated successfully!
+      @if (session('status') === 'password-updated')
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" x-data="{ show: true }"
+          x-show="show" x-transition>
+          <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+            <strong>Success!</strong> Password updated successfully!
+          </div>
+          <button type="button" class="btn-close" @click="show = false" aria-label="Close notification"></button>
         </div>
-        <button type="button" class="btn-close" @click="show = false" aria-label="Close notification"></button>
-      </div>
-    @endif
-  </div>
+      @endif
+    </div>
 
-  <main id="main-content" class="main-content">
-    <!-- Enhanced Profile Header Card -->
-    <section class="card mb-4 border-0 shadow-sm overflow-hidden" x-data="{ photoUploadLoading: false }"
-      aria-labelledby="profile-header-title">
-      <div class="card-header profile-header text-white border-0">
-        <div class="p-3 p-md-4">
-          <div class="row align-items-center g-3">
-            <div class="col-auto">
-              <!-- Enhanced Profile Photo with Upload -->
-              <div class="position-relative">
-                <div class="profile-photo-container" @click="triggerPhotoUpload()" tabindex="0" role="button"
-                  @keydown.enter="triggerPhotoUpload()" @keydown.space.prevent="triggerPhotoUpload()"
-                  aria-label="Change profile photo">
-                  @if ($user->profile_picture)
-                    <img src="{{ $user->getProfileDisplay()['picture_url'] }}"
-                      alt="Profile picture of {{ $user->getFullNameAttribute() ?: $user->name }}"
-                      class="profile-avatar" x-show="!photoUploadLoading">
-                  @else
-                    <div class="profile-initials" x-show="!photoUploadLoading">
-                      <span aria-hidden="true">{{ $user->getProfileDisplay()['initials'] }}</span>
-                      <span class="sr-only">Profile initials for
-                        {{ $user->getFullNameAttribute() ?: $user->name }}</span>
+    <main id="main-content" class="main-content">
+      <!-- Enhanced Profile Header Card -->
+      <section class="card mb-4 border-0 shadow-sm overflow-hidden" x-data="{ photoUploadLoading: false }"
+        aria-labelledby="profile-header-title">
+        <div class="card-header profile-header text-white border-0">
+          <div class="p-3 p-md-4">
+            <div class="row align-items-center g-3">
+              <div class="col-auto">
+                <!-- Enhanced Profile Photo with Upload -->
+                <div class="position-relative">
+                  <div class="profile-photo-container" @click="triggerPhotoUpload()" tabindex="0" role="button"
+                    @keydown.enter="triggerPhotoUpload()" @keydown.space.prevent="triggerPhotoUpload()"
+                    aria-label="Change profile photo">
+                    @if ($user->profile_picture)
+                      <img src="{{ $user->getProfileDisplay()['picture_url'] }}"
+                        alt="Profile picture of {{ $user->getFullNameAttribute() ?: $user->name }}"
+                        class="profile-avatar" x-show="!photoUploadLoading">
+                    @else
+                      <div class="profile-initials" x-show="!photoUploadLoading">
+                        <span aria-hidden="true">{{ $user->getProfileDisplay()['initials'] }}</span>
+                        <span class="sr-only">Profile initials for
+                          {{ $user->getFullNameAttribute() ?: $user->name }}</span>
+                      </div>
+                    @endif
+
+                    <!-- Loading State -->
+                    <div class="profile-avatar d-flex align-items-center justify-content-center"
+                      x-show="photoUploadLoading">
+                      <div class="spinner-border spinner-border-sm text-white" role="status">
+                        <span class="sr-only">Uploading photo...</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Upload Button -->
+                  <button class="position-absolute bottom-0 end-0 btn btn-light btn-sm rounded-circle p-1"
+                    @click="triggerPhotoUpload()" style="width: 32px; height: 32px;" title="Change profile photo"
+                    aria-label="Change profile photo">
+                    <i class="fas fa-camera text-primary" style="font-size: 12px;" aria-hidden="true"></i>
+                  </button>
+
+                  <!-- Hidden File Input -->
+                  <input type="file" id="photo-upload" accept="image/*" style="display: none;"
+                    @change="handlePhotoUpload($event)" aria-label="Select profile photo">
+                </div>
+              </div>
+
+              <div class="col">
+                <h1 id="profile-header-title" class="h3 mb-1 text-white">
+                  {{ $user->getFullNameAttribute() ?: $user->name }}
+                </h1>
+                <p class="mb-2 text-white-75" role="text">{{ $user->email }}</p>
+                <div class="d-flex flex-wrap gap-2" role="list">
+                  <span class="badge bg-light text-dark px-2 py-1" role="listitem">
+                    <i class="fas fa-user-tag me-1" aria-hidden="true"></i>
+                    <span>{{ ucfirst($user->role) }}</span>
+                    <span class="sr-only">User role</span>
+                  </span>
+                  @if (isset($securityStatus['email_verified']) && $securityStatus['email_verified'])
+                    <span class="badge bg-success px-2 py-1" role="listitem">
+                      <i class="fas fa-check-circle me-1" aria-hidden="true"></i>
+                      <span>Email Verified</span>
+                    </span>
+                  @endif
+                  @if (isset($securityStatus['two_factor_enabled']) && $securityStatus['two_factor_enabled'])
+                    <span class="badge bg-primary px-2 py-1" role="listitem">
+                      <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
+                      <span>2FA Enabled</span>
+                    </span>
+                  @endif
+                  <span class="badge bg-info px-2 py-1" role="listitem">
+                    <i class="fas fa-calendar me-1" aria-hidden="true"></i>
+                    <span>Member since {{ $user->created_at->format('M Y') }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-auto">
+                <div class="d-flex gap-2 justify-content-start justify-content-md-end">
+                  <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-light btn-sm"
+                    aria-label="View available sports tickets">
+                    <i class="fas fa-ticket-alt me-1" aria-hidden="true"></i> Sports Tickets
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+          <!-- Profile Completion & Security Score -->
+          <section class="row mb-4" aria-labelledby="completion-security-title">
+            <h2 id="completion-security-title" class="sr-only">Profile Completion and Security Status</h2>
+
+            <!-- Profile Completion Card -->
+            <div class="col-md-6">
+              <article class="card stats-card h-100 border-0 shadow-sm" x-data="{ animateCompletion: false }"
+                x-intersect="animateCompletion = true">
+                <div class="card-body text-center">
+                  <h3 class="card-title text-muted mb-3">
+                    <i class="fas fa-user-check text-primary me-2" aria-hidden="true"></i>
+                    Profile Completion
+                  </h3>
+
+                  <!-- Enhanced Progress Ring with Animation -->
+                  <div class="position-relative d-inline-block mb-3" id="profile-completion" role="progressbar"
+                    :aria-valuenow="animateCompletion ? {{ $profileCompletion['percentage'] }} : 0" aria-valuemin="0"
+                    aria-valuemax="100"
+                    :aria-label="`Profile completion: ${animateCompletion ? {{ $profileCompletion['percentage'] }} : 0} percent`">
+                    <svg class="progress-ring" width="100" height="100" aria-hidden="true">
+                      <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
+                        fill="transparent" />
+                      <circle cx="50" cy="50" r="40" stroke="#3b82f6" stroke-width="8"
+                        fill="transparent" stroke-dasharray="{{ 2 * pi() * 40 }}"
+                        :stroke-dashoffset="animateCompletion ? {{ 2 * pi() * 40 * (1 - $profileCompletion['percentage'] / 100) }} :
+                            {{ 2 * pi() * 40 }}"
+                        stroke-linecap="round" transform="rotate(-90 50 50)"
+                        style="transition: stroke-dashoffset 2s ease-in-out" />
+                    </svg>
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                      <span class="h4 fw-bold text-primary progress-text"
+                        x-text="animateCompletion ? '{{ $profileCompletion['percentage'] }}%' : '0%'">
+                        {{ $profileCompletion['percentage'] }}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="text-muted mb-2">
+                    <span x-text="animateCompletion ? '{{ $profileCompletion['completed_count'] }}' : '0'">
+                      {{ $profileCompletion['completed_count'] }}
+                    </span>/<span>{{ $profileCompletion['total_fields'] }}</span>
+                    fields complete
+                  </p>
+
+                  <span
+                    class="badge bg-{{ $profileCompletion['status'] === 'excellent' ? 'success' : ($profileCompletion['status'] === 'good' ? 'primary' : 'warning') }}"
+                    role="status">
+                    {{ ucfirst($profileCompletion['status']) }}
+                  </span>
+
+                  <!-- Action Button -->
+                  @if ($profileCompletion['percentage'] < 100)
+                    <div class="mt-3">
+                      <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-primary"
+                        aria-label="Complete your profile">
+                        <i class="fas fa-arrow-right me-1" aria-hidden="true"></i>
+                        Complete Profile
+                      </a>
                     </div>
                   @endif
+                </div>
+              </article>
+            </div>
 
-                  <!-- Loading State -->
-                  <div class="profile-avatar d-flex align-items-center justify-content-center"
-                    x-show="photoUploadLoading">
-                    <div class="spinner-border spinner-border-sm text-white" role="status">
-                      <span class="sr-only">Uploading photo...</span>
+            <!-- Security Score Card -->
+            <div class="col-md-6">
+              @php
+                $securityScore = isset($profileInsights['security_score']) ? $profileInsights['security_score'] : 50;
+              @endphp
+              <article class="card stats-card h-100 border-0 shadow-sm" x-data="{ animateSecurity: false }"
+                x-intersect="animateSecurity = true">
+                <div class="card-body text-center">
+                  <h3 class="card-title text-muted mb-3">
+                    <i class="fas fa-shield-alt text-success me-2" aria-hidden="true"></i>
+                    Security Score
+                  </h3>
+
+                  <!-- Enhanced Security Progress Ring -->
+                  <div class="position-relative d-inline-block mb-3" id="security-score" role="progressbar"
+                    :aria-valuenow="animateSecurity ? {{ $securityScore }} : 0" aria-valuemin="0" aria-valuemax="100"
+                    :aria-label="`Security score: ${animateSecurity ? {{ $securityScore }} : 0} out of 100`">
+                    <svg class="progress-ring" width="100" height="100" aria-hidden="true">
+                      <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
+                        fill="transparent" />
+                      <circle cx="50" cy="50" r="40" stroke="#10b981" stroke-width="8"
+                        fill="transparent" stroke-dasharray="{{ 2 * pi() * 40 }}"
+                        :stroke-dashoffset="animateSecurity ? {{ 2 * pi() * 40 * (1 - $securityScore / 100) }} : {{ 2 * pi() * 40 }}"
+                        stroke-linecap="round" transform="rotate(-90 50 50)"
+                        style="transition: stroke-dashoffset 2s ease-in-out" />
+                    </svg>
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                      <span class="h4 fw-bold text-success progress-text"
+                        x-text="animateSecurity ? '{{ $securityScore }}' : '0'">
+                        {{ $securityScore }}
+                      </span>
                     </div>
                   </div>
-                </div>
 
-                <!-- Upload Button -->
-                <button class="position-absolute bottom-0 end-0 btn btn-light btn-sm rounded-circle p-1"
-                  @click="triggerPhotoUpload()" style="width: 32px; height: 32px;" title="Change profile photo"
-                  aria-label="Change profile photo">
-                  <i class="fas fa-camera text-primary" style="font-size: 12px;" aria-hidden="true"></i>
-                </button>
+                  <p class="text-muted mb-2">Account Security Level</p>
 
-                <!-- Hidden File Input -->
-                <input type="file" id="photo-upload" accept="image/*" style="display: none;"
-                  @change="handlePhotoUpload($event)" aria-label="Select profile photo">
-              </div>
-            </div>
-
-            <div class="col">
-              <h1 id="profile-header-title" class="h3 mb-1 text-white">
-                {{ $user->getFullNameAttribute() ?: $user->name }}
-              </h1>
-              <p class="mb-2 text-white-75" role="text">{{ $user->email }}</p>
-              <div class="d-flex flex-wrap gap-2" role="list">
-                <span class="badge bg-light text-dark px-2 py-1" role="listitem">
-                  <i class="fas fa-user-tag me-1" aria-hidden="true"></i>
-                  <span>{{ ucfirst($user->role) }}</span>
-                  <span class="sr-only">User role</span>
-                </span>
-                @if (isset($securityStatus['email_verified']) && $securityStatus['email_verified'])
-                  <span class="badge bg-success px-2 py-1" role="listitem">
-                    <i class="fas fa-check-circle me-1" aria-hidden="true"></i>
-                    <span>Email Verified</span>
+                  <span
+                    class="badge bg-{{ $securityScore >= 80 ? 'success' : ($securityScore >= 60 ? 'warning' : 'danger') }}"
+                    role="status">
+                    {{ $securityScore >= 80 ? 'Excellent' : ($securityScore >= 60 ? 'Good' : 'Needs Improvement') }}
                   </span>
-                @endif
-                @if (isset($securityStatus['two_factor_enabled']) && $securityStatus['two_factor_enabled'])
-                  <span class="badge bg-primary px-2 py-1" role="listitem">
-                    <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
-                    <span>2FA Enabled</span>
-                  </span>
-                @endif
-                <span class="badge bg-info px-2 py-1" role="listitem">
-                  <i class="fas fa-calendar me-1" aria-hidden="true"></i>
-                  <span>Member since {{ $user->created_at->format('M Y') }}</span>
-                </span>
-              </div>
-            </div>
 
-            <div class="col-12 col-md-auto">
-              <div class="d-flex gap-2 justify-content-start justify-content-md-end">
-                <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-light btn-sm"
-                  aria-label="View available sports tickets">
-                  <i class="fas fa-ticket-alt me-1" aria-hidden="true"></i> Sports Tickets
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="row">
-      <!-- Left Column -->
-      <div class="col-lg-8">
-        <!-- Profile Completion & Security Score -->
-        <section class="row mb-4" aria-labelledby="completion-security-title">
-          <h2 id="completion-security-title" class="sr-only">Profile Completion and Security Status</h2>
-
-          <!-- Profile Completion Card -->
-          <div class="col-md-6">
-            <article class="card stats-card h-100 border-0 shadow-sm" x-data="{ animateCompletion: false }"
-              x-intersect="animateCompletion = true">
-              <div class="card-body text-center">
-                <h3 class="card-title text-muted mb-3">
-                  <i class="fas fa-user-check text-primary me-2" aria-hidden="true"></i>
-                  Profile Completion
-                </h3>
-
-                <!-- Enhanced Progress Ring with Animation -->
-                <div class="position-relative d-inline-block mb-3" id="profile-completion" role="progressbar"
-                  :aria-valuenow="animateCompletion ? {{ $profileCompletion['percentage'] }} : 0" aria-valuemin="0"
-                  aria-valuemax="100"
-                  :aria-label="`Profile completion: ${animateCompletion ? {{ $profileCompletion['percentage'] }} : 0} percent`">
-                  <svg class="progress-ring" width="100" height="100" aria-hidden="true">
-                    <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
-                      fill="transparent" />
-                    <circle cx="50" cy="50" r="40" stroke="#3b82f6" stroke-width="8"
-                      fill="transparent" stroke-dasharray="{{ 2 * pi() * 40 }}"
-                      :stroke-dashoffset="animateCompletion ? {{ 2 * pi() * 40 * (1 - $profileCompletion['percentage'] / 100) }} :
-                          {{ 2 * pi() * 40 }}"
-                      stroke-linecap="round" transform="rotate(-90 50 50)"
-                      style="transition: stroke-dashoffset 2s ease-in-out" />
-                  </svg>
-                  <div class="position-absolute top-50 start-50 translate-middle">
-                    <span class="h4 fw-bold text-primary progress-text"
-                      x-text="animateCompletion ? '{{ $profileCompletion['percentage'] }}%' : '0%'">
-                      {{ $profileCompletion['percentage'] }}%
-                    </span>
-                  </div>
+                  <!-- Security Action Button -->
+                  @if ($securityScore < 80)
+                    <div class="mt-3">
+                      <a href="{{ route('profile.security') }}" class="btn btn-sm btn-outline-success"
+                        aria-label="Improve your security settings">
+                        <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
+                        Improve Security
+                      </a>
+                    </div>
+                  @endif
                 </div>
+              </article>
+            </div>
+          </section>
 
-                <p class="text-muted mb-2">
-                  <span x-text="animateCompletion ? '{{ $profileCompletion['completed_count'] }}' : '0'">
-                    {{ $profileCompletion['completed_count'] }}
-                  </span>/<span>{{ $profileCompletion['total_fields'] }}</span>
-                  fields complete
-                </p>
-
-                <span
-                  class="badge bg-{{ $profileCompletion['status'] === 'excellent' ? 'success' : ($profileCompletion['status'] === 'good' ? 'primary' : 'warning') }}"
-                  role="status">
-                  {{ ucfirst($profileCompletion['status']) }}
-                </span>
-
-                <!-- Action Button -->
-                @if ($profileCompletion['percentage'] < 100)
-                  <div class="mt-3">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-primary"
-                      aria-label="Complete your profile">
-                      <i class="fas fa-arrow-right me-1" aria-hidden="true"></i>
-                      Complete Profile
-                    </a>
-                  </div>
-                @endif
-              </div>
-            </article>
-          </div>
-
-          <!-- Security Score Card -->
-          <div class="col-md-6">
-            @php
-              $securityScore = isset($profileInsights['security_score']) ? $profileInsights['security_score'] : 50;
-            @endphp
-            <article class="card stats-card h-100 border-0 shadow-sm" x-data="{ animateSecurity: false }"
-              x-intersect="animateSecurity = true">
-              <div class="card-body text-center">
-                <h3 class="card-title text-muted mb-3">
-                  <i class="fas fa-shield-alt text-success me-2" aria-hidden="true"></i>
-                  Security Score
+          <!-- Enhanced Sports Events Monitoring Statistics -->
+          <section class="card mb-4 border-0 shadow-sm" x-data="{ statsLoading: false, lastUpdated: '{{ now()->format('g:i A') }}' }" aria-labelledby="sports-stats-title">
+            <div class="card-header bg-transparent border-bottom-0 pb-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <h3 id="sports-stats-title" class="card-title mb-0">
+                  <i class="fas fa-ticket-alt text-primary me-2" aria-hidden="true"></i>
+                  Sports Events & Tickets Monitoring
                 </h3>
-
-                <!-- Enhanced Security Progress Ring -->
-                <div class="position-relative d-inline-block mb-3" id="security-score" role="progressbar"
-                  :aria-valuenow="animateSecurity ? {{ $securityScore }} : 0" aria-valuemin="0" aria-valuemax="100"
-                  :aria-label="`Security score: ${animateSecurity ? {{ $securityScore }} : 0} out of 100`">
-                  <svg class="progress-ring" width="100" height="100" aria-hidden="true">
-                    <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
-                      fill="transparent" />
-                    <circle cx="50" cy="50" r="40" stroke="#10b981" stroke-width="8"
-                      fill="transparent" stroke-dasharray="{{ 2 * pi() * 40 }}"
-                      :stroke-dashoffset="animateSecurity ? {{ 2 * pi() * 40 * (1 - $securityScore / 100) }} : {{ 2 * pi() * 40 }}"
-                      stroke-linecap="round" transform="rotate(-90 50 50)"
-                      style="transition: stroke-dashoffset 2s ease-in-out" />
-                  </svg>
-                  <div class="position-absolute top-50 start-50 translate-middle">
-                    <span class="h4 fw-bold text-success progress-text"
-                      x-text="animateSecurity ? '{{ $securityScore }}' : '0'">
-                      {{ $securityScore }}
-                    </span>
-                  </div>
-                </div>
-
-                <p class="text-muted mb-2">Account Security Level</p>
-
-                <span
-                  class="badge bg-{{ $securityScore >= 80 ? 'success' : ($securityScore >= 60 ? 'warning' : 'danger') }}"
-                  role="status">
-                  {{ $securityScore >= 80 ? 'Excellent' : ($securityScore >= 60 ? 'Good' : 'Needs Improvement') }}
-                </span>
-
-                <!-- Security Action Button -->
-                @if ($securityScore < 80)
-                  <div class="mt-3">
-                    <a href="{{ route('profile.security') }}" class="btn btn-sm btn-outline-success"
-                      aria-label="Improve your security settings">
-                      <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
-                      Improve Security
-                    </a>
-                  </div>
-                @endif
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <!-- Enhanced Sports Events Monitoring Statistics -->
-        <section class="card mb-4 border-0 shadow-sm" x-data="{ statsLoading: false, lastUpdated: '{{ now()->format('g:i A') }}' }" aria-labelledby="sports-stats-title">
-          <div class="card-header bg-transparent border-bottom-0 pb-0">
-            <div class="d-flex justify-content-between align-items-center">
-              <h3 id="sports-stats-title" class="card-title mb-0">
-                <i class="fas fa-ticket-alt text-primary me-2" aria-hidden="true"></i>
-                Sports Events & Tickets Monitoring
-              </h3>
-              <div class="d-flex gap-2">
-                <button @click="refreshStats()" :disabled="statsLoading" class="btn btn-outline-primary btn-sm"
-                  :aria-label="statsLoading ? 'Refreshing statistics...' : 'Refresh statistics'">
-                  <i :class="statsLoading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'" class="me-1"
-                    aria-hidden="true"></i>
-                  <span x-text="statsLoading ? 'Updating...' : 'Refresh'">Refresh</span>
-                </button>
-                <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-primary btn-sm"
-                  aria-label="View all available tickets">
-                  <i class="fas fa-ticket-alt me-1" aria-hidden="true"></i> View Tickets
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <div class="row text-center" role="group" aria-labelledby="stats-grid-title">
-              <h4 id="stats-grid-title" class="sr-only">Statistics Overview</h4>
-
-              <!-- Active Alerts -->
-              <div class="col-md-3 col-6 mb-3">
-                <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                  @click="$dispatch('show-detail', { type: 'alerts' })"
-                  @keydown.enter="$dispatch('show-detail', { type: 'alerts' })"
-                  aria-labelledby="monitored-events-title">
-                  <i class="fas fa-bell text-warning mb-2 fs-4" aria-hidden="true"></i>
-                  <h4 id="monitored-events-title" class="fw-bold text-primary mb-1"
-                    x-text="statsLoading ? '...' : '{{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}'">
-                    {{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}
-                  </h4>
-                  <small class="text-muted">Active Alerts</small>
-                </article>
-              </div>
-
-              <!-- Total Alerts -->
-              <div class="col-md-3 col-6 mb-3">
-                <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                  @click="$dispatch('show-detail', { type: 'total-alerts' })"
-                  @keydown.enter="$dispatch('show-detail', { type: 'total-alerts' })"
-                  aria-labelledby="total-alerts-title">
-                  <i class="fas fa-chart-line text-success mb-2 fs-4" aria-hidden="true"></i>
-                  <h4 id="total-alerts-title" class="fw-bold text-primary mb-1"
-                    x-text="statsLoading ? '...' : '{{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}'">
-                    {{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}
-                  </h4>
-                  <small class="text-muted">Total Alerts</small>
-                </article>
-              </div>
-
-              <!-- Active Searches -->
-              <div class="col-md-3 col-6 mb-3">
-                <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                  @click="$dispatch('show-detail', { type: 'searches' })"
-                  @keydown.enter="$dispatch('show-detail', { type: 'searches' })"
-                  aria-labelledby="active-searches-title">
-                  <i class="fas fa-search text-info mb-2 fs-4" aria-hidden="true"></i>
-                  <h4 id="active-searches-title" class="fw-bold text-primary mb-1"
-                    x-text="statsLoading ? '...' : '{{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}'">
-                    {{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}
-                  </h4>
-                  <small class="text-muted">Active Searches</small>
-                </article>
-              </div>
-
-              <!-- Recent Purchases -->
-              <div class="col-md-3 col-6 mb-3">
-                <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
-                  @click="$dispatch('show-detail', { type: 'purchases' })"
-                  @keydown.enter="$dispatch('show-detail', { type: 'purchases' })"
-                  aria-labelledby="recent-purchases-title">
-                  <i class="fas fa-shopping-cart text-success mb-2 fs-4" aria-hidden="true"></i>
-                  <h4 id="recent-purchases-title" class="fw-bold text-primary mb-1"
-                    x-text="statsLoading ? '...' : '{{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}'">
-                    {{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}
-                  </h4>
-                  <small class="text-muted">Recent Purchases</small>
-                </article>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-12 text-center">
-                <small class="text-muted stats-updated" x-text="'Last updated: ' + lastUpdated" role="status"
-                  aria-live="polite">
-                  Last updated: {{ now()->format('g:i A') }}
-                </small>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-</div>
-<div class="row">
-  <div class="col-12 text-center">
-    <small class="text-muted stats-updated">Last updated: {{ now()->format('g:i A') }}</small>
-  </div>
-</div>
-</div>
-</div>
-
-<!-- Account Activity Overview -->
-<div class="card mb-4 border-0 shadow-sm">
-  <div class="card-header bg-transparent border-bottom-0">
-    <h5 class="card-title mb-0">
-      <i class="fas fa-activity text-info me-2"></i>
-      Account Activity
-    </h5>
-  </div>
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <div class="d-flex align-items-center">
-          <div class="stats-icon bg-primary bg-opacity-10 rounded-circle p-3 me-3">
-            <i class="fas fa-sign-in-alt text-primary"></i>
-          </div>
-          <div>
-            <h6 class="mb-0">
-              {{ isset($userStats['login_count']) ? $userStats['login_count'] : 0 }}</h6>
-            <small class="text-muted">Total Logins</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="d-flex align-items-center">
-          <div class="stats-icon bg-success bg-opacity-10 rounded-circle p-3 me-3">
-            <i class="fas fa-clock text-success"></i>
-          </div>
-          <div>
-            <h6 class="mb-0">
-              {{ isset($userStats['last_login_display']) ? $userStats['last_login_display'] : 'Never' }}
-            </h6>
-            <small class="text-muted">Last Login</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="d-flex align-items-center">
-          <div class="stats-icon bg-info bg-opacity-10 rounded-circle p-3 me-3">
-            <i class="fas fa-calendar text-info"></i>
-          </div>
-          <div>
-            <h6 class="mb-0">
-              {{ isset($userStats['joined_days_ago']) ? $userStats['joined_days_ago'] : 0 }}
-              days</h6>
-            <small class="text-muted">Account Age</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Right Column -->
-<div class="col-lg-4">
-  <!-- Profile Recommendations -->
-  @if (isset($profileInsights['recommendations']) &&
-          is_array($profileInsights['recommendations']) &&
-          count($profileInsights['recommendations']) > 0)
-    <div class="card mb-4 border-0 shadow-sm">
-      <div class="card-header bg-transparent border-bottom-0">
-        <h5 class="card-title mb-0">
-          <i class="fas fa-lightbulb text-warning me-2"></i>
-          Recommendations
-        </h5>
-      </div>
-      <div class="card-body">
-        @foreach ($profileInsights['recommendations'] as $recommendation)
-          <div class="recommendation-card rounded p-3 mb-3">
-            <div class="d-flex align-items-start">
-              <i
-                class="fas fa-{{ $recommendation['icon'] ?? 'info-circle' }} text-{{ isset($recommendation['priority']) && $recommendation['priority'] === 'high' ? 'danger' : 'warning' }} me-2 mt-1"></i>
-              <div class="flex-grow-1">
-                <h6 class="mb-1">{{ $recommendation['title'] ?? 'Recommendation' }}</h6>
-                <p class="small text-muted mb-2">
-                  {{ $recommendation['description'] ?? 'No description available' }}</p>
-                @if (isset($recommendation['route']) && $recommendation['route'])
-                  <a href="{{ route($recommendation['route']) }}" class="btn btn-sm btn-outline-primary">
-                    {{ $recommendation['action'] ?? 'Take Action' }}
+                <div class="d-flex gap-2">
+                  <button @click="refreshStats()" :disabled="statsLoading" class="btn btn-outline-primary btn-sm"
+                    :aria-label="statsLoading ? 'Refreshing statistics...' : 'Refresh statistics'">
+                    <i :class="statsLoading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'" class="me-1"
+                      aria-hidden="true"></i>
+                    <span x-text="statsLoading ? 'Updating...' : 'Refresh'">Refresh</span>
+                  </button>
+                  <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-primary btn-sm"
+                    aria-label="View all available tickets">
+                    <i class="fas fa-ticket-alt me-1" aria-hidden="true"></i> View Tickets
                   </a>
-                @endif
+                </div>
               </div>
             </div>
-          </div>
-        @endforeach
-      </div>
-    </div>
-  @endif
 
-  <!-- Security Status -->
+            <div class="card-body">
+              <div class="row text-center" role="group" aria-labelledby="stats-grid-title">
+                <h4 id="stats-grid-title" class="sr-only">Statistics Overview</h4>
+
+                <!-- Active Alerts -->
+                <div class="col-md-3 col-6 mb-3">
+                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
+                    @click="$dispatch('show-detail', { type: 'alerts' })"
+                    @keydown.enter="$dispatch('show-detail', { type: 'alerts' })"
+                    aria-labelledby="monitored-events-title">
+                    <i class="fas fa-bell text-warning mb-2 fs-4" aria-hidden="true"></i>
+                    <h4 id="monitored-events-title" class="fw-bold text-primary mb-1"
+                      x-text="statsLoading ? '...' : '{{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}'">
+                      {{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}
+                    </h4>
+                    <small class="text-muted">Active Alerts</small>
+                  </article>
+                </div>
+
+                <!-- Total Alerts -->
+                <div class="col-md-3 col-6 mb-3">
+                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
+                    @click="$dispatch('show-detail', { type: 'total-alerts' })"
+                    @keydown.enter="$dispatch('show-detail', { type: 'total-alerts' })"
+                    aria-labelledby="total-alerts-title">
+                    <i class="fas fa-chart-line text-success mb-2 fs-4" aria-hidden="true"></i>
+                    <h4 id="total-alerts-title" class="fw-bold text-primary mb-1"
+                      x-text="statsLoading ? '...' : '{{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}'">
+                      {{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}
+                    </h4>
+                    <small class="text-muted">Total Alerts</small>
+                  </article>
+                </div>
+
+                <!-- Active Searches -->
+                <div class="col-md-3 col-6 mb-3">
+                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
+                    @click="$dispatch('show-detail', { type: 'searches' })"
+                    @keydown.enter="$dispatch('show-detail', { type: 'searches' })"
+                    aria-labelledby="active-searches-title">
+                    <i class="fas fa-search text-info mb-2 fs-4" aria-hidden="true"></i>
+                    <h4 id="active-searches-title" class="fw-bold text-primary mb-1"
+                      x-text="statsLoading ? '...' : '{{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}'">
+                      {{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}
+                    </h4>
+                    <small class="text-muted">Active Searches</small>
+                  </article>
+                </div>
+
+                <!-- Recent Purchases -->
+                <div class="col-md-3 col-6 mb-3">
+                  <article class="stats-card bg-light rounded p-3 h-100" tabindex="0" role="button"
+                    @click="$dispatch('show-detail', { type: 'purchases' })"
+                    @keydown.enter="$dispatch('show-detail', { type: 'purchases' })"
+                    aria-labelledby="recent-purchases-title">
+                    <i class="fas fa-shopping-cart text-success mb-2 fs-4" aria-hidden="true"></i>
+                    <h4 id="recent-purchases-title" class="fw-bold text-primary mb-1"
+                      x-text="statsLoading ? '...' : '{{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}'">
+                      {{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}
+                    </h4>
+                    <small class="text-muted">Recent Purchases</small>
+                  </article>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-12 text-center">
+                  <small class="text-muted stats-updated" x-text="'Last updated: ' + lastUpdated" role="status"
+                    aria-live="polite">
+                    Last updated: {{ now()->format('g:i A') }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+  </div>
+  <div class="row">
+    <div class="col-12 text-center">
+      <small class="text-muted stats-updated">Last updated: {{ now()->format('g:i A') }}</small>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- Account Activity Overview -->
   <div class="card mb-4 border-0 shadow-sm">
     <div class="card-header bg-transparent border-bottom-0">
       <h5 class="card-title mb-0">
-        <i class="fas fa-shield-alt text-success me-2"></i>
-        Security Status
+        <i class="fas fa-activity text-info me-2"></i>
+        Account Activity
       </h5>
     </div>
     <div class="card-body">
-      <div class="list-group list-group-flush">
-        <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+      <div class="row">
+        <div class="col-md-4 mb-3">
           <div class="d-flex align-items-center">
-            <i
-              class="fas fa-envelope text-{{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'success' : 'danger' }} me-2"></i>
-            <small>Email Verification</small>
+            <div class="stats-icon bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-sign-in-alt text-primary"></i>
+            </div>
+            <div>
+              <h6 class="mb-0">
+                {{ isset($userStats['login_count']) ? $userStats['login_count'] : 0 }}</h6>
+              <small class="text-muted">Total Logins</small>
+            </div>
           </div>
-          <span
-            class="badge bg-{{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'success' : 'danger' }}">
-            {{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'Verified' : 'Pending' }}
-          </span>
         </div>
-        <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+        <div class="col-md-4 mb-3">
           <div class="d-flex align-items-center">
-            @php
-              $twoFactorEnabled = isset($securityStatus['two_factor_enabled'])
-                  ? $securityStatus['two_factor_enabled']
-                  : false;
-            @endphp
-            <i class="fas fa-mobile-alt text-{{ $twoFactorEnabled ? 'success' : 'warning' }} me-2"></i>
-            <small>Two-Factor Auth</small>
+            <div class="stats-icon bg-success bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-clock text-success"></i>
+            </div>
+            <div>
+              <h6 class="mb-0">
+                {{ isset($userStats['last_login_display']) ? $userStats['last_login_display'] : 'Never' }}
+              </h6>
+              <small class="text-muted">Last Login</small>
+            </div>
           </div>
-          <span class="badge bg-{{ $twoFactorEnabled ? 'success' : 'warning' }}">
-            {{ $twoFactorEnabled ? 'Enabled' : 'Disabled' }}
-          </span>
         </div>
-        <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+        <div class="col-md-4 mb-3">
           <div class="d-flex align-items-center">
-            <i class="fas fa-key text-info me-2"></i>
-            <small>Password Age</small>
+            <div class="stats-icon bg-info bg-opacity-10 rounded-circle p-3 me-3">
+              <i class="fas fa-calendar text-info"></i>
+            </div>
+            <div>
+              <h6 class="mb-0">
+                {{ isset($userStats['joined_days_ago']) ? $userStats['joined_days_ago'] : 0 }}
+                days</h6>
+              <small class="text-muted">Account Age</small>
+            </div>
           </div>
-          <span
-            class="badge bg-{{ isset($securityStatus['password_age_days']) ? ($securityStatus['password_age_days'] <= 90 ? 'success' : ($securityStatus['password_age_days'] <= 180 ? 'warning' : 'danger')) : 'secondary' }}">
-            {{ isset($securityStatus['password_age_days']) ? $securityStatus['password_age_days'] : 'Unknown' }}
-            days
-          </span>
-        </div>
-        <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-devices text-primary me-2"></i>
-            <small>Trusted Devices</small>
-          </div>
-          <span
-            class="badge bg-primary">{{ isset($securityStatus['trusted_devices_count']) ? $securityStatus['trusted_devices_count'] : 0 }}</span>
         </div>
       </div>
     </div>
+  </div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-transparent border-bottom-0">
-      <h5 class="card-title mb-0">
-        <i class="fas fa-bolt text-primary me-2"></i>
-        Quick Actions
-      </h5>
+  <!-- Right Column -->
+  <div class="col-lg-4">
+    <!-- Profile Recommendations -->
+    @if (isset($profileInsights['recommendations']) &&
+            is_array($profileInsights['recommendations']) &&
+            count($profileInsights['recommendations']) > 0)
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom-0">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            Recommendations
+          </h5>
+        </div>
+        <div class="card-body">
+          @foreach ($profileInsights['recommendations'] as $recommendation)
+            <div class="recommendation-card rounded p-3 mb-3">
+              <div class="d-flex align-items-start">
+                <i
+                  class="fas fa-{{ $recommendation['icon'] ?? 'info-circle' }} text-{{ isset($recommendation['priority']) && $recommendation['priority'] === 'high' ? 'danger' : 'warning' }} me-2 mt-1"></i>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ $recommendation['title'] ?? 'Recommendation' }}</h6>
+                  <p class="small text-muted mb-2">
+                    {{ $recommendation['description'] ?? 'No description available' }}</p>
+                  @if (isset($recommendation['route']) && $recommendation['route'])
+                    <a href="{{ route($recommendation['route']) }}" class="btn btn-sm btn-outline-primary">
+                      {{ $recommendation['action'] ?? 'Take Action' }}
+                    </a>
+                  @endif
+                </div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    @endif
+
+    <!-- Security Status -->
+    <div class="card mb-4 border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-shield-alt text-success me-2"></i>
+          Security Status
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="list-group list-group-flush">
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+            <div class="d-flex align-items-center">
+              <i
+                class="fas fa-envelope text-{{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'success' : 'danger' }} me-2"></i>
+              <small>Email Verification</small>
+            </div>
+            <span
+              class="badge bg-{{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'success' : 'danger' }}">
+              {{ isset($securityStatus['email_verified']) && $securityStatus['email_verified'] ? 'Verified' : 'Pending' }}
+            </span>
+          </div>
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+            <div class="d-flex align-items-center">
+              @php
+                $twoFactorEnabled = isset($securityStatus['two_factor_enabled'])
+                    ? $securityStatus['two_factor_enabled']
+                    : false;
+              @endphp
+              <i class="fas fa-mobile-alt text-{{ $twoFactorEnabled ? 'success' : 'warning' }} me-2"></i>
+              <small>Two-Factor Auth</small>
+            </div>
+            <span class="badge bg-{{ $twoFactorEnabled ? 'success' : 'warning' }}">
+              {{ $twoFactorEnabled ? 'Enabled' : 'Disabled' }}
+            </span>
+          </div>
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-key text-info me-2"></i>
+              <small>Password Age</small>
+            </div>
+            <span
+              class="badge bg-{{ isset($securityStatus['password_age_days']) ? ($securityStatus['password_age_days'] <= 90 ? 'success' : ($securityStatus['password_age_days'] <= 180 ? 'warning' : 'danger')) : 'secondary' }}">
+              {{ isset($securityStatus['password_age_days']) ? $securityStatus['password_age_days'] : 'Unknown' }}
+              days
+            </span>
+          </div>
+          <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-devices text-primary me-2"></i>
+              <small>Trusted Devices</small>
+            </div>
+            <span
+              class="badge bg-primary">{{ isset($securityStatus['trusted_devices_count']) ? $securityStatus['trusted_devices_count'] : 0 }}</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="d-grid gap-2">
-        <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-user-edit me-2"></i>
-          Edit Profile
-        </a>
-        <a href="{{ route('profile.security') }}" class="btn btn-outline-success btn-sm">
-          <i class="fas fa-shield-alt me-2"></i>
-          Security & Privacy
-        </a>
-        <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info btn-sm">
-          <i class="fas fa-chart-bar me-2"></i>
-          My Activity
-        </a>
-        <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-warning btn-sm">
-          <i class="fas fa-ticket-alt me-2"></i>
-          Sports Tickets
-        </a>
+
+    <!-- Quick Actions -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-bottom-0">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-bolt text-primary me-2"></i>
+          Quick Actions
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-user-edit me-2"></i>
+            Edit Profile
+          </a>
+          <a href="{{ route('profile.security') }}" class="btn btn-outline-success btn-sm">
+            <i class="fas fa-shield-alt me-2"></i>
+            Security & Privacy
+          </a>
+          <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info btn-sm">
+            <i class="fas fa-chart-bar me-2"></i>
+            My Activity
+          </a>
+          <a href="{{ route('tickets.redirect') }}" class="btn btn-outline-warning btn-sm">
+            <i class="fas fa-ticket-alt me-2"></i>
+            Sports Tickets
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
-</main>
-</div>
+  </main>
+  </div>
 @endsection
 
 @push('styles')
-<style>
-  /* Ensure profile page is fully visible */
-  html,
-  body {
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
+  <style>
+    /* Ensure profile page is fully visible */
+    html,
+    body {
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
 
-  .container-fluid {
-    min-height: 100vh !important;
-    padding-bottom: 2rem;
-  }
-
-  /* Fix any potential z-index issues */
-  .main-content {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Ensure cards are visible */
-  .card {
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
-  }
-
-  /* Progress rings styling */
-  .progress-ring {
-    transform: rotate(-90deg);
-    width: 100px;
-    height: 100px;
-  }
-
-  .progress-ring__circle {
-    transition: stroke-dashoffset 0.35s;
-    transform: rotate(90deg);
-    transform-origin: 50% 50%;
-  }
-
-  /* Responsive fixes */
-  @media (max-width: 768px) {
     .container-fluid {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      min-height: 100vh !important;
+      padding-bottom: 2rem;
     }
 
+    /* Fix any potential z-index issues */
+    .main-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Ensure cards are visible */
     .card {
-      margin-bottom: 1rem;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
     }
-  }
 
-  /* Debug styles for visibility testing */
-  .debug-visible {
-    border: 2px solid red !important;
-    background: rgba(255, 0, 0, 0.1) !important;
-  }
-</style>
+    /* Progress rings styling */
+    .progress-ring {
+      transform: rotate(-90deg);
+      width: 100px;
+      height: 100px;
+    }
+
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s;
+      transform: rotate(90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Responsive fixes */
+    @media (max-width: 768px) {
+      .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .card {
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Debug styles for visibility testing */
+    .debug-visible {
+      border: 2px solid red !important;
+      background: rgba(255, 0, 0, 0.1) !important;
+    }
+  </style>
 @endpush
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script>
-  // Enhanced Profile Page Controller with Alpine.js
-  function profilePage() {
-    return {
-      // State
-      statsLoading: false,
-      photoUploadLoading: false,
-      lastUpdated: '{{ now()->format('g:i A') }}',
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script>
+    // Enhanced Profile Page Controller with Alpine.js
+    function profilePage() {
+      return {
+        // State
+        statsLoading: false,
+        photoUploadLoading: false,
+        lastUpdated: '{{ now()->format('g:i A') }}',
 
-      // Initialization
-      init() {
-        console.log('Enhanced profile page with Alpine.js initialized');
+        // Initialization
+        init() {
+          console.log('Enhanced profile page with Alpine.js initialized');
 
-        // Set up intersection observers for animations
-        this.setupIntersectionObservers();
+          // Set up intersection observers for animations
+          this.setupIntersectionObservers();
 
-        // Auto-refresh stats
-        this.startAutoRefresh();
+          // Auto-refresh stats
+          this.startAutoRefresh();
 
-        // Handle visibility changes
-        this.handleVisibilityChange();
+          // Handle visibility changes
+          this.handleVisibilityChange();
 
-        // Announce page load to screen readers
-        this.announceToScreenReader('Profile page loaded successfully');
-      },
+          // Announce page load to screen readers
+          this.announceToScreenReader('Profile page loaded successfully');
+        },
 
-      // Photo Upload Functionality
-      triggerPhotoUpload() {
-        document.getElementById('photo-upload').click();
-      },
+        // Photo Upload Functionality
+        triggerPhotoUpload() {
+          document.getElementById('photo-upload').click();
+        },
 
-      async handlePhotoUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+        async handlePhotoUpload(event) {
+          const file = event.target.files[0];
+          if (!file) return;
 
-        // Validate file
-        if (!this.validatePhotoFile(file)) {
-          return;
-        }
-
-        this.photoUploadLoading = true;
-
-        try {
-          const formData = new FormData();
-          formData.append('photo', file);
-          formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-          const response = await fetch('{{ route('profile.photo.upload') }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Accept': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            this.announceToScreenReader('Profile photo updated successfully');
-            // Reload page to show new photo
-            window.location.reload();
-          } else {
-            throw new Error(data.message || 'Upload failed');
-          }
-        } catch (error) {
-          console.error('Photo upload error:', error);
-          this.announceToScreenReader('Error uploading photo: ' + error.message);
-          this.showErrorToast('Error uploading photo: ' + error.message);
-        } finally {
-          this.photoUploadLoading = false;
-        }
-      },
-
-      validatePhotoFile(file) {
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          this.showErrorToast('File size must be less than 5MB');
-          return false;
-        }
-
-        // Check file type
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-          this.showErrorToast('Only JPEG, PNG, and WebP images are allowed');
-          return false;
-        }
-
-        return true;
-      },
-
-      // Stats Management
-      async refreshStats() {
-        if (this.statsLoading) return;
-
-        this.statsLoading = true;
-        this.announceToScreenReader('Refreshing statistics...');
-
-        try {
-          const response = await fetch('{{ route('profile.stats') }}', {
-            method: 'GET',
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'Accept': 'application/json',
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          // Validate file
+          if (!this.validatePhotoFile(file)) {
+            return;
           }
 
-          const data = await response.json();
+          this.photoUploadLoading = true;
 
-          if (data.success) {
-            this.updateStatsDisplay(data.stats);
-            this.lastUpdated = new Date().toLocaleTimeString();
-            this.announceToScreenReader('Statistics updated successfully');
-          } else {
-            throw new Error(data.message || 'Failed to fetch stats');
-          }
-        } catch (error) {
-          console.warn('Failed to refresh stats:', error);
-          this.showErrorToast('Failed to refresh statistics');
-          this.announceToScreenReader('Failed to refresh statistics');
-        } finally {
-          this.statsLoading = false;
-        }
-      },
+          try {
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
-      updateStatsDisplay(stats) {
-        // Update individual stat elements with smooth transitions
-        const statElements = {
-          'monitored-events': stats.monitored_events,
-          'total-alerts': stats.total_alerts,
-          'active-searches': stats.active_searches,
-          'recent-purchases': stats.recent_purchases
-        };
-
-        Object.entries(statElements).forEach(([elementId, value]) => {
-          this.animateStatUpdate(elementId, value);
-        });
-
-        // Update progress rings if available
-        if (stats.profile_completion) {
-          this.updateProgressRing('profile-completion', stats.profile_completion);
-        }
-        if (stats.security_score) {
-          this.updateProgressRing('security-score', stats.security_score);
-        }
-      },
-
-      animateStatUpdate(elementId, newValue) {
-        const element = document.getElementById(elementId + '-title');
-        if (!element) return;
-
-        const currentValue = element.textContent;
-        if (currentValue !== String(newValue)) {
-          // Add animation class
-          element.classList.add('stat-updating');
-
-          setTimeout(() => {
-            element.textContent = newValue;
-            element.classList.remove('stat-updating');
-            element.classList.add('stat-updated');
-
-            setTimeout(() => {
-              element.classList.remove('stat-updated');
-            }, 500);
-          }, 150);
-        }
-      },
-
-      updateProgressRing(ringId, percentage) {
-        const ring = document.querySelector(`#${ringId} circle:last-child`);
-        const text = document.querySelector(`#${ringId} .progress-text`);
-
-        if (ring && text) {
-          const circumference = 2 * Math.PI * 40;
-          const offset = circumference * (1 - percentage / 100);
-          ring.style.strokeDashoffset = offset;
-          text.textContent = percentage + '%';
-        }
-      },
-
-      // Auto-refresh functionality
-      startAutoRefresh() {
-        // Refresh every 5 minutes
-        setInterval(() => {
-          if (!document.hidden) {
-            this.refreshStats();
-          }
-        }, 5 * 60 * 1000);
-      },
-
-      handleVisibilityChange() {
-        document.addEventListener('visibilitychange', () => {
-          if (!document.hidden) {
-            // Refresh stats when user returns to tab
-            setTimeout(() => this.refreshStats(), 1000);
-          }
-        });
-      },
-
-      // Intersection Observer for animations
-      setupIntersectionObservers() {
-        if ('IntersectionObserver' in window) {
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
+            const response = await fetch('{{ route('profile.photo.upload') }}', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
               }
             });
-          }, {
-            threshold: 0.1
+
+            const data = await response.json();
+
+            if (data.success) {
+              this.announceToScreenReader('Profile photo updated successfully');
+              // Reload page to show new photo
+              window.location.reload();
+            } else {
+              throw new Error(data.message || 'Upload failed');
+            }
+          } catch (error) {
+            console.error('Photo upload error:', error);
+            this.announceToScreenReader('Error uploading photo: ' + error.message);
+            this.showErrorToast('Error uploading photo: ' + error.message);
+          } finally {
+            this.photoUploadLoading = false;
+          }
+        },
+
+        validatePhotoFile(file) {
+          // Check file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            this.showErrorToast('File size must be less than 5MB');
+            return false;
+          }
+
+          // Check file type
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+          if (!allowedTypes.includes(file.type)) {
+            this.showErrorToast('Only JPEG, PNG, and WebP images are allowed');
+            return false;
+          }
+
+          return true;
+        },
+
+        // Stats Management
+        async refreshStats() {
+          if (this.statsLoading) return;
+
+          this.statsLoading = true;
+          this.announceToScreenReader('Refreshing statistics...');
+
+          try {
+            const response = await fetch('{{ route('profile.stats') }}', {
+              method: 'GET',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+              }
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+              this.updateStatsDisplay(data.stats);
+              this.lastUpdated = new Date().toLocaleTimeString();
+              this.announceToScreenReader('Statistics updated successfully');
+            } else {
+              throw new Error(data.message || 'Failed to fetch stats');
+            }
+          } catch (error) {
+            console.warn('Failed to refresh stats:', error);
+            this.showErrorToast('Failed to refresh statistics');
+            this.announceToScreenReader('Failed to refresh statistics');
+          } finally {
+            this.statsLoading = false;
+          }
+        },
+
+        updateStatsDisplay(stats) {
+          // Update individual stat elements with smooth transitions
+          const statElements = {
+            'monitored-events': stats.monitored_events,
+            'total-alerts': stats.total_alerts,
+            'active-searches': stats.active_searches,
+            'recent-purchases': stats.recent_purchases
+          };
+
+          Object.entries(statElements).forEach(([elementId, value]) => {
+            this.animateStatUpdate(elementId, value);
           });
 
-          // Observe enhanced features
-          document.querySelectorAll('.enhanced-feature').forEach(el => {
-            observer.observe(el);
+          // Update progress rings if available
+          if (stats.profile_completion) {
+            this.updateProgressRing('profile-completion', stats.profile_completion);
+          }
+          if (stats.security_score) {
+            this.updateProgressRing('security-score', stats.security_score);
+          }
+        },
+
+        animateStatUpdate(elementId, newValue) {
+          const element = document.getElementById(elementId + '-title');
+          if (!element) return;
+
+          const currentValue = element.textContent;
+          if (currentValue !== String(newValue)) {
+            // Add animation class
+            element.classList.add('stat-updating');
+
+            setTimeout(() => {
+              element.textContent = newValue;
+              element.classList.remove('stat-updating');
+              element.classList.add('stat-updated');
+
+              setTimeout(() => {
+                element.classList.remove('stat-updated');
+              }, 500);
+            }, 150);
+          }
+        },
+
+        updateProgressRing(ringId, percentage) {
+          const ring = document.querySelector(`#${ringId} circle:last-child`);
+          const text = document.querySelector(`#${ringId} .progress-text`);
+
+          if (ring && text) {
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference * (1 - percentage / 100);
+            ring.style.strokeDashoffset = offset;
+            text.textContent = percentage + '%';
+          }
+        },
+
+        // Auto-refresh functionality
+        startAutoRefresh() {
+          // Refresh every 5 minutes
+          setInterval(() => {
+            if (!document.hidden) {
+              this.refreshStats();
+            }
+          }, 5 * 60 * 1000);
+        },
+
+        handleVisibilityChange() {
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+              // Refresh stats when user returns to tab
+              setTimeout(() => this.refreshStats(), 1000);
+            }
           });
-        } else {
-          // Fallback for older browsers
-          document.querySelectorAll('.enhanced-feature').forEach(el => {
-            el.classList.add('visible');
-          });
-        }
-      },
+        },
 
-      // Accessibility helpers
-      announceToScreenReader(message) {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'sr-only';
-        announcement.textContent = message;
+        // Intersection Observer for animations
+        setupIntersectionObservers() {
+          if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('visible');
+                }
+              });
+            }, {
+              threshold: 0.1
+            });
 
-        document.body.appendChild(announcement);
+            // Observe enhanced features
+            document.querySelectorAll('.enhanced-feature').forEach(el => {
+              observer.observe(el);
+            });
+          } else {
+            // Fallback for older browsers
+            document.querySelectorAll('.enhanced-feature').forEach(el => {
+              el.classList.add('visible');
+            });
+          }
+        },
 
-        setTimeout(() => {
-          document.body.removeChild(announcement);
-        }, 1000);
-      },
+        // Accessibility helpers
+        announceToScreenReader(message) {
+          const announcement = document.createElement('div');
+          announcement.setAttribute('aria-live', 'polite');
+          announcement.setAttribute('aria-atomic', 'true');
+          announcement.className = 'sr-only';
+          announcement.textContent = message;
 
-      showErrorToast(message) {
-        // Create toast notification
-        const toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-white bg-danger border-0 position-fixed';
-        toast.style.cssText = 'top: 20px; right: 20px; z-index: 1060;';
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
+          document.body.appendChild(announcement);
 
-        toast.innerHTML = `
+          setTimeout(() => {
+            document.body.removeChild(announcement);
+          }, 1000);
+        },
+
+        showErrorToast(message) {
+          // Create toast notification
+          const toast = document.createElement('div');
+          toast.className = 'toast align-items-center text-white bg-danger border-0 position-fixed';
+          toast.style.cssText = 'top: 20px; right: 20px; z-index: 1060;';
+          toast.setAttribute('role', 'alert');
+          toast.setAttribute('aria-live', 'assertive');
+          toast.setAttribute('aria-atomic', 'true');
+
+          toast.innerHTML = `
             <div class="d-flex">
               <div class="toast-body">${message}</div>
               <button type="button" class="btn-close btn-close-white me-2 m-auto" 
@@ -1347,44 +1340,44 @@ margin-bottom: 0.25rem;
             </div>
           `;
 
-        document.body.appendChild(toast);
+          document.body.appendChild(toast);
 
-        // Show toast using Bootstrap
-        if (window.bootstrap) {
-          const bsToast = new bootstrap.Toast(toast);
-          bsToast.show();
+          // Show toast using Bootstrap
+          if (window.bootstrap) {
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
 
-          toast.addEventListener('hidden.bs.toast', () => {
-            document.body.removeChild(toast);
-          });
-        } else {
-          // Fallback without Bootstrap
-          toast.style.display = 'block';
-          setTimeout(() => {
-            toast.style.opacity = '0';
+            toast.addEventListener('hidden.bs.toast', () => {
+              document.body.removeChild(toast);
+            });
+          } else {
+            // Fallback without Bootstrap
+            toast.style.display = 'block';
             setTimeout(() => {
-              if (document.body.contains(toast)) {
-                document.body.removeChild(toast);
-              }
-            }, 300);
-          }, 5000);
-        }
-      },
+              toast.style.opacity = '0';
+              setTimeout(() => {
+                if (document.body.contains(toast)) {
+                  document.body.removeChild(toast);
+                }
+              }, 300);
+            }, 5000);
+          }
+        },
 
-      // Event handlers for stat cards
-      handleStatClick(type) {
-        // You can implement detailed views here
-        console.log('Stat clicked:', type);
-        this.announceToScreenReader(`Viewing ${type} details`);
+        // Event handlers for stat cards
+        handleStatClick(type) {
+          // You can implement detailed views here
+          console.log('Stat clicked:', type);
+          this.announceToScreenReader(`Viewing ${type} details`);
+        }
       }
     }
-  }
 
-  // Global event listeners
-  document.addEventListener('DOMContentLoaded', function() {
-    // Add CSS classes for stat animations
-    const style = document.createElement('style');
-    style.textContent = `
+    // Global event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add CSS classes for stat animations
+      const style = document.createElement('style');
+      style.textContent = `
         .stat-updating {
           transform: scale(1.1);
           transition: transform 0.15s ease;
@@ -1404,16 +1397,16 @@ margin-bottom: 0.25rem;
           }
         }
       `;
-    document.head.appendChild(style);
-  });
-
-  // Service worker registration for offline support (optional)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Service worker registration failed - this is optional
-      });
+      document.head.appendChild(style);
     });
-  }
-</script>
+
+    // Service worker registration for offline support (optional)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Service worker registration failed - this is optional
+        });
+      });
+    }
+  </script>
 @endpush
