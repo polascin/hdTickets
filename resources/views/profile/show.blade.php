@@ -47,17 +47,98 @@
       border-left-color: #3b82f6;
     }
 
+    /* Skeleton Loading Animation */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .skeleton-text {
+      height: 1rem;
+      border-radius: 4px;
+    }
+
+    .skeleton-title {
+      height: 1.5rem;
+      border-radius: 4px;
+    }
+
+    .skeleton-circle {
+      border-radius: 50%;
+    }
+
+    .skeleton-card {
+      height: 120px;
+      border-radius: 8px;
+    }
+
+    /* Lazy Loading States */
+    .lazy-section {
+      min-height: 200px;
+      transition: opacity 0.3s ease;
+    }
+
+    .lazy-section.loading {
+      opacity: 0.7;
+    }
+
+    .lazy-section.loaded {
+      opacity: 1;
+    }
+
+    /* Progressive Enhancement */
+    .enhanced-feature {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .enhanced-feature.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     .progress-ring {
-      transition: stroke-dashoffset 0.5s ease;
+      transition: stroke-dashoffset 1s ease-in-out;
     }
 
     .recommendation-card {
       border-left: 4px solid #fbbf24;
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      transition: all 0.3s ease;
+    }
+
+    .recommendation-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.15);
     }
 
     .profile-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23pattern)"/></svg>');
+      pointer-events: none;
     }
 
     .profile-avatar {
@@ -66,6 +147,13 @@
       border-radius: 50%;
       border: 4px solid rgba(255, 255, 255, 0.2);
       object-fit: cover;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .profile-avatar:hover {
+      transform: scale(1.05);
+      border-color: rgba(255, 255, 255, 0.4);
     }
 
     .profile-initials {
@@ -80,8 +168,16 @@
       font-weight: bold;
       color: white;
       border: 4px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
 
+    .profile-initials:hover {
+      transform: scale(1.05);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Enhanced responsive design */
     @media (max-width: 768px) {
       .card-header {
         padding: 1rem !important;
@@ -200,7 +296,7 @@
                   <i class="fas fa-user-check text-primary me-2"></i>
                   Profile Completion
                 </h5>
-                <div class="position-relative d-inline-block mb-3">
+                <div class="position-relative d-inline-block mb-3" id="profile-completion">
                   <svg class="progress-ring" width="100" height="100">
                     <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8" fill="transparent" />
                     <circle cx="50" cy="50" r="40" stroke="#3b82f6" stroke-width="8" fill="transparent"
@@ -209,7 +305,7 @@
                       stroke-linecap="round" transform="rotate(-90 50 50)" />
                   </svg>
                   <div class="position-absolute top-50 start-50 translate-middle">
-                    <span class="h4 fw-bold text-primary">{{ $profileCompletion['percentage'] }}%</span>
+                    <span class="h4 fw-bold text-primary progress-text">{{ $profileCompletion['percentage'] }}%</span>
                   </div>
                 </div>
                 <p class="text-muted mb-2">
@@ -232,7 +328,7 @@
                 @php
                   $securityScore = isset($profileInsights['security_score']) ? $profileInsights['security_score'] : 50;
                 @endphp
-                <div class="position-relative d-inline-block mb-3">
+                <div class="position-relative d-inline-block mb-3" id="security-score">
                   <svg class="progress-ring" width="100" height="100">
                     <circle cx="50" cy="50" r="40" stroke="#e9ecef" stroke-width="8"
                       fill="transparent" />
@@ -242,7 +338,7 @@
                       transform="rotate(-90 50 50)" />
                   </svg>
                   <div class="position-absolute top-50 start-50 translate-middle">
-                    <span class="h4 fw-bold text-success">{{ $securityScore }}</span>
+                    <span class="h4 fw-bold text-success progress-text">{{ $securityScore }}</span>
                   </div>
                 </div>
                 <p class="text-muted mb-2">Account Security Level</p>
@@ -273,7 +369,7 @@
               <div class="col-md-3 col-6 mb-3">
                 <div class="stats-card bg-light rounded p-3">
                   <i class="fas fa-bell text-warning mb-2 fs-4"></i>
-                  <h4 class="fw-bold text-primary mb-1">
+                  <h4 class="fw-bold text-primary mb-1" id="monitored-events">
                     {{ isset($userStats['monitored_events']) ? $userStats['monitored_events'] : 0 }}
                   </h4>
                   <small class="text-muted">Active Alerts</small>
@@ -282,7 +378,7 @@
               <div class="col-md-3 col-6 mb-3">
                 <div class="stats-card bg-light rounded p-3">
                   <i class="fas fa-chart-line text-success mb-2 fs-4"></i>
-                  <h4 class="fw-bold text-primary mb-1">
+                  <h4 class="fw-bold text-primary mb-1" id="total-alerts">
                     {{ isset($userStats['total_alerts']) ? $userStats['total_alerts'] : 0 }}</h4>
                   <small class="text-muted">Total Alerts</small>
                 </div>
@@ -290,7 +386,7 @@
               <div class="col-md-3 col-6 mb-3">
                 <div class="stats-card bg-light rounded p-3">
                   <i class="fas fa-search text-info mb-2 fs-4"></i>
-                  <h4 class="fw-bold text-primary mb-1">
+                  <h4 class="fw-bold text-primary mb-1" id="active-searches">
                     {{ isset($userStats['active_searches']) ? $userStats['active_searches'] : 0 }}</h4>
                   <small class="text-muted">Active Searches</small>
                 </div>
@@ -298,11 +394,16 @@
               <div class="col-md-3 col-6 mb-3">
                 <div class="stats-card bg-light rounded p-3">
                   <i class="fas fa-shopping-cart text-success mb-2 fs-4"></i>
-                  <h4 class="fw-bold text-primary mb-1">
+                  <h4 class="fw-bold text-primary mb-1" id="recent-purchases">
                     {{ isset($userStats['recent_purchases']) ? $userStats['recent_purchases'] : 0 }}
                   </h4>
                   <small class="text-muted">Recent Purchases</small>
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 text-center">
+                <small class="text-muted stats-updated">Last updated: {{ now()->format('g:i A') }}</small>
               </div>
             </div>
           </div>
@@ -622,17 +723,89 @@
         console.log('Main container sized properly');
       }
 
+      // Enhanced statistics update functionality
+      function updateProfileStats() {
+        fetch('{{ route('profile.stats') }}', {
+            method: 'GET',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+          })
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              console.log('Stats updated:', data.stats);
+
+              // Update displayed statistics
+              const stats = data.stats;
+              updateStatElement('monitored-events', stats.monitored_events);
+              updateStatElement('total-alerts', stats.total_alerts);
+              updateStatElement('login-count', stats.login_count);
+              updateStatElement('last-login', stats.last_login_display);
+
+              // Update progress indicators if they exist
+              if (stats.profile_completion) {
+                updateProgressRing('profile-completion', stats.profile_completion);
+              }
+              if (stats.security_score) {
+                updateProgressRing('security-score', stats.security_score);
+              }
+
+              // Update timestamp
+              document.querySelectorAll('.stats-updated').forEach(el => {
+                el.textContent = 'Updated ' + new Date().toLocaleTimeString();
+              });
+            }
+          })
+          .catch(error => {
+            console.warn('Failed to update stats:', error);
+          });
+      }
+
+      // Helper function to update stat elements
+      function updateStatElement(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          const currentValue = element.textContent;
+          if (currentValue !== String(value)) {
+            element.style.transform = 'scale(1.1)';
+            element.textContent = value;
+            setTimeout(() => {
+              element.style.transform = 'scale(1)';
+            }, 200);
+          }
+        }
+      }
+
+      // Helper function to update progress rings
+      function updateProgressRing(ringId, percentage) {
+        const ring = document.querySelector(`#${ringId} circle:last-child`);
+        const text = document.querySelector(`#${ringId} .progress-text`);
+        if (ring && text) {
+          const circumference = 2 * Math.PI * 40;
+          const offset = circumference * (1 - percentage / 100);
+          ring.style.strokeDashoffset = offset;
+          text.textContent = percentage + '%';
+        }
+      }
+
       // Check for any layout issues
       const cards = document.querySelectorAll('.card');
       console.log('Found', cards.length, 'cards on page');
 
-      // Initialize progress rings
+      // Initialize progress rings with enhanced animation
       const progressRings = document.querySelectorAll('.progress-ring circle:last-child');
       progressRings.forEach((ring, index) => {
         try {
           const circumference = 2 * Math.PI * 40;
           ring.style.strokeDasharray = circumference;
           ring.style.strokeDashoffset = circumference;
+          ring.style.transition = 'stroke-dashoffset 1s ease-in-out';
 
           // Animate with delay
           setTimeout(() => {
@@ -645,6 +818,16 @@
         }
       });
 
+      // Auto-update stats every 5 minutes
+      setInterval(updateProfileStats, 5 * 60 * 1000);
+
+      // Update on page visibility change (when user returns to tab)
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          setTimeout(updateProfileStats, 1000);
+        }
+      });
+
       // Force layout recalculation
       setTimeout(() => {
         document.body.style.display = 'block';
@@ -652,7 +835,43 @@
         console.log('Layout recalculated');
       }, 100);
 
-      console.log('Profile page initialization complete');
+      console.log('Enhanced profile page initialization complete');
     });
+
+    // Profile photo upload enhancement
+    function initializePhotoUpload() {
+      const photoUpload = document.querySelector('input[type="file"][name="photo"]');
+      if (photoUpload) {
+        photoUpload.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const preview = document.querySelector('.profile-avatar, .profile-initials');
+              if (preview) {
+                if (preview.tagName === 'IMG') {
+                  preview.src = e.target.result;
+                } else {
+                  // Replace initials div with image
+                  const img = document.createElement('img');
+                  img.src = e.target.result;
+                  img.className = 'profile-avatar';
+                  img.alt = 'Profile Picture';
+                  preview.parentNode.replaceChild(img, preview);
+                }
+              }
+            };
+            reader.readAsDataURL(file);
+
+            // Auto-upload if desired
+            // uploadProfilePhoto(file);
+          }
+        });
+      }
+    }
+
+    // Initialize enhanced features when DOM is ready
+    document.addEventListener('DOMContentLoaded', initializePhotoUpload);
   </script>
 @endpush

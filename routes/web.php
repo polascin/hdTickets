@@ -268,6 +268,10 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/security', [ProfileController::class, 'security'])->name('profile.security');
     Route::get('/profile/stats', [ProfileController::class, 'stats'])->name('profile.stats');
+    Route::get('/profile/analytics', [ProfileController::class, 'analytics'])->name('profile.analytics');
+    Route::get('/profile/analytics/data', [ProfileController::class, 'getAnalyticsData'])->name('profile.analytics.data');
+    Route::get('/profile/security/advanced', [ProfileController::class, 'advancedSecurity'])->name('profile.security.advanced');
+    Route::post('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences.update');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto'])->name('profile.photo.upload');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

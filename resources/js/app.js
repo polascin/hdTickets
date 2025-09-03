@@ -6,6 +6,7 @@ window.Alpine = Alpine;
 
 // Alpine components
 import './components/charts';
+import './components/navigation';
 import './components/notification-system';
 import './components/real-time-stats';
 import './components/theme-switcher';

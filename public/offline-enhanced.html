@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD Tickets - Offline</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .offline-container {
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            padding: 2rem;
+        }
+        
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+        
+        .offline-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+        
+        .offline-message {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .retry-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .retry-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .cached-features {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .feature-icon {
+            margin-right: 10px;
+            width: 20px;
+        }
+        
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .online {
+            background: rgba(34, 197, 94, 0.9);
+        }
+        
+        .offline-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="statusIndicator">
+        <i class="fas fa-wifi"></i> <span id="statusText">Offline</span>
+    </div>
+
+    <div class="offline-container">
+        <div class="offline-icon offline-pulse">
+            <i class="fas fa-cloud-slash"></i>
+        </div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        
+        <p class="offline-message">
+            Don't worry! HD Tickets works offline too. While you're disconnected, 
+            you can still access cached content and your data will sync when you're back online.
+        </p>
+        
+        <a href="#" class="retry-btn" onclick="window.location.reload()">
+            <i class="fas fa-sync-alt me-2"></i>
+            Try Again
+        </a>
+        
+        <div class="cached-features">
+            <h5 class="mb-3">Available Offline Features:</h5>
+            
+            <div class="feature-item" onclick="goToProfile()">
+                <i class="fas fa-user feature-icon"></i>
+                View Cached Profile Data
+            </div>
+            
+            <div class="feature-item" onclick="goToDashboard()">
+                <i class="fas fa-chart-bar feature-icon"></i>
+                Access Dashboard (Limited)
+            </div>
+            
+            <div class="feature-item" onclick="viewCachedStats()">
+                <i class="fas fa-chart-line feature-icon"></i>
+                View Cached Statistics
+            </div>
+            
+            <div class="feature-item" onclick="showSettings()">
+                <i class="fas fa-cog feature-icon"></i>
+                App Settings
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateOnlineStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (navigator.onLine) {
+                statusIndicator.className = 'status-indicator online';
+                statusText.textContent = 'Online';
+                // Auto-reload when back online
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusIndicator.className = 'status-indicator';
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Initial status check
+        updateOnlineStatus();
+
+        // Offline feature functions
+        function goToProfile() {
+            // Try to load cached profile data
+            if ('caches' in window) {
+                caches.match('/profile/stats').then(response => {
+                    if (response) {
+                        window.location.href = '/profile';
+                    } else {
+                        showNotAvailableMessage();
+                    }
+                }).catch(() => {
+                    showNotAvailableMessage();
+                });
+            } else {
+                showNotAvailableMessage();
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = '/dashboard';
+        }
+
+        function viewCachedStats() {
+            if ('caches' in window) {
+                caches.match('/profile/analytics/data').then(response => {
+                    if (response) {
+                        response.json().then(data => {
+                            showCachedData(data);
+                        });
+                    } else {
+                        showNotAvailableMessage();
+                    }
+                }).catch(() => {
+                    showNotAvailableMessage();
+                });
+            } else {
+                showNotAvailableMessage();
+            }
+        }
+
+        function showSettings() {
+            alert('Settings: PWA Version 1.2.0\nOffline Mode Active\nCache Status: Available');
+        }
+
+        function showNotAvailableMessage() {
+            alert('This feature is not available offline. Please connect to the internet and try again.');
+        }
+
+        function showCachedData(data) {
+            const info = `Cached Statistics:\n\nLast Updated: ${data.timestamp || 'Unknown'}\nProfile Completion: ${data.profile_completion || 'Unknown'}%\nSecurity Score: ${data.security_score || 'Unknown'}`;
+            alert(info);
+        }
+
+        // Service Worker registration status
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(registration => {
+                if (registration) {
+                    console.log('Service Worker is active:', registration);
+                } else {
+                    console.log('No Service Worker found');
+                }
+            });
+        }
+
+        // Background sync when back online
+        window.addEventListener('online', function() {
+            if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+                navigator.serviceWorker.ready.then(function(registration) {
+                    return registration.sync.register('background-sync');
+                }).catch(function(error) {
+                    console.log('Background sync registration failed:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

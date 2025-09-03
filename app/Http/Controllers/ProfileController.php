@@ -91,46 +91,218 @@ class ProfileController extends Controller
     }
 
     /**
-     * Get current user statistics for AJAX updates
+     * Get current user statistics for AJAX updates with enhanced performance and caching
      */
     public function stats(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = $request->user();
-        
-        $userStats = [
-            'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
-            'total_alerts'     => $user->ticketAlerts()->count(),
-            'active_searches'  => $user->ticketAlerts()->where('status', 'active')->where('created_at', '>=', now()->subMonth())->count(),
-            'recent_purchases' => 0, // Placeholder for purchase history when implemented
-            'login_count'      => $user->login_count ?? 0,
-            'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-        ];
+        try {
+            $user = $request->user();
+            
+            // Cache key for user statistics
+            $cacheKey = "user_stats_{$user->id}";
+            
+            $userStats = \Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
+                return [
+                    'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
+                    'total_alerts'     => $user->ticketAlerts()->count(),
+                    'active_searches'  => $user->ticketAlerts()
+                        ->where('status', 'active')
+                        ->where('created_at', '>=', now()->subMonth())
+                        ->count(),
+                    'recent_purchases' => 0, // Placeholder for purchase history when implemented
+                    'login_count'      => $user->login_count ?? 0,
+                    'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+                    'profile_completion' => $user->getProfileCompletion()['percentage'],
+                    'security_score' => $this->calculateSecurityScore($user),
+                    'account_age_days' => $user->created_at->diffInDays(now()),
+                ];
+            });
 
-        return response()->json([
-            'success' => true,
-            'stats' => $userStats,
-            'updated_at' => now()->toISOString()
-        ]);
+            return response()->json([
+                'success' => true,
+                'stats' => $userStats,
+                'updated_at' => now()->toISOString(),
+                'cached' => true
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Profile stats error: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id,
+                'error' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to load statistics. Please try again.',
+                'error' => app()->isProduction() ? 'Server error' : $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Display the user's profile form.
      */
-    /**
-     * Edit
-     */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        try {
+            $user = $request->user();
+            $profileCompletion = $user->getProfileCompletion();
+            
+            // Available timezones for selection
+            $timezones = collect(\DateTimeZone::listIdentifiers())
+                ->mapWithKeys(function ($timezone) {
+                    return [$timezone => $timezone];
+                })
+                ->toArray();
+            
+            // Available languages
+            $languages = [
+                'en' => 'English',
+                'es' => 'Spanish',
+                'fr' => 'French',
+                'de' => 'German',
+                'it' => 'Italian',
+                'pt' => 'Portuguese',
+                'nl' => 'Dutch',
+                'pl' => 'Polish',
+                'cs' => 'Czech',
+                'sk' => 'Slovak',
+            ];
+            
+            return view('profile.edit', compact(
+                'user',
+                'profileCompletion',
+                'timezones',
+                'languages'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Profile edit page error: ' . $e->getMessage());
+            return redirect()->route('profile.show')
+                ->with('error', 'Unable to load profile edit page. Please try again.');
+        }
+    }
+
+    /**
+     * Show profile analytics dashboard
+     */
+    public function analytics(Request $request): \Illuminate\Contracts\View\View
+    {
+        try {
+            $user = $request->user();
+            
+            $analyticsService = new \App\Services\ProfileAnalyticsService();
+            $analytics = $analyticsService->getAnalytics($user);
+            
+            return view('profile.analytics', compact('user', 'analytics'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Profile analytics error: ' . $e->getMessage());
+            return redirect()->route('profile.show')
+                ->with('error', 'Unable to load analytics. Please try again.');
+        }
+    }
+
+    /**
+     * Show advanced security dashboard
+     */
+    public function advancedSecurity(Request $request): \Illuminate\Contracts\View\View
+    {
+        try {
+            $user = $request->user();
+            
+            $securityService = new \App\Services\AdvancedSecurityService();
+            $securityData = $securityService->getSecurityDashboard($user);
+            
+            return view('profile.advanced-security', compact('user', 'securityData'));
+            
+        } catch (\Exception $e) {
+            \Log::error('Advanced security dashboard error: ' . $e->getMessage());
+            return redirect()->route('profile.security')
+                ->with('error', 'Unable to load security dashboard. Please try again.');
+        }
+    }
+
+    /**
+     * Get real-time analytics data
+     */
+    public function getAnalyticsData(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $user = $request->user();
+            
+            $analyticsService = new \App\Services\ProfileAnalyticsService();
+            $analytics = $analyticsService->getAnalytics($user);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $analytics,
+                'timestamp' => now()->toISOString(),
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Analytics API error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to fetch analytics data.'
+            ], 500);
+        }
+    }
+    public function updatePreferences(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'theme' => 'nullable|in:light,dark,auto',
+                'notifications_email' => 'boolean',
+                'notifications_push' => 'boolean',
+                'notifications_sms' => 'boolean',
+                'language' => 'nullable|string|max:5',
+                'timezone' => 'nullable|string|max:100',
+                'currency' => 'nullable|string|max:3',
+                'date_format' => 'nullable|in:Y-m-d,m/d/Y,d/m/Y,d.m.Y',
+                'time_format' => 'nullable|in:24,12',
+            ]);
+
+            $user = $request->user();
+            
+            // Update preferences in user profile
+            $preferences = array_merge($user->preferences ?? [], $validated);
+            
+            $user->update([
+                'preferences' => $preferences,
+                'language' => $validated['language'] ?? $user->language,
+                'timezone' => $validated['timezone'] ?? $user->timezone,
+            ]);
+
+            // Clear user stats cache to reflect changes
+            \Cache::forget("user_stats_{$user->id}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Preferences updated successfully!',
+                'preferences' => $preferences
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Profile preferences update error: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id,
+                'request_data' => $request->all()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to update preferences. Please try again.'
+            ], 500);
+        }
     }
 
     /**
      * Update the user's profile information.
-     */
-    /**
-     * Update
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
