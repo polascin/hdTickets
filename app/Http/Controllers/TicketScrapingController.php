@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 use function count;
+use function in_array;
+use function is_array;
+use function is_string;
+use function strlen;
 
 class TicketScrapingController extends Controller
 {
@@ -36,7 +40,7 @@ class TicketScrapingController extends Controller
                 ->orderBy('scraped_at', 'desc');
 
             // Apply filters with validation
-            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo', 'seetickets', 'ticketek', 'eventim', 'axs', 'gigantic', 'skiddle', 'ticketone', 'stargreen', 'ticketswap', 'livenation'])) {
+            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo', 'seetickets', 'ticketek', 'eventim', 'axs', 'gigantic', 'skiddle', 'ticketone', 'stargreen', 'ticketswap', 'livenation'], TRUE)) {
                 $query->byPlatform($request->platform);
             }
 
@@ -78,32 +82,37 @@ class TicketScrapingController extends Controller
 
             // Expanded allowed sort options with new functionality
             $allowedSorts = [
-                'scraped_at', 'event_date', 'event_date_desc', 'min_price', 'max_price', 
-                'title', 'title_desc', 'platform', 'availability'
+                'scraped_at', 'event_date', 'event_date_desc', 'min_price', 'max_price',
+                'title', 'title_desc', 'platform', 'availability',
             ];
-            
-            if (in_array($sortBy, $allowedSorts)) {
+
+            if (in_array($sortBy, $allowedSorts, TRUE)) {
                 // Handle special sorting cases
                 switch ($sortBy) {
                     case 'min_price':
                     case 'max_price':
                         // Handle price sorting - use COALESCE to handle null values
                         $query->orderByRaw("COALESCE({$sortBy}, 999999) {$sortDir}");
+
                         break;
                     case 'event_date_desc':
                         $query->orderBy('event_date', 'desc');
+
                         break;
                     case 'title_desc':
                         $query->orderBy('title', 'desc');
+
                         break;
                     case 'availability':
                         // Sort by availability (available first)
                         $query->orderByRaw('CASE WHEN is_available = 1 THEN 0 ELSE 1 END')
-                              ->orderBy('scraped_at', 'desc');
+                            ->orderBy('scraped_at', 'desc');
+
                         break;
                     case 'platform':
                         $query->orderBy('platform', 'asc')
-                              ->orderBy('scraped_at', 'desc');
+                            ->orderBy('scraped_at', 'desc');
+
                         break;
                     default:
                         $query->orderBy($sortBy, $sortDir);
@@ -128,7 +137,7 @@ class TicketScrapingController extends Controller
             ];
 
             return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading sports tickets page: ' . $e->getMessage());
 
             // Return with error state
@@ -139,49 +148,6 @@ class TicketScrapingController extends Controller
             return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'))
                 ->with('error', 'Unable to load sports event tickets at this time. Please try again later or contact support if the problem persists.');
         }
-    }
-
-    /**
-     * Generate statistics with error handling
-     */
-    private function generateStats(): array
-    {
-        try {
-            return [
-                'total_tickets'       => ScrapedTicket::count(),
-                'available_tickets'   => ScrapedTicket::available()->count(),
-                'high_demand_tickets' => ScrapedTicket::highDemand()->count(),
-                'active_alerts'       => TicketAlert::active()->forUser(Auth::id())->count(),
-                'recent_matches'      => TicketAlert::forUser(Auth::id())->sum('matches_found'),
-                'platforms'           => ScrapedTicket::distinct('platform')->count('platform'),
-                'avg_price'           => round((float) (ScrapedTicket::available()->avg('min_price') ?? 0), 2),
-                'price_range'         => [
-                    'min' => ScrapedTicket::available()->min('min_price') ?? 0,
-                    'max' => ScrapedTicket::available()->max('max_price') ?? 0,
-                ],
-            ];
-        } catch (\Exception $e) {
-            Log::error('Error generating stats: ' . $e->getMessage());
-
-            return $this->getDefaultStats();
-        }
-    }
-
-    /**
-     * Get default stats when database error occurs
-     */
-    private function getDefaultStats(): array
-    {
-        return [
-            'total_tickets'       => 0,
-            'available_tickets'   => 0,
-            'high_demand_tickets' => 0,
-            'active_alerts'       => 0,
-            'recent_matches'      => 0,
-            'platforms'           => 0,
-            'avg_price'           => 0,
-            'price_range'         => ['min' => 0, 'max' => 0],
-        ];
     }
 
     /**
@@ -545,7 +511,7 @@ class TicketScrapingController extends Controller
             ];
 
             return view('tickets.scraping.trending', compact('tickets', 'stats'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error loading trending tickets: ' . $e->getMessage());
 
             if ($request->expectsJson() || $request->ajax()) {
@@ -650,5 +616,48 @@ class TicketScrapingController extends Controller
             'period'  => $period,
             'stats'   => $stats,
         ]);
+    }
+
+    /**
+     * Generate statistics with error handling
+     */
+    private function generateStats(): array
+    {
+        try {
+            return [
+                'total_tickets'       => ScrapedTicket::count(),
+                'available_tickets'   => ScrapedTicket::available()->count(),
+                'high_demand_tickets' => ScrapedTicket::highDemand()->count(),
+                'active_alerts'       => TicketAlert::active()->forUser(Auth::id())->count(),
+                'recent_matches'      => TicketAlert::forUser(Auth::id())->sum('matches_found'),
+                'platforms'           => ScrapedTicket::distinct('platform')->count('platform'),
+                'avg_price'           => round((float) (ScrapedTicket::available()->avg('min_price') ?? 0), 2),
+                'price_range'         => [
+                    'min' => ScrapedTicket::available()->min('min_price') ?? 0,
+                    'max' => ScrapedTicket::available()->max('max_price') ?? 0,
+                ],
+            ];
+        } catch (Exception $e) {
+            Log::error('Error generating stats: ' . $e->getMessage());
+
+            return $this->getDefaultStats();
+        }
+    }
+
+    /**
+     * Get default stats when database error occurs
+     */
+    private function getDefaultStats(): array
+    {
+        return [
+            'total_tickets'       => 0,
+            'available_tickets'   => 0,
+            'high_demand_tickets' => 0,
+            'active_alerts'       => 0,
+            'recent_matches'      => 0,
+            'platforms'           => 0,
+            'avg_price'           => 0,
+            'price_range'         => ['min' => 0, 'max' => 0],
+        ];
     }
 }

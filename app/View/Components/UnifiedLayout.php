@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\View\Components;
 
@@ -9,24 +9,32 @@ use Illuminate\View\Component;
 class UnifiedLayout extends Component
 {
     public string $title;
+
     public string $subtitle;
+
     public bool $showSidebar;
+
     public bool $sidebarCollapsed;
+
     public array $breadcrumbs;
+
     public array $meta;
+
     public $headerActions;
 
     /**
      * Create a new component instance.
+     *
+     * @param mixed|null $headerActions
      */
     public function __construct(
         string $title = 'HD Tickets',
         string $subtitle = '',
-        bool $showSidebar = true,
-        bool $sidebarCollapsed = false,
+        bool $showSidebar = TRUE,
+        bool $sidebarCollapsed = FALSE,
         array $breadcrumbs = [],
         array $meta = [],
-        $headerActions = null
+        $headerActions = NULL,
     ) {
         $this->title = $title;
         $this->subtitle = $subtitle;

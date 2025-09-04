@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
 use function in_array;
+use function is_array;
 use function strlen;
 
 class ApiSecurityMiddleware
@@ -234,7 +235,7 @@ class ApiSecurityMiddleware
     {
         $maxSize = 10 * 1024 * 1024; // 10MB limit
         $contentLength = $request->header('Content-Length', 0);
-        
+
         // Ensure we have a numeric value for comparison
         $contentLengthInt = is_array($contentLength) ? (int) (reset($contentLength) ?: 0) : (int) $contentLength;
 

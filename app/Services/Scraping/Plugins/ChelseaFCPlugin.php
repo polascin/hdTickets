@@ -7,8 +7,104 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+use function sprintf;
+
 class ChelseaFCPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for Chelsea
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Competitions' => [
+                'Premier League',
+                'Champions League',
+                'Europa League',
+                'FA Cup',
+                'Carabao Cup',
+                'London Derby',
+                'Women\'s Super League',
+            ],
+            'Major Opponents' => [
+                'Arsenal',
+                'Tottenham',
+                'Manchester United',
+                'Manchester City',
+                'Liverpool',
+                'West Ham',
+                'Real Madrid',
+                'Barcelona',
+                'Bayern Munich',
+            ],
+            'Ticket Types' => [
+                'General Admission',
+                'Season Tickets',
+                'Hospitality Packages',
+                'VIP Experiences',
+                'Family Tickets',
+                'Disabled Access',
+                'Away Tickets',
+            ],
+            'Teams' => [
+                'First Team',
+                'Women\'s Team',
+                'Academy',
+                'Legends',
+            ],
+        ];
+    }
+
+    /**
+     * Check if plugin supports a specific competition
+     */
+    public function supportsCompetition(string $competition): bool
+    {
+        $supportedCompetitions = [
+            'premier league', 'premier', 'epl',
+            'champions league', 'champions', 'ucl',
+            'europa league', 'europa', 'uel',
+            'fa cup', 'facup', 'the fa cup',
+            'carabao cup', 'league cup', 'efl cup',
+            'london derby', 'derby',
+            'womens super league', 'wsl',
+        ];
+
+        return in_array(strtolower($competition), $supportedCompetitions, TRUE);
+    }
+
+    /**
+     * Check if plugin supports a specific opponent
+     */
+    public function supportsOpponent(string $opponent): bool
+    {
+        // Chelsea plays against all Premier League teams and various European teams
+        $majorOpponents = [
+            'arsenal', 'tottenham', 'spurs', 'manchester united', 'united', 'manchester city', 'city',
+            'liverpool', 'west ham', 'fulham', 'brentford',
+            'real madrid', 'barcelona', 'bayern munich', 'juventus',
+        ];
+
+        return in_array(strtolower($opponent), $majorOpponents, TRUE);
+    }
+
+    /**
+     * Get venue capacity information
+     */
+    public function getVenueInfo(): array
+    {
+        return [
+            'name'     => 'Stamford Bridge',
+            'capacity' => 40834,
+            'location' => 'London, England',
+            'nickname' => 'The Bridge',
+            'opened'   => 1877,
+            'surface'  => 'Grass',
+        ];
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -77,62 +173,43 @@ class ChelseaFCPlugin extends BaseScraperPlugin
     protected function buildSearchUrl(array $criteria): string
     {
         $baseSearchUrl = $this->baseUrl . '/tickets';
-        
+
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['search'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['team'])) {
+        if (! empty($criteria['team'])) {
             $params['team'] = $criteria['team'];
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['to'] = $criteria['date_to'];
         }
 
-        if (!empty($criteria['ticket_type'])) {
+        if (! empty($criteria['ticket_type'])) {
             $params['type'] = $criteria['ticket_type'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
-        if (!empty($params)) {
+        if (! empty($params)) {
             return $baseSearchUrl . '?' . http_build_query($params);
         }
 
         return $baseSearchUrl;
-    }
-
-    /**
-     * Map competition names to Chelsea terms
-     */
-    private function mapCompetition(string $competition): string
-    {
-        $competitions = [
-            'premier_league' => 'Premier League',
-            'champions_league' => 'Champions League',
-            'europa_league' => 'Europa League',
-            'fa_cup' => 'FA Cup',
-            'carabao_cup' => 'Carabao Cup',
-            'league_cup' => 'Carabao Cup',
-            'london_derby' => 'London Derby',
-            'womens_super_league' => 'Women\'s Super League',
-        ];
-
-        return $competitions[strtolower($competition)] ?? $competition;
     }
 
     /**
@@ -141,12 +218,12 @@ class ChelseaFCPlugin extends BaseScraperPlugin
     protected function scrapeTickets(array $criteria): array
     {
         $searchUrl = $this->buildSearchUrl($criteria);
-        
+
         try {
-            Log::info("Chelsea Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("Chelsea Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -154,88 +231,24 @@ class ChelseaFCPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // Chelsea ticket selectors
-            $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("Chelsea Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('Chelsea Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("Chelsea Plugin: Found " . count($tickets) . " tickets");
+            Log::info('Chelsea Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("Chelsea Plugin: Scraping error: " . $e->getMessage());
+            Log::error('Chelsea Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract match information
-            $homeTeam = $this->extractText($node, '.home-team, .chelsea, .blues');
-            $awayTeam = $this->extractText($node, '.away-team, .opponent, .visiting-team');
-            $date = $this->extractText($node, '.match-date, .fixture-date, .kickoff-date');
-            $time = $this->extractText($node, '.match-time, .kickoff-time, .ko-time');
-            $competition = $this->extractText($node, '.competition, .tournament, .comp-name');
-            $priceText = $this->extractText($node, '.price, .cost, .from, .ticket-price');
-            $link = $this->extractAttribute($node, 'a', 'href');
-
-            // Create match title - Chelsea is always home at Stamford Bridge
-            $title = 'Chelsea';
-            if (!empty($awayTeam)) {
-                $title .= ' vs ' . $awayTeam;
-            } else {
-                // Fallback to extract from general title
-                $generalTitle = $this->extractText($node, '.match-title, .fixture-title, h3, h2');
-                if (!empty($generalTitle)) {
-                    $title = $generalTitle;
-                }
-            }
-
-            if (empty($title) || $title === 'Chelsea') {
-                return null;
-            }
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date and time
-            $eventDate = $this->parseDateTime($date, $time);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            return [
-                'title' => $title,
-                'price' => $price['min'],
-                'price_range' => $price,
-                'currency' => $this->currency,
-                'venue' => $this->venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => 'football',
-                'competition' => $competition ?: 'Premier League',
-                'home_team' => 'Chelsea',
-                'away_team' => $awayTeam,
-                'availability' => $this->determineAvailability($node),
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("Chelsea Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -247,72 +260,18 @@ class ChelseaFCPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.fixture-card, .match-card, .ticket-item, .event-card, .game-item')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("Chelsea Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('Chelsea Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
         return $tickets;
-    }
-
-    /**
-     * Parse date and time together
-     */
-    private function parseDateTime(string $date, string $time): ?string
-    {
-        $eventDate = $this->parseDate($date);
-        
-        if ($eventDate && !empty($time)) {
-            $timeFormatted = $this->parseTime($time);
-            if ($timeFormatted) {
-                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
-            }
-        }
-        
-        return $eventDate;
-    }
-
-    /**
-     * Parse time from British text
-     */
-    private function parseTime(string $time): ?string
-    {
-        // Handle British time formats like "15:00", "3:00 PM", "3pm"
-        if (preg_match('/(\d{1,2}):(\d{2})\s*(AM|PM)?/i', $time, $matches)) {
-            $hour = (int)$matches[1];
-            $minute = (int)$matches[2];
-            $period = $matches[3] ?? '';
-            
-            if (strtoupper($period) === 'PM' && $hour !== 12) {
-                $hour += 12;
-            } elseif (strtoupper($period) === 'AM' && $hour === 12) {
-                $hour = 0;
-            }
-            
-            return sprintf('%02d:%02d', $hour, $minute);
-        }
-        
-        // Handle "3pm" format
-        if (preg_match('/(\d{1,2})\s*(AM|PM)/i', $time, $matches)) {
-            $hour = (int)$matches[1];
-            $period = strtoupper($matches[2]);
-            
-            if ($period === 'PM' && $hour !== 12) {
-                $hour += 12;
-            } elseif ($period === 'AM' && $hour === 12) {
-                $hour = 0;
-            }
-            
-            return sprintf('%02d:00', $hour);
-        }
-        
-        return null;
     }
 
     /**
@@ -356,30 +315,168 @@ class ChelseaFCPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Map competition names to Chelsea terms
+     */
+    private function mapCompetition(string $competition): string
+    {
+        $competitions = [
+            'premier_league'      => 'Premier League',
+            'champions_league'    => 'Champions League',
+            'europa_league'       => 'Europa League',
+            'fa_cup'              => 'FA Cup',
+            'carabao_cup'         => 'Carabao Cup',
+            'league_cup'          => 'Carabao Cup',
+            'london_derby'        => 'London Derby',
+            'womens_super_league' => 'Women\'s Super League',
+        ];
+
+        return $competitions[strtolower($competition)] ?? $competition;
+    }
+
+    /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract match information
+            $homeTeam = $this->extractText($node, '.home-team, .chelsea, .blues');
+            $awayTeam = $this->extractText($node, '.away-team, .opponent, .visiting-team');
+            $date = $this->extractText($node, '.match-date, .fixture-date, .kickoff-date');
+            $time = $this->extractText($node, '.match-time, .kickoff-time, .ko-time');
+            $competition = $this->extractText($node, '.competition, .tournament, .comp-name');
+            $priceText = $this->extractText($node, '.price, .cost, .from, .ticket-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Create match title - Chelsea is always home at Stamford Bridge
+            $title = 'Chelsea';
+            if (! empty($awayTeam)) {
+                $title .= ' vs ' . $awayTeam;
+            } else {
+                // Fallback to extract from general title
+                $generalTitle = $this->extractText($node, '.match-title, .fixture-title, h3, h2');
+                if (! empty($generalTitle)) {
+                    $title = $generalTitle;
+                }
+            }
+
+            if (empty($title) || $title === 'Chelsea') {
+                return NULL;
+            }
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date and time
+            $eventDate = $this->parseDateTime($date, $time);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            return [
+                'title'        => $title,
+                'price'        => $price['min'],
+                'price_range'  => $price,
+                'currency'     => $this->currency,
+                'venue'        => $this->venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => 'football',
+                'competition'  => $competition ?: 'Premier League',
+                'home_team'    => 'Chelsea',
+                'away_team'    => $awayTeam,
+                'availability' => $this->determineAvailability($node),
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Chelsea Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
+     * Parse date and time together
+     */
+    private function parseDateTime(string $date, string $time): ?string
+    {
+        $eventDate = $this->parseDate($date);
+
+        if ($eventDate && ! empty($time)) {
+            $timeFormatted = $this->parseTime($time);
+            if ($timeFormatted) {
+                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
+            }
+        }
+
+        return $eventDate;
+    }
+
+    /**
+     * Parse time from British text
+     */
+    private function parseTime(string $time): ?string
+    {
+        // Handle British time formats like "15:00", "3:00 PM", "3pm"
+        if (preg_match('/(\d{1,2}):(\d{2})\s*(AM|PM)?/i', $time, $matches)) {
+            $hour = (int) $matches[1];
+            $minute = (int) $matches[2];
+            $period = $matches[3] ?? '';
+
+            if (strtoupper($period) === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif (strtoupper($period) === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+
+            return sprintf('%02d:%02d', $hour, $minute);
+        }
+
+        // Handle "3pm" format
+        if (preg_match('/(\d{1,2})\s*(AM|PM)/i', $time, $matches)) {
+            $hour = (int) $matches[1];
+            $period = strtoupper($matches[2]);
+
+            if ($period === 'PM' && $hour !== 12) {
+                $hour += 12;
+            } elseif ($period === 'AM' && $hour === 12) {
+                $hour = 0;
+            }
+
+            return sprintf('%02d:00', $hour);
+        }
+
+        return NULL;
+    }
+
+    /**
      * Parse price from British text
      */
     private function parsePrice(string $priceText): array
     {
         if (empty($priceText)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         // Handle British price formats
         $priceText = str_replace(['from ', 'From £', 'from £', '£'], '', strtolower($priceText));
-        
+
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function($price) {
+        $prices = array_map(function ($price) {
             return (float) str_replace(',', '', $price);
         }, $matches[0]);
 
         if (empty($prices)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         return [
             'min' => min($prices),
-            'max' => count($prices) > 1 ? max($prices) : min($prices)
+            'max' => count($prices) > 1 ? max($prices) : min($prices),
         ];
     }
 
@@ -389,7 +486,7 @@ class ChelseaFCPlugin extends BaseScraperPlugin
     private function determineAvailability(Crawler $node): string
     {
         $availabilityText = $this->extractText($node, '.availability, .status, .ticket-status');
-        
+
         if (preg_match('/sold.?out|unavailable|not available/i', $availabilityText)) {
             return 'sold_out';
         }
@@ -402,99 +499,7 @@ class ChelseaFCPlugin extends BaseScraperPlugin
         if (preg_match('/coming soon|not on sale yet/i', $availabilityText)) {
             return 'not_on_sale';
         }
-        
+
         return 'available'; // Default for Chelsea
-    }
-
-    /**
-     * Get search suggestions for Chelsea
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Competitions' => [
-                'Premier League',
-                'Champions League',
-                'Europa League',
-                'FA Cup',
-                'Carabao Cup',
-                'London Derby',
-                'Women\'s Super League'
-            ],
-            'Major Opponents' => [
-                'Arsenal',
-                'Tottenham',
-                'Manchester United',
-                'Manchester City',
-                'Liverpool',
-                'West Ham',
-                'Real Madrid',
-                'Barcelona',
-                'Bayern Munich'
-            ],
-            'Ticket Types' => [
-                'General Admission',
-                'Season Tickets',
-                'Hospitality Packages',
-                'VIP Experiences',
-                'Family Tickets',
-                'Disabled Access',
-                'Away Tickets'
-            ],
-            'Teams' => [
-                'First Team',
-                'Women\'s Team',
-                'Academy',
-                'Legends'
-            ]
-        ];
-    }
-
-    /**
-     * Check if plugin supports a specific competition
-     */
-    public function supportsCompetition(string $competition): bool
-    {
-        $supportedCompetitions = [
-            'premier league', 'premier', 'epl',
-            'champions league', 'champions', 'ucl',
-            'europa league', 'europa', 'uel',
-            'fa cup', 'facup', 'the fa cup',
-            'carabao cup', 'league cup', 'efl cup',
-            'london derby', 'derby',
-            'womens super league', 'wsl'
-        ];
-
-        return in_array(strtolower($competition), $supportedCompetitions);
-    }
-
-    /**
-     * Check if plugin supports a specific opponent
-     */
-    public function supportsOpponent(string $opponent): bool
-    {
-        // Chelsea plays against all Premier League teams and various European teams
-        $majorOpponents = [
-            'arsenal', 'tottenham', 'spurs', 'manchester united', 'united', 'manchester city', 'city',
-            'liverpool', 'west ham', 'fulham', 'brentford',
-            'real madrid', 'barcelona', 'bayern munich', 'juventus'
-        ];
-
-        return in_array(strtolower($opponent), $majorOpponents);
-    }
-
-    /**
-     * Get venue capacity information
-     */
-    public function getVenueInfo(): array
-    {
-        return [
-            'name' => 'Stamford Bridge',
-            'capacity' => 40834,
-            'location' => 'London, England',
-            'nickname' => 'The Bridge',
-            'opened' => 1877,
-            'surface' => 'Grass'
-        ];
     }
 }

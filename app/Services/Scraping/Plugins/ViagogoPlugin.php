@@ -8,8 +8,99 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class ViagogoPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get events by sport
+     */
+    public function getEventsBySport(string $sport, array $criteria = []): array
+    {
+        $sportCategories = [
+            'football'   => 'american-football',
+            'soccer'     => 'football',
+            'basketball' => 'basketball',
+            'baseball'   => 'baseball',
+            'hockey'     => 'ice-hockey',
+            'tennis'     => 'tennis',
+            'golf'       => 'golf',
+            'rugby'      => 'rugby',
+            'cricket'    => 'cricket',
+            'formula1'   => 'motorsports',
+        ];
+
+        $category = $sportCategories[strtolower($sport)] ?? strtolower($sport);
+        $criteria['category'] = $category;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by country
+     */
+    public function getEventsByCountry(string $country, array $criteria = []): array
+    {
+        $criteria['country'] = $country;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get concert events
+     */
+    public function getConcertEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'concerts';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get sports events
+     */
+    public function getSportsEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'sports';
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -69,63 +160,29 @@ class ViagogoPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['q'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['city'])) {
+
+        if (! empty($criteria['city'])) {
             $params['city'] = urlencode($criteria['city']);
         }
-        
-        if (!empty($criteria['country'])) {
+
+        if (! empty($criteria['country'])) {
             $params['country'] = urlencode($criteria['country']);
         }
-        
-        if (!empty($criteria['category'])) {
+
+        if (! empty($criteria['category'])) {
             $params['category'] = urlencode($criteria['category']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['fromDate'] = $criteria['date_range']['start'];
             }
@@ -135,6 +192,7 @@ class ViagogoPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
+
         return $this->baseUrl . '/search?' . $queryString;
     }
 
@@ -147,18 +205,18 @@ class ViagogoPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.event-card, .EventCard, .listing-item, [data-testid="event-card"]')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.event-card, .EventCard, .listing-item, [data-testid="event-card"]')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventCard($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Viagogo event card", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Viagogo event card', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Viagogo search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Viagogo search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -178,7 +236,7 @@ class ViagogoPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             // Parse price
@@ -188,26 +246,27 @@ class ViagogoPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'venue' => trim($venue),
-                'location' => trim($location ?: $venue),
-                'date' => $eventDate,
-                'time' => null, // Extract if available
-                'price' => $price,
-                'currency' => $this->determineCurrency($priceText),
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'event',
+                'title'        => trim($title),
+                'venue'        => trim($venue),
+                'location'     => trim($location ?: $venue),
+                'date'         => $eventDate,
+                'time'         => NULL, // Extract if available
+                'price'        => $price,
+                'currency'     => $this->determineCurrency($priceText),
+                'url'          => $fullUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => 'event',
                 'availability' => 'available',
-                'scraped_at' => now()->toISOString(),
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Viagogo event card", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Viagogo event card', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -217,16 +276,17 @@ class ViagogoPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle multiple currency symbols
         if (preg_match('/(?:[\$£€¥]|USD|GBP|EUR|JPY)\s*(\d+(?:[\.,]\d{2})?)/', $priceText, $matches)) {
             $price = str_replace(',', '', $matches[1]);
-            return (float)$price;
+
+            return (float) $price;
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -234,19 +294,19 @@ class ViagogoPlugin extends BaseScraperPlugin
      */
     protected function determineCurrency(string $priceText): string
     {
-        if (strpos($priceText, '£') !== false || strpos($priceText, 'GBP') !== false) {
+        if (strpos($priceText, '£') !== FALSE || strpos($priceText, 'GBP') !== FALSE) {
             return 'GBP';
         }
-        if (strpos($priceText, '€') !== false || strpos($priceText, 'EUR') !== false) {
+        if (strpos($priceText, '€') !== FALSE || strpos($priceText, 'EUR') !== FALSE) {
             return 'EUR';
         }
-        if (strpos($priceText, '¥') !== false || strpos($priceText, 'JPY') !== false) {
+        if (strpos($priceText, '¥') !== FALSE || strpos($priceText, 'JPY') !== FALSE) {
             return 'JPY';
         }
-        if (strpos($priceText, '$') !== false || strpos($priceText, 'USD') !== false) {
+        if (strpos($priceText, '$') !== FALSE || strpos($priceText, 'USD') !== FALSE) {
             return 'USD';
         }
-        
+
         return $this->currency; // Default to plugin currency
     }
 
@@ -256,16 +316,18 @@ class ViagogoPlugin extends BaseScraperPlugin
     protected function parseDate(string $dateText): ?string
     {
         if (empty($dateText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try common date formats
             $date = Carbon::parse($dateText);
+
             return $date->format('Y-m-d');
         } catch (Exception $e) {
-            Log::debug("Failed to parse Viagogo date", ['date' => $dateText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Viagogo date', ['date' => $dateText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -277,59 +339,8 @@ class ViagogoPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
-    }
-
-    /**
-     * Get events by sport
-     */
-    public function getEventsBySport(string $sport, array $criteria = []): array
-    {
-        $sportCategories = [
-            'football' => 'american-football',
-            'soccer' => 'football',
-            'basketball' => 'basketball',
-            'baseball' => 'baseball',
-            'hockey' => 'ice-hockey',
-            'tennis' => 'tennis',
-            'golf' => 'golf',
-            'rugby' => 'rugby',
-            'cricket' => 'cricket',
-            'formula1' => 'motorsports',
-        ];
-
-        $category = $sportCategories[strtolower($sport)] ?? strtolower($sport);
-        $criteria['category'] = $category;
-        
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by country
-     */
-    public function getEventsByCountry(string $country, array $criteria = []): array
-    {
-        $criteria['country'] = $country;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get concert events
-     */
-    public function getConcertEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'concerts';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get sports events
-     */
-    public function getSportsEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'sports';
-        return $this->scrape($criteria);
     }
 
     // Required abstract methods from BaseScraperPlugin

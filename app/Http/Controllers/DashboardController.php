@@ -8,7 +8,6 @@ use App\Models\TicketAlert;
 use App\Models\User;
 use App\Models\UserPreference;
 use App\Services\PlatformCachingService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -551,11 +550,6 @@ class DashboardController extends Controller
                 'category_id', 'sport', 'team', 'location',
             ]);
     }
-
-
-
-
-
 
     /**
      * Cache warming for frequently accessed data

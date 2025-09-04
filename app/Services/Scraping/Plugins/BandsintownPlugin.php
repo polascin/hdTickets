@@ -8,8 +8,95 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class BandsintownPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get events by artist
+     */
+    public function getEventsByArtist(string $artist, array $criteria = []): array
+    {
+        $criteria['artist'] = $artist;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by venue
+     */
+    public function getEventsByVenue(string $venue, array $criteria = []): array
+    {
+        $criteria['venue'] = $venue;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by location
+     */
+    public function getEventsByLocation(string $location, array $criteria = []): array
+    {
+        $criteria['location'] = $location;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by genre
+     */
+    public function getEventsByGenre(string $genre, array $criteria = []): array
+    {
+        $criteria['genre'] = $genre;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get concert events in a city
+     */
+    public function getConcertsInCity(string $city, array $criteria = []): array
+    {
+        $criteria['city'] = $city;
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -70,73 +157,40 @@ class BandsintownPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $params = [];
-        
-        if (!empty($criteria['artist'])) {
+
+        if (! empty($criteria['artist'])) {
             // Artist-specific search
             $artistSlug = $this->slugify($criteria['artist']);
+
             return $this->baseUrl . '/a/' . $artistSlug;
         }
-        
-        if (!empty($criteria['location'])) {
+
+        if (! empty($criteria['location'])) {
             $params['location'] = urlencode($criteria['location']);
         }
-        
-        if (!empty($criteria['city'])) {
+
+        if (! empty($criteria['city'])) {
             $params['city'] = urlencode($criteria['city']);
         }
-        
-        if (!empty($criteria['venue'])) {
+
+        if (! empty($criteria['venue'])) {
             $params['venue'] = urlencode($criteria['venue']);
         }
-        
-        if (!empty($criteria['genre'])) {
+
+        if (! empty($criteria['genre'])) {
             $params['genre'] = urlencode($criteria['genre']);
         }
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -146,12 +200,12 @@ class BandsintownPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
-        
+
         // Use events search if we have search criteria
-        if (!empty($criteria['location']) || !empty($criteria['city'])) {
+        if (! empty($criteria['location']) || ! empty($criteria['city'])) {
             return $this->baseUrl . '/events?' . $queryString;
         }
-        
+
         return $this->baseUrl . '/search?' . $queryString;
     }
 
@@ -167,31 +221,31 @@ class BandsintownPlugin extends BaseScraperPlugin
             // Try multiple selectors for event items
             $eventSelectors = [
                 '.event-item',
-                '.event-card', 
+                '.event-card',
                 '[data-testid="event-item"]',
                 '.show-item',
-                '.concert-listing'
+                '.concert-listing',
             ];
-            
+
             foreach ($eventSelectors as $selector) {
-                $crawler->filter($selector)->each(function (Crawler $node) use (&$events) {
+                $crawler->filter($selector)->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventItem($node);
                         if ($event) {
                             $events[] = $event;
                         }
                     } catch (Exception $e) {
-                        Log::debug("Failed to parse Bandsintown event item", ['error' => $e->getMessage()]);
+                        Log::debug('Failed to parse Bandsintown event item', ['error' => $e->getMessage()]);
                     }
                 });
-                
+
                 // If we found events with this selector, break
-                if (!empty($events)) {
+                if (! empty($events)) {
                     break;
                 }
             }
         } catch (Exception $e) {
-            Log::warning("Failed to parse Bandsintown search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Bandsintown search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -213,7 +267,7 @@ class BandsintownPlugin extends BaseScraperPlugin
             $imageUrl = $this->extractAttribute($node, '.artist-image img, .event-image img', 'src');
 
             if (empty($artist)) {
-                return null;
+                return NULL;
             }
 
             // Create title from artist name
@@ -227,31 +281,32 @@ class BandsintownPlugin extends BaseScraperPlugin
             $eventTime = $this->parseTime($time);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             // Build full image URL
-            $fullImageUrl = $imageUrl ? $this->buildFullUrl($imageUrl) : null;
+            $fullImageUrl = $imageUrl ? $this->buildFullUrl($imageUrl) : NULL;
 
             return [
-                'title' => trim($title),
-                'artist' => trim($artist),
-                'venue' => trim($venue),
-                'location' => trim($location ?: $venue),
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'price' => $price,
-                'currency' => $this->currency,
-                'url' => $fullUrl,
-                'image_url' => $fullImageUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'concert',
+                'title'        => trim($title),
+                'artist'       => trim($artist),
+                'venue'        => trim($venue),
+                'location'     => trim($location ?: $venue),
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'price'        => $price,
+                'currency'     => $this->currency,
+                'url'          => $fullUrl,
+                'image_url'    => $fullImageUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => 'concert',
                 'availability' => 'available',
-                'scraped_at' => now()->toISOString(),
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Bandsintown event item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Bandsintown event item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -261,7 +316,7 @@ class BandsintownPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Check for free events
@@ -272,10 +327,11 @@ class BandsintownPlugin extends BaseScraperPlugin
         // Extract numeric price
         if (preg_match('/(?:[\$£€¥]|USD|GBP|EUR|JPY)\s*(\d+(?:[\.,]\d{2})?)/', $priceText, $matches)) {
             $price = str_replace(',', '', $matches[1]);
-            return (float)$price;
+
+            return (float) $price;
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -284,16 +340,18 @@ class BandsintownPlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try to parse time
             $time = Carbon::parse($timeText);
+
             return $time->format('H:i');
         } catch (Exception $e) {
-            Log::debug("Failed to parse Bandsintown time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Bandsintown time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -303,16 +361,18 @@ class BandsintownPlugin extends BaseScraperPlugin
     protected function parseDate(string $dateText): ?string
     {
         if (empty($dateText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try common date formats
             $date = Carbon::parse($dateText);
+
             return $date->format('Y-m-d');
         } catch (Exception $e) {
-            Log::debug("Failed to parse Bandsintown date", ['date' => $dateText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Bandsintown date', ['date' => $dateText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -332,53 +392,8 @@ class BandsintownPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
-    }
-
-    /**
-     * Get events by artist
-     */
-    public function getEventsByArtist(string $artist, array $criteria = []): array
-    {
-        $criteria['artist'] = $artist;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by venue
-     */
-    public function getEventsByVenue(string $venue, array $criteria = []): array
-    {
-        $criteria['venue'] = $venue;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by location
-     */
-    public function getEventsByLocation(string $location, array $criteria = []): array
-    {
-        $criteria['location'] = $location;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by genre
-     */
-    public function getEventsByGenre(string $genre, array $criteria = []): array
-    {
-        $criteria['genre'] = $genre;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get concert events in a city
-     */
-    public function getConcertsInCity(string $city, array $criteria = []): array
-    {
-        $criteria['city'] = $city;
-        return $this->scrape($criteria);
     }
 
     // Required abstract methods from BaseScraperPlugin

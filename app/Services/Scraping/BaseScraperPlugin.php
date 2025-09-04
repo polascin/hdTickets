@@ -6,6 +6,7 @@ use App\Services\Scraping\Traits\AntiDetectionTrait;
 use App\Services\Scraping\Traits\CurrencyHandlingTrait;
 use App\Services\Scraping\Traits\MultiLanguageTrait;
 use App\Services\Scraping\Traits\RateLimitingTrait;
+use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -502,20 +503,21 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     protected function parseDate(string $dateText): ?string
     {
         if (empty($dateText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try to parse the date
-            $date = \DateTime::createFromFormat('Y-m-d H:i:s', $dateText);
-            if ($date === false) {
-                $date = new \DateTime($dateText);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $dateText);
+            if ($date === FALSE) {
+                $date = new DateTime($dateText);
             }
-            
+
             return $date->format('Y-m-d H:i:s');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning("Failed to parse date: {$dateText}", ['error' => $e->getMessage()]);
-            return null;
+
+            return NULL;
         }
     }
 

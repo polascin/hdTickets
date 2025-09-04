@@ -1,7 +1,7 @@
 {
-  "name": "HD Tickets - Sports Event Ticket Monitor",
+  "name": "HD Tickets - Professional Sports Ticket Monitoring Platform",
   "short_name": "HD Tickets",
-  "description": "Comprehensive Sport Events Entry Tickets Monitoring, Scraping and Purchase System",
+  "description": "Professional sports event ticket monitoring platform with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e40af",
@@ -58,7 +58,7 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["sports", "entertainment", "productivity"],
+  "categories": ["sports", "productivity", "business", "finance"],
   "screenshots": [
     {
       "src": "/assets/images/pwa/screenshot-mobile.png",
@@ -72,7 +72,14 @@
     }
   ],
   "features": [
-    "real-time ticket monitoring",
+    "professional ticket monitoring",
+    "subscription-based access",
+    "role-based permissions",
+    "2FA security",
+    "GDPR compliance",
+    "automated purchasing",
+    "real-time price alerts",
+    "50+ platform integration",
     "push notifications",
     "offline access",
     "background sync"
@@ -92,49 +99,37 @@
       ]
     },
     {
-      "name": "Admin Scraping",
-      "short_name": "Admin",
-      "description": "Advanced scraping management",
-      "url": "/admin/scraping",
+      "name": "Subscription",
+      "short_name": "Subscription",
+      "description": "Manage your subscription plan",
+      "url": "/subscription",
       "icons": [
         {
-          "src": "/assets/images/pwa/shortcut-admin.png",
+          "src": "/assets/images/pwa/shortcut-subscription.png",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Ticket Alerts",
-      "short_name": "Alerts",
-      "description": "View ticket alerts",
-      "url": "/tickets/alerts",
+      "name": "Profile Settings",
+      "short_name": "Profile",
+      "description": "Manage account and security settings",
+      "url": "/profile",
       "icons": [
         {
-          "src": "/assets/images/pwa/shortcut-alerts.png",
+          "src": "/assets/images/pwa/shortcut-profile.png",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Scraping Monitor",
+      "name": "Ticket Monitoring",
       "short_name": "Monitor",
-      "description": "Monitor ticket scraping",
-      "url": "/tickets/scraping",
+      "description": "Monitor sports ticket availability",
+      "url": "/monitoring",
       "icons": [
         {
           "src": "/assets/images/pwa/shortcut-monitor.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "PWA Features",
-      "short_name": "PWA",
-      "description": "Test PWA capabilities",
-      "url": "/admin/scraping?pwa=true",
-      "icons": [
-        {
-          "src": "/assets/images/pwa/shortcut-pwa.png",
           "sizes": "96x96"
         }
       ]

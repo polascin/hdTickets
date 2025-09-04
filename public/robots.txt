@@ -1,0 +1,156 @@
+# HD Tickets - Sports Event Ticket Monitoring Platform
+# Professional sports ticket monitoring with subscription-based access
+
+User-agent: *
+
+# Allow crawling of main pages and content
+Allow: /
+Allow: /legal/*
+Allow: /assets/*
+Allow: /css/*
+Allow: /js/*
+Allow: /images/*
+
+# Disallow crawling of sensitive and private areas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /profile
+Disallow: /profile/*
+Disallow: /user/*
+Disallow: /settings/*
+Disallow: /api/*
+Disallow: /webhook/*
+Disallow: /monitoring/*
+Disallow: /scraper/*
+Disallow: /purchase/*
+Disallow: /subscription/*
+Disallow: /payment/*
+
+# Disallow temporary and system files
+Disallow: /storage/
+Disallow: /bootstrap/
+Disallow: /config/
+Disallow: /database/
+Disallow: /resources/
+Disallow: /routes/
+Disallow: /tests/
+Disallow: /vendor/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /composer.json
+Disallow: /composer.lock
+Disallow: /artisan
+Disallow: /webpack.mix.js
+Disallow: /package.json
+Disallow: /package-lock.json
+
+# Disallow search and form pages
+Disallow: /search
+Disallow: /search/*
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+# Allow specific crawlers with higher limits
+User-agent: Googlebot
+Crawl-delay: 1
+
+User-agent: Bingbot
+Crawl-delay: 2
+
+User-agent: Slurp
+Crawl-delay: 3
+
+# Block scrapers and unwanted bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: 360Spider
+Disallow: /
+
+User-agent: archive.org_bot
+Disallow: /
+
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: Wayback
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# Block aggressive crawlers
+User-agent: *
+Crawl-delay: 5
+
+# Sitemap location
+Sitemap: https://hdtickets.local/sitemap.xml
+Sitemap: https://hdtickets.local/sitemap_index.xml
+
+# Host directive
+Host: hdtickets.local
+
+# Additional crawling rules
+# Block access to sensitive file extensions
+Disallow: /*.php$
+Disallow: /*.log$
+Disallow: /*.sql$
+Disallow: /*.env$
+Disallow: /*.config$
+Disallow: /*.ini$
+
+# Allow access to important resources
+Allow: /favicon.ico
+Allow: /favicon.png
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /service-worker.js
+
+# Clean URL parameters that don't affect content
+# Block URLs with session parameters
+Disallow: /*?session=*
+Disallow: /*?PHPSESSID=*
+Disallow: /*?sid=*
+Disallow: /*?token=*
+Disallow: /*?csrf_token=*
+
+# Allow crawling of legal and public pages
+Allow: /legal/terms
+Allow: /legal/privacy
+Allow: /legal/disclaimer
+Allow: /legal/gdpr
+Allow: /legal/cookies
+Allow: /legal/acceptable-use
+Allow: /legal/notices
+
+# Contact and support
+Allow: /contact
+Allow: /support
+Allow: /about
+
+# Public API documentation (if available)
+Allow: /docs
+Allow: /api-docs
+
+# Performance directive for modern crawlers
+# Request crawlers to be respectful
+# Crawl-delay: 10
+
+# Note: HD Tickets is a professional sports event ticket monitoring platform
+# This is NOT a helpdesk ticket system
+# Service provided "as is" with no warranty - see Terms of Service

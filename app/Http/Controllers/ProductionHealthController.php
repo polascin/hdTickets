@@ -62,13 +62,14 @@ class ProductionHealthController extends Controller
             foreach ($checks as $check) {
                 /** @var string $checkStatus */
                 $checkStatus = $check['status'];
-                
+
                 if ($checkStatus === 'critical') {
                     $overallStatus = 'critical';
                     $httpStatus = Response::HTTP_SERVICE_UNAVAILABLE;
+
                     break;
                 }
-                
+
                 if ($checkStatus === 'warning' && $overallStatus !== 'critical') {
                     $overallStatus = 'warning';
                     $httpStatus = Response::HTTP_OK; // Still operational

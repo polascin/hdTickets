@@ -1,0 +1,49 @@
+# HD Tickets Security Policy
+# Professional Sports Event Ticket Monitoring Platform
+# This is NOT a helpdesk ticket system
+
+# Contact information for security researchers
+Contact: security@hdtickets.local
+Contact: https://hdtickets.local/security/report
+
+# Security disclosure policy
+Policy: https://hdtickets.local/security/policy
+
+# Preferred languages for security reports
+Preferred-Languages: en
+
+# Canonical URL for this security.txt file
+Canonical: https://hdtickets.local/.well-known/security.txt
+
+# Acknowledgments page for security researchers
+Acknowledgments: https://hdtickets.local/security/acknowledgments
+
+# Digital signature for this file (optional - implement when ready)
+# Signature: https://hdtickets.local/.well-known/security.txt.sig
+
+# Expires directive - update annually
+Expires: 2025-12-31T23:59:59.000Z
+
+# Hiring information for security roles
+Hiring: https://hdtickets.local/careers/security
+
+# Additional information
+# HD Tickets is a comprehensive sports event ticket monitoring system
+# with subscription-based access, role-based permissions, and GDPR compliance
+# 
+# Areas of particular interest for security research:
+# - Authentication and authorization systems
+# - Payment processing security
+# - User data protection and GDPR compliance
+# - API security and rate limiting
+# - Session management and 2FA systems
+# - Web scraping bot detection and prevention
+# 
+# Please note:
+# - Service is provided "as is" with no warranty
+# - No money-back guarantee policy applies
+# - All security reports must be made in good faith
+# - Do not access or modify user data without explicit permission
+# - Automated vulnerability scanning is permitted but must be rate-limited
+# 
+# Thank you for helping keep HD Tickets secure!

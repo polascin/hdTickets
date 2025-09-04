@@ -7,8 +7,42 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class TicketekUKPlugin extends BaseScraperPlugin
 {
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -34,37 +68,6 @@ class TicketekUKPlugin extends BaseScraperPlugin
         return ['keyword', 'date_range', 'category', 'venue', 'price_range'];
     }
 
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
     protected function buildSearchUrl(array $criteria): string
     {
         return $this->baseUrl . '/events';
@@ -76,18 +79,18 @@ class TicketekUKPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.event-item, .listing-item')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.event-item, .listing-item')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Ticketek UK event item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Ticketek UK event item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Ticketek UK search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Ticketek UK search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -103,36 +106,37 @@ class TicketekUKPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             return [
-                'title' => trim($title),
-                'venue' => trim($venue) ?: $this->venue,
-                'date' => $this->parseDate($date),
-                'price' => $this->parsePrice($priceText),
-                'currency' => $this->currency,
-                'url' => $link ? $this->buildFullUrl($link) : null,
-                'platform' => $this->platform,
+                'title'      => trim($title),
+                'venue'      => trim($venue) ?: $this->venue,
+                'date'       => $this->parseDate($date),
+                'price'      => $this->parsePrice($priceText),
+                'currency'   => $this->currency,
+                'url'        => $link ? $this->buildFullUrl($link) : NULL,
+                'platform'   => $this->platform,
                 'scraped_at' => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Ticketek UK event item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Ticketek UK event item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     protected function buildFullUrl(string $path): string
@@ -140,15 +144,38 @@ class TicketekUKPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
     // Required abstract methods
-    protected function getTestUrl(): string { return $this->baseUrl . '/events'; }
-    protected function getEventNameSelectors(): string { return '.event-title, h2, h3'; }
-    protected function getDateSelectors(): string { return '.date, .event-date'; }
-    protected function getVenueSelectors(): string { return '.venue, .location'; }
-    protected function getPriceSelectors(): string { return '.price, .from-price'; }
-    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
+    protected function getTestUrl(): string
+    {
+        return $this->baseUrl . '/events';
+    }
+
+    protected function getEventNameSelectors(): string
+    {
+        return '.event-title, h2, h3';
+    }
+
+    protected function getDateSelectors(): string
+    {
+        return '.date, .event-date';
+    }
+
+    protected function getVenueSelectors(): string
+    {
+        return '.venue, .location';
+    }
+
+    protected function getPriceSelectors(): string
+    {
+        return '.price, .from-price';
+    }
+
+    protected function getAvailabilitySelectors(): string
+    {
+        return '.availability, .status';
+    }
 }

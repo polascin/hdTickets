@@ -50,7 +50,7 @@ class DashboardController extends Controller
             $stats = Cache::remember($cacheKey, 300, function () { // Cache for 5 minutes
                 // Get enhanced stats for customer dashboard compatibility
                 $data = $this->getEnhancedDashboardStats();
-                
+
                 return array_merge($data, [
                     'active_monitors'    => $this->getActiveMonitorsCount(),
                     'tickets_found'      => $this->getTicketsFoundToday(),
@@ -253,7 +253,7 @@ class DashboardController extends Controller
                         'event_title'        => $ticket->event_title,
                         'venue'              => $ticket->venue,
                         'event_date'         => $ticket->event_date?->toISOString(),
-                        'price'              => $ticket->formatted_price ?? '$' . number_format((float)$ticket->price, 2),
+                        'price'              => $ticket->formatted_price ?? '$' . number_format((float) $ticket->price, 2),
                         'section'            => $ticket->section,
                         'row'                => $ticket->row,
                         'quantity_available' => $ticket->quantity_available,
@@ -1502,7 +1502,7 @@ class DashboardController extends Controller
 
         return 'info';
     }
-    
+
     /**
      * Get enhanced dashboard statistics for customer dashboard compatibility
      */
@@ -1514,9 +1514,9 @@ class DashboardController extends Controller
             // Available tickets count
             if (DB::getSchemaBuilder()->hasTable('scraped_tickets')) {
                 $stats['availableTickets'] = DB::table('scraped_tickets')
-                    ->where('is_available', true)
+                    ->where('is_available', TRUE)
                     ->count();
-                
+
                 $stats['available-tickets'] = $stats['availableTickets']; // Backward compatibility
             } else {
                 $stats['availableTickets'] = 0;
@@ -1526,10 +1526,10 @@ class DashboardController extends Controller
             // High demand tickets count
             if (DB::getSchemaBuilder()->hasTable('scraped_tickets')) {
                 $stats['highDemand'] = DB::table('scraped_tickets')
-                    ->where('is_high_demand', true)
-                    ->where('is_available', true)
+                    ->where('is_high_demand', TRUE)
+                    ->where('is_available', TRUE)
                     ->count();
-                
+
                 $stats['high-demand'] = $stats['highDemand']; // Backward compatibility
             } else {
                 $stats['highDemand'] = 0;
@@ -1539,7 +1539,7 @@ class DashboardController extends Controller
             // Active alerts count
             if (DB::getSchemaBuilder()->hasTable('ticket_alerts')) {
                 $stats['alerts'] = DB::table('ticket_alerts')
-                    ->where('is_active', true)
+                    ->where('is_active', TRUE)
                     ->count();
             } else {
                 $stats['alerts'] = 0;
@@ -1567,28 +1567,27 @@ class DashboardController extends Controller
 
             if (DB::getSchemaBuilder()->hasTable('ticket_sources')) {
                 $stats['activePlatforms'] = DB::table('ticket_sources')
-                    ->where('is_active', true)
+                    ->where('is_active', TRUE)
                     ->count();
             } else {
                 $stats['activePlatforms'] = 0;
             }
-
         } catch (Exception $e) {
             Log::warning('Error generating enhanced dashboard stats', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             // Provide fallback values
             $stats = array_merge([
-                'availableTickets' => 0,
+                'availableTickets'  => 0,
                 'available-tickets' => 0,
-                'highDemand' => 0,
-                'high-demand' => 0,
-                'alerts' => 0,
-                'queue' => 0,
-                'totalTickets' => 0,
-                'recentTickets' => 0,
-                'activePlatforms' => 0,
+                'highDemand'        => 0,
+                'high-demand'       => 0,
+                'alerts'            => 0,
+                'queue'             => 0,
+                'totalTickets'      => 0,
+                'recentTickets'     => 0,
+                'activePlatforms'   => 0,
             ], $stats ?? []);
         }
 

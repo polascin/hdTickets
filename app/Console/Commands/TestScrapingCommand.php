@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
@@ -29,7 +29,7 @@ class TestScrapingCommand extends Command
     {
         $this->info('Testing HD Tickets Scraping Functionality');
         $this->info('=========================================');
-        
+
         // Test ScrapedTicket model
         $ticketCount = ScrapedTicket::count();
         $this->info("Found {$ticketCount} scraped tickets");
@@ -40,7 +40,7 @@ class TestScrapingCommand extends Command
 
         // Test platforms
         $platforms = ScrapedTicket::select('platform')->distinct()->pluck('platform');
-        $this->info("Available platforms: " . implode(', ', $platforms->toArray()));
+        $this->info('Available platforms: ' . implode(', ', $platforms->toArray()));
 
         // Test users
         $userCount = User::count();
@@ -48,7 +48,7 @@ class TestScrapingCommand extends Command
 
         $this->info('✅ All basic tests passed!');
         $this->info('The scraping functionality appears to be working correctly.');
-        
+
         return 0;
     }
 }

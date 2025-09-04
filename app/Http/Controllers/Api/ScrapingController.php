@@ -200,16 +200,17 @@ class ScrapingController extends Controller
             $ticket = ScrapedTicket::with(['category'])
                 ->find($id);
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Ticket not found',
-                    'error_code' => 'TICKET_NOT_FOUND'
+                    'success'    => FALSE,
+                    'message'    => 'Ticket not found',
+                    'error_code' => 'TICKET_NOT_FOUND',
                 ], 404);
             }
 
             // Get price history if it exists (check if price_histories table/relationship exists)
             $priceHistory = [];
+
             try {
                 if (method_exists($ticket, 'priceHistory')) {
                     $priceHistory = $ticket->priceHistory()
@@ -218,10 +219,10 @@ class ScrapingController extends Controller
                         ->get()
                         ->map(function ($history) {
                             return [
-                                'price' => (float) $history->price,
-                                'recorded_at' => $history->recorded_at->toISOString(),
+                                'price'          => (float) $history->price,
+                                'recorded_at'    => $history->recorded_at->toISOString(),
                                 'recorded_human' => $history->recorded_at->diffForHumans(),
-                                'source' => $history->source ?? 'scraper'
+                                'source'         => $history->source ?? 'scraper',
                             ];
                         });
                 }
@@ -234,257 +235,121 @@ class ScrapingController extends Controller
             if (empty($priceHistory) && $ticket->min_price) {
                 $basePrice = (float) $ticket->min_price;
                 $maxPrice = (float) ($ticket->max_price ?? $basePrice * 1.5);
-                
+
                 for ($i = 0; $i < 7; $i++) {
                     $variation = ($i === 0) ? 0 : rand(-15, 20);
                     $price = max($basePrice * 0.8, min($maxPrice * 1.2, $basePrice + $variation));
-                    
+
                     $priceHistory[] = [
-                        'price' => round($price, 2),
-                        'recorded_at' => now()->subDays($i * 2)->toISOString(),
+                        'price'          => round($price, 2),
+                        'recorded_at'    => now()->subDays($i * 2)->toISOString(),
                         'recorded_human' => now()->subDays($i * 2)->diffForHumans(),
-                        'source' => 'scraper',
-                        'is_mock' => true
+                        'source'         => 'scraper',
+                        'is_mock'        => TRUE,
                     ];
                 }
-                
+
                 $priceHistory = array_reverse($priceHistory);
             }
 
             // Calculate statistics
             $stats = [
-                'avg_price' => null,
-                'price_trend' => 'stable',
-                'lowest_price' => null,
-                'highest_price' => null,
-                'price_volatility' => 'low'
+                'avg_price'        => NULL,
+                'price_trend'      => 'stable',
+                'lowest_price'     => NULL,
+                'highest_price'    => NULL,
+                'price_volatility' => 'low',
             ];
 
-            if (!empty($priceHistory)) {
+            if (! empty($priceHistory)) {
                 $prices = array_column($priceHistory, 'price');
                 $stats['avg_price'] = round(array_sum($prices) / count($prices), 2);
                 $stats['lowest_price'] = min($prices);
                 $stats['highest_price'] = max($prices);
-                
+
                 // Simple trend calculation
                 if (count($prices) >= 2) {
                     $firstPrice = $prices[0];
                     $lastPrice = end($prices);
                     $change = (($lastPrice - $firstPrice) / $firstPrice) * 100;
-                    
+
                     if ($change > 5) {
                         $stats['price_trend'] = 'increasing';
                     } elseif ($change < -5) {
                         $stats['price_trend'] = 'decreasing';
                     }
-                    
+
                     $stats['price_volatility'] = abs($change) > 15 ? 'high' : (abs($change) > 5 ? 'medium' : 'low');
                 }
             }
 
             // Enhanced ticket data with additional computed fields
             $ticketData = [
-                'id' => $ticket->id,
-                'uuid' => $ticket->uuid,
-                'platform' => $ticket->platform,
-                'platform_display' => $ticket->platform_display_name,
-                'external_id' => $ticket->external_id,
-                'title' => $ticket->title,
-                'venue' => $ticket->venue,
-                'location' => $ticket->location,
-                'event_type' => $ticket->event_type ?? 'sports',
-                'sport' => $ticket->sport ?? 'football',
-                'team' => $ticket->team,
-                'event_date' => $ticket->event_date ? $ticket->event_date->toISOString() : null,
-                'event_date_human' => $ticket->event_date ? $ticket->event_date->format('M j, Y g:i A') : null,
-                'event_date_relative' => $ticket->event_date ? $ticket->event_date->diffForHumans() : null,
-                'days_until_event' => $ticket->event_date ? now()->diffInDays($ticket->event_date, false) : null,
-                'is_upcoming' => $ticket->event_date ? $ticket->event_date->isFuture() : false,
-                'min_price' => (float) ($ticket->min_price ?? 0),
-                'max_price' => (float) ($ticket->max_price ?? 0),
-                'currency' => $ticket->currency ?? 'USD',
+                'id'                    => $ticket->id,
+                'uuid'                  => $ticket->uuid,
+                'platform'              => $ticket->platform,
+                'platform_display'      => $ticket->platform_display_name,
+                'external_id'           => $ticket->external_id,
+                'title'                 => $ticket->title,
+                'venue'                 => $ticket->venue,
+                'location'              => $ticket->location,
+                'event_type'            => $ticket->event_type ?? 'sports',
+                'sport'                 => $ticket->sport ?? 'football',
+                'team'                  => $ticket->team,
+                'event_date'            => $ticket->event_date ? $ticket->event_date->toISOString() : NULL,
+                'event_date_human'      => $ticket->event_date ? $ticket->event_date->format('M j, Y g:i A') : NULL,
+                'event_date_relative'   => $ticket->event_date ? $ticket->event_date->diffForHumans() : NULL,
+                'days_until_event'      => $ticket->event_date ? now()->diffInDays($ticket->event_date, FALSE) : NULL,
+                'is_upcoming'           => $ticket->event_date ? $ticket->event_date->isFuture() : FALSE,
+                'min_price'             => (float) ($ticket->min_price ?? 0),
+                'max_price'             => (float) ($ticket->max_price ?? 0),
+                'currency'              => $ticket->currency ?? 'USD',
                 'formatted_price_range' => $this->formatPriceRange($ticket),
-                'availability' => $ticket->availability,
-                'quantity_available' => $ticket->quantity_available ?? null,
-                'is_available' => $ticket->is_available,
-                'is_high_demand' => $ticket->is_high_demand,
-                'popularity_score' => (float) ($ticket->popularity_score ?? 0),
-                'status' => $ticket->status,
-                'ticket_url' => $ticket->ticket_url,
-                'search_keyword' => $ticket->search_keyword,
-                'metadata' => $ticket->metadata ?? [],
-                'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->toISOString() : null,
-                'scraped_at_human' => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : null,
-                'is_recent' => $ticket->scraped_at ? $ticket->scraped_at->diffInHours() <= 24 : false,
-                'created_at' => $ticket->created_at->toISOString(),
-                'updated_at' => $ticket->updated_at->toISOString(),
-                'category' => $ticket->category ? [
-                    'id' => $ticket->category->id,
+                'availability'          => $ticket->availability,
+                'quantity_available'    => $ticket->quantity_available ?? NULL,
+                'is_available'          => $ticket->is_available,
+                'is_high_demand'        => $ticket->is_high_demand,
+                'popularity_score'      => (float) ($ticket->popularity_score ?? 0),
+                'status'                => $ticket->status,
+                'ticket_url'            => $ticket->ticket_url,
+                'search_keyword'        => $ticket->search_keyword,
+                'metadata'              => $ticket->metadata ?? [],
+                'scraped_at'            => $ticket->scraped_at ? $ticket->scraped_at->toISOString() : NULL,
+                'scraped_at_human'      => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : NULL,
+                'is_recent'             => $ticket->scraped_at ? $ticket->scraped_at->diffInHours() <= 24 : FALSE,
+                'created_at'            => $ticket->created_at->toISOString(),
+                'updated_at'            => $ticket->updated_at->toISOString(),
+                'category'              => $ticket->category ? [
+                    'id'   => $ticket->category->id,
                     'name' => $ticket->category->name,
-                    'slug' => $ticket->category->slug ?? null
-                ] : null,
-                
+                    'slug' => $ticket->category->slug ?? NULL,
+                ] : NULL,
+
                 // Enhanced fields
-                'price_history' => $priceHistory,
-                'statistics' => $stats,
-                'recommendation_score' => $this->calculateRecommendationScore($ticket),
+                'price_history'         => $priceHistory,
+                'statistics'            => $stats,
+                'recommendation_score'  => $this->calculateRecommendationScore($ticket),
                 'similar_tickets_count' => $this->getSimilarTicketsCount($ticket),
-                'platform_reliability' => $this->getPlatformReliability($ticket->platform),
+                'platform_reliability'  => $this->getPlatformReliability($ticket->platform),
             ];
 
             return response()->json([
-                'success' => true,
-                'data' => $ticketData,
-                'meta' => [
+                'success' => TRUE,
+                'data'    => $ticketData,
+                'meta'    => [
                     'data_completeness' => $this->calculateDataCompleteness($ticketData),
-                    'last_updated' => now()->toISOString(),
-                    'cache_ttl' => 300, // 5 minutes
-                ]
+                    'last_updated'      => now()->toISOString(),
+                    'cache_ttl'         => 300, // 5 minutes
+                ],
             ]);
-
         } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch ticket details',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
-                'error_code' => 'FETCH_ERROR'
+                'success'    => FALSE,
+                'message'    => 'Failed to fetch ticket details',
+                'error'      => config('app.debug') ? $e->getMessage() : 'Internal server error',
+                'error_code' => 'FETCH_ERROR',
             ], 500);
         }
-    }
-
-    /**
-     * Format price range for display
-     */
-    private function formatPriceRange(ScrapedTicket $ticket): string
-    {
-        $currency = $ticket->currency ?? 'USD';
-        $symbol = $this->getCurrencySymbol($currency);
-        
-        $minPrice = (float) ($ticket->min_price ?? 0);
-        $maxPrice = (float) ($ticket->max_price ?? 0);
-        
-        if ($minPrice === 0.0 && $maxPrice === 0.0) {
-            return 'Price unavailable';
-        }
-        
-        if ($minPrice === $maxPrice || $maxPrice === 0.0) {
-            return $symbol . number_format($minPrice, 2);
-        }
-        
-        return $symbol . number_format($minPrice, 2) . ' - ' . $symbol . number_format($maxPrice, 2);
-    }
-
-    /**
-     * Get currency symbol
-     */
-    private function getCurrencySymbol(string $currency): string
-    {
-        return match(strtoupper($currency)) {
-            'USD' => '$',
-            'EUR' => '€',
-            'GBP' => '£',
-            'CZK' => 'Kč',
-            'SKK' => 'Sk',
-            default => $currency . ' ',
-        };
-    }
-
-    /**
-     * Calculate recommendation score based on various factors
-     */
-    private function calculateRecommendationScore(ScrapedTicket $ticket): int
-    {
-        $score = 50; // Base score
-        
-        // High demand bonus
-        if ($ticket->is_high_demand) {
-            $score += 20;
-        }
-        
-        // Availability bonus
-        if ($ticket->is_available) {
-            $score += 15;
-        }
-        
-        // Recent scraping bonus
-        if ($ticket->scraped_at && $ticket->scraped_at->diffInHours() <= 24) {
-            $score += 10;
-        }
-        
-        // Popularity score bonus
-        if ($ticket->popularity_score) {
-            $popularityScore = (float)$ticket->popularity_score;
-            $score += min(20, ($popularityScore / 100) * 20);
-        }
-        
-        // Price reasonableness (if min_price exists and is reasonable)
-        if ($ticket->min_price && $ticket->min_price > 0 && $ticket->min_price < 500) {
-            $score += 5;
-        }
-        
-        return min(100, max(0, (int) $score));
-    }
-
-    /**
-     * Get count of similar tickets
-     */
-    private function getSimilarTicketsCount(ScrapedTicket $ticket): int
-    {
-        try {
-            return ScrapedTicket::where('id', '!=', $ticket->id)
-                ->where(function($query) use ($ticket) {
-                    if ($ticket->venue) {
-                        $query->orWhere('venue', 'LIKE', '%' . $ticket->venue . '%');
-                    }
-                    if ($ticket->team) {
-                        $query->orWhere('team', 'LIKE', '%' . $ticket->team . '%');
-                    }
-                    if ($ticket->search_keyword) {
-                        $query->orWhere('search_keyword', 'LIKE', '%' . $ticket->search_keyword . '%');
-                    }
-                })
-                ->where('is_available', true)
-                ->count();
-        } catch (Exception $e) {
-            return 0;
-        }
-    }
-
-    /**
-     * Get platform reliability score
-     */
-    private function getPlatformReliability(string $platform): array
-    {
-        $reliability = match(strtolower($platform)) {
-            'stubhub' => ['score' => 95, 'rating' => 'excellent'],
-            'ticketmaster' => ['score' => 98, 'rating' => 'excellent'],
-            'viagogo' => ['score' => 85, 'rating' => 'very good'],
-            'seatgeek' => ['score' => 90, 'rating' => 'excellent'],
-            'vivid_seats' => ['score' => 88, 'rating' => 'very good'],
-            default => ['score' => 75, 'rating' => 'good'],
-        };
-        
-        return $reliability;
-    }
-
-    /**
-     * Calculate data completeness percentage
-     */
-    private function calculateDataCompleteness(array $data): int
-    {
-        $requiredFields = [
-            'title', 'venue', 'event_date', 'min_price', 'platform',
-            'is_available', 'status', 'scraped_at'
-        ];
-        
-        $presentFields = 0;
-        foreach ($requiredFields as $field) {
-            if (!empty($data[$field])) {
-                $presentFields++;
-            }
-        }
-        
-        return (int) (($presentFields / count($requiredFields)) * 100);
     }
 
     /**
@@ -723,5 +588,138 @@ class ScrapingController extends Controller
                 'completed_at'     => now()->toISOString(),
             ],
         ]);
+    }
+
+    /**
+     * Format price range for display
+     */
+    private function formatPriceRange(ScrapedTicket $ticket): string
+    {
+        $currency = $ticket->currency ?? 'USD';
+        $symbol = $this->getCurrencySymbol($currency);
+
+        $minPrice = (float) ($ticket->min_price ?? 0);
+        $maxPrice = (float) ($ticket->max_price ?? 0);
+
+        if ($minPrice === 0.0 && $maxPrice === 0.0) {
+            return 'Price unavailable';
+        }
+
+        if ($minPrice === $maxPrice || $maxPrice === 0.0) {
+            return $symbol . number_format($minPrice, 2);
+        }
+
+        return $symbol . number_format($minPrice, 2) . ' - ' . $symbol . number_format($maxPrice, 2);
+    }
+
+    /**
+     * Get currency symbol
+     */
+    private function getCurrencySymbol(string $currency): string
+    {
+        return match(strtoupper($currency)) {
+            'USD'   => '$',
+            'EUR'   => '€',
+            'GBP'   => '£',
+            'CZK'   => 'Kč',
+            'SKK'   => 'Sk',
+            default => $currency . ' ',
+        };
+    }
+
+    /**
+     * Calculate recommendation score based on various factors
+     */
+    private function calculateRecommendationScore(ScrapedTicket $ticket): int
+    {
+        $score = 50; // Base score
+
+        // High demand bonus
+        if ($ticket->is_high_demand) {
+            $score += 20;
+        }
+
+        // Availability bonus
+        if ($ticket->is_available) {
+            $score += 15;
+        }
+
+        // Recent scraping bonus
+        if ($ticket->scraped_at && $ticket->scraped_at->diffInHours() <= 24) {
+            $score += 10;
+        }
+
+        // Popularity score bonus
+        if ($ticket->popularity_score) {
+            $popularityScore = (float) $ticket->popularity_score;
+            $score += min(20, ($popularityScore / 100) * 20);
+        }
+
+        // Price reasonableness (if min_price exists and is reasonable)
+        if ($ticket->min_price && $ticket->min_price > 0 && $ticket->min_price < 500) {
+            $score += 5;
+        }
+
+        return min(100, max(0, (int) $score));
+    }
+
+    /**
+     * Get count of similar tickets
+     */
+    private function getSimilarTicketsCount(ScrapedTicket $ticket): int
+    {
+        try {
+            return ScrapedTicket::where('id', '!=', $ticket->id)
+                ->where(function ($query) use ($ticket): void {
+                    if ($ticket->venue) {
+                        $query->orWhere('venue', 'LIKE', '%' . $ticket->venue . '%');
+                    }
+                    if ($ticket->team) {
+                        $query->orWhere('team', 'LIKE', '%' . $ticket->team . '%');
+                    }
+                    if ($ticket->search_keyword) {
+                        $query->orWhere('search_keyword', 'LIKE', '%' . $ticket->search_keyword . '%');
+                    }
+                })
+                ->where('is_available', TRUE)
+                ->count();
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get platform reliability score
+     */
+    private function getPlatformReliability(string $platform): array
+    {
+        return match(strtolower($platform)) {
+            'stubhub'      => ['score' => 95, 'rating' => 'excellent'],
+            'ticketmaster' => ['score' => 98, 'rating' => 'excellent'],
+            'viagogo'      => ['score' => 85, 'rating' => 'very good'],
+            'seatgeek'     => ['score' => 90, 'rating' => 'excellent'],
+            'vivid_seats'  => ['score' => 88, 'rating' => 'very good'],
+            default        => ['score' => 75, 'rating' => 'good'],
+        };
+    }
+
+    /**
+     * Calculate data completeness percentage
+     */
+    private function calculateDataCompleteness(array $data): int
+    {
+        $requiredFields = [
+            'title', 'venue', 'event_date', 'min_price', 'platform',
+            'is_available', 'status', 'scraped_at',
+        ];
+
+        $presentFields = 0;
+        foreach ($requiredFields as $field) {
+            if (! empty($data[$field])) {
+                $presentFields++;
+            }
+        }
+
+        return (int) (($presentFields / count($requiredFields)) * 100);
     }
 }

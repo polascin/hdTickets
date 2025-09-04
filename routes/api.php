@@ -222,7 +222,6 @@ Route::prefix('v1/scraping')->middleware(['auth:sanctum', ApiRateLimit::class . 
     Route::delete('/cleanup', [App\Http\Controllers\Api\ScrapingController::class, 'cleanup']);
 });
 
-
 // Alert routes
 Route::prefix('v1/alerts')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
     Route::get('/', [App\Http\Controllers\Api\AlertController::class, 'index']);

@@ -7,8 +7,89 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+
 class GiganticPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for Gigantic
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Popular Genres' => [
+                'Indie Music',
+                'Rock Concerts',
+                'Electronic Music',
+                'Folk & Acoustic',
+                'Jazz & Blues',
+                'Classical Music',
+            ],
+            'Event Types' => [
+                'Music Festivals',
+                'Concert Tours',
+                'Comedy Shows',
+                'Theater Shows',
+                'Album Launch Events',
+            ],
+            'Popular Venues' => [
+                'Roundhouse Camden',
+                'Electric Brixton',
+                'Koko Camden',
+                'Village Underground',
+                'Scala King\'s Cross',
+                'Heaven London',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific venue
+     */
+    public function supportsVenue(string $venue): bool
+    {
+        $supportedVenues = [
+            'roundhouse', 'electric brixton', 'koko', 'village underground',
+            'scala', 'heaven', 'fabric', 'ministry of sound',
+            'jazz cafe', 'union chapel', 'barbican', 'southbank centre',
+        ];
+
+        return in_array(strtolower($venue), $supportedVenues, TRUE);
+    }
+
+    /**
+     * Get platform-specific filtering options
+     */
+    public function getFilterOptions(): array
+    {
+        return [
+            'genres' => [
+                'indie'      => 'Indie & Alternative',
+                'rock'       => 'Rock & Metal',
+                'electronic' => 'Electronic & Dance',
+                'folk'       => 'Folk & Acoustic',
+                'jazz'       => 'Jazz & Blues',
+                'classical'  => 'Classical',
+                'comedy'     => 'Comedy',
+                'theater'    => 'Theater',
+            ],
+            'price_ranges' => [
+                '0-25'   => 'Under £25',
+                '25-50'  => '£25 - £50',
+                '50-100' => '£50 - £100',
+                '100+'   => 'Over £100',
+            ],
+            'dates' => [
+                'today'      => 'Today',
+                'tomorrow'   => 'Tomorrow',
+                'this_week'  => 'This Week',
+                'this_month' => 'This Month',
+                'next_month' => 'Next Month',
+            ],
+        ];
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -76,18 +157,18 @@ class GiganticPlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
-            'q' => $query,
+            'q'        => $query,
             'location' => $filters['location'] ?? '',
-            'genre' => $filters['genre'] ?? '',
-            'date' => $filters['date'] ?? '',
-            'sort' => $filters['sort'] ?? 'relevance',
+            'genre'    => $filters['genre'] ?? '',
+            'date'     => $filters['date'] ?? '',
+            'sort'     => $filters['sort'] ?? 'relevance',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/search?' . http_build_query($params);
@@ -99,10 +180,10 @@ class GiganticPlugin extends BaseScraperPlugin
     protected function scrapeTickets(string $searchUrl): array
     {
         try {
-            Log::info("Gigantic Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("Gigantic Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -110,73 +191,24 @@ class GiganticPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // Gigantic search results selectors
-            $crawler->filter('.event-card, .listing, .search-result, .event-item')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.event-card, .listing, .search-result, .event-item')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("Gigantic Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('Gigantic Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("Gigantic Plugin: Found " . count($tickets) . " tickets");
+            Log::info('Gigantic Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("Gigantic Plugin: Scraping error: " . $e->getMessage());
+            Log::error('Gigantic Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.venue, .location, .venue-name');
-            $date = $this->extractText($node, '.date, .event-date, .when, time');
-            $priceText = $this->extractText($node, '.price, .cost, .from-price, .price-from');
-            $link = $this->extractAttribute($node, 'a', 'href');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date
-            $eventDate = $this->parseDate($date);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title and venue
-            $category = $this->determineCategory($title, $venue);
-
-            return [
-                'title' => $title,
-                'price' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $category,
-                'availability' => 'available',
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("Gigantic Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -188,14 +220,14 @@ class GiganticPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.event-card, .listing, .search-result, .event-item')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.event-card, .listing, .search-result, .event-item')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("Gigantic Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('Gigantic Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
@@ -243,24 +275,74 @@ class GiganticPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.venue, .location, .venue-name');
+            $date = $this->extractText($node, '.date, .event-date, .when, time');
+            $priceText = $this->extractText($node, '.price, .cost, .from-price, .price-from');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date
+            $eventDate = $this->parseDate($date);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title and venue
+            $category = $this->determineCategory($title, $venue);
+
+            return [
+                'title'        => $title,
+                'price'        => $price,
+                'currency'     => $this->currency,
+                'venue'        => $venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => $category,
+                'availability' => 'available',
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Gigantic Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
      * Parse price from text
      */
     private function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle "from £X" format common on Gigantic
         $cleanPrice = preg_replace('/from\s*£?/i', '', $priceText);
         $cleanPrice = preg_replace('/[^0-9.,£]/', '', $cleanPrice);
         $cleanPrice = str_replace(',', '', $cleanPrice);
-        
+
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {
             return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -301,83 +383,5 @@ class GiganticPlugin extends BaseScraperPlugin
         }
 
         return 'concert'; // Default for most Gigantic events
-    }
-
-    /**
-     * Get search suggestions for Gigantic
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Popular Genres' => [
-                'Indie Music',
-                'Rock Concerts',
-                'Electronic Music',
-                'Folk & Acoustic',
-                'Jazz & Blues',
-                'Classical Music'
-            ],
-            'Event Types' => [
-                'Music Festivals',
-                'Concert Tours',
-                'Comedy Shows',
-                'Theater Shows',
-                'Album Launch Events'
-            ],
-            'Popular Venues' => [
-                'Roundhouse Camden',
-                'Electric Brixton',
-                'Koko Camden',
-                'Village Underground',
-                'Scala King\'s Cross',
-                'Heaven London'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific venue
-     */
-    public function supportsVenue(string $venue): bool
-    {
-        $supportedVenues = [
-            'roundhouse', 'electric brixton', 'koko', 'village underground',
-            'scala', 'heaven', 'fabric', 'ministry of sound',
-            'jazz cafe', 'union chapel', 'barbican', 'southbank centre'
-        ];
-
-        return in_array(strtolower($venue), $supportedVenues);
-    }
-
-    /**
-     * Get platform-specific filtering options
-     */
-    public function getFilterOptions(): array
-    {
-        return [
-            'genres' => [
-                'indie' => 'Indie & Alternative',
-                'rock' => 'Rock & Metal',
-                'electronic' => 'Electronic & Dance',
-                'folk' => 'Folk & Acoustic',
-                'jazz' => 'Jazz & Blues',
-                'classical' => 'Classical',
-                'comedy' => 'Comedy',
-                'theater' => 'Theater'
-            ],
-            'price_ranges' => [
-                '0-25' => 'Under £25',
-                '25-50' => '£25 - £50',
-                '50-100' => '£50 - £100',
-                '100+' => 'Over £100'
-            ],
-            'dates' => [
-                'today' => 'Today',
-                'tomorrow' => 'Tomorrow',
-                'this_week' => 'This Week',
-                'this_month' => 'This Month',
-                'next_month' => 'Next Month'
-            ]
-        ];
     }
 }

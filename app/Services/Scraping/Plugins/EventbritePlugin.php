@@ -8,8 +8,125 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class EventbritePlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get events by category
+     */
+    public function getEventsByCategory(string $category, array $criteria = []): array
+    {
+        $criteria['category'] = $category;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get free events
+     */
+    public function getFreeEvents(array $criteria = []): array
+    {
+        $criteria['price'] = 'free';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get online events
+     */
+    public function getOnlineEvents(array $criteria = []): array
+    {
+        $criteria['format'] = 'online';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get events by location
+     */
+    public function getEventsByLocation(string $location, array $criteria = []): array
+    {
+        $criteria['location'] = $location;
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get business events
+     */
+    public function getBusinessEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'business';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get music events
+     */
+    public function getMusicEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'music';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get food and drink events
+     */
+    public function getFoodDrinkEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'food-and-drink';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get arts and culture events
+     */
+    public function getArtsCultureEvents(array $criteria = []): array
+    {
+        $criteria['category'] = 'arts';
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -73,59 +190,25 @@ class EventbritePlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['q'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['location'])) {
+
+        if (! empty($criteria['location'])) {
             $params['location'] = urlencode($criteria['location']);
         }
-        
-        if (!empty($criteria['category'])) {
+
+        if (! empty($criteria['category'])) {
             $params['categories'] = urlencode($criteria['category']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -134,19 +217,20 @@ class EventbritePlugin extends BaseScraperPlugin
             }
         }
 
-        if (!empty($criteria['format'])) {
+        if (! empty($criteria['format'])) {
             $params['event_type'] = $criteria['format']; // online, in_person
         }
 
-        if (!empty($criteria['price'])) {
+        if (! empty($criteria['price'])) {
             $params['price'] = $criteria['price']; // free, paid
         }
 
-        if (!empty($criteria['sort_by'])) {
+        if (! empty($criteria['sort_by'])) {
             $params['sort_by'] = $criteria['sort_by']; // date, distance, best
         }
 
         $queryString = http_build_query($params);
+
         return $this->baseUrl . '/d/events/?' . $queryString;
     }
 
@@ -159,18 +243,18 @@ class EventbritePlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('[data-testid="event-card"], .event-card, .SearchResultPanelContentEventCard')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('[data-testid="event-card"], .event-card, .SearchResultPanelContentEventCard')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventCard($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Eventbrite event card", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Eventbrite event card', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Eventbrite search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Eventbrite search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -192,7 +276,7 @@ class EventbritePlugin extends BaseScraperPlugin
             $imageUrl = $this->extractAttribute($node, '[data-testid="event-image"] img, .event-card__image img', 'src');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             // Parse price
@@ -204,31 +288,32 @@ class EventbritePlugin extends BaseScraperPlugin
             $eventTime = $this->parseTime($time);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             // Build full image URL
-            $fullImageUrl = $imageUrl ? $this->buildFullUrl($imageUrl) : null;
+            $fullImageUrl = $imageUrl ? $this->buildFullUrl($imageUrl) : NULL;
 
             return [
-                'title' => trim($title),
-                'venue' => trim($venue),
-                'location' => trim($location ?: $venue),
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'price' => $price,
-                'is_free' => $isFree,
-                'currency' => $this->currency,
-                'url' => $fullUrl,
-                'image_url' => $fullImageUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'event',
+                'title'        => trim($title),
+                'venue'        => trim($venue),
+                'location'     => trim($location ?: $venue),
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'price'        => $price,
+                'is_free'      => $isFree,
+                'currency'     => $this->currency,
+                'url'          => $fullUrl,
+                'image_url'    => $fullImageUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => 'event',
                 'availability' => 'available',
-                'scraped_at' => now()->toISOString(),
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Eventbrite event card", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Eventbrite event card', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -239,14 +324,14 @@ class EventbritePlugin extends BaseScraperPlugin
     {
         $freeIndicators = ['free', 'gratis', 'gratuit', 'kostenlos', 'gratuito'];
         $lowerPrice = strtolower($priceText);
-        
+
         foreach ($freeIndicators as $indicator) {
-            if (strpos($lowerPrice, $indicator) !== false) {
-                return true;
+            if (strpos($lowerPrice, $indicator) !== FALSE) {
+                return TRUE;
             }
         }
-        
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -261,10 +346,11 @@ class EventbritePlugin extends BaseScraperPlugin
         // Extract numeric price
         if (preg_match('/(?:[\$£€¥]|USD|GBP|EUR|JPY)\s*(\d+(?:[\.,]\d{2})?)/', $priceText, $matches)) {
             $price = str_replace(',', '', $matches[1]);
-            return (float)$price;
+
+            return (float) $price;
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -273,16 +359,18 @@ class EventbritePlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try to parse time
             $time = Carbon::parse($timeText);
+
             return $time->format('H:i');
         } catch (Exception $e) {
-            Log::debug("Failed to parse Eventbrite time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Eventbrite time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -292,16 +380,18 @@ class EventbritePlugin extends BaseScraperPlugin
     protected function parseDate(string $dateText): ?string
     {
         if (empty($dateText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Try common date formats
             $date = Carbon::parse($dateText);
+
             return $date->format('Y-m-d');
         } catch (Exception $e) {
-            Log::debug("Failed to parse Eventbrite date", ['date' => $dateText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Eventbrite date', ['date' => $dateText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -313,80 +403,8 @@ class EventbritePlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
-    }
-
-    /**
-     * Get events by category
-     */
-    public function getEventsByCategory(string $category, array $criteria = []): array
-    {
-        $criteria['category'] = $category;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get free events
-     */
-    public function getFreeEvents(array $criteria = []): array
-    {
-        $criteria['price'] = 'free';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get online events
-     */
-    public function getOnlineEvents(array $criteria = []): array
-    {
-        $criteria['format'] = 'online';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get events by location
-     */
-    public function getEventsByLocation(string $location, array $criteria = []): array
-    {
-        $criteria['location'] = $location;
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get business events
-     */
-    public function getBusinessEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'business';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get music events
-     */
-    public function getMusicEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'music';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get food and drink events
-     */
-    public function getFoodDrinkEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'food-and-drink';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get arts and culture events
-     */
-    public function getArtsCultureEvents(array $criteria = []): array
-    {
-        $criteria['category'] = 'arts';
-        return $this->scrape($criteria);
     }
 
     // Required abstract methods from BaseScraperPlugin

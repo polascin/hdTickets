@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
@@ -16,13 +17,13 @@ class WelcomeStatsController extends Controller
         // Cache stats for 5 minutes to reduce database load
         $stats = Cache::remember('welcome_stats', 300, function () {
             return [
-                'platforms' => $this->getPlatformCount(),
-                'monitoring' => '24/7',
-                'users' => $this->getUserCount(),
-                'alerts' => $this->getAlertsToday(),
-                'priceDrops' => $this->getPriceDropsToday(),
+                'platforms'      => $this->getPlatformCount(),
+                'monitoring'     => '24/7',
+                'users'          => $this->getUserCount(),
+                'alerts'         => $this->getAlertsToday(),
+                'priceDrops'     => $this->getPriceDropsToday(),
                 'activeMonitors' => $this->getActiveMonitors(),
-                'lastUpdate' => now()->toISOString(),
+                'lastUpdate'     => now()->toISOString(),
             ];
         });
 
@@ -46,13 +47,13 @@ class WelcomeStatsController extends Controller
     {
         try {
             $userCount = \App\Models\User::count();
-            
+
             if ($userCount >= 1000) {
                 return number_format($userCount / 1000, 1) . 'K+';
             }
-            
+
             return (string) $userCount;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return '15K+'; // Fallback
         }
     }
@@ -66,7 +67,7 @@ class WelcomeStatsController extends Controller
             // This would typically query an alerts/notifications table
             // For now, return a random realistic number
             return rand(15, 45);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return 0;
         }
     }
@@ -79,7 +80,7 @@ class WelcomeStatsController extends Controller
         try {
             // This would query price change logs
             return rand(5, 15);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return 0;
         }
     }
@@ -92,7 +93,7 @@ class WelcomeStatsController extends Controller
         try {
             // This would query active ticket monitoring jobs
             return rand(100, 300);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return 0;
         }
     }

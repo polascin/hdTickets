@@ -7,8 +7,96 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function sprintf;
+
 class CelticFCPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get Old Firm Derby tickets
+     */
+    public function getOldFirmTickets(array $criteria = []): array
+    {
+        $criteria['opponent'] = 'Rangers';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Champions League matches
+     */
+    public function getChampionsLeagueTickets(array $criteria = []): array
+    {
+        $criteria['competition'] = 'Champions League';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Europa League matches
+     */
+    public function getEuropaLeagueTickets(array $criteria = []): array
+    {
+        $criteria['competition'] = 'Europa League';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Scottish Premiership matches
+     */
+    public function getPremiership(array $criteria = []): array
+    {
+        $criteria['competition'] = 'Scottish Premiership';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Scottish Cup matches
+     */
+    public function getScottishCupTickets(array $criteria = []): array
+    {
+        $criteria['competition'] = 'Scottish Cup';
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -65,65 +153,31 @@ class CelticFCPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $baseUrl = $this->baseUrl . '/tickets';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competition'] = urlencode($criteria['competition']);
         }
-        
-        if (!empty($criteria['opponent'])) {
+
+        if (! empty($criteria['opponent'])) {
             $params['opponent'] = urlencode($criteria['opponent']);
         }
-        
-        if (!empty($criteria['ticket_type'])) {
+
+        if (! empty($criteria['ticket_type'])) {
             $params['type'] = urlencode($criteria['ticket_type']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -133,6 +187,7 @@ class CelticFCPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
+
         return $baseUrl . ($queryString ? '?' . $queryString : '');
     }
 
@@ -145,18 +200,18 @@ class CelticFCPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.fixture-item, .match-item, .event-item, [data-testid="fixture"]')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.fixture-item, .match-item, .event-item, [data-testid="fixture"]')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseMatchItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Celtic FC match item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Celtic FC match item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Celtic FC search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Celtic FC search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -179,11 +234,11 @@ class CelticFCPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title) && empty($opponent)) {
-                return null;
+                return NULL;
             }
 
             // Build match title if needed
-            if (empty($title) && !empty($opponent)) {
+            if (empty($title) && ! empty($opponent)) {
                 $title = "Celtic FC vs {$opponent}";
             }
 
@@ -198,31 +253,32 @@ class CelticFCPlugin extends BaseScraperPlugin
             $importance = $this->determineMatchImportance($title, $opponent, $competition);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'opponent' => trim($opponent),
-                'competition' => trim($competition),
-                'venue' => $this->venue,
-                'location' => 'Glasgow, Scotland, G40 3RE',
-                'date' => $eventDate,
-                'time' => $eventTime,
+                'title'            => trim($title),
+                'opponent'         => trim($opponent),
+                'competition'      => trim($competition),
+                'venue'            => $this->venue,
+                'location'         => 'Glasgow, Scotland, G40 3RE',
+                'date'             => $eventDate,
+                'time'             => $eventTime,
                 'match_importance' => $importance,
-                'price' => $price,
-                'currency' => $this->currency,
-                'availability' => $this->parseAvailability($availability),
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'football',
-                'team' => 'Celtic FC',
-                'capacity' => '60411',
-                'scraped_at' => now()->toISOString(),
+                'price'            => $price,
+                'currency'         => $this->currency,
+                'availability'     => $this->parseAvailability($availability),
+                'url'              => $fullUrl,
+                'platform'         => $this->platform,
+                'description'      => NULL,
+                'category'         => 'football',
+                'team'             => 'Celtic FC',
+                'capacity'         => '60411',
+                'scraped_at'       => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Celtic FC match item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Celtic FC match item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -236,31 +292,31 @@ class CelticFCPlugin extends BaseScraperPlugin
         $lowerComp = strtolower($competition);
 
         // Old Firm Derby (highest importance)
-        if (strpos($lowerOpponent, 'rangers') !== false || strpos($lowerTitle, 'old firm') !== false) {
+        if (strpos($lowerOpponent, 'rangers') !== FALSE || strpos($lowerTitle, 'old firm') !== FALSE) {
             return 'old_firm_derby';
         }
 
         // European competitions
-        if (strpos($lowerComp, 'champions league') !== false) {
+        if (strpos($lowerComp, 'champions league') !== FALSE) {
             return 'champions_league';
         }
-        if (strpos($lowerComp, 'europa league') !== false) {
+        if (strpos($lowerComp, 'europa league') !== FALSE) {
             return 'europa_league';
         }
-        if (strpos($lowerComp, 'europa conference') !== false || strpos($lowerComp, 'conference league') !== false) {
+        if (strpos($lowerComp, 'europa conference') !== FALSE || strpos($lowerComp, 'conference league') !== FALSE) {
             return 'europa_conference_league';
         }
 
         // Domestic cups
-        if (strpos($lowerComp, 'scottish cup') !== false) {
+        if (strpos($lowerComp, 'scottish cup') !== FALSE) {
             return 'scottish_cup';
         }
-        if (strpos($lowerComp, 'league cup') !== false || strpos($lowerComp, 'viaplay cup') !== false) {
+        if (strpos($lowerComp, 'league cup') !== FALSE || strpos($lowerComp, 'viaplay cup') !== FALSE) {
             return 'league_cup';
         }
 
         // League matches
-        if (strpos($lowerComp, 'premiership') !== false || strpos($lowerComp, 'spfl') !== false) {
+        if (strpos($lowerComp, 'premiership') !== FALSE || strpos($lowerComp, 'spfl') !== FALSE) {
             return 'scottish_premiership';
         }
 
@@ -273,20 +329,20 @@ class CelticFCPlugin extends BaseScraperPlugin
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false || strpos($lowerStatus, 'unavailable') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
             return 'sold_out';
         }
-        
-        if (strpos($lowerStatus, 'limited') !== false || strpos($lowerStatus, 'few left') !== false) {
+
+        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
             return 'limited';
         }
-        
-        if (strpos($lowerStatus, 'available') !== false || strpos($lowerStatus, 'on sale') !== false) {
+
+        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
             return 'available';
         }
-        
-        if (strpos($lowerStatus, 'season ticket') !== false || strpos($lowerStatus, 'members only') !== false) {
+
+        if (strpos($lowerStatus, 'season ticket') !== FALSE || strpos($lowerStatus, 'members only') !== FALSE) {
             return 'members_only';
         }
 
@@ -299,20 +355,20 @@ class CelticFCPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle "from £X" format
         if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
         // Handle regular £X format
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -321,29 +377,30 @@ class CelticFCPlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Handle various time formats including kick-off times
             if (preg_match('/(\d{1,2}):(\d{2})\s*(am|pm)?/i', $timeText, $matches)) {
-                $hour = (int)$matches[1];
+                $hour = (int) $matches[1];
                 $minute = $matches[2];
                 $ampm = strtolower($matches[3] ?? '');
-                
+
                 if ($ampm === 'pm' && $hour < 12) {
                     $hour += 12;
                 } elseif ($ampm === 'am' && $hour === 12) {
                     $hour = 0;
                 }
-                
+
                 return sprintf('%02d:%s', $hour, $minute);
             }
-            
-            return null;
+
+            return NULL;
         } catch (Exception $e) {
-            Log::debug("Failed to parse Celtic FC time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Celtic FC time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -355,7 +412,7 @@ class CelticFCPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
@@ -389,52 +446,5 @@ class CelticFCPlugin extends BaseScraperPlugin
     protected function getAvailabilitySelectors(): string
     {
         return '.availability, .status, .sold-out';
-    }
-
-    /**
-     * Get Old Firm Derby tickets
-     */
-    public function getOldFirmTickets(array $criteria = []): array
-    {
-        $criteria['opponent'] = 'Rangers';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Champions League matches
-     */
-    public function getChampionsLeagueTickets(array $criteria = []): array
-    {
-        $criteria['competition'] = 'Champions League';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Europa League matches
-     */
-    public function getEuropaLeagueTickets(array $criteria = []): array
-    {
-        $criteria['competition'] = 'Europa League';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Scottish Premiership matches
-     */
-    public function getPremiership
-
-(array $criteria = []): array
-    {
-        $criteria['competition'] = 'Scottish Premiership';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Scottish Cup matches
-     */
-    public function getScottishCupTickets(array $criteria = []): array
-    {
-        $criteria['competition'] = 'Scottish Cup';
-        return $this->scrape($criteria);
     }
 }

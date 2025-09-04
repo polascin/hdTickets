@@ -7,8 +7,109 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+
 class LiveNationUKPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for LiveNation UK
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Popular Genres' => [
+                'Rock Concerts',
+                'Pop Music',
+                'Indie Artists',
+                'Electronic Music',
+                'Classical Music',
+                'Jazz & Blues',
+            ],
+            'Event Types' => [
+                'Arena Concerts',
+                'Theater Shows',
+                'Music Festivals',
+                'Comedy Shows',
+                'Family Shows',
+                'VIP Experiences',
+            ],
+            'Major Venues' => [
+                'O2 Arena London',
+                'Manchester Arena',
+                'First Direct Arena Leeds',
+                'Motorpoint Arena Nottingham',
+                'SEC Armadillo Glasgow',
+                'Motorpoint Arena Cardiff',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific venue
+     */
+    public function supportsVenue(string $venue): bool
+    {
+        $liveNationVenues = [
+            'o2 arena', 'manchester arena', 'first direct arena',
+            'motorpoint arena', 'sec armadillo', 'ovo hydro',
+            'olympia london', 'eventim apollo', 'roundhouse',
+        ];
+
+        return in_array(strtolower($venue), $liveNationVenues, TRUE);
+    }
+
+    /**
+     * Get platform-specific filtering options
+     */
+    public function getFilterOptions(): array
+    {
+        return [
+            'genres' => [
+                'rock'       => 'Rock & Alternative',
+                'pop'        => 'Pop & Mainstream',
+                'indie'      => 'Indie & Folk',
+                'electronic' => 'Electronic & Dance',
+                'jazz'       => 'Jazz & Blues',
+                'classical'  => 'Classical',
+                'comedy'     => 'Comedy',
+                'family'     => 'Family Shows',
+            ],
+            'venues' => [
+                'arena'    => 'Arena Shows',
+                'theater'  => 'Theater Venues',
+                'outdoor'  => 'Outdoor Events',
+                'intimate' => 'Intimate Venues',
+            ],
+            'price_ranges' => [
+                '0-30'   => 'Under £30',
+                '30-60'  => '£30 - £60',
+                '60-120' => '£60 - £120',
+                '120+'   => 'Over £120',
+            ],
+            'special_offers' => [
+                'presale' => 'Presale Available',
+                'vip'     => 'VIP Packages',
+                'family'  => 'Family Packages',
+            ],
+        ];
+    }
+
+    /**
+     * Get platform-specific features
+     */
+    public function getPlatformFeatures(): array
+    {
+        return [
+            'Exclusive presale access for members',
+            'VIP packages and experiences available',
+            'Mobile ticket delivery',
+            'Venue partnerships with major arenas',
+            'Artist pre-sale opportunities',
+            'Flexible payment options',
+        ];
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -76,18 +177,18 @@ class LiveNationUKPlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
             'keyword' => $query,
-            'city' => $filters['city'] ?? '',
-            'date' => $filters['date'] ?? '',
-            'genre' => $filters['genre'] ?? '',
-            'venue' => $filters['venue'] ?? '',
+            'city'    => $filters['city'] ?? '',
+            'date'    => $filters['date'] ?? '',
+            'genre'   => $filters['genre'] ?? '',
+            'venue'   => $filters['venue'] ?? '',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/search?' . http_build_query($params);
@@ -99,10 +200,10 @@ class LiveNationUKPlugin extends BaseScraperPlugin
     protected function scrapeTickets(string $searchUrl): array
     {
         try {
-            Log::info("LiveNation UK Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("LiveNation UK Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -110,78 +211,24 @@ class LiveNationUKPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // LiveNation search results selectors
-            $crawler->filter('.event-card, .event-item, .listing, .search-result, .concert-listing')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.event-card, .event-item, .listing, .search-result, .concert-listing')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("LiveNation UK Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('LiveNation UK Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("LiveNation UK Plugin: Found " . count($tickets) . " tickets");
+            Log::info('LiveNation UK Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("LiveNation UK Plugin: Scraping error: " . $e->getMessage());
+            Log::error('LiveNation UK Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.event-title, .title, .name, h2 a, h3 a, .artist-name');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.venue, .location, .venue-name, .where');
-            $date = $this->extractText($node, '.date, .event-date, .when, time, .show-date');
-            $priceText = $this->extractText($node, '.price, .cost, .ticket-price, .from-price');
-            $link = $this->extractAttribute($node, 'a', 'href');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date
-            $eventDate = $this->parseDate($date);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title and venue
-            $category = $this->determineCategory($title, $venue);
-
-            // Extract LiveNation-specific info
-            $presale = $this->extractText($node, '.presale, .early-access, .vip');
-            $soldOut = $this->extractText($node, '.sold-out, .unavailable');
-
-            return [
-                'title' => $title,
-                'price' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $category,
-                'availability' => !empty($soldOut) ? 'sold_out' : 'available',
-                'presale_available' => !empty($presale),
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("LiveNation UK Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -193,14 +240,14 @@ class LiveNationUKPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.event-card, .event-item, .listing, .search-result, .concert-listing')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.event-card, .event-item, .listing, .search-result, .concert-listing')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("LiveNation UK Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('LiveNation UK Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
@@ -248,24 +295,79 @@ class LiveNationUKPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.event-title, .title, .name, h2 a, h3 a, .artist-name');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.venue, .location, .venue-name, .where');
+            $date = $this->extractText($node, '.date, .event-date, .when, time, .show-date');
+            $priceText = $this->extractText($node, '.price, .cost, .ticket-price, .from-price');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date
+            $eventDate = $this->parseDate($date);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title and venue
+            $category = $this->determineCategory($title, $venue);
+
+            // Extract LiveNation-specific info
+            $presale = $this->extractText($node, '.presale, .early-access, .vip');
+            $soldOut = $this->extractText($node, '.sold-out, .unavailable');
+
+            return [
+                'title'             => $title,
+                'price'             => $price,
+                'currency'          => $this->currency,
+                'venue'             => $venue,
+                'event_date'        => $eventDate,
+                'link'              => $link,
+                'platform'          => $this->platform,
+                'category'          => $category,
+                'availability'      => ! empty($soldOut) ? 'sold_out' : 'available',
+                'presale_available' => ! empty($presale),
+                'scraped_at'        => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('LiveNation UK Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
      * Parse price from text
      */
     private function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle LiveNation price formats
         $cleanPrice = preg_replace('/from\s*£?|tickets from\s*£?/i', '', $priceText);
         $cleanPrice = preg_replace('/[^0-9.,£]/', '', $cleanPrice);
         $cleanPrice = str_replace(',', '', $cleanPrice);
-        
+
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {
             return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -306,103 +408,5 @@ class LiveNationUKPlugin extends BaseScraperPlugin
         }
 
         return 'concert'; // Default for most LiveNation events
-    }
-
-    /**
-     * Get search suggestions for LiveNation UK
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Popular Genres' => [
-                'Rock Concerts',
-                'Pop Music',
-                'Indie Artists',
-                'Electronic Music',
-                'Classical Music',
-                'Jazz & Blues'
-            ],
-            'Event Types' => [
-                'Arena Concerts',
-                'Theater Shows',
-                'Music Festivals',
-                'Comedy Shows',
-                'Family Shows',
-                'VIP Experiences'
-            ],
-            'Major Venues' => [
-                'O2 Arena London',
-                'Manchester Arena',
-                'First Direct Arena Leeds',
-                'Motorpoint Arena Nottingham',
-                'SEC Armadillo Glasgow',
-                'Motorpoint Arena Cardiff'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific venue
-     */
-    public function supportsVenue(string $venue): bool
-    {
-        $liveNationVenues = [
-            'o2 arena', 'manchester arena', 'first direct arena',
-            'motorpoint arena', 'sec armadillo', 'ovo hydro',
-            'olympia london', 'eventim apollo', 'roundhouse'
-        ];
-
-        return in_array(strtolower($venue), $liveNationVenues);
-    }
-
-    /**
-     * Get platform-specific filtering options
-     */
-    public function getFilterOptions(): array
-    {
-        return [
-            'genres' => [
-                'rock' => 'Rock & Alternative',
-                'pop' => 'Pop & Mainstream',
-                'indie' => 'Indie & Folk',
-                'electronic' => 'Electronic & Dance',
-                'jazz' => 'Jazz & Blues',
-                'classical' => 'Classical',
-                'comedy' => 'Comedy',
-                'family' => 'Family Shows'
-            ],
-            'venues' => [
-                'arena' => 'Arena Shows',
-                'theater' => 'Theater Venues',
-                'outdoor' => 'Outdoor Events',
-                'intimate' => 'Intimate Venues'
-            ],
-            'price_ranges' => [
-                '0-30' => 'Under £30',
-                '30-60' => '£30 - £60',
-                '60-120' => '£60 - £120',
-                '120+' => 'Over £120'
-            ],
-            'special_offers' => [
-                'presale' => 'Presale Available',
-                'vip' => 'VIP Packages',
-                'family' => 'Family Packages'
-            ]
-        ];
-    }
-
-    /**
-     * Get platform-specific features
-     */
-    public function getPlatformFeatures(): array
-    {
-        return [
-            'Exclusive presale access for members',
-            'VIP packages and experiences available',
-            'Mobile ticket delivery',
-            'Venue partnerships with major arenas',
-            'Artist pre-sale opportunities',
-            'Flexible payment options'
-        ];
     }
 }

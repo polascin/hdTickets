@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Services\SecurityService;
 use App\Services\TwoFactorAuthService;
+use Cache;
+use DateTimeZone;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Log;
+use Storage;
+
+use function count;
 
 class ProfileController extends Controller
 {
@@ -38,27 +45,27 @@ class ProfileController extends Controller
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : null,
-            
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : NULL,
+
             // Sports Events Monitoring Statistics
             'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
             'total_alerts'     => $user->ticketAlerts()->count(),
             'recent_purchases' => 0, // Placeholder for purchase history when implemented
             'active_searches'  => $user->ticketAlerts()->where('status', 'active')->where('created_at', '>=', now()->subMonth())->count(),
-            
+
             // Activity statistics
-            'profile_views'       => $user->profile_views ?? 0,
-            'account_age_months'  => $user->created_at->diffInMonths(now()),
-            'last_activity'       => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never active',
+            'profile_views'      => $user->profile_views ?? 0,
+            'account_age_months' => $user->created_at->diffInMonths(now()),
+            'last_activity'      => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never active',
         ];
 
         // Enhanced security and verification status
         $securityStatus = [
-            'email_verified'       => (bool) $user->email_verified_at,
-            'two_factor_enabled'   => (bool) $user->two_factor_secret,
-            'profile_complete'     => $profileCompletion['percentage'] >= 100,
-            'password_age_days'    => $user->password_changed_at ? 
-                                     $user->password_changed_at->diffInDays(now()) : 
+            'email_verified'     => (bool) $user->email_verified_at,
+            'two_factor_enabled' => (bool) $user->two_factor_secret,
+            'profile_complete'   => $profileCompletion['percentage'] >= 100,
+            'password_age_days'  => $user->password_changed_at ?
+                                     $user->password_changed_at->diffInDays(now()) :
                                      $user->created_at->diffInDays(now()),
             'trusted_devices_count' => count($user->trusted_devices ?? []),
             'active_sessions_count' => 1, // Default to current session
@@ -66,18 +73,18 @@ class ProfileController extends Controller
 
         // Recent activity data
         $recentActivity = [
-            'last_login' => $user->last_login_at,
-            'login_count' => $user->login_count ?? 0,
-            'recent_ips' => [$user->last_login_ip],
+            'last_login'      => $user->last_login_at,
+            'login_count'     => $user->login_count ?? 0,
+            'recent_ips'      => [$user->last_login_ip],
             'account_changes' => $user->updated_at->diffForHumans(),
         ];
 
         // Profile insights and recommendations
         $profileInsights = [
-            'completion_status' => $profileCompletion['status'],
+            'completion_status'       => $profileCompletion['status'],
             'missing_critical_fields' => array_intersect($profileCompletion['missing_fields'], ['phone', 'two_factor_enabled']),
-            'security_score' => $this->calculateSecurityScore($user, $securityStatus),
-            'recommendations' => $this->generateProfileRecommendations($user, $profileCompletion, $securityStatus),
+            'security_score'          => $this->calculateSecurityScore($user, $securityStatus),
+            'recommendations'         => $this->generateProfileRecommendations($user, $profileCompletion, $securityStatus),
         ];
 
         return view('profile.show', compact(
@@ -86,7 +93,7 @@ class ProfileController extends Controller
             'userStats',
             'securityStatus',
             'recentActivity',
-            'profileInsights'
+            'profileInsights',
         ));
     }
 
@@ -97,11 +104,11 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             // Cache key for user statistics
             $cacheKey = "user_stats_{$user->id}";
-            
-            $userStats = \Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
+
+            $userStats = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
                 return [
                     'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
                     'total_alerts'     => $user->ticketAlerts()->count(),
@@ -109,32 +116,31 @@ class ProfileController extends Controller
                         ->where('status', 'active')
                         ->where('created_at', '>=', now()->subMonth())
                         ->count(),
-                    'recent_purchases' => 0, // Placeholder for purchase history when implemented
-                    'login_count'      => $user->login_count ?? 0,
+                    'recent_purchases'   => 0, // Placeholder for purchase history when implemented
+                    'login_count'        => $user->login_count ?? 0,
                     'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
                     'profile_completion' => $user->getProfileCompletion()['percentage'],
-                    'security_score' => $this->calculateSecurityScore($user),
-                    'account_age_days' => $user->created_at->diffInDays(now()),
+                    'security_score'     => $this->calculateSecurityScore($user),
+                    'account_age_days'   => $user->created_at->diffInDays(now()),
                 ];
             });
 
             return response()->json([
-                'success' => true,
-                'stats' => $userStats,
+                'success'    => TRUE,
+                'stats'      => $userStats,
                 'updated_at' => now()->toISOString(),
-                'cached' => true
+                'cached'     => TRUE,
             ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Profile stats error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Profile stats error: ' . $e->getMessage(), [
                 'user_id' => $request->user()?->id,
-                'error' => $e->getTraceAsString()
+                'error'   => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Unable to load statistics. Please try again.',
-                'error' => app()->isProduction() ? 'Server error' : $e->getMessage()
+                'error'   => app()->isProduction() ? 'Server error' : $e->getMessage(),
             ], 500);
         }
     }
@@ -147,14 +153,14 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $profileCompletion = $user->getProfileCompletion();
-            
+
             // Available timezones for selection
-            $timezones = collect(\DateTimeZone::listIdentifiers())
+            $timezones = collect(DateTimeZone::listIdentifiers())
                 ->mapWithKeys(function ($timezone) {
                     return [$timezone => $timezone];
                 })
                 ->toArray();
-            
+
             // Available languages
             $languages = [
                 'en' => 'English',
@@ -168,15 +174,16 @@ class ProfileController extends Controller
                 'cs' => 'Czech',
                 'sk' => 'Slovak',
             ];
-            
+
             return view('profile.edit', compact(
                 'user',
                 'profileCompletion',
                 'timezones',
-                'languages'
+                'languages',
             ));
-        } catch (\Exception $e) {
-            \Log::error('Profile edit page error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Profile edit page error: ' . $e->getMessage());
+
             return redirect()->route('profile.show')
                 ->with('error', 'Unable to load profile edit page. Please try again.');
         }
@@ -189,14 +196,14 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             $analyticsService = new \App\Services\ProfileAnalyticsService();
             $analytics = $analyticsService->getAnalytics($user);
-            
+
             return view('profile.analytics', compact('user', 'analytics'));
-            
-        } catch (\Exception $e) {
-            \Log::error('Profile analytics error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Profile analytics error: ' . $e->getMessage());
+
             return redirect()->route('profile.show')
                 ->with('error', 'Unable to load analytics. Please try again.');
         }
@@ -209,14 +216,14 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             $securityService = new \App\Services\AdvancedSecurityService();
             $securityData = $securityService->getSecurityDashboard($user);
-            
+
             return view('profile.advanced-security', compact('user', 'securityData'));
-            
-        } catch (\Exception $e) {
-            \Log::error('Advanced security dashboard error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Advanced security dashboard error: ' . $e->getMessage());
+
             return redirect()->route('profile.security')
                 ->with('error', 'Unable to load security dashboard. Please try again.');
         }
@@ -229,74 +236,74 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             $analyticsService = new \App\Services\ProfileAnalyticsService();
             $analytics = $analyticsService->getAnalytics($user);
-            
+
             return response()->json([
-                'success' => true,
-                'data' => $analytics,
+                'success'   => TRUE,
+                'data'      => $analytics,
                 'timestamp' => now()->toISOString(),
             ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Analytics API error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Analytics API error: ' . $e->getMessage());
+
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to fetch analytics data.'
+                'success' => FALSE,
+                'message' => 'Unable to fetch analytics data.',
             ], 500);
         }
     }
+
     public function updatePreferences(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $validated = $request->validate([
-                'theme' => 'nullable|in:light,dark,auto',
+                'theme'               => 'nullable|in:light,dark,auto',
                 'notifications_email' => 'boolean',
-                'notifications_push' => 'boolean',
-                'notifications_sms' => 'boolean',
-                'language' => 'nullable|string|max:5',
-                'timezone' => 'nullable|string|max:100',
-                'currency' => 'nullable|string|max:3',
-                'date_format' => 'nullable|in:Y-m-d,m/d/Y,d/m/Y,d.m.Y',
-                'time_format' => 'nullable|in:24,12',
+                'notifications_push'  => 'boolean',
+                'notifications_sms'   => 'boolean',
+                'language'            => 'nullable|string|max:5',
+                'timezone'            => 'nullable|string|max:100',
+                'currency'            => 'nullable|string|max:3',
+                'date_format'         => 'nullable|in:Y-m-d,m/d/Y,d/m/Y,d.m.Y',
+                'time_format'         => 'nullable|in:24,12',
             ]);
 
             $user = $request->user();
-            
+
             // Update preferences in user profile
             $preferences = array_merge($user->preferences ?? [], $validated);
-            
+
             $user->update([
                 'preferences' => $preferences,
-                'language' => $validated['language'] ?? $user->language,
-                'timezone' => $validated['timezone'] ?? $user->timezone,
+                'language'    => $validated['language'] ?? $user->language,
+                'timezone'    => $validated['timezone'] ?? $user->timezone,
             ]);
 
             // Clear user stats cache to reflect changes
-            \Cache::forget("user_stats_{$user->id}");
+            Cache::forget("user_stats_{$user->id}");
 
             return response()->json([
-                'success' => true,
-                'message' => 'Preferences updated successfully!',
-                'preferences' => $preferences
+                'success'     => TRUE,
+                'message'     => 'Preferences updated successfully!',
+                'preferences' => $preferences,
             ]);
-            
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors'  => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
-            \Log::error('Profile preferences update error: ' . $e->getMessage(), [
-                'user_id' => $request->user()?->id,
-                'request_data' => $request->all()
+        } catch (Exception $e) {
+            Log::error('Profile preferences update error: ' . $e->getMessage(), [
+                'user_id'      => $request->user()?->id,
+                'request_data' => $request->all(),
             ]);
-            
+
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to update preferences. Please try again.'
+                'success' => FALSE,
+                'message' => 'Unable to update preferences. Please try again.',
             ], 500);
         }
     }
@@ -356,7 +363,7 @@ class ProfileController extends Controller
             if ($request->hasFile('photo')) {
                 // Delete old photo if exists
                 if ($user->profile_photo_path) {
-                    \Storage::disk('public')->delete($user->profile_photo_path);
+                    Storage::disk('public')->delete($user->profile_photo_path);
                 }
 
                 // Store new photo
@@ -378,7 +385,7 @@ class ProfileController extends Controller
                 'success' => FALSE,
                 'message' => 'No photo uploaded',
             ], 400);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to upload photo: ' . $e->getMessage(),
@@ -447,7 +454,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!$this->twoFactorService->isEnabled($user)) {
+        if (! $this->twoFactorService->isEnabled($user)) {
             return back()->withErrors(['error' => 'Two-factor authentication is not enabled.']);
         }
 
@@ -549,6 +556,9 @@ class ProfileController extends Controller
 
     /**
      * Calculate user security score based on various factors
+     *
+     * @param mixed $user
+     * @param mixed $securityStatus
      */
     private function calculateSecurityScore($user, $securityStatus): int
     {
@@ -586,7 +596,7 @@ class ProfileController extends Controller
         }
 
         // Phone number provided (5 points)
-        if (!empty($user->phone)) {
+        if (! empty($user->phone)) {
             $score += 5;
         }
 
@@ -595,6 +605,10 @@ class ProfileController extends Controller
 
     /**
      * Generate profile recommendations based on user data
+     *
+     * @param mixed $user
+     * @param mixed $profileCompletion
+     * @param mixed $securityStatus
      */
     private function generateProfileRecommendations($user, $profileCompletion, $securityStatus): array
     {
@@ -603,51 +617,51 @@ class ProfileController extends Controller
         // Profile completion recommendations
         if ($profileCompletion['percentage'] < 90) {
             $recommendations[] = [
-                'type' => 'profile',
-                'priority' => 'high',
-                'title' => 'Complete Your Profile',
+                'type'        => 'profile',
+                'priority'    => 'high',
+                'title'       => 'Complete Your Profile',
                 'description' => 'Add missing information to unlock all features.',
-                'action' => 'Complete Profile',
-                'route' => 'profile.edit',
-                'icon' => 'user-circle',
+                'action'      => 'Complete Profile',
+                'route'       => 'profile.edit',
+                'icon'        => 'user-circle',
             ];
         }
 
         // Security recommendations
-        if (!$securityStatus['email_verified']) {
+        if (! $securityStatus['email_verified']) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'high',
-                'title' => 'Verify Your Email',
+                'type'        => 'security',
+                'priority'    => 'high',
+                'title'       => 'Verify Your Email',
                 'description' => 'Verify your email address to secure your account.',
-                'action' => 'Verify Email',
-                'route' => null,
-                'icon' => 'mail',
+                'action'      => 'Verify Email',
+                'route'       => NULL,
+                'icon'        => 'mail',
             ];
         }
 
-        if (!$securityStatus['two_factor_enabled']) {
+        if (! $securityStatus['two_factor_enabled']) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'medium',
-                'title' => 'Enable Two-Factor Authentication',
+                'type'        => 'security',
+                'priority'    => 'medium',
+                'title'       => 'Enable Two-Factor Authentication',
                 'description' => 'Add an extra layer of security to your account.',
-                'action' => 'Enable 2FA',
-                'route' => 'profile.security',
-                'icon' => 'shield-check',
+                'action'      => 'Enable 2FA',
+                'route'       => 'profile.security',
+                'icon'        => 'shield-check',
             ];
         }
 
         // Password age recommendation
         if ($securityStatus['password_age_days'] > 180) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'medium',
-                'title' => 'Update Your Password',
+                'type'        => 'security',
+                'priority'    => 'medium',
+                'title'       => 'Update Your Password',
                 'description' => 'Consider updating your password for better security.',
-                'action' => 'Change Password',
-                'route' => 'profile.security',
-                'icon' => 'key',
+                'action'      => 'Change Password',
+                'route'       => 'profile.security',
+                'icon'        => 'key',
             ];
         }
 

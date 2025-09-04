@@ -7,8 +7,45 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class LordsCricketPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -62,40 +99,6 @@ class LordsCricketPlugin extends BaseScraperPlugin
         ];
     }
 
-    /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
     protected function buildSearchUrl(array $criteria): string
     {
         return $this->baseUrl . '/tickets';
@@ -107,18 +110,18 @@ class LordsCricketPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.match-item, .fixture-item, .event-item')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.match-item, .fixture-item, .event-item')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseMatchItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Lords match item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Lords match item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Lords search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Lords search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -136,55 +139,56 @@ class LordsCricketPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             return [
-                'title' => trim($title),
-                'teams' => trim($teams),
-                'venue' => $this->venue,
-                'location' => 'St John\'s Wood, London, NW8 8QN',
-                'date' => $this->parseDate($date),
+                'title'        => trim($title),
+                'teams'        => trim($teams),
+                'venue'        => $this->venue,
+                'location'     => 'St John\'s Wood, London, NW8 8QN',
+                'date'         => $this->parseDate($date),
                 'match_format' => trim($format),
-                'price' => $this->parsePrice($priceText),
-                'currency' => $this->currency,
+                'price'        => $this->parsePrice($priceText),
+                'currency'     => $this->currency,
                 'availability' => $this->parseAvailability($availability),
-                'url' => $link ? $this->buildFullUrl($link) : null,
-                'platform' => $this->platform,
-                'category' => 'cricket',
-                'scraped_at' => now()->toISOString(),
+                'url'          => $link ? $this->buildFullUrl($link) : NULL,
+                'platform'     => $this->platform,
+                'category'     => 'cricket',
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Lords match item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Lords match item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE) {
             return 'sold_out';
         }
-        if (strpos($lowerStatus, 'available') !== false) {
+        if (strpos($lowerStatus, 'available') !== FALSE) {
             return 'available';
         }
-        
+
         return 'check_website';
     }
 
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     protected function buildFullUrl(string $path): string
@@ -192,15 +196,38 @@ class LordsCricketPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
     // Required abstract methods
-    protected function getTestUrl(): string { return $this->baseUrl . '/tickets'; }
-    protected function getEventNameSelectors(): string { return '.match-title, .event-title, h2, h3'; }
-    protected function getDateSelectors(): string { return '.date, .match-date, time'; }
-    protected function getVenueSelectors(): string { return '.venue'; }
-    protected function getPriceSelectors(): string { return '.price, .from-price'; }
-    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
+    protected function getTestUrl(): string
+    {
+        return $this->baseUrl . '/tickets';
+    }
+
+    protected function getEventNameSelectors(): string
+    {
+        return '.match-title, .event-title, h2, h3';
+    }
+
+    protected function getDateSelectors(): string
+    {
+        return '.date, .match-date, time';
+    }
+
+    protected function getVenueSelectors(): string
+    {
+        return '.venue';
+    }
+
+    protected function getPriceSelectors(): string
+    {
+        return '.price, .from-price';
+    }
+
+    protected function getAvailabilitySelectors(): string
+    {
+        return '.availability, .status';
+    }
 }

@@ -7,8 +7,74 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+use function sprintf;
+
 class EntradiumSpainPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for Entradium Spain
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Equipos La Liga' => [
+                'Real Madrid',
+                'FC Barcelona',
+                'Atlético Madrid',
+                'Sevilla FC',
+                'Real Sociedad',
+                'Athletic Bilbao',
+                'Valencia CF',
+                'Real Betis',
+            ],
+            'Estadios Principales' => [
+                'Santiago Bernabéu',
+                'Camp Nou',
+                'Metropolitano',
+                'Ramón Sánchez-Pizjuán',
+                'San Mamés',
+                'Mestalla',
+            ],
+            'Eventos Populares' => [
+                'El Clásico',
+                'Derby Madrileño',
+                'Conciertos',
+                'Teatro',
+                'Flamenco',
+                'Festivales',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific team
+     */
+    public function supportsTeam(string $team): bool
+    {
+        $supportedTeams = [
+            'real madrid', 'barcelona', 'atletico madrid', 'sevilla',
+            'real sociedad', 'athletic bilbao', 'valencia', 'real betis',
+            'villarreal', 'celta vigo', 'espanyol', 'getafe',
+        ];
+
+        return in_array(strtolower($team), $supportedTeams, TRUE);
+    }
+
+    /**
+     * Check if platform supports a specific city
+     */
+    public function supportsCity(string $city): bool
+    {
+        $supportedCities = [
+            'madrid', 'barcelona', 'sevilla', 'valencia', 'bilbao',
+            'san sebastian', 'villarreal', 'vigo', 'getafe', 'cornella',
+        ];
+
+        return in_array(strtolower($city), $supportedCities, TRUE);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -79,40 +145,22 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
-            'q' => $query,
-            'ciudad' => $filters['city'] ?? '',
+            'q'         => $query,
+            'ciudad'    => $filters['city'] ?? '',
             'categoria' => $filters['category'] ?? '',
-            'fecha' => $filters['date'] ?? '',
-            'equipo' => $filters['team'] ?? '',
-            'artista' => $filters['artist'] ?? '',
+            'fecha'     => $filters['date'] ?? '',
+            'equipo'    => $filters['team'] ?? '',
+            'artista'   => $filters['artist'] ?? '',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/buscar?' . http_build_query($params);
-    }
-
-    /**
-     * Map competition names to Spanish terms
-     */
-    private function mapCompetition(string $competition): string
-    {
-        $competitions = [
-            'la_liga' => 'LaLiga EA Sports',
-            'segunda' => 'LaLiga SmartBank',
-            'champions_league' => 'Champions League',
-            'europa_league' => 'Europa League',
-            'copa_del_rey' => 'Copa del Rey',
-            'supercopa' => 'Supercopa de España',
-            'clasico' => 'El Clásico',
-        ];
-
-        return $competitions[strtolower($competition)] ?? $competition;
     }
 
     /**
@@ -121,12 +169,12 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
     protected function scrapeTickets(array $criteria): array
     {
         $searchUrl = $this->buildSearchUrl($criteria);
-        
+
         try {
-            Log::info("Entradium Spain Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("Entradium Spain Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -134,76 +182,24 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // Entradium search results selectors
-            $crawler->filter('.evento-card, .ticket-item, .entrada-box, .event-listing')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.evento-card, .ticket-item, .entrada-box, .event-listing')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("Entradium Spain Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('Entradium Spain Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("Entradium Spain Plugin: Found " . count($tickets) . " tickets");
+            Log::info('Entradium Spain Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("Entradium Spain Plugin: Scraping error: " . $e->getMessage());
+            Log::error('Entradium Spain Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.titulo-evento, .event-title, .nombre, h3 a, .title');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.estadio, .venue, .lugar, .location, .recinto');
-            $date = $this->extractText($node, '.fecha, .date, .event-date, .dia');
-            $time = $this->extractText($node, '.hora, .time, .horario');
-            $priceText = $this->extractText($node, '.precio, .price, .desde, .coste');
-            $link = $this->extractAttribute($node, 'a', 'href');
-            $category = $this->extractText($node, '.categoria, .category, .tipo');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date and time
-            $eventDate = $this->parseDateTime($date, $time);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title, venue, and extracted category
-            $eventCategory = $this->determineCategory($title, $venue, $category);
-
-            return [
-                'title' => $title,
-                'price' => $price['min'],
-                'price_range' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $eventCategory,
-                'availability' => $this->determineAvailability($node),
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("Entradium Spain Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -215,48 +211,18 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.evento-card, .ticket-item, .entrada-box, .event-listing')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.evento-card, .ticket-item, .entrada-box, .event-listing')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("Entradium Spain Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('Entradium Spain Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
         return $tickets;
-    }
-
-    /**
-     * Parse date and time together
-     */
-    private function parseDateTime(string $date, string $time): ?string
-    {
-        $eventDate = $this->parseDate($date);
-        
-        if ($eventDate && !empty($time)) {
-            $timeFormatted = $this->parseTime($time);
-            if ($timeFormatted) {
-                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
-            }
-        }
-        
-        return $eventDate;
-    }
-
-    /**
-     * Parse time from Spanish text
-     */
-    private function parseTime(string $time): ?string
-    {
-        // Handle Spanish time formats like "20:30h", "20.30", etc.
-        if (preg_match('/(\d{1,2})[:.h](\d{2})/', $time, $matches)) {
-            return sprintf('%02d:%02d', $matches[1], $matches[2]);
-        }
-        
-        return null;
     }
 
     /**
@@ -300,30 +266,131 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Map competition names to Spanish terms
+     */
+    private function mapCompetition(string $competition): string
+    {
+        $competitions = [
+            'la_liga'          => 'LaLiga EA Sports',
+            'segunda'          => 'LaLiga SmartBank',
+            'champions_league' => 'Champions League',
+            'europa_league'    => 'Europa League',
+            'copa_del_rey'     => 'Copa del Rey',
+            'supercopa'        => 'Supercopa de España',
+            'clasico'          => 'El Clásico',
+        ];
+
+        return $competitions[strtolower($competition)] ?? $competition;
+    }
+
+    /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.titulo-evento, .event-title, .nombre, h3 a, .title');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.estadio, .venue, .lugar, .location, .recinto');
+            $date = $this->extractText($node, '.fecha, .date, .event-date, .dia');
+            $time = $this->extractText($node, '.hora, .time, .horario');
+            $priceText = $this->extractText($node, '.precio, .price, .desde, .coste');
+            $link = $this->extractAttribute($node, 'a', 'href');
+            $category = $this->extractText($node, '.categoria, .category, .tipo');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date and time
+            $eventDate = $this->parseDateTime($date, $time);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title, venue, and extracted category
+            $eventCategory = $this->determineCategory($title, $venue, $category);
+
+            return [
+                'title'        => $title,
+                'price'        => $price['min'],
+                'price_range'  => $price,
+                'currency'     => $this->currency,
+                'venue'        => $venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => $eventCategory,
+                'availability' => $this->determineAvailability($node),
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Entradium Spain Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
+     * Parse date and time together
+     */
+    private function parseDateTime(string $date, string $time): ?string
+    {
+        $eventDate = $this->parseDate($date);
+
+        if ($eventDate && ! empty($time)) {
+            $timeFormatted = $this->parseTime($time);
+            if ($timeFormatted) {
+                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
+            }
+        }
+
+        return $eventDate;
+    }
+
+    /**
+     * Parse time from Spanish text
+     */
+    private function parseTime(string $time): ?string
+    {
+        // Handle Spanish time formats like "20:30h", "20.30", etc.
+        if (preg_match('/(\d{1,2})[:.h](\d{2})/', $time, $matches)) {
+            return sprintf('%02d:%02d', $matches[1], $matches[2]);
+        }
+
+        return NULL;
+    }
+
+    /**
      * Parse price from Spanish text
      */
     private function parsePrice(string $priceText): array
     {
         if (empty($priceText)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         // Handle Spanish price formats
         $priceText = str_replace(['desde ', 'a partir de ', 'desde', '€'], '', strtolower($priceText));
-        
+
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function($price) {
+        $prices = array_map(function ($price) {
             return (float) str_replace(',', '.', $price);
         }, $matches[0]);
 
         if (empty($prices)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         return [
             'min' => min($prices),
-            'max' => count($prices) > 1 ? max($prices) : min($prices)
+            'max' => count($prices) > 1 ? max($prices) : min($prices),
         ];
     }
 
@@ -365,76 +432,14 @@ class EntradiumSpainPlugin extends BaseScraperPlugin
     private function determineAvailability(Crawler $node): string
     {
         $availabilityText = $this->extractText($node, '.disponibilidad, .availability, .estado');
-        
+
         if (preg_match('/agotad|sold.?out|sin entradas|no disponible/i', $availabilityText)) {
             return 'sold_out';
         }
         if (preg_match('/pocas entradas|few tickets|limitad|últimas/i', $availabilityText)) {
             return 'limited';
         }
-        
+
         return 'available';
-    }
-
-    /**
-     * Get search suggestions for Entradium Spain
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Equipos La Liga' => [
-                'Real Madrid',
-                'FC Barcelona',
-                'Atlético Madrid',
-                'Sevilla FC',
-                'Real Sociedad',
-                'Athletic Bilbao',
-                'Valencia CF',
-                'Real Betis'
-            ],
-            'Estadios Principales' => [
-                'Santiago Bernabéu',
-                'Camp Nou',
-                'Metropolitano',
-                'Ramón Sánchez-Pizjuán',
-                'San Mamés',
-                'Mestalla'
-            ],
-            'Eventos Populares' => [
-                'El Clásico',
-                'Derby Madrileño',
-                'Conciertos',
-                'Teatro',
-                'Flamenco',
-                'Festivales'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific team
-     */
-    public function supportsTeam(string $team): bool
-    {
-        $supportedTeams = [
-            'real madrid', 'barcelona', 'atletico madrid', 'sevilla',
-            'real sociedad', 'athletic bilbao', 'valencia', 'real betis',
-            'villarreal', 'celta vigo', 'espanyol', 'getafe'
-        ];
-
-        return in_array(strtolower($team), $supportedTeams);
-    }
-
-    /**
-     * Check if platform supports a specific city
-     */
-    public function supportsCity(string $city): bool
-    {
-        $supportedCities = [
-            'madrid', 'barcelona', 'sevilla', 'valencia', 'bilbao',
-            'san sebastian', 'villarreal', 'vigo', 'getafe', 'cornella'
-        ];
-
-        return in_array(strtolower($city), $supportedCities);
     }
 }

@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
-use function in_array;
-
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
     /**
@@ -32,13 +30,13 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
         Gate::define('viewHorizon', function ($user = NULL) {
             // In local environment, allow all authenticated users
             if (app()->environment('local')) {
-                return $user !== null;
+                return $user !== NULL;
             }
-            
+
             // In production, check against specific admin emails
             // This should be configured via environment variables or config files
             $adminEmail = config('horizon.admin_email');
-            
+
             return $user && $adminEmail && $user->email === $adminEmail;
         });
     }

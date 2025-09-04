@@ -7,8 +7,92 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+
 class SkiddlePlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for Skiddle
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Popular Genres' => [
+                'Drum & Bass',
+                'House Music',
+                'Techno',
+                'Electronic Dance',
+                'Indie Music',
+                'Alternative Rock',
+            ],
+            'Event Types' => [
+                'Club Nights',
+                'Music Festivals',
+                'Warehouse Raves',
+                'Student Events',
+                'Alternative Nights',
+                'Underground Events',
+            ],
+            'Popular Cities' => [
+                'London',
+                'Manchester',
+                'Birmingham',
+                'Leeds',
+                'Bristol',
+                'Glasgow',
+                'Newcastle',
+                'Liverpool',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific venue
+     */
+    public function supportsVenue(string $venue): bool
+    {
+        $supportedVenues = [
+            'fabric', 'ministry of sound', 'egg london', 'printworks',
+            'warehouse project', 'albert hall', 'gorilla manchester',
+            'motion bristol', 'sub club glasgow', 'boiler room',
+        ];
+
+        return in_array(strtolower($venue), $supportedVenues, TRUE);
+    }
+
+    /**
+     * Get platform-specific filtering options
+     */
+    public function getFilterOptions(): array
+    {
+        return [
+            'genres' => [
+                'clubbing'      => 'Club Nights',
+                'drum_and_bass' => 'Drum & Bass',
+                'house'         => 'House Music',
+                'techno'        => 'Techno',
+                'electronic'    => 'Electronic',
+                'indie'         => 'Indie & Alternative',
+                'festival'      => 'Festivals',
+            ],
+            'event_types' => [
+                'club'     => 'Club Events',
+                'festival' => 'Festivals',
+                'rave'     => 'Raves',
+                'gig'      => 'Live Music',
+                'student'  => 'Student Events',
+            ],
+            'price_ranges' => [
+                'free'  => 'Free Events',
+                '0-10'  => 'Under £10',
+                '10-25' => '£10 - £25',
+                '25-50' => '£25 - £50',
+                '50+'   => 'Over £50',
+            ],
+        ];
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -75,19 +159,19 @@ class SkiddlePlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
-            'keywords' => $query,
-            'where' => $filters['location'] ?? '',
-            'date' => $filters['date'] ?? '',
-            'genre' => $filters['genre'] ?? '',
+            'keywords'  => $query,
+            'where'     => $filters['location'] ?? '',
+            'date'      => $filters['date'] ?? '',
+            'genre'     => $filters['genre'] ?? '',
             'eventcode' => $filters['type'] ?? '',
-            'radius' => $filters['radius'] ?? '25',
+            'radius'    => $filters['radius'] ?? '25',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/whats-on/search/?' . http_build_query($params);
@@ -99,10 +183,10 @@ class SkiddlePlugin extends BaseScraperPlugin
     protected function scrapeTickets(string $searchUrl): array
     {
         try {
-            Log::info("Skiddle Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("Skiddle Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -110,73 +194,24 @@ class SkiddlePlugin extends BaseScraperPlugin
             $tickets = [];
 
             // Skiddle search results selectors
-            $crawler->filter('.event, .event-item, .listing, .event-card')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.event, .event-item, .listing, .event-card')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("Skiddle Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('Skiddle Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("Skiddle Plugin: Found " . count($tickets) . " tickets");
+            Log::info('Skiddle Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("Skiddle Plugin: Scraping error: " . $e->getMessage());
+            Log::error('Skiddle Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name, .event-name');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.venue, .location, .venue-name, .where');
-            $date = $this->extractText($node, '.date, .when, .event-date, time, .starts');
-            $priceText = $this->extractText($node, '.price, .cost, .admission, .entry');
-            $link = $this->extractAttribute($node, 'a', 'href');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date
-            $eventDate = $this->parseDate($date);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title and venue
-            $category = $this->determineCategory($title, $venue);
-
-            return [
-                'title' => $title,
-                'price' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $category,
-                'availability' => 'available',
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("Skiddle Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -188,14 +223,14 @@ class SkiddlePlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.event, .event-item, .listing, .event-card')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.event, .event-item, .listing, .event-card')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("Skiddle Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('Skiddle Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
@@ -243,17 +278,67 @@ class SkiddlePlugin extends BaseScraperPlugin
     }
 
     /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name, .event-name');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.venue, .location, .venue-name, .where');
+            $date = $this->extractText($node, '.date, .when, .event-date, time, .starts');
+            $priceText = $this->extractText($node, '.price, .cost, .admission, .entry');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date
+            $eventDate = $this->parseDate($date);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title and venue
+            $category = $this->determineCategory($title, $venue);
+
+            return [
+                'title'        => $title,
+                'price'        => $price,
+                'currency'     => $this->currency,
+                'venue'        => $venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => $category,
+                'availability' => 'available',
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Skiddle Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
      * Parse price from text
      */
     private function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle Skiddle price formats
         $cleanPrice = strtolower($priceText);
-        
+
         // Handle free events
         if (preg_match('/free|complimentary/i', $cleanPrice)) {
             return 0.00;
@@ -262,12 +347,12 @@ class SkiddlePlugin extends BaseScraperPlugin
         // Extract price numbers
         $cleanPrice = preg_replace('/[^0-9.,£$]/', '', $priceText);
         $cleanPrice = str_replace(',', '', $cleanPrice);
-        
+
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {
             return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -308,86 +393,5 @@ class SkiddlePlugin extends BaseScraperPlugin
         }
 
         return 'nightlife'; // Default for most Skiddle events
-    }
-
-    /**
-     * Get search suggestions for Skiddle
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Popular Genres' => [
-                'Drum & Bass',
-                'House Music',
-                'Techno',
-                'Electronic Dance',
-                'Indie Music',
-                'Alternative Rock'
-            ],
-            'Event Types' => [
-                'Club Nights',
-                'Music Festivals',
-                'Warehouse Raves',
-                'Student Events',
-                'Alternative Nights',
-                'Underground Events'
-            ],
-            'Popular Cities' => [
-                'London',
-                'Manchester',
-                'Birmingham',
-                'Leeds',
-                'Bristol',
-                'Glasgow',
-                'Newcastle',
-                'Liverpool'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific venue
-     */
-    public function supportsVenue(string $venue): bool
-    {
-        $supportedVenues = [
-            'fabric', 'ministry of sound', 'egg london', 'printworks',
-            'warehouse project', 'albert hall', 'gorilla manchester',
-            'motion bristol', 'sub club glasgow', 'boiler room'
-        ];
-
-        return in_array(strtolower($venue), $supportedVenues);
-    }
-
-    /**
-     * Get platform-specific filtering options
-     */
-    public function getFilterOptions(): array
-    {
-        return [
-            'genres' => [
-                'clubbing' => 'Club Nights',
-                'drum_and_bass' => 'Drum & Bass',
-                'house' => 'House Music',
-                'techno' => 'Techno',
-                'electronic' => 'Electronic',
-                'indie' => 'Indie & Alternative',
-                'festival' => 'Festivals'
-            ],
-            'event_types' => [
-                'club' => 'Club Events',
-                'festival' => 'Festivals',
-                'rave' => 'Raves',
-                'gig' => 'Live Music',
-                'student' => 'Student Events'
-            ],
-            'price_ranges' => [
-                'free' => 'Free Events',
-                '0-10' => 'Under £10',
-                '10-25' => '£10 - £25',
-                '25-50' => '£25 - £50',
-                '50+' => 'Over £50'
-            ]
-        ];
     }
 }

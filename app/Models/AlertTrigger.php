@@ -21,8 +21,8 @@ class AlertTrigger extends Model
     ];
 
     protected $casts = [
-        'triggered_at' => 'datetime',
-        'match_score' => 'decimal:2',
+        'triggered_at'      => 'datetime',
+        'match_score'       => 'decimal:2',
         'notification_sent' => 'boolean',
         'user_acknowledged' => 'boolean',
     ];

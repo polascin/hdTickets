@@ -5,10 +5,105 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
+
+use function array_slice;
+use function count;
 
 class WimbledonPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Check if  enabled
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Enable
+     */
+    public function enable(): void
+    {
+        $this->enabled = TRUE;
+        Log::info('Wimbledon plugin enabled');
+    }
+
+    /**
+     * Disable
+     */
+    public function disable(): void
+    {
+        $this->enabled = FALSE;
+        Log::info('Wimbledon plugin disabled');
+    }
+
+    /**
+     * Configure
+     */
+    public function configure(array $config): void
+    {
+        $this->config = array_merge($this->config, $config);
+        Log::info('Wimbledon plugin configured', ['config' => $config]);
+    }
+
+    /**
+     * Test
+     */
+    public function test(): array
+    {
+        try {
+            $testCriteria = ['keyword' => 'tennis', 'max_results' => 1];
+            $results = $this->scrape($testCriteria);
+
+            return [
+                'status'       => 'success',
+                'message'      => 'Wimbledon plugin test successful',
+                'test_results' => count($results),
+                'sample_data'  => ! empty($results) ? $results[0] : NULL,
+            ];
+        } catch (Exception $e) {
+            return [
+                'status'  => 'error',
+                'message' => 'Wimbledon plugin test failed: ' . $e->getMessage(),
+            ];
+        }
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -62,99 +157,6 @@ class WimbledonPlugin extends BaseScraperPlugin
             'price_range',
             'hospitality_level',
         ];
-    }
-
-    /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Check if  enabled
-     */
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
-    /**
-     * Enable
-     */
-    public function enable(): void
-    {
-        $this->enabled = TRUE;
-        Log::info('Wimbledon plugin enabled');
-    }
-
-    /**
-     * Disable
-     */
-    public function disable(): void
-    {
-        $this->enabled = FALSE;
-        Log::info('Wimbledon plugin disabled');
-    }
-
-    /**
-     * Configure
-     */
-    public function configure(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
-        Log::info('Wimbledon plugin configured', ['config' => $config]);
-    }
-
-
-    /**
-     * Test
-     */
-    public function test(): array
-    {
-        try {
-            $testCriteria = ['keyword' => 'tennis', 'max_results' => 1];
-            $results = $this->scrape($testCriteria);
-
-            return [
-                'status'       => 'success',
-                'message'      => 'Wimbledon plugin test successful',
-                'test_results' => count($results),
-                'sample_data'  => ! empty($results) ? $results[0] : NULL,
-            ];
-        } catch (Exception $e) {
-            return [
-                'status'  => 'error',
-                'message' => 'Wimbledon plugin test failed: ' . $e->getMessage(),
-            ];
-        }
     }
 
     /**

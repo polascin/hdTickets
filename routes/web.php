@@ -207,7 +207,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 //     Route::get('/event/{platform}/{eventId}', [App\Http\Controllers\TicketApiController::class, 'getEvent'])->name('ticket-api.event');
 // });
 
-
 // API routes for ticket sources
 Route::middleware(['auth:sanctum'])->prefix('api')->group(function (): void {
     Route::get('ticket-sources', [App\Http\Controllers\TicketSourceController::class, 'apiIndex']);
@@ -261,8 +260,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::get('/profile-debug', function(Request $request) {
+    Route::get('/profile-debug', function (Request $request) {
         $user = $request->user();
+
         return view('profile.show-debug', compact('user'));
     })->name('profile.show.debug');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -358,7 +358,6 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     });
 });
 
-
 // Ticket Scraping Routes
 Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->group(function (): void {
     // Scraping dashboard and listing
@@ -388,6 +387,38 @@ Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->gr
     Route::get('scraping/stats', [App\Http\Controllers\TicketScrapingController::class, 'stats'])->name('scraping.stats');
 });
 
+// Ticket Purchase System
+Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->group(function (): void {
+    // Purchase workflow routes
+    Route::get('{ticket}/purchase', [App\Http\Controllers\TicketPurchaseController::class, 'showPurchaseForm'])
+        ->name('purchase');
+    
+    Route::post('{ticket}/purchase', [App\Http\Controllers\TicketPurchaseController::class, 'processPurchase'])
+        ->middleware('ticket.purchase.validation')
+        ->name('purchase.process');
+    
+    // Purchase result pages
+    Route::get('purchase-success/{purchase}', [App\Http\Controllers\TicketPurchaseController::class, 'showSuccess'])
+        ->name('purchase-success');
+    
+    Route::get('purchase-failed', [App\Http\Controllers\TicketPurchaseController::class, 'showFailed'])
+        ->name('purchase-failed');
+    
+    // Purchase history and management
+    Route::get('purchase-history', [App\Http\Controllers\TicketPurchaseController::class, 'purchaseHistory'])
+        ->name('purchase-history');
+    
+    Route::get('purchase-history/export', [App\Http\Controllers\TicketPurchaseController::class, 'exportPurchaseHistory'])
+        ->name('purchase-history.export');
+    
+    // Purchase management
+    Route::patch('purchases/{purchase}/cancel', [App\Http\Controllers\TicketPurchaseController::class, 'cancelPurchase'])
+        ->name('purchase.cancel');
+    
+    Route::get('purchases/{purchase}/details', [App\Http\Controllers\TicketPurchaseController::class, 'purchaseDetails'])
+        ->name('purchase.details');
+});
+
 // Purchase Decision System
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::prefix('purchase-decisions')->name('purchase-decisions.')->group(function (): void {
@@ -412,8 +443,6 @@ Route::get('health/production', [App\Http\Controllers\ProductionHealthController
 Route::get('health/comprehensive', [App\Http\Controllers\ProductionHealthController::class, 'comprehensive'])
     ->name('health.comprehensive');
 
-
-
 // Public Account Deletion Routes (no authentication required)
 Route::prefix('account/deletion')->name('account.deletion.')->group(function (): void {
     Route::get('/confirm/{token}', [App\Http\Controllers\AccountDeletionController::class, 'confirm'])->name('confirm');
@@ -425,7 +454,7 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function ():
 });
 
 // AJAX endpoint for ticket details (web-authenticated)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/ajax/ticket-details/{id}', [App\Http\Controllers\Api\ScrapingController::class, 'getTicketDetails'])
         ->where('id', '[0-9]+')
         ->name('ajax.ticket-details');

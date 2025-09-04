@@ -10,7 +10,9 @@ class ProfileStatsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_returns_profile_stats_json(): void
     {
         $user = User::factory()->create();
@@ -32,8 +34,8 @@ class ProfileStatsTest extends TestCase
                     'account_age_days',
                 ],
                 'updated_at',
-                'cached'
+                'cached',
             ])
-            ->assertJson(['success' => true]);
+            ->assertJson(['success' => TRUE]);
     }
 }

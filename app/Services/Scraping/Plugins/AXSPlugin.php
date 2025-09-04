@@ -7,8 +7,57 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+
 class AXSPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for AXS
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Popular Sports' => [
+                'Premier League Football',
+                'Championship Football',
+                'England Rugby',
+                'England Cricket',
+                'Six Nations Rugby',
+                'The Ashes Cricket',
+            ],
+            'Popular Venues' => [
+                'Wembley Stadium',
+                'Emirates Stadium',
+                'Old Trafford',
+                'Anfield',
+                'Stamford Bridge',
+                'O2 Arena',
+            ],
+            'Event Types' => [
+                'Football Tickets',
+                'Concert Tickets',
+                'Theater Shows',
+                'Comedy Shows',
+                'Music Festivals',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific venue
+     */
+    public function supportsVenue(string $venue): bool
+    {
+        $supportedVenues = [
+            'wembley', 'emirates', 'old trafford', 'anfield',
+            'stamford bridge', 'o2 arena', 'manchester arena',
+            'first direct arena', 'motorpoint arena',
+        ];
+
+        return in_array(strtolower($venue), $supportedVenues, TRUE);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -77,18 +126,18 @@ class AXSPlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
-            'q' => $query,
-            'city' => $filters['city'] ?? '',
-            'date' => $filters['date'] ?? '',
-            'genre' => $filters['category'] ?? '',
+            'q'      => $query,
+            'city'   => $filters['city'] ?? '',
+            'date'   => $filters['date'] ?? '',
+            'genre'  => $filters['category'] ?? '',
             'radius' => $filters['radius'] ?? '50',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/uk/search?' . http_build_query($params);
@@ -100,12 +149,12 @@ class AXSPlugin extends BaseScraperPlugin
     protected function scrapeTickets(array $criteria): array
     {
         $searchUrl = $this->buildSearchUrl($criteria);
-        
+
         try {
-            Log::info("AXS Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("AXS Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -113,74 +162,24 @@ class AXSPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // AXS search results selector
-            $crawler->filter('.search-result-item, .event-card, .listing-item')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.search-result-item, .event-card, .listing-item')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("AXS Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('AXS Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("AXS Plugin: Found " . count($tickets) . " tickets");
+            Log::info('AXS Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("AXS Plugin: Scraping error: " . $e->getMessage());
+            Log::error('AXS Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.event-title, .listing-title, h3 a, .title');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.venue-name, .location, .venue');
-            $date = $this->extractText($node, '.event-date, .date, .event-time');
-            $priceText = $this->extractText($node, '.price, .cost, .price-range');
-            $link = $this->extractAttribute($node, 'a', 'href');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date
-            $eventDate = $this->parseDate($date);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title and venue
-            $category = $this->determineCategory($title, $venue);
-
-            return [
-                'title' => $title,
-                'price' => $price['min'],
-                'price_range' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $category,
-                'availability' => 'available',
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("AXS Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -192,14 +191,14 @@ class AXSPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.search-result-item, .event-card, .listing-item')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.search-result-item, .event-card, .listing-item')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("AXS Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('AXS Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
@@ -247,27 +246,78 @@ class AXSPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.event-title, .listing-title, h3 a, .title');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.venue-name, .location, .venue');
+            $date = $this->extractText($node, '.event-date, .date, .event-time');
+            $priceText = $this->extractText($node, '.price, .cost, .price-range');
+            $link = $this->extractAttribute($node, 'a', 'href');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date
+            $eventDate = $this->parseDate($date);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title and venue
+            $category = $this->determineCategory($title, $venue);
+
+            return [
+                'title'        => $title,
+                'price'        => $price['min'],
+                'price_range'  => $price,
+                'currency'     => $this->currency,
+                'venue'        => $venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => $category,
+                'availability' => 'available',
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('AXS Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
      * Parse price to get range information
      */
     private function parsePrice(string $priceText): array
     {
         if (empty($priceText)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function($price) {
+        $prices = array_map(function ($price) {
             return (float) str_replace(',', '', $price);
         }, $matches[0]);
 
         if (empty($prices)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         return [
             'min' => min($prices),
-            'max' => count($prices) > 1 ? max($prices) : min($prices)
+            'max' => count($prices) > 1 ? max($prices) : min($prices),
         ];
     }
 
@@ -303,51 +353,5 @@ class AXSPlugin extends BaseScraperPlugin
         }
 
         return 'other';
-    }
-
-    /**
-     * Get search suggestions for AXS
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Popular Sports' => [
-                'Premier League Football',
-                'Championship Football',
-                'England Rugby',
-                'England Cricket',
-                'Six Nations Rugby',
-                'The Ashes Cricket'
-            ],
-            'Popular Venues' => [
-                'Wembley Stadium',
-                'Emirates Stadium',
-                'Old Trafford',
-                'Anfield',
-                'Stamford Bridge',
-                'O2 Arena'
-            ],
-            'Event Types' => [
-                'Football Tickets',
-                'Concert Tickets',
-                'Theater Shows',
-                'Comedy Shows',
-                'Music Festivals'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific venue
-     */
-    public function supportsVenue(string $venue): bool
-    {
-        $supportedVenues = [
-            'wembley', 'emirates', 'old trafford', 'anfield',
-            'stamford bridge', 'o2 arena', 'manchester arena',
-            'first direct arena', 'motorpoint arena'
-        ];
-
-        return in_array(strtolower($venue), $supportedVenues);
     }
 }

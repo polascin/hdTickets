@@ -3,12 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="HD Tickets - Advanced sports ticket monitoring with real-time alerts and automated purchasing. Never miss your favorite team again.">
-    <meta name="keywords" content="sports tickets, monitoring, alerts, purchase, events, football, basketball, baseball, hockey">
-    <meta name="robots" content="index, follow">
+    <meta name="description" content="HD Tickets: Professional sports event ticket monitoring platform with subscription-based access, role-based permissions, automated purchasing, and legal compliance. Track prices across 50+ platforms with 2FA security.">
+    <meta name="keywords" content="sports tickets monitoring, ticket price tracking, automated ticket purchasing, sports events, subscription ticket service, role-based access, GDPR compliant ticketing, 2FA security, professional ticket monitoring, real-time alerts, ticket scraping, sports platforms">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="theme-color" content="#2563eb">
     <meta name="color-scheme" content="light dark">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="author" content="HD Tickets">
+    <meta name="generator" content="Laravel {{ app()->version() }}">
+    <meta name="revisit-after" content="7 days">
+    <meta name="rating" content="general">
+    <meta name="distribution" content="global">
+    <meta name="language" content="en">
+    <meta name="geo.region" content="US">
+    <meta name="geo.placename" content="United States">
+    <link rel="canonical" href="{{ url('/') }}">
+    <link rel="alternate" hreflang="en" href="{{ url('/') }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
     
     <!-- PWA Meta Tags -->
     <meta name="application-name" content="HD Tickets">
@@ -25,17 +36,58 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="HD Tickets">
-    <meta property="og:title" content="HD Tickets - Sports Ticket Monitoring">
-    <meta property="og:description" content="Advanced sports ticket monitoring with real-time alerts. Never miss your favorite team again!">
+    <meta property="og:title" content="HD Tickets - Professional Sports Ticket Monitoring Platform">
+    <meta property="og:description" content="Professional sports event ticket monitoring with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.">
     <meta property="og:image" content="{{ asset('assets/images/hdTicketsLogo.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="HD Tickets - Professional Sports Ticket Monitoring Platform Logo">
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:locale" content="en_US">
+    <meta property="og:updated_time" content="{{ now()->toISOString() }}">
+    <meta property="article:publisher" content="HD Tickets">
+    <meta property="business:contact_data:street_address" content="Professional Sports Monitoring Services">
+    <meta property="business:contact_data:locality" content="United States">
+    <meta property="business:contact_data:country_name" content="USA">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="HD Tickets - Sports Ticket Monitoring">
-    <meta name="twitter:description" content="Advanced sports ticket monitoring with real-time alerts. Never miss your favorite team again!">
+    <meta name="twitter:site" content="@hdtickets">
+    <meta name="twitter:creator" content="@hdtickets">
+    <meta name="twitter:title" content="HD Tickets - Professional Sports Ticket Monitoring Platform">
+    <meta name="twitter:description" content="Professional sports ticket monitoring with subscription-based access, role-based permissions, and automated purchasing. GDPR compliant with enterprise security.">
     <meta name="twitter:image" content="{{ asset('assets/images/hdTicketsLogo.png') }}">
+    <meta name="twitter:image:alt" content="HD Tickets Professional Monitoring Platform">
+    <meta name="twitter:domain" content="{{ parse_url(url('/'), PHP_URL_HOST) }}">
+    <meta name="twitter:url" content="{{ url('/') }}">
+    
+    <!-- Additional Social Meta Tags -->
+    <meta property="fb:app_id" content="">
+    <meta name="pinterest-rich-pin" content="true">
+    <meta name="linkedin:owner" content="HD Tickets">
+    <meta property="al:web:url" content="{{ url('/') }}">
+    <meta property="article:author" content="HD Tickets">
+    <meta property="article:section" content="Sports Technology">
+    <meta property="article:tag" content="Sports Tickets, Monitoring, Automation, GDPR Compliance">
+    
+    <!-- Structured Data -->
+    <x-seo.structured-data type="homepage" />
+    
+    <!-- Analytics Integration -->
+    <x-seo.analytics />
+    
+    <!-- Performance Optimization -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//www.google-analytics.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preload" href="{{ asset('assets/css/app.css') }}" as="style">
+    <link rel="preload" href="{{ asset('assets/js/app.js') }}" as="script">
+    <link rel="preload" href="{{ asset('assets/images/hdTicketsLogo.png') }}" as="image" type="image/png">
+    
+    <!-- Resource Hints -->
+    <link rel="modulepreload" href="{{ asset('assets/js/modules/analytics.js') }}" crossorigin>
+    <link rel="prefetch" href="{{ route('register') }}">
+    <link rel="prefetch" href="{{ route('login') }}">
     
     <title>HD Tickets - Sports Ticket Monitoring</title>
     
@@ -118,13 +170,15 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
         
-        .nav-button.secondary {
-            background: #dc2626;
+        .nav-button.secondary, .btn-secondary {
+            background: #059669;
             margin-left: 0.5rem;
         }
         
-        .nav-button.secondary:hover {
-            background: #b91c1c;
+        .nav-button.secondary:hover, .btn-secondary:hover {
+            background: #047857;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
         }
         
         /* Main Content - Compact Layout */
@@ -557,6 +611,11 @@
                            role="button">
                             Sign In
                         </a>
+                        <a href="{{ route('register.public') }}" 
+                           class="btn-secondary ml-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                           role="button">
+                            Register
+                        </a>
                     @endauth
                 @endif
             </div>
@@ -590,8 +649,9 @@
                     </p>
                     
                     <p class="text-lg text-white/90 max-w-2xl mx-auto mb-8 leading-relaxed">
-                        Advanced sports ticket monitoring with real-time alerts and automated purchasing. 
-                        Track prices across 50+ platforms and never miss your favorite games.
+                        Professional sports ticket monitoring platform with comprehensive user management, 
+                        subscription-based access, and automated purchasing. Track prices across 50+ platforms 
+                        with role-based permissions and legal compliance.
                     </p>
                     
                     <!-- Connection Status -->
@@ -640,55 +700,55 @@
             <!-- Features Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" role="region" aria-label="Key Features">
                 <div class="feature-card-enhanced glass-effect rounded-xl p-6 text-center team-color-football cursor-pointer"
-                     @click="handleFeatureClick('real-time-monitoring')"
+                     @click="handleFeatureClick('role-based-access')"
                      tabindex="0"
                      role="button"
-                     aria-label="Learn about real-time monitoring"
-                     @keydown.enter="handleFeatureClick('real-time-monitoring')"
-                     @keydown.space.prevent="handleFeatureClick('real-time-monitoring')">
+                     aria-label="Learn about role-based access control"
+                     @keydown.enter="handleFeatureClick('role-based-access')"
+                     @keydown.space.prevent="handleFeatureClick('role-based-access')">
                     
-                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">🔔</div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Real-time Monitoring</h3>
-                    <p class="text-sm text-white/80 leading-relaxed">24/7 alerts and continuous monitoring across all major ticket platforms</p>
+                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">👥</div>
+                    <h3 class="text-lg font-semibold text-white mb-3">Role-Based Access</h3>
+                    <p class="text-sm text-white/80 leading-relaxed">Customer, Agent, Admin & Scraper roles with tailored permissions and features</p>
                 </div>
                 
                 <div class="feature-card-enhanced glass-effect rounded-xl p-6 text-center team-color-basketball cursor-pointer"
-                     @click="handleFeatureClick('smart-pricing')"
+                     @click="handleFeatureClick('subscription-system')"
                      tabindex="0"
                      role="button"
-                     aria-label="Learn about smart pricing"
-                     @keydown.enter="handleFeatureClick('smart-pricing')"
-                     @keydown.space.prevent="handleFeatureClick('smart-pricing')">
+                     aria-label="Learn about subscription system"
+                     @keydown.enter="handleFeatureClick('subscription-system')"
+                     @keydown.space.prevent="handleFeatureClick('subscription-system')">
                     
-                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">💰</div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Smart Pricing</h3>
-                    <p class="text-sm text-white/80 leading-relaxed">Advanced price tracking with automated purchasing decisions</p>
+                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">💳</div>
+                    <h3 class="text-lg font-semibold text-white mb-3">Subscription System</h3>
+                    <p class="text-sm text-white/80 leading-relaxed">Monthly plans with configurable limits, 7-day free trial, and unlimited agent access</p>
                 </div>
                 
                 <div class="feature-card-enhanced glass-effect rounded-xl p-6 text-center team-color-baseball cursor-pointer"
-                     @click="handleFeatureClick('multi-platform')"
+                     @click="handleFeatureClick('legal-compliance')"
                      tabindex="0"
                      role="button"
-                     aria-label="Learn about multi-platform coverage"
-                     @keydown.enter="handleFeatureClick('multi-platform')"
-                     @keydown.space.prevent="handleFeatureClick('multi-platform')">
+                     aria-label="Learn about legal compliance"
+                     @keydown.enter="handleFeatureClick('legal-compliance')"
+                     @keydown.space.prevent="handleFeatureClick('legal-compliance')">
                     
-                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">🌐</div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Multi-Platform Coverage</h3>
-                    <p class="text-sm text-white/80 leading-relaxed">Comprehensive coverage across 50+ ticket platforms</p>
+                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">⚖️</div>
+                    <h3 class="text-lg font-semibold text-white mb-3">Legal Compliance</h3>
+                    <p class="text-sm text-white/80 leading-relaxed">GDPR compliant with mandatory legal document acceptance and audit trails</p>
                 </div>
                 
                 <div class="feature-card-enhanced glass-effect rounded-xl p-6 text-center team-color-hockey cursor-pointer"
-                     @click="handleFeatureClick('mobile-experience')"
+                     @click="handleFeatureClick('enhanced-security')"
                      tabindex="0"
                      role="button"
-                     aria-label="Learn about mobile experience"
-                     @keydown.enter="handleFeatureClick('mobile-experience')"
-                     @keydown.space.prevent="handleFeatureClick('mobile-experience')">
+                     aria-label="Learn about enhanced security"
+                     @keydown.enter="handleFeatureClick('enhanced-security')"
+                     @keydown.space.prevent="handleFeatureClick('enhanced-security')">
                     
-                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">📱</div>
-                    <h3 class="text-lg font-semibold text-white mb-3">Mobile Experience</h3>
-                    <p class="text-sm text-white/80 leading-relaxed">PWA-powered mobile app with instant push notifications</p>
+                    <div class="text-4xl mb-4 animate-bounce-gentle" aria-hidden="true">🔒</div>
+                    <h3 class="text-lg font-semibold text-white mb-3">Enhanced Security</h3>
+                    <p class="text-sm text-white/80 leading-relaxed">2FA, device fingerprinting, email/SMS verification, and secure payment processing</p>
                 </div>
             </div>
             
@@ -725,18 +785,49 @@
                         🎊 Celebrate Your Success!
                     </button>
                 @else
-                    <a href="{{ route('login') }}" 
-                       class="inline-block bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 ticket-stub focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                       role="button">
-                        🎫 Get Started
-                    </a>
+                    <div class="space-y-4">
+                        <a href="{{ route('register.public') }}" 
+                           class="inline-block bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 ticket-stub focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mr-4"
+                           role="button">
+                            🎫 Register Now
+                        </a>
+                        
+                        <a href="{{ route('login') }}" 
+                           class="inline-block bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 ticket-stub focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                           role="button">
+                            🔐 Sign In
+                        </a>
+                    </div>
                     
-                    <div class="glass-effect rounded-lg p-6 max-w-md mx-auto mt-6">
-                        <p class="text-sm text-white/90">
-                            <strong class="text-yellow-300">🔐 Administrator Access Required</strong><br>
-                            New user registration is restricted to administrators only.<br>
-                            Please contact your system administrator for access.
-                        </p>
+                    <div class="glass-effect rounded-lg p-6 max-w-2xl mx-auto mt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="text-green-400 text-2xl mb-2">📝</div>
+                                <strong class="text-green-300">Free Registration</strong><br>
+                                <span class="text-white/80">7-day free trial included</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-blue-400 text-2xl mb-2">💳</div>
+                                <strong class="text-blue-300">Flexible Plans</strong><br>
+                                <span class="text-white/80">$29.99/month, no refunds</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-purple-400 text-2xl mb-2">⚖️</div>
+                                <strong class="text-purple-300">Legal Compliance</strong><br>
+                                <span class="text-white/80">GDPR & privacy compliant</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-white/20">
+                            <p class="text-xs text-white/70 text-center">
+                                <strong class="text-yellow-300">Service Provided "As-Is"</strong> • 
+                                No Warranty • No Money-Back Guarantee<br>
+                                By registering, you agree to our 
+                                <a href="{{ route('legal.terms-of-service') }}" class="text-blue-300 hover:text-blue-200 underline">Terms of Service</a>, 
+                                <a href="{{ route('legal.disclaimer') }}" class="text-blue-300 hover:text-blue-200 underline">Disclaimer</a>, and 
+                                <a href="{{ route('legal.privacy-policy') }}" class="text-blue-300 hover:text-blue-200 underline">Privacy Policy</a>
+                            </p>
+                        </div>
                     </div>
                 @endauth
                 
@@ -757,7 +848,174 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- FAQ Section for SEO -->
+            <section class="mt-16 max-w-4xl mx-auto" role="region" aria-label="Frequently Asked Questions">
+                <div class="glass-effect rounded-xl p-8">
+                    <h2 class="text-3xl font-bold text-center text-white mb-8">Frequently Asked Questions</h2>
+                    
+                    <div class="space-y-6" x-data="{ openFaq: null }">
+                        <div class="border-b border-white/20 pb-6">
+                            <button @click="openFaq = openFaq === 1 ? null : 1"
+                                    class="w-full text-left flex justify-between items-center text-white hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                    role="button"
+                                    :aria-expanded="openFaq === 1"
+                                    aria-controls="faq-1">
+                                <span class="text-lg font-semibold">What is HD Tickets?</span>
+                                <span x-text="openFaq === 1 ? '−' : '+'"
+                                      class="text-2xl font-bold"
+                                      aria-hidden="true"></span>
+                            </button>
+                            <div x-show="openFaq === 1"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 id="faq-1"
+                                 class="mt-4 text-white/80 leading-relaxed">
+                                HD Tickets is a professional sports event ticket monitoring platform that provides <a href="{{ route('subscription.plans') }}" class="text-blue-300 hover:text-blue-200 underline">subscription-based access</a> to ticket price tracking, availability alerts, and automated purchasing across 50+ ticket platforms. Our system features <a href="{{ route('register.public') }}" class="text-blue-300 hover:text-blue-200 underline">role-based permissions</a>, enterprise-grade security, and full <a href="{{ route('legal.gdpr-compliance') }}" class="text-blue-300 hover:text-blue-200 underline">GDPR compliance</a>.
+                            </div>
+                        </div>
+                        
+                        <div class="border-b border-white/20 pb-6">
+                            <button @click="openFaq = openFaq === 2 ? null : 2"
+                                    class="w-full text-left flex justify-between items-center text-white hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                    role="button"
+                                    :aria-expanded="openFaq === 2"
+                                    aria-controls="faq-2">
+                                <span class="text-lg font-semibold">How much does HD Tickets cost?</span>
+                                <span x-text="openFaq === 2 ? '−' : '+'"
+                                      class="text-2xl font-bold"
+                                      aria-hidden="true"></span>
+                            </button>
+                            <div x-show="openFaq === 2"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 id="faq-2"
+                                 class="mt-4 text-white/80 leading-relaxed">
+                                HD Tickets offers a <a href="{{ route('subscription.plans') }}" class="text-blue-300 hover:text-blue-200 underline">subscription-based service</a> starting at $29.99 per month, with a 7-day free trial for new customers. Different plans offer varying ticket limits and features. Please note our <a href="{{ route('legal.disclaimer') }}" class="text-blue-300 hover:text-blue-200 underline">no money-back guarantee policy</a> as stated in our Terms of Service.
+                            </div>
+                        </div>
+                        
+                        <div class="border-b border-white/20 pb-6">
+                            <button @click="openFaq = openFaq === 3 ? null : 3"
+                                    class="w-full text-left flex justify-between items-center text-white hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                    role="button"
+                                    :aria-expanded="openFaq === 3"
+                                    aria-controls="faq-3">
+                                <span class="text-lg font-semibold">Is HD Tickets GDPR compliant?</span>
+                                <span x-text="openFaq === 3 ? '−' : '+'"
+                                      class="text-2xl font-bold"
+                                      aria-hidden="true"></span>
+                            </button>
+                            <div x-show="openFaq === 3"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 id="faq-3"
+                                 class="mt-4 text-white/80 leading-relaxed">
+                                Yes, HD Tickets is fully GDPR compliant with comprehensive <a href="{{ route('legal.data-processing-agreement') }}" class="text-blue-300 hover:text-blue-200 underline">data processing agreements</a>, <a href="{{ route('legal.privacy-policy') }}" class="text-blue-300 hover:text-blue-200 underline">privacy controls</a>, and user consent management systems in place. We maintain detailed audit trails and ensure all user data is processed according to GDPR requirements.
+                            </div>
+                        </div>
+                        
+                        <div class="border-b border-white/20 pb-6">
+                            <button @click="openFaq = openFaq === 4 ? null : 4"
+                                    class="w-full text-left flex justify-between items-center text-white hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                    role="button"
+                                    :aria-expanded="openFaq === 4"
+                                    aria-controls="faq-4">
+                                <span class="text-lg font-semibold">What security features does HD Tickets offer?</span>
+                                <span x-text="openFaq === 4 ? '−' : '+'"
+                                      class="text-2xl font-bold"
+                                      aria-hidden="true"></span>
+                            </button>
+                            <div x-show="openFaq === 4"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 id="faq-4"
+                                 class="mt-4 text-white/80 leading-relaxed">
+                                HD Tickets provides enterprise-grade security including <a href="{{ route('profile.security') }}" class="text-blue-300 hover:text-blue-200 underline">two-factor authentication (2FA)</a>, role-based access control, device fingerprinting, session management, and comprehensive audit trails. We also offer email and SMS verification for enhanced account security.
+                            </div>
+                        </div>
+                        
+                        <div class="pb-6">
+                            <button @click="openFaq = openFaq === 5 ? null : 5"
+                                    class="w-full text-left flex justify-between items-center text-white hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                    role="button"
+                                    :aria-expanded="openFaq === 5"
+                                    aria-controls="faq-5">
+                                <span class="text-lg font-semibold">What user roles are available?</span>
+                                <span x-text="openFaq === 5 ? '−' : '+'"
+                                      class="text-2xl font-bold"
+                                      aria-hidden="true"></span>
+                            </button>
+                            <div x-show="openFaq === 5"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 id="faq-5"
+                                 class="mt-4 text-white/80 leading-relaxed">
+                                HD Tickets supports four distinct user roles: <strong class="text-green-400">Customer</strong> (subscription-based access), <strong class="text-blue-400">Agent</strong> (unlimited professional access), <strong class="text-red-400">Admin</strong> (full system access), and <strong class="text-gray-400">Scraper</strong> (system-only for ticket scraping operations). Each role has tailored permissions and features. <a href="{{ route('register.public') }}" class="text-blue-300 hover:text-blue-200 underline">Register now</a> to get started!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
+        
+        <!-- Footer with Legal Links -->
+        <footer class="mt-16 py-8 border-t border-white/20" role="contentinfo">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                    <div>
+                        <h4 class="text-white font-semibold mb-3">Legal Documents</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="{{ route('legal.terms-of-service') }}" class="text-white/70 hover:text-white transition-colors">Terms of Service</a></li>
+                            <li><a href="{{ route('legal.disclaimer') }}" class="text-white/70 hover:text-white transition-colors">Service Disclaimer</a></li>
+                            <li><a href="{{ route('legal.privacy-policy') }}" class="text-white/70 hover:text-white transition-colors">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-3">Compliance</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="{{ route('legal.data-processing-agreement') }}" class="text-white/70 hover:text-white transition-colors">Data Processing</a></li>
+                            <li><a href="{{ route('legal.gdpr-compliance') }}" class="text-white/70 hover:text-white transition-colors">GDPR Compliance</a></li>
+                            <li><a href="{{ route('legal.cookie-policy') }}" class="text-white/70 hover:text-white transition-colors">Cookie Policy</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-3">Policies</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="{{ route('legal.acceptable-use-policy') }}" class="text-white/70 hover:text-white transition-colors">Acceptable Use</a></li>
+                            <li><a href="{{ route('legal.legal-notices') }}" class="text-white/70 hover:text-white transition-colors">Legal Notices</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-semibold mb-3">User Roles</h4>
+                        <ul class="space-y-2 text-sm text-white/70">
+                            <li><span class="text-green-400">•</span> Customer (Subscription)</li>
+                            <li><span class="text-blue-400">•</span> Agent (Unlimited)</li>
+                            <li><span class="text-red-400">•</span> Admin (Full Access)</li>
+                            <li><span class="text-gray-400">•</span> Scraper (System Only)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="border-t border-white/20 pt-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <div class="text-white/60 text-sm mb-4 md:mb-0">
+                            © {{ date('Y') }} HD Tickets. All rights reserved. Service provided "as-is" with no warranty or money-back guarantee.
+                        </div>
+                        <div class="flex space-x-4 text-sm">
+                            <span class="text-white/60">Built with Laravel {{ app()->version() }}</span>
+                            <span class="text-white/60">•</span>
+                            <span class="text-white/60">PHP {{ PHP_VERSION }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
     
     <!-- Celebration Particles Container -->

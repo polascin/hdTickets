@@ -7,8 +7,60 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+use function sprintf;
+
 class TicketOneItalyPlugin extends BaseScraperPlugin
 {
+    /**
+     * Get search suggestions for TicketOne Italy
+     */
+    public function getSearchSuggestions(): array
+    {
+        return [
+            'Serie A Teams' => [
+                'AC Milan',
+                'Inter Milano',
+                'Juventus',
+                'AS Roma',
+                'Lazio',
+                'Napoli',
+                'Atalanta',
+                'Fiorentina',
+            ],
+            'Stadi Principali' => [
+                'San Siro',
+                'Allianz Stadium',
+                'Stadio Olimpico',
+                'Diego Armando Maradona',
+                'Artemio Franchi',
+            ],
+            'Competizioni' => [
+                'Serie A TIM',
+                'Champions League',
+                'Europa League',
+                'Coppa Italia',
+                'Derby della Madonnina',
+                'Derby di Roma',
+            ],
+        ];
+    }
+
+    /**
+     * Check if platform supports a specific team
+     */
+    public function supportsTeam(string $team): bool
+    {
+        $supportedTeams = [
+            'milan', 'inter', 'juventus', 'roma', 'lazio', 'napoli',
+            'atalanta', 'fiorentina', 'torino', 'genoa', 'sampdoria',
+            'bologna', 'sassuolo', 'udinese', 'hellas verona',
+        ];
+
+        return in_array(strtolower($team), $supportedTeams, TRUE);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -76,39 +128,21 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     {
         $query = $criteria['keyword'] ?? '';
         $filters = $criteria['filters'] ?? [];
-        
+
         $params = [
-            'q' => $query,
-            'city' => $filters['city'] ?? '',
+            'q'         => $query,
+            'city'      => $filters['city'] ?? '',
             'categoria' => $filters['category'] ?? '',
-            'data' => $filters['date'] ?? '',
-            'team' => $filters['team'] ?? '',
+            'data'      => $filters['date'] ?? '',
+            'team'      => $filters['team'] ?? '',
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function($value) {
-            return !empty($value);
+        $params = array_filter($params, function ($value) {
+            return ! empty($value);
         });
 
         return $this->baseUrl . '/search?' . http_build_query($params);
-    }
-
-    /**
-     * Map competition names to Italian terms
-     */
-    private function mapCompetition(string $competition): string
-    {
-        $competitions = [
-            'serie_a' => 'Serie A TIM',
-            'serie_b' => 'Serie BKT',
-            'champions_league' => 'Champions League',
-            'europa_league' => 'Europa League',
-            'coppa_italia' => 'Coppa Italia',
-            'supercoppa' => 'Supercoppa Italiana',
-            'derby' => 'Derby',
-        ];
-
-        return $competitions[strtolower($competition)] ?? $competition;
     }
 
     /**
@@ -117,12 +151,12 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     protected function scrapeTickets(array $criteria): array
     {
         $searchUrl = $this->buildSearchUrl($criteria);
-        
+
         try {
-            Log::info("TicketOne Italy Plugin: Scraping tickets from: $searchUrl");
-            
+            Log::info("TicketOne Italy Plugin: Scraping tickets from: {$searchUrl}");
+
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -130,77 +164,24 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
             $tickets = [];
 
             // TicketOne search results selector
-            $crawler->filter('.event-item, .ticket-card, .evento, .biglietto')->each(function (Crawler $node) use (&$tickets) {
+            $crawler->filter('.event-item, .ticket-card, .evento, .biglietto')->each(function (Crawler $node) use (&$tickets): void {
                 try {
                     $ticket = $this->extractTicketData($node);
                     if ($ticket && $this->validateTicketData($ticket)) {
                         $tickets[] = $ticket;
                     }
                 } catch (Exception $e) {
-                    Log::warning("TicketOne Italy Plugin: Error extracting ticket: " . $e->getMessage());
+                    Log::warning('TicketOne Italy Plugin: Error extracting ticket: ' . $e->getMessage());
                 }
             });
 
-            Log::info("TicketOne Italy Plugin: Found " . count($tickets) . " tickets");
+            Log::info('TicketOne Italy Plugin: Found ' . count($tickets) . ' tickets');
+
             return $tickets;
-
         } catch (Exception $e) {
-            Log::error("TicketOne Italy Plugin: Scraping error: " . $e->getMessage());
+            Log::error('TicketOne Italy Plugin: Scraping error: ' . $e->getMessage());
+
             return [];
-        }
-    }
-
-    /**
-     * Extract ticket data from DOM node
-     */
-    private function extractTicketData(Crawler $node): ?array
-    {
-        try {
-            // Extract basic information
-            $title = $this->extractText($node, '.titolo, .event-title, .nome-evento, h3 a, .title');
-            if (empty($title)) {
-                return null;
-            }
-
-            $venue = $this->extractText($node, '.stadio, .venue, .luogo, .location');
-            $date = $this->extractText($node, '.data, .date, .evento-data');
-            $time = $this->extractText($node, '.ora, .time, .orario');
-            $priceText = $this->extractText($node, '.prezzo, .price, .costo, .da');
-            $link = $this->extractAttribute($node, 'a', 'href');
-            $competition = $this->extractText($node, '.campionato, .competition, .serie');
-
-            // Parse price
-            $price = $this->parsePrice($priceText);
-
-            // Parse date and time
-            $eventDate = $this->parseDateTime($date, $time);
-
-            // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
-                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
-            }
-
-            // Determine category from title and venue
-            $category = $this->determineCategory($title, $venue, $competition);
-
-            return [
-                'title' => $title,
-                'price' => $price['min'],
-                'price_range' => $price,
-                'currency' => $this->currency,
-                'venue' => $venue,
-                'event_date' => $eventDate,
-                'link' => $link,
-                'platform' => $this->platform,
-                'category' => $category,
-                'competition' => $competition,
-                'availability' => $this->determineAvailability($node),
-                'scraped_at' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::warning("TicketOne Italy Plugin: Error extracting ticket data: " . $e->getMessage());
-            return null;
         }
     }
 
@@ -212,49 +193,18 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
         $tickets = [];
 
-        $crawler->filter('.event-item, .ticket-card, .evento, .biglietto')->each(function (Crawler $node) use (&$tickets) {
+        $crawler->filter('.event-item, .ticket-card, .evento, .biglietto')->each(function (Crawler $node) use (&$tickets): void {
             try {
                 $ticket = $this->extractTicketData($node);
                 if ($ticket && $this->validateTicketData($ticket)) {
                     $tickets[] = $ticket;
                 }
             } catch (Exception $e) {
-                Log::warning("TicketOne Italy Plugin: Error extracting ticket: " . $e->getMessage());
+                Log::warning('TicketOne Italy Plugin: Error extracting ticket: ' . $e->getMessage());
             }
         });
 
         return $tickets;
-    }
-
-    /**
-     * Parse date and time together
-     */
-    private function parseDateTime(string $date, string $time): ?string
-    {
-        $eventDate = $this->parseDate($date);
-        
-        if ($eventDate && !empty($time)) {
-            // Try to combine date and time
-            $timeFormatted = $this->parseTime($time);
-            if ($timeFormatted) {
-                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
-            }
-        }
-        
-        return $eventDate;
-    }
-
-    /**
-     * Parse time from Italian text
-     */
-    private function parseTime(string $time): ?string
-    {
-        // Handle Italian time formats like "20:30", "20.30", etc.
-        if (preg_match('/(\d{1,2})[:.h](\d{2})/', $time, $matches)) {
-            return sprintf('%02d:%02d', $matches[1], $matches[2]);
-        }
-        
-        return null;
     }
 
     /**
@@ -298,30 +248,133 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     }
 
     /**
+     * Map competition names to Italian terms
+     */
+    private function mapCompetition(string $competition): string
+    {
+        $competitions = [
+            'serie_a'          => 'Serie A TIM',
+            'serie_b'          => 'Serie BKT',
+            'champions_league' => 'Champions League',
+            'europa_league'    => 'Europa League',
+            'coppa_italia'     => 'Coppa Italia',
+            'supercoppa'       => 'Supercoppa Italiana',
+            'derby'            => 'Derby',
+        ];
+
+        return $competitions[strtolower($competition)] ?? $competition;
+    }
+
+    /**
+     * Extract ticket data from DOM node
+     */
+    private function extractTicketData(Crawler $node): ?array
+    {
+        try {
+            // Extract basic information
+            $title = $this->extractText($node, '.titolo, .event-title, .nome-evento, h3 a, .title');
+            if (empty($title)) {
+                return NULL;
+            }
+
+            $venue = $this->extractText($node, '.stadio, .venue, .luogo, .location');
+            $date = $this->extractText($node, '.data, .date, .evento-data');
+            $time = $this->extractText($node, '.ora, .time, .orario');
+            $priceText = $this->extractText($node, '.prezzo, .price, .costo, .da');
+            $link = $this->extractAttribute($node, 'a', 'href');
+            $competition = $this->extractText($node, '.campionato, .competition, .serie');
+
+            // Parse price
+            $price = $this->parsePrice($priceText);
+
+            // Parse date and time
+            $eventDate = $this->parseDateTime($date, $time);
+
+            // Build full URL if relative
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+                $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
+            }
+
+            // Determine category from title and venue
+            $category = $this->determineCategory($title, $venue, $competition);
+
+            return [
+                'title'        => $title,
+                'price'        => $price['min'],
+                'price_range'  => $price,
+                'currency'     => $this->currency,
+                'venue'        => $venue,
+                'event_date'   => $eventDate,
+                'link'         => $link,
+                'platform'     => $this->platform,
+                'category'     => $category,
+                'competition'  => $competition,
+                'availability' => $this->determineAvailability($node),
+                'scraped_at'   => now(),
+            ];
+        } catch (Exception $e) {
+            Log::warning('TicketOne Italy Plugin: Error extracting ticket data: ' . $e->getMessage());
+
+            return NULL;
+        }
+    }
+
+    /**
+     * Parse date and time together
+     */
+    private function parseDateTime(string $date, string $time): ?string
+    {
+        $eventDate = $this->parseDate($date);
+
+        if ($eventDate && ! empty($time)) {
+            // Try to combine date and time
+            $timeFormatted = $this->parseTime($time);
+            if ($timeFormatted) {
+                return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
+            }
+        }
+
+        return $eventDate;
+    }
+
+    /**
+     * Parse time from Italian text
+     */
+    private function parseTime(string $time): ?string
+    {
+        // Handle Italian time formats like "20:30", "20.30", etc.
+        if (preg_match('/(\d{1,2})[:.h](\d{2})/', $time, $matches)) {
+            return sprintf('%02d:%02d', $matches[1], $matches[2]);
+        }
+
+        return NULL;
+    }
+
+    /**
      * Parse price from Italian text
      */
     private function parsePrice(string $priceText): array
     {
         if (empty($priceText)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         // Handle Italian price formats
         $priceText = str_replace(['da ', 'a partire da ', '€'], '', strtolower($priceText));
-        
+
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function($price) {
+        $prices = array_map(function ($price) {
             return (float) str_replace(',', '.', $price);
         }, $matches[0]);
 
         if (empty($prices)) {
-            return ['min' => null, 'max' => null];
+            return ['min' => NULL, 'max' => NULL];
         }
 
         return [
             'min' => min($prices),
-            'max' => count($prices) > 1 ? max($prices) : min($prices)
+            'max' => count($prices) > 1 ? max($prices) : min($prices),
         ];
     }
 
@@ -357,62 +410,14 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     private function determineAvailability(Crawler $node): string
     {
         $availabilityText = $this->extractText($node, '.disponibilita, .availability, .stato');
-        
+
         if (preg_match('/esaurit|sold.?out|non disponibile/i', $availabilityText)) {
             return 'sold_out';
         }
         if (preg_match('/pochi biglietti|few tickets|limitat|ultimi/i', $availabilityText)) {
             return 'limited';
         }
-        
+
         return 'available';
-    }
-
-    /**
-     * Get search suggestions for TicketOne Italy
-     */
-    public function getSearchSuggestions(): array
-    {
-        return [
-            'Serie A Teams' => [
-                'AC Milan',
-                'Inter Milano', 
-                'Juventus',
-                'AS Roma',
-                'Lazio',
-                'Napoli',
-                'Atalanta',
-                'Fiorentina'
-            ],
-            'Stadi Principali' => [
-                'San Siro',
-                'Allianz Stadium',
-                'Stadio Olimpico',
-                'Diego Armando Maradona',
-                'Artemio Franchi'
-            ],
-            'Competizioni' => [
-                'Serie A TIM',
-                'Champions League',
-                'Europa League',
-                'Coppa Italia',
-                'Derby della Madonnina',
-                'Derby di Roma'
-            ]
-        ];
-    }
-
-    /**
-     * Check if platform supports a specific team
-     */
-    public function supportsTeam(string $team): bool
-    {
-        $supportedTeams = [
-            'milan', 'inter', 'juventus', 'roma', 'lazio', 'napoli',
-            'atalanta', 'fiorentina', 'torino', 'genoa', 'sampdoria',
-            'bologna', 'sassuolo', 'udinese', 'hellas verona'
-        ];
-
-        return in_array(strtolower($team), $supportedTeams);
     }
 }

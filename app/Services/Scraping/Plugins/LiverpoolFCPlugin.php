@@ -7,8 +7,45 @@ use Exception;
 use Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class LiverpoolFCPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -63,51 +100,17 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         // Liverpool FC specific URL structure
         $baseSearchUrl = $this->baseUrl . '/tickets';
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $baseSearchUrl .= '?search=' . urlencode($criteria['keyword']);
         }
-        
+
         return $baseSearchUrl;
     }
 
@@ -120,18 +123,18 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.fixture-item, .match-item, .event-item')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.fixture-item, .match-item, .event-item')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Liverpool FC event item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Liverpool FC event item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Liverpool FC search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Liverpool FC search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -152,11 +155,11 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title) && empty($opponent)) {
-                return null;
+                return NULL;
             }
 
             // Build title if not available
-            if (empty($title) && !empty($opponent)) {
+            if (empty($title) && ! empty($opponent)) {
                 $title = 'Liverpool vs ' . $opponent;
             }
 
@@ -165,28 +168,29 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
             $eventTime = $this->parseTime($time);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'opponent' => trim($opponent),
-                'venue' => trim($venue),
-                'location' => 'Liverpool, England',
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'competition' => trim($competition),
-                'price' => null, // Usually requires login
-                'currency' => $this->currency,
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'football',
+                'title'        => trim($title),
+                'opponent'     => trim($opponent),
+                'venue'        => trim($venue),
+                'location'     => 'Liverpool, England',
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'competition'  => trim($competition),
+                'price'        => NULL, // Usually requires login
+                'currency'     => $this->currency,
+                'url'          => $fullUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => 'football',
                 'availability' => 'check_website',
-                'scraped_at' => now()->toISOString(),
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Liverpool FC event item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Liverpool FC event item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -198,7 +202,7 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 

@@ -7,16 +7,111 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function sprintf;
+
 class WimbledonPlugin extends BaseScraperPlugin
 {
     protected string $pluginName = 'Wimbledon Championships';
+
     protected string $platform = 'wimbledon';
+
     protected string $description = 'Official Wimbledon Championships tickets - The most prestigious tennis tournament';
+
     protected string $baseUrl = 'https://www.wimbledon.com';
+
     protected string $venue = 'All England Lawn Tennis Club';
+
     protected string $currency = 'GBP';
+
     protected string $language = 'en-GB';
+
     protected int $rateLimitSeconds = 2;
+
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get Centre Court tickets
+     */
+    public function getCentreCourtTickets(array $criteria = []): array
+    {
+        $criteria['court'] = 'Centre Court';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Court No. 1 tickets
+     */
+    public function getCourt1Tickets(array $criteria = []): array
+    {
+        $criteria['court'] = 'Court No. 1';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Ground Pass tickets
+     */
+    public function getGroundPasses(array $criteria = []): array
+    {
+        $criteria['ticket_type'] = 'ground_pass';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Hospitality packages
+     */
+    public function getHospitalityPackages(array $criteria = []): array
+    {
+        $criteria['ticket_type'] = 'hospitality';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get tickets by round
+     */
+    public function getTicketsByRound(string $round, array $criteria = []): array
+    {
+        $criteria['round'] = $round;
+
+        return $this->scrape($criteria);
+    }
 
     /**
      * Initialize plugin-specific settings
@@ -67,65 +162,31 @@ class WimbledonPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $baseUrl = $this->baseUrl . '/tickets';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['court'])) {
+
+        if (! empty($criteria['court'])) {
             $params['court'] = urlencode($criteria['court']);
         }
-        
-        if (!empty($criteria['ticket_type'])) {
+
+        if (! empty($criteria['ticket_type'])) {
             $params['type'] = urlencode($criteria['ticket_type']);
         }
-        
-        if (!empty($criteria['session'])) {
+
+        if (! empty($criteria['session'])) {
             $params['session'] = urlencode($criteria['session']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -135,6 +196,7 @@ class WimbledonPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
+
         return $baseUrl . ($queryString ? '?' . $queryString : '');
     }
 
@@ -147,18 +209,18 @@ class WimbledonPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.ticket-item, .event-item, .session-item, [data-testid="ticket-item"]')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.ticket-item, .event-item, .session-item, [data-testid="ticket-item"]')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseTicketItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Wimbledon ticket item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Wimbledon ticket item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Wimbledon search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Wimbledon search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -180,13 +242,13 @@ class WimbledonPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             // Parse price
             $price = $this->parsePrice($priceText);
 
-            // Parse date and time  
+            // Parse date and time
             $eventDate = $this->parseDate($date);
             $eventTime = $this->parseTime($time);
 
@@ -194,30 +256,31 @@ class WimbledonPlugin extends BaseScraperPlugin
             $ticketType = $this->determineTicketType($title, $court);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'court' => trim($court),
-                'venue' => $this->venue,
-                'location' => 'Wimbledon, London, SW19',
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'round' => trim($round),
-                'ticket_type' => $ticketType,
-                'price' => $price,
-                'currency' => $this->currency,
+                'title'        => trim($title),
+                'court'        => trim($court),
+                'venue'        => $this->venue,
+                'location'     => 'Wimbledon, London, SW19',
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'round'        => trim($round),
+                'ticket_type'  => $ticketType,
+                'price'        => $price,
+                'currency'     => $this->currency,
                 'availability' => $this->parseAvailability($availability),
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => 'tennis',
-                'tournament' => 'Wimbledon Championships',
-                'scraped_at' => now()->toISOString(),
+                'url'          => $fullUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => 'tennis',
+                'tournament'   => 'Wimbledon Championships',
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Wimbledon ticket item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Wimbledon ticket item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -229,23 +292,23 @@ class WimbledonPlugin extends BaseScraperPlugin
         $lowerTitle = strtolower($title);
         $lowerCourt = strtolower($court);
 
-        if (strpos($lowerTitle, 'hospitality') !== false || strpos($lowerTitle, 'vip') !== false) {
+        if (strpos($lowerTitle, 'hospitality') !== FALSE || strpos($lowerTitle, 'vip') !== FALSE) {
             return 'hospitality';
         }
-        
-        if (strpos($lowerTitle, 'debenture') !== false) {
+
+        if (strpos($lowerTitle, 'debenture') !== FALSE) {
             return 'debenture';
         }
-        
-        if (strpos($lowerCourt, 'centre court') !== false) {
+
+        if (strpos($lowerCourt, 'centre court') !== FALSE) {
             return 'centre_court';
         }
-        
-        if (strpos($lowerCourt, 'court no. 1') !== false || strpos($lowerCourt, 'court 1') !== false) {
+
+        if (strpos($lowerCourt, 'court no. 1') !== FALSE || strpos($lowerCourt, 'court 1') !== FALSE) {
             return 'court_1';
         }
-        
-        if (strpos($lowerTitle, 'ground pass') !== false || strpos($lowerTitle, 'grounds') !== false) {
+
+        if (strpos($lowerTitle, 'ground pass') !== FALSE || strpos($lowerTitle, 'grounds') !== FALSE) {
             return 'ground_pass';
         }
 
@@ -258,16 +321,16 @@ class WimbledonPlugin extends BaseScraperPlugin
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false || strpos($lowerStatus, 'unavailable') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
             return 'sold_out';
         }
-        
-        if (strpos($lowerStatus, 'limited') !== false || strpos($lowerStatus, 'few left') !== false) {
+
+        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
             return 'limited';
         }
-        
-        if (strpos($lowerStatus, 'available') !== false || strpos($lowerStatus, 'on sale') !== false) {
+
+        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
             return 'available';
         }
 
@@ -280,20 +343,20 @@ class WimbledonPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle "from £X" format
         if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
         // Handle regular £X format
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -302,29 +365,30 @@ class WimbledonPlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Handle various time formats
             if (preg_match('/(\d{1,2}):(\d{2})\s*(am|pm)?/i', $timeText, $matches)) {
-                $hour = (int)$matches[1];
+                $hour = (int) $matches[1];
                 $minute = $matches[2];
                 $ampm = strtolower($matches[3] ?? '');
-                
+
                 if ($ampm === 'pm' && $hour < 12) {
                     $hour += 12;
                 } elseif ($ampm === 'am' && $hour === 12) {
                     $hour = 0;
                 }
-                
+
                 return sprintf('%02d:%s', $hour, $minute);
             }
-            
-            return null;
+
+            return NULL;
         } catch (Exception $e) {
-            Log::debug("Failed to parse Wimbledon time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Wimbledon time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -336,7 +400,7 @@ class WimbledonPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
@@ -370,50 +434,5 @@ class WimbledonPlugin extends BaseScraperPlugin
     protected function getAvailabilitySelectors(): string
     {
         return '.availability, .status, .sold-out';
-    }
-
-    /**
-     * Get Centre Court tickets
-     */
-    public function getCentreCourtTickets(array $criteria = []): array
-    {
-        $criteria['court'] = 'Centre Court';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Court No. 1 tickets
-     */
-    public function getCourt1Tickets(array $criteria = []): array
-    {
-        $criteria['court'] = 'Court No. 1';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Ground Pass tickets
-     */
-    public function getGroundPasses(array $criteria = []): array
-    {
-        $criteria['ticket_type'] = 'ground_pass';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Hospitality packages
-     */
-    public function getHospitalityPackages(array $criteria = []): array
-    {
-        $criteria['ticket_type'] = 'hospitality';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get tickets by round
-     */
-    public function getTicketsByRound(string $round, array $criteria = []): array
-    {
-        $criteria['round'] = $round;
-        return $this->scrape($criteria);
     }
 }

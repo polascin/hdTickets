@@ -20,8 +20,8 @@ class AuthenticatedSessionController extends Controller
     public function create(): View
     {
         // Check if enhanced login is enabled
-        $useEnhancedLogin = config('auth.enhanced_login', true);
-        
+        $useEnhancedLogin = config('auth.enhanced_login', TRUE);
+
         return view($useEnhancedLogin ? 'auth.login-enhanced' : 'auth.login');
     }
 

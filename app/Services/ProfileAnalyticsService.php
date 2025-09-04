@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ProfileAnalyticsService
 {
@@ -14,13 +13,13 @@ class ProfileAnalyticsService
      */
     public function getAnalytics(User $user): array
     {
-        return Cache::remember("profile_analytics_{$user->id}", 300, function() use ($user) {
+        return Cache::remember("profile_analytics_{$user->id}", 300, function () use ($user) {
             return [
-                'activity_metrics' => $this->getActivityMetrics($user),
-                'engagement_stats' => $this->getEngagementStats($user),
+                'activity_metrics'     => $this->getActivityMetrics($user),
+                'engagement_stats'     => $this->getEngagementStats($user),
                 'performance_insights' => $this->getPerformanceInsights($user),
-                'trends' => $this->getTrends($user),
-                'recommendations' => $this->getRecommendations($user),
+                'trends'               => $this->getTrends($user),
+                'recommendations'      => $this->getRecommendations($user),
             ];
         });
     }
@@ -30,16 +29,16 @@ class ProfileAnalyticsService
      */
     private function getActivityMetrics(User $user): array
     {
-        $lastLogin = $user->last_login_at ? Carbon::parse($user->last_login_at) : null;
-        $daysSinceLastLogin = $lastLogin ? $lastLogin->diffInDays(now()) : null;
-        
+        $lastLogin = $user->last_login_at ? Carbon::parse($user->last_login_at) : NULL;
+        $daysSinceLastLogin = $lastLogin ? $lastLogin->diffInDays(now()) : NULL;
+
         return [
-            'last_login' => $lastLogin?->format('Y-m-d H:i:s'),
-            'days_since_last_login' => $daysSinceLastLogin,
-            'login_frequency' => $this->calculateLoginFrequency($user),
-            'session_duration_avg' => $this->getAverageSessionDuration($user),
+            'last_login'             => $lastLogin?->format('Y-m-d H:i:s'),
+            'days_since_last_login'  => $daysSinceLastLogin,
+            'login_frequency'        => $this->calculateLoginFrequency($user),
+            'session_duration_avg'   => $this->getAverageSessionDuration($user),
             'active_days_this_month' => $this->getActiveDaysThisMonth($user),
-            'peak_activity_hours' => $this->getPeakActivityHours($user),
+            'peak_activity_hours'    => $this->getPeakActivityHours($user),
         ];
     }
 
@@ -49,9 +48,9 @@ class ProfileAnalyticsService
     private function getEngagementStats(User $user): array
     {
         return [
-            'profile_views' => $this->getProfileViews($user),
-            'profile_updates' => $this->getProfileUpdates($user),
-            'feature_usage' => $this->getFeatureUsage($user),
+            'profile_views'     => $this->getProfileViews($user),
+            'profile_updates'   => $this->getProfileUpdates($user),
+            'feature_usage'     => $this->getFeatureUsage($user),
             'interaction_score' => $this->calculateInteractionScore($user),
         ];
     }
@@ -62,9 +61,9 @@ class ProfileAnalyticsService
     private function getPerformanceInsights(User $user): array
     {
         return [
-            'response_time_avg' => $this->getAverageResponseTime($user),
-            'error_rate' => $this->getErrorRate($user),
-            'success_rate' => $this->getSuccessRate($user),
+            'response_time_avg'  => $this->getAverageResponseTime($user),
+            'error_rate'         => $this->getErrorRate($user),
+            'success_rate'       => $this->getSuccessRate($user),
             'optimization_score' => $this->calculateOptimizationScore($user),
         ];
     }
@@ -76,17 +75,18 @@ class ProfileAnalyticsService
     {
         $last30Days = collect(range(29, 0))->map(function ($daysAgo) use ($user) {
             $date = now()->subDays($daysAgo);
+
             return [
-                'date' => $date->format('Y-m-d'),
-                'logins' => $this->getLoginsForDate($user, $date),
-                'activities' => $this->getActivitiesForDate($user, $date),
+                'date'        => $date->format('Y-m-d'),
+                'logins'      => $this->getLoginsForDate($user, $date),
+                'activities'  => $this->getActivitiesForDate($user, $date),
                 'performance' => $this->getPerformanceForDate($user, $date),
             ];
         });
 
         return [
-            'daily_activity' => $last30Days->toArray(),
-            'weekly_summary' => $this->getWeeklySummary($user),
+            'daily_activity'     => $last30Days->toArray(),
+            'weekly_summary'     => $this->getWeeklySummary($user),
             'monthly_comparison' => $this->getMonthlyComparison($user),
         ];
     }
@@ -97,42 +97,42 @@ class ProfileAnalyticsService
     private function getRecommendations(User $user): array
     {
         $recommendations = [];
-        
+
         // Profile completion recommendations
         $profileCompletion = $user->getProfileCompletion();
         if ($profileCompletion['percentage'] < 80) {
             $recommendations[] = [
-                'type' => 'profile_completion',
-                'priority' => 'high',
-                'title' => 'Complete Your Profile',
+                'type'        => 'profile_completion',
+                'priority'    => 'high',
+                'title'       => 'Complete Your Profile',
                 'description' => 'Your profile is ' . $profileCompletion['percentage'] . '% complete. Complete it to improve your experience.',
-                'action' => 'profile.edit',
-                'icon' => 'fas fa-user-plus',
+                'action'      => 'profile.edit',
+                'icon'        => 'fas fa-user-plus',
             ];
         }
 
         // Security recommendations
-        if (!$user->two_factor_secret) {
+        if (! $user->two_factor_secret) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'high',
-                'title' => 'Enable Two-Factor Authentication',
+                'type'        => 'security',
+                'priority'    => 'high',
+                'title'       => 'Enable Two-Factor Authentication',
                 'description' => 'Secure your account with two-factor authentication.',
-                'action' => 'profile.security',
-                'icon' => 'fas fa-shield-alt',
+                'action'      => 'profile.security',
+                'icon'        => 'fas fa-shield-alt',
             ];
         }
 
         // Activity recommendations
-        $lastLogin = $user->last_login_at ? Carbon::parse($user->last_login_at) : null;
+        $lastLogin = $user->last_login_at ? Carbon::parse($user->last_login_at) : NULL;
         if ($lastLogin && $lastLogin->diffInDays(now()) > 7) {
             $recommendations[] = [
-                'type' => 'engagement',
-                'priority' => 'medium',
-                'title' => 'Stay Active',
+                'type'        => 'engagement',
+                'priority'    => 'medium',
+                'title'       => 'Stay Active',
                 'description' => 'You haven\'t been active recently. Check out new features!',
-                'action' => 'dashboard',
-                'icon' => 'fas fa-chart-line',
+                'action'      => 'dashboard',
+                'icon'        => 'fas fa-chart-line',
             ];
         }
 
@@ -202,9 +202,9 @@ class ProfileAnalyticsService
     {
         return [
             'dashboard' => rand(20, 100),
-            'profile' => rand(10, 50),
-            'security' => rand(5, 25),
-            'settings' => rand(3, 15),
+            'profile'   => rand(10, 50),
+            'security'  => rand(5, 25),
+            'settings'  => rand(3, 15),
         ];
     }
 
@@ -275,8 +275,8 @@ class ProfileAnalyticsService
     {
         return [
             'response_time' => rand(100, 500),
-            'error_count' => rand(0, 3),
-            'success_rate' => rand(95, 100),
+            'error_count'   => rand(0, 3),
+            'success_rate'  => rand(95, 100),
         ];
     }
 
@@ -286,10 +286,10 @@ class ProfileAnalyticsService
     private function getWeeklySummary(User $user): array
     {
         return [
-            'total_logins' => rand(10, 30),
-            'total_activities' => rand(50, 200),
+            'total_logins'         => rand(10, 30),
+            'total_activities'     => rand(50, 200),
             'avg_session_duration' => rand(20, 60),
-            'most_active_day' => 'Wednesday',
+            'most_active_day'      => 'Wednesday',
         ];
     }
 
@@ -300,18 +300,18 @@ class ProfileAnalyticsService
     {
         return [
             'current_month' => [
-                'logins' => rand(40, 100),
-                'activities' => rand(200, 500),
+                'logins'          => rand(40, 100),
+                'activities'      => rand(200, 500),
                 'avg_performance' => rand(85, 98),
             ],
             'previous_month' => [
-                'logins' => rand(35, 95),
-                'activities' => rand(180, 480),
+                'logins'          => rand(35, 95),
+                'activities'      => rand(180, 480),
                 'avg_performance' => rand(80, 95),
             ],
             'growth' => [
-                'logins' => rand(-10, 20),
-                'activities' => rand(-5, 25),
+                'logins'      => rand(-10, 20),
+                'activities'  => rand(-5, 25),
                 'performance' => rand(-2, 8),
             ],
         ];

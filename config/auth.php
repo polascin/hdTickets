@@ -126,22 +126,22 @@ return [
     |
     */
 
-    'enhanced_login' => env('AUTH_ENHANCED_LOGIN', true),
+    'enhanced_login' => env('AUTH_ENHANCED_LOGIN', TRUE),
 
     'security' => [
-        'max_failed_attempts' => env('AUTH_MAX_FAILED_ATTEMPTS', 5),
-        'lockout_duration' => env('AUTH_LOCKOUT_DURATION', 900), // 15 minutes
-        'device_fingerprinting' => env('AUTH_DEVICE_FINGERPRINTING', true),
-        'geolocation_tracking' => env('AUTH_GEOLOCATION_TRACKING', true),
-        'high_risk_countries' => [
-            'CN', 'RU', 'IR', 'KP', 'PK', 'BD', 'NG', 'IN'
+        'max_failed_attempts'   => env('AUTH_MAX_FAILED_ATTEMPTS', 5),
+        'lockout_duration'      => env('AUTH_LOCKOUT_DURATION', 900), // 15 minutes
+        'device_fingerprinting' => env('AUTH_DEVICE_FINGERPRINTING', TRUE),
+        'geolocation_tracking'  => env('AUTH_GEOLOCATION_TRACKING', TRUE),
+        'high_risk_countries'   => [
+            'CN', 'RU', 'IR', 'KP', 'PK', 'BD', 'NG', 'IN',
         ],
     ],
 
     'ux_features' => [
-        'progressive_validation' => env('AUTH_PROGRESSIVE_VALIDATION', true),
-        'biometric_auth' => env('AUTH_BIOMETRIC_AUTH', true),
-        'password_strength_meter' => env('AUTH_PASSWORD_STRENGTH_METER', true),
-        'session_warnings' => env('AUTH_SESSION_WARNINGS', true),
+        'progressive_validation'  => env('AUTH_PROGRESSIVE_VALIDATION', TRUE),
+        'biometric_auth'          => env('AUTH_BIOMETRIC_AUTH', TRUE),
+        'password_strength_meter' => env('AUTH_PASSWORD_STRENGTH_METER', TRUE),
+        'session_warnings'        => env('AUTH_SESSION_WARNINGS', TRUE),
     ],
 ];

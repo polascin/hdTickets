@@ -23,7 +23,7 @@ class EnvServiceProvider extends ServiceProvider
         $this->app->singleton('environment.config', function () {
             return [
                 'name'          => config('app.env', 'production'),
-                'debug'         => config('app.debug', false),
+                'debug'         => config('app.debug', FALSE),
                 'is_production' => config('app.env') === 'production',
                 'is_local'      => config('app.env') === 'local',
                 'is_testing'    => config('app.env') === 'testing',

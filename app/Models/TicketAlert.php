@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class TicketAlert extends Model
@@ -75,7 +75,7 @@ class TicketAlert extends Model
      */
     public function matches(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(\App\Models\AlertTrigger::class, 'ticket_alert_id');
+        return $this->hasMany(AlertTrigger::class, 'ticket_alert_id');
     }
 
     // Scopes

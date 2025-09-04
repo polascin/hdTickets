@@ -7,8 +7,96 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function sprintf;
+
 class TwickenhamPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get Six Nations matches
+     */
+    public function getSixNationsMatches(array $criteria = []): array
+    {
+        $criteria['competition'] = 'Six Nations';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Autumn Internationals
+     */
+    public function getAutumnInternationalsMatches(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'autumn_internationals';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get England rugby matches
+     */
+    public function getEnglandRugbyMatches(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'england_rugby';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get Premiership Final
+     */
+    public function getPremiership(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'premiership_final';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get concerts
+     */
+    public function getConcerts(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'concert';
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -62,65 +150,31 @@ class TwickenhamPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $baseUrl = $this->baseUrl . '/events';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['event_type'])) {
+
+        if (! empty($criteria['event_type'])) {
             $params['type'] = urlencode($criteria['event_type']);
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competition'] = urlencode($criteria['competition']);
         }
-        
-        if (!empty($criteria['opponent'])) {
+
+        if (! empty($criteria['opponent'])) {
             $params['opponent'] = urlencode($criteria['opponent']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -130,6 +184,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
+
         return $baseUrl . ($queryString ? '?' . $queryString : '');
     }
 
@@ -142,18 +197,18 @@ class TwickenhamPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.fixture-item, .match-item, .event-item, [data-testid="event"]')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.fixture-item, .match-item, .event-item, [data-testid="event"]')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Twickenham event item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Twickenham event item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Twickenham search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Twickenham search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -175,7 +230,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             // Parse price
@@ -189,31 +244,32 @@ class TwickenhamPlugin extends BaseScraperPlugin
             $eventType = $this->determineEventType($title, $competition);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'competition' => trim($competition),
-                'venue' => $this->venue,
-                'location' => 'Twickenham, London, TW1 1DZ',
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'teams' => trim($teams),
-                'event_type' => $eventType,
-                'price' => $price,
-                'currency' => $this->currency,
+                'title'        => trim($title),
+                'competition'  => trim($competition),
+                'venue'        => $this->venue,
+                'location'     => 'Twickenham, London, TW1 1DZ',
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'teams'        => trim($teams),
+                'event_type'   => $eventType,
+                'price'        => $price,
+                'currency'     => $this->currency,
                 'availability' => $this->parseAvailability($availability),
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => $this->determineCategory($eventType),
-                'stadium' => 'Twickenham Stadium',
-                'capacity' => '82000',
-                'scraped_at' => now()->toISOString(),
+                'url'          => $fullUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => $this->determineCategory($eventType),
+                'stadium'      => 'Twickenham Stadium',
+                'capacity'     => '82000',
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Twickenham event item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Twickenham event item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -225,28 +281,28 @@ class TwickenhamPlugin extends BaseScraperPlugin
         $lowerTitle = strtolower($title);
         $lowerComp = strtolower($competition);
 
-        if (strpos($lowerComp, 'six nations') !== false) {
+        if (strpos($lowerComp, 'six nations') !== FALSE) {
             return 'six_nations';
         }
-        if (strpos($lowerComp, 'autumn') !== false || strpos($lowerTitle, 'autumn') !== false) {
+        if (strpos($lowerComp, 'autumn') !== FALSE || strpos($lowerTitle, 'autumn') !== FALSE) {
             return 'autumn_internationals';
         }
-        if (strpos($lowerComp, 'world cup') !== false) {
+        if (strpos($lowerComp, 'world cup') !== FALSE) {
             return 'rugby_world_cup';
         }
-        if (strpos($lowerComp, 'premiership') !== false && strpos($lowerComp, 'final') !== false) {
+        if (strpos($lowerComp, 'premiership') !== FALSE && strpos($lowerComp, 'final') !== FALSE) {
             return 'premiership_final';
         }
-        if (strpos($lowerComp, 'challenge cup') !== false) {
+        if (strpos($lowerComp, 'challenge cup') !== FALSE) {
             return 'challenge_cup_final';
         }
-        if (strpos($lowerComp, 'championship') !== false && strpos($lowerComp, 'final') !== false) {
+        if (strpos($lowerComp, 'championship') !== FALSE && strpos($lowerComp, 'final') !== FALSE) {
             return 'championship_final';
         }
-        if (strpos($lowerTitle, 'england') !== false) {
+        if (strpos($lowerTitle, 'england') !== FALSE) {
             return 'england_rugby';
         }
-        if (strpos($lowerTitle, 'concert') !== false || strpos($lowerTitle, 'tour') !== false) {
+        if (strpos($lowerTitle, 'concert') !== FALSE || strpos($lowerTitle, 'tour') !== FALSE) {
             return 'concert';
         }
 
@@ -261,7 +317,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
         if ($eventType === 'concert') {
             return 'music';
         }
-        
+
         return 'rugby';
     }
 
@@ -271,16 +327,16 @@ class TwickenhamPlugin extends BaseScraperPlugin
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false || strpos($lowerStatus, 'unavailable') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
             return 'sold_out';
         }
-        
-        if (strpos($lowerStatus, 'limited') !== false || strpos($lowerStatus, 'few left') !== false) {
+
+        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
             return 'limited';
         }
-        
-        if (strpos($lowerStatus, 'available') !== false || strpos($lowerStatus, 'on sale') !== false) {
+
+        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
             return 'available';
         }
 
@@ -293,20 +349,20 @@ class TwickenhamPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle "from £X" format
         if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
         // Handle regular £X format
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -315,28 +371,29 @@ class TwickenhamPlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             if (preg_match('/(\d{1,2}):(\d{2})\s*(am|pm)?/i', $timeText, $matches)) {
-                $hour = (int)$matches[1];
+                $hour = (int) $matches[1];
                 $minute = $matches[2];
                 $ampm = strtolower($matches[3] ?? '');
-                
+
                 if ($ampm === 'pm' && $hour < 12) {
                     $hour += 12;
                 } elseif ($ampm === 'am' && $hour === 12) {
                     $hour = 0;
                 }
-                
+
                 return sprintf('%02d:%s', $hour, $minute);
             }
-            
-            return null;
+
+            return NULL;
         } catch (Exception $e) {
-            Log::debug("Failed to parse Twickenham time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Twickenham time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -348,7 +405,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
@@ -382,52 +439,5 @@ class TwickenhamPlugin extends BaseScraperPlugin
     protected function getAvailabilitySelectors(): string
     {
         return '.availability, .status, .sold-out';
-    }
-
-    /**
-     * Get Six Nations matches
-     */
-    public function getSixNationsMatches(array $criteria = []): array
-    {
-        $criteria['competition'] = 'Six Nations';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Autumn Internationals
-     */
-    public function getAutumnInternationalsMatches(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'autumn_internationals';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get England rugby matches
-     */
-    public function getEnglandRugbyMatches(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'england_rugby';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get Premiership Final
-     */
-    public function getPremiership
-
-(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'premiership_final';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get concerts
-     */
-    public function getConcerts(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'concert';
-        return $this->scrape($criteria);
     }
 }

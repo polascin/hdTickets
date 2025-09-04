@@ -7,8 +7,45 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+
 class EnglandCricketPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -60,40 +97,6 @@ class EnglandCricketPlugin extends BaseScraperPlugin
         ];
     }
 
-    /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
     protected function buildSearchUrl(array $criteria): string
     {
         return $this->baseUrl . '/tickets';
@@ -105,18 +108,18 @@ class EnglandCricketPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.fixture-item, .match-item, .event-item')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.fixture-item, .match-item, .event-item')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseMatchItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse England Cricket match item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse England Cricket match item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse England Cricket search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse England Cricket search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -135,28 +138,29 @@ class EnglandCricketPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             return [
-                'title' => trim($title),
-                'opposition' => trim($opposition),
-                'venue' => trim($venue) ?: $this->venue,
-                'location' => $this->determineLocation($venue),
-                'date' => $this->parseDate($date),
+                'title'        => trim($title),
+                'opposition'   => trim($opposition),
+                'venue'        => trim($venue) ?: $this->venue,
+                'location'     => $this->determineLocation($venue),
+                'date'         => $this->parseDate($date),
                 'match_format' => $this->determineMatchFormat($format, $title),
-                'price' => $this->parsePrice($priceText),
-                'currency' => $this->currency,
+                'price'        => $this->parsePrice($priceText),
+                'currency'     => $this->currency,
                 'availability' => $this->parseAvailability($availability),
-                'url' => $link ? $this->buildFullUrl($link) : null,
-                'platform' => $this->platform,
-                'category' => 'cricket',
-                'team' => 'England',
-                'scraped_at' => now()->toISOString(),
+                'url'          => $link ? $this->buildFullUrl($link) : NULL,
+                'platform'     => $this->platform,
+                'category'     => 'cricket',
+                'team'         => 'England',
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse England Cricket match item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse England Cricket match item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -165,13 +169,13 @@ class EnglandCricketPlugin extends BaseScraperPlugin
         $lowerFormat = strtolower($format);
         $lowerTitle = strtolower($title);
 
-        if (strpos($lowerFormat, 'test') !== false || strpos($lowerTitle, 'test') !== false) {
+        if (strpos($lowerFormat, 'test') !== FALSE || strpos($lowerTitle, 'test') !== FALSE) {
             return 'test';
         }
-        if (strpos($lowerFormat, 'odi') !== false || strpos($lowerTitle, 'odi') !== false) {
+        if (strpos($lowerFormat, 'odi') !== FALSE || strpos($lowerTitle, 'odi') !== FALSE) {
             return 'odi';
         }
-        if (strpos($lowerFormat, 't20') !== false || strpos($lowerTitle, 't20') !== false) {
+        if (strpos($lowerFormat, 't20') !== FALSE || strpos($lowerTitle, 't20') !== FALSE) {
             return 't20i';
         }
 
@@ -182,19 +186,19 @@ class EnglandCricketPlugin extends BaseScraperPlugin
     {
         $lowerVenue = strtolower($venue);
 
-        if (strpos($lowerVenue, 'lords') !== false) {
+        if (strpos($lowerVenue, 'lords') !== FALSE) {
             return 'London';
         }
-        if (strpos($lowerVenue, 'oval') !== false) {
+        if (strpos($lowerVenue, 'oval') !== FALSE) {
             return 'London';
         }
-        if (strpos($lowerVenue, 'old trafford') !== false) {
+        if (strpos($lowerVenue, 'old trafford') !== FALSE) {
             return 'Manchester';
         }
-        if (strpos($lowerVenue, 'headingley') !== false) {
+        if (strpos($lowerVenue, 'headingley') !== FALSE) {
             return 'Leeds';
         }
-        if (strpos($lowerVenue, 'edgbaston') !== false) {
+        if (strpos($lowerVenue, 'edgbaston') !== FALSE) {
             return 'Birmingham';
         }
 
@@ -204,28 +208,28 @@ class EnglandCricketPlugin extends BaseScraperPlugin
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE) {
             return 'sold_out';
         }
-        if (strpos($lowerStatus, 'available') !== false) {
+        if (strpos($lowerStatus, 'available') !== FALSE) {
             return 'available';
         }
-        
+
         return 'check_website';
     }
 
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     protected function buildFullUrl(string $path): string
@@ -233,15 +237,38 @@ class EnglandCricketPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
     // Required abstract methods
-    protected function getTestUrl(): string { return $this->baseUrl . '/tickets'; }
-    protected function getEventNameSelectors(): string { return '.match-title, .fixture-title, h2, h3'; }
-    protected function getDateSelectors(): string { return '.date, .match-date'; }
-    protected function getVenueSelectors(): string { return '.venue, .ground'; }
-    protected function getPriceSelectors(): string { return '.price, .from-price'; }
-    protected function getAvailabilitySelectors(): string { return '.availability, .status'; }
+    protected function getTestUrl(): string
+    {
+        return $this->baseUrl . '/tickets';
+    }
+
+    protected function getEventNameSelectors(): string
+    {
+        return '.match-title, .fixture-title, h2, h3';
+    }
+
+    protected function getDateSelectors(): string
+    {
+        return '.date, .match-date';
+    }
+
+    protected function getVenueSelectors(): string
+    {
+        return '.venue, .ground';
+    }
+
+    protected function getPriceSelectors(): string
+    {
+        return '.price, .from-price';
+    }
+
+    protected function getAvailabilitySelectors(): string
+    {
+        return '.availability, .status';
+    }
 }

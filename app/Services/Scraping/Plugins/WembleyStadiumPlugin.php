@@ -7,8 +7,107 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function count;
+use function in_array;
+use function sprintf;
+
 class WembleyStadiumPlugin extends BaseScraperPlugin
 {
+    /**
+     * Main scraping method
+     */
+    public function scrape(array $criteria): array
+    {
+        if (! $this->enabled) {
+            throw new Exception("{$this->pluginName} plugin is disabled");
+        }
+
+        Log::info("Starting {$this->pluginName} scraping", $criteria);
+
+        try {
+            $this->applyRateLimit($this->platform);
+
+            $searchUrl = $this->buildSearchUrl($criteria);
+            $html = $this->makeHttpRequest($searchUrl);
+            $events = $this->parseSearchResults($html);
+            $filteredEvents = $this->filterResults($events, $criteria);
+
+            Log::info("{$this->pluginName} scraping completed", [
+                'url'           => $searchUrl,
+                'results_found' => count($filteredEvents),
+            ]);
+
+            return $filteredEvents;
+        } catch (Exception $e) {
+            Log::error("{$this->pluginName} scraping failed", [
+                'criteria' => $criteria,
+                'error'    => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Get England national team matches
+     */
+    public function getEnglandMatches(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'england_national_team';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get FA Cup matches
+     */
+    public function getFACupMatches(array $criteria = []): array
+    {
+        $criteria['competition'] = 'FA Cup';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get EFL Cup matches
+     */
+    public function getEFLCupMatches(array $criteria = []): array
+    {
+        $criteria['competition'] = 'EFL Cup';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get playoff finals
+     */
+    public function getPlayoffFinals(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'playoff_final';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get concerts
+     */
+    public function getConcerts(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'concert';
+
+        return $this->scrape($criteria);
+    }
+
+    /**
+     * Get NFL games
+     */
+    public function getNFLGames(array $criteria = []): array
+    {
+        $criteria['event_type'] = 'nfl';
+
+        return $this->scrape($criteria);
+    }
+
     /**
      * Initialize plugin-specific settings
      */
@@ -66,65 +165,31 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Main scraping method
-     */
-    public function scrape(array $criteria): array
-    {
-        if (!$this->enabled) {
-            throw new Exception("{$this->pluginName} plugin is disabled");
-        }
-
-        Log::info("Starting {$this->pluginName} scraping", $criteria);
-
-        try {
-            $this->applyRateLimit($this->platform);
-            
-            $searchUrl = $this->buildSearchUrl($criteria);
-            $html = $this->makeHttpRequest($searchUrl);
-            $events = $this->parseSearchResults($html);
-            $filteredEvents = $this->filterResults($events, $criteria);
-
-            Log::info("{$this->pluginName} scraping completed", [
-                'url' => $searchUrl,
-                'results_found' => count($filteredEvents),
-            ]);
-
-            return $filteredEvents;
-        } catch (Exception $e) {
-            Log::error("{$this->pluginName} scraping failed", [
-                'criteria' => $criteria,
-                'error' => $e->getMessage(),
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
      * Build search URL based on criteria
      */
     protected function buildSearchUrl(array $criteria): string
     {
         $baseUrl = $this->baseUrl . '/events';
-        
+
         $params = [];
-        
-        if (!empty($criteria['keyword'])) {
+
+        if (! empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
-        
-        if (!empty($criteria['event_type'])) {
+
+        if (! empty($criteria['event_type'])) {
             $params['type'] = urlencode($criteria['event_type']);
         }
-        
-        if (!empty($criteria['competition'])) {
+
+        if (! empty($criteria['competition'])) {
             $params['competition'] = urlencode($criteria['competition']);
         }
-        
-        if (!empty($criteria['team'])) {
+
+        if (! empty($criteria['team'])) {
             $params['team'] = urlencode($criteria['team']);
         }
-        
-        if (!empty($criteria['date_range'])) {
+
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -134,6 +199,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
         }
 
         $queryString = http_build_query($params);
+
         return $baseUrl . ($queryString ? '?' . $queryString : '');
     }
 
@@ -146,18 +212,18 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
         $crawler = new Crawler($html);
 
         try {
-            $crawler->filter('.event-item, .fixture-item, .match-item, [data-testid="event-item"]')->each(function (Crawler $node) use (&$events) {
+            $crawler->filter('.event-item, .fixture-item, .match-item, [data-testid="event-item"]')->each(function (Crawler $node) use (&$events): void {
                 try {
                     $event = $this->parseEventItem($node);
                     if ($event) {
                         $events[] = $event;
                     }
                 } catch (Exception $e) {
-                    Log::debug("Failed to parse Wembley event item", ['error' => $e->getMessage()]);
+                    Log::debug('Failed to parse Wembley event item', ['error' => $e->getMessage()]);
                 }
             });
         } catch (Exception $e) {
-            Log::warning("Failed to parse Wembley search results", ['error' => $e->getMessage()]);
+            Log::warning('Failed to parse Wembley search results', ['error' => $e->getMessage()]);
         }
 
         return $events;
@@ -179,7 +245,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
 
             if (empty($title)) {
-                return null;
+                return NULL;
             }
 
             // Parse price
@@ -193,31 +259,32 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
             $eventType = $this->determineEventType($title, $competition);
 
             // Build full URL
-            $fullUrl = $link ? $this->buildFullUrl($link) : null;
+            $fullUrl = $link ? $this->buildFullUrl($link) : NULL;
 
             return [
-                'title' => trim($title),
-                'competition' => trim($competition),
-                'venue' => $this->venue,
-                'location' => 'Wembley, London, HA9',
-                'date' => $eventDate,
-                'time' => $eventTime,
-                'teams' => trim($teams),
-                'event_type' => $eventType,
-                'price' => $price,
-                'currency' => $this->currency,
+                'title'        => trim($title),
+                'competition'  => trim($competition),
+                'venue'        => $this->venue,
+                'location'     => 'Wembley, London, HA9',
+                'date'         => $eventDate,
+                'time'         => $eventTime,
+                'teams'        => trim($teams),
+                'event_type'   => $eventType,
+                'price'        => $price,
+                'currency'     => $this->currency,
                 'availability' => $this->parseAvailability($availability),
-                'url' => $fullUrl,
-                'platform' => $this->platform,
-                'description' => null,
-                'category' => $this->determineCategory($eventType),
-                'stadium' => 'Wembley Stadium',
-                'capacity' => '90000',
-                'scraped_at' => now()->toISOString(),
+                'url'          => $fullUrl,
+                'platform'     => $this->platform,
+                'description'  => NULL,
+                'category'     => $this->determineCategory($eventType),
+                'stadium'      => 'Wembley Stadium',
+                'capacity'     => '90000',
+                'scraped_at'   => now()->toISOString(),
             ];
         } catch (Exception $e) {
-            Log::debug("Failed to parse Wembley event item", ['error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Wembley event item', ['error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -230,33 +297,33 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
         $lowerComp = strtolower($competition);
 
         // Football events
-        if (strpos($lowerComp, 'fa cup') !== false) {
+        if (strpos($lowerComp, 'fa cup') !== FALSE) {
             return 'fa_cup';
         }
-        if (strpos($lowerComp, 'efl cup') !== false || strpos($lowerComp, 'league cup') !== false) {
+        if (strpos($lowerComp, 'efl cup') !== FALSE || strpos($lowerComp, 'league cup') !== FALSE) {
             return 'efl_cup';
         }
-        if (strpos($lowerComp, 'playoff') !== false) {
+        if (strpos($lowerComp, 'playoff') !== FALSE) {
             return 'playoff_final';
         }
-        if (strpos($lowerComp, 'community shield') !== false) {
+        if (strpos($lowerComp, 'community shield') !== FALSE) {
             return 'community_shield';
         }
-        if (strpos($lowerTitle, 'england') !== false || strpos($lowerComp, 'international') !== false) {
+        if (strpos($lowerTitle, 'england') !== FALSE || strpos($lowerComp, 'international') !== FALSE) {
             return 'england_national_team';
         }
-        if (strpos($lowerTitle, 'challenge cup') !== false) {
+        if (strpos($lowerTitle, 'challenge cup') !== FALSE) {
             return 'rugby_league_challenge_cup';
         }
 
         // Non-football events
-        if (strpos($lowerTitle, 'concert') !== false || strpos($lowerTitle, 'tour') !== false) {
+        if (strpos($lowerTitle, 'concert') !== FALSE || strpos($lowerTitle, 'tour') !== FALSE) {
             return 'concert';
         }
-        if (strpos($lowerTitle, 'nfl') !== false) {
+        if (strpos($lowerTitle, 'nfl') !== FALSE) {
             return 'nfl';
         }
-        if (strpos($lowerTitle, 'boxing') !== false || strpos($lowerTitle, 'fight') !== false) {
+        if (strpos($lowerTitle, 'boxing') !== FALSE || strpos($lowerTitle, 'fight') !== FALSE) {
             return 'boxing';
         }
 
@@ -268,7 +335,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
      */
     protected function determineCategory(string $eventType): string
     {
-        if (in_array($eventType, ['fa_cup', 'efl_cup', 'playoff_final', 'community_shield', 'england_national_team'])) {
+        if (in_array($eventType, ['fa_cup', 'efl_cup', 'playoff_final', 'community_shield', 'england_national_team'], TRUE)) {
             return 'football';
         }
         if ($eventType === 'rugby_league_challenge_cup') {
@@ -293,16 +360,16 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     protected function parseAvailability(string $status): string
     {
         $lowerStatus = strtolower($status);
-        
-        if (strpos($lowerStatus, 'sold out') !== false || strpos($lowerStatus, 'unavailable') !== false) {
+
+        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
             return 'sold_out';
         }
-        
-        if (strpos($lowerStatus, 'limited') !== false || strpos($lowerStatus, 'few left') !== false) {
+
+        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
             return 'limited';
         }
-        
-        if (strpos($lowerStatus, 'available') !== false || strpos($lowerStatus, 'on sale') !== false) {
+
+        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
             return 'available';
         }
 
@@ -315,20 +382,20 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     protected function parsePrice(string $priceText): ?float
     {
         if (empty($priceText)) {
-            return null;
+            return NULL;
         }
 
         // Handle "from £X" format
         if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
         // Handle regular £X format
         if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
-            return (float)$matches[1];
+            return (float) $matches[1];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -337,29 +404,30 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     protected function parseTime(string $timeText): ?string
     {
         if (empty($timeText)) {
-            return null;
+            return NULL;
         }
 
         try {
             // Handle various time formats including kick-off times
             if (preg_match('/(\d{1,2}):(\d{2})\s*(am|pm)?/i', $timeText, $matches)) {
-                $hour = (int)$matches[1];
+                $hour = (int) $matches[1];
                 $minute = $matches[2];
                 $ampm = strtolower($matches[3] ?? '');
-                
+
                 if ($ampm === 'pm' && $hour < 12) {
                     $hour += 12;
                 } elseif ($ampm === 'am' && $hour === 12) {
                     $hour = 0;
                 }
-                
+
                 return sprintf('%02d:%s', $hour, $minute);
             }
-            
-            return null;
+
+            return NULL;
         } catch (Exception $e) {
-            Log::debug("Failed to parse Wembley time", ['time' => $timeText, 'error' => $e->getMessage()]);
-            return null;
+            Log::debug('Failed to parse Wembley time', ['time' => $timeText, 'error' => $e->getMessage()]);
+
+            return NULL;
         }
     }
 
@@ -371,7 +439,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
         if (str_starts_with($path, 'http')) {
             return $path;
         }
-        
+
         return rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
@@ -405,59 +473,5 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     protected function getAvailabilitySelectors(): string
     {
         return '.availability, .status, .sold-out';
-    }
-
-    /**
-     * Get England national team matches
-     */
-    public function getEnglandMatches(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'england_national_team';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get FA Cup matches
-     */
-    public function getFACupMatches(array $criteria = []): array
-    {
-        $criteria['competition'] = 'FA Cup';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get EFL Cup matches
-     */
-    public function getEFLCupMatches(array $criteria = []): array
-    {
-        $criteria['competition'] = 'EFL Cup';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get playoff finals
-     */
-    public function getPlayoffFinals(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'playoff_final';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get concerts
-     */
-    public function getConcerts(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'concert';
-        return $this->scrape($criteria);
-    }
-
-    /**
-     * Get NFL games
-     */
-    public function getNFLGames(array $criteria = []): array
-    {
-        $criteria['event_type'] = 'nfl';
-        return $this->scrape($criteria);
     }
 }
