@@ -19,7 +19,7 @@ class SeoService
 
             // Homepage - highest priority
             $sitemapData[] = [
-                'url'        => route('welcome'),
+                'url'        => route('home'),
                 'lastmod'    => now()->toISOString(),
                 'changefreq' => 'weekly',
                 'priority'   => '1.0',
@@ -117,7 +117,7 @@ class SeoService
                     'description' => 'Professional sports event ticket monitoring with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.',
                     'keywords'    => 'sports tickets monitoring, ticket price tracking, automated ticket purchasing, sports events, subscription ticket service, role-based access, GDPR compliant ticketing, 2FA security, professional ticket monitoring, real-time alerts',
                     'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('welcome'),
+                    'canonical'   => route('home'),
                 ],
                 'legal' => [
                     'title'       => 'Legal Documents - HD Tickets',
@@ -138,7 +138,7 @@ class SeoService
                     'description' => 'Professional sports ticket monitoring platform with comprehensive features.',
                     'keywords'    => 'HD Tickets, sports monitoring, professional platform',
                     'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('welcome'),
+                    'canonical'   => route('home'),
                 ],
             };
         });

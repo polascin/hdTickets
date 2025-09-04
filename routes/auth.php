@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PublicRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->group(function (): void {
@@ -28,6 +30,18 @@ Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Registration routes
+    Route::get('register', [RegisteredUserController::class, 'create'])
+        ->name('register');
+    
+    Route::post('register', [RegisteredUserController::class, 'store']);
+    
+    // Public registration routes (alternative path)
+    Route::get('register/public', [PublicRegistrationController::class, 'create'])
+        ->name('register.public');
+    
+    Route::post('register/public', [PublicRegistrationController::class, 'store']);
 
     // Two-Factor Authentication routes (guest access)
     Route::get('2fa/challenge', [TwoFactorController::class, 'challenge'])->name('2fa.challenge');

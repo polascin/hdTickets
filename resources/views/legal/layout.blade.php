@@ -311,14 +311,14 @@
     <nav class="legal-nav" role="navigation" aria-label="Legal document navigation">
         <div class="legal-nav-container">
             <div class="legal-nav-logo">
-                <a href="{{ route('welcome') }}" aria-label="Go to HD Tickets homepage">
+                <a href="{{ route('home') }}" aria-label="Go to HD Tickets homepage">
                     <img src="{{ asset('assets/images/hdTicketsLogo.png') }}" alt="HD Tickets Logo" width="32" height="32">
                     <span class="legal-nav-title">HD Tickets</span>
                 </a>
             </div>
             
             <div class="legal-nav-links">
-                <a href="{{ route('welcome') }}">Home</a>
+                <a href="{{ route('home') }}">Home</a>
                 <a href="{{ route('legal.terms-of-service') }}">Terms</a>
                 <a href="{{ route('legal.privacy-policy') }}">Privacy</a>
                 <a href="{{ route('legal.disclaimer') }}">Disclaimer</a>
@@ -379,7 +379,7 @@
     <!-- Footer -->
     <footer class="legal-footer" role="contentinfo">
         <div class="legal-footer-links">
-            <a href="{{ route('welcome') }}">Home</a>
+            <a href="{{ route('home') }}">Home</a>
             <a href="{{ route('register.public') }}">Register</a>
             <a href="{{ route('login') }}">Login</a>
             <a href="{{ route('legal.terms-of-service') }}">Terms</a>

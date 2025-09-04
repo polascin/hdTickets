@@ -52,6 +52,26 @@ use Illuminate\Support\Facades\Route;
 // Home route - Public landing page for sports events ticket monitoring
 Route::get('/', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
 
+// Legal document routes - Public access to legal documents
+Route::get('/legal', [App\Http\Controllers\LegalController::class, 'index'])->name('legal.index');
+Route::get('/legal/terms-of-service', [App\Http\Controllers\LegalController::class, 'termsOfService'])->name('legal.terms-of-service');
+Route::get('/legal/privacy-policy', [App\Http\Controllers\LegalController::class, 'privacyPolicy'])->name('legal.privacy-policy');
+Route::get('/legal/disclaimer', [App\Http\Controllers\LegalController::class, 'disclaimer'])->name('legal.disclaimer');
+Route::get('/legal/gdpr-compliance', [App\Http\Controllers\LegalController::class, 'gdprCompliance'])->name('legal.gdpr-compliance');
+Route::get('/legal/data-processing-agreement', [App\Http\Controllers\LegalController::class, 'dataProcessingAgreement'])->name('legal.data-processing-agreement');
+Route::get('/legal/cookie-policy', [App\Http\Controllers\LegalController::class, 'cookiePolicy'])->name('legal.cookie-policy');
+Route::get('/legal/acceptable-use-policy', [App\Http\Controllers\LegalController::class, 'acceptableUsePolicy'])->name('legal.acceptable-use-policy');
+Route::get('/legal/legal-notices', [App\Http\Controllers\LegalController::class, 'legalNotices'])->name('legal.legal-notices');
+
+// Placeholder routes for subscription and profile (to be implemented later)
+Route::get('/subscription/plans', function () {
+    return redirect()->route('home')->with('message', 'Subscription plans coming soon!');
+})->name('subscription.plans');
+
+Route::get('/profile/security', function () {
+    return redirect()->route('login')->with('message', 'Please login to access security settings.');
+})->name('profile.security');
+
 // Temporary CSP debug route
 Route::get('/csp-debug', function () {
     $csp = config('security.csp', []);
