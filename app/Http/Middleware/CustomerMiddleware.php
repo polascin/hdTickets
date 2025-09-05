@@ -24,8 +24,11 @@ class CustomerMiddleware
         }
 
         $user = Auth::user();
-        if (! $user->isCustomer()) {
-            abort(403, 'Access denied. Customer role required.');
+        
+        // Allow customers and admins to access customer dashboard
+        // Admins have hierarchical access to all dashboards
+        if (! ($user->isCustomer() || $user->isAdmin())) {
+            abort(403, 'Access denied. Customer role or admin privileges required.');
         }
 
         return $next($request);

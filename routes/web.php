@@ -482,3 +482,26 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
+
+Route::get('/dashboard-test', function () {
+    $user = \App\Models\User::where('email', 'admin@hdtickets.local')->first();
+    if (;user) {
+        return response()->json(['error' => 'Admin user not found']);
+    }
+    
+    \Auth::login($user);
+    
+    try {
+        $analytics = app(\App\Services\AnalyticsService::class);
+        $recommendations = app(\App\Services\RecommendationService::class);
+        $controller = new \App\Http\Controllers\EnhancedDashboardController($analytics, $recommendations);
+        
+        return $controller->index();
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+})->name('dashboard.test');
+
