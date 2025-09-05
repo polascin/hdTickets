@@ -12,6 +12,7 @@ use App\Models\UserPricePreference;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class UserPreferencesController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $user = auth()->user();
         $preferences = $this->getUserPreferences($user);

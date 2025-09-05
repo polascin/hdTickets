@@ -3,25 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\LoginHistory;
+use App\Models\TicketAlert;
+use App\Models\UserSession;
 use App\Services\SecurityService;
 use App\Services\TwoFactorAuthService;
 use Cache;
 use DateTimeZone;
 use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Log;
-use Storage;
+use Response;
 
 use function count;
+use function in_array;
 
 class ProfileController extends Controller
 {
     protected TwoFactorAuthService $twoFactorService;
-
     protected SecurityService $securityService;
 
     public function __construct(TwoFactorAuthService $twoFactorService, SecurityService $securityService)
@@ -45,7 +55,7 @@ class ProfileController extends Controller
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \a\t g:i A') : NULL,
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \\a\\t g:i A') : null,
 
             // Sports Events Monitoring Statistics
             'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
@@ -68,7 +78,7 @@ class ProfileController extends Controller
                                      $user->password_changed_at->diffInDays(now()) :
                                      $user->created_at->diffInDays(now()),
             'trusted_devices_count' => count($user->trusted_devices ?? []),
-            'active_sessions_count' => 1, // Default to current session
+            'active_sessions_count' => UserSession::where('user_id', $user->id)->active()->count(),
         ];
 
         // Recent activity data
@@ -93,19 +103,153 @@ class ProfileController extends Controller
             'userStats',
             'securityStatus',
             'recentActivity',
-            'profileInsights',
+            'profileInsights'
         ));
     }
 
     /**
-     * Get current user statistics for AJAX updates with enhanced performance and caching
+     * Display the user's profile form.
      */
-    public function stats(Request $request): \Illuminate\Http\JsonResponse
+    public function edit(Request $request): View
+    {
+        $user = $request->user();
+        $profileCompletion = $user->getProfileCompletion();
+
+        // Available timezones
+        $timezones = collect(DateTimeZone::listIdentifiers())
+            ->mapWithKeys(fn($timezone) => [$timezone => $timezone])
+            ->toArray();
+
+        // Available languages
+        $languages = [
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'de' => 'German',
+            'it' => 'Italian',
+            'pt' => 'Portuguese',
+            'nl' => 'Dutch',
+            'pl' => 'Polish',
+            'cs' => 'Czech',
+            'sk' => 'Slovak',
+        ];
+
+        return view('profile.edit', compact(
+            'user',
+            'profileCompletion',
+            'timezones',
+            'languages'
+        ));
+    }
+
+    /**
+     * Update user profile
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse|JsonResponse
     {
         try {
             $user = $request->user();
+            $validated = $request->validated();
 
-            // Cache key for user statistics
+            $user->fill($validated);
+
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
+
+            // Clear cache
+            Cache::forget("user_stats_{$user->id}");
+            Cache::forget("profile_completion_{$user->id}");
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Profile updated successfully!',
+                    'user' => $user->only(['name', 'surname', 'email', 'phone', 'bio']),
+                ]);
+            }
+
+            return Redirect::route('profile.show')
+                ->with('success', 'Profile updated successfully!');
+        } catch (Exception $e) {
+            Log::error('Profile update error: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update profile.',
+                ], 500);
+            }
+
+            return Redirect::route('profile.edit')
+                ->with('error', 'Failed to update profile. Please try again.');
+        }
+    }
+
+    /**
+     * Upload profile picture
+     */
+    public function uploadPhoto(Request $request): JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+                'crop_data' => 'nullable|json',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $user = $request->user();
+            $photo = $request->file('photo');
+            $cropData = $request->input('crop_data') ? json_decode($request->input('crop_data'), true) : null;
+
+            // Delete old profile picture
+            if ($user->profile_picture) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+
+            // Store image
+            $path = $photo->storeAs(
+                'profile_pictures', 
+                $user->id . '_' . time() . '.' . $photo->getClientOriginalExtension(), 
+                'public'
+            );
+            
+            // Process image (crop and resize)
+            $this->processProfileImage($path, $cropData);
+            
+            $user->profile_picture = $path;
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile picture updated successfully!',
+                'image_url' => Storage::disk('public')->url($path),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Profile picture upload error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload profile picture.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user statistics for AJAX updates
+     */
+    public function stats(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
             $cacheKey = "user_stats_{$user->id}";
 
             $userStats = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
@@ -116,7 +260,7 @@ class ProfileController extends Controller
                         ->where('status', 'active')
                         ->where('created_at', '>=', now()->subMonth())
                         ->count(),
-                    'recent_purchases'   => 0, // Placeholder for purchase history when implemented
+                    'recent_purchases'   => 0,
                     'login_count'        => $user->login_count ?? 0,
                     'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
                     'profile_completion' => $user->getProfileCompletion()['percentage'],
@@ -126,461 +270,201 @@ class ProfileController extends Controller
             });
 
             return response()->json([
-                'success'    => TRUE,
-                'stats'      => $userStats,
+                'success' => true,
+                'stats' => $userStats,
                 'updated_at' => now()->toISOString(),
-                'cached'     => TRUE,
             ]);
         } catch (Exception $e) {
-            Log::error('Profile stats error: ' . $e->getMessage(), [
-                'user_id' => $request->user()?->id,
-                'error'   => $e->getTraceAsString(),
-            ]);
+            Log::error('Profile stats error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => FALSE,
-                'message' => 'Unable to load statistics. Please try again.',
-                'error'   => app()->isProduction() ? 'Server error' : $e->getMessage(),
+                'success' => false,
+                'message' => 'Unable to load statistics.',
             ], 500);
         }
     }
 
     /**
-     * Display the user's profile form.
+     * Show security settings
      */
-    public function edit(Request $request): View
+    public function security(Request $request): View
+    {
+        $user = $request->user();
+        
+        return view('profile.security', [
+            'user' => $user,
+            'twoFactorEnabled' => (bool) $user->two_factor_secret,
+            'securityData' => $this->getSecurityOverview($user),
+        ]);
+    }
+
+    /**
+     * Show analytics dashboard
+     */
+    public function analytics(Request $request): View
+    {
+        $user = $request->user();
+        
+        return view('profile.analytics', [
+            'user' => $user,
+            'analytics' => $this->getAnalyticsOverview($user),
+        ]);
+    }
+
+    /**
+     * Get activity data
+     */
+    public function getActivityData(Request $request): JsonResponse
     {
         try {
             $user = $request->user();
-            $profileCompletion = $user->getProfileCompletion();
-
-            // Available timezones for selection
-            $timezones = collect(DateTimeZone::listIdentifiers())
-                ->mapWithKeys(function ($timezone) {
-                    return [$timezone => $timezone];
-                })
-                ->toArray();
-
-            // Available languages
-            $languages = [
-                'en' => 'English',
-                'es' => 'Spanish',
-                'fr' => 'French',
-                'de' => 'German',
-                'it' => 'Italian',
-                'pt' => 'Portuguese',
-                'nl' => 'Dutch',
-                'pl' => 'Polish',
-                'cs' => 'Czech',
-                'sk' => 'Slovak',
+            $period = (int) $request->get('period', 30);
+            $startDate = now()->subDays($period);
+            
+            $data = [
+                'login_history' => LoginHistory::where('user_id', $user->id)
+                    ->where('created_at', '>=', $startDate)
+                    ->orderBy('created_at', 'desc')
+                    ->limit(50)
+                    ->get(),
+                'active_sessions' => UserSession::where('user_id', $user->id)
+                    ->active()
+                    ->orderBy('last_activity', 'desc')
+                    ->get(),
+                'alerts_activity' => TicketAlert::where('user_id', $user->id)
+                    ->where('created_at', '>=', $startDate)
+                    ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                    ->groupBy('date')
+                    ->orderBy('date', 'desc')
+                    ->get(),
             ];
 
-            return view('profile.edit', compact(
-                'user',
-                'profileCompletion',
-                'timezones',
-                'languages',
-            ));
-        } catch (Exception $e) {
-            Log::error('Profile edit page error: ' . $e->getMessage());
-
-            return redirect()->route('profile.show')
-                ->with('error', 'Unable to load profile edit page. Please try again.');
-        }
-    }
-
-    /**
-     * Show profile analytics dashboard
-     */
-    public function analytics(Request $request): \Illuminate\Contracts\View\View
-    {
-        try {
-            $user = $request->user();
-
-            $analyticsService = new \App\Services\ProfileAnalyticsService();
-            $analytics = $analyticsService->getAnalytics($user);
-
-            return view('profile.analytics', compact('user', 'analytics'));
-        } catch (Exception $e) {
-            Log::error('Profile analytics error: ' . $e->getMessage());
-
-            return redirect()->route('profile.show')
-                ->with('error', 'Unable to load analytics. Please try again.');
-        }
-    }
-
-    /**
-     * Show advanced security dashboard
-     */
-    public function advancedSecurity(Request $request): \Illuminate\Contracts\View\View
-    {
-        try {
-            $user = $request->user();
-
-            $securityService = new \App\Services\AdvancedSecurityService();
-            $securityData = $securityService->getSecurityDashboard($user);
-
-            return view('profile.advanced-security', compact('user', 'securityData'));
-        } catch (Exception $e) {
-            Log::error('Advanced security dashboard error: ' . $e->getMessage());
-
-            return redirect()->route('profile.security')
-                ->with('error', 'Unable to load security dashboard. Please try again.');
-        }
-    }
-
-    /**
-     * Get real-time analytics data
-     */
-    public function getAnalyticsData(Request $request): \Illuminate\Http\JsonResponse
-    {
-        try {
-            $user = $request->user();
-
-            $analyticsService = new \App\Services\ProfileAnalyticsService();
-            $analytics = $analyticsService->getAnalytics($user);
-
             return response()->json([
-                'success'   => TRUE,
-                'data'      => $analytics,
-                'timestamp' => now()->toISOString(),
+                'success' => true,
+                'data' => $data,
             ]);
         } catch (Exception $e) {
-            Log::error('Analytics API error: ' . $e->getMessage());
-
+            Log::error('Activity data error: ' . $e->getMessage());
+            
             return response()->json([
-                'success' => FALSE,
-                'message' => 'Unable to fetch analytics data.',
-            ], 500);
-        }
-    }
-
-    public function updatePreferences(Request $request): \Illuminate\Http\JsonResponse
-    {
-        try {
-            $validated = $request->validate([
-                'theme'               => 'nullable|in:light,dark,auto',
-                'notifications_email' => 'boolean',
-                'notifications_push'  => 'boolean',
-                'notifications_sms'   => 'boolean',
-                'language'            => 'nullable|string|max:5',
-                'timezone'            => 'nullable|string|max:100',
-                'currency'            => 'nullable|string|max:3',
-                'date_format'         => 'nullable|in:Y-m-d,m/d/Y,d/m/Y,d.m.Y',
-                'time_format'         => 'nullable|in:24,12',
-            ]);
-
-            $user = $request->user();
-
-            // Update preferences in user profile
-            $preferences = array_merge($user->preferences ?? [], $validated);
-
-            $user->update([
-                'preferences' => $preferences,
-                'language'    => $validated['language'] ?? $user->language,
-                'timezone'    => $validated['timezone'] ?? $user->timezone,
-            ]);
-
-            // Clear user stats cache to reflect changes
-            Cache::forget("user_stats_{$user->id}");
-
-            return response()->json([
-                'success'     => TRUE,
-                'message'     => 'Preferences updated successfully!',
-                'preferences' => $preferences,
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Validation failed',
-                'errors'  => $e->errors(),
-            ], 422);
-        } catch (Exception $e) {
-            Log::error('Profile preferences update error: ' . $e->getMessage(), [
-                'user_id'      => $request->user()?->id,
-                'request_data' => $request->all(),
-            ]);
-
-            return response()->json([
-                'success' => FALSE,
-                'message' => 'Unable to update preferences. Please try again.',
+                'success' => false,
+                'message' => 'Failed to load activity data.',
             ], 500);
         }
     }
 
     /**
-     * Update the user's profile information.
+     * Update password
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse|\Illuminate\Http\JsonResponse
+    public function updatePassword(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $validated = $request->validated();
-
-        // Fill the user with validated data
-        $user->fill($validated);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = NULL;
-        }
-
-        $user->save();
-
-        // Handle AJAX requests
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => TRUE,
-                'message' => 'Profile updated successfully!',
-                'user'    => [
-                    'name'            => $user->name,
-                    'surname'         => $user->surname,
-                    'username'        => $user->username,
-                    'email'           => $user->email,
-                    'phone'           => $user->phone,
-                    'bio'             => $user->bio,
-                    'timezone'        => $user->timezone,
-                    'language'        => $user->language,
-                    'full_name'       => $user->getFullNameAttribute(),
-                    'profile_display' => $user->getProfileDisplay(),
-                ],
-            ]);
-        }
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Upload profile photo
-     */
-    public function uploadPhoto(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
-        ]);
-
         try {
-            $user = $request->user();
+            $validator = Validator::make($request->all(), [
+                'current_password' => 'required|string',
+                'password' => 'required|string|min:8|confirmed|different:current_password',
+            ]);
 
-            if ($request->hasFile('photo')) {
-                // Delete old photo if exists
-                if ($user->profile_photo_path) {
-                    Storage::disk('public')->delete($user->profile_photo_path);
-                }
-
-                // Store new photo
-                $path = $request->file('photo')->store('profile-photos', 'public');
-
-                // Update user profile
-                $user->update([
-                    'profile_photo_path' => $path,
-                ]);
-
+            if ($validator->fails()) {
                 return response()->json([
-                    'success'   => TRUE,
-                    'message'   => 'Profile photo updated successfully!',
-                    'photo_url' => $user->profile_photo_url,
-                ]);
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
             }
 
+            $user = $request->user();
+            
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password is incorrect.',
+                ], 422);
+            }
+
+            $user->update([
+                'password' => Hash::make($request->password),
+                'password_changed_at' => now(),
+            ]);
+
             return response()->json([
-                'success' => FALSE,
-                'message' => 'No photo uploaded',
-            ], 400);
+                'success' => true,
+                'message' => 'Password updated successfully!',
+            ]);
         } catch (Exception $e) {
+            Log::error('Password update error: ' . $e->getMessage());
+            
             return response()->json([
-                'success' => FALSE,
-                'message' => 'Failed to upload photo: ' . $e->getMessage(),
+                'success' => false,
+                'message' => 'Failed to update password.',
             ], 500);
         }
-    }
-
-    /**
-     * Delete the user's account - redirect to new deletion protection system
-     */
-    /**
-     * Destroy
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        // Redirect to the new account deletion protection system
-        return redirect()->route('account.deletion.warning');
-    }
-
-    /**
-     * Display comprehensive security settings
-     */
-    /**
-     * Security
-     */
-    public function security(Request $request): \Illuminate\Contracts\View\View
-    {
-        $user = $request->user();
-        $twoFactorEnabled = $this->twoFactorService->isEnabled($user);
-        $remainingRecoveryCodes = $this->twoFactorService->getRemainingRecoveryCodesCount($user);
-
-        // Get comprehensive security data
-        $loginStatistics = $this->securityService->getLoginStatistics($user);
-        $recentLoginHistory = $this->securityService->getRecentLoginHistory($user, 15);
-        $activeSessions = $this->securityService->getActiveSessions($user);
-        $securityCheckup = $this->securityService->performSecurityCheckup($user);
-
-        // Generate new QR code if setting up 2FA
-        $qrCodeSvg = NULL;
-        $setupSecret = Session::get('2fa_setup_secret');
-        if ($setupSecret) {
-            $qrCodeSvg = $this->twoFactorService->getQRCodeSvg($user, $setupSecret);
-        }
-
-        return view('profile.security', [
-            'user'                   => $user,
-            'twoFactorEnabled'       => $twoFactorEnabled,
-            'remainingRecoveryCodes' => $remainingRecoveryCodes,
-            'qrCodeSvg'              => $qrCodeSvg,
-            'setupSecret'            => $setupSecret,
-            'loginStatistics'        => $loginStatistics,
-            'recentLoginHistory'     => $recentLoginHistory,
-            'activeSessions'         => $activeSessions,
-            'securityCheckup'        => $securityCheckup,
-            'trustedDevices'         => $user->trusted_devices ?? [],
-        ]);
-    }
-
-    /**
-     * Download backup codes as a text file
-     */
-    /**
-     * DownloadBackupCodes
-     */
-    public function downloadBackupCodes(Request $request): RedirectResponse|\Symfony\Component\HttpFoundation\Response
-    {
-        $user = $request->user();
-
-        if (! $this->twoFactorService->isEnabled($user)) {
-            return back()->withErrors(['error' => 'Two-factor authentication is not enabled.']);
-        }
-
-        $recoveryCodes = $this->twoFactorService->getRecoveryCodes($user);
-
-        if (empty($recoveryCodes)) {
-            return back()->withErrors(['error' => 'No backup codes available.']);
-        }
-
-        $content = "HD Tickets - Two-Factor Authentication Backup Codes\n";
-        $content .= 'Generated on: ' . now()->format('Y-m-d H:i:s') . "\n";
-        $content .= "Account: {$user->email}\n\n";
-        $content .= "IMPORTANT: Keep these codes safe and secure!\n";
-        $content .= "Each code can only be used once.\n\n";
-        $content .= "Backup Codes:\n";
-        $content .= "=============\n";
-
-        foreach ($recoveryCodes as $index => $code) {
-            $content .= ($index + 1) . ". {$code}\n";
-        }
-
-        $content .= "\n" . str_repeat('=', 50) . "\n";
-        $content .= "Store these codes in a safe place.\n";
-        $content .= "If you lose access to your authenticator app,\n";
-        $content .= "you can use these codes to regain access.\n";
-
-        $filename = 'hd-tickets-backup-codes-' . now()->format('Y-m-d') . '.txt';
-
-        return response($content)
-            ->header('Content-Type', 'text/plain')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
-    }
-
-    /**
-     * Trust current device
-     */
-    /**
-     * TrustDevice
-     */
-    public function trustDevice(Request $request): RedirectResponse
-    {
-        $user = $request->user();
-        $this->securityService->trustDevice($user, $request);
-
-        return back()->with('success', 'Device has been marked as trusted.');
-    }
-
-    /**
-     * Remove trusted device
-     */
-    /**
-     * RemoveTrustedDevice
-     */
-    public function removeTrustedDevice(Request $request, int $deviceIndex): RedirectResponse
-    {
-        $user = $request->user();
-
-        if ($this->securityService->untrustDevice($user, $deviceIndex)) {
-            return back()->with('success', 'Trusted device has been removed.');
-        }
-
-        return back()->withErrors(['error' => 'Device not found.']);
     }
 
     /**
      * Revoke session
      */
-    /**
-     * RevokeSession
-     */
-    public function revokeSession(Request $request, string $sessionId): RedirectResponse
+    public function revokeSession(Request $request, string $sessionId): JsonResponse
     {
-        if ($this->securityService->revokeSession($sessionId)) {
-            return back()->with('success', 'Session has been revoked.');
+        try {
+            $user = $request->user();
+            
+            $session = UserSession::where('user_id', $user->id)
+                ->where('id', $sessionId)
+                ->first();
+            
+            if (!$session) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session not found.',
+                ], 404);
+            }
+            
+            $session->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Session revoked successfully.',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Session revoke error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to revoke session.',
+            ], 500);
         }
-
-        return back()->withErrors(['error' => 'Session not found.']);
     }
 
     /**
-     * Revoke all other sessions
+     * Delete account (redirect to deletion protection system)
      */
-    /**
-     * RevokeAllOtherSessions
-     */
-    public function revokeAllOtherSessions(Request $request): RedirectResponse
+    public function destroy(Request $request): RedirectResponse
     {
-        $user = $request->user();
-        $currentSessionId = Session::getId();
-
-        $revokedCount = $this->securityService->revokeAllOtherSessions($user, $currentSessionId);
-
-        if ($revokedCount > 0) {
-            return back()->with('success', "Revoked {$revokedCount} other sessions.");
-        }
-
-        return back()->with('info', 'No other sessions to revoke.');
+        return redirect()->route('account.deletion.warning');
     }
 
     /**
-     * Calculate user security score based on various factors
-     *
-     * @param mixed $user
-     * @param mixed $securityStatus
+     * Calculate security score
      */
-    private function calculateSecurityScore($user, $securityStatus): int
+    private function calculateSecurityScore($user, ?array $securityStatus = null): int
     {
+        if (!$securityStatus) {
+            $securityStatus = [
+                'email_verified' => (bool) $user->email_verified_at,
+                'two_factor_enabled' => (bool) $user->two_factor_secret,
+                'profile_complete' => $user->getProfileCompletion()['percentage'] >= 100,
+                'password_age_days' => $user->password_changed_at 
+                    ? $user->password_changed_at->diffInDays(now()) 
+                    : $user->created_at->diffInDays(now()),
+            ];
+        }
+
         $score = 0;
-        $maxScore = 100;
 
-        // Email verification (20 points)
-        if ($securityStatus['email_verified']) {
-            $score += 20;
-        }
-
-        // Two-factor authentication (30 points)
-        if ($securityStatus['two_factor_enabled']) {
-            $score += 30;
-        }
-
-        // Profile completion (20 points)
-        if ($securityStatus['profile_complete']) {
-            $score += 20;
-        }
-
-        // Password age (15 points - newer passwords get more points)
+        if ($securityStatus['email_verified']) $score += 20;
+        if ($securityStatus['two_factor_enabled']) $score += 30;
+        if ($securityStatus['profile_complete']) $score += 20;
+        
+        // Password age scoring
         $passwordAgeDays = $securityStatus['password_age_days'];
         if ($passwordAgeDays <= 90) {
             $score += 15;
@@ -590,81 +474,414 @@ class ProfileController extends Controller
             $score += 5;
         }
 
-        // Recent activity (10 points)
+        // Recent activity
         if ($user->last_login_at && $user->last_login_at->isAfter(now()->subDays(7))) {
             $score += 10;
         }
 
-        // Phone number provided (5 points)
-        if (! empty($user->phone)) {
+        // Phone number
+        if (!empty($user->phone)) {
             $score += 5;
         }
 
-        return min($score, $maxScore);
+        return min($score, 100);
     }
 
     /**
-     * Generate profile recommendations based on user data
-     *
-     * @param mixed $user
-     * @param mixed $profileCompletion
-     * @param mixed $securityStatus
+     * Generate recommendations
      */
     private function generateProfileRecommendations($user, $profileCompletion, $securityStatus): array
     {
         $recommendations = [];
 
-        // Profile completion recommendations
         if ($profileCompletion['percentage'] < 90) {
             $recommendations[] = [
-                'type'        => 'profile',
-                'priority'    => 'high',
-                'title'       => 'Complete Your Profile',
+                'type' => 'profile',
+                'priority' => 'high',
+                'title' => 'Complete Your Profile',
                 'description' => 'Add missing information to unlock all features.',
-                'action'      => 'Complete Profile',
-                'route'       => 'profile.edit',
-                'icon'        => 'user-circle',
+                'action' => 'Complete Profile',
+                'route' => 'profile.edit',
+                'icon' => 'user-circle',
             ];
         }
 
-        // Security recommendations
-        if (! $securityStatus['email_verified']) {
+        if (!$securityStatus['email_verified']) {
             $recommendations[] = [
-                'type'        => 'security',
-                'priority'    => 'high',
-                'title'       => 'Verify Your Email',
+                'type' => 'security',
+                'priority' => 'high',
+                'title' => 'Verify Your Email',
                 'description' => 'Verify your email address to secure your account.',
-                'action'      => 'Verify Email',
-                'route'       => NULL,
-                'icon'        => 'mail',
+                'action' => 'Verify Email',
+                'route' => null,
+                'icon' => 'mail',
             ];
         }
 
-        if (! $securityStatus['two_factor_enabled']) {
+        if (!$securityStatus['two_factor_enabled']) {
             $recommendations[] = [
-                'type'        => 'security',
-                'priority'    => 'medium',
-                'title'       => 'Enable Two-Factor Authentication',
+                'type' => 'security',
+                'priority' => 'medium',
+                'title' => 'Enable Two-Factor Authentication',
                 'description' => 'Add an extra layer of security to your account.',
-                'action'      => 'Enable 2FA',
-                'route'       => 'profile.security',
-                'icon'        => 'shield-check',
-            ];
-        }
-
-        // Password age recommendation
-        if ($securityStatus['password_age_days'] > 180) {
-            $recommendations[] = [
-                'type'        => 'security',
-                'priority'    => 'medium',
-                'title'       => 'Update Your Password',
-                'description' => 'Consider updating your password for better security.',
-                'action'      => 'Change Password',
-                'route'       => 'profile.security',
-                'icon'        => 'key',
+                'action' => 'Enable 2FA',
+                'route' => 'profile.security',
+                'icon' => 'shield-check',
             ];
         }
 
         return $recommendations;
+    }
+
+    /**
+     * Process profile image
+     */
+    private function processProfileImage(string $path, ?array $cropData = null): void
+    {
+        try {
+            $fullPath = Storage::disk('public')->path($path);
+            
+            if ($cropData && extension_loaded('gd')) {
+                $image = imagecreatefromstring(file_get_contents($fullPath));
+                
+                if ($image) {
+                    $croppedImage = imagecrop($image, [
+                        'x' => (int) $cropData['x'],
+                        'y' => (int) $cropData['y'],
+                        'width' => (int) $cropData['width'],
+                        'height' => (int) $cropData['height'],
+                    ]);
+                    
+                    if ($croppedImage) {
+                        $resized = imagescale($croppedImage, 300, 300);
+                        
+                        if ($resized) {
+                            imagejpeg($resized, $fullPath, 90);
+                            imagedestroy($resized);
+                        }
+                        
+                        imagedestroy($croppedImage);
+                    }
+                    
+                    imagedestroy($image);
+                }
+            }
+        } catch (Exception $e) {
+            Log::warning('Profile image processing failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get security overview
+     */
+    private function getSecurityOverview($user): array
+    {
+        return [
+            'security_score' => $this->calculateSecurityScore($user),
+            'two_factor_enabled' => (bool) $user->two_factor_secret,
+            'email_verified' => (bool) $user->email_verified_at,
+            'recent_logins' => LoginHistory::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get(),
+            'active_sessions' => UserSession::where('user_id', $user->id)
+                ->active()
+                ->get(),
+            'password_age_days' => $user->password_changed_at 
+                ? $user->password_changed_at->diffInDays(now()) 
+                : $user->created_at->diffInDays(now()),
+        ];
+    }
+
+    /**
+     * Get analytics data (internal)
+     */
+    private function getAnalyticsOverview($user): array
+    {
+        return [
+            'profile_views' => $user->profile_views ?? 0,
+            'login_streak' => $this->calculateLoginStreak($user),
+            'activity_trend' => $this->getActivityTrend($user),
+            'ticket_alerts_stats' => [
+                'total' => $user->ticketAlerts()->count(),
+                'active' => $user->ticketAlerts()->where('status', 'active')->count(),
+                'triggered_this_month' => $user->ticketAlerts()
+                    ->where('last_triggered_at', '>=', now()->startOfMonth())
+                    ->count(),
+            ],
+        ];
+    }
+
+    /**
+     * Calculate login streak
+     */
+    private function calculateLoginStreak($user): int
+    {
+        $loginHistory = LoginHistory::where('user_id', $user->id)
+            ->where('status', 'success')
+            ->orderBy('created_at', 'desc')
+            ->pluck('created_at')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->values();
+
+        $streak = 0;
+        $currentDate = now()->format('Y-m-d');
+
+        foreach ($loginHistory as $index => $loginDate) {
+            $expectedDate = now()->subDays($index)->format('Y-m-d');
+            
+            if ($loginDate === $expectedDate) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    /**
+     * Get activity trend
+     */
+    private function getActivityTrend($user): array
+    {
+        $days = collect(range(0, 29))->map(function ($day) use ($user) {
+            $date = now()->subDays($day)->format('Y-m-d');
+            
+            return [
+                'date' => $date,
+                'logins' => LoginHistory::where('user_id', $user->id)
+                    ->whereDate('created_at', $date)
+                    ->count(),
+                'alerts_created' => TicketAlert::where('user_id', $user->id)
+                    ->whereDate('created_at', $date)
+                    ->count(),
+            ];
+        })->reverse()->values();
+
+        return $days->toArray();
+    }
+    
+    /**
+     * Update user preferences
+     */
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'notifications' => 'nullable|array',
+                'privacy' => 'nullable|array',
+                'interface' => 'nullable|array',
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+            
+            $user = $request->user();
+            $preferences = $user->preferences ?? [];
+            
+            foreach ($request->only(['notifications', 'privacy', 'interface']) as $key => $value) {
+                if ($value !== null) {
+                    $preferences[$key] = $value;
+                }
+            }
+            
+            $user->update(['preferences' => $preferences]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Preferences updated successfully!',
+                'preferences' => $preferences,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Preferences update error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update preferences.',
+            ], 500);
+        }
+    }
+    
+    /**
+     * Advanced security page
+     */
+    public function advancedSecurity(Request $request): View
+    {
+        $user = $request->user();
+        
+        return view('profile.security.advanced', [
+            'user' => $user,
+            'securityData' => $this->getSecurityOverview($user),
+            'sessions' => UserSession::where('user_id', $user->id)->active()->get(),
+            'trustedDevices' => $user->trusted_devices ?? [],
+        ]);
+    }
+    
+    /**
+     * Revoke all other sessions
+     */
+    public function revokeAllOtherSessions(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $currentSessionId = Session::getId();
+            
+            UserSession::where('user_id', $user->id)
+                ->where('session_id', '!=', $currentSessionId)
+                ->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'All other sessions revoked successfully.',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Session revoke all error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to revoke sessions.',
+            ], 500);
+        }
+    }
+    
+    /**
+     * Trust current device
+     */
+    public function trustDevice(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $deviceFingerprint = $request->input('device_fingerprint');
+            $deviceName = $request->input('device_name', 'Unknown Device');
+            
+            $trustedDevices = $user->trusted_devices ?? [];
+            $trustedDevices[] = [
+                'fingerprint' => $deviceFingerprint,
+                'name' => $deviceName,
+                'added_at' => now()->toISOString(),
+                'last_used' => now()->toISOString(),
+            ];
+            
+            $user->update(['trusted_devices' => $trustedDevices]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Device trusted successfully.',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Trust device error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to trust device.',
+            ], 500);
+        }
+    }
+    
+    /**
+     * Remove trusted device
+     */
+    public function removeTrustedDevice(Request $request, int $deviceIndex): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $trustedDevices = $user->trusted_devices ?? [];
+            
+            if (!isset($trustedDevices[$deviceIndex])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Device not found.',
+                ], 404);
+            }
+            
+            unset($trustedDevices[$deviceIndex]);
+            $trustedDevices = array_values($trustedDevices);
+            
+            $user->update(['trusted_devices' => $trustedDevices]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Trusted device removed successfully.',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Remove trusted device error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove trusted device.',
+            ], 500);
+        }
+    }
+    
+    /**
+     * Download backup codes
+     */
+    public function downloadBackupCodes(Request $request): Response
+    {
+        try {
+            $user = $request->user();
+            
+            if (!$user->two_factor_secret) {
+                abort(404, 'Two-factor authentication is not enabled.');
+            }
+            
+            $backupCodes = $user->getRecoveryCodes() ?? 
+                collect(range(1, 10))->map(fn() => strtoupper(str_replace('-', '', uuid())))->toArray();
+            
+            $content = "HD Tickets - Two-Factor Authentication Backup Codes\n";
+            $content .= "Generated: " . now()->format('Y-m-d H:i:s') . "\n";
+            $content .= "User: {$user->email}\n";
+            $content .= str_repeat('=', 50) . "\n\n";
+            $content .= "BACKUP CODES (keep these safe):\n\n";
+            
+            foreach ($backupCodes as $index => $code) {
+                $content .= sprintf("%2d. %s\n", $index + 1, $code);
+            }
+            
+            $content .= "\n" . str_repeat('=', 50) . "\n";
+            $content .= "⚠️  IMPORTANT NOTES:\n";
+            $content .= "• Each code can only be used once\n";
+            $content .= "• Store these codes in a secure location\n";
+            $content .= "• Use these codes if you lose access to your authenticator\n";
+            $content .= "• Generate new codes if you suspect they are compromised\n";
+            
+            return Response::make($content, 200, [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'attachment; filename="hd-tickets-backup-codes-' . date('Y-m-d') . '.txt"',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Download backup codes error: ' . $e->getMessage());
+            abort(500, 'Failed to generate backup codes.');
+        }
+    }
+
+    /**
+     * Get analytics data for AJAX requests
+     */
+    public function getAnalyticsData(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $analytics = $this->getAnalyticsOverview($user);
+            
+            return response()->json([
+                'success' => true,
+                'analytics' => $analytics,
+                'updated_at' => now()->toISOString(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Analytics data error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load analytics data.',
+            ], 500);
+        }
     }
 }

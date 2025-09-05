@@ -20,7 +20,7 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="HD Tickets">
-    <meta property="og:title" content="@yield('og_title', '@yield('title') - HD Tickets Legal')">
+    <meta property="og:title" content="@yield('og_title', 'Legal Documents - HD Tickets Legal')">
     <meta property="og:description" content="@yield('og_description', 'Legal documents and policies for HD Tickets professional sports ticket monitoring platform')">
     <meta property="og:image" content="{{ asset('assets/images/hdTicketsLogo.png') }}">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -32,7 +32,7 @@
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@hdtickets">
-    <meta name="twitter:title" content="@yield('twitter_title', '@yield('title') - HD Tickets Legal')">
+    <meta name="twitter:title" content="@yield('twitter_title', 'Legal Documents - HD Tickets Legal')">
     <meta name="twitter:description" content="@yield('twitter_description', 'Legal documents for HD Tickets professional sports ticket monitoring platform')">
     <meta name="twitter:image" content="{{ asset('assets/images/hdTicketsLogo.png') }}">
     
