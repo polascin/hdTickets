@@ -21,12 +21,16 @@
         
         .dashboard-header {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Only apply backdrop-filter when dropdowns are closed */
+        .customer-dashboard:not(.dropdown-open) .dashboard-header {
+            backdrop-filter: blur(10px);
         }
         
         .stats-grid {
@@ -38,13 +42,17 @@
         
         .stat-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 25px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+        }
+        
+        /* Only apply backdrop-filter when dropdowns are closed */
+        .customer-dashboard:not(.dropdown-open) .stat-card {
+            backdrop-filter: blur(10px);
         }
         
         .stat-card:hover {
@@ -102,13 +110,17 @@
         
         .action-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 0;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
+        }
+        
+        /* Only apply backdrop-filter when dropdowns are closed */
+        .customer-dashboard:not(.dropdown-open) .action-card {
+            backdrop-filter: blur(10px);
         }
         
         .action-card:hover {
@@ -163,11 +175,15 @@
         
         .dashboard-card {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
+        }
+        
+        /* Only apply backdrop-filter when dropdowns are closed */
+        .customer-dashboard:not(.dropdown-open) .dashboard-card {
+            backdrop-filter: blur(10px);
         }
         
         .card-header {

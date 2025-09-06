@@ -126,6 +126,9 @@
     <!-- Dropdown Enhancements CSS -->
     <link href="{{ asset('css/dropdown-enhancements.css') }}" rel="stylesheet">
 
+    <!-- Dropdown Z-Index Fix CSS -->
+    <link href="{{ asset('css/dropdown-zindex-fix.css') }}" rel="stylesheet">
+
     <!-- Mobile Enhancements CSS -->
     <link href="{{ asset('css/mobile-enhancements.css') }}" rel="stylesheet">
 
@@ -143,6 +146,9 @@
     <!-- Enhanced HD Tickets JavaScript -->
     <script src="{{ asset('js/notificationManager.js') }}" defer></script>
     <script src="{{ asset('js/performanceMonitor.js') }}" defer></script>
+
+    <!-- Dropdown Position Fix JavaScript -->
+    <script src="{{ asset('js/dropdown-position-fix.js') }}" defer></script>
 
     <!-- Inline Critical CSS for Above-the-Fold Content -->
     <style>
@@ -194,6 +200,10 @@
               this.adminDropdownOpen = false;
               this.profileDropdownOpen = false;
               this.mobileMenuOpen = false;
+              
+              // Remove dropdown state classes
+              document.body.classList.remove('dropdown-open');
+              document.querySelector('.customer-dashboard')?.classList.remove('dropdown-open');
             },
 
             toggleMobileMenu() {
@@ -210,6 +220,16 @@
               // Close other dropdowns
               this.profileDropdownOpen = false;
               this.mobileMenuOpen = false;
+              
+              // Add/remove dropdown state class to body for CSS targeting
+              if (this.adminDropdownOpen || this.profileDropdownOpen) {
+                document.body.classList.add('dropdown-open');
+                document.querySelector('.customer-dashboard')?.classList.add('dropdown-open');
+              } else {
+                document.body.classList.remove('dropdown-open');
+                document.querySelector('.customer-dashboard')?.classList.remove('dropdown-open');
+              }
+              
               console.log('🔧 Admin dropdown:', this.adminDropdownOpen ? 'OPEN' : 'CLOSED');
             },
 
@@ -218,6 +238,16 @@
               // Close other dropdowns
               this.adminDropdownOpen = false;
               this.mobileMenuOpen = false;
+              
+              // Add/remove dropdown state class to body for CSS targeting
+              if (this.adminDropdownOpen || this.profileDropdownOpen) {
+                document.body.classList.add('dropdown-open');
+                document.querySelector('.customer-dashboard')?.classList.add('dropdown-open');
+              } else {
+                document.body.classList.remove('dropdown-open');
+                document.querySelector('.customer-dashboard')?.classList.remove('dropdown-open');
+              }
+              
               console.log('👤 Profile dropdown:', this.profileDropdownOpen ? 'OPEN' : 'CLOSED');
             },
 
