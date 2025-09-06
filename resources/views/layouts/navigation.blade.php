@@ -28,7 +28,8 @@
 <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
 <script src="{{ asset('js/accessibility.js') }}" defer></script>
 
-<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40"
+<nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0"
+  style="z-index: 10000 !important;"
   :class="{ 'nav-scrolled': isScrolled }" role="banner" aria-label="Primary navigation" id="main-navigation">
 
   <!-- Primary Navigation Menu -->
@@ -62,6 +63,35 @@
 
         .dropdown-enter-to {
           @apply opacity-100 scale-100;
+        }
+
+        /* CRITICAL: Force dropdown z-index above everything */
+        .nav-dropdown,
+        [data-dropdown],
+        [data-dropdown="admin"],
+        [data-dropdown="profile"] {
+          z-index: 999999 !important;
+          position: absolute !important;
+          isolation: isolate !important;
+        }
+
+        /* Ensure navigation container has proper stacking context */
+        #main-navigation {
+          z-index: 1000 !important;
+          position: sticky !important;
+        }
+
+        /* Override any backdrop-filter issues */
+        .customer-dashboard * {
+          backdrop-filter: none !important;
+        }
+
+        /* Apply backdrop-filter only when safe */
+        .customer-dashboard:not(.dropdown-active) .dashboard-header,
+        .customer-dashboard:not(.dropdown-active) .stat-card,
+        .customer-dashboard:not(.dropdown-active) .action-card,
+        .customer-dashboard:not(.dropdown-active) .dashboard-card {
+          backdrop-filter: blur(10px) !important;
         }
       </style>
 
@@ -194,7 +224,8 @@
                 x-transition:enter-start="dropdown-enter" x-transition:enter-end="dropdown-enter-to"
                 x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
                 x-transition:leave-end="opacity-0 scale-95"
-                class="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200 nav-dropdown nav-dropdown--right"
+                class="absolute mt-1 w-64 bg-white rounded-md shadow-lg py-1 border border-gray-200 nav-dropdown nav-dropdown--right"
+                style="z-index: 99999 !important; position: absolute !important;"
                 role="menu" aria-orientation="vertical" aria-labelledby="admin-menu-button" data-dropdown="admin"
                 @click="adminDropdownOpen = false">
 
@@ -365,7 +396,8 @@
             x-transition:enter-start="dropdown-enter" x-transition:enter-end="dropdown-enter-to"
             x-transition:leave="transform ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="absolute z-50 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0 nav-dropdown nav-dropdown--right"
+            class="absolute mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-200 right-0 nav-dropdown nav-dropdown--right"
+            style="z-index: 99999 !important; position: absolute !important;"
             role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" data-dropdown="profile"
             @click="profileDropdownOpen = false">
 

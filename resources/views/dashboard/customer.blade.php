@@ -181,9 +181,13 @@
             overflow: hidden;
         }
         
-        /* Only apply backdrop-filter when dropdowns are closed */
-        .customer-dashboard:not(.dropdown-open) .dashboard-card {
-            backdrop-filter: blur(10px);
+        /* DISABLED: Remove all backdrop-filter to fix dropdown z-index issues */
+        .customer-dashboard .dashboard-header,
+        .customer-dashboard .stat-card,
+        .customer-dashboard .action-card,
+        .customer-dashboard .dashboard-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
         
         .card-header {
@@ -310,6 +314,27 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+
+        /* GLOBAL DROPDOWN Z-INDEX FIX - HIGHEST PRIORITY */
+        .nav-dropdown,
+        [data-dropdown],
+        [data-dropdown="admin"],
+        [data-dropdown="profile"],
+        .dropdown-menu {
+            z-index: 999999 !important;
+            position: absolute !important;
+            background: white !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            isolation: isolate !important;
+        }
+
+        /* Ensure navigation has proper z-index */
+        #main-navigation,
+        nav[role="banner"] {
+            z-index: 100000 !important;
+            position: sticky !important;
         }
     </style>
 @endpush
@@ -619,6 +644,48 @@
 
 @push('scripts')
 <script>
+// IMMEDIATE DROPDOWN FIX
+document.addEventListener('DOMContentLoaded', function() {
+  // Force fix dropdowns immediately
+  function forceFixDropdowns() {
+    const dropdowns = document.querySelectorAll('[data-dropdown], .nav-dropdown');
+    dropdowns.forEach(dropdown => {
+      dropdown.style.zIndex = '99999';
+      dropdown.style.position = 'absolute';
+      dropdown.style.isolation = 'isolate';
+    });
+    
+    // Remove backdrop filters that interfere
+    const dashboardElements = document.querySelectorAll('.dashboard-header, .stat-card, .action-card, .dashboard-card');
+    dashboardElements.forEach(el => {
+      el.style.backdropFilter = 'none';
+    });
+    
+    console.log('🔧 Forced dropdown fixes applied');
+  }
+  
+  // Apply fixes immediately and on mutations
+  forceFixDropdowns();
+  
+  // Re-apply when dropdowns are shown
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('[aria-haspopup="true"]')) {
+      setTimeout(forceFixDropdowns, 10);
+    }
+  });
+  
+  // Observer for Alpine.js changes
+  const observer = new MutationObserver(function() {
+    forceFixDropdowns();
+  });
+  
+  observer.observe(document.body, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['style', 'class']
+  });
+});
+
 function customerDashboard() {
     return {
         stats: {

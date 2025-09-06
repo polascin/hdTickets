@@ -8,7 +8,7 @@
     <div class="profile-picture-container">
         <!-- Profile Picture Preview -->
         <div class="profile-picture-preview">
-            <div class="profile-picture" id="profile-picture-preview" data-profile-picture>
+            <div class="profile-picture" id="profile-picture-preview" data-profile-picture data-initials="{{ $user->getProfileDisplay()['initials'] }}">
                 @if($user->profile_picture)
                     <img src="{{ $user->getProfileDisplay()['picture_url'] }}" alt="{{ $user->getFullNameAttribute() }}" />
                 @else
@@ -97,7 +97,7 @@
 </div>
 
 @push('styles')
-<link href="{{ css_timestamp('css/profile-picture.css') }}" rel="stylesheet">
+<link href="{{ asset('css/profile-picture.css') }}?v={{ time() }}" rel="stylesheet">
 <!-- Cropper.js CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cyzxRvewl+7jiNzQQw2sFOOlUY28D5dSlqpKBOvt7sLw0xFfkBnz4RUIDlgd8WvUSKyf4UKvJJJ8V8oQr5WFkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
@@ -106,5 +106,5 @@
 <!-- Cropper.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- Profile Picture Manager -->
-<script src="{{ css_timestamp('js/profile-picture-manager.js') }}"></script>
+<script src="{{ asset('js/profile-picture-manager.js') }}?v={{ time() }}"></script>
 @endpush

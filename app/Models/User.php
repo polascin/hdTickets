@@ -196,26 +196,26 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         }
 
         // Encrypt sensitive fields on save
-        static::saving(function ($model): void {
-            if ($model->encryptionService) {
-                foreach ($model->getEncryptedFields() as $field) {
-                    if (! empty($model->$field)) {
-                        $model->$field = $model->encryptionService->encrypt($model->$field);
-                    }
-                }
-            }
-        });
-
-        // Decrypt sensitive fields on retrieve
-        static::retrieved(function ($model): void {
-            if ($model->encryptionService) {
-                foreach ($model->getEncryptedFields() as $field) {
-                    if (! empty($model->$field)) {
-                        $model->$field = $model->encryptionService->decrypt($model->$field);
-                    }
-                }
-            }
-        });
+        // Commented out custom encryption logic - using Laravel casts instead
+        // static::saving(function ($model): void {
+        //     if ($model->encryptionService) {
+        //         foreach ($model->getEncryptedFields() as $field) {
+        //             if (! empty($model->$field)) {
+        //                 $model->$field = $model->encryptionService->encrypt($model->$field);
+        //             }
+        //         }
+        //     }
+        // });
+        //
+        // // Decrypt sensitive fields on retrieve
+        // static::retrieved(function ($model): void {
+        //     if ($model->encryptionService) {
+        //         foreach ($model->getEncryptedFields() as $field) {
+        //             if (! empty($model->$field)) {
+        //         $model->$field = $model->encryptionService->decrypt($model->$field);
+        //     }
+        // });
+        // });
     }
 
     /**
@@ -1323,6 +1323,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'push_notifications'        => 'boolean',
             'password_history'          => 'array',
             // 'email' => 'encrypted', // Temporarily disabled for seeding
+            'phone'                     => 'encrypted',
+            'two_factor_secret'         => 'encrypted',
             'password' => 'hashed',
         ];
     }

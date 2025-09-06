@@ -129,6 +129,9 @@
     <!-- Dropdown Z-Index Fix CSS -->
     <link href="{{ asset('css/dropdown-zindex-fix.css') }}" rel="stylesheet">
 
+    <!-- Nuclear Dropdown Fix CSS (Last Resort) -->
+    <link href="{{ asset('css/dropdown-nuclear-fix.css') }}" rel="stylesheet">
+
     <!-- Mobile Enhancements CSS -->
     <link href="{{ asset('css/mobile-enhancements.css') }}" rel="stylesheet">
 
@@ -149,6 +152,11 @@
 
     <!-- Dropdown Position Fix JavaScript -->
     <script src="{{ asset('js/dropdown-position-fix.js') }}" defer></script>
+
+    @if(app()->environment('local'))
+    <!-- Dropdown Debug JavaScript (Development Only) -->
+    <script src="{{ asset('js/dropdown-debug.js') }}" defer></script>
+    @endif
 
     <!-- Inline Critical CSS for Above-the-Fold Content -->
     <style>
