@@ -2,12 +2,17 @@
   "name": "HD Tickets - Professional Sports Ticket Monitoring Platform",
   "short_name": "HD Tickets",
   "description": "Professional sports event ticket monitoring platform with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.",
+  "version": "2.0.0",
+  "id": "hd-tickets-pwa",
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#1e40af",
-  "theme_color": "#2563eb",
-  "orientation": "portrait-primary",
   "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui", "standalone", "browser"],
+  "orientation": "any",
+  "theme_color": "#2563eb",
+  "background_color": "#1e40af",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/assets/images/pwa/icon-72x72.png",
@@ -58,19 +63,75 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["sports", "productivity", "business", "finance"],
   "screenshots": [
     {
       "src": "/assets/images/pwa/screenshot-mobile.png",
       "sizes": "320x640",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "narrow"
     },
     {
       "src": "/assets/images/pwa/screenshot-desktop.png",
       "sizes": "1280x720",
-      "type": "image/png"
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View main dashboard with real-time ticket data",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-dashboard.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Ticket Alerts",
+      "short_name": "Alerts",
+      "description": "Manage your price alerts and notifications",
+      "url": "/tickets/alerts",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-alerts.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "short_name": "Profile",
+      "description": "Update account settings and preferences",
+      "url": "/profile",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-profile.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "PWA Demo",
+      "short_name": "PWA",
+      "description": "Explore Progressive Web App features",
+      "url": "/examples/pwa",
+      "icons": [
+        {
+          "src": "/assets/images/pwa/shortcut-pwa.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "categories": ["sports", "productivity", "business", "finance"],
   "features": [
     "professional ticket monitoring",
     "subscription-based access",
@@ -85,69 +146,13 @@
     "background sync"
   ],
   "prefer_related_applications": false,
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View main dashboard",
-      "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/assets/images/pwa/shortcut-dashboard.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Subscription",
-      "short_name": "Subscription",
-      "description": "Manage your subscription plan",
-      "url": "/subscription",
-      "icons": [
-        {
-          "src": "/assets/images/pwa/shortcut-subscription.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Profile Settings",
-      "short_name": "Profile",
-      "description": "Manage account and security settings",
-      "url": "/profile",
-      "icons": [
-        {
-          "src": "/assets/images/pwa/shortcut-profile.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Ticket Monitoring",
-      "short_name": "Monitor",
-      "description": "Monitor sports ticket availability",
-      "url": "/monitoring",
-      "icons": [
-        {
-          "src": "/assets/images/pwa/shortcut-monitor.png",
-          "sizes": "96x96"
-        }
-      ]
-    }
-  ],
+  "related_applications": [],
   "protocol_handlers": [
     {
       "protocol": "web+hdtickets",
       "url": "/admin/handle/%s"
     }
   ],
-  "handle_links": "preferred",
-  "launch_handler": {
-    "client_mode": "navigate-new"
-  },
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
   "file_handlers": [
     {
       "action": "/admin/import",
@@ -170,10 +175,12 @@
       ]
     }
   },
-  "display_override": ["window-controls-overlay", "minimal-ui", "standalone"],
-  "related_applications": [],
-  "iarc_rating_id": "",
-  "dir": "ltr",
-  "lang": "en",
-  "version": "1.2.0"
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-new"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "iarc_rating_id": ""
 }

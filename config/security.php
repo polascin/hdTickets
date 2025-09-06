@@ -203,6 +203,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Audit Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Comprehensive audit logging for compliance and security tracking
+    |
+    */
+    'audit' => [
+        'enabled' => env('SECURITY_AUDIT_ENABLED', true),
+        'retention_days' => env('SECURITY_AUDIT_RETENTION_DAYS', 365),
+        'sensitive_actions' => [
+            'login',
+            'logout',
+            'password_change',
+            'role_change',
+            'permission_grant',
+            'permission_revoke',
+            'user_create',
+            'user_update',
+            'user_delete',
+            'account_lock',
+            'account_unlock',
+            'data_export',
+            'system_config_change',
+            'security_setting_change',
+            'audit_log_access',
+            'backup_create',
+            'backup_restore',
+        ],
+        'exclude_actions' => [
+            'view',
+            'read',
+            'list',
+        ],
+        'log_request_data' => env('SECURITY_AUDIT_LOG_REQUEST_DATA', false),
+        'anonymize_after_days' => env('SECURITY_AUDIT_ANONYMIZE_DAYS', 90),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | CSRF Protection
     |--------------------------------------------------------------------------
     |
@@ -306,11 +345,89 @@ return [
         'threat_correlation'           => TRUE,
         'behavioral_analysis'          => TRUE,
         'geographic_anomaly_detection' => TRUE,
+        
+        // Enhanced Threat Detection Rules
+        'failed_login_threshold' => env('SECURITY_FAILED_LOGIN_THRESHOLD', 5),
+        'login_rate_limit' => env('SECURITY_LOGIN_RATE_LIMIT', 10), // per minute
+        'suspicious_ip_threshold' => env('SECURITY_SUSPICIOUS_IP_THRESHOLD', 3),
+        'account_lockout_duration' => env('SECURITY_ACCOUNT_LOCKOUT_DURATION', 30), // minutes
+        'incident_escalation_threshold' => env('SECURITY_INCIDENT_ESCALATION_THRESHOLD', 3),
+        'anomaly_detection_window' => env('SECURITY_ANOMALY_DETECTION_WINDOW', 24), // hours
+        'brute_force_detection_window' => env('SECURITY_BRUTE_FORCE_WINDOW', 60), // minutes
+        'account_enumeration_threshold' => env('SECURITY_ACCOUNT_ENUMERATION_THRESHOLD', 10),
+        'coordinated_attack_threshold' => env('SECURITY_COORDINATED_ATTACK_THRESHOLD', 3),
+        'distributed_login_threshold' => env('SECURITY_DISTRIBUTED_LOGIN_THRESHOLD', 3),
+
+        // Threat Scoring
+        'base_threat_scores' => [
+            'login_failed' => 20,
+            'multiple_failed_logins' => 40,
+            'suspicious_login' => 60,
+            'brute_force_detected' => 80,
+            'account_takeover_attempt' => 90,
+            'unauthorized_access_attempt' => 70,
+            'privilege_escalation_attempt' => 85,
+            'data_breach_attempt' => 95,
+            'malicious_request' => 75,
+            'bot_detected' => 50,
+            'rate_limit_exceeded' => 30,
+            'account_enumeration_detected' => 65,
+            'coordinated_attack_detected' => 85,
+            'distributed_login_attempt' => 70,
+        ],
+
+        // Automated Response Thresholds
+        'response_thresholds' => [
+            'monitoring_increase' => 40,
+            'additional_auth_required' => 60,
+            'ip_temporary_block' => 70,
+            'account_temporary_lock' => 80,
+            'incident_creation' => 80,
+            'alert_notification' => 75,
+            'critical_escalation' => 90,
+        ],
+
+        // Original alert thresholds
         'alert_thresholds'             => [
             'critical_events'     => 1,
             'high_events'         => 5,
             'failed_logins'       => 5,
             'suspicious_patterns' => 10,
+        ],
+
+        // IP Blocking Configuration
+        'ip_blocking' => [
+            'default_duration' => 60, // minutes
+            'escalation_durations' => [
+                1 => 60,   // First block: 1 hour
+                2 => 240,  // Second block: 4 hours
+                3 => 1440, // Third block: 24 hours
+                4 => 10080, // Fourth+ block: 7 days
+            ],
+            'whitelist' => [
+                '127.0.0.1',
+                '::1',
+                // Add trusted IP ranges here
+            ],
+        ],
+
+        // Incident Management
+        'incidents' => [
+            'auto_assignment' => [
+                'enabled' => env('SECURITY_AUTO_ASSIGNMENT_ENABLED', true),
+                'rules' => [
+                    'critical' => 'security_team_lead',
+                    'high' => 'security_analyst',
+                    'medium' => 'security_analyst',
+                    'low' => 'junior_analyst',
+                ],
+            ],
+            'escalation_rules' => [
+                'critical_response_time' => 15, // minutes
+                'high_response_time' => 60, // minutes
+                'medium_response_time' => 240, // minutes
+                'low_response_time' => 1440, // minutes (24 hours)
+            ],
         ],
     ],
 

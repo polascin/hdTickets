@@ -1,8 +1,13 @@
 {{-- 
-    Enhanced Navigation Component
-    - Improved mobile responsiveness with proper hamburger animation
-    - Enhanced accessibility with ARIA attributes and keyboard navigation
-    - Better organization and readability
+    Enhanced Accessible Navigation Component
+    - WCAG 2.1 AA compliant accessibility features
+    - Skip navigation links for keyboard users
+    - Proper ARIA landmarks and labels
+    - Enhanced keyboard navigation support
+    - Screen reader announcements
+    - Focus management and indicators
+    - High contrast mode support
+    - Improved mobile responsiveness
     - Role-based access control
     - Performance optimizations
     - Theme support
@@ -10,8 +15,21 @@
 @php
   use Illuminate\Support\Facades\Request;
 @endphp
+
+{{-- Skip Navigation Links --}}
+<nav class="skip-links" aria-label="Skip navigation">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a href="#main-navigation" class="skip-link">Skip to navigation</a>
+  <a href="#search" class="skip-link">Skip to search</a>
+  <a href="#footer" class="skip-link">Skip to footer</a>
+</nav>
+
+{{-- Include Accessibility CSS --}}
+<link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
+<script src="{{ asset('js/accessibility.js') }}" defer></script>
+
 <nav x-data="navigationData()" x-init="console.log('🔧 Navigation initialized:', $data)" class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40"
-  :class="{ 'nav-scrolled': isScrolled }" role="navigation" aria-label="Primary navigation" id="main-navigation">
+  :class="{ 'nav-scrolled': isScrolled }" role="banner" aria-label="Primary navigation" id="main-navigation">
 
   <!-- Primary Navigation Menu -->
   <div class="hd-container">
@@ -58,61 +76,72 @@
         </div>
 
         <!-- Desktop Navigation Links -->
-        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center desktop-nav-links" role="menubar">
-          {{-- Dashboard Link - Available to all users --}}
-          <x-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" role="menuitem" class="nav-link">
-            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
-            </svg>
-            <span>{{ __('Dashboard') }}</span>
-          </x-nav-link>
+        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center desktop-nav-links" role="navigation" aria-label="Main menu">
+          <div role="menubar" aria-label="Primary navigation menu" class="flex space-x-8 items-center">
+            {{-- Dashboard Link - Available to all users --}}
+            <x-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" role="menuitem" class="nav-link"
+              aria-describedby="dashboard-desc" tabindex="0">
+              <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                aria-hidden="true" focusable="false">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
+              </svg>
+              <span>{{ __('Dashboard') }}</span>
+              <span id="dashboard-desc" class="sr-only">Navigate to main dashboard</span>
+            </x-nav-link>
 
           @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isAgent()))
             {{-- Sports Tickets --}}
-            <x-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')" role="menuitem" class="nav-link">
+            <x-nav-link :href="route('tickets.scraping.index')" :active="Request::routeIs('tickets.scraping.*')" role="menuitem" class="nav-link"
+              aria-describedby="sports-tickets-desc" tabindex="0">
               <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true">
+                aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1V7a2 2 0 00-2-2H5zM5 14a2 2 0 00-2 2v3a1 1 0 001 1h1a1 1 0 001-1v-3a2 2 0 00-2-2H5z">
                 </path>
               </svg>
               <span>{{ __('Sports Tickets') }}</span>
+              <span id="sports-tickets-desc" class="sr-only">Browse and monitor sports event tickets</span>
             </x-nav-link>
 
             {{-- Ticket Alerts --}}
-            <x-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')" role="menuitem" class="nav-link">
+            <x-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')" role="menuitem" class="nav-link"
+              aria-describedby="alerts-desc" tabindex="0">
               <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true">
+                aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
               </svg>
               <span>{{ __('My Alerts') }}</span>
+              <span id="alerts-desc" class="sr-only">Manage your ticket price and availability alerts</span>
             </x-nav-link>
 
             {{-- Purchase Queue --}}
-            <x-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')" role="menuitem" class="nav-link">
+            <x-nav-link :href="route('purchase-decisions.index')" :active="Request::routeIs('purchase-decisions.*')" role="menuitem" class="nav-link"
+              aria-describedby="queue-desc" tabindex="0">
               <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true">
+                aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13a2 2 0 100 4 2 2 0 000-4zm-8 4a2 2 0 11-4 0 2 2 0 014 0z">
                 </path>
               </svg>
               <span>{{ __('Purchase Queue') }}</span>
+              <span id="queue-desc" class="sr-only">View and manage your ticket purchase queue</span>
             </x-nav-link>
 
             {{-- Ticket Sources --}}
-            <x-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')" role="menuitem" class="nav-link">
+            <x-nav-link :href="route('ticket-sources.index')" :active="Request::routeIs('ticket-sources.*')" role="menuitem" class="nav-link"
+              aria-describedby="sources-desc" tabindex="0">
               <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                aria-hidden="true">
+                aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
                 </path>
               </svg>
               <span>{{ __('Sources') }}</span>
+              <span id="sources-desc" class="sr-only">Manage ticket sources and scraping configurations</span>
             </x-nav-link>
           @endif
 
@@ -271,12 +300,14 @@
       </div>
 
       <!-- Theme Toggle -->
-      <div class="hidden sm:flex sm:items-center sm:ms-4" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-init="document.documentElement.classList.toggle('dark', darkMode)">
+      <div class="hidden sm:flex sm:items-center sm:ms-4" x-data="themeManager()">
         <button type="button" @click="toggleTheme()"
-          class="inline-flex items-center p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          :title="darkMode ? 'Switch to light theme' : 'Switch to dark theme'"
-          :aria-label="darkMode ? 'Switch to light theme' : 'Switch to dark theme'" id="theme-toggle">
-          <i class="fas w-5 h-5" :class="darkMode ? 'fa-sun' : 'fa-moon'" id="theme-icon" aria-hidden="true"></i>
+          class="theme-toggle inline-flex items-center p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          :title="getNextThemeLabel()"
+          :aria-label="getNextThemeLabel()" 
+          :class="{ 'transitioning': isTransitioning }"
+          id="theme-toggle">
+          <i class="fas w-5 h-5" :class="getThemeIcon()" id="theme-icon" aria-hidden="true"></i>
         </button>
       </div>
 
@@ -366,14 +397,18 @@
       <!-- Enhanced Mobile Navigation with Hamburger -->
       <div class="-me-2 flex items-center sm:hidden">
         <button @click="toggleMobileMenu()" class="hd-mobile-hamburger"
-          :class="{ 'hd-mobile-hamburger--open': mobileMenuOpen }" :aria-expanded="mobileMenuOpen"
-          aria-label="Toggle mobile menu" aria-controls="mobile-menu" type="button">
+          :class="{ 'hd-mobile-hamburger--open': mobileMenuOpen }" :aria-expanded="mobileMenuOpen.toString()"
+          aria-label="Toggle mobile menu" aria-controls="mobile-menu" type="button" 
+          tabindex="0" role="button" 
+          :aria-describedby="mobileMenuOpen ? null : 'mobile-menu-desc'"
+          @keydown.enter="toggleMobileMenu()" @keydown.space.prevent="toggleMobileMenu()">
           <div class="hd-mobile-hamburger__icon">
-            <span class="hd-mobile-hamburger__line"></span>
-            <span class="hd-mobile-hamburger__line"></span>
-            <span class="hd-mobile-hamburger__line"></span>
+            <span class="hd-mobile-hamburger__line" aria-hidden="true"></span>
+            <span class="hd-mobile-hamburger__line" aria-hidden="true"></span>
+            <span class="hd-mobile-hamburger__line" aria-hidden="true"></span>
           </div>
-          <span class="sr-only">Toggle navigation menu</span>
+          <span class="sr-only" x-text="mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'">Open navigation menu</span>
+          <span id="mobile-menu-desc" class="sr-only">Press Enter or Space to open mobile navigation menu</span>
         </button>
       </div>
     </div>
@@ -382,20 +417,31 @@
   <!-- Responsive Navigation Menu -->
   <div :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }"
     class="hidden sm:hidden bg-white border-t border-gray-200 mobile-nav-menu"
-    :class="{ 'open': mobileMenuOpen, 'closed': !mobileMenuOpen }" id="mobile-menu" :aria-hidden="!mobileMenuOpen"
-    role="navigation" aria-label="Mobile navigation">
+    :class="{ 'open': mobileMenuOpen, 'closed': !mobileMenuOpen }" id="mobile-menu" :aria-hidden="(!mobileMenuOpen).toString()"
+    role="navigation" aria-label="Mobile navigation menu" 
+    :aria-expanded="mobileMenuOpen.toString()" tabindex="-1"
+    x-init="$watch('mobileMenuOpen', value => {
+      if (value) {
+        $nextTick(() => {
+          const firstLink = $el.querySelector('[role=menuitem]');
+          if (firstLink) firstLink.focus();
+        });
+      }
+    })">
     <div class="container mx-auto px-4">
-      <div class="pt-2 pb-3 space-y-1" role="menu">
+      <div class="pt-2 pb-3 space-y-1" role="menu" aria-label="Mobile menu items">
         {{-- Dashboard Link --}}
-        <x-responsive-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" class="mobile-nav-link" role="menuitem">
+        <x-responsive-nav-link :href="route('dashboard')" :active="Request::routeIs('dashboard')" class="mobile-nav-link" 
+          role="menuitem" tabindex="0" aria-describedby="mobile-dashboard-desc">
           <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            aria-hidden="true">
+            aria-hidden="true" focusable="false">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0M8 5a2 2 0 012-2h4a2 2 0 012 2v0"></path>
           </svg>
           <span>{{ __('Dashboard') }}</span>
+          <span id="mobile-dashboard-desc" class="sr-only">Navigate to main dashboard - mobile</span>
         </x-responsive-nav-link>
 
         @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->isAgent()))

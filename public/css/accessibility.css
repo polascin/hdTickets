@@ -1,0 +1,899 @@
+/**
+ * HD Tickets - Comprehensive Accessibility Styles
+ * WCAG 2.1 AA Compliant Accessibility Enhancements
+ * 
+ * This file provides comprehensive accessibility features including:
+ * - High contrast mode support
+ * - Focus indicators and keyboard navigation
+ * - Screen reader utilities
+ * - Reduced motion respect
+ * - Color contrast compliance
+ * - Skip links and landmarks
+ * 
+ * @version 1.0.0
+ * @author HD Tickets Development Team
+ * @license MIT
+ */
+
+/* ============================================================================
+   CSS Custom Properties for Accessibility
+   ============================================================================ */
+
+:root {
+  /* Focus ring properties */
+  --focus-ring-color: #0066cc;
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-style: solid;
+  --focus-ring-opacity: 1;
+  
+  /* High contrast mode colors */
+  --hc-bg: #000000;
+  --hc-text: #ffffff;
+  --hc-link: #ffff00;
+  --hc-border: #ffffff;
+  --hc-button-bg: #ffffff;
+  --hc-button-text: #000000;
+  --hc-input-bg: #ffffff;
+  --hc-input-text: #000000;
+  --hc-error: #ff6b6b;
+  --hc-success: #51cf66;
+  --hc-warning: #ffd43b;
+  
+  /* Skip link properties */
+  --skip-link-bg: #000000;
+  --skip-link-text: #ffffff;
+  --skip-link-height: 40px;
+  --skip-link-padding: 8px 16px;
+  
+  /* Screen reader properties */
+  --sr-only-clip: rect(1px, 1px, 1px, 1px);
+  
+  /* Animation timing for reduced motion */
+  --animation-duration: 0.3s;
+  --animation-easing: ease-in-out;
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animation-duration: 0.01s;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01s !important;
+  }
+}
+
+/* ============================================================================
+   Skip Navigation Links
+   ============================================================================ */
+
+.skip-links {
+  position: absolute;
+  top: -100vh;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+  background: var(--skip-link-bg);
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100vh;
+  left: 0;
+  background: var(--skip-link-bg);
+  color: var(--skip-link-text);
+  text-decoration: none;
+  padding: var(--skip-link-padding);
+  height: var(--skip-link-height);
+  line-height: calc(var(--skip-link-height) - 16px);
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 0 0 4px 0;
+  border: 2px solid transparent;
+  transition: all var(--animation-duration) var(--animation-easing);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: none;
+  border-color: var(--focus-ring-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.skip-link:hover:focus {
+  background: var(--focus-ring-color);
+  color: white;
+}
+
+/* Skip links container when focused */
+.skip-links:focus-within {
+  top: 0;
+}
+
+/* ============================================================================
+   Focus Management and Indicators
+   ============================================================================ */
+
+/* Remove default focus styles that we'll replace */
+:focus {
+  outline: none;
+}
+
+/* High-visibility focus indicator for all focusable elements */
+:focus-visible,
+.focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 102, 204, 0.1);
+}
+
+/* Enhanced focus for interactive elements */
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  position: relative;
+  z-index: 1;
+}
+
+/* Focus trap for modals and overlays */
+.focus-trap-active {
+  position: relative;
+}
+
+.focus-trap-active::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  pointer-events: none;
+}
+
+/* Focus indicators for custom components */
+.custom-button:focus-visible,
+.custom-input:focus-visible,
+.custom-checkbox:focus-visible,
+.custom-radio:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Enhanced focus for navigation */
+.nav-link:focus-visible {
+  background-color: rgba(0, 102, 204, 0.1);
+  border-radius: 4px;
+}
+
+/* ============================================================================
+   Screen Reader Utilities
+   ============================================================================ */
+
+/* Screen reader only text */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: var(--sr-only-clip) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Screen reader only but focusable */
+.sr-only-focusable:focus,
+.visually-hidden-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.25rem 0.5rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background: var(--skip-link-bg);
+  color: var(--skip-link-text);
+  border: 2px solid var(--focus-ring-color);
+  border-radius: 4px;
+  z-index: 10000;
+}
+
+/* Screen reader announcements */
+.sr-announcer {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Live region for dynamic announcements */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live].announce-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  background: #f8f9fa;
+  border: 2px solid #0066cc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+/* ============================================================================
+   Keyboard Navigation Enhancements
+   ============================================================================ */
+
+/* Enhanced tab order visibility */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Keyboard-only focus (hide focus ring for mouse users) */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+/* Enhanced keyboard navigation for dropdowns */
+.dropdown-menu {
+  outline: 1px solid var(--focus-ring-color);
+}
+
+.dropdown-menu [role="menuitem"]:focus {
+  background-color: var(--focus-ring-color);
+  color: white;
+  outline: none;
+}
+
+/* Enhanced keyboard navigation for tab panels */
+[role="tabpanel"] {
+  outline: none;
+}
+
+[role="tabpanel"]:focus {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: -2px;
+}
+
+[role="tab"][aria-selected="true"] {
+  background-color: var(--focus-ring-color);
+  color: white;
+}
+
+/* Enhanced keyboard navigation for modal dialogs */
+[role="dialog"] {
+  outline: 2px solid var(--focus-ring-color);
+}
+
+/* ============================================================================
+   High Contrast Mode Support
+   ============================================================================ */
+
+/* High contrast mode detection and styles */
+@media (prefers-contrast: high) {
+  :root {
+    --focus-ring-width: 3px;
+    --focus-ring-offset: 1px;
+  }
+  
+  /* Enhanced borders for high contrast */
+  button,
+  input,
+  textarea,
+  select,
+  .card,
+  .modal,
+  .dropdown-menu {
+    border: 2px solid var(--hc-border) !important;
+  }
+  
+  /* Enhanced text contrast */
+  body {
+    background: var(--hc-bg) !important;
+    color: var(--hc-text) !important;
+  }
+  
+  /* Enhanced link contrast */
+  a {
+    color: var(--hc-link) !important;
+    text-decoration: underline !important;
+  }
+  
+  a:hover,
+  a:focus {
+    background: var(--hc-link) !important;
+    color: var(--hc-bg) !important;
+  }
+  
+  /* Enhanced button contrast */
+  button,
+  .btn {
+    background: var(--hc-button-bg) !important;
+    color: var(--hc-button-text) !important;
+    border: 2px solid var(--hc-border) !important;
+  }
+  
+  button:hover,
+  button:focus,
+  .btn:hover,
+  .btn:focus {
+    background: var(--hc-text) !important;
+    color: var(--hc-bg) !important;
+  }
+  
+  /* Enhanced form control contrast */
+  input,
+  textarea,
+  select {
+    background: var(--hc-input-bg) !important;
+    color: var(--hc-input-text) !important;
+    border: 2px solid var(--hc-border) !important;
+  }
+  
+  /* Enhanced error/success/warning states */
+  .error,
+  .is-invalid,
+  [aria-invalid="true"] {
+    border-color: var(--hc-error) !important;
+    color: var(--hc-error) !important;
+  }
+  
+  .success,
+  .is-valid {
+    border-color: var(--hc-success) !important;
+    color: var(--hc-success) !important;
+  }
+  
+  .warning {
+    border-color: var(--hc-warning) !important;
+    color: var(--hc-warning) !important;
+  }
+}
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  /* Use system colors */
+  :root {
+    --focus-ring-color: Highlight;
+    --hc-bg: Canvas;
+    --hc-text: CanvasText;
+    --hc-link: LinkText;
+    --hc-border: ButtonBorder;
+    --hc-button-bg: ButtonFace;
+    --hc-button-text: ButtonText;
+  }
+  
+  /* Remove custom backgrounds that interfere with forced colors */
+  * {
+    background-color: transparent !important;
+    border-color: ButtonBorder !important;
+    color: CanvasText !important;
+  }
+  
+  button,
+  .btn {
+    background-color: ButtonFace !important;
+    color: ButtonText !important;
+    border-color: ButtonBorder !important;
+  }
+  
+  a {
+    color: LinkText !important;
+  }
+  
+  input,
+  textarea,
+  select {
+    background-color: Field !important;
+    color: FieldText !important;
+    border-color: ButtonBorder !important;
+  }
+}
+
+/* ============================================================================
+   Color Contrast Enhancements
+   ============================================================================ */
+
+/* Ensure minimum contrast ratios (WCAG AA: 4.5:1 for normal text, 3:1 for large text) */
+
+/* High contrast text combinations */
+.text-contrast-high {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.text-contrast-high-reverse {
+  color: #ffffff;
+  background-color: #000000;
+}
+
+/* Enhanced contrast for UI elements */
+.contrast-border {
+  border: 2px solid #000000;
+}
+
+.contrast-focus {
+  box-shadow: 0 0 0 3px #000000, 0 0 0 5px #ffffff;
+}
+
+/* Error states with proper contrast */
+.error-high-contrast {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border: 2px solid #d32f2f;
+}
+
+.success-high-contrast {
+  color: #2e7d32;
+  background-color: #e8f5e8;
+  border: 2px solid #2e7d32;
+}
+
+.warning-high-contrast {
+  color: #f57c00;
+  background-color: #fff3e0;
+  border: 2px solid #f57c00;
+}
+
+/* ============================================================================
+   Accessible Form Enhancements
+   ============================================================================ */
+
+/* Enhanced form field focus */
+.form-field:focus-within {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Required field indicators */
+.required-field::after,
+[required] + label::after,
+[aria-required="true"] + label::after {
+  content: " *";
+  color: #d32f2f;
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+/* Error message styling */
+.error-message,
+[role="alert"],
+.field-error {
+  color: #d32f2f;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.error-message::before,
+[role="alert"]::before {
+  content: "⚠";
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Success message styling */
+.success-message {
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.success-message::before {
+  content: "✓";
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Enhanced fieldset and legend */
+fieldset {
+  border: 2px solid #666666;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+legend {
+  padding: 0 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ============================================================================
+   Accessible Interactive Elements
+   ============================================================================ */
+
+/* Enhanced button states */
+button:disabled,
+[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  position: relative;
+}
+
+button:disabled::after,
+[aria-disabled="true"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.5) 2px,
+    rgba(255, 255, 255, 0.5) 4px
+  );
+  pointer-events: none;
+}
+
+/* Enhanced link styles */
+a:not([class]) {
+  color: #0066cc;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:not([class]):hover {
+  text-decoration-thickness: 2px;
+}
+
+a:not([class]):focus {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Skip to content styling */
+.skip-content {
+  background: #000000;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 4px 0;
+}
+
+/* ============================================================================
+   Accessible Table Enhancements
+   ============================================================================ */
+
+/* Enhanced table accessibility */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #666666;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+}
+
+caption {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+/* Table focus management */
+table:focus-within {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+th:focus,
+td:focus {
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: -2px;
+  background-color: rgba(0, 102, 204, 0.1);
+}
+
+/* ============================================================================
+   Accessible Modal and Dialog Enhancements
+   ============================================================================ */
+
+/* Enhanced modal accessibility */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+
+.modal-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  padding: 2rem;
+  min-width: 300px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+.modal-dialog:focus {
+  outline: none;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #cccccc;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.modal-close:focus {
+  border-color: var(--focus-ring-color);
+  outline: none;
+}
+
+/* ============================================================================
+   Accessible Loading and Status Indicators
+   ============================================================================ */
+
+/* Loading spinner with accessibility */
+.loading-spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+  
+  .loading-spinner::after {
+    content: "Loading...";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-success {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #2e7d32;
+}
+
+.status-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+}
+
+.status-warning {
+  background-color: #fff3e0;
+  color: #f57c00;
+  border: 1px solid #f57c00;
+}
+
+.status-info {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #1976d2;
+}
+
+/* ============================================================================
+   Responsive Accessibility Enhancements
+   ============================================================================ */
+
+/* Mobile accessibility improvements */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Enhanced spacing for mobile */
+  .form-field {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Better focus indicators on mobile */
+  :focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}
+
+/* Tablet accessibility improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Enhanced touch targets for tablet */
+  button,
+  a {
+    min-height: 40px;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* ============================================================================
+   Print Accessibility
+   ============================================================================ */
+
+@media print {
+  /* Ensure good contrast in print */
+  * {
+    background: transparent !important;
+    color: black !important;
+  }
+  
+  /* Show link URLs in print */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+  
+  /* Hide non-essential elements */
+  .skip-links,
+  .sr-only,
+  .visually-hidden {
+    display: none !important;
+  }
+  
+  /* Ensure focus indicators are visible in print */
+  :focus,
+  .focus-visible {
+    outline: 2px solid black !important;
+  }
+}
+
+/* ============================================================================
+   Dark Mode Accessibility
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --focus-ring-color: #66b3ff;
+    --skip-link-bg: #ffffff;
+    --skip-link-text: #000000;
+  }
+  
+  /* Ensure sufficient contrast in dark mode */
+  .text-contrast-high {
+    color: #ffffff;
+    background-color: #000000;
+  }
+  
+  .text-contrast-high-reverse {
+    color: #000000;
+    background-color: #ffffff;
+  }
+  
+  /* Enhanced borders for dark mode */
+  .contrast-border {
+    border-color: #ffffff;
+  }
+  
+  /* Dark mode error states */
+  .error-high-contrast {
+    color: #ff6b6b;
+    background-color: #2d1b1b;
+    border-color: #ff6b6b;
+  }
+  
+  .success-high-contrast {
+    color: #51cf66;
+    background-color: #1b2d1b;
+    border-color: #51cf66;
+  }
+  
+  .warning-high-contrast {
+    color: #ffd43b;
+    background-color: #2d291b;
+    border-color: #ffd43b;
+  }
+}

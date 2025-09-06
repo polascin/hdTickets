@@ -36,6 +36,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseDecisionController;
+use App\Http\Controllers\SecurityDashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -378,6 +379,37 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Security Dashboard Routes
+|--------------------------------------------------------------------------
+|
+| Comprehensive security management dashboard for HD Tickets system.
+| Provides real-time security monitoring, threat detection, incident
+| management, audit logging, and interactive security demos.
+|
+| Access: Admin role only for security management
+|
+*/
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('security')->name('security.')->group(function (): void {
+    // Main security dashboard
+    Route::get('/dashboard', [SecurityDashboardController::class, 'index'])->name('dashboard.index');
+    
+    // Security management pages
+    Route::get('/incidents', [SecurityDashboardController::class, 'incidents'])->name('dashboard.incidents');
+    Route::get('/events', [SecurityDashboardController::class, 'events'])->name('dashboard.events');
+    Route::get('/users', [SecurityDashboardController::class, 'users'])->name('dashboard.users');
+    Route::get('/audit', [SecurityDashboardController::class, 'audit'])->name('dashboard.audit');
+    Route::get('/configuration', [SecurityDashboardController::class, 'configuration'])->name('dashboard.configuration');
+    Route::get('/demo', [SecurityDashboardController::class, 'demo'])->name('dashboard.demo');
+    
+    // API endpoints for real-time data
+    Route::prefix('dashboard/api')->name('dashboard.api.')->group(function (): void {
+        Route::get('/data', [SecurityDashboardController::class, 'apiDashboardData'])->name('data');
+        Route::get('/live-events', [SecurityDashboardController::class, 'apiLiveEvents'])->name('live-events');
+    });
+});
+
 // Ticket Scraping Routes
 Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->group(function (): void {
     // Scraping dashboard and listing
@@ -485,7 +517,7 @@ require __DIR__ . '/admin.php';
 
 Route::get('/dashboard-test', function () {
     $user = \App\Models\User::where('email', 'admin@hdtickets.local')->first();
-    if (;user) {
+    if (!$user) {
         return response()->json(['error' => 'Admin user not found']);
     }
     
@@ -504,4 +536,73 @@ Route::get('/dashboard-test', function () {
         ]);
     }
 })->name('dashboard.test');
+
+// UI/UX Showcase Routes
+Route::get('/ui-showcase', function () {
+    return view('ui-showcase');
+})->name('ui.showcase');
+
+// Enhanced Form UX Examples
+Route::get('/examples/forms', function () {
+    return view('examples.enhanced-form');
+})->name('examples.forms');
+
+// Accessibility Compliance Demo
+Route::get('/examples/accessibility', function () {
+    return view('examples.accessibility-demo');
+})->name('examples.accessibility');
+
+// Responsive Design Demo
+Route::get('/examples/responsive', function () {
+    return view('examples.responsive-demo');
+})->name('examples.responsive');
+
+// PWA Features Demo
+Route::get('/examples/pwa', function () {
+    return view('examples.pwa-demo');
+})->name('examples.pwa');
+
+// Performance Optimization Demo
+Route::get('/examples/performance', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'index'])->name('examples.performance');
+
+// Database & Cache Optimization Demo
+Route::get('/examples/database-optimization', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'index'])->name('examples.database-optimization');
+
+// Performance Demo API Endpoints
+Route::prefix('api/demo')->name('api.demo.')->group(function () {
+    Route::get('/sample-content', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'sampleContent']);
+    Route::get('/search', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'search']);
+    Route::get('/metrics', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'metrics']);
+    Route::delete('/search-cache', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'clearSearchCache']);
+    
+    // Database optimization demo endpoints
+    Route::get('/database-stats', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'getDatabaseStats']);
+    Route::post('/query-demo', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'runQueryDemo']);
+    Route::post('/cache-warmup', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'warmupCacheDemo']);
+    Route::post('/cache-clear', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'clearCacheDemo']);
+    Route::get('/query-analysis', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'getQueryAnalysis']);
+});
+
+// Enhanced Form UX Examples (authenticated access)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard/form-examples', function () {
+        return view('examples.enhanced-form');
+    })->name('dashboard.form-examples');
+    
+    Route::get('/dashboard/accessibility-demo', function () {
+        return view('examples.accessibility-demo');
+    })->name('dashboard.accessibility-demo');
+    
+    Route::get('/dashboard/responsive-demo', function () {
+        return view('examples.responsive-demo');
+    })->name('dashboard.responsive-demo');
+    
+    Route::get('/dashboard/pwa-demo', function () {
+        return view('examples.pwa-demo');
+    })->name('dashboard.pwa-demo');
+    
+    Route::get('/dashboard/performance-demo', [App\Http\Controllers\Examples\PerformanceDemoController::class, 'index'])->name('dashboard.performance-demo');
+    
+    Route::get('/dashboard/database-optimization-demo', [App\Http\Controllers\Examples\DatabaseOptimizationDemoController::class, 'index'])->name('dashboard.database-optimization-demo');
+});
 

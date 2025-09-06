@@ -111,6 +111,9 @@
     <!-- Accessibility Enhancement CSS -->
     <link href="{{ asset('assets/css/accessibility.css') }}" rel="stylesheet">
 
+    <!-- Theme System CSS -->
+    <link href="{{ asset('css/theme-system.css') }}" rel="stylesheet">
+
     <!-- Enhanced HD Tickets CSS -->
     <link href="{{ asset('css/hd-notifications.css') }}" rel="stylesheet">
 
@@ -123,10 +126,19 @@
     <!-- Dropdown Enhancements CSS -->
     <link href="{{ asset('css/dropdown-enhancements.css') }}" rel="stylesheet">
 
+    <!-- Mobile Enhancements CSS -->
+    <link href="{{ asset('css/mobile-enhancements.css') }}" rel="stylesheet">
+
     <!-- Bootstrap CSS -->
     <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}"
       rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Theme Manager -->
+    <script src="{{ asset('resources/js/utils/themeManager.js') }}" defer></script>
+
+    <!-- Mobile Touch Utils -->
+    <script src="{{ asset('resources/js/utils/mobileTouchUtils.js') }}" defer></script>
 
     <!-- Enhanced HD Tickets JavaScript -->
     <script src="{{ asset('js/notificationManager.js') }}" defer></script>

@@ -1,38 +1,311 @@
-/* Critical CSS for above-the-fold content */
-/* HD Tickets Sports Theme - Critical Loading Styles */
+/* Critical CSS for HD Tickets - Above-the-fold optimization */
+/* This CSS should be inlined to prevent render-blocking and improve initial page load */
 
-/* Basic reset and layout */
+/* ========================================
+   CRITICAL PATH STYLES (ABOVE THE FOLD)
+======================================== */
+
+/* Reset and Base Styles */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
-html,
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  height: 100%;
-  font-family:
-    'Plus Jakarta Sans',
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  margin: 0;
+  font-family: 'Figtree', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  font-feature-settings: 'cv02','cv03','cv04','cv11';
+  font-variation-settings: normal;
+  line-height: 1.6;
   color: #1f2937;
-  background-color: #f9fafb;
+  background-color: #ffffff;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Critical layout styles */
-.min-h-screen {
-  min-height: 100vh;
+/* Essential CSS Custom Properties */
+:root {
+  /* Primary Colors */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-primary-light: #93c5fd;
+  
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  
+  /* Text Colors */
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  
+  /* Borders */
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+  
+  /* Shadows */
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
+/* Dark theme variables */
+[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-elevated: #1f2937;
+  --bg-tertiary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+}
+
+/* ========================================
+   CRITICAL LAYOUT COMPONENTS
+======================================== */
+
+/* App Container */
+.app-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  transition: background-color 0.2s ease;
+}
+
+/* Header/Navigation Critical Styles */
+.main-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-base);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4rem;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.logo img {
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+}
+
+/* Navigation */
+.main-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  transition: color 0.15s ease;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--color-primary);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+/* ========================================
+   LOADING STATES (CRITICAL)
+======================================== */
+
+/* Critical loading spinner for initial page load */
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--border-primary);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Page loading overlay */
+.page-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.page-loading.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Critical skeleton loading */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite ease-in-out;
+  border-radius: 4px;
+  display: block;
+}
+
+[data-theme="dark"] .loading-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ========================================
+   CRITICAL UTILITIES
+======================================== */
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-primary);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 6px;
+}
+
+/* Focus styles */
+:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ========================================
+   CRITICAL RESPONSIVE UTILITIES
+======================================== */
+
+/* Container */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+/* Flexbox utilities */
 .flex {
   display: flex;
 }
@@ -49,71 +322,171 @@ body {
   justify-content: center;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Sizing utilities */
 .w-full {
   width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.min-h-screen {
+  min-height: 100vh;
 }
 
 .max-w-md {
   max-width: 28rem;
 }
 
-/* Sports theme colors */
-:root {
-  --primary-color: #1e40af;
-  --primary-hover: #1d4ed8;
-  --secondary-color: #059669;
-  --accent-color: #dc2626;
-  --bg-color: #f8fafc;
-  --text-color: #1f2937;
-  --border-color: #d1d5db;
+/* Spacing utilities (critical ones only) */
+.p-4 {
+  padding: 1rem;
 }
 
-/* Loading animation for critical rendering */
-.loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+.mt-4 {
+  margin-top: 1rem;
 }
 
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+.mb-4 {
+  margin-bottom: 1rem;
 }
 
-/* Form critical styles */
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+/* ========================================
+   CRITICAL FORM ELEMENTS
+======================================== */
+
 .form-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-primary);
   border-radius: 0.375rem;
   font-size: 1rem;
-  transition: border-color 0.2s ease-in-out;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
 
-/* Button critical styles */
-.btn-primary {
-  background-color: var(--primary-color);
-  color: white;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.375rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  border-radius: 0.375rem;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  text-decoration: none;
+  transition: all 0.15s ease;
 }
 
-.btn-primary:hover {
-  background-color: var(--primary-hover);
+.btn--primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+======================================== */
+
+/* Optimize images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* GPU acceleration for animations */
+.animate-spin,
+.loading-spinner,
+.loading-skeleton,
+*[class*="transition"] {
+  will-change: transform, opacity;
+}
+
+/* Contain layout shifts */
+.logo img,
+.avatar,
+.icon {
+  contain: layout style paint;
+}
+
+/* ========================================
+   DARK MODE TRANSITION
+======================================== */
+
+/* Smooth transition for theme changes */
+*,
+*::before,
+*::after {
+  transition: 
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Disable transitions during theme change to prevent flash */
+.theme-changing *,
+.theme-changing *::before,
+.theme-changing *::after {
+  transition: none !important;
+}
+
+/* ========================================
+   CRITICAL JAVASCRIPT STATES
+======================================== */
+
+/* No-js fallbacks */
+.no-js .js-only {
+  display: none !important;
+}
+
+.no-js .no-js-fallback {
+  display: block !important;
+}
+
+/* JavaScript loaded state */
+.js-loaded .js-loading {
+  display: none;
 }
 
 /* Hide non-critical content during load */
@@ -121,14 +494,93 @@ body {
   visibility: hidden;
 }
 
-/* Sports theme gradient background */
-.sports-gradient {
-  background: linear-gradient(135deg, #1e40af 0%, #059669 100%);
+.critical-loaded .non-critical {
+  visibility: visible;
 }
 
-/* Logo container critical sizing */
-.logo-container {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 2rem;
+/* ========================================
+   PRINT STYLES (CRITICAL)
+======================================== */
+
+@media print {
+  /* Hide non-essential elements */
+  .mobile-menu-btn,
+  .loading-spinner,
+  .page-loading {
+    display: none !important;
+  }
+  
+  /* Ensure readable colors */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Optimize fonts for print */
+  body {
+    font-family: serif;
+    line-height: 1.5;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY PREFERENCES
+======================================== */
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .loading-spinner,
+  .loading-skeleton {
+    animation: none;
+  }
+  
+  .loading-spinner {
+    border-color: var(--color-primary);
+    border-top-color: transparent;
+  }
+  
+  .loading-skeleton {
+    background: var(--bg-tertiary);
+  }
+  
+  [data-theme="dark"] .loading-skeleton {
+    background: #4b5563;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-primary: #000000;
+    --border-secondary: #000000;
+  }
+  
+  [data-theme="dark"] {
+    --border-primary: #ffffff;
+    --border-secondary: #ffffff;
+  }
+  
+  .nav-link:hover,
+  .nav-link.active {
+    text-decoration: underline;
+  }
+  
+  .loading-skeleton {
+    background: #cccccc;
+    border: 1px solid #000000;
+  }
+  
+  [data-theme="dark"] .loading-skeleton {
+    background: #666666;
+    border: 1px solid #ffffff;
+  }
 }

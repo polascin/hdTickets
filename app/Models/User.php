@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -1191,6 +1192,76 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function unreadNotifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable')->whereNull('read_at');
+    }
+
+    /**
+     * RBAC Relationships
+     */
+
+    /**
+     * User's assigned roles
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles')
+            ->withPivot(['assigned_at', 'expires_at', 'assigned_by'])
+            ->withTimestamps();
+    }
+
+    /**
+     * User's direct permissions
+     */
+    public function userPermissions(): HasMany
+    {
+        return $this->hasMany(UserPermission::class);
+    }
+
+    /**
+     * User's resource access permissions
+     */
+    public function resourceAccess(): HasMany
+    {
+        return $this->hasMany(ResourceAccess::class);
+    }
+
+    /**
+     * Two-factor authentication backup codes
+     */
+    public function twoFactorBackupCodes(): HasMany
+    {
+        return $this->hasMany(TwoFactorBackupCode::class);
+    }
+
+    /**
+     * Two-factor recovery records
+     */
+    public function twoFactorRecoveries(): HasMany
+    {
+        return $this->hasMany(TwoFactorRecovery::class);
+    }
+
+    /**
+     * User's login attempts
+     */
+    public function loginAttempts(): HasMany
+    {
+        return $this->hasMany(LoginAttempt::class);
+    }
+
+    /**
+     * User's trusted devices
+     */
+    public function trustedDevices(): HasMany
+    {
+        return $this->hasMany(TrustedDevice::class);
+    }
+
+    /**
+     * User's security events
+     */
+    public function securityEvents(): HasMany
+    {
+        return $this->hasMany(SecurityEvent::class);
     }
 
     /**
