@@ -559,6 +559,92 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/statistics', [AutomatedPurchaseController::class, 'getAutomationStatistics']);
     });
 
+    // IMAP Email Monitoring API Routes
+    Route::prefix('imap')->middleware([CheckApiRole::class . ':agent,admin'])->name('api.imap.')->group(function () {
+        // Dashboard and statistics
+        Route::get('/dashboard', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'dashboard']);
+        Route::get('/statistics', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'statistics']);
+        
+        // Connection management
+        Route::post('/test-connection', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'testConnection']);
+        Route::get('/connection-health', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'connectionHealth']);
+        
+        // Monitoring operations
+        Route::post('/start-monitoring', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'startMonitoring']);
+        
+        // Cache management
+        Route::post('/clear-cache', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'clearCache']);
+        
+        // Platform configuration
+        Route::get('/platform-config', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'platformConfig']);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Business Intelligence API Routes
+    |--------------------------------------------------------------------------
+    |
+    | Comprehensive API endpoints for external BI tools and third-party integrations.
+    | Provides standardized access to analytics data with proper authentication,
+    | rate limiting, and data formatting for business intelligence platforms.
+    |
+    */
+    Route::prefix('bi')->middleware([CheckApiRole::class . ':admin,agent'])->name('api.bi.')->group(function (): void {
+        // API Health and Documentation
+        Route::get('/health', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'health'])
+            ->name('health');
+
+        // Core Analytics Endpoints
+        Route::get('/analytics/overview', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getAnalyticsOverview'])
+            ->middleware('throttle:bi-api,100')
+            ->name('analytics.overview');
+        
+        Route::get('/tickets/metrics', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getTicketMetrics'])
+            ->middleware('throttle:bi-api,100')
+            ->name('tickets.metrics');
+        
+        Route::get('/platforms/performance', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getPlatformData'])
+            ->middleware('throttle:bi-api,100')
+            ->name('platforms.performance');
+        
+        // Advanced Analytics Endpoints (More Restrictive Rate Limits)
+        Route::get('/competitive/intelligence', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getCompetitiveIntelligence'])
+            ->middleware('throttle:bi-api-heavy,20')
+            ->name('competitive.intelligence');
+        
+        Route::get('/predictive/insights', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getPredictiveInsights'])
+            ->middleware('throttle:bi-api-heavy,20')
+            ->name('predictive.insights');
+        
+        Route::get('/anomalies/current', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getCurrentAnomalies'])
+            ->middleware('throttle:bi-api,100')
+            ->name('anomalies.current');
+        
+        // Data Export Endpoints (Very Restrictive Rate Limits)
+        Route::post('/export/dataset', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'exportDataSet'])
+            ->middleware('throttle:bi-export,5')
+            ->name('export.dataset');
+        
+        // User Analytics (Admin Only)
+        Route::middleware([CheckApiRole::class . ':admin'])->group(function (): void {
+            Route::get('/users/analytics', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getUserAnalytics'])
+                ->middleware('throttle:bi-api,100')
+                ->name('users.analytics');
+        });
+        
+        // Download route for API exports
+        Route::get('/download/{file}', function ($file) {
+            $path = storage_path('app/analytics/exports/api/' . $file);
+            if (!file_exists($path)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Export file not found or has expired'
+                ], 404);
+            }
+            return response()->download($path);
+        })->name('download');
+    });
+
     // Agent and Admin routes
     Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function (): void {
         // Routes that require agent or admin role

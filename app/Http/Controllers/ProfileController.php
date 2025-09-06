@@ -150,41 +150,77 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $validated = $request->validated();
-
+            
+            // Handle preferences separately
+            $preferences = $user->preferences ?? [];
+            if (isset($validated['preferences']) && is_array($validated['preferences'])) {
+                $preferences = array_merge($preferences, $validated['preferences']);
+                unset($validated['preferences']);
+            }
+            
+            // Convert checkbox values to booleans
+            $validated['email_notifications'] = $request->has('email_notifications');
+            $validated['push_notifications'] = $request->has('push_notifications');
+            
+            // Fill user model with validated data
             $user->fill($validated);
+            $user->preferences = $preferences;
 
+            // Handle email change - require re-verification
             if ($user->isDirty('email')) {
                 $user->email_verified_at = null;
+                // TODO: Send email verification notification
             }
 
             $user->save();
 
-            // Clear cache
+            // Clear relevant caches
             Cache::forget("user_stats_{$user->id}");
             Cache::forget("profile_completion_{$user->id}");
+            
+            // Log the profile update for audit purposes
+            activity()
+                ->performedOn($user)
+                ->causedBy($user)
+                ->withProperties([
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'updated_fields' => array_keys($user->getDirty())
+                ])
+                ->log('profile_updated');
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Profile updated successfully!',
-                    'user' => $user->only(['name', 'surname', 'email', 'phone', 'bio']),
+                    'user' => $user->only([
+                        'name', 'surname', 'username', 'email', 'phone', 'bio', 
+                        'timezone', 'language', 'email_notifications', 'push_notifications'
+                    ]),
+                    'preferences' => $user->preferences,
                 ]);
             }
 
-            return Redirect::route('profile.show')
+            return Redirect::route('profile.edit')
                 ->with('success', 'Profile updated successfully!');
         } catch (Exception $e) {
-            Log::error('Profile update error: ' . $e->getMessage());
+            Log::error('Profile update error: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id,
+                'request_data' => $request->except(['password', '_token']),
+                'trace' => $e->getTraceAsString()
+            ]);
 
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to update profile.',
+                    'message' => 'Failed to update profile. Please try again.',
+                    'errors' => config('app.debug') ? $e->getMessage() : null,
                 ], 500);
             }
 
             return Redirect::route('profile.edit')
-                ->with('error', 'Failed to update profile. Please try again.');
+                ->with('error', 'Failed to update profile. Please try again.')
+                ->withInput();
         }
     }
 

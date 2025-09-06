@@ -1,76 +1,309 @@
-<?php declare(strict_types=1);
+<?php
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Advanced Analytics Dashboard Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration settings for the HDTickets Advanced Analytics Dashboard
-    | including caching, data retention, and performance optimization.
-    |
-    */
-
-    'enabled' => env('ANALYTICS_DASHBOARD_ENABLED', TRUE),
 
     /*
     |--------------------------------------------------------------------------
-    | Caching Configuration
+    | Analytics Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This file contains configuration options for the HD Tickets analytics
+    | system including predictive models, anomaly detection, export settings,
+    | and data processing parameters.
+    |
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | General Analytics Settings
     |--------------------------------------------------------------------------
     */
-    'cache' => [
-        'ttl'    => env('ANALYTICS_CACHE_TTL', 3600), // 1 hour
-        'prefix' => 'analytics',
-        'store'  => env('ANALYTICS_CACHE_STORE', 'redis'),
-        'tags'   => ['analytics', 'dashboard'],
+    'enabled' => env('ANALYTICS_ENABLED', true),
+    'cache_ttl' => env('ANALYTICS_CACHE_TTL', 300), // 5 minutes in seconds
+    'default_lookback_days' => env('ANALYTICS_DEFAULT_LOOKBACK_DAYS', 30),
+    'max_data_points' => env('ANALYTICS_MAX_DATA_POINTS', 10000),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Predictive Analytics Configuration
+    |--------------------------------------------------------------------------
+    */
+    'predictive' => [
+        'enabled' => env('PREDICTIVE_ANALYTICS_ENABLED', true),
+        'price_prediction_window' => 30, // days
+        'demand_forecast_horizon' => 90, // days
+        'confidence_threshold' => 0.75,
+        'min_historical_data_points' => 50,
+        'model_refresh_interval' => 24, // hours
+        'prediction_cache_ttl' => 900, // 15 minutes
+
+        // Machine learning model settings
+        'models' => [
+            'price_prediction' => [
+                'algorithm' => 'linear_regression',
+                'features' => [
+                    'historical_prices',
+                    'venue_capacity',
+                    'event_popularity',
+                    'seasonal_patterns',
+                    'platform_trends',
+                ],
+                'validation_split' => 0.2,
+                'cross_validation_folds' => 5,
+            ],
+            'demand_forecasting' => [
+                'algorithm' => 'time_series',
+                'features' => [
+                    'historical_demand',
+                    'event_category',
+                    'venue_location',
+                    'price_points',
+                    'external_factors',
+                ],
+                'seasonality' => true,
+                'trend_analysis' => true,
+            ],
+        ],
+
+        // Accuracy thresholds
+        'accuracy_thresholds' => [
+            'price_prediction' => [
+                'mae_threshold' => 15.0, // Mean Absolute Error
+                'mape_threshold' => 10.0, // Mean Absolute Percentage Error
+                'r_squared_min' => 0.70, // Coefficient of determination
+            ],
+            'demand_forecasting' => [
+                'mae_threshold' => 20.0,
+                'mape_threshold' => 15.0,
+                'r_squared_min' => 0.65,
+            ],
+        ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Data Retention
+    | Anomaly Detection Configuration
     |--------------------------------------------------------------------------
     */
-    'data_retention' => [
-        'price_history_days'       => env('ANALYTICS_PRICE_HISTORY_DAYS', 365),
-        'demand_data_days'         => env('ANALYTICS_DEMAND_DATA_DAYS', 180),
-        'user_activity_days'       => env('ANALYTICS_USER_ACTIVITY_DAYS', 90),
-        'performance_metrics_days' => env('ANALYTICS_PERFORMANCE_METRICS_DAYS', 30),
+    'anomaly_detection' => [
+        'enabled' => env('ANOMALY_DETECTION_ENABLED', true),
+        'price_anomaly_threshold' => 3.0, // Standard deviations
+        'volume_anomaly_threshold' => 2.5,
+        'velocity_anomaly_threshold' => 2.0,
+        'lookback_period' => 30, // days
+        'min_data_points' => 20,
+        'confidence_level' => 0.95,
+
+        // Detection algorithms
+        'algorithms' => [
+            'statistical' => [
+                'enabled' => true,
+                'z_score_threshold' => 3.0,
+                'iqr_multiplier' => 1.5,
+            ],
+            'isolation_forest' => [
+                'enabled' => true,
+                'contamination' => 0.1,
+                'n_estimators' => 100,
+            ],
+            'time_series' => [
+                'enabled' => true,
+                'seasonal_decomposition' => true,
+                'trend_detection' => true,
+            ],
+        ],
+
+        // Alert configurations
+        'alerts' => [
+            'enabled' => true,
+            'channels' => ['email', 'slack', 'database'],
+            'severity_levels' => [
+                'critical' => [
+                    'z_score_min' => 4.0,
+                    'notification_delay' => 0, // immediate
+                    'escalation_time' => 300, // 5 minutes
+                ],
+                'high' => [
+                    'z_score_min' => 3.0,
+                    'notification_delay' => 60, // 1 minute
+                    'escalation_time' => 900, // 15 minutes
+                ],
+                'medium' => [
+                    'z_score_min' => 2.0,
+                    'notification_delay' => 300, // 5 minutes
+                    'escalation_time' => 3600, // 1 hour
+                ],
+                'low' => [
+                    'z_score_min' => 1.5,
+                    'notification_delay' => 900, // 15 minutes
+                    'escalation_time' => 7200, // 2 hours
+                ],
+            ],
+        ],
+
+        // Real-time monitoring
+        'realtime' => [
+            'enabled' => true,
+            'check_interval' => 300, // 5 minutes
+            'price_spike_threshold' => 50.0, // percentage
+            'volume_surge_threshold' => 200.0, // percentage
+            'platform_downtime_threshold' => 600, // 10 minutes
+        ],
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard Widgets
+    | Data Export Configuration
     |--------------------------------------------------------------------------
     */
-    'widgets' => [
-        'price_trends' => [
-            'enabled'          => TRUE,
-            'refresh_interval' => 300, // 5 minutes
-            'max_data_points'  => 1000,
-            'chart_types'      => ['line', 'area', 'candlestick'],
+    'export' => [
+        'enabled' => env('ANALYTICS_EXPORT_ENABLED', true),
+        'storage_disk' => env('ANALYTICS_EXPORT_DISK', 'local'),
+        'export_path' => 'analytics/exports',
+        'retention_days' => 30,
+        'max_rows_per_export' => 50000,
+        'chunk_size' => 1000,
+
+        // Supported formats
+        'formats' => [
+            'csv' => [
+                'enabled' => true,
+                'max_file_size' => '50M',
+                'delimiter' => ',',
+                'enclosure' => '"',
+                'escape' => '\\',
+            ],
+            'xlsx' => [
+                'enabled' => true,
+                'max_file_size' => '100M',
+                'max_sheets' => 10,
+                'include_charts' => false,
+            ],
+            'pdf' => [
+                'enabled' => true,
+                'max_file_size' => '25M',
+                'page_size' => 'A4',
+                'orientation' => 'portrait',
+                'include_images' => true,
+            ],
+            'json' => [
+                'enabled' => true,
+                'max_file_size' => '75M',
+                'pretty_print' => true,
+                'include_metadata' => true,
+            ],
         ],
-        'demand_patterns' => [
-            'enabled'          => TRUE,
-            'refresh_interval' => 600, // 10 minutes
-            'ml_predictions'   => env('ANALYTICS_ML_ENABLED', TRUE),
-            'chart_types'      => ['heatmap', 'bar', 'scatter'],
+
+        // Automated exports
+        'scheduled_exports' => [
+            'enabled' => env('SCHEDULED_EXPORTS_ENABLED', true),
+            'daily_report' => [
+                'enabled' => true,
+                'time' => '06:00',
+                'format' => 'pdf',
+                'recipients' => env('DAILY_REPORT_RECIPIENTS', ''),
+            ],
+            'weekly_report' => [
+                'enabled' => true,
+                'day' => 'monday',
+                'time' => '08:00',
+                'format' => 'xlsx',
+                'recipients' => env('WEEKLY_REPORT_RECIPIENTS', ''),
+            ],
+            'monthly_report' => [
+                'enabled' => true,
+                'day' => 1,
+                'time' => '09:00',
+                'format' => 'pdf',
+                'recipients' => env('MONTHLY_REPORT_RECIPIENTS', ''),
+            ],
         ],
-        'success_rates' => [
-            'enabled'                  => TRUE,
-            'refresh_interval'         => 300,
-            'optimization_suggestions' => TRUE,
-            'chart_types'              => ['gauge', 'bar', 'trend'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Configuration
+    |--------------------------------------------------------------------------
+    */
+    'dashboard' => [
+        'refresh_interval' => 30, // seconds
+        'auto_refresh' => true,
+        'max_chart_points' => 500,
+        'chart_animations' => true,
+
+        // Default chart configurations
+        'charts' => [
+            'price_trends' => [
+                'type' => 'line',
+                'time_range' => 30, // days
+                'aggregation' => 'daily',
+                'colors' => ['#3498db', '#e74c3c', '#2ecc71', '#f39c12'],
+            ],
+            'platform_performance' => [
+                'type' => 'bar',
+                'sort_by' => 'total_tickets',
+                'show_percentages' => true,
+                'colors' => ['#9b59b6', '#1abc9c', '#34495e', '#e67e22'],
+            ],
+            'event_popularity' => [
+                'type' => 'doughnut',
+                'max_categories' => 8,
+                'show_legends' => true,
+                'colors' => ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56'],
+            ],
         ],
-        'platform_comparison' => [
-            'enabled'          => TRUE,
-            'refresh_interval' => 900, // 15 minutes
-            'max_platforms'    => 10,
-            'chart_types'      => ['radar', 'bar', 'table'],
+
+        // Widget settings
+        'widgets' => [
+            'overview_metrics' => [
+                'enabled' => true,
+                'update_interval' => 60, // seconds
+                'show_trends' => true,
+                'trend_period' => 7, // days
+            ],
+            'real_time_alerts' => [
+                'enabled' => true,
+                'max_alerts' => 10,
+                'auto_dismiss' => 300, // 5 minutes
+                'severity_colors' => [
+                    'critical' => '#e74c3c',
+                    'high' => '#f39c12',
+                    'medium' => '#f1c40f',
+                    'low' => '#3498db',
+                ],
+            ],
+            'top_events' => [
+                'enabled' => true,
+                'limit' => 10,
+                'sort_by' => 'ticket_count',
+                'time_range' => 7, // days
+            ],
         ],
-        'real_time_metrics' => [
-            'enabled'          => TRUE,
-            'refresh_interval' => 30, // 30 seconds
-            'chart_types'      => ['gauge', 'sparkline', 'number'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data Sources Configuration
+    |--------------------------------------------------------------------------
+    */
+    'data_sources' => [
+        'tickets' => [
+            'table' => 'tickets',
+            'model' => 'App\\Domain\\Ticket\\Models\\Ticket',
+            'relationships' => ['sportsEvent', 'platform'],
+            'required_fields' => ['price', 'source_platform', 'sports_event_id'],
+        ],
+        'sports_events' => [
+            'table' => 'sports_events',
+            'model' => 'App\\Domain\\Event\\Models\\SportsEvent',
+            'relationships' => ['tickets', 'venue'],
+            'required_fields' => ['name', 'category', 'event_date'],
+        ],
+        'users' => [
+            'table' => 'users',
+            'model' => 'App\\Models\\User',
+            'relationships' => ['purchases'],
+            'required_fields' => ['role', 'created_at'],
         ],
     ],
 
@@ -80,63 +313,33 @@ return [
     |--------------------------------------------------------------------------
     */
     'performance' => [
-        'pagination_size'       => env('ANALYTICS_PAGINATION_SIZE', 100),
-        'max_export_records'    => env('ANALYTICS_MAX_EXPORT_RECORDS', 50000),
-        'query_timeout'         => env('ANALYTICS_QUERY_TIMEOUT', 30),
-        'background_processing' => env('ANALYTICS_BACKGROUND_PROCESSING', TRUE),
-        'compression'           => env('ANALYTICS_COMPRESSION', TRUE),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Export Configuration
-    |--------------------------------------------------------------------------
-    */
-    'export' => [
-        'formats'             => ['json', 'csv', 'xlsx', 'pdf'],
-        'max_file_size'       => env('ANALYTICS_MAX_FILE_SIZE', '50MB'),
-        'temp_storage_days'   => env('ANALYTICS_TEMP_STORAGE_DAYS', 7),
-        'compression'         => TRUE,
-        'password_protection' => env('ANALYTICS_EXPORT_PASSWORD_PROTECTION', FALSE),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Machine Learning Configuration
-    |--------------------------------------------------------------------------
-    */
-    'ml' => [
-        'enabled'                         => env('ANALYTICS_ML_ENABLED', TRUE),
-        'prediction_confidence_threshold' => 0.7,
-        'model_retraining_interval'       => env('ML_RETRAINING_INTERVAL', 'weekly'),
-        'feature_selection'               => [
-            'price_history_weight'        => 0.3,
-            'demand_patterns_weight'      => 0.25,
-            'user_behavior_weight'        => 0.2,
-            'platform_reliability_weight' => 0.15,
-            'seasonal_factors_weight'     => 0.1,
+        'use_database_indexes' => true,
+        'enable_query_caching' => true,
+        'cache_warming' => [
+            'enabled' => true,
+            'schedule' => '0 */4 * * *', // Every 4 hours
+            'preload_data' => [
+                'overview_metrics',
+                'platform_performance',
+                'trending_events',
+            ],
         ],
-        'algorithms' => [
-            'price_prediction'        => 'linear_regression',
-            'demand_forecasting'      => 'random_forest',
-            'availability_prediction' => 'neural_network',
-        ],
-    ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Alert Thresholds
-    |--------------------------------------------------------------------------
-    */
-    'alerts' => [
-        'price_volatility_threshold'   => 20, // percentage
-        'demand_spike_threshold'       => 150, // percentage increase
-        'system_performance_threshold' => [
-            'response_time' => 2000, // milliseconds
-            'error_rate'    => 5, // percentage
-            'memory_usage'  => 80, // percentage
+        // Database optimization
+        'database' => [
+            'use_read_replicas' => env('ANALYTICS_USE_READ_REPLICAS', false),
+            'query_timeout' => 30, // seconds
+            'max_concurrent_queries' => 10,
+            'optimize_aggregations' => true,
         ],
-        'data_quality_threshold' => 90, // percentage
+
+        // Memory management
+        'memory' => [
+            'max_memory_usage' => '512M',
+            'chunk_processing' => true,
+            'gc_probability' => 1,
+            'gc_divisor' => 100,
+        ],
     ],
 
     /*

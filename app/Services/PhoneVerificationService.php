@@ -10,14 +10,36 @@ use Twilio\Rest\Client;
 
 class PhoneVerificationService
 {
-    private Client $twilio;
+    private ?Client $twilio = null;
 
     public function __construct()
     {
-        $this->twilio = new Client(
-            config('services.twilio.sid'),
-            config('services.twilio.token'),
-        );
+        // Only initialize Twilio if we have valid credentials
+        $sid = config('services.twilio.sid');
+        $token = config('services.twilio.token');
+        
+        if ($this->hasValidCredentials($sid, $token)) {
+            $this->twilio = new Client($sid, $token);
+        }
+    }
+    
+    /**
+     * Check if we have valid Twilio credentials
+     */
+    private function hasValidCredentials(?string $sid, ?string $token): bool
+    {
+        return !empty($sid) && 
+               !empty($token) && 
+               $sid !== 'your_twilio_sid' && 
+               $token !== 'your_twilio_token';
+    }
+    
+    /**
+     * Check if we're in development mode
+     */
+    private function isDevelopmentMode(): bool
+    {
+        return app()->environment('local', 'testing') || config('app.debug');
     }
 
     /**
@@ -35,6 +57,19 @@ class PhoneVerificationService
         // Store code in cache for 10 minutes
         $cacheKey = "phone_verification:{$user->id}";
         Cache::put($cacheKey, $code, now()->addMinutes(10));
+
+        // If no Twilio client or in development mode, just log the code
+        if (! $this->twilio || $this->isDevelopmentMode()) {
+            Log::info('Phone verification code (DEVELOPMENT MODE)', [
+                'user_id' => $user->id,
+                'phone'   => $user->phone,
+                'code'    => $code,
+                'message' => "Your HD Tickets verification code is: {$code}. Valid for 10 minutes.",
+                'note'    => 'SMS not sent - using development mode or invalid Twilio credentials'
+            ]);
+
+            return TRUE;
+        }
 
         try {
             // Send SMS via Twilio
@@ -59,6 +94,17 @@ class PhoneVerificationService
                 'phone'   => $user->phone,
                 'error'   => $e->getMessage(),
             ]);
+
+            // In development mode, don't throw exception, just log and continue
+            if ($this->isDevelopmentMode()) {
+                Log::warning('SMS sending failed in development mode, continuing anyway', [
+                    'user_id' => $user->id,
+                    'code'    => $code,
+                    'error'   => $e->getMessage(),
+                ]);
+                
+                return TRUE;
+            }
 
             throw new Exception('Failed to send verification code');
         }

@@ -1,405 +1,1192 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Profile')
-
-@section('header')
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-    <div>
-      <h1 class="h3 mb-0 text-gray-900">
-        <i class="fas fa-user-edit text-primary me-2"></i>
-        Edit Profile
-      </h1>
-      <nav aria-label="breadcrumb" class="mt-1">
-        <ol class="breadcrumb breadcrumb-sm mb-0">
-          <li class="breadcrumb-item">
-            <a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a>
-          </li>
-          <li class="breadcrumb-item">
-            <a href="{{ route('profile.show') }}" class="text-decoration-none">Profile</a>
-          </li>
-          <li class="breadcrumb-item active" aria-current="page">Edit</li>
-        </ol>
-      </nav>
-    </div>
-    <div class="mt-3 mt-md-0">
-      <div class="btn-group" role="group" aria-label="Profile actions">
-        <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary btn-sm">
-          <i class="fas fa-eye me-1"></i> View Profile
-        </a>
-        <a href="{{ route('profile.security') }}" class="btn btn-outline-success btn-sm">
-          <i class="fas fa-shield-alt me-1"></i> Security
-        </a>
-        <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info btn-sm">
-          <i class="fas fa-chart-bar me-1"></i> Activity
-        </a>
-      </div>
-    </div>
-  </div>
-@endsection
+@section('title', 'Edit Profile - HD Tickets')
 
 @section('content')
-  <div class="container-fluid px-4">
-    <div class="row justify-content-center">
-      <div class="col-lg-10 col-xl-8">
+<x-profile-layout 
+    title="Edit Profile" 
+    :user="$user" 
+    active-section="personal"
+    :show-sidebar="true"
+    :mobile-friendly="true"
+    :breadcrumbs="[
+        ['label' => 'Dashboard', 'url' => route('dashboard')],
+        ['label' => 'Profile', 'url' => route('profile.show')],
+        ['label' => 'Edit Profile']
+    ]"
+>
+    <x-slot name="headerActions">
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('profile.show') }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                <x-profile-icon name="eye" class="w-4 h-4 mr-2" />
+                View Profile
+            </a>
+            <a href="{{ route('profile.security') }}" 
+               class="inline-flex items-center px-4 py-2 border border-green-300 rounded-lg text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <x-profile-icon name="shield-check" class="w-4 h-4 mr-2" />
+                Security
+            </a>
+        </div>
+    </x-slot>
 
-        {{-- Success Messages --}}
-        @if (session('status') === 'profile-updated')
-          <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-              <i class="fas fa-check-circle text-success me-2"></i>
-              <strong>Success!</strong> Your profile has been updated successfully.
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        @endif
-
-        @if (session('status') === 'password-updated')
-          <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-              <i class="fas fa-shield-alt text-success me-2"></i>
-              <strong>Password Updated!</strong> Your password has been changed successfully.
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        @endif
-
+    <!-- Profile Edit Form with Modern Design -->
+    <div class="profile-edit-container" x-data="profileEditForm()">
+        
+        <!-- Success/Error Messages -->
         @if (session('success'))
-          <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-              <i class="fas fa-info-circle text-success me-2"></i>
-              {{ session('success') }}
+            <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-lg" x-data="{ show: true }" x-show="show" x-transition>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <x-profile-icon name="check-circle" class="w-5 h-5 text-green-600 mr-3" />
+                        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                    </div>
+                    <button @click="show = false" class="text-green-600 hover:text-green-800 transition-colors">
+                        <x-profile-icon name="x" class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
         @endif
 
-        {{-- Error Messages --}}
         @if (session('error'))
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-              <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-              <strong>Error:</strong> {{ session('error') }}
+            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-lg" x-data="{ show: true }" x-show="show" x-transition>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <x-profile-icon name="exclamation-triangle" class="w-5 h-5 text-red-600 mr-3" />
+                        <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                    </div>
+                    <button @click="show = false" class="text-red-600 hover:text-red-800 transition-colors">
+                        <x-profile-icon name="x" class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
         @endif
 
-        {{-- Validation Errors Summary --}}
-        @if (isset($errors) && $errors->any())
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-start">
-              <i class="fas fa-exclamation-triangle text-warning me-2 mt-1"></i>
-              <div>
-                <strong>Please correct the following errors:</strong>
-                <ul class="mb-0 mt-2 small">
-                  @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                  @endforeach
-                </ul>
-              </div>
+        @if ($errors->any())
+            <div class="mb-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-lg" x-data="{ show: true }" x-show="show" x-transition>
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start">
+                        <x-profile-icon name="exclamation-triangle" class="w-5 h-5 text-amber-600 mr-3 mt-0.5" />
+                        <div>
+                            <p class="text-sm font-medium text-amber-800 mb-2">Please correct the following errors:</p>
+                            <ul class="text-sm text-amber-700 list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                    <button @click="show = false" class="text-amber-600 hover:text-amber-800 transition-colors">
+                        <x-profile-icon name="x" class="w-4 h-4" />
+                    </button>
+                </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
         @endif
 
-        {{-- Quick Navigation Menu --}}
-        <div class="card mb-4 border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-center">
-              <div class="btn-group" role="group" aria-label="Profile sections navigation">
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                  onclick="scrollToSection('profile-picture-section')">
-                  <i class="fas fa-camera me-1"></i> Picture
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                  onclick="scrollToSection('personal-info-section')">
-                  <i class="fas fa-user me-1"></i> Personal
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                  onclick="scrollToSection('security-section')">
-                  <i class="fas fa-lock me-1"></i> Security
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                  onclick="scrollToSection('preferences-section')">
-                  <i class="fas fa-cog me-1"></i> Preferences
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                  onclick="scrollToSection('user-info-section')">
-                  <i class="fas fa-info-circle me-1"></i> Account
-                </button>
-              </div>
+        <!-- Profile Section Navigation -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8 overflow-x-auto" aria-label="Profile sections">
+                    <button @click="activeSection = 'basic'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'basic', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'basic' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="user" class="w-4 h-4 inline mr-2" />
+                        Basic Information
+                    </button>
+                    <button @click="activeSection = 'photo'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'photo', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'photo' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="camera" class="w-4 h-4 inline mr-2" />
+                        Profile Photo
+                    </button>
+                    <button @click="activeSection = 'contact'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'contact', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'contact' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="mail" class="w-4 h-4 inline mr-2" />
+                        Contact Details
+                    </button>
+                    <button @click="activeSection = 'preferences'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'preferences', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'preferences' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="cog" class="w-4 h-4 inline mr-2" />
+                        Preferences
+                    </button>
+                    @if($user->role === 'customer')
+                    <button @click="activeSection = 'subscription'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'subscription', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'subscription' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="credit-card" class="w-4 h-4 inline mr-2" />
+                        Subscription
+                    </button>
+                    @endif
+                    <button @click="activeSection = 'notifications'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'notifications', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'notifications' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="bell" class="w-4 h-4 inline mr-2" />
+                        Notifications
+                    </button>
+                    <button @click="activeSection = 'security'" 
+                            :class="{ 'border-blue-500 text-blue-600': activeSection === 'security', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeSection !== 'security' }"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        <x-profile-icon name="shield-check" class="w-4 h-4 inline mr-2" />
+                        Security
+                    </button>
+                </nav>
             </div>
-          </div>
         </div>
 
-        {{-- Profile Picture Section --}}
-        <div class="card border-0 shadow-sm mb-4" id="profile-picture-section">
-          <div class="card-header bg-transparent border-bottom-0">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-camera text-primary me-2"></i>
-              Profile Picture
-            </h5>
-          </div>
-          <div class="card-body">
-            @include('components.profile-picture-upload')
-          </div>
-        </div>
+        <!-- Form Container -->
+        <form id="profile-edit-form" method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" 
+              @submit="handleFormSubmit" class="space-y-8">
+            @csrf
+            @method('PATCH')
+            
+            <!-- Form Sections -->
+            <div class="profile-sections">
+                <!-- Basic Information Section -->
+                <div x-show="activeSection === 'basic'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Basic Information" icon="user" color="blue">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    First Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ old('name', $user->name) }}" 
+                                       required 
+                                       autocomplete="given-name"
+                                       x-model="form.name"
+                                       @input="validateField('name')"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('name') border-red-500 ring-red-500 @enderror">
+                                @error('name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="surname" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Last Name
+                                </label>
+                                <input type="text" 
+                                       id="surname" 
+                                       name="surname" 
+                                       value="{{ old('surname', $user->surname) }}" 
+                                       autocomplete="family-name"
+                                       x-model="form.surname"
+                                       @input="validateField('surname')"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('surname') border-red-500 ring-red-500 @enderror">
+                                @error('surname')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                                Username
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 text-lg">@</span>
+                                </div>
+                                <input type="text" 
+                                       id="username" 
+                                       name="username" 
+                                       value="{{ old('username', $user->username) }}" 
+                                       autocomplete="username"
+                                       placeholder="Choose a unique username"
+                                       x-model="form.username"
+                                       @input="validateField('username')"
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('username') border-red-500 ring-red-500 @enderror">
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Used for public display and mentions</p>
+                            @error('username')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-        {{-- Personal Information --}}
-        <div class="card border-0 shadow-sm mb-4" id="personal-info-section">
-          <div class="card-header bg-transparent border-bottom-0">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-user text-primary me-2"></i>
-              Personal Information
-            </h5>
-          </div>
-          <div class="card-body">
-            @include('profile.partials.update-profile-information-form')
-          </div>
-        </div>
+                        <div class="form-group">
+                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Biography
+                            </label>
+                            <textarea id="bio" 
+                                      name="bio" 
+                                      rows="4" 
+                                      maxlength="500"
+                                      placeholder="Tell us about yourself..."
+                                      x-model="form.bio"
+                                      @input="validateField('bio'); updateBioCount()"
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none @error('bio') border-red-500 ring-red-500 @enderror">{{ old('bio', $user->bio) }}</textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <p class="text-sm text-gray-500">Brief description about yourself (max 500 characters)</p>
+                                <p class="text-sm" :class="bioCount > 450 ? 'text-amber-600' : bioCount > 500 ? 'text-red-600' : 'text-gray-500'">
+                                    <span x-text="bioCount">{{ strlen($user->bio ?? '') }}</span>/500
+                                </p>
+                            </div>
+                            @error('bio')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-        {{-- Password & Security --}}
-        <div class="card border-0 shadow-sm mb-4" id="security-section">
-          <div class="card-header bg-transparent border-bottom-0">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-lock text-primary me-2"></i>
-              Password & Security
-            </h5>
-          </div>
-          <div class="card-body">
-            @include('profile.partials.update-password-form')
-
-            <div class="mt-4 pt-4 border-top">
-              <div class="row">
-                <div class="col-md-6">
-                  <a href="{{ route('profile.security') }}" class="btn btn-outline-success w-100 mb-2 mb-md-0">
-                    <i class="fas fa-shield-alt me-2"></i>
-                    Security Settings
-                  </a>
+                        <!-- Read-only Account Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Account Role
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <x-profile-icon name="user-tag" class="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <input type="text" 
+                                           value="{{ ucfirst($user->role) }}" 
+                                           readonly 
+                                           class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 cursor-not-allowed">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    User ID
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-400 text-lg">#</span>
+                                    </div>
+                                    <input type="text" 
+                                           value="{{ $user->id }}" 
+                                           readonly 
+                                           class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-mono cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+                    </x-profile-card>
                 </div>
-                <div class="col-md-6">
-                  <a href="{{ route('profile.activity.dashboard') }}" class="btn btn-outline-info w-100">
-                    <i class="fas fa-history me-2"></i>
-                    Login History
-                  </a>
+
+                <!-- Profile Photo Section -->
+                <div x-show="activeSection === 'photo'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Profile Photo" icon="camera" color="purple">
+                        <div class="flex flex-col lg:flex-row gap-8">
+                            <!-- Current Photo -->
+                            <div class="flex-shrink-0">
+                                <div class="text-center">
+                                    <div class="relative inline-block">
+                                        @if($user->profile_picture)
+                                            <img src="{{ asset('storage/' . $user->profile_picture) }}" 
+                                                 alt="{{ $user->name }}" 
+                                                 class="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                                                 id="current-avatar">
+                                        @else
+                                            <div class="w-32 h-32 lg:w-40 lg:h-40 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-4 border-white shadow-lg" 
+                                                 id="current-avatar">
+                                                <span class="text-3xl lg:text-4xl font-bold text-white">
+                                                    {{ substr($user->name, 0, 1) }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                        
+                                        <!-- Edit Button -->
+                                        <button type="button" 
+                                                @click="showPhotoUpload = !showPhotoUpload"
+                                                class="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <x-profile-icon name="camera" class="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Area & Guidelines -->
+                            <div class="flex-1">
+                                <div x-show="showPhotoUpload" x-transition class="mb-6">
+                                    <!-- Drag & Drop Upload Area -->
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
+                                         x-bind:class="{ 'border-blue-400 bg-blue-50': dragOver }"
+                                         @dragover.prevent="dragOver = true"
+                                         @dragleave.prevent="dragOver = false"
+                                         @drop.prevent="handleFileDrop($event); dragOver = false">
+                                        
+                                        <x-profile-icon name="cloud-upload" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                        <p class="text-lg font-medium text-gray-900 mb-2">Drop your photo here</p>
+                                        <p class="text-sm text-gray-500 mb-4">or click to browse</p>
+                                        
+                                        <input type="file" 
+                                               id="profile-photo" 
+                                               name="profile_picture" 
+                                               accept="image/*"
+                                               class="hidden"
+                                               @change="handleFileSelect($event)">
+                                        
+                                        <button type="button" 
+                                                @click="document.getElementById('profile-photo').click()"
+                                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                            <x-profile-icon name="folder" class="w-4 h-4 mr-2" />
+                                            Choose File
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Photo Guidelines -->
+                                <div class="space-y-4">
+                                    <h4 class="text-lg font-medium text-gray-900">Photo Guidelines</h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <x-profile-icon name="check-circle" class="w-4 h-4 text-green-500 mr-2" />
+                                            JPG, PNG, WEBP formats
+                                        </div>
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <x-profile-icon name="check-circle" class="w-4 h-4 text-green-500 mr-2" />
+                                            Maximum 5MB file size
+                                        </div>
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <x-profile-icon name="check-circle" class="w-4 h-4 text-green-500 mr-2" />
+                                            Minimum 150×150 pixels
+                                        </div>
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <x-profile-icon name="check-circle" class="w-4 h-4 text-green-500 mr-2" />
+                                            Square images preferred
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Action Buttons -->
+                                    <div class="flex flex-wrap gap-3 pt-4">
+                                        <button type="button" 
+                                                @click="showPhotoUpload = !showPhotoUpload"
+                                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                            <x-profile-icon name="upload" class="w-4 h-4 mr-2" />
+                                            Upload New Photo
+                                        </button>
+                                        
+                                        @if($user->profile_picture)
+                                        <button type="button" 
+                                                @click="removeProfilePhoto()"
+                                                class="inline-flex items-center px-4 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                            <x-profile-icon name="trash" class="w-4 h-4 mr-2" />
+                                            Remove Photo
+                                        </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </x-profile-card>
                 </div>
-              </div>
+
+                    <!-- Contact Details Section -->
+                    <div class="tab-pane fade" id="contact" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    Contact Details
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        Email Address <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" 
+                                               class="form-control @error('email') is-invalid @enderror" 
+                                               id="email" 
+                                               name="email" 
+                                               value="{{ old('email', $user->email) }}" 
+                                               required 
+                                               autocomplete="email">
+                                        @if($user->email_verified_at)
+                                            <span class="input-group-text text-success">
+                                                <i class="fas fa-check-circle" title="Verified"></i>
+                                            </span>
+                                        @else
+                                            <span class="input-group-text text-warning">
+                                                <i class="fas fa-exclamation-triangle" title="Not Verified"></i>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if(!$user->email_verified_at)
+                                        <div class="form-text text-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Email not verified. <a href="#" class="text-decoration-none">Resend verification email</a>
+                                        </div>
+                                    @endif
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        <input type="tel" 
+                                               class="form-control @error('phone') is-invalid @enderror" 
+                                               id="phone" 
+                                               name="phone" 
+                                               value="{{ old('phone', $user->phone) }}" 
+                                               autocomplete="tel"
+                                               placeholder="+1 (555) 123-4567">
+                                    </div>
+                                    <div class="form-text">Used for account security and important notifications</div>
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences Section -->
+                    <div class="tab-pane fade" id="preferences" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cog text-primary me-2"></i>
+                                    Preferences
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="timezone" class="form-label">Timezone</label>
+                                        <select class="form-select @error('timezone') is-invalid @enderror" id="timezone" name="timezone">
+                                            <option value="">Select your timezone...</option>
+                                            @foreach(timezone_identifiers_list() as $timezone)
+                                                <option value="{{ $timezone }}" {{ old('timezone', $user->timezone) === $timezone ? 'selected' : '' }}>
+                                                    {{ $timezone }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('timezone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="language" class="form-label">Language</label>
+                                        <select class="form-select @error('language') is-invalid @enderror" id="language" name="language">
+                                            <option value="">Select language...</option>
+                                            <option value="en" {{ old('language', $user->language ?? 'en') === 'en' ? 'selected' : '' }}>English</option>
+                                            <option value="es" {{ old('language', $user->language) === 'es' ? 'selected' : '' }}>Español (Spanish)</option>
+                                            <option value="fr" {{ old('language', $user->language) === 'fr' ? 'selected' : '' }}>Français (French)</option>
+                                            <option value="de" {{ old('language', $user->language) === 'de' ? 'selected' : '' }}>Deutsch (German)</option>
+                                            <option value="it" {{ old('language', $user->language) === 'it' ? 'selected' : '' }}>Italiano (Italian)</option>
+                                            <option value="pt" {{ old('language', $user->language) === 'pt' ? 'selected' : '' }}>Português (Portuguese)</option>
+                                        </select>
+                                        @error('language')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subscription Section (Customers Only) -->
+                    @if($user->role === 'customer')
+                    <div class="tab-pane fade" id="subscription" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-credit-card text-primary me-2"></i>
+                                    Subscription & Billing
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Current Subscription Status
+                                    </h6>
+                                    @if($user->currentSubscription)
+                                        <p class="mb-2">
+                                            <strong>Plan:</strong> {{ ucfirst($user->currentSubscription->plan_name ?? 'Premium') }}<br>
+                                            <strong>Status:</strong> <span class="badge bg-success">Active</span><br>
+                                            <strong>Next Billing:</strong> {{ $user->currentSubscription->expires_at ? $user->currentSubscription->expires_at->format('M j, Y') : 'N/A' }}
+                                        </p>
+                                    @else
+                                        <p class="mb-2">
+                                            <strong>Status:</strong> <span class="badge bg-warning text-dark">Free Trial</span><br>
+                                            <strong>Expires:</strong> {{ $user->created_at->addDays(7)->format('M j, Y') }}
+                                        </p>
+                                    @endif
+                                    <hr>
+                                    <div class="mb-0">
+                                        <a href="#" class="btn btn-primary btn-sm me-2">
+                                            <i class="fas fa-credit-card me-1"></i> Manage Subscription
+                                        </a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-file-invoice me-1"></i> View Invoices
+                                        </a>
+                                    </div>
+                                </div>
+
+                                @if($user->billing_address)
+                                    <h6>Billing Address</h6>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            @php $billing = $user->billing_address; @endphp
+                                            {{ $billing['street'] ?? '' }}<br>
+                                            {{ $billing['city'] ?? '' }}, {{ $billing['state'] ?? '' }} {{ $billing['postal_code'] ?? '' }}<br>
+                                            {{ $billing['country'] ?? '' }}
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Notifications Section -->
+                    <div class="tab-pane fade" id="notifications" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-bell text-primary me-2"></i>
+                                    Notification Preferences
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Email Notifications</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" value="1" {{ old('email_notifications', $user->email_notifications) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="email_notifications">
+                                                Enable email notifications
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="price_alerts" name="preferences[price_alerts]" value="1" {{ old('preferences.price_alerts', $user->preferences['price_alerts'] ?? false) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="price_alerts">
+                                                Ticket price alerts
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="availability_alerts" name="preferences[availability_alerts]" value="1" {{ old('preferences.availability_alerts', $user->preferences['availability_alerts'] ?? false) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="availability_alerts">
+                                                Ticket availability alerts
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Push Notifications</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" value="1" {{ old('push_notifications', $user->push_notifications) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="push_notifications">
+                                                Enable push notifications
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="marketing_emails" name="preferences[marketing_emails]" value="1" {{ old('preferences.marketing_emails', $user->preferences['marketing_emails'] ?? false) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="marketing_emails">
+                                                Marketing and promotional emails
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shield-alt text-primary me-2"></i>
+                                    Security Settings
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Two-Factor Authentication</h6>
+                                        <p class="text-muted small">Add an extra layer of security to your account</p>
+                                        @if($user->two_factor_secret)
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success me-2">Enabled</span>
+                                                <a href="{{ route('profile.security') }}" class="btn btn-outline-primary btn-sm">
+                                                    Manage 2FA
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-secondary me-2">Disabled</span>
+                                                <a href="{{ route('profile.security') }}" class="btn btn-primary btn-sm">
+                                                    Enable 2FA
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Password</h6>
+                                        <p class="text-muted small">Last changed: {{ $user->password_changed_at ? $user->password_changed_at->diffForHumans() : $user->created_at->diffForHumans() }}</p>
+                                        <a href="{{ route('profile.security') }}" class="btn btn-outline-primary btn-sm">
+                                            Change Password
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6>Active Sessions</h6>
+                                <p class="text-muted small">These devices are currently signed in to your account</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Current Session</strong><br>
+                                        <small class="text-muted">{{ request()->ip() }} • {{ request()->userAgent() }}</small>
+                                    </div>
+                                    <a href="{{ route('profile.security.advanced') }}" class="btn btn-outline-secondary btn-sm">
+                                        Manage Sessions
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="card border-0 shadow-sm sticky-bottom">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted" id="save-status">
+                                    <i class="fas fa-save me-1"></i>
+                                    <span id="save-text">Changes will be saved when you click Save</span>
+                                </small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="save-profile">
+                                    <i class="fas fa-save me-1"></i>
+                                    <span class="btn-text">Save Changes</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
             </div>
-          </div>
-        </div>
-
-        {{-- User Preferences --}}
-        <div class="card border-0 shadow-sm mb-4" id="preferences-section">
-          <div class="card-header bg-transparent border-bottom-0">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-cog text-primary me-2"></i>
-              Preferences & Settings
-            </h5>
-          </div>
-          <div class="card-body">
-            <form id="preferences-form" method="POST" action="{{ route('profile.update') }}"
-              class="needs-validation" novalidate>
-              @csrf
-              @method('patch')
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="timezone" class="form-label">
-                    <i class="fas fa-clock text-muted me-1"></i>
-                    Timezone
-                  </label>
-                  <select class="form-select" id="timezone" name="timezone">
-                    <option value="">Select timezone...</option>
-                    @foreach (timezone_identifiers_list() as $timezone)
-                      <option value="{{ $timezone }}"
-                        {{ old('timezone', $user->timezone ?? '') === $timezone ? 'selected' : '' }}>
-                        {{ $timezone }}
-                      </option>
-                    @endforeach
-                  </select>
+            
+            <!-- Sticky Save Bar -->
+            <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-between shadow-lg">
+                <div class="flex items-center space-x-4">
+                    <div x-show="hasUnsavedChanges" class="flex items-center text-sm text-amber-600">
+                        <x-profile-icon name="exclamation-triangle" class="w-4 h-4 mr-2" />
+                        You have unsaved changes
+                    </div>
+                    <div x-show="!hasUnsavedChanges" class="flex items-center text-sm text-gray-500">
+                        <x-profile-icon name="check-circle" class="w-4 h-4 mr-2 text-green-500" />
+                        All changes saved
+                    </div>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                  <label for="language" class="form-label">
-                    <i class="fas fa-language text-muted me-1"></i>
-                    Language
-                  </label>
-                  <select class="form-select" id="language" name="language">
-                    <option value="en" {{ old('language', $user->language ?? 'en') === 'en' ? 'selected' : '' }}>
-                      English</option>
-                    <option value="es" {{ old('language', $user->language ?? 'en') === 'es' ? 'selected' : '' }}>
-                      Español</option>
-                    <option value="fr" {{ old('language', $user->language ?? 'en') === 'fr' ? 'selected' : '' }}>
-                      Français</option>
-                    <option value="de" {{ old('language', $user->language ?? 'en') === 'de' ? 'selected' : '' }}>
-                      Deutsch</option>
-                  </select>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('profile.show') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                        Cancel
+                    </a>
+                    
+                    <button type="submit" 
+                            :disabled="isSubmitting || !hasUnsavedChanges"
+                            :class="{ 'opacity-50 cursor-not-allowed': isSubmitting || !hasUnsavedChanges }"
+                            class="inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg x-show="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <x-profile-icon x-show="!isSubmitting" name="save" class="w-4 h-4 mr-2" />
+                        <span x-text="isSubmitting ? 'Saving...' : 'Save Changes'">Save Changes</span>
+                    </button>
                 </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="bio" class="form-label">
-                  <i class="fas fa-pen text-muted me-1"></i>
-                  Bio
-                </label>
-                <textarea class="form-control" id="bio" name="bio" rows="3"
-                  placeholder="Tell us about yourself...">{{ old('bio', $user->bio ?? '') }}</textarea>
-                <div class="form-text">Brief description about yourself (max 500 characters)</div>
-              </div>
-
-              <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-save me-2"></i>
-                  Save Preferences
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {{-- Enhanced User Info --}}
-        <div class="card border-0 shadow-sm mb-4" id="user-info-section">
-          <div class="card-header bg-transparent border-bottom-0">
-            <h5 class="card-title mb-0">
-              <i class="fas fa-info-circle text-primary me-2"></i>
-              Account Information
-            </h5>
-          </div>
-          <div class="card-body">
-            @include('profile.partials.enhanced-user-info')
-          </div>
-        </div>
-
-        {{-- Danger Zone --}}
-        <div class="card border-danger shadow-sm mb-4" id="danger-zone-section">
-          <div class="card-header bg-danger bg-opacity-10 border-bottom-0">
-            <h5 class="card-title mb-0 text-danger">
-              <i class="fas fa-exclamation-triangle text-danger me-2"></i>
-              Danger Zone
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="alert alert-warning" role="alert">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              <strong>Warning:</strong> Actions in this section are permanent and cannot be undone.
             </div>
-            @include('profile.partials.delete-user-form')
-          </div>
-        </div>
-
-      </div>
+        </form>
     </div>
-  </div>
+</x-profile-layout>
+
+
 @endsection
 
-@push('scripts')
-  <script type="module" src="{{ asset('js/components/form-validation.js') }}"></script>
-  <script type="module" src="{{ asset('js/components/loading-manager.js') }}"></script>
+@push('styles')
+<style>
+/* Profile Edit Page Styles */
+.profile-edit-container {
+    min-height: calc(100vh - 200px);
+}
 
-  <script>
-    // Smooth scrolling to sections
-    function scrollToSection(sectionId) {
-      document.getElementById(sectionId).scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest'
-      });
+.section-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Auto-save draft functionality
-      const forms = document.querySelectorAll('form:not([data-no-autosave])');
-
-      forms.forEach(form => {
-        const inputs = form.querySelectorAll('input, textarea, select');
-
-        inputs.forEach(input => {
-          input.addEventListener('input', debounce(function() {
-            saveDraft(form);
-          }, 500));
-        });
-
-        // Load draft on page load
-        loadDraft(form);
-      });
-
-      // Form validation
-      const validationForms = document.querySelectorAll('.needs-validation');
-
-      Array.from(validationForms).forEach(form => {
-        form.addEventListener('submit', event => {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-          form.classList.add('was-validated');
-        }, false);
-      });
-
-      // Initialize tooltips
-      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-      });
-    });
-
-    // Debounce function for auto-save
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-      };
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
 
-    // Save form data as draft
-    function saveDraft(form) {
-      try {
-        const formData = new FormData(form);
-        const draftData = {};
+.form-group {
+    position: relative;
+}
 
-        for (let [key, value] of formData.entries()) {
-          if (key !== '_token' && key !== '_method') {
-            draftData[key] = value;
-          }
-        }
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
 
-        localStorage.setItem('profile_draft_' + form.id, JSON.stringify(draftData));
-      } catch (e) {
-        console.warn('Failed to save draft data:', e);
-      }
+/* Smooth hover effects for buttons */
+.profile-edit-container button {
+    transition: all 0.2s ease-in-out;
+}
+
+.profile-edit-container button:hover {
+    transform: translateY(-1px);
+}
+
+/* Enhanced file upload area */
+.drag-over {
+    border-color: #3b82f6 !important;
+    background-color: #eff6ff !important;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .profile-edit-container {
+        padding-bottom: 100px; /* Account for sticky save bar */
     }
-
-    // Load draft data
-    function loadDraft(form) {
-      try {
-        const draftData = localStorage.getItem('profile_draft_' + form.id);
-        if (draftData) {
-          const data = JSON.parse(draftData);
-
-          Object.keys(data).forEach(key => {
-            const input = form.querySelector(`[name="${key}"]`);
-            if (input && !input.value) {
-              input.value = data[key];
-            }
-          });
-        }
-      } catch (e) {
-        console.warn('Failed to load draft data:', e);
-      }
+    
+    .grid {
+        grid-template-columns: 1fr;
     }
+    
+    .flex-col {
+        flex-direction: column;
+    }
+    
+    .lg\:flex-row {
+        flex-direction: column;
+    }
+}
 
-    // Clear draft data on successful form submission
-    document.addEventListener('formSubmissionSuccess', (e) => {
-      localStorage.removeItem('profile_draft_' + e.detail.form.id);
-    });
-  </script>
+/* Loading states */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .section-content,
+    .form-group input,
+    .form-group textarea,
+    .form-group select,
+    button {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        border-width: 2px;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: 3px solid #000;
+        outline-offset: 2px;
+    }
+}
+</style>
 @endpush
 
-@push('styles')
-  <link rel="stylesheet" href="{{ asset('css/profile.css') }}?t={{ time() }}">
+@push('scripts')
+<script>
+// Profile Edit Form Alpine.js Component
+function profileEditForm() {
+    return {
+        // State
+        activeSection: 'basic',
+        hasUnsavedChanges: false,
+        isSubmitting: false,
+        dragOver: false,
+        showPhotoUpload: false,
+        bioCount: {{ strlen($user->bio ?? '') }},
+        
+        // Form Data
+        form: {
+            name: '{{ $user->name }}',
+            surname: '{{ $user->surname ?? '' }}',
+            username: '{{ $user->username ?? '' }}',
+            bio: '{{ $user->bio ?? '' }}',
+            email: '{{ $user->email }}',
+            phone: '{{ $user->phone ?? '' }}'
+        },
+        
+        originalForm: {},
+        
+        // Initialization
+        init() {
+            this.originalForm = { ...this.form };
+            this.watchForChanges();
+            this.handleHashNavigation();
+            this.setupAutoSave();
+        },
+        
+        // Watch for form changes
+        watchForChanges() {
+            this.$watch('form', () => {
+                this.hasUnsavedChanges = JSON.stringify(this.form) !== JSON.stringify(this.originalForm);
+            }, { deep: true });
+        },
+        
+        // Handle hash-based navigation
+        handleHashNavigation() {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && ['basic', 'photo', 'contact', 'preferences', 'subscription', 'notifications', 'security'].includes(hash)) {
+                this.activeSection = hash;
+            }
+            
+            this.$watch('activeSection', (section) => {
+                history.replaceState(null, null, '#' + section);
+            });
+        },
+        
+        // Auto-save functionality
+        setupAutoSave() {
+            let timeout;
+            this.$watch('form', () => {
+                if (this.hasUnsavedChanges) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        this.autoSave();
+                    }, 3000); // Auto-save after 3 seconds of inactivity
+                }
+            }, { deep: true });
+        },
+        
+        // Auto-save function
+        async autoSave() {
+            if (!this.hasUnsavedChanges || this.isSubmitting) return;
+            
+            try {
+                const formData = new FormData();
+                Object.keys(this.form).forEach(key => {
+                    if (this.form[key] !== null && this.form[key] !== undefined) {
+                        formData.append(key, this.form[key]);
+                    }
+                });
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                formData.append('_method', 'PATCH');
+                formData.append('auto_save', '1');
+                
+                const response = await fetch('{{ route("profile.update") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    this.originalForm = { ...this.form };
+                    this.hasUnsavedChanges = false;
+                    this.showToast('Changes saved automatically', 'success');
+                }
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            }
+        },
+        
+        // Validation
+        validateField(fieldName) {
+            const field = this.form[fieldName];
+            const element = document.querySelector(`[name="${fieldName}"]`);
+            
+            if (!element) return;
+            
+            // Remove existing validation classes
+            element.classList.remove('border-red-500', 'ring-red-500', 'border-green-500', 'ring-green-500');
+            
+            // Basic validation
+            if (fieldName === 'name' && (!field || field.trim().length < 2)) {
+                element.classList.add('border-red-500', 'ring-red-500');
+                return false;
+            }
+            
+            if (fieldName === 'email' && (!field || !this.isValidEmail(field))) {
+                element.classList.add('border-red-500', 'ring-red-500');
+                return false;
+            }
+            
+            if (fieldName === 'username' && field && field.length > 0 && field.length < 3) {
+                element.classList.add('border-red-500', 'ring-red-500');
+                return false;
+            }
+            
+            if (fieldName === 'bio' && field && field.length > 500) {
+                element.classList.add('border-red-500', 'ring-red-500');
+                return false;
+            }
+            
+            // Valid field
+            element.classList.add('border-green-500', 'ring-green-500');
+            return true;
+        },
+        
+        // Email validation
+        isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        },
+        
+        // Update bio counter
+        updateBioCount() {
+            this.bioCount = (this.form.bio || '').length;
+        },
+        
+        // File handling
+        handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.processFile(file);
+            }
+        },
+        
+        handleFileDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                this.processFile(file);
+            }
+        },
+        
+        processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                this.showToast('Please select a valid image file', 'error');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                this.showToast('File size must be less than 5MB', 'error');
+                return;
+            }
+            
+            // Preview the image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const currentAvatar = document.getElementById('current-avatar');
+                if (currentAvatar) {
+                    if (currentAvatar.tagName === 'IMG') {
+                        currentAvatar.src = e.target.result;
+                    } else {
+                        // Replace div with img
+                        const newImg = document.createElement('img');
+                        newImg.src = e.target.result;
+                        newImg.alt = '{{ $user->name }}';
+                        newImg.className = 'w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-lg';
+                        newImg.id = 'current-avatar';
+                        currentAvatar.parentNode.replaceChild(newImg, currentAvatar);
+                    }
+                }
+                this.hasUnsavedChanges = true;
+            };
+            reader.readAsDataURL(file);
+            
+            // Upload the file
+            this.uploadProfilePhoto(file);
+        },
+        
+        async uploadProfilePhoto(file) {
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+            
+            try {
+                const response = await fetch('{{ route("profile.picture.upload") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showToast('Profile photo updated successfully!', 'success');
+                    this.showPhotoUpload = false;
+                } else {
+                    this.showToast(data.message || 'Failed to upload photo', 'error');
+                }
+            } catch (error) {
+                this.showToast('Upload failed. Please try again.', 'error');
+                console.error('Upload error:', error);
+            }
+        },
+        
+        async removeProfilePhoto() {
+            if (!confirm('Are you sure you want to remove your profile photo?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('{{ route("profile.picture.remove") }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Replace image with initials
+                    const currentAvatar = document.getElementById('current-avatar');
+                    if (currentAvatar) {
+                        const newDiv = document.createElement('div');
+                        newDiv.className = 'w-32 h-32 lg:w-40 lg:h-40 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center border-4 border-white shadow-lg';
+                        newDiv.id = 'current-avatar';
+                        newDiv.innerHTML = '<span class="text-3xl lg:text-4xl font-bold text-white">{{ substr($user->name, 0, 1) }}</span>';
+                        currentAvatar.parentNode.replaceChild(newDiv, currentAvatar);
+                    }
+                    this.showToast('Profile photo removed successfully!', 'success');
+                } else {
+                    this.showToast(data.message || 'Failed to remove photo', 'error');
+                }
+            } catch (error) {
+                this.showToast('Failed to remove photo. Please try again.', 'error');
+                console.error('Remove photo error:', error);
+            }
+        },
+        
+        // Form submission
+        async handleFormSubmit(event) {
+            event.preventDefault();
+            
+            this.isSubmitting = true;
+            
+            // Validate all fields
+            const isValid = Object.keys(this.form).every(field => this.validateField(field));
+            
+            if (!isValid) {
+                this.isSubmitting = false;
+                this.showToast('Please correct the errors in the form', 'error');
+                return;
+            }
+            
+            try {
+                const formData = new FormData(event.target);
+                const response = await fetch(event.target.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    this.originalForm = { ...this.form };
+                    this.hasUnsavedChanges = false;
+                    this.showToast('Profile updated successfully!', 'success');
+                    
+                    // Optionally redirect or refresh
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to update profile');
+                }
+            } catch (error) {
+                this.showToast('Failed to update profile. Please try again.', 'error');
+                console.error('Form submission error:', error);
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+        
+        // Toast notification
+        showToast(message, type = 'info') {
+            // Remove existing toasts
+            document.querySelectorAll('.toast-notification').forEach(toast => toast.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+            
+            const bgColor = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-amber-500',
+                info: 'bg-blue-500'
+            }[type] || 'bg-blue-500';
+            
+            toast.classList.add(bgColor);
+            toast.innerHTML = `
+                <div class="flex items-center text-white">
+                    <span class="mr-2">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+                        ×
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    }
+}
+
+// Warn about unsaved changes before leaving
+window.addEventListener('beforeunload', function(e) {
+    const profileContainer = document.querySelector('.profile-edit-container');
+    if (profileContainer && profileContainer.__x) {
+        const component = profileContainer.__x.$data;
+        if (component.hasUnsavedChanges && !component.isSubmitting) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            return e.returnValue;
+        }
+    }
+});
+
+</script>
 @endpush

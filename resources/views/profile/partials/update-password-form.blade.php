@@ -1,35 +1,54 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
+<div class="password-update-form">
+    <div class="mb-4">
+        <h5 class="mb-2 text-primary">
+            <i class="fas fa-lock me-2"></i>
             {{ __('Update Password') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600">
+        </h5>
+        <p class="text-muted small">
             {{ __('Ensure your account is using a long, random password to stay secure.') }}
         </p>
-    </header>
+    </div>
 
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6" id="password-update-form">
+    <form method="post" action="{{ route('password.update') }}" class="needs-validation" novalidate id="password-update-form">
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password"
-                class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="isset($errors) && $errors->updatePassword
-                ? $errors->updatePassword->get('current_password')
-                : []" class="mt-2" />
+        {{-- Current Password --}}
+        <div class="mb-3">
+            <label for="update_password_current_password" class="form-label">
+                <i class="fas fa-key text-muted me-1"></i>
+                {{ __('Current Password') }} <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control @error('current_password', 'updatePassword') is-invalid @enderror" 
+                   id="update_password_current_password" name="current_password" 
+                   required autocomplete="current-password" 
+                   placeholder="Enter your current password">
+            @error('current_password', 'updatePassword')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full"
-                autocomplete="new-password" data-strength-indicator="true" data-show-requirements="true"
-                data-show-estimations="true" />
-            <x-input-error :messages="isset($errors) && $errors->updatePassword ? $errors->updatePassword->get('password') : []" class="mt-2" />
-
-            <!-- Real-time feedback container -->
+        {{-- New Password --}}
+        <div class="mb-3">
+            <label for="update_password_password" class="form-label">
+                <i class="fas fa-lock text-muted me-1"></i>
+                {{ __('New Password') }} <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control @error('password', 'updatePassword') is-invalid @enderror" 
+                   id="update_password_password" name="password" 
+                   required autocomplete="new-password" 
+                   data-strength-indicator="true" data-show-requirements="true" 
+                   data-show-estimations="true" 
+                   placeholder="Enter a strong new password">
+            @error('password', 'updatePassword')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+            
+            {{-- Real-time feedback container --}}
             <div id="password-feedback" class="mt-3" style="display: none;">
                 <div id="compromise-check" class="mb-2"></div>
                 <div id="history-check" class="mb-2"></div>
@@ -37,44 +56,68 @@
             </div>
         </div>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password"
-                class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="isset($errors) && $errors->updatePassword
-                ? $errors->updatePassword->get('password_confirmation')
-                : []" class="mt-2" />
+        {{-- Password Confirmation --}}
+        <div class="mb-3">
+            <label for="update_password_password_confirmation" class="form-label">
+                <i class="fas fa-check text-muted me-1"></i>
+                {{ __('Confirm New Password') }} <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control @error('password_confirmation', 'updatePassword') is-invalid @enderror" 
+                   id="update_password_password_confirmation" name="password_confirmation" 
+                   required autocomplete="new-password" 
+                   placeholder="Re-enter your new password">
+            @error('password_confirmation', 'updatePassword')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <!-- Password Requirements Info -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 class="font-medium text-blue-900 mb-2">📋 Password Requirements</h4>
-            <ul class="text-sm text-blue-800 space-y-1">
-                <li>• At least 8 characters long (12+ recommended)</li>
-                <li>• Contains uppercase and lowercase letters</li>
-                <li>• Contains at least one number</li>
-                <li>• Contains at least one special character (!@#$%^&*)</li>
-                <li>• Cannot be the same as your current password</li>
-                <li>• Cannot be one of your recently used passwords</li>
-                <li>• Should not appear in known data breaches</li>
+        {{-- Password Requirements Info --}}
+        <div class="alert alert-info">
+            <h6 class="alert-heading">
+                <i class="fas fa-list-check me-2"></i>
+                Password Requirements
+            </h6>
+            <ul class="mb-0 small">
+                <li>At least 8 characters long (12+ recommended)</li>
+                <li>Contains uppercase and lowercase letters</li>
+                <li>Contains at least one number</li>
+                <li>Contains at least one special character (!@#$%^&*)</li>
+                <li>Cannot be the same as your current password</li>
+                <li>Cannot be one of your recently used passwords</li>
+                <li>Should not appear in known data breaches</li>
             </ul>
         </div>
 
-        <!-- Password History Info -->
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4" id="password-history-info">
-            <h4 class="font-medium text-gray-900 mb-2">🕐 Password History</h4>
-            <p class="text-sm text-gray-600">Loading password history information...</p>
+        {{-- Password History Info --}}
+        <div class="alert alert-secondary" id="password-history-info">
+            <h6 class="alert-heading">
+                <i class="fas fa-history me-2"></i>
+                Password History
+            </h6>
+            <p class="mb-0 small">Loading password history information...</p>
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button id="save-password-btn" disabled>{{ __('Update Password') }}</x-primary-button>
-
-            @if (session('status') === 'password-updated')
-                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-green-600">
-                    {{ __('Password updated successfully! Check your email for confirmation.') }}</p>
-            @endif
+        {{-- Form Actions --}}
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('password-update-form').reset();">
+                <i class="fas fa-undo me-1"></i>
+                Reset Form
+            </button>
+            <button type="submit" class="btn btn-primary" id="save-password-btn" disabled>
+                <i class="fas fa-save me-2"></i>
+                {{ __('Update Password') }}
+            </button>
         </div>
+
+        {{-- Success Status Message --}}
+        @if (session('status') === 'password-updated')
+            <div class="mt-3 alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ __('Password updated successfully! Check your email for confirmation.') }}
+            </div>
+        @endif
     </form>
 
     <script>
@@ -234,4 +277,4 @@
             }
         });
     </script>
-</section>
+</div>

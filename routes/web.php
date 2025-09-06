@@ -190,6 +190,60 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
      */
     Route::middleware([App\Http\Middleware\ScraperMiddleware::class])->get('/scraper', [App\Http\Controllers\ScraperDashboardController::class, 'index'])
         ->name('scraper'); // Route: dashboard.scraper
+        
+    /*
+     * IMAP Email Monitoring Dashboard
+     * Purpose: Monitor and manage email-based sports event ticket discovery
+     * Access: Users with 'admin' or 'agent' role
+     * Features: Connection health, email processing stats, platform configuration
+     */
+    Route::middleware(['role:admin,agent'])->prefix('imap')->name('imap.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ImapDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/connections', [\App\Http\Controllers\ImapDashboardController::class, 'connections'])->name('connections');
+        Route::get('/platforms', [\App\Http\Controllers\ImapDashboardController::class, 'platforms'])->name('platforms');
+        Route::get('/logs', [\App\Http\Controllers\ImapDashboardController::class, 'logs'])->name('logs');
+        Route::get('/analytics', [\App\Http\Controllers\ImapDashboardController::class, 'analytics'])->name('analytics');
+        
+        // Actions
+        Route::post('/trigger-monitoring', [\App\Http\Controllers\ImapDashboardController::class, 'triggerMonitoring'])->name('trigger-monitoring');
+        Route::post('/clear-cache', [\App\Http\Controllers\ImapDashboardController::class, 'clearCache'])->name('clear-cache');
+    });
+    
+    /*
+     * Advanced Analytics Dashboard
+     * Purpose: Comprehensive sports event ticket analytics and insights
+     * Access: Users with 'admin' or 'agent' role
+     * Features: Interactive charts, predictive analytics, anomaly detection, data export
+     */
+    Route::middleware(['role:admin,agent'])->prefix('analytics')->name('analytics.')->group(function () {
+        // Main dashboard
+        Route::get('/', [\App\Http\Controllers\AnalyticsDashboardController::class, 'index'])->name('dashboard');
+        
+        // Data endpoints for AJAX requests
+        Route::get('/dashboard-data', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getDashboardData'])->name('dashboard-data');
+        Route::get('/overview-metrics', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getOverviewMetrics'])->name('overview-metrics');
+        Route::get('/platform-performance', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getPlatformPerformance'])->name('platform-performance');
+        Route::get('/pricing-trends', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getPricingTrends'])->name('pricing-trends');
+        Route::get('/event-popularity', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getEventPopularity'])->name('event-popularity');
+        Route::get('/anomalies', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getAnomalies'])->name('anomalies');
+        Route::get('/realtime-data', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getRealtimeData'])->name('realtime-data');
+        Route::get('/predictive-insights', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getPredictiveInsights'])->name('predictive-insights');
+        Route::get('/historical-comparison', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getHistoricalComparison'])->name('historical-comparison');
+        Route::get('/filter-options', [\App\Http\Controllers\AnalyticsDashboardController::class, 'getFilterOptions'])->name('filter-options');
+        
+        // Actions
+        Route::post('/export', [\App\Http\Controllers\AnalyticsDashboardController::class, 'exportData'])->name('export');
+        Route::post('/clear-cache', [\App\Http\Controllers\AnalyticsDashboardController::class, 'clearCache'])->name('clear-cache');
+        
+        // Download route for exports
+        Route::get('/download/{file}', function ($file) {
+            $path = storage_path('app/analytics/exports/' . $file);
+            if (!file_exists($path)) {
+                abort(404);
+            }
+            return response()->download($path);
+        })->name('download');
+    });
 });
 
 // Scraper dashboard API routes - consistent role middleware application
