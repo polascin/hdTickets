@@ -153,7 +153,7 @@ class SportsEvent
      */
     public function markAsHighDemand(): void
     {
-        if (! $this->isHighDemand) {
+        if (!$this->isHighDemand) {
             $this->isHighDemand = TRUE;
             $this->updatedAt = new DateTimeImmutable();
             $this->recordDomainEvent(new \App\Domain\Event\Events\SportEventMarkedAsHighDemand($this->id));

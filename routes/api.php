@@ -127,6 +127,40 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
 
 /*
 |--------------------------------------------------------------------------
+| Frontend Ticket API Routes - Public Access
+|--------------------------------------------------------------------------
+|
+| Modern AJAX API endpoints for the enhanced frontend ticket interface.
+| These routes handle real-time filtering, search suggestions, and ticket
+| details for the sports event ticket system. Public access for browsing.
+|
+*/
+Route::prefix('v1/tickets')->middleware([ApiRateLimit::class . ':api,120,1'])->name('api.tickets.')->group(function (): void {
+    // Public ticket endpoints (no authentication required)
+    Route::get('/filter', [App\Http\Controllers\TicketApiController::class, 'filter'])
+        ->name('filter');
+    
+    Route::get('/suggestions', [App\Http\Controllers\TicketApiController::class, 'suggestions'])
+        ->name('suggestions');
+    
+    Route::get('/{ticket}/details', [App\Http\Controllers\TicketApiController::class, 'getTicketDetails'])
+        ->name('details');
+    
+    // Development endpoints (non-production only)
+    Route::middleware('throttle:10,1')->group(function (): void {
+        Route::post('/{ticket}/test-price-change', [App\Http\Controllers\TicketApiController::class, 'testPriceChange'])
+            ->name('test-price-change');
+    });
+    
+    // Authenticated ticket endpoints
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::post('/{ticket}/bookmark', [App\Http\Controllers\TicketApiController::class, 'toggleBookmark'])
+            ->name('bookmark');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | Enhanced Dashboard API Routes
 |--------------------------------------------------------------------------
 |
@@ -644,6 +678,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
             return response()->download($path);
         })->name('download');
     });
+
 
     // Agent and Admin routes
     Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function (): void {

@@ -4,33 +4,29 @@ declare(strict_types=1);
 
 namespace App\Services\Security;
 
-use App\Models\User;
 use App\Models\TrustedDevice;
-use App\Services\Security\SecurityMonitoringService;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 /**
  * Device Trust Management Service
- * 
+ *
  * Manages trusted devices, device fingerprinting, and device-based security
  * for the HD Tickets system.
- * 
- * @package App\Services\Security
  */
 class DeviceTrustService
 {
     private SecurityMonitoringService $securityMonitoring;
-    
+
     // Device trust levels
     private const TRUST_LEVELS = [
-        'untrusted' => 0,
-        'new' => 25,
-        'recognized' => 50,
-        'trusted' => 75,
+        'untrusted'     => 0,
+        'new'           => 25,
+        'recognized'    => 50,
+        'trusted'       => 75,
         'fully_trusted' => 100,
     ];
 
@@ -46,7 +42,7 @@ class DeviceTrustService
 
     // Maximum trusted devices per user
     private const MAX_TRUSTED_DEVICES = 10;
-    
+
     // Trust token expiry in days
     private const TRUST_TOKEN_EXPIRY_DAYS = 90;
 
@@ -79,9 +75,10 @@ class DeviceTrustService
 
         // Sort for consistency
         ksort($fingerprint);
-        
+
         // Create hash
         $fingerprintString = json_encode($fingerprint);
+
         return hash('sha256', $fingerprintString);
     }
 
@@ -96,21 +93,22 @@ class DeviceTrustService
 
         if (!$device) {
             return [
-                'trusted' => false,
+                'trusted'     => FALSE,
                 'trust_level' => 'untrusted',
                 'trust_score' => 0,
-                'device' => null,
+                'device'      => NULL,
             ];
         }
 
         // Check if device is still valid
         if ($device->expires_at && $device->expires_at->isPast()) {
             $device->delete();
+
             return [
-                'trusted' => false,
+                'trusted'     => FALSE,
                 'trust_level' => 'untrusted',
                 'trust_score' => 0,
-                'device' => null,
+                'device'      => NULL,
             ];
         }
 
@@ -119,20 +117,20 @@ class DeviceTrustService
         $trustLevel = $this->getTrustLevel($trustScore);
 
         return [
-            'trusted' => $trustScore >= self::TRUST_LEVELS['trusted'],
+            'trusted'     => $trustScore >= self::TRUST_LEVELS['trusted'],
             'trust_level' => $trustLevel,
             'trust_score' => $trustScore,
-            'device' => $device,
+            'device'      => $device,
         ];
     }
 
     /**
      * Add device to trusted devices
      */
-    public function trustDevice(User $user, Request $request, array $clientData = [], string $deviceName = null): string
+    public function trustDevice(User $user, Request $request, array $clientData = [], string $deviceName = NULL): string
     {
         $deviceFingerprint = $this->generateDeviceFingerprint($request, $clientData);
-        
+
         // Check if device already exists
         $existingDevice = TrustedDevice::where('user_id', $user->id)
             ->where('device_fingerprint', $deviceFingerprint)
@@ -142,10 +140,10 @@ class DeviceTrustService
             // Update existing device
             $existingDevice->update([
                 'last_used_at' => now(),
-                'usage_count' => $existingDevice->usage_count + 1,
-                'expires_at' => now()->addDays(self::TRUST_TOKEN_EXPIRY_DAYS),
+                'usage_count'  => $existingDevice->usage_count + 1,
+                'expires_at'   => now()->addDays(self::TRUST_TOKEN_EXPIRY_DAYS),
             ]);
-            
+
             return $existingDevice->trust_token;
         }
 
@@ -157,19 +155,19 @@ class DeviceTrustService
 
         // Create new trusted device
         $device = TrustedDevice::create([
-            'user_id' => $user->id,
+            'user_id'            => $user->id,
             'device_fingerprint' => $deviceFingerprint,
-            'trust_token' => $trustToken,
-            'device_name' => $deviceName ?? $this->generateDeviceName($request),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'location_data' => $this->getLocationData($request->ip()),
-            'first_seen_at' => now(),
-            'last_used_at' => now(),
-            'expires_at' => now()->addDays(self::TRUST_TOKEN_EXPIRY_DAYS),
-            'usage_count' => 1,
-            'trust_score' => self::TRUST_LEVELS['new'],
-            'is_active' => true,
+            'trust_token'        => $trustToken,
+            'device_name'        => $deviceName ?? $this->generateDeviceName($request),
+            'ip_address'         => $request->ip(),
+            'user_agent'         => $request->userAgent(),
+            'location_data'      => $this->getLocationData($request->ip()),
+            'first_seen_at'      => now(),
+            'last_used_at'       => now(),
+            'expires_at'         => now()->addDays(self::TRUST_TOKEN_EXPIRY_DAYS),
+            'usage_count'        => 1,
+            'trust_score'        => self::TRUST_LEVELS['new'],
+            'is_active'          => TRUE,
         ]);
 
         // Log device trust event
@@ -177,11 +175,11 @@ class DeviceTrustService
             'device_trusted',
             'New device added to trusted devices',
             [
-                'user_id' => $user->id,
-                'device_id' => $device->id,
-                'device_name' => $device->device_name,
+                'user_id'            => $user->id,
+                'device_id'          => $device->id,
+                'device_name'        => $device->device_name,
                 'device_fingerprint' => substr($deviceFingerprint, 0, 16) . '...',
-                'ip_address' => $request->ip(),
+                'ip_address'         => $request->ip(),
             ],
             'info',
             $user->id
@@ -200,7 +198,7 @@ class DeviceTrustService
             ->first();
 
         if (!$device) {
-            return false;
+            return FALSE;
         }
 
         // Log device untrust event
@@ -208,8 +206,8 @@ class DeviceTrustService
             'device_untrusted',
             'Device removed from trusted devices',
             [
-                'user_id' => $user->id,
-                'device_id' => $device->id,
+                'user_id'     => $user->id,
+                'device_id'   => $device->id,
                 'device_name' => $device->device_name,
                 'trust_score' => $device->trust_score,
             ],
@@ -218,7 +216,8 @@ class DeviceTrustService
         );
 
         $device->delete();
-        return true;
+
+        return TRUE;
     }
 
     /**
@@ -227,7 +226,7 @@ class DeviceTrustService
     public function getUserTrustedDevices(User $user): \Illuminate\Database\Eloquent\Collection
     {
         return TrustedDevice::where('user_id', $user->id)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->where(function ($query) {
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
@@ -243,7 +242,7 @@ class DeviceTrustService
     {
         $device = TrustedDevice::where('user_id', $user->id)
             ->where('trust_token', $trustToken)
-            ->where('is_active', true)
+            ->where('is_active', TRUE)
             ->where(function ($query) {
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
@@ -251,7 +250,7 @@ class DeviceTrustService
             ->first();
 
         if (!$device) {
-            return false;
+            return FALSE;
         }
 
         // Update usage statistics
@@ -261,7 +260,7 @@ class DeviceTrustService
         // Increase trust score based on usage
         $this->updateTrustScore($device);
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -270,7 +269,7 @@ class DeviceTrustService
     public function revokeAllTrustedDevices(User $user): int
     {
         $count = TrustedDevice::where('user_id', $user->id)->count();
-        
+
         TrustedDevice::where('user_id', $user->id)->delete();
 
         // Log bulk device revocation
@@ -278,7 +277,7 @@ class DeviceTrustService
             'all_devices_revoked',
             'All trusted devices revoked for user',
             [
-                'user_id' => $user->id,
+                'user_id'       => $user->id,
                 'devices_count' => $count,
             ],
             'medium',
@@ -291,12 +290,12 @@ class DeviceTrustService
     /**
      * Get device risk assessment
      */
-    public function assessDeviceRisk(Request $request, User $user = null): array
+    public function assessDeviceRisk(Request $request, User $user = NULL): array
     {
         $risk = [
-            'risk_level' => 'low',
-            'risk_score' => 0,
-            'risk_factors' => [],
+            'risk_level'      => 'low',
+            'risk_score'      => 0,
+            'risk_factors'    => [],
             'recommendations' => [],
         ];
 
@@ -326,7 +325,7 @@ class DeviceTrustService
         if ($user) {
             $deviceFingerprint = $this->generateDeviceFingerprint($request);
             $deviceTrust = $this->isDeviceTrusted($user, $deviceFingerprint);
-            
+
             if (!$deviceTrust['trusted']) {
                 $riskScore += 20;
                 $risk['risk_factors'][] = 'Unknown device';
@@ -341,7 +340,7 @@ class DeviceTrustService
 
         // Determine risk level
         $risk['risk_score'] = $riskScore;
-        
+
         if ($riskScore >= 70) {
             $risk['risk_level'] = 'critical';
             $risk['recommendations'][] = 'Block access immediately';
@@ -369,17 +368,17 @@ class DeviceTrustService
         $devices = $this->getUserTrustedDevices($user);
 
         return [
-            'total_devices' => $devices->count(),
-            'active_devices' => $devices->where('last_used_at', '>=', now()->subDays(30))->count(),
+            'total_devices'      => $devices->count(),
+            'active_devices'     => $devices->where('last_used_at', '>=', now()->subDays(30))->count(),
             'trust_distribution' => [
                 'fully_trusted' => $devices->where('trust_score', '>=', self::TRUST_LEVELS['fully_trusted'])->count(),
-                'trusted' => $devices->whereBetween('trust_score', [self::TRUST_LEVELS['trusted'], self::TRUST_LEVELS['fully_trusted'] - 1])->count(),
-                'recognized' => $devices->whereBetween('trust_score', [self::TRUST_LEVELS['recognized'], self::TRUST_LEVELS['trusted'] - 1])->count(),
-                'new' => $devices->where('trust_score', '<', self::TRUST_LEVELS['recognized'])->count(),
+                'trusted'       => $devices->whereBetween('trust_score', [self::TRUST_LEVELS['trusted'], self::TRUST_LEVELS['fully_trusted'] - 1])->count(),
+                'recognized'    => $devices->whereBetween('trust_score', [self::TRUST_LEVELS['recognized'], self::TRUST_LEVELS['trusted'] - 1])->count(),
+                'new'           => $devices->where('trust_score', '<', self::TRUST_LEVELS['recognized'])->count(),
             ],
-            'device_types' => $this->analyzeDeviceTypes($devices),
+            'device_types'    => $this->analyzeDeviceTypes($devices),
             'location_spread' => $this->analyzeLocationSpread($devices),
-            'usage_patterns' => $this->analyzeUsagePatterns($devices),
+            'usage_patterns'  => $this->analyzeUsagePatterns($devices),
         ];
     }
 
@@ -393,10 +392,10 @@ class DeviceTrustService
         // Age bonus (older devices are more trusted)
         $ageInDays = $device->first_seen_at->diffInDays(now());
         $ageBonus = min($ageInDays * 2, 20);
-        
+
         // Usage bonus (more usage = more trust)
         $usageBonus = min($device->usage_count * 1, 15);
-        
+
         // Recent activity bonus
         $recentActivityBonus = 0;
         if ($device->last_used_at->isAfter(now()->subDays(7))) {
@@ -404,7 +403,7 @@ class DeviceTrustService
         }
 
         $totalScore = $score + $ageBonus + $usageBonus + $recentActivityBonus;
-        
+
         return min($totalScore, 100);
     }
 
@@ -413,11 +412,12 @@ class DeviceTrustService
      */
     private function getTrustLevel(int $score): string
     {
-        foreach (array_reverse(self::TRUST_LEVELS, true) as $level => $threshold) {
+        foreach (array_reverse(self::TRUST_LEVELS, TRUE) as $level => $threshold) {
             if ($score >= $threshold) {
                 return $level;
             }
         }
+
         return 'untrusted';
     }
 
@@ -435,11 +435,11 @@ class DeviceTrustService
     private function generateDeviceName(Request $request): string
     {
         $userAgent = $request->userAgent();
-        
+
         // Extract browser and OS info
         $browser = $this->extractBrowser($userAgent);
         $os = $this->extractOS($userAgent);
-        
+
         return "{$browser} on {$os}";
     }
 
@@ -449,11 +449,11 @@ class DeviceTrustService
     private function cleanupOldDevices(User $user): void
     {
         $deviceCount = TrustedDevice::where('user_id', $user->id)->count();
-        
+
         if ($deviceCount >= self::MAX_TRUSTED_DEVICES) {
             // Remove oldest unused devices
             $devicesToRemove = $deviceCount - self::MAX_TRUSTED_DEVICES + 1;
-            
+
             TrustedDevice::where('user_id', $user->id)
                 ->orderBy('last_used_at', 'asc')
                 ->take($devicesToRemove)
@@ -467,7 +467,7 @@ class DeviceTrustService
     private function updateTrustScore(TrustedDevice $device): void
     {
         $newScore = $this->calculateTrustScore($device);
-        
+
         if ($newScore > $device->trust_score) {
             $device->update(['trust_score' => $newScore]);
         }
@@ -492,11 +492,11 @@ class DeviceTrustService
 
         foreach ($suspiciousPatterns as $pattern) {
             if (preg_match($pattern, $userAgent)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -506,14 +506,14 @@ class DeviceTrustService
     {
         // Cache key for IP reputation
         $cacheKey = "ip_reputation_{$ip}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($ip) {
             // This would integrate with IP reputation services
             // For now, return basic check
             return [
-                'is_malicious' => false,
+                'is_malicious'     => FALSE,
                 'reputation_score' => 100,
-                'categories' => [],
+                'categories'       => [],
             ];
         });
     }
@@ -528,18 +528,18 @@ class DeviceTrustService
             ->whereNotNull('location_data')
             ->pluck('location_data')
             ->map(function ($location) {
-                return json_decode($location, true);
+                return json_decode($location, TRUE);
             });
 
         if ($userLocations->isEmpty()) {
-            return false;
+            return FALSE;
         }
 
         // Get current location
         $currentLocation = $this->getLocationData($ip);
-        
+
         if (!$currentLocation) {
-            return false;
+            return FALSE;
         }
 
         // Check if current location is significantly different
@@ -550,14 +550,14 @@ class DeviceTrustService
                 $knownLocation['latitude'] ?? 0,
                 $knownLocation['longitude'] ?? 0
             );
-            
+
             // If within 100km of known location, not anomalous
             if ($distance <= 100) {
-                return false;
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -595,14 +595,14 @@ class DeviceTrustService
         // For now, return null for local IPs
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return [
-                'country' => 'Unknown',
-                'city' => 'Unknown',
-                'latitude' => 0,
+                'country'   => 'Unknown',
+                'city'      => 'Unknown',
+                'latitude'  => 0,
                 'longitude' => 0,
             ];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -610,12 +610,22 @@ class DeviceTrustService
      */
     private function extractBrowser(string $userAgent): string
     {
-        if (str_contains($userAgent, 'Chrome')) return 'Chrome';
-        if (str_contains($userAgent, 'Firefox')) return 'Firefox';
-        if (str_contains($userAgent, 'Safari')) return 'Safari';
-        if (str_contains($userAgent, 'Edge')) return 'Edge';
-        if (str_contains($userAgent, 'Opera')) return 'Opera';
-        
+        if (str_contains($userAgent, 'Chrome')) {
+            return 'Chrome';
+        }
+        if (str_contains($userAgent, 'Firefox')) {
+            return 'Firefox';
+        }
+        if (str_contains($userAgent, 'Safari')) {
+            return 'Safari';
+        }
+        if (str_contains($userAgent, 'Edge')) {
+            return 'Edge';
+        }
+        if (str_contains($userAgent, 'Opera')) {
+            return 'Opera';
+        }
+
         return 'Unknown Browser';
     }
 
@@ -624,12 +634,22 @@ class DeviceTrustService
      */
     private function extractOS(string $userAgent): string
     {
-        if (str_contains($userAgent, 'Windows')) return 'Windows';
-        if (str_contains($userAgent, 'Macintosh')) return 'macOS';
-        if (str_contains($userAgent, 'Linux')) return 'Linux';
-        if (str_contains($userAgent, 'Android')) return 'Android';
-        if (str_contains($userAgent, 'iPhone') || str_contains($userAgent, 'iPad')) return 'iOS';
-        
+        if (str_contains($userAgent, 'Windows')) {
+            return 'Windows';
+        }
+        if (str_contains($userAgent, 'Macintosh')) {
+            return 'macOS';
+        }
+        if (str_contains($userAgent, 'Linux')) {
+            return 'Linux';
+        }
+        if (str_contains($userAgent, 'Android')) {
+            return 'Android';
+        }
+        if (str_contains($userAgent, 'iPhone') || str_contains($userAgent, 'iPad')) {
+            return 'iOS';
+        }
+
         return 'Unknown OS';
     }
 
@@ -655,16 +675,16 @@ class DeviceTrustService
     private function analyzeDeviceTypes($devices): array
     {
         $types = [];
-        
+
         foreach ($devices as $device) {
             $userAgent = $device->user_agent;
             $os = $this->extractOS($userAgent);
             $browser = $this->extractBrowser($userAgent);
-            
+
             $type = "{$browser} / {$os}";
             $types[$type] = ($types[$type] ?? 0) + 1;
         }
-        
+
         return $types;
     }
 
@@ -674,15 +694,15 @@ class DeviceTrustService
     private function analyzeLocationSpread($devices): array
     {
         $locations = [];
-        
+
         foreach ($devices as $device) {
             if ($device->location_data) {
-                $location = json_decode($device->location_data, true);
+                $location = json_decode($device->location_data, TRUE);
                 $country = $location['country'] ?? 'Unknown';
                 $locations[$country] = ($locations[$country] ?? 0) + 1;
             }
         }
-        
+
         return $locations;
     }
 
@@ -692,9 +712,9 @@ class DeviceTrustService
     private function analyzeUsagePatterns($devices): array
     {
         return [
-            'total_usage' => $devices->sum('usage_count'),
-            'average_usage' => round($devices->avg('usage_count'), 2),
-            'most_used' => $devices->sortByDesc('usage_count')->first()?->device_name,
+            'total_usage'     => $devices->sum('usage_count'),
+            'average_usage'   => round($devices->avg('usage_count'), 2),
+            'most_used'       => $devices->sortByDesc('usage_count')->first()?->device_name,
             'recent_activity' => $devices->where('last_used_at', '>=', now()->subDays(7))->count(),
         ];
     }

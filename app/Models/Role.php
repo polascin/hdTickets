@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Role Model for Advanced RBAC
- * 
+ *
  * Represents user roles with hierarchical inheritance and permission management
  */
 class Role extends Model
@@ -21,13 +21,13 @@ class Role extends Model
         'display_name',
         'description',
         'is_system_role',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
         'is_system_role' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
     ];
 
     /**
@@ -61,7 +61,7 @@ class Role extends Model
     /**
      * Check if role has specific permission
      *
-     * @param string $permission
+     * @param  string $permission
      * @return bool
      */
     public function hasPermission(string $permission): bool
@@ -72,7 +72,7 @@ class Role extends Model
     /**
      * Grant permission to role
      *
-     * @param Permission|string $permission
+     * @param  Permission|string $permission
      * @return bool
      */
     public function grantPermission($permission): bool
@@ -82,25 +82,25 @@ class Role extends Model
         }
 
         if (!$permission) {
-            return false;
+            return FALSE;
         }
 
         if ($this->hasPermission($permission->name)) {
-            return true;
+            return TRUE;
         }
 
         $this->permissions()->attach($permission->id, [
             'granted_at' => now(),
-            'granted_by' => auth()->id()
+            'granted_by' => auth()->id(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Revoke permission from role
      *
-     * @param Permission|string $permission
+     * @param  Permission|string $permission
      * @return bool
      */
     public function revokePermission($permission): bool
@@ -110,7 +110,7 @@ class Role extends Model
         }
 
         if (!$permission) {
-            return false;
+            return FALSE;
         }
 
         return $this->permissions()->detach($permission->id) > 0;
@@ -124,11 +124,11 @@ class Role extends Model
     public function getAllPermissions(): \Illuminate\Support\Collection
     {
         $permissions = $this->permissions->pluck('name');
-        
+
         // Add inherited permissions based on role hierarchy
         $hierarchy = config('rbac.role_hierarchy', []);
         $inheritedRoles = $hierarchy[$this->name] ?? [];
-        
+
         foreach ($inheritedRoles as $inheritedRoleName) {
             $inheritedRole = static::where('name', $inheritedRoleName)->first();
             if ($inheritedRole) {
@@ -144,7 +144,7 @@ class Role extends Model
      */
     public function scopeSystemRoles($query)
     {
-        return $query->where('is_system_role', true);
+        return $query->where('is_system_role', TRUE);
     }
 
     /**
@@ -152,6 +152,6 @@ class Role extends Model
      */
     public function scopeCustomRoles($query)
     {
-        return $query->where('is_system_role', false);
+        return $query->where('is_system_role', FALSE);
     }
 }

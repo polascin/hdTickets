@@ -33,14 +33,14 @@ class RequireTwoFactorMiddleware
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return redirect()->route('login');
         }
 
         // Check if 2FA is required for this user/action
         $requires2FA = $this->requiresTwoFactor($user, $action);
 
-        if ($requires2FA && ! $this->twoFactorService->isEnabled($user)) {
+        if ($requires2FA && !$this->twoFactorService->isEnabled($user)) {
             // Redirect to 2FA setup if required but not enabled
             Session::put('2fa_required_for', $action);
             Session::put('2fa_redirect_url', $request->fullUrl());
@@ -67,7 +67,7 @@ class RequireTwoFactorMiddleware
 
             $verificationTimeout = config('security.two_factor.recovery_window', 300); // 5 minutes default
 
-            if (! $lastVerified || now()->diffInSeconds($lastVerified) > $verificationTimeout) {
+            if (!$lastVerified || now()->diffInSeconds($lastVerified) > $verificationTimeout) {
                 // Store the original request for after 2FA verification
                 Session::put('2fa_pending_action', $action);
                 Session::put('2fa_pending_url', $request->fullUrl());

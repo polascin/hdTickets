@@ -18,7 +18,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -173,23 +173,23 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
 
-        if (! empty($criteria['event_type'])) {
+        if (!empty($criteria['event_type'])) {
             $params['type'] = urlencode($criteria['event_type']);
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competition'] = urlencode($criteria['competition']);
         }
 
-        if (! empty($criteria['team'])) {
+        if (!empty($criteria['team'])) {
             $params['team'] = urlencode($criteria['team']);
         }
 
-        if (! empty($criteria['date_range'])) {
+        if (!empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }

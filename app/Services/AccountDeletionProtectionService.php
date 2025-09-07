@@ -109,7 +109,7 @@ class AccountDeletionProtectionService
             ->where('status', AccountDeletionRequest::STATUS_PENDING)
             ->first();
 
-        if (! $deletionRequest) {
+        if (!$deletionRequest) {
             throw new Exception('Invalid or expired confirmation token.');
         }
 
@@ -155,7 +155,7 @@ class AccountDeletionProtectionService
      */
     public function cancelDeletion(AccountDeletionRequest $deletionRequest, ?string $reason = NULL): bool
     {
-        if (! $deletionRequest->isPending() && ! $deletionRequest->isConfirmed()) {
+        if (!$deletionRequest->isPending() && !$deletionRequest->isConfirmed()) {
             throw new Exception('Cannot cancel a deletion request that is not pending or confirmed.');
         }
 
@@ -237,7 +237,7 @@ class AccountDeletionProtectionService
             ->recoverable()
             ->first();
 
-        if (! $deletedUser) {
+        if (!$deletedUser) {
             throw new Exception('Account not found or recovery period has expired.');
         }
 
@@ -312,7 +312,7 @@ class AccountDeletionProtectionService
      */
     public function processDataExport(DataExportRequest $exportRequest): bool
     {
-        if (! $exportRequest->isPending()) {
+        if (!$exportRequest->isPending()) {
             return FALSE;
         }
 
@@ -406,7 +406,7 @@ class AccountDeletionProtectionService
     {
         $user = $deletionRequest->user;
 
-        if (! $user) {
+        if (!$user) {
             throw new Exception('User not found for deletion request.');
         }
 

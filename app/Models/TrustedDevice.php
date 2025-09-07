@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -17,12 +17,12 @@ class TrustedDevice extends Model
         'ip_address',
         'user_agent',
         'expires_at',
-        'last_used_at'
+        'last_used_at',
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime',
-        'last_used_at' => 'datetime'
+        'expires_at'   => 'datetime',
+        'last_used_at' => 'datetime',
     ];
 
     /**
@@ -63,8 +63,8 @@ class TrustedDevice extends Model
     public function extendTrust(int $days = 30): bool
     {
         return $this->update([
-            'expires_at' => now()->addDays($days),
-            'last_used_at' => now()
+            'expires_at'   => now()->addDays($days),
+            'last_used_at' => now(),
         ]);
     }
 
@@ -82,7 +82,7 @@ class TrustedDevice extends Model
     public function getDeviceType(): string
     {
         $userAgent = strtolower($this->user_agent);
-        
+
         if (str_contains($userAgent, 'mobile') || str_contains($userAgent, 'android') || str_contains($userAgent, 'iphone')) {
             return 'mobile';
         } elseif (str_contains($userAgent, 'tablet') || str_contains($userAgent, 'ipad')) {
@@ -98,7 +98,7 @@ class TrustedDevice extends Model
     public function getBrowserName(): string
     {
         $userAgent = strtolower($this->user_agent);
-        
+
         if (str_contains($userAgent, 'chrome') && !str_contains($userAgent, 'edg')) {
             return 'Chrome';
         } elseif (str_contains($userAgent, 'firefox')) {
@@ -110,7 +110,7 @@ class TrustedDevice extends Model
         } elseif (str_contains($userAgent, 'opera')) {
             return 'Opera';
         }
-        
+
         return 'Unknown';
     }
 
@@ -120,7 +120,7 @@ class TrustedDevice extends Model
     public function getOperatingSystem(): string
     {
         $userAgent = strtolower($this->user_agent);
-        
+
         if (str_contains($userAgent, 'windows')) {
             return 'Windows';
         } elseif (str_contains($userAgent, 'mac')) {
@@ -132,7 +132,7 @@ class TrustedDevice extends Model
         } elseif (str_contains($userAgent, 'iphone') || str_contains($userAgent, 'ipad')) {
             return 'iOS';
         }
-        
+
         return 'Unknown';
     }
 
@@ -141,7 +141,7 @@ class TrustedDevice extends Model
      */
     public function getDaysUntilExpiration(): int
     {
-        return max(0, now()->diffInDays($this->expires_at, false));
+        return max(0, now()->diffInDays($this->expires_at, FALSE));
     }
 
     /**
@@ -173,13 +173,13 @@ class TrustedDevice extends Model
      */
     public function scopeByType($query, string $type)
     {
-        $userAgentPattern = match($type) {
-            'mobile' => '%mobile%',
-            'tablet' => '%tablet%',
+        $userAgentPattern = match ($type) {
+            'mobile'  => '%mobile%',
+            'tablet'  => '%tablet%',
             'desktop' => '%',
-            default => '%'
+            default   => '%'
         };
-        
+
         return $query->where('user_agent', 'like', $userAgentPattern);
     }
 }

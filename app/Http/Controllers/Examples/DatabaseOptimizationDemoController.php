@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers\Examples;
 
@@ -7,16 +7,16 @@ use App\Services\DatabaseOptimizationService;
 use App\Services\RedisCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Database Optimization Demo Controller
- * 
+ *
  * Provides demo functionality for database and cache optimization features
  */
 class DatabaseOptimizationDemoController extends Controller
 {
     protected DatabaseOptimizationService $dbOptimizer;
+
     protected RedisCacheService $cacheService;
 
     public function __construct(
@@ -48,49 +48,48 @@ class DatabaseOptimizationDemoController extends Controller
             // Get real statistics from services
             $cacheStats = $this->cacheService->getCacheStats();
             $dbStats = $this->dbOptimizer->getPerformanceStats();
-            
+
             // Get additional monitoring data
             $slowQueries = Cache::get('slow_queries', []);
             $nPlusOneDetections = Cache::get('n_plus_one_detections', []);
-            
+
             // Format data for demo
             $formattedStats = [
                 'cache' => [
-                    'hit_ratio' => $cacheStats['performance']['hit_ratio'] ?? 85.2,
-                    'memory_used' => $cacheStats['redis']['memory_used'] ?? '125.4MB',
-                    'total_keys' => $cacheStats['redis']['total_keys'] ?? 742,
-                    'operations_per_sec' => rand(50, 150)
+                    'hit_ratio'          => $cacheStats['performance']['hit_ratio'] ?? 85.2,
+                    'memory_used'        => $cacheStats['redis']['memory_used'] ?? '125.4MB',
+                    'total_keys'         => $cacheStats['redis']['total_keys'] ?? 742,
+                    'operations_per_sec' => rand(50, 150),
                 ],
                 'database' => [
-                    'avg_query_time' => number_format($dbStats['queries']['average_time'] ?? 25.7, 1) . 'ms',
+                    'avg_query_time'     => number_format($dbStats['queries']['average_time'] ?? 25.7, 1) . 'ms',
                     'active_connections' => rand(3, 12),
-                    'slow_queries' => count(array_filter($slowQueries, function($query) {
+                    'slow_queries'       => count(array_filter($slowQueries, function ($query) {
                         return ($query['timestamp'] ?? 0) > (time() - 3600);
                     })),
-                    'nplus1_detections' => count($nPlusOneDetections)
+                    'nplus1_detections' => count($nPlusOneDetections),
                 ],
                 'layers' => [
                     'events' => [
                         'key_count' => $cacheStats['layers']['events']['key_count'] ?? rand(50, 100),
-                        'hit_ratio' => rand(75, 95)
+                        'hit_ratio' => rand(75, 95),
                     ],
                     'tickets' => [
                         'key_count' => $cacheStats['layers']['tickets']['key_count'] ?? rand(30, 80),
-                        'hit_ratio' => rand(70, 90)
+                        'hit_ratio' => rand(70, 90),
                     ],
                     'monitoring' => [
                         'key_count' => $cacheStats['layers']['monitoring']['key_count'] ?? rand(10, 30),
-                        'hit_ratio' => rand(60, 85)
-                    ]
-                ]
+                        'hit_ratio' => rand(60, 85),
+                    ],
+                ],
             ];
 
             return response()->json([
-                'success' => true,
-                'data' => $formattedStats,
-                'timestamp' => now()
+                'success'   => TRUE,
+                'data'      => $formattedStats,
+                'timestamp' => now(),
             ]);
-
         } catch (\Exception $e) {
             // Return mock data if services aren't available
             return $this->getMockDatabaseStats();
@@ -100,21 +99,21 @@ class DatabaseOptimizationDemoController extends Controller
     /**
      * Run a query optimization demo
      *
-     * @param Request $request
+     * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function runQueryDemo(Request $request)
     {
         $request->validate([
-            'type' => 'required|in:optimized,naive',
-            'query_type' => 'required|in:events,tickets,users,analytics'
+            'type'       => 'required|in:optimized,naive',
+            'query_type' => 'required|in:events,tickets,users,analytics',
         ]);
 
         $type = $request->input('type');
         $queryType = $request->input('query_type');
 
         try {
-            $startTime = microtime(true);
+            $startTime = microtime(TRUE);
 
             // Simulate different query performance based on type
             if ($type === 'optimized') {
@@ -127,29 +126,28 @@ class DatabaseOptimizationDemoController extends Controller
                 usleep(rand(800000, 2000000)); // 800ms-2s
             }
 
-            $executionTime = (microtime(true) - $startTime) * 1000; // Convert to milliseconds
+            $executionTime = (microtime(TRUE) - $startTime) * 1000; // Convert to milliseconds
 
             $response = [
-                'success' => true,
-                'data' => [
-                    'type' => $type,
-                    'query_type' => $queryType,
-                    'execution_time' => round($executionTime, 1),
-                    'cache_used' => $type === 'optimized',
+                'success' => TRUE,
+                'data'    => [
+                    'type'             => $type,
+                    'query_type'       => $queryType,
+                    'execution_time'   => round($executionTime, 1),
+                    'cache_used'       => $type === 'optimized',
                     'records_returned' => count($results),
-                    'memory_used' => number_format(memory_get_usage(true) / 1024 / 1024, 2) . 'MB',
-                    'results' => array_slice($results, 0, 5), // Return first 5 for demo
-                    'sql_query' => $this->getSampleQuery($queryType, $type),
-                    'suggestions' => $this->getQuerySuggestions($type, $executionTime)
-                ]
+                    'memory_used'      => number_format(memory_get_usage(TRUE) / 1024 / 1024, 2) . 'MB',
+                    'results'          => array_slice($results, 0, 5), // Return first 5 for demo
+                    'sql_query'        => $this->getSampleQuery($queryType, $type),
+                    'suggestions'      => $this->getQuerySuggestions($type, $executionTime),
+                ],
             ];
 
             return response()->json($response);
-
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to execute query demo: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to execute query demo: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -165,27 +163,26 @@ class DatabaseOptimizationDemoController extends Controller
             $results = $this->cacheService->warmupLayers();
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Cache warmup completed',
-                'data' => $results
+                'data'    => $results,
             ]);
-
         } catch (\Exception $e) {
             // Return mock success for demo
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Cache warmup completed (demo mode)',
-                'data' => [
+                'data'    => [
                     'events' => [
-                        'upcoming_events' => ['success' => true, 'execution_time' => 0.15],
-                        'popular_events' => ['success' => true, 'execution_time' => 0.12],
-                        'featured_events' => ['success' => true, 'execution_time' => 0.08]
+                        'upcoming_events' => ['success' => TRUE, 'execution_time' => 0.15],
+                        'popular_events'  => ['success' => TRUE, 'execution_time' => 0.12],
+                        'featured_events' => ['success' => TRUE, 'execution_time' => 0.08],
                     ],
                     'tickets' => [
-                        'available_tickets' => ['success' => true, 'execution_time' => 0.22],
-                        'price_ranges' => ['success' => true, 'execution_time' => 0.18]
-                    ]
-                ]
+                        'available_tickets' => ['success' => TRUE, 'execution_time' => 0.22],
+                        'price_ranges'      => ['success' => TRUE, 'execution_time' => 0.18],
+                    ],
+                ],
             ]);
         }
     }
@@ -193,7 +190,7 @@ class DatabaseOptimizationDemoController extends Controller
     /**
      * Clear cache layers for demo
      *
-     * @param Request $request
+     * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function clearCacheDemo(Request $request)
@@ -205,7 +202,7 @@ class DatabaseOptimizationDemoController extends Controller
                 $this->cacheService->invalidateLayer('events');
                 $this->cacheService->invalidateLayer('tickets');
                 $this->cacheService->invalidateLayer('monitoring');
-                
+
                 $keysCleared = rand(100, 200);
                 $message = 'All cache layers cleared';
             } else {
@@ -215,18 +212,17 @@ class DatabaseOptimizationDemoController extends Controller
             }
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => $message,
-                'data' => [
+                'data'    => [
                     'keys_cleared' => $keysCleared,
-                    'memory_freed' => number_format($keysCleared * 0.5, 1) . 'MB'
-                ]
+                    'memory_freed' => number_format($keysCleared * 0.5, 1) . 'MB',
+                ],
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to clear cache: ' . $e->getMessage()
+                'success' => FALSE,
+                'message' => 'Failed to clear cache: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -234,7 +230,7 @@ class DatabaseOptimizationDemoController extends Controller
     /**
      * Get query analysis and suggestions
      *
-     * @param Request $request
+     * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getQueryAnalysis(Request $request)
@@ -247,38 +243,38 @@ class DatabaseOptimizationDemoController extends Controller
         // Generate suggestions based on execution time and query type
         if ($executionTime > 1000) {
             $suggestions[] = [
-                'type' => 'slow_query',
-                'priority' => 'high',
-                'message' => 'Query execution time is high',
-                'suggestion' => 'Consider adding database indexes or optimizing the query logic'
+                'type'       => 'slow_query',
+                'priority'   => 'high',
+                'message'    => 'Query execution time is high',
+                'suggestion' => 'Consider adding database indexes or optimizing the query logic',
             ];
         }
 
-        if ($queryType === 'events' && !$request->input('cache_used', false)) {
+        if ($queryType === 'events' && !$request->input('cache_used', FALSE)) {
             $suggestions[] = [
-                'type' => 'caching',
-                'priority' => 'medium',
-                'message' => 'Events data could benefit from caching',
-                'suggestion' => 'Implement Redis caching with 1-hour TTL for events data'
+                'type'       => 'caching',
+                'priority'   => 'medium',
+                'message'    => 'Events data could benefit from caching',
+                'suggestion' => 'Implement Redis caching with 1-hour TTL for events data',
             ];
         }
 
         if ($request->input('records_returned', 0) > 100) {
             $suggestions[] = [
-                'type' => 'pagination',
-                'priority' => 'medium',
-                'message' => 'Large result set detected',
-                'suggestion' => 'Consider implementing pagination to reduce memory usage'
+                'type'       => 'pagination',
+                'priority'   => 'medium',
+                'message'    => 'Large result set detected',
+                'suggestion' => 'Consider implementing pagination to reduce memory usage',
             ];
         }
 
         return response()->json([
-            'success' => true,
-            'data' => [
-                'suggestions' => $suggestions,
-                'performance_score' => $this->calculatePerformanceScore($executionTime, $suggestions),
-                'optimization_opportunities' => count($suggestions)
-            ]
+            'success' => TRUE,
+            'data'    => [
+                'suggestions'                => $suggestions,
+                'performance_score'          => $this->calculatePerformanceScore($executionTime, $suggestions),
+                'optimization_opportunities' => count($suggestions),
+            ],
         ]);
     }
 
@@ -288,8 +284,8 @@ class DatabaseOptimizationDemoController extends Controller
     protected function runOptimizedQuery(string $queryType): array
     {
         $cacheKey = "demo_query_{$queryType}";
-        
-        return Cache::remember($cacheKey, 300, function() use ($queryType) {
+
+        return Cache::remember($cacheKey, 300, function () use ($queryType) {
             return $this->generateMockResults($queryType);
         });
     }
@@ -326,13 +322,14 @@ class DatabaseOptimizationDemoController extends Controller
         $events = [];
         for ($i = 1; $i <= rand(15, 50); $i++) {
             $events[] = [
-                'id' => $i,
-                'title' => 'Sports Event ' . $i,
-                'date' => now()->addDays(rand(1, 30))->format('Y-m-d'),
-                'venue' => 'Stadium ' . chr(64 + $i % 26),
-                'category' => ['Basketball', 'Football', 'Soccer', 'Tennis'][rand(0, 3)]
+                'id'       => $i,
+                'title'    => 'Sports Event ' . $i,
+                'date'     => now()->addDays(rand(1, 30))->format('Y-m-d'),
+                'venue'    => 'Stadium ' . chr(64 + $i % 26),
+                'category' => ['Basketball', 'Football', 'Soccer', 'Tennis'][rand(0, 3)],
             ];
         }
+
         return $events;
     }
 
@@ -341,13 +338,14 @@ class DatabaseOptimizationDemoController extends Controller
         $tickets = [];
         for ($i = 1; $i <= rand(20, 75); $i++) {
             $tickets[] = [
-                'id' => $i,
-                'event_id' => rand(1, 10),
-                'section' => 'Section ' . chr(65 + $i % 10),
-                'price' => '$' . number_format(rand(50, 500), 2),
-                'availability' => rand(1, 20)
+                'id'           => $i,
+                'event_id'     => rand(1, 10),
+                'section'      => 'Section ' . chr(65 + $i % 10),
+                'price'        => '$' . number_format(rand(50, 500), 2),
+                'availability' => rand(1, 20),
             ];
         }
+
         return $tickets;
     }
 
@@ -356,13 +354,14 @@ class DatabaseOptimizationDemoController extends Controller
         $users = [];
         for ($i = 1; $i <= rand(10, 30); $i++) {
             $users[] = [
-                'id' => $i,
-                'name' => 'User ' . $i,
-                'email' => "user{$i}@example.com",
-                'role' => ['customer', 'agent', 'admin'][rand(0, 2)],
-                'created_at' => now()->subDays(rand(1, 365))->format('Y-m-d')
+                'id'         => $i,
+                'name'       => 'User ' . $i,
+                'email'      => "user{$i}@example.com",
+                'role'       => ['customer', 'agent', 'admin'][rand(0, 2)],
+                'created_at' => now()->subDays(rand(1, 365))->format('Y-m-d'),
             ];
         }
+
         return $users;
     }
 
@@ -371,13 +370,14 @@ class DatabaseOptimizationDemoController extends Controller
         $analytics = [];
         for ($i = 1; $i <= rand(5, 15); $i++) {
             $analytics[] = [
-                'date' => now()->subDays($i)->format('Y-m-d'),
-                'pageviews' => rand(1000, 5000),
+                'date'            => now()->subDays($i)->format('Y-m-d'),
+                'pageviews'       => rand(1000, 5000),
                 'unique_visitors' => rand(500, 2000),
-                'bounce_rate' => rand(20, 60) . '%',
-                'conversion_rate' => rand(2, 15) . '%'
+                'bounce_rate'     => rand(20, 60) . '%',
+                'conversion_rate' => rand(2, 15) . '%',
             ];
         }
+
         return $analytics;
     }
 
@@ -389,20 +389,20 @@ class DatabaseOptimizationDemoController extends Controller
         $queries = [
             'events' => [
                 'optimized' => 'SELECT id, title, date, venue FROM events WHERE date >= ? AND status = ? ORDER BY date LIMIT 50',
-                'naive' => 'SELECT * FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN categories c ON e.category_id = c.id ORDER BY e.title'
+                'naive'     => 'SELECT * FROM events e LEFT JOIN venues v ON e.venue_id = v.id LEFT JOIN categories c ON e.category_id = c.id ORDER BY e.title',
             ],
             'tickets' => [
                 'optimized' => 'SELECT t.id, t.section, t.price FROM tickets t WHERE t.event_id = ? AND t.available = 1',
-                'naive' => 'SELECT * FROM tickets t JOIN events e ON t.event_id = e.id JOIN venues v ON e.venue_id = v.id'
+                'naive'     => 'SELECT * FROM tickets t JOIN events e ON t.event_id = e.id JOIN venues v ON e.venue_id = v.id',
             ],
             'users' => [
                 'optimized' => 'SELECT id, name, email, role FROM users WHERE active = 1 LIMIT 25',
-                'naive' => 'SELECT * FROM users u LEFT JOIN user_profiles p ON u.id = p.user_id LEFT JOIN user_preferences pr ON u.id = pr.user_id'
+                'naive'     => 'SELECT * FROM users u LEFT JOIN user_profiles p ON u.id = p.user_id LEFT JOIN user_preferences pr ON u.id = pr.user_id',
             ],
             'analytics' => [
                 'optimized' => 'SELECT date, pageviews, unique_visitors FROM analytics WHERE date >= ? ORDER BY date DESC',
-                'naive' => 'SELECT * FROM analytics a JOIN sessions s ON a.session_id = s.id JOIN users u ON s.user_id = u.id'
-            ]
+                'naive'     => 'SELECT * FROM analytics a JOIN sessions s ON a.session_id = s.id JOIN users u ON s.user_id = u.id',
+            ],
         ];
 
         return $queries[$queryType][$optimizationType] ?? 'SELECT * FROM table';
@@ -416,10 +416,10 @@ class DatabaseOptimizationDemoController extends Controller
         if ($type === 'optimized' && $executionTime < 500) {
             return [
                 [
-                    'type' => 'success',
-                    'message' => 'Query is well optimized!',
-                    'suggestion' => 'Good use of caching and optimized query structure'
-                ]
+                    'type'       => 'success',
+                    'message'    => 'Query is well optimized!',
+                    'suggestion' => 'Good use of caching and optimized query structure',
+                ],
             ];
         }
 
@@ -427,17 +427,17 @@ class DatabaseOptimizationDemoController extends Controller
 
         if ($executionTime > 1000) {
             $suggestions[] = [
-                'type' => 'performance',
-                'message' => 'Query execution time is high',
-                'suggestion' => 'Consider adding database indexes or reviewing query logic'
+                'type'       => 'performance',
+                'message'    => 'Query execution time is high',
+                'suggestion' => 'Consider adding database indexes or reviewing query logic',
             ];
         }
 
         if ($type === 'naive') {
             $suggestions[] = [
-                'type' => 'optimization',
-                'message' => 'Query could benefit from optimization',
-                'suggestion' => 'Use specific column selection, add caching, and optimize JOINs'
+                'type'       => 'optimization',
+                'message'    => 'Query could benefit from optimization',
+                'suggestion' => 'Use specific column selection, add caching, and optimize JOINs',
             ];
         }
 
@@ -470,22 +470,22 @@ class DatabaseOptimizationDemoController extends Controller
     protected function getMockDatabaseStats()
     {
         return response()->json([
-            'success' => true,
-            'data' => [
+            'success' => TRUE,
+            'data'    => [
                 'cache' => [
-                    'hit_ratio' => rand(75, 95),
-                    'memory_used' => rand(100, 200) . 'MB',
-                    'total_keys' => rand(500, 1000),
-                    'operations_per_sec' => rand(50, 150)
+                    'hit_ratio'          => rand(75, 95),
+                    'memory_used'        => rand(100, 200) . 'MB',
+                    'total_keys'         => rand(500, 1000),
+                    'operations_per_sec' => rand(50, 150),
                 ],
                 'database' => [
-                    'avg_query_time' => rand(10, 50) . 'ms',
+                    'avg_query_time'     => rand(10, 50) . 'ms',
                     'active_connections' => rand(3, 12),
-                    'slow_queries' => rand(0, 5),
-                    'nplus1_detections' => rand(0, 3)
-                ]
+                    'slow_queries'       => rand(0, 5),
+                    'nplus1_detections'  => rand(0, 3),
+                ],
             ],
-            'timestamp' => now()
+            'timestamp' => now(),
         ]);
     }
 }

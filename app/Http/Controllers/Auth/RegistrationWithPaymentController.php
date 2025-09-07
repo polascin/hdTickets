@@ -32,7 +32,7 @@ class RegistrationWithPaymentController extends Controller
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -50,7 +50,7 @@ class RegistrationWithPaymentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -198,7 +198,7 @@ class RegistrationWithPaymentController extends Controller
      */
     public function selectPlan(User $user): View
     {
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 
@@ -216,7 +216,7 @@ class RegistrationWithPaymentController extends Controller
      */
     public function assignPlan(Request $request, User $user): RedirectResponse
     {
-        if (! Auth::check() || ! Auth::user()->isAdmin()) {
+        if (!Auth::check() || !Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 

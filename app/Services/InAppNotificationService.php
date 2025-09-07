@@ -109,7 +109,7 @@ class InAppNotificationService
         foreach ($userIds as $userId) {
             try {
                 $user = User::find($userId);
-                if (! $user) {
+                if (!$user) {
                     $failed++;
 
                     continue;
@@ -455,7 +455,7 @@ class InAppNotificationService
         $preferences = $this->getUserPreferences($userId);
 
         // Check if notification type is enabled
-        if (! ($preferences[$type] ?? TRUE)) {
+        if (!($preferences[$type] ?? TRUE)) {
             return FALSE;
         }
 

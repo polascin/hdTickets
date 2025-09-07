@@ -66,7 +66,7 @@ class ImportFootballClubTickets extends Command
 
             $this->info('📋 Processing ' . count($clubsToProcess) . ' club(s): ' . implode(', ', $clubsToProcess));
 
-            if (! empty($filters)) {
+            if (!empty($filters)) {
                 $this->info('🔍 Filters applied: ' . json_encode($filters, JSON_PRETTY_PRINT));
             }
             $this->newLine();
@@ -80,7 +80,7 @@ class ImportFootballClubTickets extends Command
             $this->info('🔎 Searching for tickets...');
             $searchResults = $this->service->searchTickets($clubsToProcess, $filters);
 
-            if (! $searchResults['success']) {
+            if (!$searchResults['success']) {
                 $this->error('❌ Search failed:');
                 foreach ($searchResults['errors'] as $error) {
                     $this->line("  • {$error}");
@@ -93,7 +93,7 @@ class ImportFootballClubTickets extends Command
             $this->displaySearchResults($searchResults);
 
             // Import tickets (unless dry-run)
-            if (! $this->option('dry-run')) {
+            if (!$this->option('dry-run')) {
                 if ($this->confirm('Proceed with importing tickets to database?', TRUE)) {
                     $this->info('💾 Importing tickets to database...');
                     $importResults = $this->service->importTickets($clubsToProcess, $filters);
@@ -140,7 +140,7 @@ class ImportFootballClubTickets extends Command
 
         // If specific clubs requested
         $clubs = $this->option('clubs');
-        if (! empty($clubs)) {
+        if (!empty($clubs)) {
             $validClubs = array_intersect($clubs, $clubKeys);
 
             if (empty($validClubs)) {
@@ -300,7 +300,7 @@ class ImportFootballClubTickets extends Command
         $this->line("  • Successful searches: {$results['successful_searches']}");
         $this->newLine();
 
-        if (! empty($results['results'])) {
+        if (!empty($results['results'])) {
             $totalFixtures = 0;
             $totalTickets = 0;
 
@@ -336,7 +336,7 @@ class ImportFootballClubTickets extends Command
             $this->line("  • Total ticket categories: {$totalTickets}");
         }
 
-        if (! empty($results['errors'])) {
+        if (!empty($results['errors'])) {
             $this->warn('⚠️ Errors encountered:');
             foreach ($results['errors'] as $error) {
                 $this->line("  • {$error}");
@@ -363,7 +363,7 @@ class ImportFootballClubTickets extends Command
             $this->error('❌ Import failed.');
         }
 
-        if (! empty($results['errors'])) {
+        if (!empty($results['errors'])) {
             $this->warn('⚠️ Import errors:');
             foreach ($results['errors'] as $error) {
                 $this->line("  • {$error}");
@@ -389,7 +389,7 @@ class ImportFootballClubTickets extends Command
         $this->line("  • Availability rate: {$stats['availability_rate']}%");
         $this->line("  • Supported clubs: {$stats['supported_clubs']}");
 
-        if (! empty($stats['leagues'])) {
+        if (!empty($stats['leagues'])) {
             $this->line('  • Leagues covered:');
             foreach ($stats['leagues'] as $league => $count) {
                 $this->line("    - {$league}: {$count} tickets");

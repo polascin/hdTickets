@@ -188,7 +188,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
 
         // Remove empty parameters
         $params = array_filter($params, function ($value) {
-            return ! empty($value);
+            return !empty($value);
         });
 
         return $this->baseUrl . '/search?' . http_build_query($params);
@@ -203,7 +203,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
             Log::info("LiveNation UK Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -318,7 +318,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -338,8 +338,8 @@ class LiveNationUKPlugin extends BaseScraperPlugin
                 'link'              => $link,
                 'platform'          => $this->platform,
                 'category'          => $category,
-                'availability'      => ! empty($soldOut) ? 'sold_out' : 'available',
-                'presale_available' => ! empty($presale),
+                'availability'      => !empty($soldOut) ? 'sold_out' : 'available',
+                'presale_available' => !empty($presale),
                 'scraped_at'        => now(),
             ];
         } catch (Exception $e) {

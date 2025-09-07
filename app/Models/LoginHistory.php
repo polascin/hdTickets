@@ -139,7 +139,7 @@ class LoginHistory extends Model
      */
     public function getRiskLevelAttribute(): string
     {
-        if (! $this->is_suspicious) {
+        if (!$this->is_suspicious) {
             return 'low';
         }
 

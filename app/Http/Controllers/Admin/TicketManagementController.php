@@ -102,7 +102,7 @@ class TicketManagementController extends Controller
         // Verify the user is an agent or admin
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
+            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User must be an agent or admin to be assigned tickets.',
@@ -151,7 +151,7 @@ class TicketManagementController extends Controller
         // Verify the user is an agent or admin if assigning
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
+            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User must be an agent or admin to be assigned tickets.',
@@ -406,15 +406,15 @@ class TicketManagementController extends Controller
      */
     private function getAssignmentMessage($oldAssignee, $newAssignee): string
     {
-        if (! $oldAssignee && ! $newAssignee) {
+        if (!$oldAssignee && !$newAssignee) {
             return 'Ticket assignment unchanged';
         }
 
-        if (! $oldAssignee && $newAssignee) {
+        if (!$oldAssignee && $newAssignee) {
             return "Ticket assigned to {$newAssignee->name}";
         }
 
-        if ($oldAssignee && ! $newAssignee) {
+        if ($oldAssignee && !$newAssignee) {
             return "Ticket unassigned from {$oldAssignee->name}";
         }
 

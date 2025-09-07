@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * AuditLog Model
- * 
+ *
  * Tracks all user actions and system changes for compliance and security auditing
  */
 class AuditLog extends Model
@@ -24,14 +24,14 @@ class AuditLog extends Model
         'ip_address',
         'user_agent',
         'session_id',
-        'performed_at'
+        'performed_at',
     ];
 
     protected $casts = [
-        'changes' => 'array',
+        'changes'      => 'array',
         'performed_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'created_at'   => 'datetime',
+        'updated_at'   => 'datetime',
     ];
 
     /**
@@ -50,18 +50,18 @@ class AuditLog extends Model
     public function getResource(): ?\Illuminate\Database\Eloquent\Model
     {
         if (!$this->resource_type || !$this->resource_id) {
-            return null;
+            return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
             if (!$modelClass) {
-                return null;
+                return NULL;
             }
 
             return $modelClass::find($this->resource_id);
         } catch (\Exception $e) {
-            return null;
+            return NULL;
         }
     }
 
@@ -73,16 +73,16 @@ class AuditLog extends Model
     protected function getResourceModelClass(): ?string
     {
         $resourceTypeMap = [
-            'user' => \App\Models\User::class,
-            'ticket' => \App\Models\Ticket::class,
-            'role' => \App\Models\Role::class,
+            'user'       => \App\Models\User::class,
+            'ticket'     => \App\Models\Ticket::class,
+            'role'       => \App\Models\Role::class,
             'permission' => \App\Models\Permission::class,
-            'event' => \App\Domain\Event\Models\SportsEvent::class,
-            'purchase' => \App\Models\TicketPurchase::class,
+            'event'      => \App\Domain\Event\Models\SportsEvent::class,
+            'purchase'   => \App\Models\TicketPurchase::class,
             // Add more resource type mappings as needed
         ];
 
-        return $resourceTypeMap[$this->resource_type] ?? null;
+        return $resourceTypeMap[$this->resource_type] ?? NULL;
     }
 
     /**
@@ -105,7 +105,7 @@ class AuditLog extends Model
             'account_lock',
             'account_unlock',
             'data_export',
-            'system_config_change'
+            'system_config_change',
         ];
 
         return in_array($this->action, $sensitiveActions);
@@ -139,7 +139,7 @@ class AuditLog extends Model
     /**
      * Format value for display
      *
-     * @param mixed $value
+     * @param  mixed  $value
      * @return string
      */
     protected function formatValue($value): string
@@ -213,7 +213,7 @@ class AuditLog extends Model
             'delete', 'force_delete', 'restore', 'login', 'logout',
             'password_change', 'role_change', 'permission_grant',
             'permission_revoke', 'account_lock', 'account_unlock',
-            'data_export', 'system_config_change'
+            'data_export', 'system_config_change',
         ];
 
         return $query->whereIn('action', $sensitiveActions);
@@ -230,32 +230,32 @@ class AuditLog extends Model
     /**
      * Create audit log entry
      *
-     * @param string $action
-     * @param User|null $user
-     * @param string|null $resourceType
-     * @param mixed $resourceId
-     * @param array $changes
+     * @param  string      $action
+     * @param  User|null   $user
+     * @param  string|null $resourceType
+     * @param  mixed       $resourceId
+     * @param  array       $changes
      * @return AuditLog
      */
     public static function logAction(
         string $action,
-        ?User $user = null,
-        ?string $resourceType = null,
-        $resourceId = null,
+        ?User $user = NULL,
+        ?string $resourceType = NULL,
+        $resourceId = NULL,
         array $changes = []
     ): AuditLog {
         $request = request();
 
         return static::create([
-            'user_id' => $user?->id,
-            'action' => $action,
+            'user_id'       => $user?->id,
+            'action'        => $action,
             'resource_type' => $resourceType,
-            'resource_id' => $resourceId,
-            'changes' => $changes,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->header('User-Agent'),
-            'session_id' => session()->getId(),
-            'performed_at' => now()
+            'resource_id'   => $resourceId,
+            'changes'       => $changes,
+            'ip_address'    => $request->ip(),
+            'user_agent'    => $request->header('User-Agent'),
+            'session_id'    => session()->getId(),
+            'performed_at'  => now(),
         ]);
     }
 }

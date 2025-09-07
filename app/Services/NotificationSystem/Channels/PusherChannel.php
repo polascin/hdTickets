@@ -88,9 +88,9 @@ class PusherChannel implements NotificationChannelInterface
      */
     public function isAvailable(): bool
     {
-        return ! empty(config('broadcasting.connections.pusher.key'))
-               && ! empty(config('broadcasting.connections.pusher.secret'))
-               && ! empty(config('broadcasting.connections.pusher.app_id'));
+        return !empty(config('broadcasting.connections.pusher.key'))
+               && !empty(config('broadcasting.connections.pusher.secret'))
+               && !empty(config('broadcasting.connections.pusher.app_id'));
     }
 
     /**

@@ -49,7 +49,7 @@ class TicketekService extends BasePlatformService
                 'X-Requested-With' => 'XMLHttpRequest',
             ])->timeout(30)->get($searchUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Ticketek search failed: ' . $response->status());
             }
 
@@ -88,7 +88,7 @@ class TicketekService extends BasePlatformService
                     'Referer'    => $baseUrl,
                 ])->timeout(30)->get($eventUrl);
 
-                if (! $response->successful()) {
+                if (!$response->successful()) {
                     throw new Exception('Failed to fetch event details');
                 }
 
@@ -128,7 +128,7 @@ class TicketekService extends BasePlatformService
             try {
                 $eventDetails = $this->getEventDetails($url, $region);
 
-                if (! $eventDetails['success']) {
+                if (!$eventDetails['success']) {
                     $errors[] = "Failed to get details for: {$url}";
 
                     continue;
@@ -240,7 +240,7 @@ class TicketekService extends BasePlatformService
     {
         $events = [];
 
-        if (! isset($jsonData['events']) || ! is_array($jsonData['events'])) {
+        if (!isset($jsonData['events']) || !is_array($jsonData['events'])) {
             return [
                 'success'     => TRUE,
                 'query'       => $query,
@@ -278,7 +278,7 @@ class TicketekService extends BasePlatformService
      */
     private function extractEventFromJson(array $eventData, string $region): ?array
     {
-        if (! isset($eventData['name']) || ! isset($eventData['id'])) {
+        if (!isset($eventData['name']) || !isset($eventData['id'])) {
             return NULL;
         }
 
@@ -289,7 +289,7 @@ class TicketekService extends BasePlatformService
         $eventDate = NULL;
         if (isset($eventData['eventDate'])) {
             $eventDate = $this->parseEventDate($eventData['eventDate']);
-        } elseif (isset($eventData['performances']) && is_array($eventData['performances']) && ! empty($eventData['performances'])) {
+        } elseif (isset($eventData['performances']) && is_array($eventData['performances']) && !empty($eventData['performances'])) {
             $eventDate = $this->parseEventDate($eventData['performances'][0]['startDateTime'] ?? '');
         }
 
@@ -343,7 +343,7 @@ class TicketekService extends BasePlatformService
         if (isset($jsonData['performances']) && is_array($jsonData['performances'])) {
             foreach ($jsonData['performances'] as $performance) {
                 $perfDate = $this->parseEventDate($performance['startDateTime'] ?? '');
-                if ($perfDate && ! $eventDate) {
+                if ($perfDate && !$eventDate) {
                     $eventDate = $perfDate; // Use first performance as main date
                 }
 
@@ -419,7 +419,7 @@ class TicketekService extends BasePlatformService
             $dateStr = $node->getAttribute('datetime') ?: $node->textContent;
             $perfDate = $this->parseEventDate($dateStr);
             if ($perfDate) {
-                if (! $eventDate) {
+                if (!$eventDate) {
                     $eventDate = $perfDate;
                 }
                 $performances[] = ['date' => $perfDate];
@@ -469,12 +469,12 @@ class TicketekService extends BasePlatformService
      */
     private function extractTicketFromCategory(array $category, string $region): ?array
     {
-        if (! isset($category['name']) || ! isset($category['price'])) {
+        if (!isset($category['name']) || !isset($category['price'])) {
             return NULL;
         }
 
         $price = is_numeric($category['price']) ? (float) $category['price'] : NULL;
-        if (! $price) {
+        if (!$price) {
             return NULL;
         }
 
@@ -513,20 +513,20 @@ class TicketekService extends BasePlatformService
 
         // Extract price
         $priceNode = $xpath->query('.//*[contains(@class, "price")] | .//*[@data-testid="price"]', $ticketNode)->item(0);
-        if (! $priceNode) {
+        if (!$priceNode) {
             return NULL;
         }
 
         $priceText = trim($priceNode->textContent);
         $price = $this->extractPrice($priceText);
-        if (! $price) {
+        if (!$price) {
             return NULL;
         }
 
         // Extract availability
         $availNode = $xpath->query('.//*[contains(@class, "availability")] | .//*[@data-testid="availability"]', $ticketNode)->item(0);
         $availability = $availNode ? trim($availNode->textContent) : 'Available';
-        $isAvailable = ! str_contains(strtolower($availability), 'sold out');
+        $isAvailable = !str_contains(strtolower($availability), 'sold out');
 
         return [
             'section'           => $section,

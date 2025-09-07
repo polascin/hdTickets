@@ -60,7 +60,7 @@ trait CurrencyHandlingTrait
             }
         }
 
-        if (! empty($prices)) {
+        if (!empty($prices)) {
             $priceInfo['min'] = min($prices);
             $priceInfo['max'] = max($prices);
 

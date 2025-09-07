@@ -120,9 +120,9 @@ class PasswordHistoryService
             'history_count'     => count($passwordHistory),
             'max_history_count' => self::PASSWORD_HISTORY_COUNT,
             'reuse_days'        => self::PASSWORD_REUSE_DAYS,
-            'oldest_entry'      => ! empty($passwordHistory) ?
+            'oldest_entry'      => !empty($passwordHistory) ?
                 Carbon::parse(end($passwordHistory)['created_at'])->format('M j, Y') : NULL,
-            'newest_entry' => ! empty($passwordHistory) ?
+            'newest_entry' => !empty($passwordHistory) ?
                 Carbon::parse($passwordHistory[0]['created_at'])->format('M j, Y') : NULL,
         ];
     }
@@ -207,25 +207,25 @@ class PasswordHistoryService
         }
 
         // Character type checks
-        if (! preg_match('/[a-z]/', $password)) {
+        if (!preg_match('/[a-z]/', $password)) {
             $errors[] = 'Password must contain at least one lowercase letter';
         } else {
             $score++;
         }
 
-        if (! preg_match('/[A-Z]/', $password)) {
+        if (!preg_match('/[A-Z]/', $password)) {
             $errors[] = 'Password must contain at least one uppercase letter';
         } else {
             $score++;
         }
 
-        if (! preg_match('/\d/', $password)) {
+        if (!preg_match('/\d/', $password)) {
             $errors[] = 'Password must contain at least one number';
         } else {
             $score++;
         }
 
-        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $errors[] = 'Password must contain at least one special character';
         } else {
             $score++;
@@ -287,7 +287,7 @@ class PasswordHistoryService
             $recommendations[] = 'Add a mix of uppercase, lowercase, numbers, and special characters';
         }
 
-        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $recommendations[] = 'Include special characters like !@#$%^&*';
         }
 

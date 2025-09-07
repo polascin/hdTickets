@@ -567,7 +567,7 @@ class DashboardController extends Controller
     {
         try {
             $userId = $request->user()->id ?? NULL;
-            if (! $userId) {
+            if (!$userId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Authentication required',
@@ -613,14 +613,14 @@ class DashboardController extends Controller
             $userId = $request->user()->id ?? NULL;
             $notificationId = $request->get('notification_id');
 
-            if (! $userId) {
+            if (!$userId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Authentication required',
                 ], 401);
             }
 
-            if (! $notificationId) {
+            if (!$notificationId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Notification ID required',
@@ -1218,7 +1218,7 @@ class DashboardController extends Controller
      */
     private function getNotificationData(?int $userId): array
     {
-        if (! $userId) {
+        if (!$userId) {
             return [
                 'unread_count' => 0,
                 'recent'       => [],
@@ -1256,7 +1256,7 @@ class DashboardController extends Controller
      */
     private function getUserMetrics(App\Models\User $user): array
     {
-        if (! $user) {
+        if (!$user) {
             return [];
         }
 

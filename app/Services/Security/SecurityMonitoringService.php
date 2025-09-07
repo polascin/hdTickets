@@ -117,7 +117,7 @@ class SecurityMonitoringService
             } // Handled separately
 
             $detectedThreats = $this->detectPatterns($request, $config['patterns']);
-            if (! empty($detectedThreats)) {
+            if (!empty($detectedThreats)) {
                 $threats[] = [
                     'type'        => $threatType,
                     'severity'    => $config['severity'],
@@ -138,7 +138,7 @@ class SecurityMonitoringService
         $riskLevel = $this->calculateRiskLevel($riskScore);
 
         // Take action based on threats
-        if (! empty($threats)) {
+        if (!empty($threats)) {
             $this->handleDetectedThreats($request, $threats, $riskLevel);
         }
 
@@ -161,7 +161,7 @@ class SecurityMonitoringService
     {
         $suspiciousFlags = [];
 
-        if (! $success) {
+        if (!$success) {
             // Check for brute force patterns
             $recentFailures = $this->getRecentFailedLogins($user, 300); // 5 minutes
             if ($recentFailures >= 3) {
@@ -191,7 +191,7 @@ class SecurityMonitoringService
         }
 
         // Log security event
-        if (! empty($suspiciousFlags)) {
+        if (!empty($suspiciousFlags)) {
             $this->logSecurityEvent('authentication_anomaly', [
                 'user_id'          => $user->id,
                 'success'          => $success,
@@ -627,7 +627,7 @@ class SecurityMonitoringService
         try {
             // Check for default passwords (simplified check)
             $users = DB::select("SELECT user, host FROM mysql.user WHERE user IN ('root', 'admin', 'test')");
-            if (! empty($users)) {
+            if (!empty($users)) {
                 $vulnerabilities[] = [
                     'type'           => 'default_database_users',
                     'severity'       => 'medium',
@@ -663,7 +663,7 @@ class SecurityMonitoringService
         $vulnerabilities = [];
 
         // Check for security headers
-        if (! config('security.headers.X-Frame-Options')) {
+        if (!config('security.headers.X-Frame-Options')) {
             $vulnerabilities[] = [
                 'type'           => 'missing_security_header',
                 'severity'       => 'medium',
@@ -673,7 +673,7 @@ class SecurityMonitoringService
         }
 
         // Check for HTTPS enforcement
-        if (! config('session.secure') && config('app.env') === 'production') {
+        if (!config('session.secure') && config('app.env') === 'production') {
             $vulnerabilities[] = [
                 'type'           => 'https_not_enforced',
                 'severity'       => 'high',

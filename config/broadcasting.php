@@ -37,6 +37,18 @@ return [
                 'scheme'    => env('PUSHER_SCHEME', 'https'),
                 'encrypted' => TRUE,
                 'useTLS'    => env('PUSHER_SCHEME', 'https') === 'https',
+                
+                // HD Tickets specific configuration
+                'timeout' => 60,
+                'debug' => env('APP_DEBUG', false),
+                'curl_options' => [
+                    CURLOPT_SSL_VERIFYHOST => 2,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                ],
+                
+                // Batch settings for performance
+                'batch_size' => 100,
+                'batch_timeout' => 30,
             ],
             'client_options' => [
                 // Guzzle HTTP client options: https://docs.guzzlephp.org/en/stable/request-options.html
@@ -51,6 +63,12 @@ return [
         'redis' => [
             'driver'     => 'redis',
             'connection' => 'default',
+            'options' => [
+                // Redis-specific options for HD Tickets
+                'prefix' => env('REDIS_PREFIX', 'hdtickets') . ':broadcast:',
+                'serializer' => 'igbinary', // Better performance than default
+                'compression' => 'lz4', // Compress broadcast data
+            ],
         ],
 
         'log' => [

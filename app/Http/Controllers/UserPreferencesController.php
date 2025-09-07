@@ -162,7 +162,7 @@ class UserPreferencesController extends Controller
                     break;
             }
 
-            if (! $this->validatePreference($key, $value)) {
+            if (!$this->validatePreference($key, $value)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid preference value',
@@ -211,7 +211,7 @@ class UserPreferencesController extends Controller
     {
         $timezone = $request->input('timezone');
 
-        if (! $timezone || ! in_array($timezone, timezone_identifiers_list(), TRUE)) {
+        if (!$timezone || !in_array($timezone, timezone_identifiers_list(), TRUE)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Invalid timezone',
@@ -651,7 +651,7 @@ class UserPreferencesController extends Controller
                 })
                 ->first();
 
-            if (! $preset) {
+            if (!$preset) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Preset not found',
@@ -803,7 +803,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $teamId)
                 ->first();
 
-            if (! $team) {
+            if (!$team) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Team not found',
@@ -907,7 +907,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $venueId)
                 ->first();
 
-            if (! $venue) {
+            if (!$venue) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Venue not found',
@@ -968,7 +968,7 @@ class UserPreferencesController extends Controller
 
         // Validate price range
         $errors = UserPricePreference::validatePreferenceData($request->all());
-        if (! empty($errors)) {
+        if (!empty($errors)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => implode(', ', $errors),
@@ -1028,7 +1028,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $preferenceId)
                 ->first();
 
-            if (! $preference) {
+            if (!$preference) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Price preference not found',
@@ -1262,7 +1262,7 @@ class UserPreferencesController extends Controller
                     break;
             }
 
-            if (! $model) {
+            if (!$model) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Item not found',

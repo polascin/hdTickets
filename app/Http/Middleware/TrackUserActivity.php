@@ -44,7 +44,7 @@ class TrackUserActivity
         $lastActivity = Cache::get("user_last_activity:{$userId}");
         $activityData = Cache::get("user_activity:{$userId}", []);
 
-        if (! $lastActivity) {
+        if (!$lastActivity) {
             return [
                 'is_active'              => FALSE,
                 'last_seen'              => NULL,
@@ -164,12 +164,12 @@ class TrackUserActivity
     protected function trackPageActivity(App\Models\User $user): void
     {
         $route = request()->route();
-        if (! $route) {
+        if (!$route) {
             return;
         }
 
         $routeName = $route->getName();
-        if (! $routeName) {
+        if (!$routeName) {
             return;
         }
 
@@ -207,7 +207,7 @@ class TrackUserActivity
         $cacheKey = "user_db_update:{$user->id}";
 
         // Only update database every 5 minutes to avoid excessive writes
-        if (! Cache::has($cacheKey)) {
+        if (!Cache::has($cacheKey)) {
             $user->update(['last_active_at' => now()]);
             Cache::put($cacheKey, TRUE, 300); // 5 minutes
         }
@@ -244,7 +244,7 @@ class TrackUserActivity
         }
 
         // Skip tracking for API calls that are not user-initiated
-        return ! ($request->is('api/*') && $this->isAutomatedApiCall($request));
+        return !($request->is('api/*') && $this->isAutomatedApiCall($request));
     }
 
     /**

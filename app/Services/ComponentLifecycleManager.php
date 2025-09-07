@@ -95,7 +95,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (! $componentState) {
+        if (!$componentState) {
             throw new InvalidArgumentException("Component not registered: {$componentName}");
         }
 
@@ -154,7 +154,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (! $componentState || $componentState['state'] !== 'created') {
+        if (!$componentState || $componentState['state'] !== 'created') {
             throw new InvalidArgumentException("Component must be created before mounting: {$componentName}");
         }
 
@@ -212,7 +212,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (! $componentState || $componentState['state'] !== 'mounted') {
+        if (!$componentState || $componentState['state'] !== 'mounted') {
             throw new InvalidArgumentException("Component must be mounted before updating: {$componentName}");
         }
 
@@ -265,7 +265,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (! $componentState) {
+        if (!$componentState) {
             return; // Already unmounted or never mounted
         }
 
@@ -336,13 +336,13 @@ class ComponentLifecycleManager
      */
     public function addHook(string $componentName, string $lifecycle, callable $callback): void
     {
-        if (! in_array($lifecycle, $this->lifecycleEvents, TRUE)) {
+        if (!in_array($lifecycle, $this->lifecycleEvents, TRUE)) {
             throw new InvalidArgumentException("Invalid lifecycle event: {$lifecycle}");
         }
 
         $hookKey = "{$componentName}.{$lifecycle}";
 
-        if (! $this->lifecycleHooks->has($hookKey)) {
+        if (!$this->lifecycleHooks->has($hookKey)) {
             $this->lifecycleHooks->put($hookKey, new Collection());
         }
 
@@ -462,7 +462,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (! $componentState) {
+        if (!$componentState) {
             return NULL;
         }
 
@@ -520,11 +520,11 @@ class ComponentLifecycleManager
             }
         }
 
-        if (! empty($creationTimes)) {
+        if (!empty($creationTimes)) {
             $stats['average_creation_time'] = array_sum($creationTimes) / count($creationTimes);
         }
 
-        if (! empty($mountTimes)) {
+        if (!empty($mountTimes)) {
             $stats['average_mount_time'] = array_sum($mountTimes) / count($mountTimes);
         }
 

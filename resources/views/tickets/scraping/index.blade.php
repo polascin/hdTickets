@@ -1,4 +1,5 @@
-<x-unified-layout title="Sports Tickets" subtitle="Browse and search for sports tickets across multiple platforms">
+{{-- Enhanced Sports Tickets Scraping Interface --}}
+<x-unified-layout title="Sports Event Tickets" subtitle="Browse and search for sports event tickets across multiple platforms">
   <x-slot name="headerActions">
     <div class="flex flex-col sm:flex-row gap-3">
       <x-ui.button id="refresh-tickets" icon="refresh" variant="outline">

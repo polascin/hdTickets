@@ -38,6 +38,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseDecisionController;
 use App\Http\Controllers\SecurityDashboardController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -192,6 +193,16 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
         ->name('scraper'); // Route: dashboard.scraper
         
     /*
+     * Responsive Design System Example Dashboard
+     * Purpose: Showcase the new responsive design system capabilities
+     * Access: Any authenticated user (demo purposes)
+     * Features: All responsive components, touch interactions, container queries
+     */
+    Route::get('/responsive-example', function () {
+        return view('examples.responsive-dashboard');
+    })->name('responsive-example'); // Route: dashboard.responsive-example
+    
+    /*
      * IMAP Email Monitoring Dashboard
      * Purpose: Monitor and manage email-based sports event ticket discovery
      * Access: Users with 'admin' or 'agent' role
@@ -321,9 +332,57 @@ Route::middleware(['auth', 'verified', 'throttle:60,1'])->prefix('ajax')->name('
         ->name('dashboard.recent-tickets');
 });
 
-// Main tickets route redirects to sports event ticket scraping
+// Main tickets route with enhanced frontend interface
+Route::get('/tickets', function () {
+    // Get filter data for the initial page load from scraped_tickets table
+    $sportTypes = DB::table('scraped_tickets')
+        ->select('sport as value', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('sport')
+        ->where('sport', '!=', '')
+        ->groupBy('sport')
+        ->orderBy('count', 'desc')
+        ->get();
+    
+    $cities = DB::table('scraped_tickets')
+        ->select('location as city', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('location')
+        ->where('location', '!=', '')
+        ->groupBy('location')
+        ->orderBy('count', 'desc')
+        ->limit(20)
+        ->get();
+    
+    $platforms = DB::table('scraped_tickets')
+        ->select('platform as name', DB::raw('COUNT(*) as count'))
+        ->where('status', 'active')
+        ->whereNotNull('platform')
+        ->where('platform', '!=', '')
+        ->groupBy('platform')
+        ->orderBy('count', 'desc')
+        ->get();
+    
+    $totalTickets = DB::table('scraped_tickets')
+        ->where('status', 'active')
+        ->count();
+    
+    $platformsCount = $platforms->count();
+    $citiesCount = $cities->count();
+    
+    return view('tickets.index', compact(
+        'sportTypes', 
+        'cities', 
+        'platforms', 
+        'totalTickets', 
+        'platformsCount', 
+        'citiesCount'
+    ));
+})->name('tickets.main');
+
+// Legacy redirect for backwards compatibility
 Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::get('/tickets', function () {
+    Route::get('/tickets-legacy', function () {
         return redirect()->route('tickets.scraping.index');
     })->name('tickets.redirect');
 
@@ -421,6 +480,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('/upload', [App\Http\Controllers\ProfilePictureController::class, 'upload'])->name('upload');
         Route::post('/crop', [App\Http\Controllers\ProfilePictureController::class, 'crop'])->name('crop');
         Route::delete('/delete', [App\Http\Controllers\ProfilePictureController::class, 'delete'])->name('delete');
+        Route::delete('/remove', [App\Http\Controllers\ProfilePictureController::class, 'remove'])->name('remove');
         Route::get('/info', [App\Http\Controllers\ProfilePictureController::class, 'info'])->name('info');
         Route::get('/limits', [App\Http\Controllers\ProfilePictureController::class, 'getUploadLimits'])->name('limits');
     });
@@ -494,7 +554,7 @@ Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->gr
 });
 
 // Ticket Purchase System
-Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.')->group(function (): void {
+Route::middleware(['auth', 'verified'])->prefix('tickets')->name('tickets.purchase.')->group(function (): void {
     // Purchase workflow routes
     Route::get('{ticket}/purchase', [App\Http\Controllers\TicketPurchaseController::class, 'showPurchaseForm'])
         ->name('purchase');
@@ -559,11 +619,32 @@ Route::prefix('account/deletion')->name('account.deletion.')->group(function ():
     Route::post('/recovery', [App\Http\Controllers\AccountDeletionController::class, 'recover'])->name('recovery');
 });
 
-// AJAX endpoint for ticket details (web-authenticated)
+// Enhanced AJAX endpoints for ticket scraping (web-authenticated)
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/ajax/ticket-details/{id}', [App\Http\Controllers\Api\ScrapingController::class, 'getTicketDetails'])
         ->where('id', '[0-9]+')
         ->name('ajax.ticket-details');
+        
+    // Enhanced ticket scraping AJAX endpoints
+    Route::post('/tickets/scraping/ajax-filter', [App\Http\Controllers\TicketScrapingController::class, 'ajaxFilter'])
+        ->name('tickets.scraping.ajax-filter');
+        
+    Route::get('/tickets/scraping/search-suggestions', [App\Http\Controllers\TicketScrapingController::class, 'searchSuggestions'])
+        ->name('tickets.scraping.suggestions');
+        
+    Route::post('/tickets/scraping/{ticket}/bookmark', [App\Http\Controllers\TicketScrapingController::class, 'toggleBookmark'])
+        ->where('ticket', '[0-9]+')
+        ->name('tickets.scraping.bookmark');
+        
+    Route::post('/tickets/scraping/export', [App\Http\Controllers\TicketScrapingController::class, 'export'])
+        ->name('tickets.scraping.export');
+        
+    Route::get('/tickets/scraping/{ticket}/api', [App\Http\Controllers\TicketScrapingController::class, 'apiShow'])
+        ->where('ticket', '[0-9]+')
+        ->name('tickets.scraping.api-show');
+        
+    Route::get('/tickets/scraping/bookmarked', [App\Http\Controllers\TicketScrapingController::class, 'bookmarked'])
+        ->name('tickets.scraping.bookmarked');
 });
 
 require __DIR__ . '/auth.php';

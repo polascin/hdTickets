@@ -19,7 +19,7 @@ class CheckSubscriptionStatus
         $user = Auth::user();
 
         // Skip check for non-authenticated users
-        if (! $user) {
+        if (!$user) {
             return $next($request);
         }
 
@@ -39,12 +39,12 @@ class CheckSubscriptionStatus
         }
 
         // Skip check if user email is not verified
-        if (! $user->hasVerifiedEmail()) {
+        if (!$user->hasVerifiedEmail()) {
             return $next($request);
         }
 
         // Check subscription status for customers
-        if ($user->isCustomer() && ! $this->hasValidSubscription($user)) {
+        if ($user->isCustomer() && !$this->hasValidSubscription($user)) {
             return redirect()->route('subscription.payment')
                 ->with('warning', 'Please complete your monthly subscription payment to access the platform.');
         }

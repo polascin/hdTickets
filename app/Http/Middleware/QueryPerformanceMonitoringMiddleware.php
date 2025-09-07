@@ -1,18 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use App\Services\DatabaseOptimizationService;
 use App\Services\RedisCacheService;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Query Performance Monitoring Middleware
- * 
+ *
  * Monitors database queries in real-time and provides:
  * - Query execution time tracking
  * - Slow query detection and logging
@@ -24,10 +24,15 @@ use App\Services\RedisCacheService;
 class QueryPerformanceMonitoringMiddleware
 {
     protected DatabaseOptimizationService $dbOptimizer;
+
     protected RedisCacheService $cacheService;
+
     protected array $queryLog = [];
+
     protected float $requestStartTime;
+
     protected int $queryCount = 0;
+
     protected float $totalQueryTime = 0;
 
     public function __construct(
@@ -41,8 +46,8 @@ class QueryPerformanceMonitoringMiddleware
     /**
      * Handle an incoming request
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request $request
+     * @param  Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -52,7 +57,7 @@ class QueryPerformanceMonitoringMiddleware
             return $next($request);
         }
 
-        $this->requestStartTime = microtime(true);
+        $this->requestStartTime = microtime(TRUE);
         $this->startQueryLogging();
 
         $response = $next($request);
@@ -92,12 +97,12 @@ class QueryPerformanceMonitoringMiddleware
         $this->totalQueryTime += $executionTime;
 
         $queryInfo = [
-            'sql' => $query->sql,
-            'bindings' => $query->bindings,
-            'time' => $executionTime,
-            'timestamp' => microtime(true),
-            'memory' => memory_get_usage(true),
-            'connection' => $query->connectionName ?? 'default'
+            'sql'        => $query->sql,
+            'bindings'   => $query->bindings,
+            'time'       => $executionTime,
+            'timestamp'  => microtime(TRUE),
+            'memory'     => memory_get_usage(TRUE),
+            'connection' => $query->connectionName ?? 'default',
         ];
 
         $this->queryLog[] = $queryInfo;
@@ -124,18 +129,18 @@ class QueryPerformanceMonitoringMiddleware
     {
         Log::warning('Slow query detected', [
             'execution_time' => $queryInfo['time'],
-            'sql' => $queryInfo['sql'],
-            'bindings' => $queryInfo['bindings'],
-            'memory_usage' => $queryInfo['memory'],
-            'connection' => $queryInfo['connection']
+            'sql'            => $queryInfo['sql'],
+            'bindings'       => $queryInfo['bindings'],
+            'memory_usage'   => $queryInfo['memory'],
+            'connection'     => $queryInfo['connection'],
         ]);
 
         // Store slow query for analysis
         $slowQueries = Cache::get('slow_queries', []);
         $slowQueries[] = array_merge($queryInfo, [
             'detected_at' => now(),
-            'route' => request()->route()?->getName(),
-            'url' => request()->url()
+            'route'       => request()->route()?->getName(),
+            'url'         => request()->url(),
         ]);
 
         // Keep only last 100 slow queries
@@ -182,9 +187,9 @@ class QueryPerformanceMonitoringMiddleware
     protected function logNPlusOneQuery(array $queryInfo): void
     {
         Log::info('Potential N+1 query detected', [
-            'sql' => $queryInfo['sql'],
+            'sql'        => $queryInfo['sql'],
             'suggestion' => 'Consider using eager loading with ->with() method',
-            'route' => request()->route()?->getName()
+            'route'      => request()->route()?->getName(),
         ]);
 
         // Store N+1 detection for dashboard
@@ -192,9 +197,9 @@ class QueryPerformanceMonitoringMiddleware
         $nPlusOneDetections[] = [
             'sql_pattern' => $this->extractSqlPattern($queryInfo['sql']),
             'detected_at' => now(),
-            'route' => request()->route()?->getName(),
-            'url' => request()->url(),
-            'count' => 1
+            'route'       => request()->route()?->getName(),
+            'url'         => request()->url(),
+            'count'       => 1,
         ];
 
         Cache::put('n_plus_one_detections', $nPlusOneDetections, 3600);
@@ -206,27 +211,27 @@ class QueryPerformanceMonitoringMiddleware
     protected function storeQueryMetrics(array $queryInfo): void
     {
         $metrics = [
-            'query_count' => 1,
-            'total_time' => $queryInfo['time'],
+            'query_count'  => 1,
+            'total_time'   => $queryInfo['time'],
             'memory_usage' => $queryInfo['memory'],
-            'timestamp' => $queryInfo['timestamp']
+            'timestamp'    => $queryInfo['timestamp'],
         ];
 
         // Store in Redis with layer-specific key
         $key = 'query_metrics:' . date('Y-m-d:H:i');
         $existing = $this->cacheService->getLayer(
-            RedisCacheService::LAYER_MONITORING, 
-            $key, 
+            RedisCacheService::LAYER_MONITORING,
+            $key,
             []
         );
 
         // Aggregate metrics
         $aggregated = [
-            'query_count' => ($existing['query_count'] ?? 0) + 1,
-            'total_time' => ($existing['total_time'] ?? 0) + $queryInfo['time'],
-            'max_time' => max($existing['max_time'] ?? 0, $queryInfo['time']),
-            'memory_peak' => max($existing['memory_peak'] ?? 0, $queryInfo['memory']),
-            'last_updated' => $queryInfo['timestamp']
+            'query_count'  => ($existing['query_count'] ?? 0) + 1,
+            'total_time'   => ($existing['total_time'] ?? 0) + $queryInfo['time'],
+            'max_time'     => max($existing['max_time'] ?? 0, $queryInfo['time']),
+            'memory_peak'  => max($existing['memory_peak'] ?? 0, $queryInfo['memory']),
+            'last_updated' => $queryInfo['timestamp'],
         ];
 
         $this->cacheService->putLayer(
@@ -242,19 +247,19 @@ class QueryPerformanceMonitoringMiddleware
      */
     protected function analyzeRequestPerformance(Request $request, $response): void
     {
-        $requestTime = microtime(true) - $this->requestStartTime;
-        
+        $requestTime = microtime(TRUE) - $this->requestStartTime;
+
         $performanceData = [
-            'route' => $request->route()?->getName(),
-            'method' => $request->method(),
-            'url' => $request->url(),
-            'total_time' => $requestTime * 1000, // Convert to milliseconds
-            'query_count' => $this->queryCount,
-            'query_time' => $this->totalQueryTime,
+            'route'                 => $request->route()?->getName(),
+            'method'                => $request->method(),
+            'url'                   => $request->url(),
+            'total_time'            => $requestTime * 1000, // Convert to milliseconds
+            'query_count'           => $this->queryCount,
+            'query_time'            => $this->totalQueryTime,
             'query_time_percentage' => $this->totalQueryTime > 0 ? ($this->totalQueryTime / ($requestTime * 1000)) * 100 : 0,
-            'memory_peak' => memory_get_peak_usage(true),
-            'response_code' => $response->getStatusCode(),
-            'timestamp' => now()
+            'memory_peak'           => memory_get_peak_usage(TRUE),
+            'response_code'         => $response->getStatusCode(),
+            'timestamp'             => now(),
         ];
 
         // Store request performance metrics
@@ -271,7 +276,7 @@ class QueryPerformanceMonitoringMiddleware
             $response->headers->set('X-Query-Count', $this->queryCount);
             $response->headers->set('X-Query-Time', number_format($this->totalQueryTime, 2) . 'ms');
             $response->headers->set('X-Request-Time', number_format($requestTime * 1000, 2) . 'ms');
-            $response->headers->set('X-Memory-Peak', $this->formatBytes(memory_get_peak_usage(true)));
+            $response->headers->set('X-Memory-Peak', $this->formatBytes(memory_get_peak_usage(TRUE)));
         }
     }
 
@@ -281,7 +286,7 @@ class QueryPerformanceMonitoringMiddleware
     protected function storeRequestMetrics(array $performanceData): void
     {
         $key = 'request_metrics:' . date('Y-m-d:H');
-        
+
         $existing = $this->cacheService->getLayer(
             RedisCacheService::LAYER_MONITORING,
             $key,
@@ -290,13 +295,13 @@ class QueryPerformanceMonitoringMiddleware
 
         // Aggregate hourly metrics
         $aggregated = [
-            'request_count' => ($existing['request_count'] ?? 0) + 1,
-            'total_time' => ($existing['total_time'] ?? 0) + $performanceData['total_time'],
+            'request_count'     => ($existing['request_count'] ?? 0) + 1,
+            'total_time'        => ($existing['total_time'] ?? 0) + $performanceData['total_time'],
             'total_query_count' => ($existing['total_query_count'] ?? 0) + $performanceData['query_count'],
-            'total_query_time' => ($existing['total_query_time'] ?? 0) + $performanceData['query_time'],
-            'max_request_time' => max($existing['max_request_time'] ?? 0, $performanceData['total_time']),
-            'memory_peak' => max($existing['memory_peak'] ?? 0, $performanceData['memory_peak']),
-            'last_updated' => now()
+            'total_query_time'  => ($existing['total_query_time'] ?? 0) + $performanceData['query_time'],
+            'max_request_time'  => max($existing['max_request_time'] ?? 0, $performanceData['total_time']),
+            'memory_peak'       => max($existing['memory_peak'] ?? 0, $performanceData['memory_peak']),
+            'last_updated'      => now(),
         ];
 
         $this->cacheService->putLayer(
@@ -335,18 +340,18 @@ class QueryPerformanceMonitoringMiddleware
             '/health*',
             '/metrics*',
             '/_debugbar*',
-            '/telescope*'
+            '/telescope*',
         ];
 
         $path = $request->path();
 
         foreach ($skipPatterns as $pattern) {
             if (fnmatch($pattern, $path)) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**

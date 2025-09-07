@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Analytics;
 
@@ -9,18 +9,19 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Advanced Analytics Service
- * 
+ *
  * Provides comprehensive analytics and insights for sports event ticket
  * monitoring, pricing trends, and platform performance in the HD Tickets system.
  */
 class AdvancedAnalyticsService
 {
     private array $config;
+
     private PredictiveAnalyticsEngine $predictiveEngine;
+
     private AnomalyDetectionService $anomalyDetection;
 
     public function __construct(
@@ -34,40 +35,40 @@ class AdvancedAnalyticsService
 
     /**
      * Get comprehensive analytics dashboard data
-     * 
-     * @param array $filters Optional filters for date range, platform, sport category
+     *
+     * @param  array $filters Optional filters for date range, platform, sport category
      * @return array Complete analytics dashboard data
      */
     public function getDashboardData(array $filters = []): array
     {
         $cacheKey = 'analytics_dashboard_' . md5(serialize($filters));
-        
-        return Cache::remember($cacheKey, 300, function() use ($filters) {
+
+        return Cache::remember($cacheKey, 300, function () use ($filters) {
             return [
-                'overview_metrics' => $this->getOverviewMetrics($filters),
+                'overview_metrics'     => $this->getOverviewMetrics($filters),
                 'platform_performance' => $this->getPlatformPerformanceMetrics($filters),
-                'pricing_trends' => $this->getPricingTrends($filters),
-                'event_popularity' => $this->getEventPopularityMetrics($filters),
-                'market_intelligence' => $this->getMarketIntelligence($filters),
-                'predictive_insights' => $this->getPredictiveInsights($filters),
-                'anomalies' => $this->getRecentAnomalies($filters),
-                'recommendations' => $this->getBusinessRecommendations($filters),
-                'generated_at' => now()->toISOString(),
+                'pricing_trends'       => $this->getPricingTrends($filters),
+                'event_popularity'     => $this->getEventPopularityMetrics($filters),
+                'market_intelligence'  => $this->getMarketIntelligence($filters),
+                'predictive_insights'  => $this->getPredictiveInsights($filters),
+                'anomalies'            => $this->getRecentAnomalies($filters),
+                'recommendations'      => $this->getBusinessRecommendations($filters),
+                'generated_at'         => now()->toISOString(),
             ];
         });
     }
 
     /**
      * Get overview metrics for the analytics dashboard
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Overview metrics
      */
     public function getOverviewMetrics(array $filters = []): array
     {
         $dateRange = $this->getDateRange($filters);
-        $platformFilter = $filters['platform'] ?? null;
-        $sportFilter = $filters['sport_category'] ?? null;
+        $platformFilter = $filters['platform'] ?? NULL;
+        $sportFilter = $filters['sport_category'] ?? NULL;
 
         // Base queries with filters
         $eventsQuery = SportsEvent::whereBetween('created_at', $dateRange);
@@ -80,7 +81,7 @@ class AdvancedAnalyticsService
 
         if ($sportFilter) {
             $eventsQuery->where('category', $sportFilter);
-            $ticketsQuery->whereHas('sportsEvent', function($query) use ($sportFilter) {
+            $ticketsQuery->whereHas('sportsEvent', function ($query) use ($sportFilter) {
                 $query->where('category', $sportFilter);
             });
         }
@@ -93,33 +94,33 @@ class AdvancedAnalyticsService
 
         // Growth metrics (compare to previous period)
         $previousPeriodMetrics = $this->getPreviousPeriodMetrics($dateRange, $filters);
-        
+
         return [
-            'total_events' => $totalEvents,
-            'total_tickets' => $totalTickets,
+            'total_events'     => $totalEvents,
+            'total_tickets'    => $totalTickets,
             'avg_ticket_price' => round($avgTicketPrice, 2),
-            'price_range' => $priceRange,
-            'growth_metrics' => [
-                'events_growth' => $this->calculateGrowthRate($totalEvents, $previousPeriodMetrics['events']),
+            'price_range'      => $priceRange,
+            'growth_metrics'   => [
+                'events_growth'  => $this->calculateGrowthRate($totalEvents, $previousPeriodMetrics['events']),
                 'tickets_growth' => $this->calculateGrowthRate($totalTickets, $previousPeriodMetrics['tickets']),
-                'price_growth' => $this->calculateGrowthRate($avgTicketPrice, $previousPeriodMetrics['avg_price']),
+                'price_growth'   => $this->calculateGrowthRate($avgTicketPrice, $previousPeriodMetrics['avg_price']),
             ],
-            'top_platforms' => $this->getTopPlatforms($filters),
-            'top_sports' => $this->getTopSportsCategories($filters),
+            'top_platforms'   => $this->getTopPlatforms($filters),
+            'top_sports'      => $this->getTopSportsCategories($filters),
             'market_activity' => $this->getMarketActivityLevel($filters),
         ];
     }
 
     /**
      * Get platform performance metrics
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Platform performance data
      */
     public function getPlatformPerformanceMetrics(array $filters = []): array
     {
         $dateRange = $this->getDateRange($filters);
-        
+
         $platformMetrics = DB::table('tickets')
             ->select([
                 'source_platform',
@@ -134,36 +135,36 @@ class AdvancedAnalyticsService
             ->groupBy('source_platform')
             ->get();
 
-        $enrichedMetrics = $platformMetrics->map(function($platform) use ($dateRange) {
+        $enrichedMetrics = $platformMetrics->map(function ($platform) use ($dateRange) {
             return [
-                'platform' => $platform->source_platform,
+                'platform'    => $platform->source_platform,
                 'performance' => [
                     'total_tickets' => $platform->total_tickets,
                     'unique_events' => $platform->unique_events,
-                    'avg_price' => round($platform->avg_price, 2),
-                    'price_range' => [
+                    'avg_price'     => round($platform->avg_price, 2),
+                    'price_range'   => [
                         'min' => round($platform->min_price, 2),
                         'max' => round($platform->max_price, 2),
                     ],
-                    'price_volatility' => round($platform->price_volatility ?? 0, 2),
+                    'price_volatility'  => round($platform->price_volatility ?? 0, 2),
                     'tickets_per_event' => round($platform->total_tickets / max($platform->unique_events, 1), 2),
                 ],
                 'quality_metrics' => $this->getPlatformQualityMetrics($platform->source_platform, $dateRange),
-                'trend_analysis' => $this->getPlatformTrends($platform->source_platform, $dateRange),
+                'trend_analysis'  => $this->getPlatformTrends($platform->source_platform, $dateRange),
             ];
         });
 
         return [
-            'platforms' => $enrichedMetrics->toArray(),
-            'market_share' => $this->calculateMarketShare($platformMetrics),
+            'platforms'            => $enrichedMetrics->toArray(),
+            'market_share'         => $this->calculateMarketShare($platformMetrics),
             'performance_rankings' => $this->rankPlatformsByPerformance($enrichedMetrics),
         ];
     }
 
     /**
      * Get pricing trends analysis
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Pricing trends data
      */
     public function getPricingTrends(array $filters = []): array
@@ -173,30 +174,30 @@ class AdvancedAnalyticsService
 
         // Time-based pricing trends
         $pricingTrends = $this->getTimePricingTrends($dateRange, $period);
-        
+
         // Sport-based pricing analysis
         $sportPricingAnalysis = $this->getSportPricingAnalysis($dateRange);
-        
+
         // Venue pricing patterns
         $venuePricingPatterns = $this->getVenuePricingPatterns($dateRange);
-        
+
         // Price prediction models
         $pricePredictions = $this->predictiveEngine->getPricePredictions($filters);
 
         return [
-            'time_trends' => $pricingTrends,
-            'sport_analysis' => $sportPricingAnalysis,
-            'venue_patterns' => $venuePricingPatterns,
-            'predictions' => $pricePredictions,
+            'time_trends'        => $pricingTrends,
+            'sport_analysis'     => $sportPricingAnalysis,
+            'venue_patterns'     => $venuePricingPatterns,
+            'predictions'        => $pricePredictions,
             'price_distribution' => $this->getPriceDistribution($dateRange),
-            'outlier_analysis' => $this->getPriceOutliers($dateRange),
+            'outlier_analysis'   => $this->getPriceOutliers($dateRange),
         ];
     }
 
     /**
      * Get event popularity metrics
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Event popularity data
      */
     public function getEventPopularityMetrics(array $filters = []): array
@@ -204,19 +205,19 @@ class AdvancedAnalyticsService
         $dateRange = $this->getDateRange($filters);
 
         return [
-            'trending_events' => $this->getTrendingEvents($dateRange),
-            'popularity_scores' => $this->calculateEventPopularityScores($dateRange),
-            'demand_patterns' => $this->analyzeDemandPatterns($dateRange),
-            'seasonal_trends' => $this->getSeasonalTrends($filters),
-            'venue_popularity' => $this->getVenuePopularity($dateRange),
+            'trending_events'              => $this->getTrendingEvents($dateRange),
+            'popularity_scores'            => $this->calculateEventPopularityScores($dateRange),
+            'demand_patterns'              => $this->analyzeDemandPatterns($dateRange),
+            'seasonal_trends'              => $this->getSeasonalTrends($filters),
+            'venue_popularity'             => $this->getVenuePopularity($dateRange),
             'team_performance_correlation' => $this->getTeamPerformanceCorrelation($dateRange),
         ];
     }
 
     /**
      * Get market intelligence data
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Market intelligence insights
      */
     public function getMarketIntelligence(array $filters = []): array
@@ -224,33 +225,33 @@ class AdvancedAnalyticsService
         return [
             'competitive_analysis' => $this->getCompetitiveAnalysis($filters),
             'market_opportunities' => $this->identifyMarketOpportunities($filters),
-            'pricing_strategies' => $this->analyzePricingStrategies($filters),
-            'demand_forecasting' => $this->predictiveEngine->getDemandForecast($filters),
-            'risk_assessment' => $this->assessMarketRisks($filters),
+            'pricing_strategies'   => $this->analyzePricingStrategies($filters),
+            'demand_forecasting'   => $this->predictiveEngine->getDemandForecast($filters),
+            'risk_assessment'      => $this->assessMarketRisks($filters),
         ];
     }
 
     /**
      * Get predictive insights
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Predictive analytics insights
      */
     public function getPredictiveInsights(array $filters = []): array
     {
         return [
-            'price_predictions' => $this->predictiveEngine->getPricePredictions($filters),
-            'demand_forecasts' => $this->predictiveEngine->getDemandForecasts($filters),
+            'price_predictions'         => $this->predictiveEngine->getPricePredictions($filters),
+            'demand_forecasts'          => $this->predictiveEngine->getDemandForecasts($filters),
             'event_success_probability' => $this->predictiveEngine->getEventSuccessProbability($filters),
-            'optimal_pricing' => $this->predictiveEngine->getOptimalPricing($filters),
-            'market_trends' => $this->predictiveEngine->getMarketTrends($filters),
+            'optimal_pricing'           => $this->predictiveEngine->getOptimalPricing($filters),
+            'market_trends'             => $this->predictiveEngine->getMarketTrends($filters),
         ];
     }
 
     /**
      * Get recent anomalies
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Recent anomalies detected
      */
     public function getRecentAnomalies(array $filters = []): array
@@ -260,74 +261,74 @@ class AdvancedAnalyticsService
 
     /**
      * Get business recommendations
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Business recommendations
      */
     public function getBusinessRecommendations(array $filters = []): array
     {
         $insights = $this->getDashboardData($filters);
-        
+
         return [
-            'pricing_recommendations' => $this->generatePricingRecommendations($insights),
+            'pricing_recommendations'  => $this->generatePricingRecommendations($insights),
             'platform_recommendations' => $this->generatePlatformRecommendations($insights),
             'investment_opportunities' => $this->identifyInvestmentOpportunities($insights),
-            'risk_mitigation' => $this->generateRiskMitigationStrategies($insights),
+            'risk_mitigation'          => $this->generateRiskMitigationStrategies($insights),
         ];
     }
 
     /**
      * Export analytics data
-     * 
-     * @param string $format Export format (csv, pdf, json, xlsx)
-     * @param array $filters Data filters
-     * @param array $options Export options
-     * @return array Export result
+     *
+     * @param  string $format  Export format (csv, pdf, json, xlsx)
+     * @param  array  $filters Data filters
+     * @param  array  $options Export options
+     * @return array  Export result
      */
     public function exportAnalyticsData(string $format, array $filters = [], array $options = []): array
     {
         $data = $this->getDashboardData($filters);
         $exportService = new AnalyticsExportService();
-        
+
         return $exportService->export($format, $data, $options);
     }
 
     /**
      * Get historical trends comparison
-     * 
-     * @param array $periods Array of period configurations
-     * @param array $filters Base filters
+     *
+     * @param  array $periods Array of period configurations
+     * @param  array $filters Base filters
      * @return array Historical comparison data
      */
     public function getHistoricalComparison(array $periods, array $filters = []): array
     {
         $comparisons = [];
-        
+
         foreach ($periods as $period) {
             $periodFilters = array_merge($filters, $period);
             $comparisons[$period['label']] = $this->getOverviewMetrics($periodFilters);
         }
-        
+
         return [
-            'periods' => $comparisons,
-            'trends' => $this->calculateHistoricalTrends($comparisons),
+            'periods'  => $comparisons,
+            'trends'   => $this->calculateHistoricalTrends($comparisons),
             'insights' => $this->generateHistoricalInsights($comparisons),
         ];
     }
 
     /**
      * Get real-time analytics stream
-     * 
-     * @param array $filters
+     *
+     * @param  array $filters
      * @return array Real-time metrics
      */
     public function getRealtimeAnalytics(array $filters = []): array
     {
         return [
-            'live_metrics' => $this->getLiveMetrics(),
-            'streaming_data' => $this->getStreamingData($filters),
+            'live_metrics'     => $this->getLiveMetrics(),
+            'streaming_data'   => $this->getStreamingData($filters),
             'instant_insights' => $this->getInstantInsights(),
-            'alerts' => $this->getRealtimeAlerts(),
+            'alerts'           => $this->getRealtimeAlerts(),
         ];
     }
 
@@ -336,7 +337,7 @@ class AdvancedAnalyticsService
     private function getDateRange(array $filters): array
     {
         $endDate = isset($filters['end_date']) ? Carbon::parse($filters['end_date']) : now();
-        $startDate = isset($filters['start_date']) 
+        $startDate = isset($filters['start_date'])
             ? Carbon::parse($filters['start_date'])
             : $endDate->copy()->subDays($filters['days'] ?? 30);
 
@@ -351,25 +352,29 @@ class AdvancedAnalyticsService
 
         $previousFilters = array_merge($filters, [
             'start_date' => $previousStart,
-            'end_date' => $previousEnd,
+            'end_date'   => $previousEnd,
         ]);
 
         return [
-            'events' => SportsEvent::whereBetween('created_at', [$previousStart, $previousEnd])->count(),
-            'tickets' => Ticket::whereBetween('created_at', [$previousStart, $previousEnd])->count(),
+            'events'    => SportsEvent::whereBetween('created_at', [$previousStart, $previousEnd])->count(),
+            'tickets'   => Ticket::whereBetween('created_at', [$previousStart, $previousEnd])->count(),
             'avg_price' => Ticket::whereBetween('created_at', [$previousStart, $previousEnd])->avg('price') ?? 0,
         ];
     }
 
     private function calculateGrowthRate($current, $previous): float
     {
-        if ($previous == 0) return $current > 0 ? 100.0 : 0.0;
+        if ($previous == 0) {
+            return $current > 0 ? 100.0 : 0.0;
+        }
+
         return round((($current - $previous) / $previous) * 100, 2);
     }
 
     private function getPriceRange($query): array
     {
         $stats = $query->selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
+
         return [
             'min' => round($stats->min_price ?? 0, 2),
             'max' => round($stats->max_price ?? 0, 2),
@@ -379,7 +384,7 @@ class AdvancedAnalyticsService
     private function getTopPlatforms(array $filters, int $limit = 5): array
     {
         $dateRange = $this->getDateRange($filters);
-        
+
         return DB::table('tickets')
             ->select('source_platform', DB::raw('COUNT(*) as ticket_count'))
             ->whereBetween('created_at', $dateRange)
@@ -393,7 +398,7 @@ class AdvancedAnalyticsService
     private function getTopSportsCategories(array $filters, int $limit = 5): array
     {
         $dateRange = $this->getDateRange($filters);
-        
+
         return DB::table('sports_events')
             ->select('category', DB::raw('COUNT(*) as event_count'))
             ->whereBetween('created_at', $dateRange)
@@ -408,18 +413,18 @@ class AdvancedAnalyticsService
     {
         $dateRange = $this->getDateRange($filters);
         $currentActivity = Ticket::whereBetween('created_at', $dateRange)->count();
-        
+
         // Historical average for comparison
         $historicalAvg = 100; // This would be calculated from historical data
-        
+
         $activityRatio = $currentActivity / max($historicalAvg, 1);
-        
-        return match (true) {
+
+        return match (TRUE) {
             $activityRatio >= 1.5 => 'very_high',
             $activityRatio >= 1.2 => 'high',
             $activityRatio >= 0.8 => 'normal',
             $activityRatio >= 0.5 => 'low',
-            default => 'very_low',
+            default               => 'very_low',
         };
     }
 
@@ -428,8 +433,8 @@ class AdvancedAnalyticsService
         // This would calculate platform-specific quality metrics
         return [
             'data_completeness' => rand(85, 98) / 100,
-            'accuracy_score' => rand(88, 96) / 100,
-            'freshness_score' => rand(90, 99) / 100,
+            'accuracy_score'    => rand(88, 96) / 100,
+            'freshness_score'   => rand(90, 99) / 100,
             'reliability_score' => rand(85, 95) / 100,
         ];
     }
@@ -438,8 +443,8 @@ class AdvancedAnalyticsService
     {
         // This would calculate platform-specific trends
         return [
-            'volume_trend' => rand(-15, 25),
-            'price_trend' => rand(-10, 20),
+            'volume_trend'  => rand(-15, 25),
+            'price_trend'   => rand(-10, 20),
             'quality_trend' => rand(-5, 15),
         ];
     }
@@ -447,10 +452,10 @@ class AdvancedAnalyticsService
     private function calculateMarketShare(Collection $platformMetrics): array
     {
         $totalTickets = $platformMetrics->sum('total_tickets');
-        
-        return $platformMetrics->map(function($platform) use ($totalTickets) {
+
+        return $platformMetrics->map(function ($platform) use ($totalTickets) {
             return [
-                'platform' => $platform->source_platform,
+                'platform'     => $platform->source_platform,
                 'market_share' => round(($platform->total_tickets / max($totalTickets, 1)) * 100, 2),
             ];
         })->toArray();
@@ -458,7 +463,7 @@ class AdvancedAnalyticsService
 
     private function rankPlatformsByPerformance(Collection $platformMetrics): array
     {
-        return $platformMetrics->sortByDesc(function($platform) {
+        return $platformMetrics->sortByDesc(function ($platform) {
             // Composite performance score
             return $platform['performance']['total_tickets'] * 0.4 +
                    $platform['performance']['unique_events'] * 0.3 +
@@ -470,8 +475,8 @@ class AdvancedAnalyticsService
     {
         // Implementation for time-based pricing trends
         return [
-            'trend_data' => [],
-            'average_prices' => [],
+            'trend_data'         => [],
+            'average_prices'     => [],
             'volume_correlation' => 0.85,
         ];
     }
@@ -514,11 +519,11 @@ class AdvancedAnalyticsService
     private function getPriceDistribution(array $dateRange): array
     {
         $priceRanges = [
-            '0-50' => [0, 50],
-            '50-100' => [50, 100],
+            '0-50'    => [0, 50],
+            '50-100'  => [50, 100],
             '100-200' => [100, 200],
             '200-500' => [200, 500],
-            '500+' => [500, PHP_INT_MAX],
+            '500+'    => [500, PHP_INT_MAX],
         ];
 
         $distribution = [];
@@ -551,7 +556,7 @@ class AdvancedAnalyticsService
         $upperBound = $q3 + (1.5 * $iqr);
 
         return Ticket::whereBetween('created_at', $dateRange)
-            ->where(function($query) use ($lowerBound, $upperBound) {
+            ->where(function ($query) use ($lowerBound, $upperBound) {
                 $query->where('price', '<', $lowerBound)
                       ->orWhere('price', '>', $upperBound);
             })
@@ -653,8 +658,8 @@ class AdvancedAnalyticsService
     private function generatePricingRecommendations(array $insights): array
     {
         return [
-            'optimal_price_ranges' => [],
-            'timing_recommendations' => [],
+            'optimal_price_ranges'         => [],
+            'timing_recommendations'       => [],
             'platform_specific_strategies' => [],
         ];
     }
@@ -662,8 +667,8 @@ class AdvancedAnalyticsService
     private function generatePlatformRecommendations(array $insights): array
     {
         return [
-            'focus_platforms' => [],
-            'expansion_opportunities' => [],
+            'focus_platforms'          => [],
+            'expansion_opportunities'  => [],
             'performance_improvements' => [],
         ];
     }
@@ -671,8 +676,8 @@ class AdvancedAnalyticsService
     private function identifyInvestmentOpportunities(array $insights): array
     {
         return [
-            'high_growth_segments' => [],
-            'undervalued_markets' => [],
+            'high_growth_segments'   => [],
+            'undervalued_markets'    => [],
             'technology_investments' => [],
         ];
     }
@@ -681,8 +686,8 @@ class AdvancedAnalyticsService
     {
         return [
             'diversification_strategies' => [],
-            'monitoring_protocols' => [],
-            'contingency_plans' => [],
+            'monitoring_protocols'       => [],
+            'contingency_plans'          => [],
         ];
     }
 
@@ -701,8 +706,8 @@ class AdvancedAnalyticsService
     private function getLiveMetrics(): array
     {
         return [
-            'active_users' => User::whereDate('last_login_at', today())->count(),
-            'recent_tickets' => Ticket::where('created_at', '>=', now()->subHour())->count(),
+            'active_users'      => User::whereDate('last_login_at', today())->count(),
+            'recent_tickets'    => Ticket::where('created_at', '>=', now()->subHour())->count(),
             'platform_activity' => [],
         ];
     }

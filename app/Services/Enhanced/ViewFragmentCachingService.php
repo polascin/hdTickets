@@ -536,7 +536,7 @@ class ViewFragmentCachingService
         }
 
         // Add tags to key for better organization
-        if (! empty($tags)) {
+        if (!empty($tags)) {
             $key .= '.' . implode('.', $tags);
         }
 

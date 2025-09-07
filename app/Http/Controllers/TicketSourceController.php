@@ -67,7 +67,7 @@ class TicketSourceController extends Controller
         }
 
         // Filter by active status
-        if (! $request->has('show_inactive')) {
+        if (!$request->has('show_inactive')) {
             $query->where('is_active', TRUE);
         }
 
@@ -268,7 +268,7 @@ class TicketSourceController extends Controller
      */
     public function toggle(TicketSource $ticketSource)
     {
-        $ticketSource->update(['is_active' => ! $ticketSource->is_active]);
+        $ticketSource->update(['is_active' => !$ticketSource->is_active]);
 
         $status = $ticketSource->is_active ? 'activated' : 'deactivated';
 

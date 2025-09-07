@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
-use App\Models\RolePermission;
-use App\Models\UserPermission;
 use App\Models\ResourceAccess;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\UserPermission;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Advanced Role-Based Access Control (RBAC) Service
- * 
+ *
  * Provides comprehensive RBAC functionality including:
  * - Hierarchical role management with inheritance
  * - Granular permission system with resource-based control
@@ -26,13 +25,14 @@ use Illuminate\Database\Eloquent\Collection;
 class AdvancedRBACService
 {
     protected array $roleHierarchy = [
-        'admin' => ['agent', 'customer', 'scraper'],
-        'agent' => ['customer'],
+        'admin'    => ['agent', 'customer', 'scraper'],
+        'agent'    => ['customer'],
         'customer' => [],
-        'scraper' => []
+        'scraper'  => [],
     ];
 
     protected array $contextualPermissions = [];
+
     protected int $permissionCacheTTL = 3600; // 1 hour
 
     public function __construct()
@@ -44,18 +44,18 @@ class AdvancedRBACService
     /**
      * Check if user has permission for specific action and resource
      *
-     * @param User $user
-     * @param string $permission
-     * @param string|null $resource
-     * @param array $context
+     * @param  User        $user
+     * @param  string      $permission
+     * @param  string|null $resource
+     * @param  array       $context
      * @return bool
      */
-    public function hasPermission(User $user, string $permission, ?string $resource = null, array $context = []): bool
+    public function hasPermission(User $user, string $permission, ?string $resource = NULL, array $context = []): bool
     {
         // Check cache first
         $cacheKey = $this->buildPermissionCacheKey($user, $permission, $resource, $context);
-        
-        return Cache::remember($cacheKey, $this->permissionCacheTTL, function() use ($user, $permission, $resource, $context) {
+
+        return Cache::remember($cacheKey, $this->permissionCacheTTL, function () use ($user, $permission, $resource, $context) {
             return $this->evaluatePermission($user, $permission, $resource, $context);
         });
     }
@@ -63,73 +63,73 @@ class AdvancedRBACService
     /**
      * Evaluate permission with full logic
      *
-     * @param User $user
-     * @param string $permission
-     * @param string|null $resource
-     * @param array $context
+     * @param  User        $user
+     * @param  string      $permission
+     * @param  string|null $resource
+     * @param  array       $context
      * @return bool
      */
-    protected function evaluatePermission(User $user, string $permission, ?string $resource = null, array $context = []): bool
+    protected function evaluatePermission(User $user, string $permission, ?string $resource = NULL, array $context = []): bool
     {
         // 1. Check direct user permissions
         if ($this->hasDirectPermission($user, $permission, $resource)) {
-            return true;
+            return TRUE;
         }
 
         // 2. Check role-based permissions
         if ($this->hasRolePermission($user, $permission, $resource)) {
-            return true;
+            return TRUE;
         }
 
         // 3. Check inherited permissions from role hierarchy
         if ($this->hasInheritedPermission($user, $permission, $resource)) {
-            return true;
+            return TRUE;
         }
 
         // 4. Check contextual permissions
         if ($this->hasContextualPermission($user, $permission, $resource, $context)) {
-            return true;
+            return TRUE;
         }
 
         // 5. Check temporary permissions
         if ($this->hasTemporaryPermission($user, $permission, $resource)) {
-            return true;
+            return TRUE;
         }
 
         // 6. Check resource-specific permissions
         if ($resource && $this->hasResourcePermission($user, $permission, $resource, $context)) {
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Assign role to user with optional expiration
      *
-     * @param User $user
-     * @param string $roleName
-     * @param \DateTime|null $expiresAt
+     * @param  User           $user
+     * @param  string         $roleName
+     * @param  \DateTime|null $expiresAt
      * @return bool
      */
-    public function assignRole(User $user, string $roleName, ?\DateTime $expiresAt = null): bool
+    public function assignRole(User $user, string $roleName, ?\DateTime $expiresAt = NULL): bool
     {
         $role = Role::where('name', $roleName)->first();
-        
+
         if (!$role) {
             throw new \InvalidArgumentException("Role '{$roleName}' not found");
         }
 
         // Check if user already has this role
         if ($user->roles()->where('role_id', $role->id)->exists()) {
-            return true;
+            return TRUE;
         }
 
         // Assign role
         $user->roles()->attach($role->id, [
             'assigned_at' => now(),
-            'expires_at' => $expiresAt,
-            'assigned_by' => auth()->id()
+            'expires_at'  => $expiresAt,
+            'assigned_by' => auth()->id(),
         ]);
 
         // Clear permission cache
@@ -137,27 +137,27 @@ class AdvancedRBACService
 
         // Log role assignment
         $this->logPermissionChange($user, 'role_assigned', [
-            'role' => $roleName,
-            'expires_at' => $expiresAt?->toISOString(),
-            'assigned_by' => auth()->id()
+            'role'        => $roleName,
+            'expires_at'  => $expiresAt?->toISOString(),
+            'assigned_by' => auth()->id(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Remove role from user
      *
-     * @param User $user
-     * @param string $roleName
+     * @param  User   $user
+     * @param  string $roleName
      * @return bool
      */
     public function removeRole(User $user, string $roleName): bool
     {
         $role = Role::where('name', $roleName)->first();
-        
+
         if (!$role) {
-            return false;
+            return FALSE;
         }
 
         $removed = $user->roles()->detach($role->id);
@@ -168,8 +168,8 @@ class AdvancedRBACService
 
             // Log role removal
             $this->logPermissionChange($user, 'role_removed', [
-                'role' => $roleName,
-                'removed_by' => auth()->id()
+                'role'       => $roleName,
+                'removed_by' => auth()->id(),
             ]);
         }
 
@@ -179,16 +179,16 @@ class AdvancedRBACService
     /**
      * Grant specific permission to user
      *
-     * @param User $user
-     * @param string $permission
-     * @param string|null $resource
-     * @param \DateTime|null $expiresAt
+     * @param  User           $user
+     * @param  string         $permission
+     * @param  string|null    $resource
+     * @param  \DateTime|null $expiresAt
      * @return bool
      */
-    public function grantPermission(User $user, string $permission, ?string $resource = null, ?\DateTime $expiresAt = null): bool
+    public function grantPermission(User $user, string $permission, ?string $resource = NULL, ?\DateTime $expiresAt = NULL): bool
     {
         $permissionModel = Permission::where('name', $permission)->first();
-        
+
         if (!$permissionModel) {
             throw new \InvalidArgumentException("Permission '{$permission}' not found");
         }
@@ -204,17 +204,18 @@ class AdvancedRBACService
             if ($expiresAt) {
                 $existing->update(['expires_at' => $expiresAt]);
             }
-            return true;
+
+            return TRUE;
         }
 
         // Grant permission
         UserPermission::create([
-            'user_id' => $user->id,
+            'user_id'       => $user->id,
             'permission_id' => $permissionModel->id,
             'resource_type' => $resource,
-            'granted_at' => now(),
-            'expires_at' => $expiresAt,
-            'granted_by' => auth()->id()
+            'granted_at'    => now(),
+            'expires_at'    => $expiresAt,
+            'granted_by'    => auth()->id(),
         ]);
 
         // Clear permission cache
@@ -223,28 +224,28 @@ class AdvancedRBACService
         // Log permission grant
         $this->logPermissionChange($user, 'permission_granted', [
             'permission' => $permission,
-            'resource' => $resource,
+            'resource'   => $resource,
             'expires_at' => $expiresAt?->toISOString(),
-            'granted_by' => auth()->id()
+            'granted_by' => auth()->id(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Revoke specific permission from user
      *
-     * @param User $user
-     * @param string $permission
-     * @param string|null $resource
+     * @param  User        $user
+     * @param  string      $permission
+     * @param  string|null $resource
      * @return bool
      */
-    public function revokePermission(User $user, string $permission, ?string $resource = null): bool
+    public function revokePermission(User $user, string $permission, ?string $resource = NULL): bool
     {
         $permissionModel = Permission::where('name', $permission)->first();
-        
+
         if (!$permissionModel) {
-            return false;
+            return FALSE;
         }
 
         $removed = UserPermission::where('user_id', $user->id)
@@ -259,8 +260,8 @@ class AdvancedRBACService
             // Log permission revocation
             $this->logPermissionChange($user, 'permission_revoked', [
                 'permission' => $permission,
-                'resource' => $resource,
-                'revoked_by' => auth()->id()
+                'resource'   => $resource,
+                'revoked_by' => auth()->id(),
             ]);
         }
 
@@ -270,32 +271,32 @@ class AdvancedRBACService
     /**
      * Get all permissions for user (including inherited)
      *
-     * @param User $user
-     * @param bool $includeExpired
+     * @param  User       $user
+     * @param  bool       $includeExpired
      * @return Collection
      */
-    public function getUserPermissions(User $user, bool $includeExpired = false): Collection
+    public function getUserPermissions(User $user, bool $includeExpired = FALSE): Collection
     {
         $cacheKey = "user_permissions:{$user->id}:" . ($includeExpired ? 'all' : 'active');
-        
-        return Cache::remember($cacheKey, $this->permissionCacheTTL, function() use ($user, $includeExpired) {
+
+        return Cache::remember($cacheKey, $this->permissionCacheTTL, function () use ($user, $includeExpired) {
             $permissions = collect();
 
             // Direct permissions
             $directQuery = $user->userPermissions()->with('permission');
             if (!$includeExpired) {
-                $directQuery->where(function($query) {
+                $directQuery->where(function ($query) {
                     $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
                 });
             }
-            
+
             foreach ($directQuery->get() as $userPermission) {
                 $permissions->push([
-                    'name' => $userPermission->permission->name,
+                    'name'          => $userPermission->permission->name,
                     'resource_type' => $userPermission->resource_type,
-                    'source' => 'direct',
-                    'expires_at' => $userPermission->expires_at,
-                    'granted_by' => $userPermission->granted_by
+                    'source'        => 'direct',
+                    'expires_at'    => $userPermission->expires_at,
+                    'granted_by'    => $userPermission->granted_by,
                 ]);
             }
 
@@ -307,11 +308,11 @@ class AdvancedRBACService
 
                 foreach ($role->permissions as $permission) {
                     $permissions->push([
-                        'name' => $permission->name,
-                        'resource_type' => null,
-                        'source' => "role:{$role->name}",
-                        'expires_at' => $role->pivot->expires_at,
-                        'granted_by' => $role->pivot->assigned_by
+                        'name'          => $permission->name,
+                        'resource_type' => NULL,
+                        'source'        => "role:{$role->name}",
+                        'expires_at'    => $role->pivot->expires_at,
+                        'granted_by'    => $role->pivot->assigned_by,
                     ]);
                 }
 
@@ -322,18 +323,18 @@ class AdvancedRBACService
                     if ($inheritedRole) {
                         foreach ($inheritedRole->permissions as $permission) {
                             $permissions->push([
-                                'name' => $permission->name,
-                                'resource_type' => null,
-                                'source' => "inherited:{$inheritedRoleName}",
-                                'expires_at' => $role->pivot->expires_at,
-                                'granted_by' => $role->pivot->assigned_by
+                                'name'          => $permission->name,
+                                'resource_type' => NULL,
+                                'source'        => "inherited:{$inheritedRoleName}",
+                                'expires_at'    => $role->pivot->expires_at,
+                                'granted_by'    => $role->pivot->assigned_by,
                             ]);
                         }
                     }
                 }
             }
 
-            return $permissions->unique(function($item) {
+            return $permissions->unique(function ($item) {
                 return $item['name'] . '|' . $item['resource_type'] . '|' . $item['source'];
             });
         });
@@ -342,20 +343,20 @@ class AdvancedRBACService
     /**
      * Check if user can access specific resource
      *
-     * @param User $user
-     * @param string $resourceType
-     * @param mixed $resourceId
-     * @param string $action
-     * @param array $context
+     * @param  User   $user
+     * @param  string $resourceType
+     * @param  mixed  $resourceId
+     * @param  string $action
+     * @param  array  $context
      * @return bool
      */
     public function canAccessResource(User $user, string $resourceType, $resourceId, string $action = 'view', array $context = []): bool
     {
         $permission = "{$resourceType}.{$action}";
-        
+
         // Check general permission first
         if ($this->hasPermission($user, $permission, $resourceType, $context)) {
-            return true;
+            return TRUE;
         }
 
         // Check resource-specific access
@@ -363,13 +364,13 @@ class AdvancedRBACService
             ->where('resource_type', $resourceType)
             ->where('resource_id', $resourceId)
             ->where('action', $action)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->first();
 
         if ($resourceAccess) {
-            return true;
+            return TRUE;
         }
 
         // Check ownership-based access
@@ -377,29 +378,29 @@ class AdvancedRBACService
             return $this->hasPermission($user, "own.{$resourceType}.{$action}", $resourceType, $context);
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Create new role with permissions
      *
-     * @param string $name
-     * @param string $displayName
-     * @param array $permissions
-     * @param string|null $description
+     * @param  string      $name
+     * @param  string      $displayName
+     * @param  array       $permissions
+     * @param  string|null $description
      * @return Role
      */
-    public function createRole(string $name, string $displayName, array $permissions = [], ?string $description = null): Role
+    public function createRole(string $name, string $displayName, array $permissions = [], ?string $description = NULL): Role
     {
         if (Role::where('name', $name)->exists()) {
             throw new \InvalidArgumentException("Role '{$name}' already exists");
         }
 
         $role = Role::create([
-            'name' => $name,
+            'name'         => $name,
             'display_name' => $displayName,
-            'description' => $description,
-            'created_by' => auth()->id()
+            'description'  => $description,
+            'created_by'   => auth()->id(),
         ]);
 
         // Assign permissions to role
@@ -411,10 +412,10 @@ class AdvancedRBACService
         }
 
         // Log role creation
-        $this->logPermissionChange(null, 'role_created', [
-            'role' => $name,
+        $this->logPermissionChange(NULL, 'role_created', [
+            'role'        => $name,
             'permissions' => $permissions,
-            'created_by' => auth()->id()
+            'created_by'  => auth()->id(),
         ]);
 
         return $role;
@@ -423,31 +424,31 @@ class AdvancedRBACService
     /**
      * Create new permission
      *
-     * @param string $name
-     * @param string $displayName
-     * @param string|null $description
-     * @param string|null $category
+     * @param  string      $name
+     * @param  string      $displayName
+     * @param  string|null $description
+     * @param  string|null $category
      * @return Permission
      */
-    public function createPermission(string $name, string $displayName, ?string $description = null, ?string $category = null): Permission
+    public function createPermission(string $name, string $displayName, ?string $description = NULL, ?string $category = NULL): Permission
     {
         if (Permission::where('name', $name)->exists()) {
             throw new \InvalidArgumentException("Permission '{$name}' already exists");
         }
 
         $permission = Permission::create([
-            'name' => $name,
+            'name'         => $name,
             'display_name' => $displayName,
-            'description' => $description,
-            'category' => $category,
-            'created_by' => auth()->id()
+            'description'  => $description,
+            'category'     => $category,
+            'created_by'   => auth()->id(),
         ]);
 
         // Log permission creation
-        $this->logPermissionChange(null, 'permission_created', [
+        $this->logPermissionChange(NULL, 'permission_created', [
             'permission' => $name,
-            'category' => $category,
-            'created_by' => auth()->id()
+            'category'   => $category,
+            'created_by' => auth()->id(),
         ]);
 
         return $permission;
@@ -456,7 +457,7 @@ class AdvancedRBACService
     /**
      * Get role hierarchy for user
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     public function getUserRoleHierarchy(User $user): array
@@ -474,40 +475,40 @@ class AdvancedRBACService
     /**
      * Check if role can inherit from another role
      *
-     * @param string $roleName
-     * @param string $inheritFrom
+     * @param  string $roleName
+     * @param  string $inheritFrom
      * @return bool
      */
     public function canInheritRole(string $roleName, string $inheritFrom): bool
     {
         // Prevent circular inheritance
         $inheritedRoles = $this->getInheritedRoles($inheritFrom);
-        
+
         return !in_array($roleName, $inheritedRoles) && $roleName !== $inheritFrom;
     }
 
     /**
      * Get effective permissions for role (including inherited)
      *
-     * @param string $roleName
+     * @param  string     $roleName
      * @return Collection
      */
     public function getRoleEffectivePermissions(string $roleName): Collection
     {
         $cacheKey = "role_effective_permissions:{$roleName}";
-        
-        return Cache::remember($cacheKey, $this->permissionCacheTTL, function() use ($roleName) {
+
+        return Cache::remember($cacheKey, $this->permissionCacheTTL, function () use ($roleName) {
             $permissions = collect();
-            
+
             // Direct role permissions
             $role = Role::where('name', $roleName)->with('permissions')->first();
             if ($role) {
                 foreach ($role->permissions as $permission) {
                     $permissions->push([
-                        'name' => $permission->name,
+                        'name'         => $permission->name,
                         'display_name' => $permission->display_name,
-                        'source' => "direct:{$roleName}",
-                        'category' => $permission->category
+                        'source'       => "direct:{$roleName}",
+                        'category'     => $permission->category,
                     ]);
                 }
             }
@@ -519,10 +520,10 @@ class AdvancedRBACService
                 if ($inheritedRole) {
                     foreach ($inheritedRole->permissions as $permission) {
                         $permissions->push([
-                            'name' => $permission->name,
+                            'name'         => $permission->name,
                             'display_name' => $permission->display_name,
-                            'source' => "inherited:{$inheritedRoleName}",
-                            'category' => $permission->category
+                            'source'       => "inherited:{$inheritedRoleName}",
+                            'category'     => $permission->category,
                         ]);
                     }
                 }
@@ -535,14 +536,14 @@ class AdvancedRBACService
     /**
      * Batch update user permissions
      *
-     * @param User $user
-     * @param array $permissions
+     * @param  User  $user
+     * @param  array $permissions
      * @return bool
      */
     public function batchUpdatePermissions(User $user, array $permissions): bool
     {
         try {
-            \DB::transaction(function() use ($user, $permissions) {
+            \DB::transaction(function () use ($user, $permissions) {
                 // Remove all current direct permissions
                 UserPermission::where('user_id', $user->id)->delete();
 
@@ -551,8 +552,8 @@ class AdvancedRBACService
                     $this->grantPermission(
                         $user,
                         $permissionData['name'],
-                        $permissionData['resource'] ?? null,
-                        isset($permissionData['expires_at']) ? new \DateTime($permissionData['expires_at']) : null
+                        $permissionData['resource'] ?? NULL,
+                        isset($permissionData['expires_at']) ? new \DateTime($permissionData['expires_at']) : NULL
                     );
                 }
             });
@@ -560,35 +561,36 @@ class AdvancedRBACService
             // Log batch update
             $this->logPermissionChange($user, 'permissions_batch_updated', [
                 'permissions' => $permissions,
-                'updated_by' => auth()->id()
+                'updated_by'  => auth()->id(),
             ]);
 
-            return true;
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('Failed to batch update permissions', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     // Protected helper methods
 
-    protected function hasDirectPermission(User $user, string $permission, ?string $resource = null): bool
+    protected function hasDirectPermission(User $user, string $permission, ?string $resource = NULL): bool
     {
-        return UserPermission::whereHas('permission', function($query) use ($permission) {
-                $query->where('name', $permission);
-            })
+        return UserPermission::whereHas('permission', function ($query) use ($permission) {
+            $query->where('name', $permission);
+        })
             ->where('user_id', $user->id)
             ->where('resource_type', $resource)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->exists();
     }
 
-    protected function hasRolePermission(User $user, string $permission, ?string $resource = null): bool
+    protected function hasRolePermission(User $user, string $permission, ?string $resource = NULL): bool
     {
         foreach ($user->roles as $role) {
             if ($role->pivot->expires_at && $role->pivot->expires_at < now()) {
@@ -596,14 +598,14 @@ class AdvancedRBACService
             }
 
             if ($role->permissions()->where('name', $permission)->exists()) {
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
-    protected function hasInheritedPermission(User $user, string $permission, ?string $resource = null): bool
+    protected function hasInheritedPermission(User $user, string $permission, ?string $resource = NULL): bool
     {
         foreach ($user->roles as $role) {
             if ($role->pivot->expires_at && $role->pivot->expires_at < now()) {
@@ -614,27 +616,27 @@ class AdvancedRBACService
             foreach ($inheritedRoles as $inheritedRoleName) {
                 $inheritedRole = Role::where('name', $inheritedRoleName)->first();
                 if ($inheritedRole && $inheritedRole->permissions()->where('name', $permission)->exists()) {
-                    return true;
+                    return TRUE;
                 }
             }
         }
 
-        return false;
+        return FALSE;
     }
 
-    protected function hasContextualPermission(User $user, string $permission, ?string $resource = null, array $context = []): bool
+    protected function hasContextualPermission(User $user, string $permission, ?string $resource = NULL, array $context = []): bool
     {
         // Implement contextual permission logic based on context
         // For example, time-based permissions, location-based permissions, etc.
-        return false;
+        return FALSE;
     }
 
-    protected function hasTemporaryPermission(User $user, string $permission, ?string $resource = null): bool
+    protected function hasTemporaryPermission(User $user, string $permission, ?string $resource = NULL): bool
     {
         // Check for temporary permissions that haven't expired
-        return UserPermission::whereHas('permission', function($query) use ($permission) {
-                $query->where('name', $permission);
-            })
+        return UserPermission::whereHas('permission', function ($query) use ($permission) {
+            $query->where('name', $permission);
+        })
             ->where('user_id', $user->id)
             ->where('resource_type', $resource)
             ->where('expires_at', '>', now())
@@ -647,7 +649,7 @@ class AdvancedRBACService
         return ResourceAccess::where('user_id', $user->id)
             ->where('resource_type', $resource)
             ->where('action', str_replace($resource . '.', '', $permission))
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->exists();
@@ -662,12 +664,13 @@ class AdvancedRBACService
     {
         // Implement ownership checking logic based on resource type
         // This would typically check if user owns the resource
-        return false;
+        return FALSE;
     }
 
-    protected function buildPermissionCacheKey(User $user, string $permission, ?string $resource = null, array $context = []): string
+    protected function buildPermissionCacheKey(User $user, string $permission, ?string $resource = NULL, array $context = []): string
     {
         $contextHash = md5(serialize($context));
+
         return "rbac:user:{$user->id}:permission:{$permission}:resource:" . ($resource ?? 'null') . ":context:{$contextHash}";
     }
 
@@ -681,9 +684,9 @@ class AdvancedRBACService
     protected function logPermissionChange(?User $user, string $action, array $data): void
     {
         Log::info("RBAC: {$action}", array_merge([
-            'user_id' => $user?->id,
-            'action' => $action,
-            'timestamp' => now()
+            'user_id'   => $user?->id,
+            'action'    => $action,
+            'timestamp' => now(),
         ], $data));
     }
 }

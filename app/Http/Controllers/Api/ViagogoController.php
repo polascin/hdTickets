@@ -225,7 +225,7 @@ class ViagogoController extends Controller
                 try {
                     $eventDetails = $client->scrapeEventDetails($url);
 
-                    if (! empty($eventDetails)) {
+                    if (!empty($eventDetails)) {
                         if ($this->importEventAsTicket($eventDetails)) {
                             $imported++;
                         }

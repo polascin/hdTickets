@@ -130,7 +130,7 @@ class WarmPerformanceCaches extends Command
             // Warm critical ticket data
             $result = $this->ticketCache->warmCriticalCaches();
 
-            if (! $result['success']) {
+            if (!$result['success']) {
                 throw new Exception('Failed to warm ticket caches: ' . ($result['error'] ?? 'Unknown error'));
             }
 
@@ -182,7 +182,7 @@ class WarmPerformanceCaches extends Command
 
             $result = $this->fragmentCache->warmupFragments($userRoles);
 
-            if (! $result['success']) {
+            if (!$result['success']) {
                 throw new Exception('Failed to warm view fragments: ' . ($result['error'] ?? 'Unknown error'));
             }
 
@@ -209,7 +209,7 @@ class WarmPerformanceCaches extends Command
             // Get ticket cache metrics
             $ticketMetrics = $this->ticketCache->getCacheMetrics();
 
-            if (! isset($ticketMetrics['error'])) {
+            if (!isset($ticketMetrics['error'])) {
                 $this->line('🎫 Ticket Cache:');
                 $this->line('   • Hit Rate: ' . $ticketMetrics['hit_rate'] . '%');
                 $this->line('   • Memory Usage: ' . $ticketMetrics['memory_usage']);

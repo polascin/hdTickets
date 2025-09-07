@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -9,31 +9,32 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * ScheduledReport Model
- * 
+ *
  * Represents scheduled analytics reports in the HD Tickets system.
- * 
- * @property int $id
- * @property string $name
- * @property string $description
- * @property string $type
- * @property string $format
- * @property string $schedule
- * @property array $sections
- * @property array $filters
- * @property array $recipients
- * @property array $options
- * @property array $statistics
- * @property bool $is_active
- * @property int $created_by
+ *
+ * @property int            $id
+ * @property string         $name
+ * @property string         $description
+ * @property string         $type
+ * @property string         $format
+ * @property string         $schedule
+ * @property array          $sections
+ * @property array          $filters
+ * @property array          $recipients
+ * @property array          $options
+ * @property array          $statistics
+ * @property bool           $is_active
+ * @property int            $created_by
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * 
+ *
  * @property-read User $creator
  */
 class ScheduledReport extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -61,12 +62,12 @@ class ScheduledReport extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'sections' => 'array',
-        'filters' => 'array',
+        'sections'   => 'array',
+        'filters'    => 'array',
         'recipients' => 'array',
-        'options' => 'array',
+        'options'    => 'array',
         'statistics' => 'array',
-        'is_active' => 'boolean',
+        'is_active'  => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -75,29 +76,41 @@ class ScheduledReport extends Model
     /**
      * Available report types
      */
-    const TYPE_DAILY = 'daily';
-    const TYPE_WEEKLY = 'weekly';
-    const TYPE_MONTHLY = 'monthly';
-    const TYPE_CUSTOM = 'custom';
+    public const TYPE_DAILY = 'daily';
+
+    public const TYPE_WEEKLY = 'weekly';
+
+    public const TYPE_MONTHLY = 'monthly';
+
+    public const TYPE_CUSTOM = 'custom';
 
     /**
      * Available report formats
      */
-    const FORMAT_PDF = 'pdf';
-    const FORMAT_XLSX = 'xlsx';
-    const FORMAT_CSV = 'csv';
-    const FORMAT_JSON = 'json';
+    public const FORMAT_PDF = 'pdf';
+
+    public const FORMAT_XLSX = 'xlsx';
+
+    public const FORMAT_CSV = 'csv';
+
+    public const FORMAT_JSON = 'json';
 
     /**
      * Available report sections
      */
-    const SECTION_OVERVIEW_METRICS = 'overview_metrics';
-    const SECTION_PLATFORM_PERFORMANCE = 'platform_performance';
-    const SECTION_PRICING_TRENDS = 'pricing_trends';
-    const SECTION_EVENT_POPULARITY = 'event_popularity';
-    const SECTION_MARKET_INTELLIGENCE = 'market_intelligence';
-    const SECTION_PREDICTIVE_INSIGHTS = 'predictive_insights';
-    const SECTION_ANOMALIES = 'anomalies';
+    public const SECTION_OVERVIEW_METRICS = 'overview_metrics';
+
+    public const SECTION_PLATFORM_PERFORMANCE = 'platform_performance';
+
+    public const SECTION_PRICING_TRENDS = 'pricing_trends';
+
+    public const SECTION_EVENT_POPULARITY = 'event_popularity';
+
+    public const SECTION_MARKET_INTELLIGENCE = 'market_intelligence';
+
+    public const SECTION_PREDICTIVE_INSIGHTS = 'predictive_insights';
+
+    public const SECTION_ANOMALIES = 'anomalies';
 
     /**
      * Get the user who created this scheduled report
@@ -112,7 +125,7 @@ class ScheduledReport extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', TRUE);
     }
 
     /**
@@ -137,10 +150,10 @@ class ScheduledReport extends Model
     public static function getAvailableTypes(): array
     {
         return [
-            self::TYPE_DAILY => 'Daily',
-            self::TYPE_WEEKLY => 'Weekly',
+            self::TYPE_DAILY   => 'Daily',
+            self::TYPE_WEEKLY  => 'Weekly',
             self::TYPE_MONTHLY => 'Monthly',
-            self::TYPE_CUSTOM => 'Custom',
+            self::TYPE_CUSTOM  => 'Custom',
         ];
     }
 
@@ -150,9 +163,9 @@ class ScheduledReport extends Model
     public static function getAvailableFormats(): array
     {
         return [
-            self::FORMAT_PDF => 'PDF',
+            self::FORMAT_PDF  => 'PDF',
             self::FORMAT_XLSX => 'Excel (XLSX)',
-            self::FORMAT_CSV => 'CSV',
+            self::FORMAT_CSV  => 'CSV',
             self::FORMAT_JSON => 'JSON',
         ];
     }
@@ -163,13 +176,13 @@ class ScheduledReport extends Model
     public static function getAvailableSections(): array
     {
         return [
-            self::SECTION_OVERVIEW_METRICS => 'Overview Metrics',
+            self::SECTION_OVERVIEW_METRICS     => 'Overview Metrics',
             self::SECTION_PLATFORM_PERFORMANCE => 'Platform Performance',
-            self::SECTION_PRICING_TRENDS => 'Pricing Trends',
-            self::SECTION_EVENT_POPULARITY => 'Event Popularity',
-            self::SECTION_MARKET_INTELLIGENCE => 'Market Intelligence',
-            self::SECTION_PREDICTIVE_INSIGHTS => 'Predictive Insights',
-            self::SECTION_ANOMALIES => 'Anomalies',
+            self::SECTION_PRICING_TRENDS       => 'Pricing Trends',
+            self::SECTION_EVENT_POPULARITY     => 'Event Popularity',
+            self::SECTION_MARKET_INTELLIGENCE  => 'Market Intelligence',
+            self::SECTION_PREDICTIVE_INSIGHTS  => 'Predictive Insights',
+            self::SECTION_ANOMALIES            => 'Anomalies',
         ];
     }
 
@@ -179,28 +192,24 @@ class ScheduledReport extends Model
     public function isDue(): bool
     {
         if (!$this->is_active) {
-            return false;
+            return FALSE;
         }
 
         $lastRun = $this->getLastRunTime();
-        
+
         switch ($this->type) {
             case self::TYPE_DAILY:
-                return $lastRun === null || $lastRun->lt(now()->startOfDay());
-                
+                return $lastRun === NULL || $lastRun->lt(now()->startOfDay());
             case self::TYPE_WEEKLY:
-                return $lastRun === null || $lastRun->lt(now()->startOfWeek());
-                
+                return $lastRun === NULL || $lastRun->lt(now()->startOfWeek());
             case self::TYPE_MONTHLY:
-                return $lastRun === null || $lastRun->lt(now()->startOfMonth());
-                
+                return $lastRun === NULL || $lastRun->lt(now()->startOfMonth());
             case self::TYPE_CUSTOM:
                 // For custom schedules, would need to parse the cron expression
                 // This is a simplified implementation
-                return true;
-                
+                return TRUE;
             default:
-                return false;
+                return FALSE;
         }
     }
 
@@ -210,7 +219,7 @@ class ScheduledReport extends Model
     public function getLastRunTime(): ?\Carbon\Carbon
     {
         if (!isset($this->statistics['last_run'])) {
-            return null;
+            return NULL;
         }
 
         return \Carbon\Carbon::parse($this->statistics['last_run']);
@@ -222,7 +231,7 @@ class ScheduledReport extends Model
     public function getLastSuccessfulRunTime(): ?\Carbon\Carbon
     {
         if (!isset($this->statistics['last_successful_run'])) {
-            return null;
+            return NULL;
         }
 
         return \Carbon\Carbon::parse($this->statistics['last_successful_run']);
@@ -280,7 +289,7 @@ class ScheduledReport extends Model
      */
     public function getLastError(): ?string
     {
-        return $this->statistics['last_error'] ?? null;
+        return $this->statistics['last_error'] ?? NULL;
     }
 
     /**
@@ -289,26 +298,22 @@ class ScheduledReport extends Model
     public function getNextRunTime(): ?\Carbon\Carbon
     {
         if (!$this->is_active) {
-            return null;
+            return NULL;
         }
 
         switch ($this->type) {
             case self::TYPE_DAILY:
                 return now()->addDay()->setTime(6, 0, 0);
-                
             case self::TYPE_WEEKLY:
                 return now()->next(\Carbon\Carbon::MONDAY)->setTime(8, 0, 0);
-                
             case self::TYPE_MONTHLY:
                 return now()->addMonth()->startOfMonth()->setTime(9, 0, 0);
-                
             case self::TYPE_CUSTOM:
                 // For custom schedules, would need to parse the cron expression
                 // This is a simplified implementation
                 return now()->addHour();
-                
             default:
-                return null;
+                return NULL;
         }
     }
 
@@ -320,16 +325,12 @@ class ScheduledReport extends Model
         switch ($this->type) {
             case self::TYPE_DAILY:
                 return 'Daily at 6:00 AM';
-                
             case self::TYPE_WEEKLY:
                 return 'Weekly on Monday at 8:00 AM';
-                
             case self::TYPE_MONTHLY:
                 return 'Monthly on the 1st at 9:00 AM';
-                
             case self::TYPE_CUSTOM:
                 return 'Custom schedule: ' . ($this->schedule ?? 'Not configured');
-                
             default:
                 return 'Unknown schedule';
         }
@@ -383,7 +384,7 @@ class ScheduledReport extends Model
      */
     public function removeSection(string $section): void
     {
-        $this->sections = array_filter($this->sections, function($s) use ($section) {
+        $this->sections = array_filter($this->sections, function ($s) use ($section) {
             return $s !== $section;
         });
     }
@@ -405,7 +406,7 @@ class ScheduledReport extends Model
      */
     public function removeRecipient(string $email): void
     {
-        $this->recipients = array_filter($this->recipients, function($r) use ($email) {
+        $this->recipients = array_filter($this->recipients, function ($r) use ($email) {
             return $r !== $email;
         });
     }
@@ -415,7 +416,7 @@ class ScheduledReport extends Model
      */
     public function activate(): void
     {
-        $this->is_active = true;
+        $this->is_active = TRUE;
         $this->save();
     }
 
@@ -424,7 +425,7 @@ class ScheduledReport extends Model
      */
     public function deactivate(): void
     {
-        $this->is_active = false;
+        $this->is_active = FALSE;
         $this->save();
     }
 
@@ -434,11 +435,11 @@ class ScheduledReport extends Model
     public function getSizeInfo(): array
     {
         $lastSize = $this->statistics['last_file_size'] ?? 0;
-        
+
         return [
-            'last_size' => $lastSize,
+            'last_size'      => $lastSize,
             'formatted_size' => $this->formatBytes($lastSize),
-            'avg_size' => $this->statistics['avg_file_size'] ?? 0,
+            'avg_size'       => $this->statistics['avg_file_size'] ?? 0,
         ];
     }
 

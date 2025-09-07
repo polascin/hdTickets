@@ -133,7 +133,7 @@ class LiveNationClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -243,7 +243,7 @@ class LiveNationClient extends BaseWebScrapingClient
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
 
             $price = $this->trySelectors($node, [
                 '.ticket-price',
@@ -326,7 +326,7 @@ class LiveNationClient extends BaseWebScrapingClient
                     $currency = 'EUR';
                 }
 
-                if (! empty($sectionName)) {
+                if (!empty($sectionName)) {
                     $ticketInfo['tickets'][] = [
                         'section'       => trim($sectionName),
                         'price'         => $price,
@@ -381,7 +381,7 @@ class LiveNationClient extends BaseWebScrapingClient
             'sort' => 'eventdate_asc',
         ];
 
-        if (! empty($location)) {
+        if (!empty($location)) {
             $params['location'] = $location;
         }
 

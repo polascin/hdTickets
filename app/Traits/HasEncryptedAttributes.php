@@ -26,7 +26,7 @@ trait HasEncryptedAttributes
      */
     public function initializeEncryptionService(): void
     {
-        if (! $this->encryptionService) {
+        if (!$this->encryptionService) {
             $this->encryptionService = app(EncryptionService::class);
         }
     }

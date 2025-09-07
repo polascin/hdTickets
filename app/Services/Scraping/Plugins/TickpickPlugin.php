@@ -17,7 +17,7 @@ class TickpickPlugin extends BaseScraperPlugin
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -182,19 +182,19 @@ class TickpickPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
 
-        if (! empty($criteria['city'])) {
+        if (!empty($criteria['city'])) {
             $params['city'] = urlencode($criteria['city']);
         }
 
-        if (! empty($criteria['category'])) {
+        if (!empty($criteria['category'])) {
             $params['type'] = urlencode($criteria['category']);
         }
 
-        if (! empty($criteria['date_range'])) {
+        if (!empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -203,7 +203,7 @@ class TickpickPlugin extends BaseScraperPlugin
             }
         }
 
-        if (! empty($criteria['sort_by'])) {
+        if (!empty($criteria['sort_by'])) {
             $params['sort'] = $criteria['sort_by'];
         }
 

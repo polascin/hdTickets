@@ -119,7 +119,7 @@ class TicketmasterClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -178,7 +178,7 @@ class TicketmasterClient extends BaseWebScrapingClient
 
             // Extract prices using enhanced methods
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
 
             $price = $this->trySelectors($node, [
                 '.price-range',
@@ -304,7 +304,7 @@ class TicketmasterClient extends BaseWebScrapingClient
             'sort' => 'date,asc',
         ];
 
-        if (! empty($location)) {
+        if (!empty($location)) {
             $params['city'] = $location;
         }
 

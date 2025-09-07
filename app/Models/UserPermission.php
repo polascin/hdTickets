@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * UserPermission Model for Advanced RBAC
- * 
+ *
  * Represents direct permission assignments to users with optional resource scoping and expiration
  */
 class UserPermission extends Model
@@ -24,14 +24,14 @@ class UserPermission extends Model
         'resource_id',
         'granted_at',
         'expires_at',
-        'granted_by'
+        'granted_by',
     ];
 
     protected $casts = [
         'granted_at' => 'datetime',
         'expires_at' => 'datetime',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -83,7 +83,7 @@ class UserPermission extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }
@@ -101,10 +101,10 @@ class UserPermission extends Model
      */
     public function scopeResourceType($query, ?string $resourceType)
     {
-        if ($resourceType === null) {
+        if ($resourceType === NULL) {
             return $query->whereNull('resource_type');
         }
-        
+
         return $query->where('resource_type', $resourceType);
     }
 
@@ -141,25 +141,26 @@ class UserPermission extends Model
     public function getTimeUntilExpiration(): ?\Carbon\CarbonInterval
     {
         if (!$this->expires_at) {
-            return null;
+            return NULL;
         }
 
-        return now()->diffAsCarbonInterval($this->expires_at, false);
+        return now()->diffAsCarbonInterval($this->expires_at, FALSE);
     }
 
     /**
      * Extend expiration time
      *
-     * @param \DateInterval $interval
+     * @param  \DateInterval $interval
      * @return bool
      */
     public function extend(\DateInterval $interval): bool
     {
         if (!$this->expires_at) {
-            return false;
+            return FALSE;
         }
 
         $this->expires_at = $this->expires_at->add($interval);
+
         return $this->save();
     }
 
@@ -170,7 +171,8 @@ class UserPermission extends Model
      */
     public function makePermanent(): bool
     {
-        $this->expires_at = null;
+        $this->expires_at = NULL;
+
         return $this->save();
     }
 }

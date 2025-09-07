@@ -86,7 +86,7 @@ class ProxyRotationService
         $cacheKey = "scraping.user_agent.{$platform}";
         $userAgent = Cache::get($cacheKey);
 
-        if (! $userAgent) {
+        if (!$userAgent) {
             $userAgent = $this->getRandomUserAgent();
             // Keep same user agent for 30 minutes per platform to maintain session consistency
             Cache::put($cacheKey, $userAgent, 30 * 60);
@@ -237,7 +237,7 @@ class ProxyRotationService
     public function removeProxy(string $host, int $port): void
     {
         $this->proxies = array_filter($this->proxies, function ($proxy) use ($host, $port) {
-            return ! ($proxy['host'] === $host && $proxy['port'] === $port);
+            return !($proxy['host'] === $host && $proxy['port'] === $port);
         });
 
         Cache::put('scraping.proxies', array_values($this->proxies), 3600 * 24);
@@ -267,7 +267,7 @@ class ProxyRotationService
             $proxyKey = $this->getProxyKey($proxy);
             $health = $this->proxyHealth[$proxyKey] ?? NULL;
 
-            if (! $health) {
+            if (!$health) {
                 $stats['untested_proxies']++;
                 $stats['proxy_details'][$proxyKey] = [
                     'status' => 'untested',
@@ -453,7 +453,7 @@ class ProxyRotationService
     {
         $health = $this->proxyHealth[$proxyKey] ?? NULL;
 
-        if (! $health) {
+        if (!$health) {
             return TRUE; // Assume healthy if no data
         }
 
@@ -461,7 +461,7 @@ class ProxyRotationService
         $failures = $health['failures'] ?? 0;
         $lastCheck = $health['last_check'] ?? 0;
 
-        return ! ($failures > 5 && (time() - $lastCheck) < 3600);
+        return !($failures > 5 && (time() - $lastCheck) < 3600);
     }
 
     /**

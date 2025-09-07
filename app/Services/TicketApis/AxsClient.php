@@ -133,7 +133,7 @@ class AxsClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -241,7 +241,7 @@ class AxsClient extends BaseWebScrapingClient
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
 
             $price = $this->trySelectors($node, [
                 '.ticket-price',
@@ -327,7 +327,7 @@ class AxsClient extends BaseWebScrapingClient
                     $feeAmount = (float) ($feeMatches[1]);
                 }
 
-                if (! empty($typeName)) {
+                if (!empty($typeName)) {
                     $ticketInfo['tickets'][] = [
                         'type'                => trim($typeName),
                         'price'               => $price,
@@ -384,7 +384,7 @@ class AxsClient extends BaseWebScrapingClient
             'q' => $keyword,
         ];
 
-        if (! empty($location)) {
+        if (!empty($location)) {
             $params['location'] = $location;
         }
 

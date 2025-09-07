@@ -5,19 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\ScrapedTicket;
 use App\Models\Ticket;
 use App\Models\TicketAlert;
+use App\Services\Enhanced\TicketFilteringService;
 use App\Services\TicketScrapingService;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 use function count;
-use function in_array;
 use function is_array;
 use function is_string;
-use function strlen;
 
 class TicketScrapingController extends Controller
 {
@@ -30,123 +32,58 @@ class TicketScrapingController extends Controller
     }
 
     /**
-     * Display scraped tickets dashboard
+     * Display enhanced scraped tickets dashboard
      */
-    public function index(Request $request): \Illuminate\Contracts\View\View
+    public function index(Request $request): View
     {
         try {
-            $query = ScrapedTicket::query()
-                ->where('event_date', '>', now())
-                ->orderBy('scraped_at', 'desc');
+            // Use enhanced filtering service
+            $filterService = TicketFilteringService::fromRequest($request);
 
-            // Apply filters with validation
-            if ($request->filled('platform') && in_array($request->platform, ['stubhub', 'ticketmaster', 'viagogo', 'seetickets', 'ticketek', 'eventim', 'axs', 'gigantic', 'skiddle', 'ticketone', 'stargreen', 'ticketswap', 'livenation'], TRUE)) {
-                $query->byPlatform($request->platform);
-            }
+            // Get paginated results
+            $perPage = min($request->get('per_page', 20), 50); // Max 50 per page
+            $tickets = $filterService->paginate($perPage);
 
-            if ($request->filled('keywords')) {
-                $keywords = trim($request->keywords);
-                if (strlen($keywords) >= 2) {
-                    $query->forEvent($keywords);
-                }
-            }
+            // Get statistics and facets for the current filter set
+            $stats = $filterService->getStats();
+            $facets = $filterService->getFacets();
+            $activeFilters = $filterService->getAppliedFilters();
 
-            // Enhanced price filtering with validation
-            $minPrice = $request->filled('min_price') ? (float) $request->min_price : NULL;
-            $maxPrice = $request->filled('max_price') ? (float) $request->max_price : NULL;
+            // Get popular searches and suggestions
+            $popularSearches = $this->getPopularSearches();
+            $viewMode = $request->get('view', 'grid'); // grid or list
 
-            if ($minPrice || $maxPrice) {
-                // Ensure min is not greater than max
-                if ($minPrice && $maxPrice && $minPrice > $maxPrice) {
-                    $temp = $minPrice;
-                    $minPrice = $maxPrice;
-                    $maxPrice = $temp;
-                }
-                $query->priceRange($minPrice, $maxPrice);
-            }
-
-            if ($request->boolean('high_demand_only')) {
-                $query->highDemand();
-            }
-
-            if ($request->boolean('available_only')) {
-                $query->available();
-            } else {
-                // Include all tickets but prioritize available ones
-                $query->orderByDesc('is_available');
-            }
-
-            // Enhanced sorting options
-            $sortBy = $request->get('sort_by', 'scraped_at');
-            $sortDir = $request->get('sort_dir', 'desc');
-
-            // Expanded allowed sort options with new functionality
-            $allowedSorts = [
-                'scraped_at', 'event_date', 'event_date_desc', 'min_price', 'max_price',
-                'title', 'title_desc', 'platform', 'availability',
-            ];
-
-            if (in_array($sortBy, $allowedSorts, TRUE)) {
-                // Handle special sorting cases
-                switch ($sortBy) {
-                    case 'min_price':
-                    case 'max_price':
-                        // Handle price sorting - use COALESCE to handle null values
-                        $query->orderByRaw("COALESCE({$sortBy}, 999999) {$sortDir}");
-
-                        break;
-                    case 'event_date_desc':
-                        $query->orderBy('event_date', 'desc');
-
-                        break;
-                    case 'title_desc':
-                        $query->orderBy('title', 'desc');
-
-                        break;
-                    case 'availability':
-                        // Sort by availability (available first)
-                        $query->orderByRaw('CASE WHEN is_available = 1 THEN 0 ELSE 1 END')
-                            ->orderBy('scraped_at', 'desc');
-
-                        break;
-                    case 'platform':
-                        $query->orderBy('platform', 'asc')
-                            ->orderBy('scraped_at', 'desc');
-
-                        break;
-                    default:
-                        $query->orderBy($sortBy, $sortDir);
-                }
-            }
-
-            $tickets = $query->with(['category'])->paginate(20);
-
-            // Enhanced statistics with error handling
-            $stats = $this->generateStats();
-
-            // Add filter summary for user feedback
-            $activeFilters = [
-                'platform'         => $request->platform,
-                'keywords'         => $request->keywords,
-                'min_price'        => $minPrice,
-                'max_price'        => $maxPrice,
-                'high_demand_only' => $request->boolean('high_demand_only'),
-                'available_only'   => $request->boolean('available_only'),
-                'sort_by'          => $sortBy,
-                'sort_dir'         => $sortDir,
-            ];
-
-            return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'));
+            return view('tickets.scraping.index', compact(
+                'tickets',
+                'stats',
+                'facets',
+                'activeFilters',
+                'popularSearches',
+                'viewMode'
+            ));
         } catch (Exception $e) {
-            Log::error('Error loading sports tickets page: ' . $e->getMessage());
+            Log::error('Error loading sports tickets page: ' . $e->getMessage(), [
+                'user_id'      => Auth::id(),
+                'request_data' => $request->all(),
+                'error'        => $e->getTraceAsString(),
+            ]);
 
-            // Return with error state
+            // Return error state with minimal data
             $tickets = collect()->paginate(0);
             $stats = $this->getDefaultStats();
+            $facets = [];
             $activeFilters = [];
+            $popularSearches = [];
+            $viewMode = 'grid';
 
-            return view('tickets.scraping.index-enhanced', compact('tickets', 'stats', 'activeFilters'))
-                ->with('error', 'Unable to load sports event tickets at this time. Please try again later or contact support if the problem persists.');
+            return view('tickets.scraping.index', compact(
+                'tickets',
+                'stats',
+                'facets',
+                'activeFilters',
+                'popularSearches',
+                'viewMode'
+            ))->with('error', 'Unable to load sports event tickets. Please try refreshing the page or contact support if the issue persists.');
         }
     }
 
@@ -659,5 +596,348 @@ class TicketScrapingController extends Controller
             'avg_price'           => 0,
             'price_range'         => ['min' => 0, 'max' => 0],
         ];
+    }
+
+    /**
+     * AJAX endpoint for real-time filtering and sorting
+     */
+    public function ajaxFilter(Request $request): JsonResponse
+    {
+        try {
+            $filterService = TicketFilteringService::fromRequest($request);
+            $perPage = min($request->get('per_page', 20), 50);
+
+            $tickets = $filterService->paginate($perPage);
+            $stats = $filterService->getStats();
+            $facets = $filterService->getFacets();
+
+            return response()->json([
+                'success'    => TRUE,
+                'tickets'    => $tickets->items(),
+                'pagination' => [
+                    'current_page' => $tickets->currentPage(),
+                    'last_page'    => $tickets->lastPage(),
+                    'per_page'     => $tickets->perPage(),
+                    'total'        => $tickets->total(),
+                    'has_more'     => $tickets->hasMorePages(),
+                ],
+                'stats'           => $stats,
+                'facets'          => $facets,
+                'applied_filters' => $filterService->getAppliedFilters(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('AJAX filter error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Filter temporarily unavailable.',
+                'error'   => config('app.debug') ? $e->getMessage() : NULL,
+            ], 500);
+        }
+    }
+
+    /**
+     * Get search suggestions for autocomplete
+     */
+    public function searchSuggestions(Request $request): JsonResponse
+    {
+        $request->validate([
+            'term' => 'required|string|min:2|max:100',
+        ]);
+
+        try {
+            $filterService = new TicketFilteringService();
+            $suggestions = $filterService->getSearchSuggestions(
+                $request->term,
+                $request->get('limit', 10)
+            );
+
+            return response()->json([
+                'success'     => TRUE,
+                'suggestions' => $suggestions,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Search suggestions error: ' . $e->getMessage());
+
+            return response()->json([
+                'success'     => FALSE,
+                'suggestions' => [],
+            ]);
+        }
+    }
+
+    /**
+     * API endpoint for ticket details (mobile/API)
+     */
+    public function apiShow(ScrapedTicket $ticket): JsonResponse
+    {
+        try {
+            $ticket->load(['homeTeam', 'awayTeam', 'venue', 'league', 'category']);
+
+            $data = [
+                'ticket'          => $ticket->toArray(),
+                'price_history'   => $this->getTicketPriceHistory($ticket),
+                'similar_tickets' => $this->getSimilarTickets($ticket, 3),
+                'is_bookmarked'   => $this->isTicketBookmarked($ticket),
+                'view_count'      => $this->getTicketViewCount($ticket),
+            ];
+
+            return response()->json([
+                'success' => TRUE,
+                'data'    => $data,
+            ]);
+        } catch (Exception $e) {
+            Log::error('API ticket details error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Unable to load ticket details',
+            ], 500);
+        }
+    }
+
+    /**
+     * Export filtered tickets to various formats
+     */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $request->validate([
+            'format' => 'required|in:csv,xlsx,pdf',
+            'limit'  => 'sometimes|integer|min:1|max:10000',
+        ]);
+
+        try {
+            $filterService = TicketFilteringService::fromRequest($request);
+            $format = $request->get('format', 'csv');
+            $limit = $request->get('limit', 1000);
+
+            $data = $filterService->export($format, $limit);
+            $filename = 'sports-tickets-' . now()->format('Y-m-d-H-i-s') . '.' . $format;
+
+            switch ($format) {
+                case 'csv':
+                    return $this->exportToCsv($data, $filename);
+                case 'xlsx':
+                    return $this->exportToExcel($data, $filename);
+                case 'pdf':
+                    return $this->exportToPdf($data, $filename);
+                default:
+                    abort(400, 'Unsupported export format');
+            }
+        } catch (Exception $e) {
+            Log::error('Export error: ' . $e->getMessage());
+            abort(500, 'Export failed');
+        }
+    }
+
+    /**
+     * Bookmark/unbookmark a ticket
+     */
+    public function toggleBookmark(Request $request, ScrapedTicket $ticket): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $isBookmarked = $user->bookmarkedTickets()->toggle($ticket->id);
+
+            return response()->json([
+                'success'       => TRUE,
+                'is_bookmarked' => !empty($isBookmarked['attached']),
+                'message'       => !empty($isBookmarked['attached'])
+                    ? 'Ticket bookmarked successfully'
+                    : 'Bookmark removed successfully',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Bookmark toggle error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => FALSE,
+                'message' => 'Unable to update bookmark',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user's bookmarked tickets
+     */
+    public function bookmarked(Request $request): View
+    {
+        try {
+            $user = Auth::user();
+            $tickets = $user->bookmarkedTickets()
+                ->with(['homeTeam', 'awayTeam', 'venue', 'league'])
+                ->where('status', 'active')
+                ->orderBy('pivot.created_at', 'desc')
+                ->paginate(20);
+
+            $stats = [
+                'total_bookmarks'     => $user->bookmarkedTickets()->count(),
+                'available_bookmarks' => $user->bookmarkedTickets()->where('is_available', TRUE)->count(),
+            ];
+
+            return view('tickets.scraping.bookmarked', compact('tickets', 'stats'));
+        } catch (Exception $e) {
+            Log::error('Bookmarked tickets error: ' . $e->getMessage());
+
+            $tickets = collect()->paginate(0);
+            $stats = ['total_bookmarks' => 0, 'available_bookmarks' => 0];
+
+            return view('tickets.scraping.bookmarked', compact('tickets', 'stats'))
+                ->with('error', 'Unable to load bookmarked tickets');
+        }
+    }
+
+    // Helper methods
+
+    /**
+     * Get popular searches from cache
+     */
+    protected function getPopularSearches(int $limit = 10): array
+    {
+        return Cache::remember('popular_searches', 3600, function () use ($limit) {
+            // This would be populated by tracking user searches
+            return [
+                'Manchester United',
+                'Liverpool FC',
+                'Wembley Stadium',
+                'Champions League',
+                'Premier League',
+                'Arsenal',
+                'Chelsea',
+                'Tottenham',
+                'Manchester City',
+                'Leeds United',
+            ];
+        });
+    }
+
+    /**
+     * Get ticket price history
+     */
+    protected function getTicketPriceHistory(ScrapedTicket $ticket): array
+    {
+        // This would require a price_history table to track changes over time
+        // For now, return empty array or mock data
+        return [
+            ['date' => now()->subDays(7)->toDateString(), 'min_price' => $ticket->min_price * 1.1, 'max_price' => $ticket->max_price * 1.1],
+            ['date' => now()->subDays(5)->toDateString(), 'min_price' => $ticket->min_price * 1.05, 'max_price' => $ticket->max_price * 1.05],
+            ['date' => now()->subDays(3)->toDateString(), 'min_price' => $ticket->min_price, 'max_price' => $ticket->max_price],
+            ['date' => now()->toDateString(), 'min_price' => $ticket->min_price, 'max_price' => $ticket->max_price],
+        ];
+    }
+
+    /**
+     * Get similar tickets
+     */
+    protected function getSimilarTickets(ScrapedTicket $ticket, int $limit = 6)
+    {
+        return ScrapedTicket::where('id', '!=', $ticket->id)
+            ->where('sport', $ticket->sport)
+            ->where(function ($q) use ($ticket) {
+                $q->where('venue', $ticket->venue)
+                  ->orWhere('team', $ticket->team)
+                  ->orWhere('location', $ticket->location);
+            })
+            ->where('status', 'active')
+            ->where('event_date', '>', now())
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Get related events at same venue
+     */
+    protected function getRelatedEvents(ScrapedTicket $ticket, int $limit = 4)
+    {
+        return ScrapedTicket::where('id', '!=', $ticket->id)
+            ->where('venue', $ticket->venue)
+            ->where('status', 'active')
+            ->where('event_date', '>', now())
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Track ticket view for analytics
+     */
+    protected function trackTicketView(ScrapedTicket $ticket): void
+    {
+        try {
+            // Increment view count (would need a views table or counter)
+            Cache::increment('ticket_views_' . $ticket->id);
+
+            // Log for analytics
+            Log::info('Ticket viewed', [
+                'ticket_id'  => $ticket->id,
+                'user_id'    => Auth::id(),
+                'user_agent' => request()->userAgent(),
+                'ip'         => request()->ip(),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error tracking ticket view: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check if ticket is bookmarked by user
+     */
+    protected function isTicketBookmarked(ScrapedTicket $ticket): bool
+    {
+        if (!Auth::check()) {
+            return FALSE;
+        }
+
+        return Auth::user()->bookmarkedTickets()->where('scraped_ticket_id', $ticket->id)->exists();
+    }
+
+    /**
+     * Get ticket view count
+     */
+    protected function getTicketViewCount(ScrapedTicket $ticket): int
+    {
+        return (int) Cache::get('ticket_views_' . $ticket->id, 0);
+    }
+
+    /**
+     * Export to CSV
+     */
+    protected function exportToCsv($data, string $filename): BinaryFileResponse
+    {
+        $path = storage_path('app/exports/' . $filename);
+
+        $file = fopen($path, 'w');
+
+        // Add headers
+        if ($data->isNotEmpty()) {
+            fputcsv($file, array_keys($data->first()));
+        }
+
+        // Add data
+        foreach ($data as $row) {
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
+
+        return response()->download($path)->deleteFileAfterSend();
+    }
+
+    /**
+     * Export to Excel (placeholder - would require PhpSpreadsheet)
+     */
+    protected function exportToExcel($data, string $filename): BinaryFileResponse
+    {
+        // This would require PhpSpreadsheet package
+        // For now, fallback to CSV
+        return $this->exportToCsv($data, str_replace('.xlsx', '.csv', $filename));
+    }
+
+    /**
+     * Export to PDF (placeholder - would require DomPDF or similar)
+     */
+    protected function exportToPdf($data, string $filename): BinaryFileResponse
+    {
+        // This would require PDF generation library
+        // For now, fallback to CSV
+        return $this->exportToCsv($data, str_replace('.pdf', '.csv', $filename));
     }
 }

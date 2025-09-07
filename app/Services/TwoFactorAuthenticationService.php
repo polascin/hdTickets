@@ -1,23 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\TwoFactorBackupCode;
 use App\Models\TwoFactorRecovery;
+use App\Models\User;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FA\Google2FA;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
 
 /**
  * Two-Factor Authentication Service
- * 
+ *
  * Provides comprehensive 2FA functionality including:
  * - Google Authenticator TOTP integration
  * - Backup codes generation and validation
@@ -28,10 +28,15 @@ use BaconQrCode\Writer;
 class TwoFactorAuthenticationService
 {
     protected Google2FA $google2fa;
+
     protected string $appName;
+
     protected int $codeWindow = 2; // 2 time windows (60 seconds each)
+
     protected int $maxBackupCodes = 8;
+
     protected int $maxAttempts = 5;
+
     protected int $lockoutMinutes = 15;
 
     public function __construct()
@@ -43,7 +48,7 @@ class TwoFactorAuthenticationService
     /**
      * Enable 2FA for a user
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     public function enable2FA(User $user): array
@@ -54,12 +59,12 @@ class TwoFactorAuthenticationService
 
         // Generate secret key
         $secretKey = $this->google2fa->generateSecretKey();
-        
+
         // Store temporarily until confirmed
         $user->update([
-            'two_factor_secret' => encrypt($secretKey),
-            'two_factor_confirmed_at' => null,
-            'two_factor_enabled' => false
+            'two_factor_secret'       => encrypt($secretKey),
+            'two_factor_confirmed_at' => NULL,
+            'two_factor_enabled'      => FALSE,
         ]);
 
         // Generate backup codes
@@ -69,25 +74,25 @@ class TwoFactorAuthenticationService
         $qrCodeUrl = $this->generateQRCode($user, $secretKey);
 
         Log::info('2FA setup initiated', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent()
+            'user_id'    => $user->id,
+            'email'      => $user->email,
+            'ip'         => request()->ip(),
+            'user_agent' => request()->userAgent(),
         ]);
 
         return [
-            'secret_key' => $secretKey,
-            'qr_code_url' => $qrCodeUrl,
-            'backup_codes' => $backupCodes,
-            'manual_entry_key' => $secretKey
+            'secret_key'       => $secretKey,
+            'qr_code_url'      => $qrCodeUrl,
+            'backup_codes'     => $backupCodes,
+            'manual_entry_key' => $secretKey,
         ];
     }
 
     /**
      * Confirm 2FA setup with verification code
      *
-     * @param User $user
-     * @param string $code
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function confirm2FA(User $user, string $code): bool
@@ -106,12 +111,12 @@ class TwoFactorAuthenticationService
         }
 
         $secretKey = decrypt($user->two_factor_secret);
-        
+
         if ($this->google2fa->verifyKey($secretKey, $code, $this->codeWindow)) {
             // Enable 2FA
             $user->update([
-                'two_factor_enabled' => true,
-                'two_factor_confirmed_at' => now()
+                'two_factor_enabled'      => TRUE,
+                'two_factor_confirmed_at' => now(),
             ]);
 
             // Clear rate limiting
@@ -119,11 +124,11 @@ class TwoFactorAuthenticationService
 
             Log::info('2FA confirmed and enabled', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => request()->ip()
+                'email'   => $user->email,
+                'ip'      => request()->ip(),
             ]);
 
-            return true;
+            return TRUE;
         }
 
         // Record failed attempt
@@ -131,74 +136,76 @@ class TwoFactorAuthenticationService
 
         Log::warning('2FA confirmation failed', [
             'user_id' => $user->id,
-            'email' => $user->email,
-            'ip' => request()->ip()
+            'email'   => $user->email,
+            'ip'      => request()->ip(),
         ]);
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Verify 2FA code for authentication
      *
-     * @param User $user
-     * @param string $code
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verify2FA(User $user, string $code): bool
     {
         if (!$user->two_factor_enabled || !$user->two_factor_secret) {
-            return false;
+            return FALSE;
         }
 
         // Check rate limiting
         if ($this->isRateLimited($user, '2fa_verify')) {
             Log::warning('2FA verification rate limited', [
                 'user_id' => $user->id,
-                'ip' => request()->ip()
+                'ip'      => request()->ip(),
             ]);
-            return false;
+
+            return FALSE;
         }
 
         $secretKey = decrypt($user->two_factor_secret);
-        
+
         // Verify TOTP code
         if ($this->google2fa->verifyKey($secretKey, $code, $this->codeWindow)) {
             $this->clearRateLimit($user, '2fa_verify');
-            
+
             Log::info('2FA verification successful', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => request()->ip()
+                'email'   => $user->email,
+                'ip'      => request()->ip(),
             ]);
 
-            return true;
+            return TRUE;
         }
 
         // Check if it's a backup code
         if ($this->verifyBackupCode($user, $code)) {
             $this->clearRateLimit($user, '2fa_verify');
-            return true;
+
+            return TRUE;
         }
 
         // Record failed attempt
         $this->recordFailedAttempt($user, '2fa_verify');
 
         Log::warning('2FA verification failed', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'ip' => request()->ip(),
-            'code_length' => strlen($code)
+            'user_id'     => $user->id,
+            'email'       => $user->email,
+            'ip'          => request()->ip(),
+            'code_length' => strlen($code),
         ]);
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Disable 2FA for a user
      *
-     * @param User $user
-     * @param string $password
+     * @param  User   $user
+     * @param  string $password
      * @return bool
      */
     public function disable2FA(User $user, string $password): bool
@@ -213,9 +220,9 @@ class TwoFactorAuthenticationService
 
         // Disable 2FA
         $user->update([
-            'two_factor_enabled' => false,
-            'two_factor_secret' => null,
-            'two_factor_confirmed_at' => null
+            'two_factor_enabled'      => FALSE,
+            'two_factor_secret'       => NULL,
+            'two_factor_confirmed_at' => NULL,
         ]);
 
         // Remove all backup codes
@@ -225,19 +232,19 @@ class TwoFactorAuthenticationService
         $user->twoFactorRecoveries()->delete();
 
         Log::warning('2FA disabled', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent()
+            'user_id'    => $user->id,
+            'email'      => $user->email,
+            'ip'         => request()->ip(),
+            'user_agent' => request()->userAgent(),
         ]);
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Generate backup codes for a user
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     public function generateBackupCodes(User $user): array
@@ -252,14 +259,14 @@ class TwoFactorAuthenticationService
 
             TwoFactorBackupCode::create([
                 'user_id' => $user->id,
-                'code' => Hash::make($code),
-                'used_at' => null
+                'code'    => Hash::make($code),
+                'used_at' => NULL,
             ]);
         }
 
         Log::info('Backup codes generated', [
             'user_id' => $user->id,
-            'count' => count($codes)
+            'count'   => count($codes),
         ]);
 
         return $codes;
@@ -268,8 +275,8 @@ class TwoFactorAuthenticationService
     /**
      * Verify backup code
      *
-     * @param User $user
-     * @param string $code
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verifyBackupCode(User $user, string $code): bool
@@ -282,21 +289,21 @@ class TwoFactorAuthenticationService
                 $backupCode->update(['used_at' => now()]);
 
                 Log::info('Backup code used', [
-                    'user_id' => $user->id,
-                    'backup_code_id' => $backupCode->id
+                    'user_id'        => $user->id,
+                    'backup_code_id' => $backupCode->id,
                 ]);
 
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Get unused backup codes count
      *
-     * @param User $user
+     * @param  User $user
      * @return int
      */
     public function getUnusedBackupCodesCount(User $user): int
@@ -307,7 +314,7 @@ class TwoFactorAuthenticationService
     /**
      * Generate recovery code for account recovery
      *
-     * @param User $user
+     * @param  User   $user
      * @return string
      */
     public function generateRecoveryCode(User $user): string
@@ -319,15 +326,15 @@ class TwoFactorAuthenticationService
         $expiresAt = now()->addHours(24);
 
         TwoFactorRecovery::create([
-            'user_id' => $user->id,
-            'code' => Hash::make($recoveryCode),
+            'user_id'    => $user->id,
+            'code'       => Hash::make($recoveryCode),
             'expires_at' => $expiresAt,
-            'used_at' => null
+            'used_at'    => NULL,
         ]);
 
         Log::info('Recovery code generated', [
-            'user_id' => $user->id,
-            'expires_at' => $expiresAt
+            'user_id'    => $user->id,
+            'expires_at' => $expiresAt,
         ]);
 
         return $recoveryCode;
@@ -336,8 +343,8 @@ class TwoFactorAuthenticationService
     /**
      * Verify recovery code and disable 2FA
      *
-     * @param User $user
-     * @param string $code
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verifyRecoveryCode(User $user, string $code): bool
@@ -348,7 +355,7 @@ class TwoFactorAuthenticationService
             ->first();
 
         if (!$recovery) {
-            return false;
+            return FALSE;
         }
 
         if (Hash::check($code, $recovery->code)) {
@@ -357,9 +364,9 @@ class TwoFactorAuthenticationService
 
             // Disable 2FA
             $user->update([
-                'two_factor_enabled' => false,
-                'two_factor_secret' => null,
-                'two_factor_confirmed_at' => null
+                'two_factor_enabled'      => FALSE,
+                'two_factor_secret'       => NULL,
+                'two_factor_confirmed_at' => NULL,
             ]);
 
             // Remove backup codes
@@ -367,41 +374,41 @@ class TwoFactorAuthenticationService
 
             Log::warning('2FA disabled via recovery code', [
                 'user_id' => $user->id,
-                'email' => $user->email,
-                'ip' => request()->ip()
+                'email'   => $user->email,
+                'ip'      => request()->ip(),
             ]);
 
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
      * Get 2FA statistics for a user
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     public function get2FAStats(User $user): array
     {
         return [
-            'enabled' => $user->two_factor_enabled,
-            'confirmed_at' => $user->two_factor_confirmed_at?->toISOString(),
+            'enabled'                => $user->two_factor_enabled,
+            'confirmed_at'           => $user->two_factor_confirmed_at?->toISOString(),
             'backup_codes_remaining' => $this->getUnusedBackupCodesCount($user),
-            'has_recovery_code' => $user->twoFactorRecoveries()
+            'has_recovery_code'      => $user->twoFactorRecoveries()
                 ->whereNull('used_at')
                 ->where('expires_at', '>', now())
                 ->exists(),
-            'last_used' => $this->getLastUsedTime($user)
+            'last_used' => $this->getLastUsedTime($user),
         ];
     }
 
     /**
      * Generate QR code for Google Authenticator
      *
-     * @param User $user
-     * @param string $secretKey
+     * @param  User   $user
+     * @param  string $secretKey
      * @return string
      */
     protected function generateQRCode(User $user, string $secretKey): string
@@ -418,6 +425,7 @@ class TwoFactorAuthenticationService
         );
 
         $writer = new Writer($renderer);
+
         return 'data:image/svg+xml;base64,' . base64_encode($writer->writeString($qrCodeUrl));
     }
 
@@ -438,37 +446,37 @@ class TwoFactorAuthenticationService
     /**
      * Check if user is rate limited for specific action
      *
-     * @param User $user
-     * @param string $action
+     * @param  User   $user
+     * @param  string $action
      * @return bool
      */
     protected function isRateLimited(User $user, string $action): bool
     {
         $key = "2fa_attempts:{$user->id}:{$action}";
         $attempts = Cache::get($key, 0);
-        
+
         return $attempts >= $this->maxAttempts;
     }
 
     /**
      * Record failed attempt
      *
-     * @param User $user
+     * @param User   $user
      * @param string $action
      */
     protected function recordFailedAttempt(User $user, string $action): void
     {
         $key = "2fa_attempts:{$user->id}:{$action}";
         $attempts = Cache::get($key, 0) + 1;
-        
+
         Cache::put($key, $attempts, now()->addMinutes($this->lockoutMinutes));
-        
+
         if ($attempts >= $this->maxAttempts) {
             Log::warning('2FA rate limit exceeded', [
-                'user_id' => $user->id,
-                'action' => $action,
+                'user_id'  => $user->id,
+                'action'   => $action,
                 'attempts' => $attempts,
-                'ip' => request()->ip()
+                'ip'       => request()->ip(),
             ]);
         }
     }
@@ -476,7 +484,7 @@ class TwoFactorAuthenticationService
     /**
      * Clear rate limit for user action
      *
-     * @param User $user
+     * @param User   $user
      * @param string $action
      */
     protected function clearRateLimit(User $user, string $action): void
@@ -488,60 +496,60 @@ class TwoFactorAuthenticationService
     /**
      * Get last time 2FA was used
      *
-     * @param User $user
+     * @param  User        $user
      * @return string|null
      */
     protected function getLastUsedTime(User $user): ?string
     {
         // This would typically come from a sessions/login log table
         // For now, return null as placeholder
-        return null;
+        return NULL;
     }
 
     /**
      * Get remaining attempts before lockout
      *
-     * @param User $user
-     * @param string $action
+     * @param  User   $user
+     * @param  string $action
      * @return int
      */
     public function getRemainingAttempts(User $user, string $action): int
     {
         $key = "2fa_attempts:{$user->id}:{$action}";
         $attempts = Cache::get($key, 0);
-        
+
         return max(0, $this->maxAttempts - $attempts);
     }
 
     /**
      * Get time until lockout expires
      *
-     * @param User $user
-     * @param string $action
+     * @param  User     $user
+     * @param  string   $action
      * @return int|null Minutes until lockout expires
      */
     public function getLockoutTimeRemaining(User $user, string $action): ?int
     {
         if (!$this->isRateLimited($user, $action)) {
-            return null;
+            return NULL;
         }
 
         $key = "2fa_attempts:{$user->id}:{$action}";
         $ttl = Cache::getStore()->getRedis()->ttl(config('cache.prefix') . ':' . $key);
-        
-        return $ttl > 0 ? ceil($ttl / 60) : null;
+
+        return $ttl > 0 ? ceil($ttl / 60) : NULL;
     }
 
     /**
      * Validate 2FA setup requirements
      *
-     * @param User $user
+     * @param  User $user
      * @return bool
      */
     public function canEnable2FA(User $user): bool
     {
-        return $user->email_verified_at !== null 
-            && !$user->two_factor_enabled 
+        return $user->email_verified_at !== NULL
+            && !$user->two_factor_enabled
             && $user->isActive();
     }
 
@@ -553,13 +561,13 @@ class TwoFactorAuthenticationService
     public function getConfiguration(): array
     {
         return [
-            'app_name' => $this->appName,
-            'code_window' => $this->codeWindow,
+            'app_name'         => $this->appName,
+            'code_window'      => $this->codeWindow,
             'max_backup_codes' => $this->maxBackupCodes,
-            'max_attempts' => $this->maxAttempts,
-            'lockout_minutes' => $this->lockoutMinutes,
-            'code_length' => 6,
-            'time_step' => 30 // seconds
+            'max_attempts'     => $this->maxAttempts,
+            'lockout_minutes'  => $this->lockoutMinutes,
+            'code_length'      => 6,
+            'time_step'        => 30, // seconds
         ];
     }
 }

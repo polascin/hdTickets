@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * ResourceAccess Model for Advanced RBAC
- * 
+ *
  * Represents specific access permissions to individual resources
  */
 class ResourceAccess extends Model
@@ -25,15 +25,15 @@ class ResourceAccess extends Model
         'granted_at',
         'expires_at',
         'granted_by',
-        'context'
+        'context',
     ];
 
     protected $casts = [
         'granted_at' => 'datetime',
         'expires_at' => 'datetime',
-        'context' => 'array',
+        'context'    => 'array',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -77,7 +77,7 @@ class ResourceAccess extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }
@@ -131,18 +131,18 @@ class ResourceAccess extends Model
     public function getResource(): ?\Illuminate\Database\Eloquent\Model
     {
         if (!$this->resource_type || !$this->resource_id) {
-            return null;
+            return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
             if (!$modelClass) {
-                return null;
+                return NULL;
             }
 
             return $modelClass::find($this->resource_id);
         } catch (\Exception $e) {
-            return null;
+            return NULL;
         }
     }
 
@@ -154,21 +154,21 @@ class ResourceAccess extends Model
     protected function getResourceModelClass(): ?string
     {
         $resourceTypeMap = [
-            'ticket' => \App\Models\Ticket::class,
-            'user' => \App\Models\User::class,
-            'role' => \App\Models\Role::class,
+            'ticket'     => \App\Models\Ticket::class,
+            'user'       => \App\Models\User::class,
+            'role'       => \App\Models\Role::class,
             'permission' => \App\Models\Permission::class,
-            'event' => \App\Domain\Event\Models\SportsEvent::class,
+            'event'      => \App\Domain\Event\Models\SportsEvent::class,
             // Add more resource type mappings as needed
         ];
 
-        return $resourceTypeMap[$this->resource_type] ?? null;
+        return $resourceTypeMap[$this->resource_type] ?? NULL;
     }
 
     /**
      * Check if context matches given criteria
      *
-     * @param array $criteria
+     * @param  array $criteria
      * @return bool
      */
     public function matchesContext(array $criteria): bool
@@ -179,22 +179,22 @@ class ResourceAccess extends Model
 
         foreach ($criteria as $key => $value) {
             if (!isset($this->context[$key]) || $this->context[$key] !== $value) {
-                return false;
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
      * Grant access to resource for user
      *
-     * @param User $user
-     * @param string $resourceType
-     * @param mixed $resourceId
-     * @param string $action
-     * @param array $context
-     * @param \DateTime|null $expiresAt
+     * @param  User           $user
+     * @param  string         $resourceType
+     * @param  mixed          $resourceId
+     * @param  string         $action
+     * @param  array          $context
+     * @param  \DateTime|null $expiresAt
      * @return ResourceAccess
      */
     public static function grant(
@@ -203,27 +203,27 @@ class ResourceAccess extends Model
         $resourceId,
         string $action,
         array $context = [],
-        ?\DateTime $expiresAt = null
+        ?\DateTime $expiresAt = NULL
     ): ResourceAccess {
         return static::create([
-            'user_id' => $user->id,
+            'user_id'       => $user->id,
             'resource_type' => $resourceType,
-            'resource_id' => $resourceId,
-            'action' => $action,
-            'context' => $context,
-            'granted_at' => now(),
-            'expires_at' => $expiresAt,
-            'granted_by' => auth()->id()
+            'resource_id'   => $resourceId,
+            'action'        => $action,
+            'context'       => $context,
+            'granted_at'    => now(),
+            'expires_at'    => $expiresAt,
+            'granted_by'    => auth()->id(),
         ]);
     }
 
     /**
      * Revoke access to resource for user
      *
-     * @param User $user
-     * @param string $resourceType
-     * @param mixed $resourceId
-     * @param string $action
+     * @param  User   $user
+     * @param  string $resourceType
+     * @param  mixed  $resourceId
+     * @param  string $action
      * @return int
      */
     public static function revoke(User $user, string $resourceType, $resourceId, string $action): int
@@ -238,11 +238,11 @@ class ResourceAccess extends Model
     /**
      * Check if user has access to resource
      *
-     * @param User $user
-     * @param string $resourceType
-     * @param mixed $resourceId
-     * @param string $action
-     * @param array $context
+     * @param  User   $user
+     * @param  string $resourceType
+     * @param  mixed  $resourceId
+     * @param  string $action
+     * @param  array  $context
      * @return bool
      */
     public static function hasAccess(
@@ -261,10 +261,11 @@ class ResourceAccess extends Model
             // For context matching, we need to check each record individually
             foreach ($query->get() as $access) {
                 if ($access->matchesContext($context)) {
-                    return true;
+                    return TRUE;
                 }
             }
-            return false;
+
+            return FALSE;
         }
 
         return $query->exists();

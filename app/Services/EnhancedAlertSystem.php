@@ -328,7 +328,7 @@ class EnhancedAlertSystem
 
         // Use Laravel's notification system for standard channels
         $standardChannels = array_intersect($channels, ['mail', 'database', 'sms', 'push']);
-        if (! empty($standardChannels)) {
+        if (!empty($standardChannels)) {
             $user->notify($notification);
         }
 
@@ -475,7 +475,7 @@ class EnhancedAlertSystem
             $recommendations[] = 'Event is within a week. Last chance to secure tickets!';
         }
 
-        return ! empty($recommendations)
+        return !empty($recommendations)
             ? implode(' ', $recommendations)
             : 'Good opportunity based on your preferences.';
     }
@@ -589,7 +589,7 @@ class EnhancedAlertSystem
         $terms = explode(' ', strtolower($eventName));
 
         return array_filter($terms, function ($term) use ($commonWords) {
-            return strlen($term) > 2 && ! in_array($term, $commonWords, TRUE);
+            return strlen($term) > 2 && !in_array($term, $commonWords, TRUE);
         });
     }
 

@@ -78,12 +78,12 @@ class VerifyCsrfToken extends Middleware
         $token = $this->getTokenFromRequest($request);
 
         // Check if session token exists
-        if (! $sessionToken = $request->session()->token()) {
+        if (!$sessionToken = $request->session()->token()) {
             return FALSE;
         }
 
         // Standard CSRF token validation
-        if (! hash_equals($sessionToken, $token)) {
+        if (!hash_equals($sessionToken, $token)) {
             return FALSE;
         }
 
@@ -105,12 +105,12 @@ class VerifyCsrfToken extends Middleware
         }
 
         // Verify user session integrity
-        if (! $this->verifySessionIntegrity($request)) {
+        if (!$this->verifySessionIntegrity($request)) {
             return FALSE;
         }
 
         // Check request frequency for automated attacks
-        return ! ($this->isRequestTooFrequent($request));
+        return !($this->isRequestTooFrequent($request));
     }
 
     /**
@@ -149,7 +149,7 @@ class VerifyCsrfToken extends Middleware
         $session = $request->session();
 
         // Check if session has required security markers
-        if (! $session->has('_token') || ! $session->has('login_web_')) {
+        if (!$session->has('_token') || !$session->has('login_web_')) {
             return TRUE; // Not logged in, standard CSRF is enough
         }
 
@@ -163,7 +163,7 @@ class VerifyCsrfToken extends Middleware
 
         $storedFingerprint = $session->get('security_fingerprint');
 
-        if (! $storedFingerprint) {
+        if (!$storedFingerprint) {
             // Create fingerprint if it doesn't exist
             $session->put('security_fingerprint', $expectedFingerprint);
 

@@ -1,4 +1,5 @@
-@extends('layouts.app')
+{{-- Enhanced Sports Ticket Details Page --}}
+<x-unified-layout title="{{ $ticket->title }}" subtitle="{{ $ticket->platform_display_name }} • {{ $ticket->venue ?? 'Venue TBD' }}">
 
 @section('header')
 <div class="flex justify-between items-center">

@@ -312,7 +312,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
             $ruleKey = self::AUTOMATION_PREFIX . 'rule:' . $ruleId;
             $ruleData = Redis::hgetall($ruleKey);
 
-            if (! empty($ruleData)) {
+            if (!empty($ruleData)) {
                 $rules[] = $this->decryptRuleData($ruleData);
             }
         }
@@ -449,7 +449,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
                             break;
                         }
                     }
-                    if (! $hasPreferredPlatform) {
+                    if (!$hasPreferredPlatform) {
                         return FALSE;
                     }
 
@@ -543,7 +543,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
         foreach ($keys as $key) {
             $ruleData = Redis::hgetall($key);
-            if (! empty($ruleData)) {
+            if (!empty($ruleData)) {
                 $decryptedRule = $this->decryptRuleData($ruleData);
                 if ($decryptedRule['status'] === 'active') {
                     $this->automationRules[$decryptedRule['rule_id']] = $decryptedRule;

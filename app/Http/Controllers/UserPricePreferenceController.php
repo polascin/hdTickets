@@ -122,7 +122,7 @@ class UserPricePreferenceController extends Controller
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (! empty($validationErrors)) {
+        if (!empty($validationErrors)) {
             if ($request->wantsJson()) {
                 return response()->json([
                     'errors' => $validationErrors,
@@ -226,7 +226,7 @@ class UserPricePreferenceController extends Controller
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (! empty($validationErrors)) {
+        if (!empty($validationErrors)) {
             if ($request->wantsJson()) {
                 return response()->json([
                     'errors' => $validationErrors,
@@ -288,7 +288,7 @@ class UserPricePreferenceController extends Controller
     {
         $this->authorize('update', $preference);
 
-        $preference->update(['is_active' => ! $preference->is_active]);
+        $preference->update(['is_active' => !$preference->is_active]);
 
         return response()->json([
             'is_active' => $preference->is_active,
@@ -473,7 +473,7 @@ class UserPricePreferenceController extends Controller
         $redirectResponse = redirect()->route('preferences.prices.index')
             ->with('success', $message);
 
-        if (! empty($errors)) {
+        if (!empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 
@@ -636,7 +636,7 @@ class UserPricePreferenceController extends Controller
     {
         $recommendations = [];
 
-        if (! $results['matches_price']) {
+        if (!$results['matches_price']) {
             if (isset($results['ticket_price'])) {
                 $recommendations[] = 'This ticket price is outside your preferred range of ' . $preference->getFormattedPriceRange();
             }
@@ -650,11 +650,11 @@ class UserPricePreferenceController extends Controller
             $recommendations[] = 'This ticket has experienced a significant price drop';
         }
 
-        if (isset($results['matches_seat_preferences']) && ! $results['matches_seat_preferences']) {
+        if (isset($results['matches_seat_preferences']) && !$results['matches_seat_preferences']) {
             $recommendations[] = 'This ticket does not match your seat preferences';
         }
 
-        if (isset($results['matches_section_preferences']) && ! $results['matches_section_preferences']) {
+        if (isset($results['matches_section_preferences']) && !$results['matches_section_preferences']) {
             $recommendations[] = 'This ticket is not in your preferred sections';
         }
 

@@ -10,30 +10,30 @@ use Twilio\Rest\Client;
 
 class PhoneVerificationService
 {
-    private ?Client $twilio = null;
+    private ?Client $twilio = NULL;
 
     public function __construct()
     {
         // Only initialize Twilio if we have valid credentials
         $sid = config('services.twilio.sid');
         $token = config('services.twilio.token');
-        
+
         if ($this->hasValidCredentials($sid, $token)) {
             $this->twilio = new Client($sid, $token);
         }
     }
-    
+
     /**
      * Check if we have valid Twilio credentials
      */
     private function hasValidCredentials(?string $sid, ?string $token): bool
     {
-        return !empty($sid) && 
-               !empty($token) && 
-               $sid !== 'your_twilio_sid' && 
+        return !empty($sid) &&
+               !empty($token) &&
+               $sid !== 'your_twilio_sid' &&
                $token !== 'your_twilio_token';
     }
-    
+
     /**
      * Check if we're in development mode
      */
@@ -47,7 +47,7 @@ class PhoneVerificationService
      */
     public function sendVerificationCode(User $user): bool
     {
-        if (! $user->phone) {
+        if (!$user->phone) {
             throw new Exception('User has no phone number');
         }
 
@@ -59,13 +59,13 @@ class PhoneVerificationService
         Cache::put($cacheKey, $code, now()->addMinutes(10));
 
         // If no Twilio client or in development mode, just log the code
-        if (! $this->twilio || $this->isDevelopmentMode()) {
+        if (!$this->twilio || $this->isDevelopmentMode()) {
             Log::info('Phone verification code (DEVELOPMENT MODE)', [
                 'user_id' => $user->id,
                 'phone'   => $user->phone,
                 'code'    => $code,
                 'message' => "Your HD Tickets verification code is: {$code}. Valid for 10 minutes.",
-                'note'    => 'SMS not sent - using development mode or invalid Twilio credentials'
+                'note'    => 'SMS not sent - using development mode or invalid Twilio credentials',
             ]);
 
             return TRUE;
@@ -102,7 +102,7 @@ class PhoneVerificationService
                     'code'    => $code,
                     'error'   => $e->getMessage(),
                 ]);
-                
+
                 return TRUE;
             }
 
@@ -118,7 +118,7 @@ class PhoneVerificationService
         $cacheKey = "phone_verification:{$user->id}";
         $storedCode = Cache::get($cacheKey);
 
-        if (! $storedCode || $storedCode !== $code) {
+        if (!$storedCode || $storedCode !== $code) {
             return FALSE;
         }
 
@@ -140,7 +140,7 @@ class PhoneVerificationService
     {
         $rateLimitKey = "phone_verification_rate_limit:{$user->id}";
 
-        return ! Cache::has($rateLimitKey);
+        return !Cache::has($rateLimitKey);
     }
 
     /**

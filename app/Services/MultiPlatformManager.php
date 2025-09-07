@@ -51,7 +51,7 @@ class MultiPlatformManager
 
                 $results = $this->searchOnPlatform($platformName, $client, $keyword, $location, $maxResults);
 
-                if (! empty($results)) {
+                if (!empty($results)) {
                     $platformResults[$platformName] = [
                         'count'   => count($results),
                         'results' => $results,
@@ -102,7 +102,7 @@ class MultiPlatformManager
         foreach ($eventUrls as $url) {
             $platform = $this->detectPlatformFromUrl($url);
 
-            if (! $platform || ! isset($this->platformClients[$platform])) {
+            if (!$platform || !isset($this->platformClients[$platform])) {
                 continue;
             }
 
@@ -112,7 +112,7 @@ class MultiPlatformManager
                 if (method_exists($client, 'scrapeEventDetails')) {
                     $details = $client->scrapeEventDetails($url);
 
-                    if (! empty($details)) {
+                    if (!empty($details)) {
                         $normalizedEvent = $this->normalizationService->normalize($details);
                         if ($this->normalizationService->validate($normalizedEvent)) {
                             $eventDetails[] = $normalizedEvent;
@@ -174,7 +174,7 @@ class MultiPlatformManager
                     $isDuplicate = TRUE;
 
                     // Group duplicates
-                    if (! isset($duplicateGroups[$j])) {
+                    if (!isset($duplicateGroups[$j])) {
                         $duplicateGroups[$j] = [$event2];
                     }
                     $duplicateGroups[$j][] = $event1;
@@ -183,7 +183,7 @@ class MultiPlatformManager
                 }
             }
 
-            if (! $isDuplicate) {
+            if (!$isDuplicate) {
                 $deduplicatedEvents[] = $event1;
             }
         }
@@ -299,7 +299,7 @@ class MultiPlatformManager
      */
     public function configurePlatform(string $platformName, array $config): bool
     {
-        if (! isset($this->platformClients[$platformName])) {
+        if (!isset($this->platformClients[$platformName])) {
             return FALSE;
         }
 

@@ -83,7 +83,7 @@ class NotificationPreferencesController extends Controller
 
             $result = UserPreference::updateMultiple($user->id, $preferences);
 
-            if (! empty($result['errors'])) {
+            if (!empty($result['errors'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Some preferences could not be updated',
@@ -187,7 +187,7 @@ class NotificationPreferencesController extends Controller
             $preferences = $request->input('preferences');
             $result = UserPreference::importPreferences($user->id, $preferences);
 
-            if (! empty($result['errors'])) {
+            if (!empty($result['errors'])) {
                 return response()->json([
                     'success'  => FALSE,
                     'message'  => 'Some preferences could not be imported',
@@ -270,7 +270,7 @@ class NotificationPreferencesController extends Controller
 
             $value = $request->input('value');
 
-            if (! UserPreference::validatePreference($key, $value)) {
+            if (!UserPreference::validatePreference($key, $value)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid preference value for key: ' . $key,

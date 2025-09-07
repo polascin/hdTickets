@@ -71,7 +71,7 @@ class PluginBasedScraperManager
         $errors = [];
 
         foreach ($this->plugins as $name => $plugin) {
-            if (! $plugin->isEnabled()) {
+            if (!$plugin->isEnabled()) {
                 continue;
             }
 
@@ -135,11 +135,11 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($pluginName);
 
-        if (! $plugin) {
+        if (!$plugin) {
             throw new Exception("Plugin '{$pluginName}' not found");
         }
 
-        if (! $plugin->isEnabled()) {
+        if (!$plugin->isEnabled()) {
             throw new Exception("Plugin '{$pluginName}' is disabled");
         }
 
@@ -248,7 +248,7 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($name);
 
-        if (! $plugin) {
+        if (!$plugin) {
             return [
                 'status'  => 'error',
                 'message' => "Plugin '{$name}' not found",
@@ -292,7 +292,7 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($name);
 
-        if (! $plugin) {
+        if (!$plugin) {
             return [];
         }
 
@@ -416,7 +416,7 @@ class PluginBasedScraperManager
     {
         $pluginPath = app_path('Services/Scraping/Plugins');
 
-        if (! is_dir($pluginPath)) {
+        if (!is_dir($pluginPath)) {
             return;
         }
 

@@ -513,7 +513,7 @@ class AdvancedAnalyticsController extends Controller
 
         $projections = [];
 
-        if (! empty($current) && ! empty($recommendations)) {
+        if (!empty($current) && !empty($recommendations)) {
             foreach ($recommendations as $recommendation) {
                 $projections[] = [
                     'metric'                => $recommendation['metric'] ?? 'overall',
@@ -594,7 +594,7 @@ class AdvancedAnalyticsController extends Controller
     {
         $rankings = $comparison['platform_rankings'] ?? [];
 
-        return ! empty($rankings) ? $rankings[0] : [];
+        return !empty($rankings) ? $rankings[0] : [];
     }
 
     /**

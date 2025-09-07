@@ -144,7 +144,7 @@ final readonly class SportCategory
         }
 
         $normalizedCategory = strtoupper(trim($category));
-        if (! in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
+        if (!in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid sport category: %s. Valid categories: %s',

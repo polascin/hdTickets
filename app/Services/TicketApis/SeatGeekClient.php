@@ -27,7 +27,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first
-        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
+        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
             try {
                 $params = $this->buildSearchParams($criteria);
 
@@ -68,7 +68,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function getEventTickets(string $eventId, array $filters = []): array
     {
         // Try API first
-        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
+        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
             try {
                 $params = array_merge(['event_id' => $eventId], $filters);
 
@@ -239,7 +239,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $params['date'] = $criteria['date_start'];
         }
 
-        return $baseUrl . (! empty($params) ? '?' . http_build_query($params) : '');
+        return $baseUrl . (!empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -270,7 +270,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (! empty($event['name'])) {
+                        if (!empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -354,7 +354,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
 
-            if (! empty($prices)) {
+            if (!empty($prices)) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
@@ -383,7 +383,7 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Event name
             $nameNode = $xpath->query('.//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode)->item(0);
-            if (! $nameNode) {
+            if (!$nameNode) {
                 // If this is a link node, get text content
                 $nameNode = $eventNode->nodeName === 'a' ? $eventNode : NULL;
             }
@@ -391,7 +391,7 @@ class SeatGeekClient extends BaseWebScrapingClient
 
             // Event URL
             $linkNode = $xpath->query('.//a[contains(@href, "/")]', $eventNode)->item(0);
-            if (! $linkNode && $eventNode->nodeName === 'a') {
+            if (!$linkNode && $eventNode->nodeName === 'a') {
                 $linkNode = $eventNode;
             }
             if ($linkNode && $linkNode->hasAttribute('href')) {
@@ -447,7 +447,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch event details from SeatGeek');
             }
 
@@ -495,14 +495,14 @@ class SeatGeekClient extends BaseWebScrapingClient
             }
 
             $priceRange = [];
-            if (! empty($prices)) {
+            if (!empty($prices)) {
                 $numericPrices = [];
                 foreach ($prices as $price) {
                     if (preg_match('/\$([,\d]+)/', $price, $matches)) {
                         $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
                     }
                 }
-                if (! empty($numericPrices)) {
+                if (!empty($numericPrices)) {
                     $priceRange = [
                         'min' => min($numericPrices),
                         'max' => max($numericPrices),
@@ -569,7 +569,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             }
         }
 
-        if (! empty($numericPrices)) {
+        if (!empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -631,7 +631,7 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (! empty($jsonLdData)) {
+            if (!empty($jsonLdData)) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
@@ -705,7 +705,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                     }
                 });
 
-                if (! empty($prices)) {
+                if (!empty($prices)) {
                     break;
                 }
             }

@@ -1,34 +1,58 @@
-@extends('layouts.app')
-
-@section('title', 'Edit Profile - HD Tickets')
-
-@section('content')
-<x-profile-layout 
-    title="Edit Profile" 
-    :user="$user" 
-    active-section="personal"
-    :show-sidebar="true"
-    :mobile-friendly="true"
-    :breadcrumbs="[
-        ['label' => 'Dashboard', 'url' => route('dashboard')],
-        ['label' => 'Profile', 'url' => route('profile.show')],
-        ['label' => 'Edit Profile']
-    ]"
->
-    <x-slot name="headerActions">
-        <div class="flex items-center space-x-3">
-            <a href="{{ route('profile.show') }}" 
-               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                <x-profile-icon name="eye" class="w-4 h-4 mr-2" />
-                View Profile
-            </a>
-            <a href="{{ route('profile.security') }}" 
-               class="inline-flex items-center px-4 py-2 border border-green-300 rounded-lg text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                <x-profile-icon name="shield-check" class="w-4 h-4 mr-2" />
-                Security
-            </a>
+<x-unified-layout title="Edit Profile" subtitle="Update your personal information and preferences">
+    <!-- Page Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200 mb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center">
+                        <x-profile-icon name="user-tag" class="w-8 h-8 text-blue-600 mr-3" />
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Edit Profile</h1>
+                            <nav class="flex mt-1" aria-label="Breadcrumb">
+                                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                                    <li class="inline-flex items-center">
+                                        <a href="{{ route('dashboard') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                                            Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <a href="{{ route('profile.show') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                                                Profile
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li aria-current="page">
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="text-gray-900 text-sm font-medium">Edit</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('profile.show') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <x-profile-icon name="eye" class="w-4 h-4 mr-2" />
+                        View Profile
+                    </a>
+                    <a href="{{ route('profile.security') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-green-300 rounded-lg text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                        <x-profile-icon name="shield-check" class="w-4 h-4 mr-2" />
+                        Security
+                    </a>
+                </div>
+            </div>
         </div>
-    </x-slot>
+    </div>
 
     <!-- Profile Edit Form with Modern Design -->
     <div class="profile-edit-container" x-data="profileEditForm()">
@@ -372,307 +396,380 @@
                         </div>
                     </x-profile-card>
                 </div>
-
-                    <!-- Contact Details Section -->
-                    <div class="tab-pane fade" id="contact" role="tabpanel">
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-envelope text-primary me-2"></i>
-                                    Contact Details
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">
-                                        Email Address <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-envelope"></i>
-                                        </span>
-                                        <input type="email" 
-                                               class="form-control @error('email') is-invalid @enderror" 
-                                               id="email" 
-                                               name="email" 
-                                               value="{{ old('email', $user->email) }}" 
-                                               required 
-                                               autocomplete="email">
-                                        @if($user->email_verified_at)
-                                            <span class="input-group-text text-success">
-                                                <i class="fas fa-check-circle" title="Verified"></i>
-                                            </span>
-                                        @else
-                                            <span class="input-group-text text-warning">
-                                                <i class="fas fa-exclamation-triangle" title="Not Verified"></i>
-                                            </span>
-                                        @endif
+                
+                <!-- Contact Details Section -->
+                <div x-show="activeSection === 'contact'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Contact Details" icon="mail" color="green">
+                        <div class="space-y-6">
+                            <div class="form-group">
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <x-profile-icon name="mail" class="w-5 h-5 text-gray-400" />
                                     </div>
-                                    @if(!$user->email_verified_at)
-                                        <div class="form-text text-warning">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>
-                                            Email not verified. <a href="#" class="text-decoration-none">Resend verification email</a>
+                                    <input type="email" 
+                                           id="email" 
+                                           name="email" 
+                                           value="{{ old('email', $user->email) }}" 
+                                           required 
+                                           autocomplete="email"
+                                           x-model="form.email"
+                                           @input="validateField('email')"
+                                           class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('email') border-red-500 ring-red-500 @enderror">
+                                    @if($user->email_verified_at)
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <x-profile-icon name="check-circle" class="w-5 h-5 text-green-500" title="Verified" />
+                                        </div>
+                                    @else
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <x-profile-icon name="exclamation-triangle" class="w-5 h-5 text-amber-500" title="Not Verified" />
                                         </div>
                                     @endif
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-phone"></i>
-                                        </span>
-                                        <input type="tel" 
-                                               class="form-control @error('phone') is-invalid @enderror" 
-                                               id="phone" 
-                                               name="phone" 
-                                               value="{{ old('phone', $user->phone) }}" 
-                                               autocomplete="tel"
-                                               placeholder="+1 (555) 123-4567">
-                                    </div>
-                                    <div class="form-text">Used for account security and important notifications</div>
-                                    @error('phone')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Preferences Section -->
-                    <div class="tab-pane fade" id="preferences" role="tabpanel">
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-cog text-primary me-2"></i>
-                                    Preferences
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="timezone" class="form-label">Timezone</label>
-                                        <select class="form-select @error('timezone') is-invalid @enderror" id="timezone" name="timezone">
-                                            <option value="">Select your timezone...</option>
-                                            @foreach(timezone_identifiers_list() as $timezone)
-                                                <option value="{{ $timezone }}" {{ old('timezone', $user->timezone) === $timezone ? 'selected' : '' }}>
-                                                    {{ $timezone }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('timezone')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="language" class="form-label">Language</label>
-                                        <select class="form-select @error('language') is-invalid @enderror" id="language" name="language">
-                                            <option value="">Select language...</option>
-                                            <option value="en" {{ old('language', $user->language ?? 'en') === 'en' ? 'selected' : '' }}>English</option>
-                                            <option value="es" {{ old('language', $user->language) === 'es' ? 'selected' : '' }}>Español (Spanish)</option>
-                                            <option value="fr" {{ old('language', $user->language) === 'fr' ? 'selected' : '' }}>Français (French)</option>
-                                            <option value="de" {{ old('language', $user->language) === 'de' ? 'selected' : '' }}>Deutsch (German)</option>
-                                            <option value="it" {{ old('language', $user->language) === 'it' ? 'selected' : '' }}>Italiano (Italian)</option>
-                                            <option value="pt" {{ old('language', $user->language) === 'pt' ? 'selected' : '' }}>Português (Portuguese)</option>
-                                        </select>
-                                        @error('language')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Subscription Section (Customers Only) -->
-                    @if($user->role === 'customer')
-                    <div class="tab-pane fade" id="subscription" role="tabpanel">
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-credit-card text-primary me-2"></i>
-                                    Subscription & Billing
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="alert alert-info">
-                                    <h6 class="alert-heading">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        Current Subscription Status
-                                    </h6>
-                                    @if($user->currentSubscription)
-                                        <p class="mb-2">
-                                            <strong>Plan:</strong> {{ ucfirst($user->currentSubscription->plan_name ?? 'Premium') }}<br>
-                                            <strong>Status:</strong> <span class="badge bg-success">Active</span><br>
-                                            <strong>Next Billing:</strong> {{ $user->currentSubscription->expires_at ? $user->currentSubscription->expires_at->format('M j, Y') : 'N/A' }}
-                                        </p>
-                                    @else
-                                        <p class="mb-2">
-                                            <strong>Status:</strong> <span class="badge bg-warning text-dark">Free Trial</span><br>
-                                            <strong>Expires:</strong> {{ $user->created_at->addDays(7)->format('M j, Y') }}
-                                        </p>
-                                    @endif
-                                    <hr>
-                                    <div class="mb-0">
-                                        <a href="#" class="btn btn-primary btn-sm me-2">
-                                            <i class="fas fa-credit-card me-1"></i> Manage Subscription
-                                        </a>
-                                        <a href="#" class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-file-invoice me-1"></i> View Invoices
-                                        </a>
-                                    </div>
-                                </div>
-
-                                @if($user->billing_address)
-                                    <h6>Billing Address</h6>
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            @php $billing = $user->billing_address; @endphp
-                                            {{ $billing['street'] ?? '' }}<br>
-                                            {{ $billing['city'] ?? '' }}, {{ $billing['state'] ?? '' }} {{ $billing['postal_code'] ?? '' }}<br>
-                                            {{ $billing['country'] ?? '' }}
+                                @if(!$user->email_verified_at)
+                                    <div class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <x-profile-icon name="exclamation-triangle" class="w-4 h-4 text-amber-600 mr-2" />
+                                            <p class="text-sm text-amber-700">
+                                                Email not verified. 
+                                                <button type="button" class="font-medium text-amber-800 underline hover:no-underline">
+                                                    Resend verification email
+                                                </button>
+                                            </p>
                                         </div>
                                     </div>
                                 @endif
+                                @error('email')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Phone Number
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <x-profile-icon name="phone" class="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <input type="tel" 
+                                           id="phone" 
+                                           name="phone" 
+                                           value="{{ old('phone', $user->phone) }}" 
+                                           autocomplete="tel"
+                                           placeholder="+1 (555) 123-4567"
+                                           x-model="form.phone"
+                                           @input="validateField('phone')"
+                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('phone') border-red-500 ring-red-500 @enderror">
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">Used for account security and important notifications</p>
+                                @error('phone')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
-                    </div>
-                    @endif
-
-                    <!-- Notifications Section -->
-                    <div class="tab-pane fade" id="notifications" role="tabpanel">
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-bell text-primary me-2"></i>
-                                    Notification Preferences
-                                </h5>
+                    </x-profile-card>
+                </div>
+                
+                <!-- Preferences Section -->
+                <div x-show="activeSection === 'preferences'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Preferences" icon="cog" color="purple">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Timezone
+                                </label>
+                                <select id="timezone" 
+                                        name="timezone" 
+                                        x-model="form.timezone"
+                                        @change="validateField('timezone')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('timezone') border-red-500 ring-red-500 @enderror">
+                                    <option value="">Select your timezone...</option>
+                                    @foreach(timezone_identifiers_list() as $timezone)
+                                        <option value="{{ $timezone }}" {{ old('timezone', $user->timezone) === $timezone ? 'selected' : '' }}>
+                                            {{ $timezone }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('timezone')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Email Notifications</h6>
-                                        <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" value="1" {{ old('email_notifications', $user->email_notifications) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="email_notifications">
-                                                Enable email notifications
+                            
+                            <div class="form-group">
+                                <label for="language" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Language
+                                </label>
+                                <select id="language" 
+                                        name="language" 
+                                        x-model="form.language"
+                                        @change="validateField('language')"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('language') border-red-500 ring-red-500 @enderror">
+                                    <option value="">Select language...</option>
+                                    <option value="en" {{ old('language', $user->language ?? 'en') === 'en' ? 'selected' : '' }}>English</option>
+                                    <option value="es" {{ old('language', $user->language) === 'es' ? 'selected' : '' }}>Español (Spanish)</option>
+                                    <option value="fr" {{ old('language', $user->language) === 'fr' ? 'selected' : '' }}>Français (French)</option>
+                                    <option value="de" {{ old('language', $user->language) === 'de' ? 'selected' : '' }}>Deutsch (German)</option>
+                                    <option value="it" {{ old('language', $user->language) === 'it' ? 'selected' : '' }}>Italiano (Italian)</option>
+                                    <option value="pt" {{ old('language', $user->language) === 'pt' ? 'selected' : '' }}>Português (Portuguese)</option>
+                                </select>
+                                @error('language')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </x-profile-card>
+                </div>
+                
+                @if($user->role === 'customer')
+                <!-- Subscription Section -->
+                <div x-show="activeSection === 'subscription'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Subscription & Billing" icon="credit-card" color="amber">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                            <div class="flex items-start">
+                                <x-profile-icon name="info" class="w-6 h-6 text-blue-600 mr-3 mt-0.5" />
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-medium text-blue-900 mb-2">Current Subscription Status</h4>
+                                    @if($user->currentSubscription)
+                                        <div class="space-y-2 text-sm text-blue-800">
+                                            <p><span class="font-medium">Plan:</span> {{ ucfirst($user->currentSubscription->plan_name ?? 'Premium') }}</p>
+                                            <p><span class="font-medium">Status:</span> <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span></p>
+                                            <p><span class="font-medium">Next Billing:</span> {{ $user->currentSubscription->expires_at ? $user->currentSubscription->expires_at->format('M j, Y') : 'N/A' }}</p>
+                                        </div>
+                                    @else
+                                        <div class="space-y-2 text-sm text-blue-800">
+                                            <p><span class="font-medium">Status:</span> <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Free Trial</span></p>
+                                            <p><span class="font-medium">Expires:</span> {{ $user->created_at->addDays(7)->format('M j, Y') }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-3 mt-4 pt-4 border-t border-blue-200">
+                                <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <x-profile-icon name="credit-card" class="w-4 h-4 mr-2" />
+                                    Manage Subscription
+                                </button>
+                                <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                    <x-profile-icon name="document-text" class="w-4 h-4 mr-2" />
+                                    View Invoices
+                                </button>
+                            </div>
+                        </div>
+
+                        @if($user->billing_address)
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900 mb-3">Billing Address</h4>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    @php $billing = $user->billing_address; @endphp
+                                    <div class="text-sm text-gray-700">
+                                        {{ $billing['street'] ?? '' }}<br>
+                                        {{ $billing['city'] ?? '' }}, {{ $billing['state'] ?? '' }} {{ $billing['postal_code'] ?? '' }}<br>
+                                        {{ $billing['country'] ?? '' }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </x-profile-card>
+                </div>
+                @endif
+                
+                <!-- Notifications Section -->
+                <div x-show="activeSection === 'notifications'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Notification Preferences" icon="bell" color="indigo">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-4">Email Notifications</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <label for="email_notifications" class="text-sm font-medium text-gray-700">
+                                                    Enable email notifications
+                                                </label>
+                                                <p class="text-sm text-gray-500">Receive notifications via email</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                       id="email_notifications" 
+                                                       name="email_notifications" 
+                                                       value="1" 
+                                                       {{ old('email_notifications', $user->email_notifications) ? 'checked' : '' }}
+                                                       class="sr-only peer">
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
-                                        <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="price_alerts" name="preferences[price_alerts]" value="1" {{ old('preferences.price_alerts', $user->preferences['price_alerts'] ?? false) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="price_alerts">
-                                                Ticket price alerts
+                                        
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <label for="price_alerts" class="text-sm font-medium text-gray-700">
+                                                    Ticket price alerts
+                                                </label>
+                                                <p class="text-sm text-gray-500">Get notified when ticket prices change</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                       id="price_alerts" 
+                                                       name="preferences[price_alerts]" 
+                                                       value="1" 
+                                                       {{ old('preferences.price_alerts', $user->preferences['price_alerts'] ?? false) ? 'checked' : '' }}
+                                                       class="sr-only peer">
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
-                                        <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="availability_alerts" name="preferences[availability_alerts]" value="1" {{ old('preferences.availability_alerts', $user->preferences['availability_alerts'] ?? false) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="availability_alerts">
-                                                Ticket availability alerts
+                                        
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <label for="availability_alerts" class="text-sm font-medium text-gray-700">
+                                                    Ticket availability alerts
+                                                </label>
+                                                <p class="text-sm text-gray-500">Get notified when tickets become available</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                       id="availability_alerts" 
+                                                       name="preferences[availability_alerts]" 
+                                                       value="1" 
+                                                       {{ old('preferences.availability_alerts', $user->preferences['availability_alerts'] ?? false) ? 'checked' : '' }}
+                                                       class="sr-only peer">
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h6>Push Notifications</h6>
-                                        <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="push_notifications" name="push_notifications" value="1" {{ old('push_notifications', $user->push_notifications) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="push_notifications">
-                                                Enable push notifications
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-4">Push Notifications</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <label for="push_notifications" class="text-sm font-medium text-gray-700">
+                                                    Enable push notifications
+                                                </label>
+                                                <p class="text-sm text-gray-500">Receive browser push notifications</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                       id="push_notifications" 
+                                                       name="push_notifications" 
+                                                       value="1" 
+                                                       {{ old('push_notifications', $user->push_notifications) ? 'checked' : '' }}
+                                                       class="sr-only peer">
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
-                                        <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox" id="marketing_emails" name="preferences[marketing_emails]" value="1" {{ old('preferences.marketing_emails', $user->preferences['marketing_emails'] ?? false) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="marketing_emails">
-                                                Marketing and promotional emails
+                                        
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <label for="marketing_emails" class="text-sm font-medium text-gray-700">
+                                                    Marketing emails
+                                                </label>
+                                                <p class="text-sm text-gray-500">Receive promotional and marketing emails</p>
+                                            </div>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" 
+                                                       id="marketing_emails" 
+                                                       name="preferences[marketing_emails]" 
+                                                       value="1" 
+                                                       {{ old('preferences.marketing_emails', $user->preferences['marketing_emails'] ?? false) ? 'checked' : '' }}
+                                                       class="sr-only peer">
+                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Security Section -->
-                    <div class="tab-pane fade" id="security" role="tabpanel">
-                        <div class="card border-0 shadow-sm mb-4">
-                            <div class="card-header bg-white border-bottom">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-shield-alt text-primary me-2"></i>
-                                    Security Settings
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Two-Factor Authentication</h6>
-                                        <p class="text-muted small">Add an extra layer of security to your account</p>
-                                        @if($user->two_factor_secret)
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-success me-2">Enabled</span>
-                                                <a href="{{ route('profile.security') }}" class="btn btn-outline-primary btn-sm">
-                                                    Manage 2FA
-                                                </a>
+                    </x-profile-card>
+                </div>
+                
+                <!-- Security Section -->
+                <div x-show="activeSection === 'security'" x-transition:enter.duration.300ms class="section-content">
+                    <x-profile-card title="Security Settings" icon="shield-check" color="red">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-3">Two-Factor Authentication</h4>
+                                    <p class="text-sm text-gray-600 mb-4">Add an extra layer of security to your account</p>
+                                    
+                                    @if($user->two_factor_secret)
+                                        <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                                            <x-profile-icon name="check-circle" class="w-5 h-5 text-green-600 mr-3" />
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-green-800">2FA is enabled</p>
+                                                <p class="text-sm text-green-600">Your account is protected with two-factor authentication</p>
                                             </div>
-                                        @else
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge bg-secondary me-2">Disabled</span>
-                                                <a href="{{ route('profile.security') }}" class="btn btn-primary btn-sm">
-                                                    Enable 2FA
-                                                </a>
+                                            <a href="{{ route('profile.security') }}" 
+                                               class="inline-flex items-center px-3 py-1.5 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                                Manage
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                            <x-profile-icon name="exclamation-triangle" class="w-5 h-5 text-amber-600 mr-3" />
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-amber-800">2FA is disabled</p>
+                                                <p class="text-sm text-amber-600">Enable 2FA to secure your account</p>
                                             </div>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Password</h6>
-                                        <p class="text-muted small">Last changed: {{ $user->password_changed_at ? $user->password_changed_at->diffForHumans() : $user->created_at->diffForHumans() }}</p>
-                                        <a href="{{ route('profile.security') }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ route('profile.security') }}" 
+                                               class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                                Enable 2FA
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-3">Password</h4>
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <p class="text-sm text-gray-600 mb-3">
+                                            Last changed: <span class="font-medium">{{ $user->password_changed_at ? $user->password_changed_at->diffForHumans() : $user->created_at->diffForHumans() }}</span>
+                                        </p>
+                                        <a href="{{ route('profile.security') }}" 
+                                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                            <x-profile-icon name="key" class="w-4 h-4 mr-2" />
                                             Change Password
                                         </a>
                                     </div>
                                 </div>
-                                
-                                <hr>
-                                
-                                <h6>Active Sessions</h6>
-                                <p class="text-muted small">These devices are currently signed in to your account</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>Current Session</strong><br>
-                                        <small class="text-muted">{{ request()->ip() }} • {{ request()->userAgent() }}</small>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-3">Active Sessions</h4>
+                                    <p class="text-sm text-gray-600 mb-4">These devices are currently signed in to your account</p>
+                                    
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                            <div class="flex items-center">
+                                                <x-profile-icon name="desktop-computer" class="w-5 h-5 text-blue-600 mr-3" />
+                                                <div>
+                                                    <p class="text-sm font-medium text-blue-900">Current Session</p>
+                                                    <p class="text-xs text-blue-600">{{ request()->ip() }} • {{ Str::limit(request()->userAgent(), 50) }}</p>
+                                                </div>
+                                            </div>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="text-center">
+                                            <a href="{{ route('profile.security.advanced') }}" 
+                                               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
+                                                <x-profile-icon name="cog" class="w-4 h-4 mr-2" />
+                                                Manage All Sessions
+                                            </a>
+                                        </div>
                                     </div>
-                                    <a href="{{ route('profile.security.advanced') }}" class="btn btn-outline-secondary btn-sm">
-                                        Manage Sessions
-                                    </a>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </x-profile-card>
                 </div>
-
-                <!-- Form Actions -->
-                <div class="card border-0 shadow-sm sticky-bottom">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-muted" id="save-status">
-                                    <i class="fas fa-save me-1"></i>
-                                    <span id="save-text">Changes will be saved when you click Save</span>
-                                </small>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-times me-1"></i> Cancel
-                                </a>
-                                <button type="submit" class="btn btn-primary" id="save-profile">
-                                    <i class="fas fa-save me-1"></i>
-                                    <span class="btn-text">Save Changes</span>
-                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
             </div>
             
             <!-- Sticky Save Bar -->
@@ -709,7 +806,7 @@
             </div>
         </form>
     </div>
-</x-profile-layout>
+</x-unified-layout>
 
 
 @endsection
@@ -1033,7 +1130,7 @@ function profileEditForm() {
         
         async uploadProfilePhoto(file) {
             const formData = new FormData();
-            formData.append('photo', file);
+            formData.append('profile_picture', file);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
             
             try {
@@ -1047,6 +1144,23 @@ function profileEditForm() {
                 if (data.success) {
                     this.showToast('Profile photo updated successfully!', 'success');
                     this.showPhotoUpload = false;
+                    // Update the avatar with the new image URL if provided
+                    if (data.data && data.data.pictures && data.data.pictures.medium) {
+                        const currentAvatar = document.getElementById('current-avatar');
+                        if (currentAvatar) {
+                            if (currentAvatar.tagName === 'IMG') {
+                                currentAvatar.src = '/storage/' + data.data.pictures.medium;
+                            } else {
+                                // Replace div with img
+                                const newImg = document.createElement('img');
+                                newImg.src = '/storage/' + data.data.pictures.medium;
+                                newImg.alt = '{{ $user->name }}';
+                                newImg.className = 'w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-lg';
+                                newImg.id = 'current-avatar';
+                                currentAvatar.parentNode.replaceChild(newImg, currentAvatar);
+                            }
+                        }
+                    }
                 } else {
                     this.showToast(data.message || 'Failed to upload photo', 'error');
                 }
@@ -1062,7 +1176,7 @@ function profileEditForm() {
             }
             
             try {
-                const response = await fetch('{{ route("profile.picture.remove") }}', {
+                const response = await fetch('{{ route("profile.picture.delete") }}', {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

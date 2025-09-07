@@ -67,7 +67,7 @@ class HighDemandTicketScrapingImplementation
                 $results[$platform] = $this->processResults($platformResults, $platform);
 
                 // If tickets found, trigger immediate alerts
-                if (! empty($results[$platform]['tickets'])) {
+                if (!empty($results[$platform]['tickets'])) {
                     $this->triggerHighDemandAlert($results[$platform]['tickets'], 'el_clasico');
                 }
             } catch (Exception $e) {
@@ -219,7 +219,7 @@ class HighDemandTicketScrapingImplementation
         // Try queue bypass techniques
         $bypassResults = $this->attemptQueueBypass($platform, $criteria);
 
-        if (! empty($bypassResults)) {
+        if (!empty($bypassResults)) {
             Log::info("Queue bypass successful for {$platform}");
 
             return $bypassResults;
@@ -289,7 +289,7 @@ class HighDemandTicketScrapingImplementation
         );
 
         // If auto-purchase is enabled and tickets found
-        if (! empty($purchaseConfig['enabled']) && ! empty($results['tickets'])) {
+        if (!empty($purchaseConfig['enabled']) && !empty($results['tickets'])) {
             foreach ($results['tickets'] as $ticket) {
                 if ($this->shouldAutoPurchase($ticket, $purchaseConfig)) {
                     $purchaseResult = $this->attemptAutoPurchase($ticket, $purchaseConfig);
@@ -548,12 +548,12 @@ class HighDemandTicketScrapingImplementation
         }
 
         // Check price limits
-        if (! empty($config['max_price']) && $ticket['min_price'] > $config['max_price']) {
+        if (!empty($config['max_price']) && $ticket['min_price'] > $config['max_price']) {
             return FALSE;
         }
 
         // Check demand level requirements
-        if (! empty($config['min_demand_level'])) {
+        if (!empty($config['min_demand_level'])) {
             $demandLevels = ['medium' => 1, 'high' => 2, 'very_high' => 3, 'extreme' => 4];
             $ticketLevel = $demandLevels[$ticket['demand_level']] ?? 0;
             $requiredLevel = $demandLevels[$config['min_demand_level']] ?? 0;

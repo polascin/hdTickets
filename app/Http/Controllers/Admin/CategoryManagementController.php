@@ -100,7 +100,7 @@ class CategoryManagementController extends Controller
         }
 
         // Set default sort order
-        if (! isset($data['sort_order'])) {
+        if (!isset($data['sort_order'])) {
             $maxOrder = Category::where('parent_id', $data['parent_id'])->max('sort_order') ?? 0;
             $data['sort_order'] = $maxOrder + 1;
         }
@@ -235,7 +235,7 @@ class CategoryManagementController extends Controller
      */
     public function toggleStatus(Category $category): \Illuminate\Http\RedirectResponse
     {
-        $category->update(['is_active' => ! $category->is_active]);
+        $category->update(['is_active' => !$category->is_active]);
 
         $status = $category->is_active ? 'activated' : 'deactivated';
 

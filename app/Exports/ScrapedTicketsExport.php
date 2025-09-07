@@ -46,31 +46,31 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping
         $query = ScrapedTicket::with(['category']);
 
         // Apply filters
-        if (! empty($this->filters['platform'])) {
+        if (!empty($this->filters['platform'])) {
             $query->where('platform', $this->filters['platform']);
         }
 
-        if (! empty($this->filters['status'])) {
+        if (!empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
-        if (! empty($this->filters['date_from'])) {
+        if (!empty($this->filters['date_from'])) {
             $query->where('event_date', '>=', $this->filters['date_from']);
         }
 
-        if (! empty($this->filters['date_to'])) {
+        if (!empty($this->filters['date_to'])) {
             $query->where('event_date', '<=', $this->filters['date_to']);
         }
 
-        if (! empty($this->filters['min_price'])) {
+        if (!empty($this->filters['min_price'])) {
             $query->where('price', '>=', $this->filters['min_price']);
         }
 
-        if (! empty($this->filters['max_price'])) {
+        if (!empty($this->filters['max_price'])) {
             $query->where('price', '<=', $this->filters['max_price']);
         }
 
-        if (! empty($this->filters['category_id'])) {
+        if (!empty($this->filters['category_id'])) {
             $query->where('category_id', $this->filters['category_id']);
         }
 

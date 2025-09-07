@@ -307,7 +307,7 @@ class UserFavoriteVenue extends Model
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
-        if (! $this->latitude || ! $this->longitude) {
+        if (!$this->latitude || !$this->longitude) {
             return NULL;
         }
 
@@ -333,7 +333,7 @@ class UserFavoriteVenue extends Model
      */
     public function getCapacityTierAttribute(): string
     {
-        if (! $this->capacity) {
+        if (!$this->capacity) {
             return 'unknown';
         }
 
@@ -360,7 +360,7 @@ class UserFavoriteVenue extends Model
     {
         $outdoorTypes = ['stadium', 'amphitheater', 'outdoor_venue', 'racetrack', 'golf_course'];
 
-        return ! empty(array_intersect($this->venue_types ?? [], $outdoorTypes));
+        return !empty(array_intersect($this->venue_types ?? [], $outdoorTypes));
     }
 
     /**

@@ -279,7 +279,7 @@ class AnalyticsController extends Controller
     {
         $allowedTypes = ['overview', 'trends', 'platforms', 'prices', 'demand'];
 
-        if (! in_array($type, $allowedTypes, TRUE)) {
+        if (!in_array($type, $allowedTypes, TRUE)) {
             return response()->json(['error' => 'Invalid export type'], 400);
         }
 
@@ -689,7 +689,7 @@ class AnalyticsController extends Controller
         if (isset($data['session_id'])) {
             $sessionsKey = "analytics:sessions:{$today}";
             $sessions = Cache::get($sessionsKey, []);
-            if (! in_array($data['session_id'], $sessions, TRUE)) {
+            if (!in_array($data['session_id'], $sessions, TRUE)) {
                 $sessions[] = $data['session_id'];
                 Cache::put($sessionsKey, $sessions, 86400);
             }
@@ -804,7 +804,7 @@ class AnalyticsController extends Controller
 
         foreach ($metrics as $metric) {
             $values = Cache::get("analytics:performance:{$metric}:{$date}", []);
-            if (! empty($values)) {
+            if (!empty($values)) {
                 $performanceData[$metric] = [
                     'average' => round(array_sum($values) / count($values), 2),
                     'min'     => min($values),

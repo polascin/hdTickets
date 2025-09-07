@@ -76,14 +76,14 @@ class StoreTicketRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Set default source if not provided
-        if (! $this->has('source')) {
+        if (!$this->has('source')) {
             $this->merge([
                 'source' => Ticket::SOURCE_API,
             ]);
         }
 
         // Set default priority if not provided
-        if (! $this->has('priority')) {
+        if (!$this->has('priority')) {
             $this->merge([
                 'priority' => Ticket::PRIORITY_MEDIUM,
             ]);

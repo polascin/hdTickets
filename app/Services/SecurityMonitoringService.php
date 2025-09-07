@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\SecurityEvent;
-use App\Models\LoginAttempt;
-use App\Models\TrustedDevice;
-use App\Models\SecurityIncident;
 use App\Models\AuditLog;
+use App\Models\SecurityEvent;
+use App\Models\SecurityIncident;
+use App\Models\TrustedDevice;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 /**
  * Security Monitoring & Audit Service
- * 
+ *
  * Provides comprehensive security monitoring including:
  * - Real-time threat detection and analysis
  * - Security event logging and correlation
@@ -27,19 +26,19 @@ use Carbon\Carbon;
 class SecurityMonitoringService
 {
     protected $threatLevels = [
-        'low' => 1,
-        'medium' => 2,
-        'high' => 3,
-        'critical' => 4
+        'low'      => 1,
+        'medium'   => 2,
+        'high'     => 3,
+        'critical' => 4,
     ];
 
     protected $securityRules = [
-        'failed_login_threshold' => 5,
-        'login_rate_limit' => 10, // per minute
-        'suspicious_ip_threshold' => 3,
-        'account_lockout_duration' => 30, // minutes
+        'failed_login_threshold'        => 5,
+        'login_rate_limit'              => 10, // per minute
+        'suspicious_ip_threshold'       => 3,
+        'account_lockout_duration'      => 30, // minutes
         'incident_escalation_threshold' => 3,
-        'anomaly_detection_window' => 24, // hours
+        'anomaly_detection_window'      => 24, // hours
     ];
 
     public function __construct()
@@ -53,16 +52,16 @@ class SecurityMonitoringService
     /**
      * Log security event and perform threat analysis
      *
-     * @param string $eventType
-     * @param User|null $user
-     * @param Request $request
-     * @param array $data
+     * @param  string        $eventType
+     * @param  User|null     $user
+     * @param  Request       $request
+     * @param  array         $data
      * @return SecurityEvent
      */
     public function logSecurityEvent(
-        string $eventType, 
-        ?User $user, 
-        Request $request, 
+        string $eventType,
+        ?User $user,
+        Request $request,
         array $data = []
     ): SecurityEvent {
         $ipAddress = $this->getClientIp($request);
@@ -71,16 +70,16 @@ class SecurityMonitoringService
 
         // Create security event
         $event = SecurityEvent::create([
-            'user_id' => $user?->id,
-            'event_type' => $eventType,
-            'severity' => $this->calculateEventSeverity($eventType, $data),
-            'ip_address' => $ipAddress,
-            'user_agent' => $userAgent,
-            'location' => $location,
-            'event_data' => $data,
+            'user_id'      => $user?->id,
+            'event_type'   => $eventType,
+            'severity'     => $this->calculateEventSeverity($eventType, $data),
+            'ip_address'   => $ipAddress,
+            'user_agent'   => $userAgent,
+            'location'     => $location,
+            'event_data'   => $data,
             'request_data' => $this->sanitizeRequestData($request),
-            'session_id' => session()->getId(),
-            'occurred_at' => now()
+            'session_id'   => session()->getId(),
+            'occurred_at'  => now(),
         ]);
 
         // Perform real-time threat analysis
@@ -92,9 +91,9 @@ class SecurityMonitoringService
         // Log to system log for backup
         Log::channel('security')->info("Security Event: {$eventType}", [
             'event_id' => $event->id,
-            'user_id' => $user?->id,
-            'ip' => $ipAddress,
-            'severity' => $event->severity
+            'user_id'  => $user?->id,
+            'ip'       => $ipAddress,
+            'severity' => $event->severity,
         ]);
 
         return $event;
@@ -104,8 +103,8 @@ class SecurityMonitoringService
      * Analyze threat level and trigger automated responses
      *
      * @param SecurityEvent $event
-     * @param User|null $user
-     * @param Request $request
+     * @param User|null     $user
+     * @param Request       $request
      */
     protected function analyzeThreat(SecurityEvent $event, ?User $user, Request $request): void
     {
@@ -129,9 +128,9 @@ class SecurityMonitoringService
     /**
      * Calculate threat score based on multiple factors
      *
-     * @param SecurityEvent $event
-     * @param User|null $user
-     * @param Request $request
+     * @param  SecurityEvent $event
+     * @param  User|null     $user
+     * @param  Request       $request
      * @return int
      */
     protected function calculateThreatScore(SecurityEvent $event, ?User $user, Request $request): int
@@ -140,17 +139,17 @@ class SecurityMonitoringService
 
         // Base score by event type
         $baseScores = [
-            'login_failed' => 20,
-            'multiple_failed_logins' => 40,
-            'suspicious_login' => 60,
-            'brute_force_detected' => 80,
-            'account_takeover_attempt' => 90,
-            'unauthorized_access_attempt' => 70,
+            'login_failed'                 => 20,
+            'multiple_failed_logins'       => 40,
+            'suspicious_login'             => 60,
+            'brute_force_detected'         => 80,
+            'account_takeover_attempt'     => 90,
+            'unauthorized_access_attempt'  => 70,
             'privilege_escalation_attempt' => 85,
-            'data_breach_attempt' => 95,
-            'malicious_request' => 75,
-            'bot_detected' => 50,
-            'rate_limit_exceeded' => 30,
+            'data_breach_attempt'          => 95,
+            'malicious_request'            => 75,
+            'bot_detected'                 => 50,
+            'rate_limit_exceeded'          => 30,
         ];
 
         $score += $baseScores[$event->event_type] ?? 10;
@@ -189,37 +188,37 @@ class SecurityMonitoringService
      * Detect suspicious patterns and anomalies
      *
      * @param SecurityEvent $event
-     * @param User|null $user
+     * @param User|null     $user
      */
     protected function detectSuspiciousPatterns(SecurityEvent $event, ?User $user): void
     {
         // Pattern 1: Multiple failed logins from same IP
         if ($this->detectBruteForcePattern($event->ip_address)) {
             $this->logSecurityEvent('brute_force_detected', $user, request(), [
-                'source_ip' => $event->ip_address,
-                'failed_attempts' => $this->getRecentFailuresFromIp($event->ip_address)
+                'source_ip'       => $event->ip_address,
+                'failed_attempts' => $this->getRecentFailuresFromIp($event->ip_address),
             ]);
         }
 
         // Pattern 2: Login attempts from multiple countries
         if ($user && $this->detectDistributedLoginPattern($user)) {
             $this->logSecurityEvent('distributed_login_attempt', $user, request(), [
-                'locations' => $this->getRecentLoginLocations($user)
+                'locations' => $this->getRecentLoginLocations($user),
             ]);
         }
 
         // Pattern 3: Rapid succession of different attack types
         if ($this->detectCoordinatedAttackPattern($event->ip_address)) {
             $this->logSecurityEvent('coordinated_attack_detected', $user, request(), [
-                'attack_vectors' => $this->getRecentAttackVectors($event->ip_address)
+                'attack_vectors' => $this->getRecentAttackVectors($event->ip_address),
             ]);
         }
 
         // Pattern 4: Account enumeration attempts
         if ($this->detectAccountEnumerationPattern($event->ip_address)) {
-            $this->logSecurityEvent('account_enumeration_detected', null, request(), [
-                'source_ip' => $event->ip_address,
-                'attempted_accounts' => $this->getAccountEnumerationAttempts($event->ip_address)
+            $this->logSecurityEvent('account_enumeration_detected', NULL, request(), [
+                'source_ip'          => $event->ip_address,
+                'attempted_accounts' => $this->getAccountEnumerationAttempts($event->ip_address),
             ]);
         }
     }
@@ -228,8 +227,8 @@ class SecurityMonitoringService
      * Trigger automated security responses
      *
      * @param SecurityEvent $event
-     * @param User|null $user
-     * @param Request $request
+     * @param User|null     $user
+     * @param Request       $request
      */
     protected function triggerAutomatedResponse(SecurityEvent $event, ?User $user, Request $request): void
     {
@@ -268,8 +267,8 @@ class SecurityMonitoringService
         // Log automated responses
         if (!empty($responses)) {
             $this->logSecurityEvent('automated_response_triggered', $user, $request, [
-                'responses' => $responses,
-                'threat_score' => $event->threat_score
+                'responses'    => $responses,
+                'threat_score' => $event->threat_score,
             ]);
         }
     }
@@ -278,27 +277,27 @@ class SecurityMonitoringService
      * Create security incident for high-risk events
      *
      * @param SecurityEvent $event
-     * @param User|null $user
+     * @param User|null     $user
      */
     protected function createSecurityIncident(SecurityEvent $event, ?User $user): void
     {
         $incident = SecurityIncident::create([
-            'title' => $this->generateIncidentTitle($event),
-            'description' => $this->generateIncidentDescription($event),
-            'severity' => $this->mapThreatScoreToSeverity($event->threat_score),
-            'status' => 'open',
-            'priority' => $event->threat_score >= 90 ? 'critical' : 'high',
+            'title'            => $this->generateIncidentTitle($event),
+            'description'      => $this->generateIncidentDescription($event),
+            'severity'         => $this->mapThreatScoreToSeverity($event->threat_score),
+            'status'           => 'open',
+            'priority'         => $event->threat_score >= 90 ? 'critical' : 'high',
             'affected_user_id' => $user?->id,
-            'source_ip' => $event->ip_address,
+            'source_ip'        => $event->ip_address,
             'detection_method' => 'automated',
-            'incident_data' => [
-                'security_event_id' => $event->id,
-                'threat_score' => $event->threat_score,
-                'event_type' => $event->event_type,
-                'automated_responses' => $this->getAutomatedResponses($event)
+            'incident_data'    => [
+                'security_event_id'   => $event->id,
+                'threat_score'        => $event->threat_score,
+                'event_type'          => $event->event_type,
+                'automated_responses' => $this->getAutomatedResponses($event),
             ],
             'detected_at' => now(),
-            'assigned_to' => $this->getIncidentAssignee($event->threat_score)
+            'assigned_to' => $this->getIncidentAssignee($event->threat_score),
         ]);
 
         // Link event to incident
@@ -311,41 +310,41 @@ class SecurityMonitoringService
     /**
      * Log audit event for compliance and tracking
      *
-     * @param string $action
-     * @param User|null $user
-     * @param string|null $resource
-     * @param mixed $resourceId
-     * @param array $changes
+     * @param string       $action
+     * @param User|null    $user
+     * @param string|null  $resource
+     * @param mixed        $resourceId
+     * @param array        $changes
      * @param Request|null $request
      */
     public function logAuditEvent(
         string $action,
         ?User $user,
-        ?string $resource = null,
-        $resourceId = null,
+        ?string $resource = NULL,
+        $resourceId = NULL,
         array $changes = [],
-        ?Request $request = null
+        ?Request $request = NULL
     ): AuditLog {
         $request = $request ?? request();
-        
+
         return AuditLog::create([
-            'user_id' => $user?->id,
-            'action' => $action,
+            'user_id'       => $user?->id,
+            'action'        => $action,
             'resource_type' => $resource,
-            'resource_id' => $resourceId,
-            'changes' => $changes,
-            'ip_address' => $this->getClientIp($request),
-            'user_agent' => $request->header('User-Agent'),
-            'session_id' => session()->getId(),
-            'performed_at' => now()
+            'resource_id'   => $resourceId,
+            'changes'       => $changes,
+            'ip_address'    => $this->getClientIp($request),
+            'user_agent'    => $request->header('User-Agent'),
+            'session_id'    => session()->getId(),
+            'performed_at'  => now(),
         ]);
     }
 
     /**
      * Generate comprehensive security report
      *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
+     * @param  Carbon $startDate
+     * @param  Carbon $endDate
      * @return array
      */
     public function generateSecurityReport(Carbon $startDate, Carbon $endDate): array
@@ -353,16 +352,16 @@ class SecurityMonitoringService
         return [
             'period' => [
                 'start' => $startDate,
-                'end' => $endDate,
-                'days' => $startDate->diffInDays($endDate)
+                'end'   => $endDate,
+                'days'  => $startDate->diffInDays($endDate),
             ],
-            'overview' => $this->getSecurityOverview($startDate, $endDate),
+            'overview'        => $this->getSecurityOverview($startDate, $endDate),
             'threat_analysis' => $this->getThreatAnalysis($startDate, $endDate),
-            'incidents' => $this->getIncidentSummary($startDate, $endDate),
-            'user_security' => $this->getUserSecurityMetrics($startDate, $endDate),
-            'ip_analysis' => $this->getIpAnalysis($startDate, $endDate),
-            'compliance' => $this->getComplianceMetrics($startDate, $endDate),
-            'recommendations' => $this->getSecurityRecommendations($startDate, $endDate)
+            'incidents'       => $this->getIncidentSummary($startDate, $endDate),
+            'user_security'   => $this->getUserSecurityMetrics($startDate, $endDate),
+            'ip_analysis'     => $this->getIpAnalysis($startDate, $endDate),
+            'compliance'      => $this->getComplianceMetrics($startDate, $endDate),
+            'recommendations' => $this->getSecurityRecommendations($startDate, $endDate),
         ];
     }
 
@@ -374,14 +373,14 @@ class SecurityMonitoringService
     public function getSecurityDashboard(): array
     {
         return [
-            'current_threats' => $this->getCurrentThreats(),
+            'current_threats'  => $this->getCurrentThreats(),
             'active_incidents' => $this->getActiveIncidents(),
-            'recent_events' => $this->getRecentSecurityEvents(),
-            'blocked_ips' => $this->getBlockedIps(),
-            'locked_accounts' => $this->getLockedAccounts(),
-            'system_health' => $this->getSecuritySystemHealth(),
-            'threat_map' => $this->getThreatMap(),
-            'security_score' => $this->calculateSystemSecurityScore()
+            'recent_events'    => $this->getRecentSecurityEvents(),
+            'blocked_ips'      => $this->getBlockedIps(),
+            'locked_accounts'  => $this->getLockedAccounts(),
+            'system_health'    => $this->getSecuritySystemHealth(),
+            'threat_map'       => $this->getThreatMap(),
+            'security_score'   => $this->calculateSystemSecurityScore(),
         ];
     }
 
@@ -390,15 +389,15 @@ class SecurityMonitoringService
     protected function calculateEventSeverity(string $eventType, array $data): string
     {
         $severityMap = [
-            'login_success' => 'low',
-            'login_failed' => 'medium',
-            'multiple_failed_logins' => 'high',
-            'brute_force_detected' => 'critical',
-            'suspicious_login' => 'high',
-            'account_takeover_attempt' => 'critical',
-            'unauthorized_access_attempt' => 'high',
+            'login_success'                => 'low',
+            'login_failed'                 => 'medium',
+            'multiple_failed_logins'       => 'high',
+            'brute_force_detected'         => 'critical',
+            'suspicious_login'             => 'high',
+            'account_takeover_attempt'     => 'critical',
+            'unauthorized_access_attempt'  => 'high',
             'privilege_escalation_attempt' => 'critical',
-            'data_breach_attempt' => 'critical'
+            'data_breach_attempt'          => 'critical',
         ];
 
         return $severityMap[$eventType] ?? 'medium';
@@ -414,12 +413,13 @@ class SecurityMonitoringService
             'HTTP_X_CLUSTER_CLIENT_IP',
             'HTTP_FORWARDED_FOR',
             'HTTP_FORWARDED',
-            'REMOTE_ADDR'
+            'REMOTE_ADDR',
         ];
 
         foreach ($headers as $header) {
             if (!empty($_SERVER[$header])) {
                 $ips = explode(',', $_SERVER[$header]);
+
                 return trim($ips[0]);
             }
         }
@@ -432,17 +432,17 @@ class SecurityMonitoringService
         // In production, integrate with GeoIP service
         // For now, return mock data
         return [
-            'country' => 'Unknown',
-            'city' => 'Unknown',
-            'latitude' => null,
-            'longitude' => null
+            'country'   => 'Unknown',
+            'city'      => 'Unknown',
+            'latitude'  => NULL,
+            'longitude' => NULL,
         ];
     }
 
     protected function sanitizeRequestData(Request $request): array
     {
         $data = $request->all();
-        
+
         // Remove sensitive data
         $sensitiveFields = ['password', 'password_confirmation', 'token', 'api_key'];
         foreach ($sensitiveFields as $field) {
@@ -458,8 +458,8 @@ class SecurityMonitoringService
     {
         // Check against known bad IP lists
         $cacheKey = "ip_reputation:{$ip}";
-        
-        return Cache::remember($cacheKey, 3600, function() use ($ip) {
+
+        return Cache::remember($cacheKey, 3600, function () use ($ip) {
             // In production, integrate with threat intelligence feeds
             return 0; // Default: no reputation issue
         });
@@ -468,7 +468,7 @@ class SecurityMonitoringService
     protected function isGeographicAnomaly(User $user, ?array $location): bool
     {
         if (!$location || !$location['country'] || $location['country'] === 'Unknown') {
-            return false;
+            return FALSE;
         }
 
         // Get user's typical login locations
@@ -477,8 +477,8 @@ class SecurityMonitoringService
             ->where('occurred_at', '>=', now()->subDays(30))
             ->whereNotNull('location')
             ->pluck('location')
-            ->map(function($loc) {
-                return is_string($loc) ? json_decode($loc, true) : $loc;
+            ->map(function ($loc) {
+                return is_string($loc) ? json_decode($loc, TRUE) : $loc;
             })
             ->filter()
             ->pluck('country')
@@ -490,14 +490,14 @@ class SecurityMonitoringService
     protected function isTimeBasedAnomaly(User $user, Carbon $timestamp): bool
     {
         $hour = $timestamp->hour;
-        
+
         // Get user's typical login hours
         $recentHours = SecurityEvent::where('user_id', $user->id)
             ->where('event_type', 'login_success')
             ->where('occurred_at', '>=', now()->subDays(30))
             ->get()
             ->pluck('occurred_at')
-            ->map(function($time) {
+            ->map(function ($time) {
                 return $time->hour;
             })
             ->countBy()
@@ -505,7 +505,7 @@ class SecurityMonitoringService
 
         // If user has no recent history, not an anomaly
         if ($recentHours->isEmpty()) {
-            return false;
+            return FALSE;
         }
 
         // Check if current hour is significantly different from usual pattern
@@ -518,7 +518,7 @@ class SecurityMonitoringService
     protected function isTrustedDevice(User $user, Request $request): bool
     {
         $deviceFingerprint = $this->generateDeviceFingerprint($request);
-        
+
         return TrustedDevice::where('user_id', $user->id)
             ->where('device_fingerprint', $deviceFingerprint)
             ->where('trusted_until', '>', now())
@@ -569,6 +569,7 @@ class SecurityMonitoringService
     protected function detectBruteForcePattern(string $ip): bool
     {
         $failures = $this->getRecentFailuresFromIp($ip);
+
         return $failures >= $this->securityRules['failed_login_threshold'];
     }
 
@@ -579,8 +580,8 @@ class SecurityMonitoringService
             ->where('occurred_at', '>=', now()->subHours(6))
             ->whereNotNull('location')
             ->pluck('location')
-            ->map(function($loc) {
-                return is_string($loc) ? json_decode($loc, true) : $loc;
+            ->map(function ($loc) {
+                return is_string($loc) ? json_decode($loc, TRUE) : $loc;
             })
             ->filter()
             ->pluck('country')
@@ -612,12 +613,12 @@ class SecurityMonitoringService
 
     protected function updateSecurityMetrics(string $eventType, SecurityEvent $event): void
     {
-        $cacheKey = "security_metrics:" . now()->format('Y-m-d');
+        $cacheKey = 'security_metrics:' . now()->format('Y-m-d');
         $metrics = Cache::get($cacheKey, []);
-        
+
         $metrics['events'][$eventType] = ($metrics['events'][$eventType] ?? 0) + 1;
         $metrics['total_events'] = ($metrics['total_events'] ?? 0) + 1;
-        
+
         if ($event->threat_score >= 70) {
             $metrics['high_threat_events'] = ($metrics['high_threat_events'] ?? 0) + 1;
         }
@@ -627,7 +628,7 @@ class SecurityMonitoringService
 
     // Additional helper methods would be implemented here for:
     // - blockIpAddress()
-    // - lockUserAccount() 
+    // - lockUserAccount()
     // - sendSecurityAlert()
     // - increaseIpMonitoring()
     // - requireAdditionalAuth()

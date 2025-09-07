@@ -45,7 +45,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
                 // Validate row data
                 $validated = $this->validateRow($row->toArray());
 
-                if (! $validated['valid']) {
+                if (!$validated['valid']) {
                     $this->errorCount++;
                     $this->errors[] = [
                         'row'    => $this->rowCount,
@@ -282,7 +282,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
         // Additional custom validations
         $customValidations = $this->performCustomValidations($row);
-        if (! $customValidations['valid']) {
+        if (!$customValidations['valid']) {
             return $customValidations;
         }
 
@@ -307,14 +307,14 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             switch ($row['role']) {
                 case 'admin':
                     // Admins must have verified email
-                    if (! isset($row['email_verified']) || ! $row['email_verified']) {
+                    if (!isset($row['email_verified']) || !$row['email_verified']) {
                         $errors['email_verified'] = ['Admin users must have verified email'];
                     }
 
                     break;
                 case 'scraper':
                     // Scrapers should not have personal details
-                    if (! empty($row['phone']) || ! empty($row['bio'])) {
+                    if (!empty($row['phone']) || !empty($row['bio'])) {
                         $errors['role'] = ['Scraper users should not have personal details like phone or bio'];
                     }
 
@@ -323,15 +323,15 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         }
 
         // Validate phone format if provided
-        if (! empty($row['phone'])) {
-            if (! preg_match('/^[\+]?[1-9][\d]{0,15}$/', $row['phone'])) {
+        if (!empty($row['phone'])) {
+            if (!preg_match('/^[\+]?[1-9][\d]{0,15}$/', $row['phone'])) {
                 $errors['phone'] = ['Phone number format is invalid'];
             }
         }
 
         // Validate timezone if provided
-        if (! empty($row['timezone'])) {
-            if (! in_array($row['timezone'], timezone_identifiers_list(), TRUE)) {
+        if (!empty($row['timezone'])) {
+            if (!in_array($row['timezone'], timezone_identifiers_list(), TRUE)) {
                 $errors['timezone'] = ['Invalid timezone identifier'];
             }
         }
@@ -361,7 +361,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             'email'               => $data['email'],
             'phone'               => $data['phone'] ?? NULL,
             'role'                => $data['role'],
-            'password'            => ! empty($data['password']) ? Hash::make($data['password']) : Hash::make('password123'),
+            'password'            => !empty($data['password']) ? Hash::make($data['password']) : Hash::make('password123'),
             'is_active'           => $data['is_active'] ?? TRUE,
             'email_verified_at'   => isset($data['email_verified']) && $data['email_verified'] ? now() : NULL,
             'timezone'            => $data['timezone'] ?? 'UTC',

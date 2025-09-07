@@ -1,22 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use OTPHP\TOTP;
-use OTPHP\Factory;
+use Carbon\Carbon;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use OTPHP\TOTP;
 
 /**
  * MultiFactorAuthService
- * 
+ *
  * Comprehensive MFA service that provides:
  * - Google Authenticator (TOTP) integration
  * - SMS backup verification
@@ -28,11 +27,17 @@ use Carbon\Carbon;
 class MultiFactorAuthService
 {
     private const BACKUP_CODE_LENGTH = 8;
+
     private const BACKUP_CODE_COUNT = 10;
+
     private const TOTP_WINDOW = 30; // seconds
+
     private const TOTP_LEEWAY = 1; // Allow 1 step before/after for time sync issues
+
     private const RATE_LIMIT_ATTEMPTS = 5;
+
     private const RATE_LIMIT_WINDOW = 300; // 5 minutes
+
     private const TRUSTED_DEVICE_DURATION = 2592000; // 30 days
 
     protected SecurityMonitoringService $securityMonitoring;
@@ -44,8 +49,8 @@ class MultiFactorAuthService
 
     /**
      * Generate MFA setup data for a user including QR code and backup codes
-     * 
-     * @param User $user
+     *
+     * @param  User  $user
      * @return array
      */
     public function generateSetup(User $user): array
@@ -53,76 +58,77 @@ class MultiFactorAuthService
         try {
             // Generate secret key
             $secret = $this->generateSecretKey();
-            
+
             // Create TOTP instance
             $totp = TOTP::create($secret);
             $totp->setLabel($user->email);
             $totp->setIssuer(config('app.name', 'HD Tickets'));
             $totp->setPeriod(self::TOTP_WINDOW);
-            
+
             // Generate QR code
             $qrCodeUrl = $this->generateQRCode($totp->getProvisioningUri());
-            
+
             // Generate backup codes
             $backupCodes = $this->generateBackupCodes($user);
-            
+
             // Store setup data temporarily (don't enable MFA until confirmed)
             Cache::put("mfa_setup_{$user->id}", [
-                'secret' => $secret,
+                'secret'       => $secret,
                 'backup_codes' => $backupCodes,
-                'created_at' => now()->toISOString()
+                'created_at'   => now()->toISOString(),
             ], 900); // 15 minutes to complete setup
 
             Log::info('MFA setup initiated', [
                 'user_id' => $user->id,
-                'email' => $user->email
+                'email'   => $user->email,
             ]);
 
             return [
-                'secret_key' => $secret,
-                'qr_code_url' => $qrCodeUrl,
+                'secret_key'   => $secret,
+                'qr_code_url'  => $qrCodeUrl,
                 'backup_codes' => $backupCodes,
-                'issuer' => config('app.name', 'HD Tickets'),
-                'account' => $user->email
+                'issuer'       => config('app.name', 'HD Tickets'),
+                'account'      => $user->email,
             ];
-
         } catch (\Exception $e) {
             Log::error('MFA setup generation failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
             ]);
+
             throw new \RuntimeException('Failed to generate MFA setup data');
         }
     }
 
     /**
      * Verify MFA code and confirm setup
-     * 
-     * @param User $user
-     * @param string $code
+     *
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verifyAndConfirmSetup(User $user, string $code): bool
     {
         try {
             $setupData = Cache::get("mfa_setup_{$user->id}");
-            
+
             if (!$setupData) {
                 Log::warning('MFA setup verification attempted without active setup', [
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ]);
-                return false;
+
+                return FALSE;
             }
 
             // Verify the code
             if ($this->verifyTOTPCode($setupData['secret'], $code)) {
                 // Enable MFA for the user
                 $user->update([
-                    'mfa_enabled' => true,
-                    'mfa_secret' => encrypt($setupData['secret']),
+                    'mfa_enabled'      => TRUE,
+                    'mfa_secret'       => encrypt($setupData['secret']),
                     'mfa_backup_codes' => encrypt(json_encode($setupData['backup_codes'])),
-                    'mfa_enabled_at' => now()
+                    'mfa_enabled_at'   => now(),
                 ]);
 
                 // Clear setup cache
@@ -138,38 +144,38 @@ class MultiFactorAuthService
 
                 Log::info('MFA enabled for user', [
                     'user_id' => $user->id,
-                    'email' => $user->email
+                    'email'   => $user->email,
                 ]);
 
-                return true;
+                return TRUE;
             }
 
             // Log failed verification
             $this->logFailedMFAAttempt($user, $code, 'setup_verification');
-            
-            return false;
 
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('MFA setup verification failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Verify MFA code during login
-     * 
-     * @param User $user
-     * @param string $code
-     * @param string|null $backupCode
+     *
+     * @param  User        $user
+     * @param  string      $code
+     * @param  string|null $backupCode
      * @return bool
      */
-    public function verifyCode(User $user, string $code, ?string $backupCode = null): bool
+    public function verifyCode(User $user, string $code, ?string $backupCode = NULL): bool
     {
         if (!$user->mfa_enabled) {
-            return true; // MFA not enabled for user
+            return TRUE; // MFA not enabled for user
         }
 
         // Check rate limiting
@@ -180,7 +186,8 @@ class MultiFactorAuthService
                 request(),
                 ['attempts_exceeded' => self::RATE_LIMIT_ATTEMPTS]
             );
-            return false;
+
+            return FALSE;
         }
 
         try {
@@ -188,53 +195,55 @@ class MultiFactorAuthService
             if ($backupCode && $this->verifyBackupCode($user, $backupCode)) {
                 $this->resetRateLimit($user);
                 $this->logSuccessfulMFAAttempt($user, 'backup_code');
-                return true;
+
+                return TRUE;
             }
 
             // Then try TOTP code
             if ($code && $this->verifyUserTOTPCode($user, $code)) {
                 $this->resetRateLimit($user);
                 $this->logSuccessfulMFAAttempt($user, 'totp');
-                return true;
+
+                return TRUE;
             }
 
             // Log failed attempt
             $this->logFailedMFAAttempt($user, $code, 'login_verification');
             $this->incrementRateLimit($user);
-            
-            return false;
 
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('MFA verification failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Disable MFA for a user
-     * 
-     * @param User $user
-     * @param User $disabledBy
-     * @param string $reason
+     *
+     * @param  User   $user
+     * @param  User   $disabledBy
+     * @param  string $reason
      * @return bool
      */
     public function disableMFA(User $user, User $disabledBy, string $reason = ''): bool
     {
         try {
             if (!$user->mfa_enabled) {
-                return true;
+                return TRUE;
             }
 
             $user->update([
-                'mfa_enabled' => false,
-                'mfa_secret' => null,
-                'mfa_backup_codes' => null,
-                'mfa_disabled_at' => now(),
-                'mfa_disabled_by' => $disabledBy->id,
-                'mfa_disabled_reason' => $reason
+                'mfa_enabled'         => FALSE,
+                'mfa_secret'          => NULL,
+                'mfa_backup_codes'    => NULL,
+                'mfa_disabled_at'     => now(),
+                'mfa_disabled_by'     => $disabledBy->id,
+                'mfa_disabled_reason' => $reason,
             ]);
 
             // Clear rate limiting
@@ -249,40 +258,40 @@ class MultiFactorAuthService
                 $user,
                 request(),
                 [
-                    'disabled_by' => $disabledBy->id,
+                    'disabled_by'       => $disabledBy->id,
                     'disabled_by_email' => $disabledBy->email,
-                    'reason' => $reason
+                    'reason'            => $reason,
                 ]
             );
 
             Log::info('MFA disabled for user', [
-                'user_id' => $user->id,
+                'user_id'     => $user->id,
                 'disabled_by' => $disabledBy->id,
-                'reason' => $reason
+                'reason'      => $reason,
             ]);
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('MFA disable failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Generate new backup codes for a user
-     * 
-     * @param User $user
-     * @param int $count
+     *
+     * @param  User  $user
+     * @param  int   $count
      * @return array
      */
     public function generateBackupCodes(User $user, int $count = self::BACKUP_CODE_COUNT): array
     {
         $codes = [];
-        
+
         for ($i = 0; $i < $count; $i++) {
             $codes[] = strtoupper(Str::random(self::BACKUP_CODE_LENGTH));
         }
@@ -290,8 +299,8 @@ class MultiFactorAuthService
         // If MFA is already enabled, store the new codes
         if ($user->mfa_enabled) {
             $user->update([
-                'mfa_backup_codes' => encrypt(json_encode($codes)),
-                'mfa_backup_codes_generated_at' => now()
+                'mfa_backup_codes'              => encrypt(json_encode($codes)),
+                'mfa_backup_codes_generated_at' => now(),
             ]);
 
             $this->securityMonitoring->logSecurityEvent(
@@ -307,29 +316,29 @@ class MultiFactorAuthService
 
     /**
      * Verify backup code
-     * 
-     * @param User $user
-     * @param string $code
+     *
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verifyBackupCode(User $user, string $code): bool
     {
         try {
             if (!$user->mfa_enabled || !$user->mfa_backup_codes) {
-                return false;
+                return FALSE;
             }
 
-            $backupCodes = json_decode(decrypt($user->mfa_backup_codes), true);
+            $backupCodes = json_decode(decrypt($user->mfa_backup_codes), TRUE);
             $codeIndex = array_search(strtoupper($code), $backupCodes);
 
-            if ($codeIndex !== false) {
+            if ($codeIndex !== FALSE) {
                 // Remove used backup code
                 unset($backupCodes[$codeIndex]);
                 $backupCodes = array_values($backupCodes); // Reindex array
 
                 // Update user's backup codes
                 $user->update([
-                    'mfa_backup_codes' => encrypt(json_encode($backupCodes))
+                    'mfa_backup_codes' => encrypt(json_encode($backupCodes)),
                 ]);
 
                 // Log security event
@@ -340,26 +349,26 @@ class MultiFactorAuthService
                     ['remaining_codes' => count($backupCodes)]
                 );
 
-                return true;
+                return TRUE;
             }
 
-            return false;
-
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('Backup code verification failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Trust a device for a user
-     * 
-     * @param User $user
-     * @param string $deviceName
-     * @param array $deviceInfo
+     *
+     * @param  User   $user
+     * @param  string $deviceName
+     * @param  array  $deviceInfo
      * @return string Device token
      */
     public function trustDevice(User $user, string $deviceName, array $deviceInfo = []): string
@@ -369,14 +378,14 @@ class MultiFactorAuthService
             $deviceFingerprint = $this->generateDeviceFingerprint($deviceInfo);
 
             DB::table('trusted_devices')->insert([
-                'user_id' => $user->id,
-                'device_name' => $deviceName,
-                'device_token' => Hash::make($deviceToken),
+                'user_id'            => $user->id,
+                'device_name'        => $deviceName,
+                'device_token'       => Hash::make($deviceToken),
                 'device_fingerprint' => $deviceFingerprint,
-                'device_info' => json_encode($deviceInfo),
-                'trusted_at' => now(),
-                'expires_at' => now()->addSeconds(self::TRUSTED_DEVICE_DURATION),
-                'last_used_at' => now()
+                'device_info'        => json_encode($deviceInfo),
+                'trusted_at'         => now(),
+                'expires_at'         => now()->addSeconds(self::TRUSTED_DEVICE_DURATION),
+                'last_used_at'       => now(),
             ]);
 
             $this->securityMonitoring->logSecurityEvent(
@@ -384,27 +393,27 @@ class MultiFactorAuthService
                 $user,
                 request(),
                 [
-                    'device_name' => $deviceName,
-                    'device_fingerprint' => substr($deviceFingerprint, 0, 8) . '...'
+                    'device_name'        => $deviceName,
+                    'device_fingerprint' => substr($deviceFingerprint, 0, 8) . '...',
                 ]
             );
 
             return $deviceToken;
-
         } catch (\Exception $e) {
             Log::error('Device trust failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             throw new \RuntimeException('Failed to trust device');
         }
     }
 
     /**
      * Check if device is trusted
-     * 
-     * @param User $user
-     * @param string $deviceToken
+     *
+     * @param  User   $user
+     * @param  string $deviceToken
      * @return bool
      */
     public function isDeviceTrusted(User $user, string $deviceToken): bool
@@ -421,27 +430,27 @@ class MultiFactorAuthService
                     DB::table('trusted_devices')
                         ->where('id', $device->id)
                         ->update(['last_used_at' => now()]);
-                    
-                    return true;
+
+                    return TRUE;
                 }
             }
 
-            return false;
-
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('Device trust check failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Revoke all trusted devices for a user
-     * 
-     * @param User $user
-     * @return int Number of devices revoked
+     *
+     * @param  User $user
+     * @return int  Number of devices revoked
      */
     public function revokeAllTrustedDevices(User $user): int
     {
@@ -460,20 +469,20 @@ class MultiFactorAuthService
             }
 
             return $count;
-
         } catch (\Exception $e) {
             Log::error('Trusted device revocation failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
 
     /**
      * Get user's MFA status and statistics
-     * 
-     * @param User $user
+     *
+     * @param  User  $user
      * @return array
      */
     public function getMFAStatus(User $user): array
@@ -481,7 +490,7 @@ class MultiFactorAuthService
         try {
             $backupCodesCount = 0;
             if ($user->mfa_enabled && $user->mfa_backup_codes) {
-                $backupCodes = json_decode(decrypt($user->mfa_backup_codes), true);
+                $backupCodes = json_decode(decrypt($user->mfa_backup_codes), TRUE);
                 $backupCodesCount = count($backupCodes);
             }
 
@@ -491,49 +500,48 @@ class MultiFactorAuthService
                 ->count();
 
             return [
-                'enabled' => $user->mfa_enabled,
-                'enabled_at' => $user->mfa_enabled_at,
-                'backup_codes_count' => $backupCodesCount,
+                'enabled'               => $user->mfa_enabled,
+                'enabled_at'            => $user->mfa_enabled_at,
+                'backup_codes_count'    => $backupCodesCount,
                 'trusted_devices_count' => $trustedDevicesCount,
-                'last_successful_auth' => $this->getLastSuccessfulMFAAuth($user),
+                'last_successful_auth'  => $this->getLastSuccessfulMFAAuth($user),
                 'failed_attempts_today' => $this->getFailedAttemptsToday($user),
-                'security_score' => $this->calculateMFASecurityScore($user)
+                'security_score'        => $this->calculateMFASecurityScore($user),
             ];
-
         } catch (\Exception $e) {
             Log::error('MFA status retrieval failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            
+
             return [
-                'enabled' => false,
-                'error' => 'Status retrieval failed'
+                'enabled' => FALSE,
+                'error'   => 'Status retrieval failed',
             ];
         }
     }
 
     /**
      * Send MFA code via SMS (backup method)
-     * 
-     * @param User $user
+     *
+     * @param  User $user
      * @return bool
      */
     public function sendSMSCode(User $user): bool
     {
         try {
             if (!$user->phone || !$user->phone_verified) {
-                return false;
+                return FALSE;
             }
 
             // Generate 6-digit code
             $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-            
+
             // Store code temporarily
             Cache::put("sms_mfa_{$user->id}", [
-                'code' => Hash::make($code),
+                'code'       => Hash::make($code),
                 'expires_at' => now()->addMinutes(5),
-                'attempts' => 0
+                'attempts'   => 0,
             ], 300); // 5 minutes
 
             // Send SMS (implement with your SMS provider)
@@ -546,63 +554,64 @@ class MultiFactorAuthService
                 ['phone' => substr($user->phone, -4)] // Only log last 4 digits
             );
 
-            return true;
-
+            return TRUE;
         } catch (\Exception $e) {
             Log::error('SMS MFA code send failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Verify SMS code
-     * 
-     * @param User $user
-     * @param string $code
+     *
+     * @param  User   $user
+     * @param  string $code
      * @return bool
      */
     public function verifySMSCode(User $user, string $code): bool
     {
         try {
             $smsData = Cache::get("sms_mfa_{$user->id}");
-            
+
             if (!$smsData || now()->gt($smsData['expires_at'])) {
-                return false;
+                return FALSE;
             }
 
             // Check attempt limit
             if ($smsData['attempts'] >= 3) {
                 Cache::forget("sms_mfa_{$user->id}");
-                return false;
+
+                return FALSE;
             }
 
             if (Hash::check($code, $smsData['code'])) {
                 Cache::forget("sms_mfa_{$user->id}");
-                
+
                 $this->securityMonitoring->logSecurityEvent(
                     'mfa_sms_verified',
                     $user,
                     request()
                 );
-                
-                return true;
+
+                return TRUE;
             }
 
             // Increment attempt counter
             $smsData['attempts']++;
             Cache::put("sms_mfa_{$user->id}", $smsData, 300);
-            
-            return false;
 
+            return FALSE;
         } catch (\Exception $e) {
             Log::error('SMS code verification failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -617,18 +626,19 @@ class MultiFactorAuthService
     {
         try {
             $options = new QROptions([
-                'version' => 5,
-                'outputType' => QRCode::OUTPUT_IMAGE_PNG,
-                'eccLevel' => QRCode::ECC_L,
-                'scale' => 5,
-                'imageBase64' => true,
+                'version'     => 5,
+                'outputType'  => QRCode::OUTPUT_IMAGE_PNG,
+                'eccLevel'    => QRCode::ECC_L,
+                'scale'       => 5,
+                'imageBase64' => TRUE,
             ]);
 
             $qrcode = new QRCode($options);
-            return $qrcode->render($uri);
 
+            return $qrcode->render($uri);
         } catch (\Exception $e) {
             Log::error('QR code generation failed', ['error' => $e->getMessage()]);
+
             throw new \RuntimeException('Failed to generate QR code');
         }
     }
@@ -638,30 +648,32 @@ class MultiFactorAuthService
         try {
             $totp = TOTP::create($secret);
             $totp->setPeriod(self::TOTP_WINDOW);
-            
-            return $totp->verify($code, null, self::TOTP_LEEWAY);
 
+            return $totp->verify($code, NULL, self::TOTP_LEEWAY);
         } catch (\Exception $e) {
             Log::error('TOTP verification failed', ['error' => $e->getMessage()]);
-            return false;
+
+            return FALSE;
         }
     }
 
     private function verifyUserTOTPCode(User $user, string $code): bool
     {
         if (!$user->mfa_secret) {
-            return false;
+            return FALSE;
         }
 
         try {
             $secret = decrypt($user->mfa_secret);
+
             return $this->verifyTOTPCode($secret, $code);
         } catch (\Exception $e) {
             Log::error('User TOTP verification failed', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
-            return false;
+
+            return FALSE;
         }
     }
 
@@ -669,7 +681,7 @@ class MultiFactorAuthService
     {
         $key = "mfa_attempts_{$user->id}";
         $attempts = Cache::get($key, 0);
-        
+
         return $attempts < self::RATE_LIMIT_ATTEMPTS;
     }
 
@@ -702,8 +714,8 @@ class MultiFactorAuthService
             $user,
             request(),
             [
-                'context' => $context,
-                'code_length' => strlen($code)
+                'context'     => $context,
+                'code_length' => strlen($code),
             ]
         );
     }
@@ -715,7 +727,7 @@ class MultiFactorAuthService
             $deviceInfo['screen_resolution'] ?? '',
             $deviceInfo['timezone'] ?? '',
             $deviceInfo['language'] ?? '',
-            request()->ip()
+            request()->ip(),
         ]);
 
         return hash('sha256', $fingerprint);
@@ -724,7 +736,7 @@ class MultiFactorAuthService
     private function getLastSuccessfulMFAAuth(User $user): ?Carbon
     {
         // Implementation would query security events for last successful MFA
-        return null;
+        return NULL;
     }
 
     private function getFailedAttemptsToday(User $user): int
@@ -736,31 +748,31 @@ class MultiFactorAuthService
     private function calculateMFASecurityScore(User $user): int
     {
         $score = 0;
-        
+
         if ($user->mfa_enabled) {
             $score += 40;
         }
-        
+
         // Add points for backup codes
         if ($user->mfa_backup_codes) {
-            $codes = json_decode(decrypt($user->mfa_backup_codes), true);
+            $codes = json_decode(decrypt($user->mfa_backup_codes), TRUE);
             if (count($codes) >= 5) {
                 $score += 20;
             }
         }
-        
+
         // Add points for trusted devices (but not too many)
         $trustedDevices = DB::table('trusted_devices')
             ->where('user_id', $user->id)
             ->where('expires_at', '>', now())
             ->count();
-        
+
         $score += min($trustedDevices * 5, 20);
-        
+
         // Deduct points for recent failures
         $recentFailures = $this->getFailedAttemptsToday($user);
         $score -= $recentFailures * 5;
-        
+
         return max(0, min(100, $score));
     }
 
@@ -769,11 +781,11 @@ class MultiFactorAuthService
         // Implement SMS sending with your provider (Twilio, Nexmo, etc.)
         // For now, return true to indicate success
         Log::info('SMS would be sent', [
-            'phone' => substr($phone, -4),
-            'message_length' => strlen($message)
+            'phone'          => substr($phone, -4),
+            'message_length' => strlen($message),
         ]);
-        
-        return true;
+
+        return TRUE;
     }
 
     private function base32_encode(string $data): string
@@ -782,23 +794,23 @@ class MultiFactorAuthService
         $output = '';
         $v = 0;
         $vbits = 0;
-        
+
         for ($i = 0, $j = strlen($data); $i < $j; $i++) {
             $v <<= 8;
             $v |= ord($data[$i]);
             $vbits += 8;
-            
+
             while ($vbits >= 5) {
                 $vbits -= 5;
                 $output .= $alphabet[($v >> $vbits) & 31];
             }
         }
-        
+
         if ($vbits > 0) {
             $v <<= (5 - $vbits);
             $output .= $alphabet[$v & 31];
         }
-        
+
         return $output;
     }
 }

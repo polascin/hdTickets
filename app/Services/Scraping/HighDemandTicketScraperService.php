@@ -234,7 +234,7 @@ class HighDemandTicketScraperService
                 try {
                     $sessionResult = $this->scrapeWithSession($client, $platform, $criteria, $sessionIndex);
 
-                    if (! empty($sessionResult)) {
+                    if (!empty($sessionResult)) {
                         $sessionResults[] = $sessionResult;
                     }
 
@@ -262,7 +262,7 @@ class HighDemandTicketScraperService
             }
 
             // Merge results from all sessions
-            if (! empty($sessionResults)) {
+            if (!empty($sessionResults)) {
                 $results = $this->mergeSessionResults($sessionResults);
             }
 
@@ -426,12 +426,12 @@ class HighDemandTicketScraperService
         $params = [];
 
         // Add high-demand specific parameters
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['q'] = $criteria['keyword'];
             $params['search'] = $criteria['keyword'];
         }
 
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
@@ -439,7 +439,7 @@ class HighDemandTicketScraperService
         $params['availability'] = 'available';
         $params['sort'] = 'date_asc';
 
-        return $baseUrl . (! empty($params) ? '?' . http_build_query($params) : '');
+        return $baseUrl . (!empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**
@@ -527,7 +527,7 @@ class HighDemandTicketScraperService
             $availabilityStatus = $this->normalizeAvailabilityStatus($availability);
 
             // Skip sold out tickets unless specifically monitoring
-            if ($availabilityStatus === 'sold_out' && ! $this->isMonitoringMode()) {
+            if ($availabilityStatus === 'sold_out' && !$this->isMonitoringMode()) {
                 return NULL;
             }
 
@@ -704,7 +704,7 @@ class HighDemandTicketScraperService
 
         foreach ($allTickets as $ticket) {
             $key = $ticket['title'] . '|' . $ticket['date'];
-            if (! isset($seen[$key])) {
+            if (!isset($seen[$key])) {
                 $uniqueTickets[] = $ticket;
                 $seen[$key] = TRUE;
             }
@@ -756,7 +756,7 @@ class HighDemandTicketScraperService
         $strategyConfig = $this->queueStrategies[$strategy];
         if ($strategyConfig['bypass_queue_attempts']) {
             $bypassResults = $this->attemptQueueBypass($platform, $criteria);
-            if (! empty($bypassResults)) {
+            if (!empty($bypassResults)) {
                 return $bypassResults;
             }
         }

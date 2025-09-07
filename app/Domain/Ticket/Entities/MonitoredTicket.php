@@ -145,7 +145,7 @@ class MonitoredTicket
      */
     public function updatePrice(Price $newPrice): void
     {
-        if (! $this->price->equals($newPrice)) {
+        if (!$this->price->equals($newPrice)) {
             $oldPrice = $this->price;
             $this->price = $newPrice;
             $this->updatedAt = new DateTimeImmutable();
@@ -165,7 +165,7 @@ class MonitoredTicket
      */
     public function updateAvailability(AvailabilityStatus $newStatus): void
     {
-        if (! $this->availabilityStatus->equals($newStatus)) {
+        if (!$this->availabilityStatus->equals($newStatus)) {
             $oldStatus = $this->availabilityStatus;
             $this->availabilityStatus = $newStatus;
             $this->updatedAt = new DateTimeImmutable();

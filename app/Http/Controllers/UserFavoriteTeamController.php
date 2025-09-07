@@ -301,7 +301,7 @@ class UserFavoriteTeamController extends Controller
     {
         $sport = $request->get('sport');
 
-        if (! $sport) {
+        if (!$sport) {
             return response()->json(['error' => 'Sport parameter required'], 400);
         }
 
@@ -384,7 +384,7 @@ class UserFavoriteTeamController extends Controller
         $redirectResponse = redirect()->route('preferences.teams.index')
             ->with('success', $message);
 
-        if (! empty($errors)) {
+        if (!empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 

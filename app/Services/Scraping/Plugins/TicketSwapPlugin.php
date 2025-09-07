@@ -194,7 +194,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
 
         // Remove empty parameters
         $params = array_filter($params, function ($value) {
-            return ! empty($value);
+            return !empty($value);
         });
 
         return $this->baseUrl . '/search?' . http_build_query($params);
@@ -209,7 +209,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
             Log::info("TicketSwap Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -324,7 +324,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -346,7 +346,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
                 'category'     => $category,
                 'availability' => 'resale',
                 'ticket_count' => $this->parseTicketCount($ticketCount),
-                'verified'     => ! empty($verified),
+                'verified'     => !empty($verified),
                 'scraped_at'   => now(),
             ];
         } catch (Exception $e) {

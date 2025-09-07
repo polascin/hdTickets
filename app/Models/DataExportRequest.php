@@ -122,7 +122,7 @@ class DataExportRequest extends Model
     public function isAvailableForDownload(): bool
     {
         return $this->isCompleted()
-               && ! $this->isExpired()
+               && !$this->isExpired()
                && $this->file_path
                && Storage::exists($this->file_path);
     }
@@ -135,7 +135,7 @@ class DataExportRequest extends Model
      */
     public function getDownloadUrl(): ?string
     {
-        if (! $this->isAvailableForDownload()) {
+        if (!$this->isAvailableForDownload()) {
             return NULL;
         }
 
@@ -150,7 +150,7 @@ class DataExportRequest extends Model
      */
     public function getFormattedFileSizeAttribute(): ?string
     {
-        if (! $this->file_size) {
+        if (!$this->file_size) {
             return NULL;
         }
 
@@ -172,7 +172,7 @@ class DataExportRequest extends Model
      */
     public function markAsProcessing(): bool
     {
-        if (! $this->isPending()) {
+        if (!$this->isPending()) {
             return FALSE;
         }
 
@@ -191,7 +191,7 @@ class DataExportRequest extends Model
      */
     public function markAsCompleted(string $filePath, int $fileSize): bool
     {
-        if (! $this->isProcessing()) {
+        if (!$this->isProcessing()) {
             return FALSE;
         }
 

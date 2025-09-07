@@ -192,7 +192,7 @@ class RealTimeDashboardController extends Controller
                 'summary' => [
                     'total'     => count($results),
                     'healthy'   => count(array_filter($results, fn ($r) => $r['healthy'] ?? FALSE)),
-                    'unhealthy' => count(array_filter($results, fn ($r) => ! ($r['healthy'] ?? FALSE))),
+                    'unhealthy' => count(array_filter($results, fn ($r) => !($r['healthy'] ?? FALSE))),
                 ],
             ]);
         } catch (Exception $e) {

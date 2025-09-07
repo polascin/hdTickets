@@ -181,7 +181,7 @@ final readonly class AvailabilityStatus
         }
 
         $normalizedStatus = strtoupper(trim($status));
-        if (! in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
+        if (!in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid availability status: %s. Valid statuses: %s',

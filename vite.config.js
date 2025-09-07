@@ -11,26 +11,20 @@ export default defineConfig({
       input: [
         // Core application assets
         'resources/css/app.css',
+        'resources/css/design-system.css',
+        'resources/css/components.css',
         'resources/js/app.js',
+        
+        // Ticket system assets
+        'resources/js/tickets/index.js',
+        'resources/js/tickets/TicketFilters.js',
+        'resources/js/tickets/PriceMonitor.js',
+        'resources/css/tickets.css',
         
         // Welcome page assets
         'resources/js/welcome.js',
         'resources/css/welcome.css',
-        
-        // Component-specific assets
-        'resources/css/components/loading-states.css',
-        'resources/css/components/theme-system.css',
-        'resources/css/components/mobile-enhancements.css',
-        
-        // Utility assets
-        'resources/js/utils/loadingManager.js',
-        'resources/js/utils/themeManager.js',
-        'resources/js/utils/mobileTouchUtils.js',
-        
-        // Critical CSS entry point
-        'resources/css/critical.css',
       ],
-      refresh: true,
       // Enable hot reload for Blade files
       refresh: [
         'resources/routes/**',
@@ -45,13 +39,14 @@ export default defineConfig({
   ],
   
   resolve: {
-    alias: {
-      '@': resolve(__dirname, 'resources/js'),
-      '@css': resolve(__dirname, 'resources/css'),
-      '@images': resolve(__dirname, 'resources/images'),
-      '@components': resolve(__dirname, 'resources/js/components'),
-      '@utils': resolve(__dirname, 'resources/js/utils'),
-      '@styles': resolve(__dirname, 'resources/css'),
+      alias: {
+        '@': resolve(__dirname, 'resources/js'),
+        '@css': resolve(__dirname, 'resources/css'),
+        '@images': resolve(__dirname, 'resources/images'),
+        '@components': resolve(__dirname, 'resources/js/components'),
+        '@utils': resolve(__dirname, 'resources/js/utils'),
+        '@styles': resolve(__dirname, 'resources/css'),
+        '@tickets': resolve(__dirname, 'resources/js/tickets'),
     },
   },
   
@@ -93,6 +88,9 @@ export default defineConfig({
           }
           if (id.includes('/resources/js/utils/')) {
             return 'app-utils';
+          }
+          if (id.includes('/resources/js/tickets/')) {
+            return 'tickets';
           }
           if (id.includes('/resources/css/components/')) {
             return 'component-styles';
@@ -200,6 +198,9 @@ export default defineConfig({
       'axios',
       '@alpinejs/persist',
       '@alpinejs/focus',
+      'chart.js',
+      'laravel-echo',
+      'pusher-js',
     ],
     // Exclude from optimization
     exclude: [

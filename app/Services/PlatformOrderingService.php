@@ -47,16 +47,16 @@ class PlatformOrderingService
             ->sortBy('order');
 
         // Filter platforms if includeOnly is specified
-        if (! empty($includeOnly)) {
+        if (!empty($includeOnly)) {
             $platforms = $platforms->filter(function ($platform) use ($includeOnly) {
                 return in_array($platform['key'], $includeOnly, TRUE);
             });
         }
 
         // Exclude specific platforms if specified
-        if (! empty($excludePlatforms)) {
+        if (!empty($excludePlatforms)) {
             $platforms = $platforms->filter(function ($platform) use ($excludePlatforms) {
-                return ! in_array($platform['key'], $excludePlatforms, TRUE);
+                return !in_array($platform['key'], $excludePlatforms, TRUE);
             });
         }
 

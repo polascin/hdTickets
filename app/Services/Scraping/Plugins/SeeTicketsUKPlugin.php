@@ -13,7 +13,7 @@ class SeeTicketsUKPlugin extends BaseScraperPlugin
 {
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 

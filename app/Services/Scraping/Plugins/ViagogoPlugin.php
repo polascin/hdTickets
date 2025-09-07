@@ -17,7 +17,7 @@ class ViagogoPlugin extends BaseScraperPlugin
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -166,23 +166,23 @@ class ViagogoPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['q'] = urlencode($criteria['keyword']);
         }
 
-        if (! empty($criteria['city'])) {
+        if (!empty($criteria['city'])) {
             $params['city'] = urlencode($criteria['city']);
         }
 
-        if (! empty($criteria['country'])) {
+        if (!empty($criteria['country'])) {
             $params['country'] = urlencode($criteria['country']);
         }
 
-        if (! empty($criteria['category'])) {
+        if (!empty($criteria['category'])) {
             $params['category'] = urlencode($criteria['category']);
         }
 
-        if (! empty($criteria['date_range'])) {
+        if (!empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['fromDate'] = $criteria['date_range']['start'];
             }

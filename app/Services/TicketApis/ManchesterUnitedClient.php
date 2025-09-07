@@ -158,7 +158,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                     }
 
                     $fixture = $this->extractFixtureFromNode($node);
-                    if (! empty($fixture['name'])) {
+                    if (!empty($fixture['name'])) {
                         // Filter by keyword if provided
                         if (empty($keyword) || stripos($fixture['name'], $keyword) !== FALSE
                             || stripos($fixture['opponent'], $keyword) !== FALSE) {
@@ -296,7 +296,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 'status'              => trim($status),
                 'home_team'           => 'Manchester United',
                 'away_team'           => trim($opponent),
-                'ticket_availability' => ! empty($ticketLink) ? 'available' : 'check_website',
+                'ticket_availability' => !empty($ticketLink) ? 'available' : 'check_website',
                 'source'              => 'manchester_united_scrape',
                 'scraped_at'          => now()->toISOString(),
             ];
@@ -422,7 +422,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             $categoryNodes = $crawler->filter('.seating-category, .ticket-type, [data-testid="seat-category"]');
             $categoryNodes->each(function (Crawler $node) use (&$ticketInfo): void {
                 $categoryName = $node->filter('.category-name, h3, .title')->text('');
-                if (! empty($categoryName)) {
+                if (!empty($categoryName)) {
                     $ticketInfo['categories'][] = trim($categoryName);
                 }
             });

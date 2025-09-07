@@ -109,7 +109,7 @@ class AutomatedPurchaseEngine
         foreach ($tickets as $ticket) {
             $platform = $ticket->platform;
 
-            if (! isset($platformStats[$platform])) {
+            if (!isset($platformStats[$platform])) {
                 $platformStats[$platform] = [
                     'total_listings'      => 0,
                     'price_range'         => ['min' => PHP_FLOAT_MAX, 'max' => 0],
@@ -195,7 +195,7 @@ class AutomatedPurchaseEngine
         try {
             // Validate purchase request
             $validation = $this->validatePurchaseRequest($purchaseRequest);
-            if (! $validation['valid']) {
+            if (!$validation['valid']) {
                 return $this->buildFailureResponse($transactionId, 'Validation failed', $validation['errors']);
             }
 
@@ -345,7 +345,7 @@ class AutomatedPurchaseEngine
         $platform = $ticket->platform;
         $platformData = $platformPerformance['platforms'][$platform] ?? NULL;
 
-        if (! $platformData) {
+        if (!$platformData) {
             return 50; // Default score for unknown platforms
         }
 
@@ -512,7 +512,7 @@ class AutomatedPurchaseEngine
     {
         $userSettings = $user->preferences['auto_purchase'] ?? [];
 
-        if (! ($userSettings['enabled'] ?? FALSE)) {
+        if (!($userSettings['enabled'] ?? FALSE)) {
             return FALSE;
         }
 
@@ -635,7 +635,7 @@ class AutomatedPurchaseEngine
         $platform = $ticket->platform;
         $platformConfig = config("purchase_automation.platforms.{$platform}");
 
-        if (! $platformConfig) {
+        if (!$platformConfig) {
             return $ticket->total_price * 0.15; // Default 15% fees
         }
 
@@ -669,7 +669,7 @@ class AutomatedPurchaseEngine
         // Required fields
         $required = ['ticket_id', 'user_id', 'quantity'];
         foreach ($required as $field) {
-            if (! isset($request[$field]) || empty($request[$field])) {
+            if (!isset($request[$field]) || empty($request[$field])) {
                 $errors[] = "Missing required field: {$field}";
             }
         }

@@ -90,7 +90,7 @@ class ScrapeTicketmaster extends Command
                 $this->info("Total found: {$result['total_found']}");
                 $this->info("Successfully imported: {$result['imported']}");
 
-                if (! empty($result['errors'])) {
+                if (!empty($result['errors'])) {
                     $this->warn('Errors encountered: ' . count($result['errors']));
                     foreach ($result['errors'] as $error) {
                         $this->error("- {$error['event']}: {$error['error']}");
@@ -136,7 +136,7 @@ class ScrapeTicketmaster extends Command
                 $this->info("Last scrape: {$stats['last_scrape']->format('Y-m-d H:i:s')}");
             }
 
-            if (! empty($stats['category_breakdown']) && $stats['category_breakdown']->isNotEmpty()) {
+            if (!empty($stats['category_breakdown']) && $stats['category_breakdown']->isNotEmpty()) {
                 $this->info("\nCategory breakdown:");
                 foreach ($stats['category_breakdown'] as $categoryStats) {
                     $categoryName = $categoryStats->category->name ?? 'Unknown';

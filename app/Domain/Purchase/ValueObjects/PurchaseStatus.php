@@ -268,7 +268,7 @@ final readonly class PurchaseStatus
         }
 
         $normalizedStatus = strtoupper(trim($status));
-        if (! in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
+        if (!in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid purchase status: %s. Valid statuses: %s',

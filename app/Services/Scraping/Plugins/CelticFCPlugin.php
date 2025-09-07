@@ -17,7 +17,7 @@ class CelticFCPlugin extends BaseScraperPlugin
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -161,23 +161,23 @@ class CelticFCPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['search'] = urlencode($criteria['keyword']);
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competition'] = urlencode($criteria['competition']);
         }
 
-        if (! empty($criteria['opponent'])) {
+        if (!empty($criteria['opponent'])) {
             $params['opponent'] = urlencode($criteria['opponent']);
         }
 
-        if (! empty($criteria['ticket_type'])) {
+        if (!empty($criteria['ticket_type'])) {
             $params['type'] = urlencode($criteria['ticket_type']);
         }
 
-        if (! empty($criteria['date_range'])) {
+        if (!empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -238,7 +238,7 @@ class CelticFCPlugin extends BaseScraperPlugin
             }
 
             // Build match title if needed
-            if (empty($title) && ! empty($opponent)) {
+            if (empty($title) && !empty($opponent)) {
                 $title = "Celtic FC vs {$opponent}";
             }
 

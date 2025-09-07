@@ -133,7 +133,7 @@ class EventbriteClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -235,7 +235,7 @@ class EventbriteClient extends BaseWebScrapingClient
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = ! empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
 
             $price = $this->trySelectors($node, [
                 '.event-price',
@@ -318,7 +318,7 @@ class EventbriteClient extends BaseWebScrapingClient
                     $currency = 'EUR';
                 }
 
-                if (! empty($ticketName)) {
+                if (!empty($ticketName)) {
                     $ticketInfo['tickets'][] = [
                         'name'         => trim($ticketName),
                         'price'        => $price,
@@ -368,7 +368,7 @@ class EventbriteClient extends BaseWebScrapingClient
             'page' => 1,
         ];
 
-        if (! empty($location)) {
+        if (!empty($location)) {
             $params['location'] = $location;
         }
 

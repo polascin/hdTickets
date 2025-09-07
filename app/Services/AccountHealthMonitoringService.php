@@ -171,7 +171,7 @@ class AccountHealthMonitoringService
     {
         $checks = [
             'email_valid'      => filter_var($user->email, FILTER_VALIDATE_EMAIL) !== FALSE,
-            'username_valid'   => ! empty($user->username) && strlen($user->username) >= 3,
+            'username_valid'   => !empty($user->username) && strlen($user->username) >= 3,
             'profile_complete' => $this->isProfileComplete($user),
             'account_verified' => $user->email_verified_at !== NULL,
             'account_active'   => $user->is_active ?? TRUE,
@@ -216,7 +216,7 @@ class AccountHealthMonitoringService
         $patterns['unusual_hours'] = $recentLogins->filter(function ($login) use ($normalHours) {
             $hour = Carbon::parse($login->created_at)->hour;
 
-            return ! $normalHours->contains($hour);
+            return !$normalHours->contains($hour);
         })->count();
 
         // Check for multiple IPs (potential account sharing)
@@ -510,13 +510,13 @@ class AccountHealthMonitoringService
 
         switch ($checkName) {
             case 'basic_validation':
-                if (! $checkResult['details']['email_valid']) {
+                if (!$checkResult['details']['email_valid']) {
                     $recommendations[] = 'Update email address to a valid format';
                 }
-                if (! $checkResult['details']['account_verified']) {
+                if (!$checkResult['details']['account_verified']) {
                     $recommendations[] = 'Verify email address';
                 }
-                if (! $checkResult['details']['profile_complete']) {
+                if (!$checkResult['details']['profile_complete']) {
                     $recommendations[] = 'Complete user profile information';
                 }
 
@@ -538,13 +538,13 @@ class AccountHealthMonitoringService
 
                 break;
             case 'security_settings':
-                if (! $checkResult['details']['two_factor_enabled']) {
+                if (!$checkResult['details']['two_factor_enabled']) {
                     $recommendations[] = 'Enable two-factor authentication for additional security';
                 }
-                if (! $checkResult['details']['strong_password']) {
+                if (!$checkResult['details']['strong_password']) {
                     $recommendations[] = 'Update to a stronger password';
                 }
-                if (! $checkResult['details']['recent_password_change']) {
+                if (!$checkResult['details']['recent_password_change']) {
                     $recommendations[] = 'Consider changing password periodically';
                 }
 
@@ -599,7 +599,7 @@ class AccountHealthMonitoringService
      */
     protected function isProfileComplete(User $user): bool
     {
-        return ! empty($user->email) && ! empty($user->username) && ! empty($user->role);
+        return !empty($user->email) && !empty($user->username) && !empty($user->role);
     }
 
     /**
@@ -612,7 +612,7 @@ class AccountHealthMonitoringService
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (! $lastActivity) {
+        if (!$lastActivity) {
             return 999; // Never active
         }
 

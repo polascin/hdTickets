@@ -27,7 +27,7 @@ class ScraperDashboardController extends Controller
         $user = Auth::user();
 
         // Check if user has scraper privileges or is admin
-        if (! $user->isScraper() && ! $user->isAdmin()) {
+        if (!$user->isScraper() && !$user->isAdmin()) {
             abort(403, 'Access denied. Scraper privileges required.');
         }
 
@@ -70,7 +70,7 @@ class ScraperDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user->isScraper() && ! $user->isAdmin()) {
+        if (!$user->isScraper() && !$user->isAdmin()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -108,7 +108,7 @@ class ScraperDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user->isScraper() && ! $user->isAdmin()) {
+        if (!$user->isScraper() && !$user->isAdmin()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

@@ -73,11 +73,11 @@ class SmartTicketAlert extends Notification implements ShouldQueue
             ->line("**Platform:** {$ticket['platform']}");
 
         // Add venue and date if available
-        if (! empty($ticket['venue'])) {
+        if (!empty($ticket['venue'])) {
             $message->line("**Venue:** {$ticket['venue']}");
         }
 
-        if (! empty($ticket['event_date'])) {
+        if (!empty($ticket['event_date'])) {
             $message->line('**Date:** ' . date('M j, Y g:i A', strtotime($ticket['event_date'])));
         }
 

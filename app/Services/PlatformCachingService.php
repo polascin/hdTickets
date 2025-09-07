@@ -278,7 +278,7 @@ class PlatformCachingService
      */
     public function cacheHtmlResponse(string $platform, string $url, string $html): void
     {
-        if (! config('app.debug')) {
+        if (!config('app.debug')) {
             return; // Only cache HTML in debug mode
         }
 
@@ -303,7 +303,7 @@ class PlatformCachingService
      */
     public function getCachedHtmlResponse(string $platform, string $url): ?string
     {
-        if (! config('app.debug')) {
+        if (!config('app.debug')) {
             return NULL;
         }
 
@@ -380,7 +380,7 @@ class PlatformCachingService
         foreach ($popularSearches as $searchCriteria) {
             $cacheKey = $this->getSearchCacheKey($platform, $searchCriteria);
 
-            if (! Cache::has($cacheKey)) {
+            if (!Cache::has($cacheKey)) {
                 // This would typically trigger a background job to perform the search
                 // For now, we just log that cache warming is needed
                 Log::channel('ticket_apis')->info('Cache warming needed', [
@@ -459,7 +459,7 @@ class PlatformCachingService
                 $redis = Redis::connection();
                 $keys = $redis->keys($pattern);
 
-                if (! empty($keys)) {
+                if (!empty($keys)) {
                     $redis->del($keys);
                 }
             }

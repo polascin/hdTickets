@@ -156,7 +156,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
 
         // Remove empty parameters
         $params = array_filter($params, function ($value) {
-            return ! empty($value);
+            return !empty($value);
         });
 
         return $this->baseUrl . '/tickets?' . http_build_query($params);
@@ -173,7 +173,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
             Log::info("StadionWelt Germany Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -317,7 +317,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -351,7 +351,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
     {
         $eventDate = $this->parseDate($date);
 
-        if ($eventDate && ! empty($time)) {
+        if ($eventDate && !empty($time)) {
             $timeFormatted = $this->parseTime($time);
             if ($timeFormatted) {
                 return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));

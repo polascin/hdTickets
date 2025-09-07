@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -14,12 +14,12 @@ class TwoFactorRecovery extends Model
         'user_id',
         'code',
         'expires_at',
-        'used_at'
+        'used_at',
     ];
 
     protected $casts = [
         'expires_at' => 'datetime',
-        'used_at' => 'datetime'
+        'used_at'    => 'datetime',
     ];
 
     /**
@@ -43,7 +43,7 @@ class TwoFactorRecovery extends Model
      */
     public function isUsed(): bool
     {
-        return $this->used_at !== null;
+        return $this->used_at !== NULL;
     }
 
     /**

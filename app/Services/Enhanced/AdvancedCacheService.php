@@ -85,7 +85,7 @@ class AdvancedCacheService extends PerformanceCacheService
         ];
 
         foreach ($popularKeys as $key => $callback) {
-            if (! Cache::has($key)) {
+            if (!Cache::has($key)) {
                 $this->getMultiLayered($key, $callback, self::CACHE_TTL_MEDIUM);
                 Log::channel('performance')->info('Cache warmed', ['key' => $key]);
             }
@@ -229,7 +229,7 @@ class AdvancedCacheService extends PerformanceCacheService
         foreach ($patterns as $pattern) {
             try {
                 $keys = $this->redis->keys($pattern);
-                if (! empty($keys)) {
+                if (!empty($keys)) {
                     $this->redis->del($keys);
                     $invalidated += count($keys);
                 }
@@ -316,7 +316,7 @@ class AdvancedCacheService extends PerformanceCacheService
         foreach ($popularSearches as $criteria) {
             $cacheKey = 'popular_search_' . md5(serialize($criteria));
 
-            if (! Cache::has($cacheKey)) {
+            if (!Cache::has($cacheKey)) {
                 $this->getMultiLayered($cacheKey, function () use ($criteria) {
                     return ScrapedTicket::where($criteria)->limit(50)->get();
                 }, self::CACHE_TTL_SHORT);

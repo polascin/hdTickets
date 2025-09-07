@@ -29,7 +29,7 @@ class HomeController extends Controller
         // Ensure user is authenticated before proceeding with role-based routing
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             Log::info('Unauthenticated user attempted to access dashboard, redirecting to login');
 
             return redirect()->route('login');

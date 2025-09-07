@@ -11,11 +11,17 @@
 
     <title>{{ config('app.name', 'HD Tickets') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
+    <link rel="preload" as="image" href="{{ asset('assets/images/hdTicketsLogo.webp') }}" type="image/webp">
+    <link rel="preload" as="image" href="{{ asset('assets/images/hdTicketsLogo.png') }}" type="image/png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700&display=swap"
-      rel="stylesheet" />
+      rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript>
+      <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:300,400,500,600,700&display=swap"
+        rel="stylesheet" />
+    </noscript>
 
     <!-- Inline Critical CSS for Above-the-Fold Content -->
     <style>

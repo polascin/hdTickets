@@ -163,7 +163,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($searchUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch search results from TickPick');
             }
 
@@ -241,7 +241,7 @@ class TickPickClient extends BaseApiClient
             if ($eventNodes !== FALSE) {
                 foreach ($eventNodes as $eventNode) {
                     $event = $this->parseEventCard($xpath, $eventNode);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
@@ -252,7 +252,7 @@ class TickPickClient extends BaseApiClient
                 $linkNodes = $xpath->query('//a[contains(@href, "/buy-") and contains(@href, "-tickets")]');
                 foreach ($linkNodes as $linkNode) {
                     $event = $this->parseEventFromLink($xpath, $linkNode);
-                    if (! empty($event['name'])) {
+                    if (!empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
@@ -325,7 +325,7 @@ class TickPickClient extends BaseApiClient
 
             $event['prices'] = array_unique($prices);
             $event['no_fee_prices'] = array_unique($noFeePrices);
-            $event['price_range'] = ! empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
 
             // Extract min/max prices (both regular and no-fee)
             $this->extractPriceRange($event, $prices);
@@ -378,7 +378,7 @@ class TickPickClient extends BaseApiClient
             }
 
             // Extract event name from URL if text is empty
-            if (empty($event['name']) && ! empty($event['url'])) {
+            if (empty($event['name']) && !empty($event['url'])) {
                 $event['name'] = $this->extractEventNameFromUrl($event['url']);
             }
 
@@ -418,7 +418,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('Failed to fetch event details from TickPick');
             }
 
@@ -583,11 +583,11 @@ class TickPickClient extends BaseApiClient
             return 'soldout';
         }
 
-        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
-        if (! empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
+        if (!empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
             return 'onsale';
         }
 
@@ -672,7 +672,7 @@ class TickPickClient extends BaseApiClient
             }
         }
 
-        if (! empty($numericPrices)) {
+        if (!empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -696,7 +696,7 @@ class TickPickClient extends BaseApiClient
             }
         }
 
-        if (! empty($numericPrices)) {
+        if (!empty($numericPrices)) {
             $event['no_fee_price_min'] = min($numericPrices);
             $event['no_fee_price_max'] = max($numericPrices);
         }

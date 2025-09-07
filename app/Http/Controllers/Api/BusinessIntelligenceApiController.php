@@ -3,23 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Analytics\AdvancedAnalyticsService;
-use App\Services\CompetitiveIntelligenceService;
-use App\Services\Analytics\PredictiveAnalyticsEngine;
-use App\Services\Analytics\AnomalyDetectionService;
 use App\Models\ScrapedTicket;
 use App\Models\TicketSource;
 use App\Models\User;
+use App\Services\Analytics\AdvancedAnalyticsService;
+use App\Services\Analytics\AnomalyDetectionService;
+use App\Services\Analytics\PredictiveAnalyticsEngine;
+use App\Services\CompetitiveIntelligenceService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Business Intelligence API Controller
- * 
+ *
  * Comprehensive API endpoints for external BI tools and third-party integrations.
  * Provides standardized access to analytics data with proper authentication,
  * rate limiting, and data formatting for business intelligence platforms.
@@ -34,14 +34,14 @@ class BusinessIntelligenceApiController extends Controller
     ) {
         // API routes require authentication and specific role permissions
         $this->middleware(['auth:sanctum', 'role:admin,agent']);
-        
+
         // Rate limiting for API endpoints
         $this->middleware('throttle:bi-api')->only([
-            'getAnalyticsOverview', 'getTicketMetrics', 'getPlatformData'
+            'getAnalyticsOverview', 'getTicketMetrics', 'getPlatformData',
         ]);
-        
+
         $this->middleware('throttle:bi-api-heavy')->only([
-            'getCompetitiveIntelligence', 'getPredictiveInsights', 'exportDataSet'
+            'getCompetitiveIntelligence', 'getPredictiveInsights', 'exportDataSet',
         ]);
     }
 
@@ -52,14 +52,14 @@ class BusinessIntelligenceApiController extends Controller
     public function health(): JsonResponse
     {
         return $this->successResponse([
-            'status' => 'healthy',
-            'version' => '1.0.0',
-            'timestamp' => Carbon::now()->toISOString(),
-            'endpoints' => $this->getAvailableEndpoints(),
+            'status'      => 'healthy',
+            'version'     => '1.0.0',
+            'timestamp'   => Carbon::now()->toISOString(),
+            'endpoints'   => $this->getAvailableEndpoints(),
             'rate_limits' => [
                 'standard' => '100 requests per hour',
-                'heavy' => '20 requests per hour'
-            ]
+                'heavy'    => '20 requests per hour',
+            ],
         ]);
     }
 
@@ -71,9 +71,9 @@ class BusinessIntelligenceApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'sport' => 'nullable|string|max:50',
-            'platform' => 'nullable|string|max:100'
+            'date_to'   => 'nullable|date|after_or_equal:date_from',
+            'sport'     => 'nullable|string|max:50',
+            'platform'  => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -82,18 +82,18 @@ class BusinessIntelligenceApiController extends Controller
 
         $filters = $validator->validated();
         $cacheKey = 'bi_api_overview_' . md5(serialize($filters) . auth()->id());
-        
+
         $data = Cache::remember($cacheKey, 300, function () use ($filters) {
             return $this->analyticsService->getDashboardData($filters);
         });
 
         return $this->successResponse([
-            'overview_metrics' => $data['overview_metrics'] ?? [],
+            'overview_metrics'     => $data['overview_metrics'] ?? [],
             'platform_performance' => $data['platform_performance'] ?? [],
-            'pricing_trends' => $data['pricing_trends'] ?? [],
-            'event_popularity' => $data['event_popularity'] ?? [],
-            'generated_at' => Carbon::now()->toISOString(),
-            'filters_applied' => $filters
+            'pricing_trends'       => $data['pricing_trends'] ?? [],
+            'event_popularity'     => $data['event_popularity'] ?? [],
+            'generated_at'         => Carbon::now()->toISOString(),
+            'filters_applied'      => $filters,
         ]);
     }
 
@@ -104,12 +104,12 @@ class BusinessIntelligenceApiController extends Controller
     public function getTicketMetrics(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'sport' => 'nullable|string|max:50',
-            'price_min' => 'nullable|numeric|min:0',
-            'price_max' => 'nullable|numeric|gt:price_min',
-            'include_historical' => 'nullable|boolean'
+            'date_from'          => 'nullable|date',
+            'date_to'            => 'nullable|date|after_or_equal:date_from',
+            'sport'              => 'nullable|string|max:50',
+            'price_min'          => 'nullable|numeric|min:0',
+            'price_max'          => 'nullable|numeric|gt:price_min',
+            'include_historical' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -117,7 +117,7 @@ class BusinessIntelligenceApiController extends Controller
         }
 
         $filters = $validator->validated();
-        
+
         $query = ScrapedTicket::query()
             ->join('ticket_sources', 'scraped_tickets.source_id', '=', 'ticket_sources.id');
 
@@ -172,22 +172,22 @@ class BusinessIntelligenceApiController extends Controller
 
         $data = [
             'summary' => [
-                'total_tickets' => $totalTickets,
-                'average_price' => round($avgPrice ?: 0, 2),
-                'min_price' => round($minPrice ?: 0, 2),
-                'max_price' => round($maxPrice ?: 0, 2),
+                'total_tickets'   => $totalTickets,
+                'average_price'   => round($avgPrice ?: 0, 2),
+                'min_price'       => round($minPrice ?: 0, 2),
+                'max_price'       => round($maxPrice ?: 0, 2),
                 'total_platforms' => $platformBreakdown->count(),
-                'sports_covered' => $sportBreakdown->count()
+                'sports_covered'  => $sportBreakdown->count(),
             ],
             'price_distribution' => $priceDistribution,
-            'sport_breakdown' => $sportBreakdown,
+            'sport_breakdown'    => $sportBreakdown,
             'platform_breakdown' => $platformBreakdown,
-            'generated_at' => Carbon::now()->toISOString(),
-            'filters_applied' => $filters
+            'generated_at'       => Carbon::now()->toISOString(),
+            'filters_applied'    => $filters,
         ];
 
         // Include historical comparison if requested
-        if ($filters['include_historical'] ?? false) {
+        if ($filters['include_historical'] ?? FALSE) {
             $data['historical_comparison'] = $this->getHistoricalComparison($filters);
         }
 
@@ -201,10 +201,10 @@ class BusinessIntelligenceApiController extends Controller
     public function getPlatformData(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'platform_id' => 'nullable|exists:ticket_sources,id',
-            'include_metrics' => 'nullable|array',
+            'platform_id'       => 'nullable|exists:ticket_sources,id',
+            'include_metrics'   => 'nullable|array',
             'include_metrics.*' => 'in:pricing,volume,trends,reliability',
-            'date_range' => 'nullable|in:7d,30d,90d,1y'
+            'date_range'        => 'nullable|in:7d,30d,90d,1y',
         ]);
 
         if ($validator->fails()) {
@@ -213,9 +213,9 @@ class BusinessIntelligenceApiController extends Controller
 
         $filters = $validator->validated();
         $dateRange = $this->getDateRangeFromString($filters['date_range'] ?? '30d');
-        
+
         $platformsQuery = TicketSource::query();
-        
+
         if (!empty($filters['platform_id'])) {
             $platformsQuery->where('id', $filters['platform_id']);
         }
@@ -226,13 +226,13 @@ class BusinessIntelligenceApiController extends Controller
 
         $platformData = $platforms->map(function ($platform) use ($filters) {
             $tickets = $platform->scrapedTickets;
-            
+
             $baseData = [
-                'platform_id' => $platform->id,
+                'platform_id'   => $platform->id,
                 'platform_name' => $platform->name,
-                'platform_url' => $platform->url,
-                'status' => $platform->is_active ? 'active' : 'inactive',
-                'total_tickets' => $tickets->count()
+                'platform_url'  => $platform->url,
+                'status'        => $platform->is_active ? 'active' : 'inactive',
+                'total_tickets' => $tickets->count(),
             ];
 
             $includeMetrics = $filters['include_metrics'] ?? ['pricing', 'volume', 'trends'];
@@ -240,17 +240,17 @@ class BusinessIntelligenceApiController extends Controller
             if (in_array('pricing', $includeMetrics)) {
                 $baseData['pricing_metrics'] = [
                     'average_price' => round($tickets->avg('price') ?: 0, 2),
-                    'min_price' => round($tickets->min('price') ?: 0, 2),
-                    'max_price' => round($tickets->max('price') ?: 0, 2),
-                    'price_std_dev' => $this->calculateStandardDeviation($tickets->pluck('price'))
+                    'min_price'     => round($tickets->min('price') ?: 0, 2),
+                    'max_price'     => round($tickets->max('price') ?: 0, 2),
+                    'price_std_dev' => $this->calculateStandardDeviation($tickets->pluck('price')),
                 ];
             }
 
             if (in_array('volume', $includeMetrics)) {
                 $baseData['volume_metrics'] = [
-                    'daily_average' => round($tickets->count() / max(1, $tickets->groupBy(fn($t) => $t->created_at->format('Y-m-d'))->count()), 2),
-                    'peak_day_volume' => $tickets->groupBy(fn($t) => $t->created_at->format('Y-m-d'))->map->count()->max() ?: 0,
-                    'sports_coverage' => $tickets->pluck('sport')->unique()->count()
+                    'daily_average'   => round($tickets->count() / max(1, $tickets->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->count()), 2),
+                    'peak_day_volume' => $tickets->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->map->count()->max() ?: 0,
+                    'sports_coverage' => $tickets->pluck('sport')->unique()->count(),
                 ];
             }
 
@@ -260,9 +260,9 @@ class BusinessIntelligenceApiController extends Controller
 
             if (in_array('reliability', $includeMetrics)) {
                 $baseData['reliability_metrics'] = [
-                    'uptime_percentage' => 98.5, // This would be calculated from actual monitoring data
+                    'uptime_percentage'  => 98.5, // This would be calculated from actual monitoring data
                     'data_quality_score' => $this->calculateDataQualityScore($tickets),
-                    'last_update' => $tickets->max('created_at')?->toISOString()
+                    'last_update'        => $tickets->max('created_at')?->toISOString(),
                 ];
             }
 
@@ -271,13 +271,13 @@ class BusinessIntelligenceApiController extends Controller
 
         return $this->successResponse([
             'platforms' => $platformData,
-            'summary' => [
-                'total_platforms' => $platforms->count(),
-                'active_platforms' => $platforms->where('is_active', true)->count(),
-                'total_tickets_across_all' => $platforms->sum(fn($p) => $p->scrapedTickets->count())
+            'summary'   => [
+                'total_platforms'          => $platforms->count(),
+                'active_platforms'         => $platforms->where('is_active', TRUE)->count(),
+                'total_tickets_across_all' => $platforms->sum(fn ($p) => $p->scrapedTickets->count()),
             ],
             'generated_at' => Carbon::now()->toISOString(),
-            'date_range' => $filters['date_range'] ?? '30d'
+            'date_range'   => $filters['date_range'] ?? '30d',
         ]);
     }
 
@@ -290,9 +290,9 @@ class BusinessIntelligenceApiController extends Controller
         $this->checkRateLimit('bi-competitive', 10); // More restrictive rate limit
 
         $validator = Validator::make($request->all(), [
-            'analysis_type' => 'required|in:overview,pricing,positioning,gaps',
-            'sport' => 'nullable|string|max:50',
-            'include_recommendations' => 'nullable|boolean'
+            'analysis_type'           => 'required|in:overview,pricing,positioning,gaps',
+            'sport'                   => 'nullable|string|max:50',
+            'include_recommendations' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -301,9 +301,9 @@ class BusinessIntelligenceApiController extends Controller
 
         $filters = $validator->validated();
         $analysisType = $filters['analysis_type'];
-        
+
         $cacheKey = 'bi_competitive_' . $analysisType . '_' . md5(serialize($filters));
-        
+
         $data = Cache::remember($cacheKey, 1800, function () use ($analysisType, $filters) {
             switch ($analysisType) {
                 case 'overview':
@@ -320,13 +320,13 @@ class BusinessIntelligenceApiController extends Controller
         });
 
         $response = [
-            'analysis_type' => $analysisType,
-            'data' => $data,
-            'generated_at' => Carbon::now()->toISOString(),
-            'filters_applied' => $filters
+            'analysis_type'   => $analysisType,
+            'data'            => $data,
+            'generated_at'    => Carbon::now()->toISOString(),
+            'filters_applied' => $filters,
         ];
 
-        if ($filters['include_recommendations'] ?? false) {
+        if ($filters['include_recommendations'] ?? FALSE) {
             $response['recommendations'] = $this->generateBusinessRecommendations($analysisType, $data);
         }
 
@@ -343,9 +343,9 @@ class BusinessIntelligenceApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             'prediction_type' => 'required|in:price,demand,success,market_trends',
-            'event_id' => 'nullable|exists:scraped_tickets,id',
-            'sport' => 'nullable|string|max:50',
-            'horizon_days' => 'nullable|integer|min:1|max:365'
+            'event_id'        => 'nullable|exists:scraped_tickets,id',
+            'sport'           => 'nullable|string|max:50',
+            'horizon_days'    => 'nullable|integer|min:1|max:365',
         ]);
 
         if ($validator->fails()) {
@@ -354,9 +354,9 @@ class BusinessIntelligenceApiController extends Controller
 
         $filters = $validator->validated();
         $predictionType = $filters['prediction_type'];
-        
+
         $cacheKey = 'bi_predictive_' . $predictionType . '_' . md5(serialize($filters));
-        
+
         $data = Cache::remember($cacheKey, 3600, function () use ($predictionType, $filters) {
             switch ($predictionType) {
                 case 'price':
@@ -373,15 +373,15 @@ class BusinessIntelligenceApiController extends Controller
         });
 
         return $this->successResponse([
-            'prediction_type' => $predictionType,
-            'predictions' => $data,
+            'prediction_type'    => $predictionType,
+            'predictions'        => $data,
             'confidence_metrics' => [
-                'overall_accuracy' => $this->predictiveEngine->getModelAccuracyMetrics()['overall_accuracy'] ?? 'N/A',
+                'overall_accuracy'   => $this->predictiveEngine->getModelAccuracyMetrics()['overall_accuracy'] ?? 'N/A',
                 'data_quality_score' => 85.5,
-                'prediction_horizon' => $filters['horizon_days'] ?? 30
+                'prediction_horizon' => $filters['horizon_days'] ?? 30,
             ],
-            'generated_at' => Carbon::now()->toISOString(),
-            'filters_applied' => $filters
+            'generated_at'    => Carbon::now()->toISOString(),
+            'filters_applied' => $filters,
         ]);
     }
 
@@ -394,7 +394,7 @@ class BusinessIntelligenceApiController extends Controller
         $validator = Validator::make($request->all(), [
             'severity' => 'nullable|in:low,medium,high,critical',
             'category' => 'nullable|in:price,volume,velocity,platform,temporal',
-            'limit' => 'nullable|integer|min:1|max:100'
+            'limit'    => 'nullable|integer|min:1|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -403,30 +403,30 @@ class BusinessIntelligenceApiController extends Controller
 
         $filters = $validator->validated();
         $limit = $filters['limit'] ?? 50;
-        
+
         $anomalies = $this->anomalyService->detectRealTimeAnomalies($filters);
-        
+
         // Filter and limit results
         if (!empty($filters['severity'])) {
-            $anomalies = array_filter($anomalies, fn($a) => $a['severity'] === $filters['severity']);
+            $anomalies = array_filter($anomalies, fn ($a) => $a['severity'] === $filters['severity']);
         }
-        
+
         if (!empty($filters['category'])) {
-            $anomalies = array_filter($anomalies, fn($a) => $a['category'] === $filters['category']);
+            $anomalies = array_filter($anomalies, fn ($a) => $a['category'] === $filters['category']);
         }
-        
+
         $anomalies = array_slice($anomalies, 0, $limit);
 
         return $this->successResponse([
             'anomalies' => $anomalies,
-            'summary' => [
-                'total_anomalies' => count($anomalies),
-                'critical_count' => count(array_filter($anomalies, fn($a) => $a['severity'] === 'critical')),
-                'high_count' => count(array_filter($anomalies, fn($a) => $a['severity'] === 'high')),
-                'categories_affected' => array_unique(array_column($anomalies, 'category'))
+            'summary'   => [
+                'total_anomalies'     => count($anomalies),
+                'critical_count'      => count(array_filter($anomalies, fn ($a) => $a['severity'] === 'critical')),
+                'high_count'          => count(array_filter($anomalies, fn ($a) => $a['severity'] === 'high')),
+                'categories_affected' => array_unique(array_column($anomalies, 'category')),
             ],
-            'generated_at' => Carbon::now()->toISOString(),
-            'filters_applied' => $filters
+            'generated_at'    => Carbon::now()->toISOString(),
+            'filters_applied' => $filters,
         ]);
     }
 
@@ -439,12 +439,12 @@ class BusinessIntelligenceApiController extends Controller
         $this->checkRateLimit('bi-export', 3); // Very restrictive for exports
 
         $validator = Validator::make($request->all(), [
-            'dataset' => 'required|in:tickets,platforms,analytics,competitive',
-            'format' => 'required|in:json,csv,parquet',
+            'dataset'   => 'required|in:tickets,platforms,analytics,competitive',
+            'format'    => 'required|in:json,csv,parquet',
             'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'fields' => 'nullable|array',
-            'compress' => 'nullable|boolean'
+            'date_to'   => 'nullable|date|after_or_equal:date_from',
+            'fields'    => 'nullable|array',
+            'compress'  => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -452,10 +452,10 @@ class BusinessIntelligenceApiController extends Controller
         }
 
         $params = $validator->validated();
-        
+
         try {
             $exportService = app(\App\Services\Analytics\AnalyticsExportService::class);
-            
+
             $exportResult = $exportService->exportForApi(
                 $params['dataset'],
                 $params['format'],
@@ -463,15 +463,14 @@ class BusinessIntelligenceApiController extends Controller
             );
 
             return $this->successResponse([
-                'export_id' => $exportResult['export_id'],
+                'export_id'    => $exportResult['export_id'],
                 'download_url' => $exportResult['download_url'],
-                'format' => $params['format'],
-                'file_size' => $exportResult['file_size'],
+                'format'       => $params['format'],
+                'file_size'    => $exportResult['file_size'],
                 'record_count' => $exportResult['record_count'],
-                'expires_at' => Carbon::now()->addHours(24)->toISOString(),
-                'generated_at' => Carbon::now()->toISOString()
+                'expires_at'   => Carbon::now()->addHours(24)->toISOString(),
+                'generated_at' => Carbon::now()->toISOString(),
             ]);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Export failed', ['error' => $e->getMessage()], 500);
         }
@@ -486,9 +485,9 @@ class BusinessIntelligenceApiController extends Controller
         $this->authorize('viewAny', User::class);
 
         $validator = Validator::make($request->all(), [
-            'metric' => 'required|in:overview,behavior,engagement,conversion',
-            'segment' => 'nullable|in:customer,agent,admin',
-            'date_range' => 'nullable|in:7d,30d,90d'
+            'metric'     => 'required|in:overview,behavior,engagement,conversion',
+            'segment'    => 'nullable|in:customer,agent,admin',
+            'date_range' => 'nullable|in:7d,30d,90d',
         ]);
 
         if ($validator->fails()) {
@@ -499,7 +498,7 @@ class BusinessIntelligenceApiController extends Controller
         $dateRange = $this->getDateRangeFromString($filters['date_range'] ?? '30d');
 
         $usersQuery = User::query()->where('created_at', '>=', $dateRange);
-        
+
         if (!empty($filters['segment'])) {
             $usersQuery->where('role', $filters['segment']);
         }
@@ -507,11 +506,11 @@ class BusinessIntelligenceApiController extends Controller
         $users = $usersQuery->get();
 
         $data = [
-            'total_users' => $users->count(),
-            'new_users' => $users->where('created_at', '>=', Carbon::now()->subDays(7))->count(),
-            'active_users' => $users->where('last_login_at', '>=', Carbon::now()->subDays(7))->count(),
+            'total_users'   => $users->count(),
+            'new_users'     => $users->where('created_at', '>=', Carbon::now()->subDays(7))->count(),
+            'active_users'  => $users->where('last_login_at', '>=', Carbon::now()->subDays(7))->count(),
             'user_segments' => $users->groupBy('role')->map->count(),
-            'generated_at' => Carbon::now()->toISOString()
+            'generated_at'  => Carbon::now()->toISOString(),
         ];
 
         return $this->successResponse($data);
@@ -522,15 +521,15 @@ class BusinessIntelligenceApiController extends Controller
     private function getAvailableEndpoints(): array
     {
         return [
-            'health' => 'GET /api/bi/health',
-            'analytics_overview' => 'GET /api/bi/analytics/overview',
-            'ticket_metrics' => 'GET /api/bi/tickets/metrics',
-            'platform_data' => 'GET /api/bi/platforms/performance',
+            'health'                   => 'GET /api/bi/health',
+            'analytics_overview'       => 'GET /api/bi/analytics/overview',
+            'ticket_metrics'           => 'GET /api/bi/tickets/metrics',
+            'platform_data'            => 'GET /api/bi/platforms/performance',
             'competitive_intelligence' => 'GET /api/bi/competitive/intelligence',
-            'predictive_insights' => 'GET /api/bi/predictive/insights',
-            'current_anomalies' => 'GET /api/bi/anomalies/current',
-            'export_dataset' => 'POST /api/bi/export/dataset',
-            'user_analytics' => 'GET /api/bi/users/analytics'
+            'predictive_insights'      => 'GET /api/bi/predictive/insights',
+            'current_anomalies'        => 'GET /api/bi/anomalies/current',
+            'export_dataset'           => 'POST /api/bi/export/dataset',
+            'user_analytics'           => 'GET /api/bi/users/analytics',
         ];
     }
 
@@ -560,10 +559,10 @@ class BusinessIntelligenceApiController extends Controller
     private function getDateRangeFromString(string $range): Carbon
     {
         return match ($range) {
-            '7d' => Carbon::now()->subDays(7),
-            '30d' => Carbon::now()->subDays(30),
-            '90d' => Carbon::now()->subDays(90),
-            '1y' => Carbon::now()->subYear(),
+            '7d'    => Carbon::now()->subDays(7),
+            '30d'   => Carbon::now()->subDays(30),
+            '90d'   => Carbon::now()->subDays(90),
+            '1y'    => Carbon::now()->subYear(),
             default => Carbon::now()->subDays(30)
         };
     }
@@ -573,22 +572,22 @@ class BusinessIntelligenceApiController extends Controller
         // Compare current period with previous period
         $currentPeriod = ScrapedTicket::query()
             ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->when(!empty($filters['sport']), fn($q) => $q->where('sport', $filters['sport']))
+            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         $previousPeriod = ScrapedTicket::query()
             ->whereBetween('created_at', [Carbon::now()->subDays(60), Carbon::now()->subDays(30)])
-            ->when(!empty($filters['sport']), fn($q) => $q->where('sport', $filters['sport']))
+            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         return [
             'current_period' => [
                 'ticket_count' => $currentPeriod->count(),
-                'avg_price' => round($currentPeriod->avg('price') ?: 0, 2)
+                'avg_price'    => round($currentPeriod->avg('price') ?: 0, 2),
             ],
             'previous_period' => [
                 'ticket_count' => $previousPeriod->count(),
-                'avg_price' => round($previousPeriod->avg('price') ?: 0, 2)
+                'avg_price'    => round($previousPeriod->avg('price') ?: 0, 2),
             ],
             'growth_rates' => [
                 'ticket_count_growth' => $this->calculateGrowthRate(
@@ -598,53 +597,69 @@ class BusinessIntelligenceApiController extends Controller
                 'avg_price_growth' => $this->calculateGrowthRate(
                     $previousPeriod->avg('price') ?: 0,
                     $currentPeriod->avg('price') ?: 0
-                )
-            ]
+                ),
+            ],
         ];
     }
 
     private function calculateStandardDeviation($collection): float
     {
-        if ($collection->isEmpty()) return 0;
-        
+        if ($collection->isEmpty()) {
+            return 0;
+        }
+
         $mean = $collection->avg();
-        $variance = $collection->map(fn($value) => pow($value - $mean, 2))->avg();
-        
+        $variance = $collection->map(fn ($value) => pow($value - $mean, 2))->avg();
+
         return round(sqrt($variance), 2);
     }
 
     private function calculatePlatformTrends($tickets): array
     {
-        $dailyData = $tickets->groupBy(fn($ticket) => $ticket->created_at->format('Y-m-d'));
-        
+        $dailyData = $tickets->groupBy(fn ($ticket) => $ticket->created_at->format('Y-m-d'));
+
         $trend = [];
         foreach ($dailyData as $date => $dayTickets) {
             $trend[] = [
-                'date' => $date,
-                'count' => $dayTickets->count(),
-                'avg_price' => round($dayTickets->avg('price') ?: 0, 2)
+                'date'      => $date,
+                'count'     => $dayTickets->count(),
+                'avg_price' => round($dayTickets->avg('price') ?: 0, 2),
             ];
         }
-        
+
         return $trend;
     }
 
     private function calculateDataQualityScore($tickets): float
     {
-        if ($tickets->isEmpty()) return 0;
+        if ($tickets->isEmpty()) {
+            return 0;
+        }
 
         $totalFields = 0;
         $validFields = 0;
 
         foreach ($tickets as $ticket) {
             $totalFields += 6; // Assuming 6 key fields per ticket
-            
-            if (!empty($ticket->event_name)) $validFields++;
-            if (!empty($ticket->sport)) $validFields++;
-            if ($ticket->price > 0) $validFields++;
-            if (!empty($ticket->event_date)) $validFields++;
-            if (!empty($ticket->venue)) $validFields++;
-            if (!empty($ticket->url)) $validFields++;
+
+            if (!empty($ticket->event_name)) {
+                $validFields++;
+            }
+            if (!empty($ticket->sport)) {
+                $validFields++;
+            }
+            if ($ticket->price > 0) {
+                $validFields++;
+            }
+            if (!empty($ticket->event_date)) {
+                $validFields++;
+            }
+            if (!empty($ticket->venue)) {
+                $validFields++;
+            }
+            if (!empty($ticket->url)) {
+                $validFields++;
+            }
         }
 
         return $totalFields > 0 ? round(($validFields / $totalFields) * 100, 1) : 0;
@@ -652,7 +667,10 @@ class BusinessIntelligenceApiController extends Controller
 
     private function calculateGrowthRate($previous, $current): float
     {
-        if ($previous == 0) return $current > 0 ? 100 : 0;
+        if ($previous == 0) {
+            return $current > 0 ? 100 : 0;
+        }
+
         return round((($current - $previous) / $previous) * 100, 2);
     }
 
@@ -661,20 +679,20 @@ class BusinessIntelligenceApiController extends Controller
         // Generate contextual business recommendations based on analysis type
         return match ($analysisType) {
             'overview' => [
-                'market_expansion' => 'Consider expanding into underrepresented sports categories',
-                'pricing_optimization' => 'Implement dynamic pricing in premium segments'
+                'market_expansion'     => 'Consider expanding into underrepresented sports categories',
+                'pricing_optimization' => 'Implement dynamic pricing in premium segments',
             ],
             'pricing' => [
                 'competitive_pricing' => 'Adjust pricing strategy for events with >20% price gaps',
-                'value_positioning' => 'Emphasize unique value propositions in premium segments'
+                'value_positioning'   => 'Emphasize unique value propositions in premium segments',
             ],
             'positioning' => [
                 'differentiation' => 'Focus on unique sports categories or geographic markets',
-                'partnership' => 'Consider strategic partnerships with market leaders'
+                'partnership'     => 'Consider strategic partnerships with market leaders',
             ],
             'gaps' => [
-                'opportunity_focus' => 'Prioritize high-opportunity market segments',
-                'competitive_response' => 'Develop rapid response capabilities for competitive threats'
+                'opportunity_focus'    => 'Prioritize high-opportunity market segments',
+                'competitive_response' => 'Develop rapid response capabilities for competitive threats',
             ],
             default => []
         };
@@ -687,6 +705,7 @@ class BusinessIntelligenceApiController extends Controller
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($rateLimitKey);
+
             throw new \Illuminate\Http\Exceptions\ThrottleRequestsException(
                 "Too many requests. Try again in {$seconds} seconds."
             );
@@ -698,27 +717,27 @@ class BusinessIntelligenceApiController extends Controller
     private function successResponse(array $data): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => $data,
-            'meta' => [
+            'success' => TRUE,
+            'data'    => $data,
+            'meta'    => [
                 'api_version' => '1.0.0',
-                'request_id' => uniqid('bi_'),
-                'timestamp' => Carbon::now()->toISOString()
-            ]
+                'request_id'  => uniqid('bi_'),
+                'timestamp'   => Carbon::now()->toISOString(),
+            ],
         ]);
     }
 
     private function errorResponse(string $message, array $errors = [], int $code = 400): JsonResponse
     {
         return response()->json([
-            'success' => false,
+            'success' => FALSE,
             'message' => $message,
-            'errors' => $errors,
-            'meta' => [
+            'errors'  => $errors,
+            'meta'    => [
                 'api_version' => '1.0.0',
-                'request_id' => uniqid('bi_'),
-                'timestamp' => Carbon::now()->toISOString()
-            ]
+                'request_id'  => uniqid('bi_'),
+                'timestamp'   => Carbon::now()->toISOString(),
+            ],
         ], $code);
     }
 }

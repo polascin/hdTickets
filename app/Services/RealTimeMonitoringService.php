@@ -93,7 +93,7 @@ class RealTimeMonitoringService
     {
         $ticket = Ticket::find($ticketId);
 
-        if (! $ticket) {
+        if (!$ticket) {
             throw new Exception("Ticket {$ticketId} not found");
         }
 
@@ -272,7 +272,7 @@ class RealTimeMonitoringService
             try {
                 $ticket = Ticket::find($ticketId);
 
-                if (! $ticket) {
+                if (!$ticket) {
                     $this->removeFromWatchList($ticketId);
 
                     continue;
@@ -280,7 +280,7 @@ class RealTimeMonitoringService
 
                 $changes = $this->checkTicketChanges($ticket, $watchData);
 
-                if (! empty($changes)) {
+                if (!empty($changes)) {
                     $this->processTicketChanges($ticket, $changes);
                     $updatedTickets++;
                     $alerts += count($changes);
@@ -388,7 +388,7 @@ class RealTimeMonitoringService
         $source = $ticket->metadata['source'] ?? NULL;
         $url = $ticket->metadata['url'] ?? NULL;
 
-        if (! $source || ! $url) {
+        if (!$source || !$url) {
             return [];
         }
 
@@ -396,7 +396,7 @@ class RealTimeMonitoringService
             // Use appropriate scraper plugin
             $plugin = $this->scraperManager->getPlugin($source);
 
-            if (! $plugin) {
+            if (!$plugin) {
                 return [];
             }
 
@@ -406,7 +406,7 @@ class RealTimeMonitoringService
                 'max_results' => 1,
             ]);
 
-            return ! empty($results) ? $results[0] : [];
+            return !empty($results) ? $results[0] : [];
         } catch (Exception $e) {
             Log::debug("Failed to get fresh data for ticket {$ticket->id}", [
                 'error' => $e->getMessage(),
@@ -601,7 +601,7 @@ class RealTimeMonitoringService
         $errorRate = $this->calculateErrorRate();
 
         $status = 'healthy';
-        if (! $isActive) {
+        if (!$isActive) {
             $status = 'inactive';
         } elseif ($errorRate > 20) {
             $status = 'critical';

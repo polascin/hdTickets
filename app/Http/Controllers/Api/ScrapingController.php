@@ -178,7 +178,7 @@ class ScrapingController extends Controller
             ->where('uuid', $uuid)
             ->first();
 
-        if (! $ticket) {
+        if (!$ticket) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket not found',
@@ -200,7 +200,7 @@ class ScrapingController extends Controller
             $ticket = ScrapedTicket::with(['category'])
                 ->find($id);
 
-            if (! $ticket) {
+            if (!$ticket) {
                 return response()->json([
                     'success'    => FALSE,
                     'message'    => 'Ticket not found',
@@ -261,7 +261,7 @@ class ScrapingController extends Controller
                 'price_volatility' => 'low',
             ];
 
-            if (! empty($priceHistory)) {
+            if (!empty($priceHistory)) {
                 $prices = array_column($priceHistory, 'price');
                 $stats['avg_price'] = round(array_sum($prices) / count($prices), 2);
                 $stats['lowest_price'] = min($prices);
@@ -617,7 +617,7 @@ class ScrapingController extends Controller
      */
     private function getCurrencySymbol(string $currency): string
     {
-        return match(strtoupper($currency)) {
+        return match (strtoupper($currency)) {
             'USD'   => '$',
             'EUR'   => '€',
             'GBP'   => '£',
@@ -693,7 +693,7 @@ class ScrapingController extends Controller
      */
     private function getPlatformReliability(string $platform): array
     {
-        return match(strtolower($platform)) {
+        return match (strtolower($platform)) {
             'stubhub'      => ['score' => 95, 'rating' => 'excellent'],
             'ticketmaster' => ['score' => 98, 'rating' => 'excellent'],
             'viagogo'      => ['score' => 85, 'rating' => 'very good'],
@@ -715,7 +715,7 @@ class ScrapingController extends Controller
 
         $presentFields = 0;
         foreach ($requiredFields as $field) {
-            if (! empty($data[$field])) {
+            if (!empty($data[$field])) {
                 $presentFields++;
             }
         }

@@ -89,23 +89,23 @@ class PsgPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['recherche'] = $criteria['keyword'];
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['date_debut'] = $criteria['date_from'];
         }
 
-        if (! empty($criteria['date_to'])) {
+        if (!empty($criteria['date_to'])) {
             $params['date_fin'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**

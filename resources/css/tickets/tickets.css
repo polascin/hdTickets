@@ -1,0 +1,755 @@
+/**
+ * HD Tickets - Ticket System Styles
+ * 
+ * Comprehensive CSS for the enhanced sports ticket scraping system
+ * including animations, responsive design, and component-specific styles.
+ */
+
+/* =============================================================================
+   Base Ticket System Styles
+   ============================================================================= */
+
+:root {
+  /* Ticket System Color Palette */
+  --ticket-primary: #3b82f6;
+  --ticket-primary-hover: #2563eb;
+  --ticket-success: #10b981;
+  --ticket-warning: #f59e0b;
+  --ticket-error: #ef4444;
+  --ticket-info: #06b6d4;
+  
+  /* Sports Theme Colors */
+  --sport-soccer: #00a86b;
+  --sport-basketball: #ff8c00;
+  --sport-baseball: #b22222;
+  --sport-football: #4b0082;
+  --sport-hockey: #4169e1;
+  --sport-tennis: #32cd32;
+  
+  /* Status Colors */
+  --status-available: #10b981;
+  --status-limited: #f59e0b;
+  --status-sold-out: #ef4444;
+  --status-inactive: #6b7280;
+  
+  /* Animation Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  
+  /* Z-Index Layers */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+}
+
+/* Enhanced focus styles for accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+}
+
+/* =============================================================================
+   Ticket Card Enhancements
+   ============================================================================= */
+
+.ticket-card {
+  @apply relative overflow-hidden transition-all duration-300 hover:shadow-lg;
+}
+
+.ticket-card::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transform -translate-x-full transition-all duration-700;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+}
+
+.ticket-card:hover::before {
+  @apply opacity-100 translate-x-full;
+}
+
+/* Ticket image enhancements */
+.ticket-image {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.ticket-image.lazy {
+  @apply bg-gray-200 animate-pulse;
+}
+
+/* Price display enhancements */
+.ticket-price {
+  @apply font-bold text-lg transition-colors duration-300;
+}
+
+.ticket-price.price-updated {
+  @apply animate-pulse;
+  animation: priceFlash 1s ease-in-out;
+}
+
+@keyframes priceFlash {
+  0%, 100% { @apply bg-transparent; }
+  50% { @apply bg-yellow-200 rounded px-1; }
+}
+
+/* Price change indicators */
+.price-change {
+  @apply transition-all duration-300;
+}
+
+.price-change.positive {
+  @apply text-red-600;
+}
+
+.price-change.negative {
+  @apply text-green-600;
+}
+
+/* Availability status badges */
+.availability-status {
+  @apply px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300;
+}
+
+.availability-status.available {
+  @apply bg-green-100 text-green-800;
+}
+
+.availability-status.limited {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.availability-status.sold-out {
+  @apply bg-red-100 text-red-800;
+}
+
+.availability-status.inactive {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* =============================================================================
+   Interactive Elements
+   ============================================================================= */
+
+/* Bookmark buttons */
+.bookmark-toggle {
+  @apply transition-all duration-300 hover:scale-110;
+}
+
+.bookmark-toggle:hover svg {
+  @apply transform rotate-12;
+}
+
+.bookmark-toggle.bookmarked svg {
+  @apply text-yellow-500 transform scale-110;
+  filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5));
+}
+
+.bookmark-toggle.loading {
+  @apply animate-spin;
+}
+
+/* Share buttons */
+.share-button {
+  @apply transition-all duration-300 hover:scale-110;
+}
+
+.share-dropdown {
+  @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50;
+  @apply transform transition-all duration-200 origin-top-right;
+  @apply opacity-0 scale-95 pointer-events-none;
+}
+
+.share-dropdown.active {
+  @apply opacity-100 scale-100 pointer-events-auto;
+}
+
+/* Compare indicators */
+.compare-indicator {
+  @apply transition-all duration-300;
+}
+
+.compare-checkbox {
+  @apply transition-all duration-200 hover:scale-110;
+}
+
+.compare-checkbox:hover {
+  @apply shadow-lg;
+}
+
+.compare-checkbox.selected {
+  @apply bg-blue-600 border-blue-600 scale-110;
+}
+
+/* =============================================================================
+   Filtering System
+   ============================================================================= */
+
+.filters-form {
+  @apply transition-all duration-300;
+}
+
+.filters-form.loading {
+  @apply opacity-75 pointer-events-none;
+}
+
+/* Search input enhancements */
+.search-input-container {
+  @apply relative;
+}
+
+.search-input {
+  @apply w-full px-4 py-2 pl-10 pr-10 border border-gray-300 rounded-lg transition-all duration-300;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+.search-input:focus {
+  @apply transform scale-105;
+}
+
+.search-icon {
+  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors duration-300;
+}
+
+.search-input:focus ~ .search-icon {
+  @apply text-blue-500;
+}
+
+.clear-search {
+  @apply absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-300;
+}
+
+/* Search suggestions dropdown */
+.search-suggestions {
+  @apply absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg z-50;
+  @apply max-h-60 overflow-y-auto;
+}
+
+.suggestion-item {
+  @apply px-3 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200;
+}
+
+.suggestion-item:hover {
+  @apply bg-blue-50 text-blue-700;
+}
+
+/* Filter controls */
+.filter-control {
+  @apply transition-all duration-300;
+}
+
+.filter-control:hover {
+  @apply transform translateY(-1px);
+}
+
+/* Active filters */
+.active-filters {
+  @apply flex flex-wrap gap-2 mb-4;
+}
+
+.filter-tag {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply bg-blue-100 text-blue-800 transition-all duration-300;
+}
+
+.filter-tag:hover {
+  @apply bg-blue-200 transform scale-105;
+}
+
+.filter-tag-remove {
+  @apply ml-1 text-blue-400 hover:text-blue-600 cursor-pointer transition-colors duration-200;
+}
+
+/* =============================================================================
+   Price Monitoring
+   ============================================================================= */
+
+/* Price monitor status indicator */
+.price-monitor-status {
+  @apply fixed bottom-4 left-4 z-50 flex items-center space-x-2 px-3 py-2;
+  @apply bg-white rounded-lg shadow-lg border transition-all duration-300;
+}
+
+.status-dot {
+  @apply w-3 h-3 rounded-full transition-colors duration-300;
+}
+
+.status-dot.connected {
+  @apply bg-green-500;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.disconnected {
+  @apply bg-red-500;
+}
+
+.status-dot.connecting {
+  @apply bg-yellow-500 animate-pulse;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Price alerts */
+.price-alert-toggle {
+  @apply transition-all duration-300 hover:scale-105;
+}
+
+.price-alert-toggle:hover {
+  @apply shadow-md;
+}
+
+.price-alert-toggle.watching {
+  @apply bg-blue-50 border-blue-500 text-blue-700;
+}
+
+/* Notifications */
+.notification-center {
+  @apply fixed top-4 right-4 z-50 space-y-2;
+  max-width: 350px;
+}
+
+.notification {
+  @apply p-4 rounded-lg shadow-lg border-l-4 max-w-sm;
+  @apply transform transition-all duration-300;
+}
+
+.notification.success {
+  @apply border-green-500 bg-green-50;
+}
+
+.notification.warning {
+  @apply border-yellow-500 bg-yellow-50;
+}
+
+.notification.error {
+  @apply border-red-500 bg-red-50;
+}
+
+.notification.info {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.notification-enter {
+  @apply translate-x-full opacity-0;
+}
+
+.notification-enter-active {
+  @apply translate-x-0 opacity-100;
+}
+
+.notification-exit {
+  @apply translate-x-0 opacity-100;
+}
+
+.notification-exit-active {
+  @apply translate-x-full opacity-0;
+}
+
+/* =============================================================================
+   Comparison Modal
+   ============================================================================= */
+
+.comparison-modal {
+  @apply fixed inset-0 z-50 overflow-y-auto;
+  backdrop-filter: blur(4px);
+}
+
+.modal-backdrop {
+  @apply fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75;
+}
+
+.modal-content {
+  @apply inline-block w-full max-w-7xl my-8 overflow-hidden text-left align-middle;
+  @apply transition-all transform bg-white shadow-xl rounded-lg;
+}
+
+.modal-enter {
+  @apply opacity-0 scale-95;
+}
+
+.modal-enter-active {
+  @apply opacity-100 scale-100;
+}
+
+.modal-exit {
+  @apply opacity-100 scale-100;
+}
+
+.modal-exit-active {
+  @apply opacity-0 scale-95;
+}
+
+/* Comparison table */
+.comparison-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.comparison-table th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.comparison-table td {
+  @apply px-6 py-4 whitespace-nowrap text-sm;
+}
+
+.comparison-row {
+  @apply hover:bg-gray-50 transition-colors duration-200;
+}
+
+.comparison-row.highlighted {
+  @apply bg-green-50 border-green-200;
+}
+
+/* Comparison cards */
+.comparison-card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  @apply hover:shadow-md transition-shadow duration-300;
+}
+
+.comparison-card.highlighted {
+  @apply border-green-300 shadow-green-100;
+}
+
+/* View toggle */
+.view-toggle {
+  @apply flex bg-gray-100 rounded-lg p-1;
+}
+
+.view-toggle-button {
+  @apply px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200;
+}
+
+.view-toggle-button.active {
+  @apply bg-white text-gray-900 shadow-sm;
+}
+
+.view-toggle-button:not(.active) {
+  @apply text-gray-600 hover:text-gray-900;
+}
+
+/* =============================================================================
+   Loading States
+   ============================================================================= */
+
+.loading-indicator {
+  @apply flex items-center justify-center p-8;
+}
+
+.spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600;
+}
+
+.skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+.skeleton-text {
+  @apply h-4 bg-gray-200 rounded animate-pulse;
+}
+
+.skeleton-text.wide {
+  @apply w-3/4;
+}
+
+.skeleton-text.narrow {
+  @apply w-1/2;
+}
+
+.loading-overlay {
+  @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10;
+  backdrop-filter: blur(2px);
+}
+
+/* Button loading states */
+.btn-loading {
+  @apply opacity-75 cursor-not-allowed;
+}
+
+.btn-loading::after {
+  content: '';
+  @apply inline-block w-4 h-4 ml-2 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+/* =============================================================================
+   Progress Indicators
+   ============================================================================= */
+
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-blue-600 transition-all duration-300 ease-out;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+  background-size: 200% 100%;
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* =============================================================================
+   Responsive Design
+   ============================================================================= */
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 640px) {
+  .ticket-card {
+    @apply mb-4;
+  }
+  
+  .price-monitor-status {
+    @apply bottom-2 left-2 text-xs;
+  }
+  
+  .notification-center {
+    @apply top-2 right-2 left-2;
+    max-width: none;
+  }
+  
+  .notification {
+    @apply text-sm;
+  }
+  
+  .comparison-modal .modal-content {
+    @apply m-2;
+  }
+  
+  .search-input:focus {
+    @apply transform scale-100;
+  }
+  
+  .filter-control:hover {
+    @apply transform translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .comparison-table {
+    @apply text-xs;
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    @apply px-2 py-2;
+  }
+  
+  .ticket-card:hover::before {
+    display: none;
+  }
+  
+  .bookmark-toggle:hover,
+  .share-button:hover,
+  .compare-checkbox:hover {
+    @apply scale-100;
+  }
+}
+
+/* =============================================================================
+   Dark Mode Support (Optional)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .ticket-card {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .ticket-price {
+    @apply text-white;
+  }
+  
+  .search-suggestions {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .suggestion-item:hover {
+    @apply bg-gray-700 text-blue-400;
+  }
+  
+  .modal-content {
+    @apply bg-gray-800 text-white;
+  }
+  
+  .comparison-table th {
+    @apply text-gray-400;
+  }
+  
+  .notification {
+    @apply text-gray-900;
+  }
+}
+
+/* =============================================================================
+   Print Styles
+   ============================================================================= */
+
+@media print {
+  .price-monitor-status,
+  .notification-center,
+  .comparison-modal,
+  .bookmark-toggle,
+  .share-button,
+  .compare-indicator {
+    display: none !important;
+  }
+  
+  .ticket-card {
+    @apply shadow-none border border-gray-300;
+  }
+  
+  .ticket-card::before {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   Accessibility Enhancements
+   ============================================================================= */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ticket-card {
+    @apply border-2 border-black;
+  }
+  
+  .btn-primary {
+    @apply bg-black text-white border-2 border-black;
+  }
+  
+  .availability-status.available {
+    @apply bg-green-300 text-black border border-green-600;
+  }
+  
+  .availability-status.sold-out {
+    @apply bg-red-300 text-black border border-red-600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .ticket-card::before,
+  .ticket-image:hover,
+  .bookmark-toggle:hover svg,
+  .progress-fill {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* Screen reader only content */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Focus visible for keyboard navigation */
+@supports selector(:focus-visible) {
+  .focus-ring:focus {
+    outline: none;
+  }
+  
+  .focus-ring:focus-visible {
+    @apply ring-2 ring-blue-500 ring-opacity-50;
+  }
+}
+
+/* =============================================================================
+   Animation Classes
+   ============================================================================= */
+
+.fade-in {
+  animation: fadeIn var(--duration-normal) ease-in-out;
+}
+
+.fade-out {
+  animation: fadeOut var(--duration-normal) ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp var(--duration-normal) ease-out;
+}
+
+.slide-down {
+  animation: slideDown var(--duration-normal) ease-out;
+}
+
+.zoom-in {
+  animation: zoomIn var(--duration-fast) ease-out;
+}
+
+.bounce-in {
+  animation: bounceIn var(--duration-slow) ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* =============================================================================
+   Utility Classes
+   ============================================================================= */
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-colored {
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.15);
+}
+
+.border-gradient {
+  position: relative;
+  background: linear-gradient(white, white) padding-box, 
+              linear-gradient(135deg, #667eea, #764ba2) border-box;
+  border: 2px solid transparent;
+}

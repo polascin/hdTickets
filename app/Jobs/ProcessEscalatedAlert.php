@@ -61,7 +61,7 @@ class ProcessEscalatedAlert implements ShouldQueue
             $this->escalation->refresh();
 
             // Check if escalation is still valid before processing
-            if (! $this->escalation->isValid()) {
+            if (!$this->escalation->isValid()) {
                 Log::info('Escalation is no longer valid, skipping', [
                     'escalation_id' => $this->escalation->id,
                     'status'        => $this->escalation->status,

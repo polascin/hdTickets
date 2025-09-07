@@ -36,7 +36,7 @@ class PlatformMonitoringService
             $alerts = array_merge($alerts, $this->monitorPlatform($platform));
         }
 
-        if (! empty($alerts)) {
+        if (!empty($alerts)) {
             $this->processAlerts($alerts);
         }
 
@@ -341,7 +341,7 @@ class PlatformMonitoringService
             }
         }
 
-        if (! empty($lowEffectivenessSelectors)) {
+        if (!empty($lowEffectivenessSelectors)) {
             $selectorList = implode(', ', array_keys($lowEffectivenessSelectors));
 
             return [

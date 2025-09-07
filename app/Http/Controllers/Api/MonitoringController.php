@@ -347,7 +347,7 @@ class MonitoringController extends Controller
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
 
-            $monitor->is_active = ! $monitor->is_active;
+            $monitor->is_active = !$monitor->is_active;
             $monitor->save();
 
             if ($monitor->is_active) {

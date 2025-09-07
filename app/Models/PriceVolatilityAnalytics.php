@@ -171,7 +171,7 @@ class PriceVolatilityAnalytics extends Model
             }
         }
 
-        $maxSingleChange = ! empty($priceChanges) ? max($priceChanges) : 0;
+        $maxSingleChange = !empty($priceChanges) ? max($priceChanges) : 0;
 
         // Determine trend direction
         $firstPrice = $priceHistory->first()->price;

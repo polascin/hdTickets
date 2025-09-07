@@ -183,7 +183,7 @@ final readonly class Price
         }
 
         $validCurrencies = ['GBP', 'USD', 'EUR'];
-        if (! in_array(strtoupper($currency), $validCurrencies, TRUE)) {
+        if (!in_array(strtoupper($currency), $validCurrencies, TRUE)) {
             throw new InvalidArgumentException('Invalid currency. Supported: ' . implode(', ', $validCurrencies));
         }
     }

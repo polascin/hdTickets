@@ -566,7 +566,7 @@ class PerformanceMetricsController extends Controller
             }
 
             $data[$vital] = [
-                'average'   => ! empty($values) ? array_sum($values) / count($values) : 0,
+                'average'   => !empty($values) ? array_sum($values) / count($values) : 0,
                 'count'     => count($values),
                 'ratings'   => $ratings,
                 'threshold' => self::THRESHOLDS[$vital] ?? NULL,
@@ -613,7 +613,7 @@ class PerformanceMetricsController extends Controller
                 $item = json_decode($item, TRUE);
                 $url = $item['url'];
 
-                if (! isset($endpoints[$url])) {
+                if (!isset($endpoints[$url])) {
                     $endpoints[$url] = [
                         'requests'       => 0,
                         'total_duration' => 0,

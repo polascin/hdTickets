@@ -36,7 +36,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             abort(401, 'Authentication required');
         }
 
@@ -53,7 +53,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -223,7 +223,7 @@ class EnhancedDashboardController extends Controller
             ->orderBy('popularity_score', 'desc');
 
         // Apply user preferences
-        if (! empty($favoriteTeams)) {
+        if (!empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
@@ -232,7 +232,7 @@ class EnhancedDashboardController extends Controller
             });
         }
 
-        if (! empty($priceRange) && isset($priceRange['max'])) {
+        if (!empty($priceRange) && isset($priceRange['max'])) {
             $query->where('min_price', '<=', $priceRange['max']);
         }
 
@@ -306,14 +306,14 @@ class EnhancedDashboardController extends Controller
         return ScrapedTicket::available()
             ->where('event_date', '>', Carbon::now())
             ->where('event_date', '<=', Carbon::now()->addMonths(3))
-            ->when(! empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
+            ->when(!empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('title', 'like', "%{$team}%");
                     }
                 });
             })
-            ->when(! empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
+            ->when(!empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
                 $query->whereIn('venue', $favoriteVenues);
             })
             ->orderBy('event_date')

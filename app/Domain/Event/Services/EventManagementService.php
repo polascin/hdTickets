@@ -47,7 +47,7 @@ class EventManagementService
             $venue->fullName(),
         );
 
-        if (! empty($conflictingEvents)) {
+        if (!empty($conflictingEvents)) {
             throw new DomainException('Venue conflict detected at the specified time');
         }
 

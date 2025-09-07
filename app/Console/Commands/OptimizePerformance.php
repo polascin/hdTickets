@@ -59,8 +59,8 @@ class OptimizePerformance extends Command
         $this->newLine();
 
         // Safety check for production
-        if (app()->environment('production') && ! $this->option('force')) {
-            if (! $this->confirm('You are running this in production. Continue?')) {
+        if (app()->environment('production') && !$this->option('force')) {
+            if (!$this->confirm('You are running this in production. Continue?')) {
                 $this->error('Operation cancelled.');
 
                 return Command::FAILURE;
@@ -77,17 +77,17 @@ class OptimizePerformance extends Command
             }
 
             // Cache optimizations
-            if (! $this->option('database')) {
+            if (!$this->option('database')) {
                 $results['cache'] = $this->optimizeCache();
             }
 
             // Database optimizations
-            if (! $this->option('cache')) {
+            if (!$this->option('cache')) {
                 $results['database'] = $this->optimizeDatabase();
             }
 
             // General Laravel optimizations
-            if (! $this->option('cache') && ! $this->option('database')) {
+            if (!$this->option('cache') && !$this->option('database')) {
                 $results['laravel'] = $this->optimizeLaravel();
             }
 

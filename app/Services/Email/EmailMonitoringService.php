@@ -1,14 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Email;
 
-use App\Domain\Email\Models\EmailMessage;
-use App\Domain\Event\Models\SportsEvent;
 use App\Domain\Ticket\Models\Ticket;
 use App\Jobs\ProcessSportsEventEmailJob;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -17,15 +14,18 @@ use RuntimeException;
 
 /**
  * Email Monitoring Service
- * 
+ *
  * Monitors email inboxes for sports event ticket notifications from various
  * platforms and processes them for the HD Tickets system.
  */
 class EmailMonitoringService
 {
     private ImapConnectionService $connectionService;
+
     private EmailParsingService $parsingService;
+
     private array $config;
+
     private array $platformPatterns;
 
     public function __construct(
@@ -40,19 +40,19 @@ class EmailMonitoringService
 
     /**
      * Monitor all configured email connections
-     * 
+     *
      * @return array Monitoring results
      */
     public function monitorAll(): array
     {
         $results = [
-            'processed_connections' => 0,
-            'total_emails_found' => 0,
-            'total_emails_processed' => 0,
+            'processed_connections'          => 0,
+            'total_emails_found'             => 0,
+            'total_emails_processed'         => 0,
             'total_sports_events_identified' => 0,
-            'connections' => [],
-            'errors' => [],
-            'started_at' => now()->toISOString(),
+            'connections'                    => [],
+            'errors'                         => [],
+            'started_at'                     => now()->toISOString(),
         ];
 
         $connections = array_keys($this->config['connections'] ?? []);
@@ -65,19 +65,18 @@ class EmailMonitoringService
                 $results['total_emails_found'] += $connectionResult['emails_found'];
                 $results['total_emails_processed'] += $connectionResult['emails_processed'];
                 $results['total_sports_events_identified'] += $connectionResult['sports_events_identified'];
-
             } catch (Exception $e) {
                 $error = [
-                    'connection' => $connection,
-                    'error' => $e->getMessage(),
+                    'connection'  => $connection,
+                    'error'       => $e->getMessage(),
                     'occurred_at' => now()->toISOString(),
                 ];
-                
+
                 $results['errors'][] = $error;
                 $results['connections'][$connection] = ['error' => $error];
 
                 Log::channel($this->config['logging']['channel'])
-                    ->error("Failed to monitor connection", $error);
+                    ->error('Failed to monitor connection', $error);
             }
         }
 
@@ -89,29 +88,29 @@ class EmailMonitoringService
 
     /**
      * Monitor specific email connection
-     * 
-     * @param string $connection Connection name
-     * @return array Connection monitoring results
+     *
+     * @param  string $connection Connection name
+     * @return array  Connection monitoring results
      */
     public function monitorConnection(string $connection): array
     {
         $result = [
-            'connection' => $connection,
-            'emails_found' => 0,
-            'emails_processed' => 0,
+            'connection'               => $connection,
+            'emails_found'             => 0,
+            'emails_processed'         => 0,
             'sports_events_identified' => 0,
-            'mailboxes_checked' => [],
-            'errors' => [],
-            'started_at' => now()->toISOString(),
+            'mailboxes_checked'        => [],
+            'errors'                   => [],
+            'started_at'               => now()->toISOString(),
         ];
 
         try {
             // Get IMAP connection
             $imapConnection = $this->connectionService->getConnection($connection);
-            
+
             // Get mailboxes to monitor
             $mailboxes = $this->config['monitoring']['mailboxes'] ?? ['INBOX'];
-            
+
             foreach ($mailboxes as $mailbox) {
                 try {
                     $mailboxResult = $this->monitorMailbox($imapConnection, $mailbox, $connection);
@@ -119,26 +118,24 @@ class EmailMonitoringService
                     $result['emails_found'] += $mailboxResult['emails_found'];
                     $result['emails_processed'] += $mailboxResult['emails_processed'];
                     $result['sports_events_identified'] += $mailboxResult['sports_events_identified'];
-
                 } catch (Exception $e) {
                     $error = [
-                        'mailbox' => $mailbox,
-                        'error' => $e->getMessage(),
+                        'mailbox'     => $mailbox,
+                        'error'       => $e->getMessage(),
                         'occurred_at' => now()->toISOString(),
                     ];
-                    
+
                     $result['errors'][] = $error;
                     $result['mailboxes_checked'][$mailbox] = ['error' => $error];
 
                     Log::channel($this->config['logging']['channel'])
-                        ->error("Failed to monitor mailbox", [
+                        ->error('Failed to monitor mailbox', [
                             'connection' => $connection,
-                            'mailbox' => $mailbox,
-                            'error' => $e->getMessage(),
+                            'mailbox'    => $mailbox,
+                            'error'      => $e->getMessage(),
                         ]);
                 }
             }
-
         } catch (Exception $e) {
             throw new RuntimeException("Failed to monitor connection '{$connection}': " . $e->getMessage(), 0, $e);
         }
@@ -151,20 +148,20 @@ class EmailMonitoringService
 
     /**
      * Monitor specific mailbox for sports event emails
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param string $mailbox Mailbox name
-     * @param string $connection Connection name
-     * @return array Mailbox monitoring results
+     *
+     * @param  resource $imapConnection IMAP connection
+     * @param  string   $mailbox        Mailbox name
+     * @param  string   $connection     Connection name
+     * @return array    Mailbox monitoring results
      */
     private function monitorMailbox($imapConnection, string $mailbox, string $connection): array
     {
         $result = [
-            'mailbox' => $mailbox,
-            'emails_found' => 0,
-            'emails_processed' => 0,
+            'mailbox'                  => $mailbox,
+            'emails_found'             => 0,
+            'emails_processed'         => 0,
             'sports_events_identified' => 0,
-            'started_at' => now()->toISOString(),
+            'started_at'               => now()->toISOString(),
         ];
 
         // Select mailbox
@@ -178,6 +175,7 @@ class EmailMonitoringService
 
         if (empty($emails)) {
             $result['completed_at'] = now()->toISOString();
+
             return $result;
         }
 
@@ -198,9 +196,9 @@ class EmailMonitoringService
 
     /**
      * Get unread emails from mailbox
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @return array Email UIDs
+     *
+     * @param  resource $imapConnection IMAP connection
+     * @return array    Email UIDs
      */
     private function getUnreadEmails($imapConnection): array
     {
@@ -213,49 +211,50 @@ class EmailMonitoringService
             $searchCriteria = "UNSEEN SINCE \"{$sinceDate}\"";
             $emails = @imap_search($imapConnection, $searchCriteria, SE_UID);
 
-            if ($emails === false) {
+            if ($emails === FALSE) {
                 $error = imap_last_error();
-                if ($error && strpos($error, 'SEARCH completed') === false) {
+                if ($error && strpos($error, 'SEARCH completed') === FALSE) {
                     Log::channel($this->config['logging']['channel'])
-                        ->warning("IMAP search returned no results or error", [
+                        ->warning('IMAP search returned no results or error', [
                             'criteria' => $searchCriteria,
-                            'error' => $error,
+                            'error'    => $error,
                         ]);
                 }
+
                 return [];
             }
 
             return $emails;
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Error searching for emails", [
+                ->error('Error searching for emails', [
                     'error' => $e->getMessage(),
                 ]);
+
             return [];
         }
     }
 
     /**
      * Process batch of emails
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param array $emailUids Email UIDs
-     * @param string $connection Connection name
-     * @return array Batch processing results
+     *
+     * @param  resource $imapConnection IMAP connection
+     * @param  array    $emailUids      Email UIDs
+     * @param  string   $connection     Connection name
+     * @return array    Batch processing results
      */
     private function processEmailBatch($imapConnection, array $emailUids, string $connection): array
     {
         $result = [
-            'processed' => 0,
+            'processed'                => 0,
             'sports_events_identified' => 0,
-            'errors' => [],
+            'errors'                   => [],
         ];
 
         foreach ($emailUids as $uid) {
             try {
                 $emailProcessed = $this->processEmail($imapConnection, $uid, $connection);
-                
+
                 if ($emailProcessed['processed']) {
                     $result['processed']++;
                 }
@@ -263,18 +262,17 @@ class EmailMonitoringService
                 if ($emailProcessed['sports_event_identified']) {
                     $result['sports_events_identified']++;
                 }
-
             } catch (Exception $e) {
                 $result['errors'][] = [
-                    'uid' => $uid,
+                    'uid'   => $uid,
                     'error' => $e->getMessage(),
                 ];
 
                 Log::channel($this->config['logging']['channel'])
-                    ->error("Failed to process email", [
+                    ->error('Failed to process email', [
                         'connection' => $connection,
-                        'uid' => $uid,
-                        'error' => $e->getMessage(),
+                        'uid'        => $uid,
+                        'error'      => $e->getMessage(),
                     ]);
             }
         }
@@ -284,18 +282,18 @@ class EmailMonitoringService
 
     /**
      * Process individual email
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
-     * @param string $connection Connection name
-     * @return array Email processing result
+     *
+     * @param  resource $imapConnection IMAP connection
+     * @param  int      $uid            Email UID
+     * @param  string   $connection     Connection name
+     * @return array    Email processing result
      */
     private function processEmail($imapConnection, int $uid, string $connection): array
     {
         $result = [
-            'processed' => false,
-            'sports_event_identified' => false,
-            'platform' => null,
+            'processed'               => FALSE,
+            'sports_event_identified' => FALSE,
+            'platform'                => NULL,
         ];
 
         // Check if email was already processed
@@ -313,6 +311,7 @@ class EmailMonitoringService
         $platform = $this->identifyPlatform($headers);
         if (!$platform) {
             $this->markEmailAsProcessed($uid, $connection);
+
             return $result;
         }
 
@@ -321,7 +320,8 @@ class EmailMonitoringService
         // Check if email contains sports event content
         if (!$this->containsSportsEventContent($imapConnection, $uid, $platform)) {
             $this->markEmailAsProcessed($uid, $connection);
-            $result['processed'] = true;
+            $result['processed'] = TRUE;
+
             return $result;
         }
 
@@ -329,40 +329,41 @@ class EmailMonitoringService
         $this->queueEmailForProcessing($imapConnection, $uid, $connection, $platform, $headers);
 
         // Mark email as read if configured
-        if ($this->config['monitoring']['mark_as_read'] ?? true) {
+        if ($this->config['monitoring']['mark_as_read'] ?? TRUE) {
             $this->markEmailAsRead($imapConnection, $uid);
         }
 
         // Mark as processed
         $this->markEmailAsProcessed($uid, $connection);
 
-        $result['processed'] = true;
-        $result['sports_event_identified'] = true;
+        $result['processed'] = TRUE;
+        $result['sports_event_identified'] = TRUE;
 
         return $result;
     }
 
     /**
      * Check if email was already processed
-     * 
-     * @param int $uid Email UID
-     * @param string $connection Connection name
+     *
+     * @param  int    $uid        Email UID
+     * @param  string $connection Connection name
      * @return bool
      */
     private function isEmailProcessed(int $uid, string $connection): bool
     {
         if (!$this->config['cache']['enabled']) {
-            return false;
+            return FALSE;
         }
 
         $cacheKey = $this->config['cache']['prefix'] . "_processed_{$connection}_{$uid}";
+
         return Cache::has($cacheKey);
     }
 
     /**
      * Mark email as processed
-     * 
-     * @param int $uid Email UID
+     *
+     * @param int    $uid        Email UID
      * @param string $connection Connection name
      */
     private function markEmailAsProcessed(int $uid, string $connection): void
@@ -373,49 +374,49 @@ class EmailMonitoringService
 
         $cacheKey = $this->config['cache']['prefix'] . "_processed_{$connection}_{$uid}";
         $ttl = $this->config['cache']['processed_ttl'] ?? 24;
-        
-        Cache::put($cacheKey, true, $ttl * 60 * 60); // Convert hours to seconds
+
+        Cache::put($cacheKey, TRUE, $ttl * 60 * 60); // Convert hours to seconds
     }
 
     /**
      * Get email headers
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
+     *
+     * @param  resource   $imapConnection IMAP connection
+     * @param  int        $uid            Email UID
      * @return array|null Email headers
      */
     private function getEmailHeaders($imapConnection, int $uid): ?array
     {
         try {
-            $headerInfo = @imap_headerinfo($imapConnection, $uid, 0, 0, 0, UID: true);
-            
+            $headerInfo = @imap_headerinfo($imapConnection, $uid, 0, 0, 0, UID: TRUE);
+
             if (!$headerInfo) {
-                return null;
+                return NULL;
             }
 
             return [
-                'from' => $headerInfo->from[0] ?? null,
-                'to' => $headerInfo->to[0] ?? null,
-                'subject' => $headerInfo->subject ?? '',
-                'date' => $headerInfo->date ?? '',
+                'from'       => $headerInfo->from[0] ?? NULL,
+                'to'         => $headerInfo->to[0] ?? NULL,
+                'subject'    => $headerInfo->subject ?? '',
+                'date'       => $headerInfo->date ?? '',
                 'message_id' => $headerInfo->message_id ?? '',
-                'size' => $headerInfo->Size ?? 0,
+                'size'       => $headerInfo->Size ?? 0,
             ];
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Error getting email headers", [
-                    'uid' => $uid,
+                ->error('Error getting email headers', [
+                    'uid'   => $uid,
                     'error' => $e->getMessage(),
                 ]);
-            return null;
+
+            return NULL;
         }
     }
 
     /**
      * Identify platform from email headers
-     * 
-     * @param array $headers Email headers
+     *
+     * @param  array       $headers Email headers
      * @return string|null Platform identifier
      */
     private function identifyPlatform(array $headers): ?string
@@ -433,21 +434,21 @@ class EmailMonitoringService
 
             // Check subject keywords
             foreach ($patterns['subject_keywords'] ?? [] as $keyword) {
-                if (strpos($subject, strtolower($keyword)) !== false) {
+                if (strpos($subject, strtolower($keyword)) !== FALSE) {
                     return $platform;
                 }
             }
         }
 
-        return null;
+        return NULL;
     }
 
     /**
      * Check if email contains sports event content
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
-     * @param string $platform Platform identifier
+     *
+     * @param  resource $imapConnection IMAP connection
+     * @param  int      $uid            Email UID
+     * @param  string   $platform       Platform identifier
      * @return bool
      */
     private function containsSportsEventContent($imapConnection, int $uid, string $platform): bool
@@ -456,7 +457,7 @@ class EmailMonitoringService
             // Get email body
             $body = $this->getEmailBody($imapConnection, $uid);
             if (!$body) {
-                return false;
+                return FALSE;
             }
 
             $bodyLower = strtolower($body);
@@ -470,30 +471,30 @@ class EmailMonitoringService
 
             $keywordMatches = 0;
             foreach ($keywords as $keyword) {
-                if (strpos($bodyLower, strtolower($keyword)) !== false) {
+                if (strpos($bodyLower, strtolower($keyword)) !== FALSE) {
                     $keywordMatches++;
                 }
             }
 
             // Require at least 2 keyword matches to be considered sports event content
             return $keywordMatches >= 2;
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Error checking sports event content", [
-                    'uid' => $uid,
+                ->error('Error checking sports event content', [
+                    'uid'      => $uid,
                     'platform' => $platform,
-                    'error' => $e->getMessage(),
+                    'error'    => $e->getMessage(),
                 ]);
-            return false;
+
+            return FALSE;
         }
     }
 
     /**
      * Get email body content
-     * 
-     * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
+     *
+     * @param  resource    $imapConnection IMAP connection
+     * @param  int         $uid            Email UID
      * @return string|null Email body
      */
     private function getEmailBody($imapConnection, int $uid): ?string
@@ -501,13 +502,13 @@ class EmailMonitoringService
         try {
             $structure = @imap_fetchstructure($imapConnection, $uid, FT_UID);
             if (!$structure) {
-                return null;
+                return NULL;
             }
 
             // Get body
             $body = @imap_fetchbody($imapConnection, $uid, 1, FT_UID);
             if (!$body) {
-                return null;
+                return NULL;
             }
 
             // Handle encoding
@@ -518,25 +519,25 @@ class EmailMonitoringService
             }
 
             return $body;
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Error getting email body", [
-                    'uid' => $uid,
+                ->error('Error getting email body', [
+                    'uid'   => $uid,
                     'error' => $e->getMessage(),
                 ]);
-            return null;
+
+            return NULL;
         }
     }
 
     /**
      * Queue email for detailed processing
-     * 
+     *
      * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
-     * @param string $connection Connection name
-     * @param string $platform Platform identifier
-     * @param array $headers Email headers
+     * @param int      $uid            Email UID
+     * @param string   $connection     Connection name
+     * @param string   $platform       Platform identifier
+     * @param array    $headers        Email headers
      */
     private function queueEmailForProcessing($imapConnection, int $uid, string $connection, string $platform, array $headers): void
     {
@@ -547,11 +548,11 @@ class EmailMonitoringService
         try {
             // Get full email content
             $emailData = [
-                'uid' => $uid,
-                'connection' => $connection,
-                'platform' => $platform,
-                'headers' => $headers,
-                'body' => $this->getEmailBody($imapConnection, $uid),
+                'uid'          => $uid,
+                'connection'   => $connection,
+                'platform'     => $platform,
+                'headers'      => $headers,
+                'body'         => $this->getEmailBody($imapConnection, $uid),
                 'processed_at' => now()->toISOString(),
             ];
 
@@ -561,39 +562,38 @@ class EmailMonitoringService
 
             if ($this->config['logging']['log_processed']) {
                 Log::channel($this->config['logging']['channel'])
-                    ->info("Email queued for processing", [
-                        'uid' => $uid,
+                    ->info('Email queued for processing', [
+                        'uid'        => $uid,
                         'connection' => $connection,
-                        'platform' => $platform,
-                        'queue' => $queueName,
+                        'platform'   => $platform,
+                        'queue'      => $queueName,
                     ]);
             }
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Failed to queue email for processing", [
-                    'uid' => $uid,
+                ->error('Failed to queue email for processing', [
+                    'uid'        => $uid,
                     'connection' => $connection,
-                    'platform' => $platform,
-                    'error' => $e->getMessage(),
+                    'platform'   => $platform,
+                    'error'      => $e->getMessage(),
                 ]);
         }
     }
 
     /**
      * Mark email as read
-     * 
+     *
      * @param resource $imapConnection IMAP connection
-     * @param int $uid Email UID
+     * @param int      $uid            Email UID
      */
     private function markEmailAsRead($imapConnection, int $uid): void
     {
         try {
-            @imap_setflag_full($imapConnection, (string)$uid, '\\Seen', ST_UID);
+            @imap_setflag_full($imapConnection, (string) $uid, '\\Seen', ST_UID);
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->warning("Failed to mark email as read", [
-                    'uid' => $uid,
+                ->warning('Failed to mark email as read', [
+                    'uid'   => $uid,
                     'error' => $e->getMessage(),
                 ]);
         }
@@ -601,17 +601,17 @@ class EmailMonitoringService
 
     /**
      * Get monitoring statistics
-     * 
+     *
      * @return array Monitoring statistics
      */
     public function getMonitoringStats(): array
     {
         $stats = [
-            'total_connections' => count($this->config['connections'] ?? []),
+            'total_connections'  => count($this->config['connections'] ?? []),
             'active_connections' => 0,
-            'total_mailboxes' => count($this->config['monitoring']['mailboxes'] ?? []),
-            'platform_patterns' => count($this->platformPatterns),
-            'platforms' => array_keys($this->platformPatterns),
+            'total_mailboxes'    => count($this->config['monitoring']['mailboxes'] ?? []),
+            'platform_patterns'  => count($this->platformPatterns),
+            'platforms'          => array_keys($this->platformPatterns),
         ];
 
         // Count active connections
@@ -631,17 +631,17 @@ class EmailMonitoringService
 
     /**
      * Clear processed emails cache
-     * 
+     *
      * @param string|null $connection Specific connection or all
      */
-    public function clearProcessedCache(?string $connection = null): void
+    public function clearProcessedCache(?string $connection = NULL): void
     {
         if (!$this->config['cache']['enabled']) {
             return;
         }
 
         $prefix = $this->config['cache']['prefix'] . '_processed';
-        
+
         if ($connection) {
             $pattern = "{$prefix}_{$connection}_*";
         } else {

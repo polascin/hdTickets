@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Console\Commands;
 
@@ -47,20 +47,21 @@ class GenerateScheduledReports extends Command
 
         $this->info('🎯 HD Tickets Scheduled Reports Generator');
         $this->info('=====================================');
-        
+
         if ($dryRun) {
             $this->warn('🔍 DRY RUN MODE - No reports will be generated');
         }
 
-        $startTime = microtime(true);
+        $startTime = microtime(TRUE);
         $allResults = [];
         $reportTypes = $this->getReportTypes($type);
 
         foreach ($reportTypes as $reportType) {
             $this->info("\n📊 Processing {$reportType} reports...");
-            
+
             if ($dryRun) {
                 $this->showDryRunInfo($reportType);
+
                 continue;
             }
 
@@ -69,22 +70,21 @@ class GenerateScheduledReports extends Command
                     $reportType,
                     ['force' => $force]
                 );
-                
+
                 $allResults = array_merge($allResults, $results);
                 $this->displayResults($reportType, $results);
-                
             } catch (\Exception $e) {
                 $this->error("❌ Failed to generate {$reportType} reports: {$e->getMessage()}");
-                Log::error("Scheduled report generation command failed", [
-                    'type' => $reportType,
+                Log::error('Scheduled report generation command failed', [
+                    'type'  => $reportType,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
         }
 
-        $this->displaySummary($allResults, microtime(true) - $startTime);
-        
+        $this->displaySummary($allResults, microtime(TRUE) - $startTime);
+
         return Command::SUCCESS;
     }
 
@@ -96,7 +96,7 @@ class GenerateScheduledReports extends Command
         if ($type === 'all') {
             return ['daily', 'weekly', 'monthly'];
         }
-        
+
         return [$type];
     }
 
@@ -107,9 +107,9 @@ class GenerateScheduledReports extends Command
     {
         // This would show what reports would be generated
         $this->line("  • Would check for active {$type} reports");
-        $this->line("  • Would generate report files");
-        $this->line("  • Would send emails to recipients");
-        $this->line("  • Would update report statistics");
+        $this->line('  • Would generate report files');
+        $this->line('  • Would send emails to recipients');
+        $this->line('  • Would update report statistics');
     }
 
     /**
@@ -119,16 +119,17 @@ class GenerateScheduledReports extends Command
     {
         if (empty($results)) {
             $this->comment("  ℹ️  No {$type} reports were due for generation");
+
             return;
         }
 
-        $successful = array_filter($results, fn($r) => $r['success']);
-        $failed = array_filter($results, fn($r) => !$r['success']);
+        $successful = array_filter($results, fn ($r) => $r['success']);
+        $failed = array_filter($results, fn ($r) => !$r['success']);
 
-        $this->info("  ✅ Successfully generated: " . count($successful));
-        
+        $this->info('  ✅ Successfully generated: ' . count($successful));
+
         if (!empty($failed)) {
-            $this->error("  ❌ Failed to generate: " . count($failed));
+            $this->error('  ❌ Failed to generate: ' . count($failed));
         }
 
         // Show details for each report
@@ -137,10 +138,10 @@ class GenerateScheduledReports extends Command
                 $size = $this->formatBytes($result['size'] ?? 0);
                 $time = round($result['generation_time'] ?? 0, 2);
                 $this->line("    • {$result['filename']} ({$size}, {$time}s)");
-                
+
                 // Show delivery status
                 if (isset($result['delivery'])) {
-                    $deliverySuccess = count(array_filter($result['delivery'], fn($d) => $d['success']));
+                    $deliverySuccess = count(array_filter($result['delivery'], fn ($d) => $d['success']));
                     $deliveryTotal = count($result['delivery']);
                     $this->line("      📧 Delivered to {$deliverySuccess}/{$deliveryTotal} recipients");
                 }
@@ -156,27 +157,27 @@ class GenerateScheduledReports extends Command
     private function displaySummary(array $allResults, float $totalTime): void
     {
         $this->info("\n📈 SUMMARY");
-        $this->info("===========");
-        
+        $this->info('===========');
+
         $totalReports = count($allResults);
-        $successful = count(array_filter($allResults, fn($r) => $r['success']));
+        $successful = count(array_filter($allResults, fn ($r) => $r['success']));
         $failed = $totalReports - $successful;
-        
+
         $this->info("Total reports processed: {$totalReports}");
         $this->info("✅ Successful: {$successful}");
-        
+
         if ($failed > 0) {
             $this->error("❌ Failed: {$failed}");
         }
-        
-        $this->info("⏱️  Total execution time: " . round($totalTime, 2) . "s");
-        
+
+        $this->info('⏱️  Total execution time: ' . round($totalTime, 2) . 's');
+
         // Calculate total file sizes
         $totalSize = array_sum(array_column($allResults, 'size'));
         if ($totalSize > 0) {
-            $this->info("💾 Total file size: " . $this->formatBytes($totalSize));
+            $this->info('💾 Total file size: ' . $this->formatBytes($totalSize));
         }
-        
+
         if ($successful > 0) {
             $this->info("\n🎉 Report generation completed successfully!");
         } else {

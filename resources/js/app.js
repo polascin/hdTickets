@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import './bootstrap';
+import './echo';
 
 // Make Alpine available globally
 window.Alpine = Alpine;
@@ -10,6 +11,17 @@ import './components/navigation';
 import './components/notification-system';
 import './components/real-time-stats';
 import './components/theme-switcher';
+
+// Utility components
+import './utils/containerQueries';
+import './utils/gridLayout';
+import './utils/touchSupport';
+import './utils/performanceOptimizer';
+
+// Ticket system components (conditional loading)
+if (document.querySelector('[data-ticket-system]')) {
+    import('./tickets/index.js');
+}
 
 // Initialize Alpine
 Alpine.start();

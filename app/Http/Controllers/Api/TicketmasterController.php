@@ -225,7 +225,7 @@ class TicketmasterController extends Controller
                     // Get event details
                     $eventDetails = $client->scrapeEventDetails($url);
 
-                    if (! empty($eventDetails)) {
+                    if (!empty($eventDetails)) {
                         // Use reflection to access private method
                         $reflection = new ReflectionClass($scraper);
                         $importMethod = $reflection->getMethod('importEventAsTicket');

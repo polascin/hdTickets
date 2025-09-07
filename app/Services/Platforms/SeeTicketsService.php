@@ -45,7 +45,7 @@ class SeeTicketsService extends BasePlatformService
                 'Connection'      => 'keep-alive',
             ])->timeout(30)->get($searchUrl);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 throw new Exception('SeeTickets search failed: ' . $response->status());
             }
 
@@ -81,7 +81,7 @@ class SeeTicketsService extends BasePlatformService
                     'Referer'    => $this->baseUrl,
                 ])->timeout(30)->get($eventUrl);
 
-                if (! $response->successful()) {
+                if (!$response->successful()) {
                     throw new Exception('Failed to fetch event details');
                 }
 
@@ -115,7 +115,7 @@ class SeeTicketsService extends BasePlatformService
             try {
                 $eventDetails = $this->getEventDetails($url);
 
-                if (! $eventDetails['success']) {
+                if (!$eventDetails['success']) {
                     $errors[] = "Failed to get details for: {$url}";
 
                     continue;
@@ -254,7 +254,7 @@ class SeeTicketsService extends BasePlatformService
     {
         // Extract event title
         $titleNode = $xpath->query('.//h3[@class="event-title"] | .//h2[@class="event-name"]', $node)->item(0);
-        if (! $titleNode) {
+        if (!$titleNode) {
             return NULL;
         }
 
@@ -283,7 +283,7 @@ class SeeTicketsService extends BasePlatformService
         // Extract image
         $imageNode = $xpath->query('.//img', $node)->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : NULL;
-        if ($imageUrl && ! str_starts_with($imageUrl, 'http')) {
+        if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
             $imageUrl = $this->baseUrl . $imageUrl;
         }
 
@@ -344,7 +344,7 @@ class SeeTicketsService extends BasePlatformService
         // Extract event image
         $imageNode = $xpath->query('//img[@class="event-image"] | //img[contains(@class, "hero-image")]')->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : NULL;
-        if ($imageUrl && ! str_starts_with($imageUrl, 'http')) {
+        if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
             $imageUrl = $this->baseUrl . $imageUrl;
         }
 
@@ -376,13 +376,13 @@ class SeeTicketsService extends BasePlatformService
 
         // Extract price
         $priceNode = $xpath->query('.//span[@class="price"] | .//td[@class="price"]', $ticketNode)->item(0);
-        if (! $priceNode) {
+        if (!$priceNode) {
             return NULL;
         }
 
         $priceText = trim($priceNode->textContent);
         $price = $this->extractPrice($priceText);
-        if (! $price) {
+        if (!$price) {
             return NULL;
         }
 
@@ -399,7 +399,7 @@ class SeeTicketsService extends BasePlatformService
             'price'             => $price,
             'currency'          => 'GBP',
             'availability'      => $availability,
-            'is_available'      => ! $isSoldOut,
+            'is_available'      => !$isSoldOut,
             'platform_specific' => [
                 'ticket_type'  => $this->extractTicketType($section),
                 'restrictions' => $this->extractRestrictions($ticketNode, $xpath),

@@ -89,10 +89,10 @@ class UserManagementController extends Controller
         $allowedSortFields = ['name', 'surname', 'email', 'role', 'is_active', 'created_at', 'email_verified_at'];
         $allowedSortOrders = ['asc', 'desc'];
 
-        if (! in_array($sortBy, $allowedSortFields, TRUE)) {
+        if (!in_array($sortBy, $allowedSortFields, TRUE)) {
             $sortBy = 'created_at';
         }
-        if (! in_array($sortOrder, $allowedSortOrders, TRUE)) {
+        if (!in_array($sortOrder, $allowedSortOrders, TRUE)) {
             $sortOrder = 'desc';
         }
 
@@ -105,7 +105,7 @@ class UserManagementController extends Controller
 
         // Pagination with query parameters
         $perPage = request('per_page', 10);
-        if (! in_array($perPage, [10, 25, 50, 100], TRUE)) {
+        if (!in_array($perPage, [10, 25, 50, 100], TRUE)) {
             $perPage = 10;
         }
 
@@ -276,7 +276,7 @@ class UserManagementController extends Controller
      */
     public function toggleStatus(User $user): \Illuminate\Http\JsonResponse
     {
-        $user->update(['is_active' => ! $user->is_active]);
+        $user->update(['is_active' => !$user->is_active]);
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 
@@ -323,14 +323,14 @@ class UserManagementController extends Controller
         $bulkToken = $request->input('bulk_token');
 
         // Security checks
-        if (! $this->securityService->checkPermission($user, 'bulk_operations', ['action' => $action])) {
+        if (!$this->securityService->checkPermission($user, 'bulk_operations', ['action' => $action])) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'You do not have permission to perform bulk operations.');
         }
 
         // Validate bulk operation security
         $validation = $this->securityService->validateBulkOperation($userIds, $action, $user);
-        if (! $validation['valid']) {
+        if (!$validation['valid']) {
             $this->securityService->logSecurityActivity(
                 'Bulk operation validation failed',
                 ['action' => $action, 'errors' => $validation['errors']],
@@ -341,7 +341,7 @@ class UserManagementController extends Controller
         }
 
         // Validate CSRF token for bulk operations
-        if (! $this->securityService->validateBulkOperationToken($bulkToken, $action, $userIds)) {
+        if (!$this->securityService->validateBulkOperationToken($bulkToken, $action, $userIds)) {
             $this->securityService->logSecurityActivity(
                 'Invalid bulk operation token',
                 ['action' => $action, 'user_count' => count($userIds)],
@@ -443,7 +443,7 @@ class UserManagementController extends Controller
      */
     public function stopImpersonating()
     {
-        if (! session('impersonating')) {
+        if (!session('impersonating')) {
             return redirect()->route('dashboard')
                 ->with('error', 'You are not currently impersonating anyone.');
         }
@@ -451,7 +451,7 @@ class UserManagementController extends Controller
         $originalUserId = session('impersonating.original_user');
         $originalUser = User::find($originalUserId);
 
-        if (! $originalUser) {
+        if (!$originalUser) {
             session()->forget('impersonating');
 
             return redirect()->route('login')
@@ -502,7 +502,7 @@ class UserManagementController extends Controller
         // Define allowed fields for inline editing
         $allowedFields = ['name', 'surname', 'email', 'phone'];
 
-        if (! in_array($field, $allowedFields, TRUE)) {
+        if (!in_array($field, $allowedFields, TRUE)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Field not allowed for inline editing.',
@@ -750,7 +750,7 @@ class UserManagementController extends Controller
         }
 
         $message = "Successfully updated {$updatedCount} user(s) to {$newRole} role.";
-        if (! empty($errors)) {
+        if (!empty($errors)) {
             $message .= ' Errors: ' . implode(', ', $errors);
         }
 
@@ -776,7 +776,7 @@ class UserManagementController extends Controller
     {
         $count = 0;
         foreach ($users as $user) {
-            if (! $user->is_active) {
+            if (!$user->is_active) {
                 $user->update(['is_active' => TRUE]);
                 $count++;
             }
@@ -863,7 +863,7 @@ class UserManagementController extends Controller
      */
     private function bulkAssignRole($users, $role): \Illuminate\Http\JsonResponse
     {
-        if (! $role) {
+        if (!$role) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'Please specify a role to assign.');
         }

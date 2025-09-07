@@ -614,7 +614,7 @@ class EnhancedAnalyticsController extends Controller
                 $criticalItems = array_filter($anomalyList, function ($item) {
                     return isset($item['severity']) && $item['severity'] === 'high';
                 });
-                if (! empty($criticalItems)) {
+                if (!empty($criticalItems)) {
                     $critical[$type] = $criticalItems;
                 }
             }

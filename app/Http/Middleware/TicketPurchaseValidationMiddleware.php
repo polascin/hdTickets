@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Domain\Purchase\Models\TicketPurchase;
+use App\Models\Ticket;
+use App\Models\User;
+use App\Services\AdvancedRBACService;
+use App\Services\SecurityMonitoringService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Services\SecurityMonitoringService;
-use App\Services\AdvancedRBACService;
-use App\Models\User;
-use App\Models\Ticket;
-use App\Domain\Purchase\Models\TicketPurchase;
-use Carbon\Carbon;
 
 /**
  * TicketPurchaseValidationMiddleware
- * 
+ *
  * Comprehensive middleware for validating ticket purchase requests including:
  * - User authentication and role verification
  * - Subscription status and limits enforcement
@@ -26,6 +25,7 @@ use Carbon\Carbon;
 class TicketPurchaseValidationMiddleware
 {
     protected SecurityMonitoringService $securityMonitoring;
+
     protected AdvancedRBACService $rbacService;
 
     public function __construct(
@@ -39,8 +39,8 @@ class TicketPurchaseValidationMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @param  \Illuminate\Http\Request                                                                          $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse) $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
@@ -62,12 +62,12 @@ class TicketPurchaseValidationMiddleware
 
             // Perform comprehensive purchase validation
             $validation = $this->validatePurchaseEligibility($user, $ticket, $request);
-            
+
             if (!$validation['can_purchase']) {
                 return $this->denyAccess(
-                    $request, 
-                    $validation['message'], 
-                    'purchase_validation_failed', 
+                    $request,
+                    $validation['message'],
+                    'purchase_validation_failed',
                     $user,
                     $validation
                 );
@@ -79,9 +79,9 @@ class TicketPurchaseValidationMiddleware
                 $user,
                 $request,
                 [
-                    'ticket_id' => $ticket->id,
-                    'ticket_title' => $ticket->title,
-                    'validation_passed' => true
+                    'ticket_id'         => $ticket->id,
+                    'ticket_title'      => $ticket->title,
+                    'validation_passed' => TRUE,
                 ]
             );
 
@@ -89,40 +89,39 @@ class TicketPurchaseValidationMiddleware
             $request->merge(['purchase_validation' => $validation]);
 
             return $next($request);
-
         } catch (\Exception $e) {
             \Log::error('Ticket purchase validation middleware error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
                 'request_uri' => $request->getRequestUri(),
-                'user_id' => $request->user()?->id
+                'user_id'     => $request->user()?->id,
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Purchase validation failed due to system error',
-                'error_code' => 'validation_system_error'
+                'success'    => FALSE,
+                'message'    => 'Purchase validation failed due to system error',
+                'error_code' => 'validation_system_error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
      * Validate if user is eligible to purchase tickets
-     * 
-     * @param User $user
-     * @param Ticket $ticket
-     * @param Request $request
+     *
+     * @param  User    $user
+     * @param  Ticket  $ticket
+     * @param  Request $request
      * @return array
      */
     protected function validatePurchaseEligibility(User $user, Ticket $ticket, Request $request): array
     {
         $validation = [
-            'can_purchase' => false,
-            'message' => '',
-            'reasons' => [],
-            'user_info' => [],
-            'ticket_info' => [],
-            'security_score' => 0
+            'can_purchase'   => FALSE,
+            'message'        => '',
+            'reasons'        => [],
+            'user_info'      => [],
+            'ticket_info'    => [],
+            'security_score' => 0,
         ];
 
         // 1. Check user status
@@ -161,9 +160,9 @@ class TicketPurchaseValidationMiddleware
         }
 
         // All validations passed
-        $validation['can_purchase'] = true;
+        $validation['can_purchase'] = TRUE;
         $validation['message'] = 'Purchase validation successful';
-        
+
         return $validation;
     }
 
@@ -176,25 +175,29 @@ class TicketPurchaseValidationMiddleware
         if (!$user->active) {
             $validation['reasons'][] = 'Account is inactive';
             $validation['message'] = 'Your account is inactive. Please contact support.';
-            return false;
+
+            return FALSE;
         }
 
         // Check if account is locked
         if ($user->locked_at && $user->locked_at > now()->subHours(24)) {
             $validation['reasons'][] = 'Account is temporarily locked';
             $validation['message'] = 'Your account is temporarily locked due to security concerns.';
-            return false;
+
+            return FALSE;
         }
 
         // Check email verification
         if (!$user->hasVerifiedEmail()) {
             $validation['reasons'][] = 'Email not verified';
             $validation['message'] = 'Please verify your email address before making purchases.';
-            return false;
+
+            return FALSE;
         }
 
         $validation['user_info']['account_status'] = 'active';
-        return true;
+
+        return TRUE;
     }
 
     /**
@@ -204,15 +207,17 @@ class TicketPurchaseValidationMiddleware
     {
         // Agents and admins bypass subscription requirements
         if ($this->rbacService->hasAnyRole($user, ['agent', 'admin'])) {
-            $validation['user_info']['subscription_bypass'] = true;
-            return true;
+            $validation['user_info']['subscription_bypass'] = TRUE;
+
+            return TRUE;
         }
 
         // Scraper role cannot make purchases
         if ($this->rbacService->hasAnyRole($user, ['scraper'])) {
             $validation['reasons'][] = 'Scraper accounts cannot purchase tickets';
             $validation['message'] = 'This account type is not authorized for ticket purchases.';
-            return false;
+
+            return FALSE;
         }
 
         // Check if customer is within free access period
@@ -220,16 +225,18 @@ class TicketPurchaseValidationMiddleware
         $withinFreeAccess = $user->created_at->diffInDays(now()) <= $freeAccessDays;
 
         if ($withinFreeAccess) {
-            $validation['user_info']['free_access'] = true;
+            $validation['user_info']['free_access'] = TRUE;
             $validation['user_info']['free_access_expires'] = $user->created_at->addDays($freeAccessDays);
-            return true;
+
+            return TRUE;
         }
 
         // Check active subscription
         if (!$user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
             $validation['message'] = 'An active subscription is required to purchase tickets.';
-            return false;
+
+            return FALSE;
         }
 
         // Check monthly ticket limits
@@ -243,10 +250,11 @@ class TicketPurchaseValidationMiddleware
         if ($monthlyUsage >= $monthlyLimit) {
             $validation['reasons'][] = 'Monthly ticket limit exceeded';
             $validation['message'] = 'You have reached your monthly ticket limit. Upgrade your subscription for more tickets.';
-            return false;
+
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -257,11 +265,13 @@ class TicketPurchaseValidationMiddleware
         if (!$this->rbacService->hasPermission($user, 'tickets.purchase')) {
             $validation['reasons'][] = 'Insufficient permissions';
             $validation['message'] = 'You do not have permission to purchase tickets.';
-            return false;
+
+            return FALSE;
         }
 
         $validation['user_info']['permissions'] = 'valid';
-        return true;
+
+        return TRUE;
     }
 
     /**
@@ -275,38 +285,42 @@ class TicketPurchaseValidationMiddleware
         if (!$ticket->available) {
             $validation['reasons'][] = 'Ticket is not available';
             $validation['message'] = 'This ticket is no longer available for purchase.';
-            return false;
+
+            return FALSE;
         }
 
         // Check quantity availability
         if ($ticket->available_quantity < $quantity) {
             $validation['reasons'][] = 'Not enough tickets available';
             $validation['message'] = "Only {$ticket->available_quantity} tickets available, but {$quantity} requested.";
-            return false;
+
+            return FALSE;
         }
 
         // Check sale period
         if ($ticket->sale_starts_at && now() < $ticket->sale_starts_at) {
             $validation['reasons'][] = 'Sale has not started yet';
             $validation['message'] = 'Ticket sales have not started yet.';
-            return false;
+
+            return FALSE;
         }
 
         if ($ticket->sale_ends_at && now() > $ticket->sale_ends_at) {
             $validation['reasons'][] = 'Sale period has ended';
             $validation['message'] = 'The sale period for this ticket has ended.';
-            return false;
+
+            return FALSE;
         }
 
         $validation['ticket_info'] = [
-            'id' => $ticket->id,
-            'title' => $ticket->title,
-            'price' => $ticket->price,
+            'id'                 => $ticket->id,
+            'title'              => $ticket->title,
+            'price'              => $ticket->price,
             'available_quantity' => $ticket->available_quantity,
-            'requested_quantity' => $quantity
+            'requested_quantity' => $quantity,
         ];
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -321,7 +335,8 @@ class TicketPurchaseValidationMiddleware
         if ($quantity > $maxQuantity) {
             $validation['reasons'][] = 'Quantity exceeds maximum allowed';
             $validation['message'] = "Maximum {$maxQuantity} tickets allowed per purchase.";
-            return false;
+
+            return FALSE;
         }
 
         // Check if user already purchased this ticket (if limited to one per user)
@@ -334,7 +349,8 @@ class TicketPurchaseValidationMiddleware
             if ($existingPurchase) {
                 $validation['reasons'][] = 'Already purchased this ticket';
                 $validation['message'] = 'You have already purchased this ticket.';
-                return false;
+
+                return FALSE;
             }
         }
 
@@ -346,11 +362,12 @@ class TicketPurchaseValidationMiddleware
             if (($dailyPurchases + $quantity) > $dailyLimit) {
                 $validation['reasons'][] = 'Daily purchase limit exceeded';
                 $validation['message'] = "Daily purchase limit of {$dailyLimit} tickets would be exceeded.";
-                return false;
+
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -365,7 +382,7 @@ class TicketPurchaseValidationMiddleware
         if ($securityScore >= 70) {
             $validation['reasons'][] = 'Security verification required';
             $validation['message'] = 'Additional security verification is required for this purchase.';
-            
+
             // Log high-risk purchase attempt
             $this->securityMonitoring->logSecurityEvent(
                 'high_risk_purchase_attempt',
@@ -373,14 +390,14 @@ class TicketPurchaseValidationMiddleware
                 $request,
                 [
                     'security_score' => $securityScore,
-                    'risk_factors' => $this->getSecurityRiskFactors($user, $request)
+                    'risk_factors'   => $this->getSecurityRiskFactors($user, $request),
                 ]
             );
-            
-            return false;
+
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -397,13 +414,14 @@ class TicketPurchaseValidationMiddleware
         if ($attempts >= $maxAttempts) {
             $validation['reasons'][] = 'Purchase rate limit exceeded';
             $validation['message'] = "Too many purchase attempts. Please wait {$windowMinutes} minutes and try again.";
-            return false;
+
+            return FALSE;
         }
 
         // Increment attempt counter
         cache()->put($cacheKey, $attempts + 1, now()->addMinutes($windowMinutes));
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -412,9 +430,9 @@ class TicketPurchaseValidationMiddleware
     protected function getTicketFromRequest(Request $request): ?Ticket
     {
         $ticketId = $request->route('ticket')?->id ?? $request->route('id') ?? $request->input('ticket_id');
-        
+
         if (!$ticketId) {
-            return null;
+            return NULL;
         }
 
         return Ticket::find($ticketId);
@@ -476,10 +494,10 @@ class TicketPurchaseValidationMiddleware
     protected function getSecurityRiskFactors(User $user, Request $request): array
     {
         return [
-            'ip_reputation' => $this->getIpReputationScore($request->ip()),
+            'ip_reputation'          => $this->getIpReputationScore($request->ip()),
             'recent_security_events' => count($this->getRecentSecurityEvents($user)),
-            'device_trusted' => $this->isTrustedDevice($user, $request),
-            'unusual_patterns' => $this->getUnusualPatternScore($user, $request) > 0
+            'device_trusted'         => $this->isTrustedDevice($user, $request),
+            'unusual_patterns'       => $this->getUnusualPatternScore($user, $request) > 0,
         ];
     }
 
@@ -507,17 +525,17 @@ class TicketPurchaseValidationMiddleware
     protected function isTrustedDevice(User $user, Request $request): bool
     {
         // Check if device is trusted
-        return true; // Placeholder
+        return TRUE; // Placeholder
     }
 
     /**
      * Deny access and log the attempt
      */
     protected function denyAccess(
-        Request $request, 
-        string $message, 
-        string $reason, 
-        ?User $user = null,
+        Request $request,
+        string $message,
+        string $reason,
+        ?User $user = NULL,
         array $additionalData = []
     ) {
         // Log the denial
@@ -526,20 +544,20 @@ class TicketPurchaseValidationMiddleware
             $user,
             $request,
             array_merge([
-                'reason' => $reason,
-                'message' => $message,
-                'requested_uri' => $request->getRequestUri()
+                'reason'        => $reason,
+                'message'       => $message,
+                'requested_uri' => $request->getRequestUri(),
             ], $additionalData)
         );
 
         // Return appropriate response based on request type
         if ($request->expectsJson()) {
             return response()->json([
-                'success' => false,
-                'message' => $message,
+                'success'    => FALSE,
+                'message'    => $message,
                 'error_code' => $reason,
-                'user_info' => $additionalData['user_info'] ?? [],
-                'reasons' => $additionalData['reasons'] ?? []
+                'user_info'  => $additionalData['user_info'] ?? [],
+                'reasons'    => $additionalData['reasons'] ?? [],
             ], Response::HTTP_FORBIDDEN);
         }
 

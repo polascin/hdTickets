@@ -88,23 +88,23 @@ class Ac_milanPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (! empty($criteria['keyword'])) {
+        if (!empty($criteria['keyword'])) {
             $params['cerca'] = $criteria['keyword'];
         }
 
-        if (! empty($criteria['competition'])) {
+        if (!empty($criteria['competition'])) {
             $params['competizione'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (! empty($criteria['date_from'])) {
+        if (!empty($criteria['date_from'])) {
             $params['data_da'] = $criteria['date_from'];
         }
 
-        if (! empty($criteria['date_to'])) {
+        if (!empty($criteria['date_to'])) {
             $params['data_a'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (! empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
     }
 
     /**

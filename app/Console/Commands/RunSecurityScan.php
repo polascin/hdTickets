@@ -231,7 +231,7 @@ class RunSecurityScan extends Command
             $this->info("Checking data integrity for {$table}...");
 
             $encryptedColumns = $this->getEncryptedColumns($table);
-            if (! empty($encryptedColumns)) {
+            if (!empty($encryptedColumns)) {
                 $tableResults = $this->dataSecurity->validateDataIntegrity($table, $encryptedColumns);
                 $integrityResults[$table] = $tableResults;
 
@@ -310,7 +310,7 @@ class RunSecurityScan extends Command
         $filename = 'security-report-' . now()->format('Y-m-d-H-i-s') . '.json';
         $filepath = storage_path("app/security-reports/{$filename}");
 
-        if (! is_dir(dirname($filepath))) {
+        if (!is_dir(dirname($filepath))) {
             mkdir(dirname($filepath), 0o755, TRUE);
         }
 

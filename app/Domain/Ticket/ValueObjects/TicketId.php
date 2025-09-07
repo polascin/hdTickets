@@ -59,7 +59,7 @@ final readonly class TicketId
             throw new InvalidArgumentException('Ticket ID must be a valid string with max 255 characters');
         }
 
-        if (! preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
             throw new InvalidArgumentException('Ticket ID must contain only alphanumeric characters, underscores, and hyphens');
         }
     }

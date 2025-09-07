@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Permission Model for Advanced RBAC
- * 
+ *
  * Represents granular permissions that can be assigned to roles and users
  */
 class Permission extends Model
@@ -22,13 +22,13 @@ class Permission extends Model
         'description',
         'category',
         'is_system_permission',
-        'created_by'
+        'created_by',
     ];
 
     protected $casts = [
         'is_system_permission' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'created_at'           => 'datetime',
+        'updated_at'           => 'datetime',
     ];
 
     /**
@@ -62,7 +62,7 @@ class Permission extends Model
     /**
      * Get permission by name
      *
-     * @param string $name
+     * @param  string          $name
      * @return Permission|null
      */
     public static function findByName(string $name): ?Permission
@@ -113,7 +113,7 @@ class Permission extends Model
      */
     public function scopeSystemPermissions($query)
     {
-        return $query->where('is_system_permission', true);
+        return $query->where('is_system_permission', TRUE);
     }
 
     /**
@@ -121,7 +121,7 @@ class Permission extends Model
      */
     public function scopeCustomPermissions($query)
     {
-        return $query->where('is_system_permission', false);
+        return $query->where('is_system_permission', FALSE);
     }
 
     /**

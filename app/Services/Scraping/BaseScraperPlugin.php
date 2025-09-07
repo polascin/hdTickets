@@ -207,7 +207,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      */
     public function scrape(array $criteria): array
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -365,7 +365,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
             $priceInfo = $this->parsePriceInfo($priceText);
 
             // Fix relative URLs
-            if ($url && ! filter_var($url, FILTER_VALIDATE_URL)) {
+            if ($url && !filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $this->baseUrl . $url;
             }
 
@@ -528,22 +528,22 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     {
         return array_filter($events, function ($event) use ($criteria) {
             // Basic keyword filtering
-            if (! empty($criteria['keyword'])) {
+            if (!empty($criteria['keyword'])) {
                 $keyword = strtolower($criteria['keyword']);
                 $eventName = strtolower($event['event_name']);
-                if (! str_contains($eventName, $keyword)) {
+                if (!str_contains($eventName, $keyword)) {
                     return FALSE;
                 }
             }
 
             // Date range filtering
-            if (! empty($criteria['date_from']) && ! empty($event['date'])) {
+            if (!empty($criteria['date_from']) && !empty($event['date'])) {
                 if ($event['date'] < $criteria['date_from']) {
                     return FALSE;
                 }
             }
 
-            if (! empty($criteria['date_to']) && ! empty($event['date'])) {
+            if (!empty($criteria['date_to']) && !empty($event['date'])) {
                 if ($event['date'] > $criteria['date_to']) {
                     return FALSE;
                 }
@@ -564,7 +564,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
         $configKey = strtolower(str_replace(['Plugin', 'FC', 'CF'], ['', '', ''], class_basename($this)));
         $config = config("scraping.plugins.{$configKey}", []);
 
-        if (! empty($config)) {
+        if (!empty($config)) {
             $this->configure($config);
         }
     }

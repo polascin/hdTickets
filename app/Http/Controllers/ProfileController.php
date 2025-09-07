@@ -15,23 +15,20 @@ use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Response;
 
 use function count;
-use function in_array;
 
 class ProfileController extends Controller
 {
     protected TwoFactorAuthService $twoFactorService;
+
     protected SecurityService $securityService;
 
     public function __construct(TwoFactorAuthService $twoFactorService, SecurityService $securityService)
@@ -55,7 +52,7 @@ class ProfileController extends Controller
             'joined_days_ago'      => $user->created_at->diffInDays(now()),
             'login_count'          => $user->login_count ?? 0,
             'last_login_display'   => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \\a\\t g:i A') : null,
+            'last_login_formatted' => $user->last_login_at ? $user->last_login_at->format('M j, Y \\a\\t g:i A') : NULL,
 
             // Sports Events Monitoring Statistics
             'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
@@ -117,7 +114,7 @@ class ProfileController extends Controller
 
         // Available timezones
         $timezones = collect(DateTimeZone::listIdentifiers())
-            ->mapWithKeys(fn($timezone) => [$timezone => $timezone])
+            ->mapWithKeys(fn ($timezone) => [$timezone => $timezone])
             ->toArray();
 
         // Available languages
@@ -150,25 +147,25 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $validated = $request->validated();
-            
+
             // Handle preferences separately
             $preferences = $user->preferences ?? [];
             if (isset($validated['preferences']) && is_array($validated['preferences'])) {
                 $preferences = array_merge($preferences, $validated['preferences']);
                 unset($validated['preferences']);
             }
-            
+
             // Convert checkbox values to booleans
             $validated['email_notifications'] = $request->has('email_notifications');
             $validated['push_notifications'] = $request->has('push_notifications');
-            
+
             // Fill user model with validated data
             $user->fill($validated);
             $user->preferences = $preferences;
 
             // Handle email change - require re-verification
             if ($user->isDirty('email')) {
-                $user->email_verified_at = null;
+                $user->email_verified_at = NULL;
                 // TODO: Send email verification notification
             }
 
@@ -177,25 +174,25 @@ class ProfileController extends Controller
             // Clear relevant caches
             Cache::forget("user_stats_{$user->id}");
             Cache::forget("profile_completion_{$user->id}");
-            
+
             // Log the profile update for audit purposes
             activity()
                 ->performedOn($user)
                 ->causedBy($user)
                 ->withProperties([
-                    'ip_address' => $request->ip(),
-                    'user_agent' => $request->userAgent(),
-                    'updated_fields' => array_keys($user->getDirty())
+                    'ip_address'     => $request->ip(),
+                    'user_agent'     => $request->userAgent(),
+                    'updated_fields' => array_keys($user->getDirty()),
                 ])
                 ->log('profile_updated');
 
             if ($request->ajax()) {
                 return response()->json([
-                    'success' => true,
+                    'success' => TRUE,
                     'message' => 'Profile updated successfully!',
-                    'user' => $user->only([
-                        'name', 'surname', 'username', 'email', 'phone', 'bio', 
-                        'timezone', 'language', 'email_notifications', 'push_notifications'
+                    'user'    => $user->only([
+                        'name', 'surname', 'username', 'email', 'phone', 'bio',
+                        'timezone', 'language', 'email_notifications', 'push_notifications',
                     ]),
                     'preferences' => $user->preferences,
                 ]);
@@ -205,16 +202,16 @@ class ProfileController extends Controller
                 ->with('success', 'Profile updated successfully!');
         } catch (Exception $e) {
             Log::error('Profile update error: ' . $e->getMessage(), [
-                'user_id' => $request->user()?->id,
+                'user_id'      => $request->user()?->id,
                 'request_data' => $request->except(['password', '_token']),
-                'trace' => $e->getTraceAsString()
+                'trace'        => $e->getTraceAsString(),
             ]);
 
             if ($request->ajax()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Failed to update profile. Please try again.',
-                    'errors' => config('app.debug') ? $e->getMessage() : null,
+                    'errors'  => config('app.debug') ? $e->getMessage() : NULL,
                 ], 500);
             }
 
@@ -231,20 +228,20 @@ class ProfileController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+                'photo'     => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
                 'crop_data' => 'nullable|json',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors(),
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
 
             $user = $request->user();
             $photo = $request->file('photo');
-            $cropData = $request->input('crop_data') ? json_decode($request->input('crop_data'), true) : null;
+            $cropData = $request->input('crop_data') ? json_decode($request->input('crop_data'), TRUE) : NULL;
 
             // Delete old profile picture
             if ($user->profile_picture) {
@@ -253,27 +250,27 @@ class ProfileController extends Controller
 
             // Store image
             $path = $photo->storeAs(
-                'profile_pictures', 
-                $user->id . '_' . time() . '.' . $photo->getClientOriginalExtension(), 
+                'profile_pictures',
+                $user->id . '_' . time() . '.' . $photo->getClientOriginalExtension(),
                 'public'
             );
-            
+
             // Process image (crop and resize)
             $this->processProfileImage($path, $cropData);
-            
+
             $user->profile_picture = $path;
             $user->save();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Profile picture updated successfully!',
+                'success'   => TRUE,
+                'message'   => 'Profile picture updated successfully!',
                 'image_url' => Storage::disk('public')->url($path),
             ]);
         } catch (Exception $e) {
             Log::error('Profile picture upload error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to upload profile picture.',
             ], 500);
         }
@@ -306,15 +303,15 @@ class ProfileController extends Controller
             });
 
             return response()->json([
-                'success' => true,
-                'stats' => $userStats,
+                'success'    => TRUE,
+                'stats'      => $userStats,
                 'updated_at' => now()->toISOString(),
             ]);
         } catch (Exception $e) {
             Log::error('Profile stats error: ' . $e->getMessage());
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Unable to load statistics.',
             ], 500);
         }
@@ -326,11 +323,11 @@ class ProfileController extends Controller
     public function security(Request $request): View
     {
         $user = $request->user();
-        
+
         return view('profile.security', [
-            'user' => $user,
+            'user'             => $user,
             'twoFactorEnabled' => (bool) $user->two_factor_secret,
-            'securityData' => $this->getSecurityOverview($user),
+            'securityData'     => $this->getSecurityOverview($user),
         ]);
     }
 
@@ -340,9 +337,9 @@ class ProfileController extends Controller
     public function analytics(Request $request): View
     {
         $user = $request->user();
-        
+
         return view('profile.analytics', [
-            'user' => $user,
+            'user'      => $user,
             'analytics' => $this->getAnalyticsOverview($user),
         ]);
     }
@@ -356,7 +353,7 @@ class ProfileController extends Controller
             $user = $request->user();
             $period = (int) $request->get('period', 30);
             $startDate = now()->subDays($period);
-            
+
             $data = [
                 'login_history' => LoginHistory::where('user_id', $user->id)
                     ->where('created_at', '>=', $startDate)
@@ -376,14 +373,14 @@ class ProfileController extends Controller
             ];
 
             return response()->json([
-                'success' => true,
-                'data' => $data,
+                'success' => TRUE,
+                'data'    => $data,
             ]);
         } catch (Exception $e) {
             Log::error('Activity data error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to load activity data.',
             ], 500);
         }
@@ -397,39 +394,39 @@ class ProfileController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'current_password' => 'required|string',
-                'password' => 'required|string|min:8|confirmed|different:current_password',
+                'password'         => 'required|string|min:8|confirmed|different:current_password',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors(),
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
 
             $user = $request->user();
-            
+
             if (!Hash::check($request->current_password, $user->password)) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Current password is incorrect.',
                 ], 422);
             }
 
             $user->update([
-                'password' => Hash::make($request->password),
+                'password'            => Hash::make($request->password),
                 'password_changed_at' => now(),
             ]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Password updated successfully!',
             ]);
         } catch (Exception $e) {
             Log::error('Password update error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update password.',
             ], 500);
         }
@@ -442,29 +439,29 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             $session = UserSession::where('user_id', $user->id)
                 ->where('id', $sessionId)
                 ->first();
-            
+
             if (!$session) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Session not found.',
                 ], 404);
             }
-            
+
             $session->delete();
-            
+
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Session revoked successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Session revoke error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to revoke session.',
             ], 500);
         }
@@ -481,25 +478,31 @@ class ProfileController extends Controller
     /**
      * Calculate security score
      */
-    private function calculateSecurityScore($user, ?array $securityStatus = null): int
+    private function calculateSecurityScore($user, ?array $securityStatus = NULL): int
     {
         if (!$securityStatus) {
             $securityStatus = [
-                'email_verified' => (bool) $user->email_verified_at,
+                'email_verified'     => (bool) $user->email_verified_at,
                 'two_factor_enabled' => (bool) $user->two_factor_secret,
-                'profile_complete' => $user->getProfileCompletion()['percentage'] >= 100,
-                'password_age_days' => $user->password_changed_at 
-                    ? $user->password_changed_at->diffInDays(now()) 
+                'profile_complete'   => $user->getProfileCompletion()['percentage'] >= 100,
+                'password_age_days'  => $user->password_changed_at
+                    ? $user->password_changed_at->diffInDays(now())
                     : $user->created_at->diffInDays(now()),
             ];
         }
 
         $score = 0;
 
-        if ($securityStatus['email_verified']) $score += 20;
-        if ($securityStatus['two_factor_enabled']) $score += 30;
-        if ($securityStatus['profile_complete']) $score += 20;
-        
+        if ($securityStatus['email_verified']) {
+            $score += 20;
+        }
+        if ($securityStatus['two_factor_enabled']) {
+            $score += 30;
+        }
+        if ($securityStatus['profile_complete']) {
+            $score += 20;
+        }
+
         // Password age scoring
         $passwordAgeDays = $securityStatus['password_age_days'];
         if ($passwordAgeDays <= 90) {
@@ -532,37 +535,37 @@ class ProfileController extends Controller
 
         if ($profileCompletion['percentage'] < 90) {
             $recommendations[] = [
-                'type' => 'profile',
-                'priority' => 'high',
-                'title' => 'Complete Your Profile',
+                'type'        => 'profile',
+                'priority'    => 'high',
+                'title'       => 'Complete Your Profile',
                 'description' => 'Add missing information to unlock all features.',
-                'action' => 'Complete Profile',
-                'route' => 'profile.edit',
-                'icon' => 'user-circle',
+                'action'      => 'Complete Profile',
+                'route'       => 'profile.edit',
+                'icon'        => 'user-circle',
             ];
         }
 
         if (!$securityStatus['email_verified']) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'high',
-                'title' => 'Verify Your Email',
+                'type'        => 'security',
+                'priority'    => 'high',
+                'title'       => 'Verify Your Email',
                 'description' => 'Verify your email address to secure your account.',
-                'action' => 'Verify Email',
-                'route' => null,
-                'icon' => 'mail',
+                'action'      => 'Verify Email',
+                'route'       => NULL,
+                'icon'        => 'mail',
             ];
         }
 
         if (!$securityStatus['two_factor_enabled']) {
             $recommendations[] = [
-                'type' => 'security',
-                'priority' => 'medium',
-                'title' => 'Enable Two-Factor Authentication',
+                'type'        => 'security',
+                'priority'    => 'medium',
+                'title'       => 'Enable Two-Factor Authentication',
                 'description' => 'Add an extra layer of security to your account.',
-                'action' => 'Enable 2FA',
-                'route' => 'profile.security',
-                'icon' => 'shield-check',
+                'action'      => 'Enable 2FA',
+                'route'       => 'profile.security',
+                'icon'        => 'shield-check',
             ];
         }
 
@@ -572,33 +575,33 @@ class ProfileController extends Controller
     /**
      * Process profile image
      */
-    private function processProfileImage(string $path, ?array $cropData = null): void
+    private function processProfileImage(string $path, ?array $cropData = NULL): void
     {
         try {
             $fullPath = Storage::disk('public')->path($path);
-            
+
             if ($cropData && extension_loaded('gd')) {
                 $image = imagecreatefromstring(file_get_contents($fullPath));
-                
+
                 if ($image) {
                     $croppedImage = imagecrop($image, [
-                        'x' => (int) $cropData['x'],
-                        'y' => (int) $cropData['y'],
-                        'width' => (int) $cropData['width'],
+                        'x'      => (int) $cropData['x'],
+                        'y'      => (int) $cropData['y'],
+                        'width'  => (int) $cropData['width'],
                         'height' => (int) $cropData['height'],
                     ]);
-                    
+
                     if ($croppedImage) {
                         $resized = imagescale($croppedImage, 300, 300);
-                        
+
                         if ($resized) {
                             imagejpeg($resized, $fullPath, 90);
                             imagedestroy($resized);
                         }
-                        
+
                         imagedestroy($croppedImage);
                     }
-                    
+
                     imagedestroy($image);
                 }
             }
@@ -613,18 +616,18 @@ class ProfileController extends Controller
     private function getSecurityOverview($user): array
     {
         return [
-            'security_score' => $this->calculateSecurityScore($user),
+            'security_score'     => $this->calculateSecurityScore($user),
             'two_factor_enabled' => (bool) $user->two_factor_secret,
-            'email_verified' => (bool) $user->email_verified_at,
-            'recent_logins' => LoginHistory::where('user_id', $user->id)
+            'email_verified'     => (bool) $user->email_verified_at,
+            'recent_logins'      => LoginHistory::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get(),
             'active_sessions' => UserSession::where('user_id', $user->id)
                 ->active()
                 ->get(),
-            'password_age_days' => $user->password_changed_at 
-                ? $user->password_changed_at->diffInDays(now()) 
+            'password_age_days' => $user->password_changed_at
+                ? $user->password_changed_at->diffInDays(now())
                 : $user->created_at->diffInDays(now()),
         ];
     }
@@ -635,12 +638,12 @@ class ProfileController extends Controller
     private function getAnalyticsOverview($user): array
     {
         return [
-            'profile_views' => $user->profile_views ?? 0,
-            'login_streak' => $this->calculateLoginStreak($user),
-            'activity_trend' => $this->getActivityTrend($user),
+            'profile_views'       => $user->profile_views ?? 0,
+            'login_streak'        => $this->calculateLoginStreak($user),
+            'activity_trend'      => $this->getActivityTrend($user),
             'ticket_alerts_stats' => [
-                'total' => $user->ticketAlerts()->count(),
-                'active' => $user->ticketAlerts()->where('status', 'active')->count(),
+                'total'                => $user->ticketAlerts()->count(),
+                'active'               => $user->ticketAlerts()->where('status', 'active')->count(),
                 'triggered_this_month' => $user->ticketAlerts()
                     ->where('last_triggered_at', '>=', now()->startOfMonth())
                     ->count(),
@@ -657,7 +660,7 @@ class ProfileController extends Controller
             ->where('status', 'success')
             ->orderBy('created_at', 'desc')
             ->pluck('created_at')
-            ->map(fn($date) => $date->format('Y-m-d'))
+            ->map(fn ($date) => $date->format('Y-m-d'))
             ->unique()
             ->values();
 
@@ -666,7 +669,7 @@ class ProfileController extends Controller
 
         foreach ($loginHistory as $index => $loginDate) {
             $expectedDate = now()->subDays($index)->format('Y-m-d');
-            
+
             if ($loginDate === $expectedDate) {
                 $streak++;
             } else {
@@ -684,9 +687,9 @@ class ProfileController extends Controller
     {
         $days = collect(range(0, 29))->map(function ($day) use ($user) {
             $date = now()->subDays($day)->format('Y-m-d');
-            
+
             return [
-                'date' => $date,
+                'date'   => $date,
                 'logins' => LoginHistory::where('user_id', $user->id)
                     ->whereDate('created_at', $date)
                     ->count(),
@@ -698,7 +701,7 @@ class ProfileController extends Controller
 
         return $days->toArray();
     }
-    
+
     /**
      * Update user preferences
      */
@@ -707,58 +710,58 @@ class ProfileController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'notifications' => 'nullable|array',
-                'privacy' => 'nullable|array',
-                'interface' => 'nullable|array',
+                'privacy'       => 'nullable|array',
+                'interface'     => 'nullable|array',
             ]);
-            
+
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors(),
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], 422);
             }
-            
+
             $user = $request->user();
             $preferences = $user->preferences ?? [];
-            
+
             foreach ($request->only(['notifications', 'privacy', 'interface']) as $key => $value) {
-                if ($value !== null) {
+                if ($value !== NULL) {
                     $preferences[$key] = $value;
                 }
             }
-            
+
             $user->update(['preferences' => $preferences]);
-            
+
             return response()->json([
-                'success' => true,
-                'message' => 'Preferences updated successfully!',
+                'success'     => TRUE,
+                'message'     => 'Preferences updated successfully!',
                 'preferences' => $preferences,
             ]);
         } catch (Exception $e) {
             Log::error('Preferences update error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to update preferences.',
             ], 500);
         }
     }
-    
+
     /**
      * Advanced security page
      */
     public function advancedSecurity(Request $request): View
     {
         $user = $request->user();
-        
+
         return view('profile.security.advanced', [
-            'user' => $user,
-            'securityData' => $this->getSecurityOverview($user),
-            'sessions' => UserSession::where('user_id', $user->id)->active()->get(),
+            'user'           => $user,
+            'securityData'   => $this->getSecurityOverview($user),
+            'sessions'       => UserSession::where('user_id', $user->id)->active()->get(),
             'trustedDevices' => $user->trusted_devices ?? [],
         ]);
     }
-    
+
     /**
      * Revoke all other sessions
      */
@@ -767,25 +770,25 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $currentSessionId = Session::getId();
-            
+
             UserSession::where('user_id', $user->id)
                 ->where('session_id', '!=', $currentSessionId)
                 ->delete();
-            
+
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'All other sessions revoked successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Session revoke all error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to revoke sessions.',
             ], 500);
         }
     }
-    
+
     /**
      * Trust current device
      */
@@ -795,31 +798,31 @@ class ProfileController extends Controller
             $user = $request->user();
             $deviceFingerprint = $request->input('device_fingerprint');
             $deviceName = $request->input('device_name', 'Unknown Device');
-            
+
             $trustedDevices = $user->trusted_devices ?? [];
             $trustedDevices[] = [
                 'fingerprint' => $deviceFingerprint,
-                'name' => $deviceName,
-                'added_at' => now()->toISOString(),
-                'last_used' => now()->toISOString(),
+                'name'        => $deviceName,
+                'added_at'    => now()->toISOString(),
+                'last_used'   => now()->toISOString(),
             ];
-            
+
             $user->update(['trusted_devices' => $trustedDevices]);
-            
+
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Device trusted successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Trust device error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to trust device.',
             ], 500);
         }
     }
-    
+
     /**
      * Remove trusted device
      */
@@ -828,33 +831,33 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $trustedDevices = $user->trusted_devices ?? [];
-            
+
             if (!isset($trustedDevices[$deviceIndex])) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Device not found.',
                 ], 404);
             }
-            
+
             unset($trustedDevices[$deviceIndex]);
             $trustedDevices = array_values($trustedDevices);
-            
+
             $user->update(['trusted_devices' => $trustedDevices]);
-            
+
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Trusted device removed successfully.',
             ]);
         } catch (Exception $e) {
             Log::error('Remove trusted device error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to remove trusted device.',
             ], 500);
         }
     }
-    
+
     /**
      * Download backup codes
      */
@@ -862,33 +865,33 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             if (!$user->two_factor_secret) {
                 abort(404, 'Two-factor authentication is not enabled.');
             }
-            
-            $backupCodes = $user->getRecoveryCodes() ?? 
-                collect(range(1, 10))->map(fn() => strtoupper(str_replace('-', '', uuid())))->toArray();
-            
+
+            $backupCodes = $user->getRecoveryCodes() ??
+                collect(range(1, 10))->map(fn () => strtoupper(str_replace('-', '', uuid())))->toArray();
+
             $content = "HD Tickets - Two-Factor Authentication Backup Codes\n";
-            $content .= "Generated: " . now()->format('Y-m-d H:i:s') . "\n";
+            $content .= 'Generated: ' . now()->format('Y-m-d H:i:s') . "\n";
             $content .= "User: {$user->email}\n";
             $content .= str_repeat('=', 50) . "\n\n";
             $content .= "BACKUP CODES (keep these safe):\n\n";
-            
+
             foreach ($backupCodes as $index => $code) {
                 $content .= sprintf("%2d. %s\n", $index + 1, $code);
             }
-            
+
             $content .= "\n" . str_repeat('=', 50) . "\n";
             $content .= "⚠️  IMPORTANT NOTES:\n";
             $content .= "• Each code can only be used once\n";
             $content .= "• Store these codes in a secure location\n";
             $content .= "• Use these codes if you lose access to your authenticator\n";
             $content .= "• Generate new codes if you suspect they are compromised\n";
-            
+
             return Response::make($content, 200, [
-                'Content-Type' => 'text/plain',
+                'Content-Type'        => 'text/plain',
                 'Content-Disposition' => 'attachment; filename="hd-tickets-backup-codes-' . date('Y-m-d') . '.txt"',
             ]);
         } catch (Exception $e) {
@@ -905,17 +908,17 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $analytics = $this->getAnalyticsOverview($user);
-            
+
             return response()->json([
-                'success' => true,
-                'analytics' => $analytics,
+                'success'    => TRUE,
+                'analytics'  => $analytics,
                 'updated_at' => now()->toISOString(),
             ]);
         } catch (Exception $e) {
             Log::error('Analytics data error: ' . $e->getMessage());
-            
+
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Failed to load analytics data.',
             ], 500);
         }

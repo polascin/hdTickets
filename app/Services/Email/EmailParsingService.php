@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Email;
 
@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 /**
  * Email Parsing Service
- * 
+ *
  * Extracts sports event and ticket information from email content
  * for the HD Tickets monitoring system.
  */
@@ -24,8 +24,8 @@ class EmailParsingService
 
     /**
      * Parse email content to extract sports event information
-     * 
-     * @param array $emailData Complete email data
+     *
+     * @param  array $emailData Complete email data
      * @return array Parsed sports event information
      */
     public function parseEmailContent(array $emailData): array
@@ -35,19 +35,19 @@ class EmailParsingService
         $body = $emailData['body'] ?? '';
 
         $parsed = [
-            'platform' => $platform,
-            'email_uid' => $emailData['uid'] ?? null,
-            'connection' => $emailData['connection'] ?? null,
-            'processed_at' => now()->toISOString(),
+            'platform'      => $platform,
+            'email_uid'     => $emailData['uid'] ?? NULL,
+            'connection'    => $emailData['connection'] ?? NULL,
+            'processed_at'  => now()->toISOString(),
             'sports_events' => [],
-            'tickets' => [],
-            'metadata' => $this->extractMetadata($headers, $body),
+            'tickets'       => [],
+            'metadata'      => $this->extractMetadata($headers, $body),
         ];
 
         try {
             // Use platform-specific parsing if available
-            if (method_exists($this, "parse" . Str::studly($platform) . "Email")) {
-                $method = "parse" . Str::studly($platform) . "Email";
+            if (method_exists($this, 'parse' . Str::studly($platform) . 'Email')) {
+                $method = 'parse' . Str::studly($platform) . 'Email';
                 $platformData = $this->$method($headers, $body);
                 $parsed = array_merge($parsed, $platformData);
             } else {
@@ -58,13 +58,12 @@ class EmailParsingService
 
             // Validate and clean parsed data
             $parsed = $this->validateParsedData($parsed);
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->error("Failed to parse email content", [
+                ->error('Failed to parse email content', [
                     'platform' => $platform,
-                    'uid' => $emailData['uid'] ?? null,
-                    'error' => $e->getMessage(),
+                    'uid'      => $emailData['uid'] ?? NULL,
+                    'error'    => $e->getMessage(),
                 ]);
 
             $parsed['parsing_error'] = $e->getMessage();
@@ -75,25 +74,25 @@ class EmailParsingService
 
     /**
      * Parse Ticketmaster emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseTicketmasterEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         // Extract event information from Ticketmaster emails
         $eventPatterns = [
-            'event_name' => '/(?:Event|Show|Game):\s*(.+?)(?:\n|$)/i',
-            'venue' => '/(?:Venue|Location|Arena|Stadium):\s*(.+?)(?:\n|$)/i',
-            'date' => '/(?:Date|When):\s*(.+?)(?:\n|$)/i',
-            'time' => '/(?:Time):\s*(.+?)(?:\n|$)/i',
-            'price' => '/(?:Price|From|Starting at):\s*\$?([0-9,]+\.?[0-9]*)/i',
+            'event_name'        => '/(?:Event|Show|Game):\s*(.+?)(?:\n|$)/i',
+            'venue'             => '/(?:Venue|Location|Arena|Stadium):\s*(.+?)(?:\n|$)/i',
+            'date'              => '/(?:Date|When):\s*(.+?)(?:\n|$)/i',
+            'time'              => '/(?:Time):\s*(.+?)(?:\n|$)/i',
+            'price'             => '/(?:Price|From|Starting at):\s*\$?([0-9,]+\.?[0-9]*)/i',
             'tickets_available' => '/(\d+)\s+(?:tickets?|seats?)\s+(?:available|remaining)/i',
         ];
 
@@ -107,9 +106,9 @@ class EmailParsingService
         if (preg_match_all('/(?:Event|Show|Game):\s*(.+?)[\n\r]/i', $body, $matches)) {
             foreach ($matches[1] as $eventName) {
                 $data['sports_events'][] = [
-                    'name' => trim($eventName),
+                    'name'            => trim($eventName),
                     'source_platform' => 'ticketmaster',
-                    'category' => $this->detectSportCategory($eventName),
+                    'category'        => $this->detectSportCategory($eventName),
                 ];
             }
         }
@@ -118,8 +117,8 @@ class EmailParsingService
         if (preg_match_all('/\$([0-9,]+\.?[0-9]*)\s*(?:each|per ticket)?/i', $body, $priceMatches)) {
             foreach ($priceMatches[1] as $price) {
                 $data['tickets'][] = [
-                    'price' => (float)str_replace(',', '', $price),
-                    'source_platform' => 'ticketmaster',
+                    'price'               => (float) str_replace(',', '', $price),
+                    'source_platform'     => 'ticketmaster',
                     'availability_status' => 'available',
                 ];
             }
@@ -130,25 +129,25 @@ class EmailParsingService
 
     /**
      * Parse StubHub emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseStubhubEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         // StubHub specific patterns
         $patterns = [
             'event_name' => '/(?:for|regarding|about)\s+(.+?)(?:\sat\s|\son\s|$)/i',
-            'venue' => '/(?:at|venue:)\s*(.+?)(?:\son\s|\n|$)/i',
-            'date' => '/(?:on|date:)\s*([A-Za-z]+,?\s+[A-Za-z]+\s+\d{1,2},?\s+\d{4})/i',
-            'section' => '/Section\s+([A-Z0-9]+)/i',
-            'row' => '/Row\s+([A-Z0-9]+)/i',
+            'venue'      => '/(?:at|venue:)\s*(.+?)(?:\son\s|\n|$)/i',
+            'date'       => '/(?:on|date:)\s*([A-Za-z]+,?\s+[A-Za-z]+\s+\d{1,2},?\s+\d{4})/i',
+            'section'    => '/Section\s+([A-Z0-9]+)/i',
+            'row'        => '/Row\s+([A-Z0-9]+)/i',
             'price_drop' => '/(?:dropped to|now)\s+\$([0-9,]+\.?[0-9]*)/i',
         ];
 
@@ -161,11 +160,11 @@ class EmailParsingService
         // Extract events
         if (isset($data['metadata']['event_name'])) {
             $data['sports_events'][] = [
-                'name' => $data['metadata']['event_name'],
+                'name'            => $data['metadata']['event_name'],
                 'source_platform' => 'stubhub',
-                'category' => $this->detectSportCategory($data['metadata']['event_name']),
-                'venue' => $data['metadata']['venue'] ?? null,
-                'event_date' => $this->parseEventDate($data['metadata']['date'] ?? null),
+                'category'        => $this->detectSportCategory($data['metadata']['event_name']),
+                'venue'           => $data['metadata']['venue'] ?? NULL,
+                'event_date'      => $this->parseEventDate($data['metadata']['date'] ?? NULL),
             ];
         }
 
@@ -173,10 +172,10 @@ class EmailParsingService
         if (preg_match_all('/\$([0-9,]+(?:\.[0-9]{2})?)\s*(?:each)?/i', $body, $priceMatches)) {
             foreach ($priceMatches[1] as $price) {
                 $data['tickets'][] = [
-                    'price' => (float)str_replace(',', '', $price),
-                    'source_platform' => 'stubhub',
-                    'section' => $data['metadata']['section'] ?? null,
-                    'row' => $data['metadata']['row'] ?? null,
+                    'price'               => (float) str_replace(',', '', $price),
+                    'source_platform'     => 'stubhub',
+                    'section'             => $data['metadata']['section'] ?? NULL,
+                    'row'                 => $data['metadata']['row'] ?? NULL,
                     'availability_status' => 'available',
                 ];
             }
@@ -187,24 +186,24 @@ class EmailParsingService
 
     /**
      * Parse Viagogo emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseViagogoEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         // Viagogo patterns
         $patterns = [
             'event_name' => '/(?:tickets for|regarding)\s+(.+?)(?:\sat\s|\son\s|$)/i',
-            'venue' => '/(?:at|venue)\s+(.+?)(?:\son\s|\n|$)/i',
+            'venue'      => '/(?:at|venue)\s+(.+?)(?:\son\s|\n|$)/i',
             'alert_type' => '/(price alert|new tickets|recommendation)/i',
-            'currency' => '/([A-Z]{3})\s*([0-9,]+(?:\.[0-9]{2})?)/i',
+            'currency'   => '/([A-Z]{3})\s*([0-9,]+(?:\.[0-9]{2})?)/i',
         ];
 
         foreach ($patterns as $key => $pattern) {
@@ -221,10 +220,10 @@ class EmailParsingService
         // Extract events
         if (isset($data['metadata']['event_name'])) {
             $data['sports_events'][] = [
-                'name' => $data['metadata']['event_name'],
+                'name'            => $data['metadata']['event_name'],
                 'source_platform' => 'viagogo',
-                'category' => $this->detectSportCategory($data['metadata']['event_name']),
-                'venue' => $data['metadata']['venue'] ?? null,
+                'category'        => $this->detectSportCategory($data['metadata']['event_name']),
+                'venue'           => $data['metadata']['venue'] ?? NULL,
             ];
         }
 
@@ -233,23 +232,23 @@ class EmailParsingService
 
     /**
      * Parse SeatGeek emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseSeatgeekEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         // SeatGeek patterns
         $patterns = [
             'deal_alert' => '/Deal Alert:\s*(.+?)(?:\n|$)/i',
             'event_name' => '/(?:for|tickets to)\s+(.+?)(?:\sat\s|\son\s|$)/i',
-            'venue' => '/(?:at)\s+(.+?)(?:\son\s|\n|$)/i',
+            'venue'      => '/(?:at)\s+(.+?)(?:\son\s|\n|$)/i',
             'deal_price' => '/\$([0-9,]+(?:\.[0-9]{2})?)\s*(?:\([0-9]+%\s*off\))?/i',
         ];
 
@@ -260,22 +259,22 @@ class EmailParsingService
         }
 
         // Extract events
-        $eventName = $data['metadata']['event_name'] ?? $data['metadata']['deal_alert'] ?? null;
+        $eventName = $data['metadata']['event_name'] ?? $data['metadata']['deal_alert'] ?? NULL;
         if ($eventName) {
             $data['sports_events'][] = [
-                'name' => $eventName,
+                'name'            => $eventName,
                 'source_platform' => 'seatgeek',
-                'category' => $this->detectSportCategory($eventName),
-                'venue' => $data['metadata']['venue'] ?? null,
+                'category'        => $this->detectSportCategory($eventName),
+                'venue'           => $data['metadata']['venue'] ?? NULL,
             ];
         }
 
         // Extract deals/tickets
         if (isset($data['metadata']['deal_price'])) {
             $data['tickets'][] = [
-                'price' => (float)str_replace(',', '', $data['metadata']['deal_price']),
-                'source_platform' => 'seatgeek',
-                'is_deal' => true,
+                'price'               => (float) str_replace(',', '', $data['metadata']['deal_price']),
+                'source_platform'     => 'seatgeek',
+                'is_deal'             => TRUE,
                 'availability_status' => 'available',
             ];
         }
@@ -285,23 +284,23 @@ class EmailParsingService
 
     /**
      * Parse TickPick emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseTickpickEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         // TickPick patterns (emphasizes no fees)
         $patterns = [
-            'event_name' => '/(?:tickets for|for)\s+(.+?)(?:\sat\s|\son\s|$)/i',
-            'venue' => '/(?:at)\s+(.+?)(?:\son\s|\n|$)/i',
-            'no_fees' => '/(no fees?|fee-free)/i',
+            'event_name'  => '/(?:tickets for|for)\s+(.+?)(?:\sat\s|\son\s|$)/i',
+            'venue'       => '/(?:at)\s+(.+?)(?:\son\s|\n|$)/i',
+            'no_fees'     => '/(no fees?|fee-free)/i',
             'final_price' => '/\$([0-9,]+(?:\.[0-9]{2})?)\s*(?:final|total)?/i',
         ];
 
@@ -314,11 +313,11 @@ class EmailParsingService
         // Extract events
         if (isset($data['metadata']['event_name'])) {
             $data['sports_events'][] = [
-                'name' => $data['metadata']['event_name'],
+                'name'            => $data['metadata']['event_name'],
                 'source_platform' => 'tickpick',
-                'category' => $this->detectSportCategory($data['metadata']['event_name']),
-                'venue' => $data['metadata']['venue'] ?? null,
-                'no_fees' => !empty($data['metadata']['no_fees']),
+                'category'        => $this->detectSportCategory($data['metadata']['event_name']),
+                'venue'           => $data['metadata']['venue'] ?? NULL,
+                'no_fees'         => !empty($data['metadata']['no_fees']),
             ];
         }
 
@@ -327,16 +326,16 @@ class EmailParsingService
 
     /**
      * Parse generic sports event emails
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Parsed data
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Parsed data
      */
     private function parseGenericEmail(array $headers, string $body): array
     {
         $data = [
             'sports_events' => [],
-            'tickets' => [],
+            'tickets'       => [],
         ];
 
         $subject = $headers['subject'] ?? '';
@@ -352,13 +351,14 @@ class EmailParsingService
             if (preg_match($pattern, $subject . ' ' . $body, $matches)) {
                 $eventName = trim($matches[0]);
                 $category = $this->detectSportCategory($eventName);
-                
+
                 if ($category !== 'unknown') {
                     $data['sports_events'][] = [
-                        'name' => $eventName,
+                        'name'            => $eventName,
                         'source_platform' => 'generic',
-                        'category' => $category,
+                        'category'        => $category,
                     ];
+
                     break; // Only take the first match
                 }
             }
@@ -367,11 +367,11 @@ class EmailParsingService
         // Generic price patterns
         if (preg_match_all('/\$([0-9,]+(?:\.[0-9]{2})?)/i', $body, $priceMatches)) {
             foreach (array_slice($priceMatches[1], 0, 5) as $price) { // Limit to 5 prices
-                $cleanPrice = (float)str_replace(',', '', $price);
+                $cleanPrice = (float) str_replace(',', '', $price);
                 if ($cleanPrice >= 10 && $cleanPrice <= 50000) { // Reasonable ticket price range
                     $data['tickets'][] = [
-                        'price' => $cleanPrice,
-                        'source_platform' => 'generic',
+                        'price'               => $cleanPrice,
+                        'source_platform'     => 'generic',
                         'availability_status' => 'available',
                     ];
                 }
@@ -383,8 +383,8 @@ class EmailParsingService
 
     /**
      * Detect sport category from event name
-     * 
-     * @param string $eventName Event name
+     *
+     * @param  string $eventName Event name
      * @return string Sport category
      */
     private function detectSportCategory(string $eventName): string
@@ -392,21 +392,21 @@ class EmailParsingService
         $eventLower = strtolower($eventName);
 
         $sportCategories = [
-            'football' => ['nfl', 'football', 'super bowl', 'cowboys', 'patriots', 'chiefs', 'rams', 'packers'],
+            'football'   => ['nfl', 'football', 'super bowl', 'cowboys', 'patriots', 'chiefs', 'rams', 'packers'],
             'basketball' => ['nba', 'basketball', 'lakers', 'warriors', 'celtics', 'bulls', 'heat', 'finals'],
-            'baseball' => ['mlb', 'baseball', 'yankees', 'dodgers', 'red sox', 'giants', 'mets', 'world series'],
-            'hockey' => ['nhl', 'hockey', 'rangers', 'bruins', 'penguins', 'blackhawks', 'stanley cup'],
-            'soccer' => ['mls', 'soccer', 'fc', 'united', 'city', 'galaxy', 'world cup', 'champions league'],
-            'tennis' => ['tennis', 'open', 'wimbledon', 'french open', 'australian open', 'us open'],
-            'golf' => ['golf', 'masters', 'pga', 'tournament', 'championship'],
-            'racing' => ['nascar', 'f1', 'formula', 'racing', 'indy 500', 'daytona'],
-            'boxing' => ['boxing', 'fight', 'heavyweight', 'championship'],
-            'mma' => ['ufc', 'mma', 'mixed martial arts'],
+            'baseball'   => ['mlb', 'baseball', 'yankees', 'dodgers', 'red sox', 'giants', 'mets', 'world series'],
+            'hockey'     => ['nhl', 'hockey', 'rangers', 'bruins', 'penguins', 'blackhawks', 'stanley cup'],
+            'soccer'     => ['mls', 'soccer', 'fc', 'united', 'city', 'galaxy', 'world cup', 'champions league'],
+            'tennis'     => ['tennis', 'open', 'wimbledon', 'french open', 'australian open', 'us open'],
+            'golf'       => ['golf', 'masters', 'pga', 'tournament', 'championship'],
+            'racing'     => ['nascar', 'f1', 'formula', 'racing', 'indy 500', 'daytona'],
+            'boxing'     => ['boxing', 'fight', 'heavyweight', 'championship'],
+            'mma'        => ['ufc', 'mma', 'mixed martial arts'],
         ];
 
         foreach ($sportCategories as $category => $keywords) {
             foreach ($keywords as $keyword) {
-                if (strpos($eventLower, $keyword) !== false) {
+                if (strpos($eventLower, $keyword) !== FALSE) {
                     return $category;
                 }
             }
@@ -417,14 +417,14 @@ class EmailParsingService
 
     /**
      * Parse event date from various formats
-     * 
-     * @param string|null $dateString Date string
+     *
+     * @param  string|null $dateString Date string
      * @return string|null Formatted date
      */
     private function parseEventDate(?string $dateString): ?string
     {
         if (!$dateString) {
-            return null;
+            return NULL;
         }
 
         try {
@@ -454,32 +454,31 @@ class EmailParsingService
             if ($date->year >= date('Y') && $date->year <= (date('Y') + 2)) {
                 return $date->toDateString();
             }
-
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
-                ->debug("Failed to parse date", [
+                ->debug('Failed to parse date', [
                     'date_string' => $dateString,
-                    'error' => $e->getMessage(),
+                    'error'       => $e->getMessage(),
                 ]);
         }
 
-        return null;
+        return NULL;
     }
 
     /**
      * Extract general metadata from email
-     * 
-     * @param array $headers Email headers
-     * @param string $body Email body
-     * @return array Metadata
+     *
+     * @param  array  $headers Email headers
+     * @param  string $body    Email body
+     * @return array  Metadata
      */
     private function extractMetadata(array $headers, string $body): array
     {
         $metadata = [
-            'subject' => $headers['subject'] ?? '',
-            'from_email' => $this->extractEmailAddress($headers['from'] ?? null),
-            'message_id' => $headers['message_id'] ?? '',
-            'size' => $headers['size'] ?? 0,
+            'subject'       => $headers['subject'] ?? '',
+            'from_email'    => $this->extractEmailAddress($headers['from'] ?? NULL),
+            'message_id'    => $headers['message_id'] ?? '',
+            'size'          => $headers['size'] ?? 0,
             'received_date' => $headers['date'] ?? '',
         ];
 
@@ -492,7 +491,7 @@ class EmailParsingService
         $bodyLower = strtolower($body);
         $keyTerms = ['ticket', 'event', 'game', 'match', 'stadium', 'arena', 'sports'];
         $metadata['keyword_frequency'] = [];
-        
+
         foreach ($keyTerms as $term) {
             $metadata['keyword_frequency'][$term] = substr_count($bodyLower, $term);
         }
@@ -502,14 +501,14 @@ class EmailParsingService
 
     /**
      * Extract email address from header object
-     * 
-     * @param object|null $headerObject Header object
+     *
+     * @param  object|null $headerObject Header object
      * @return string|null Email address
      */
     private function extractEmailAddress(?object $headerObject): ?string
     {
         if (!$headerObject) {
-            return null;
+            return NULL;
         }
 
         $mailbox = $headerObject->mailbox ?? '';
@@ -519,27 +518,27 @@ class EmailParsingService
             return $mailbox . '@' . $host;
         }
 
-        return null;
+        return NULL;
     }
 
     /**
      * Validate and clean parsed data
-     * 
-     * @param array $parsed Parsed data
+     *
+     * @param  array $parsed Parsed data
      * @return array Validated data
      */
     private function validateParsedData(array $parsed): array
     {
         // Remove empty sports events
-        $parsed['sports_events'] = array_filter($parsed['sports_events'], function($event) {
+        $parsed['sports_events'] = array_filter($parsed['sports_events'], function ($event) {
             return !empty($event['name']) && strlen($event['name']) > 3;
         });
 
         // Validate ticket prices
-        $parsed['tickets'] = array_filter($parsed['tickets'], function($ticket) {
-            return isset($ticket['price']) && 
-                   is_numeric($ticket['price']) && 
-                   $ticket['price'] >= 1 && 
+        $parsed['tickets'] = array_filter($parsed['tickets'], function ($ticket) {
+            return isset($ticket['price']) &&
+                   is_numeric($ticket['price']) &&
+                   $ticket['price'] >= 1 &&
                    $ticket['price'] <= 50000;
         });
 
@@ -552,7 +551,7 @@ class EmailParsingService
 
     /**
      * Get parsing statistics
-     * 
+     *
      * @return array Parsing statistics
      */
     public function getParsingStats(): array
@@ -560,7 +559,7 @@ class EmailParsingService
         return [
             'supported_platforms' => [
                 'ticketmaster',
-                'stubhub', 
+                'stubhub',
                 'viagogo',
                 'seatgeek',
                 'tickpick',
@@ -568,7 +567,7 @@ class EmailParsingService
             ],
             'sport_categories' => [
                 'football',
-                'basketball', 
+                'basketball',
                 'baseball',
                 'hockey',
                 'soccer',

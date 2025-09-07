@@ -94,7 +94,7 @@ class PriceAlertThreshold extends Model
      */
     public function shouldTrigger($currentPrice): bool
     {
-        if (! $this->is_active) {
+        if (!$this->is_active) {
             return FALSE;
         }
 
@@ -104,7 +104,7 @@ class PriceAlertThreshold extends Model
             case 'above':
                 return $currentPrice >= $this->target_price;
             case 'percentage_change':
-                if (! $this->percentage_threshold) {
+                if (!$this->percentage_threshold) {
                     return FALSE;
                 }
 

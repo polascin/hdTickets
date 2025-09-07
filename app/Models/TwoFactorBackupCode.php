@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -13,11 +13,11 @@ class TwoFactorBackupCode extends Model
     protected $fillable = [
         'user_id',
         'code',
-        'used_at'
+        'used_at',
     ];
 
     protected $casts = [
-        'used_at' => 'datetime'
+        'used_at' => 'datetime',
     ];
 
     /**
@@ -33,7 +33,7 @@ class TwoFactorBackupCode extends Model
      */
     public function isUsed(): bool
     {
-        return $this->used_at !== null;
+        return $this->used_at !== NULL;
     }
 
     /**

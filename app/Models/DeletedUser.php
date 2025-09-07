@@ -38,7 +38,7 @@ class DeletedUser extends Model
      */
     public function isRecoverable(): bool
     {
-        return ! $this->is_recovered && $this->recoverable_until->isFuture();
+        return !$this->is_recovered && $this->recoverable_until->isFuture();
     }
 
     /**
@@ -49,7 +49,7 @@ class DeletedUser extends Model
      */
     public function isRecoveryExpired(): bool
     {
-        return ! $this->is_recovered && $this->recoverable_until->isPast();
+        return !$this->is_recovered && $this->recoverable_until->isPast();
     }
 
     /**
@@ -60,7 +60,7 @@ class DeletedUser extends Model
      */
     public function getRemainingRecoveryTime(): ?Carbon
     {
-        if (! $this->isRecoverable()) {
+        if (!$this->isRecoverable()) {
             return NULL;
         }
 
@@ -75,7 +75,7 @@ class DeletedUser extends Model
      */
     public function getRecoveryTimeRemainingAttribute(): ?string
     {
-        if (! $this->isRecoverable()) {
+        if (!$this->isRecoverable()) {
             return NULL;
         }
 
@@ -90,7 +90,7 @@ class DeletedUser extends Model
      */
     public function markRecovered(): bool
     {
-        if (! $this->isRecoverable()) {
+        if (!$this->isRecoverable()) {
             return FALSE;
         }
 

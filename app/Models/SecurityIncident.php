@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * SecurityIncident Model
- * 
+ *
  * Represents security incidents that require investigation and response
  */
 class SecurityIncident extends Model
@@ -30,16 +30,16 @@ class SecurityIncident extends Model
         'assigned_to',
         'resolved_at',
         'resolution_notes',
-        'false_positive'
+        'false_positive',
     ];
 
     protected $casts = [
-        'incident_data' => 'array',
-        'detected_at' => 'datetime',
-        'resolved_at' => 'datetime',
+        'incident_data'  => 'array',
+        'detected_at'    => 'datetime',
+        'resolved_at'    => 'datetime',
         'false_positive' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
     ];
 
     /**
@@ -99,31 +99,31 @@ class SecurityIncident extends Model
     /**
      * Resolve incident with notes
      *
-     * @param string $notes
-     * @param bool $falsePositive
+     * @param  string $notes
+     * @param  bool   $falsePositive
      * @return bool
      */
-    public function resolve(string $notes, bool $falsePositive = false): bool
+    public function resolve(string $notes, bool $falsePositive = FALSE): bool
     {
         return $this->update([
-            'status' => 'resolved',
-            'resolved_at' => now(),
+            'status'           => 'resolved',
+            'resolved_at'      => now(),
             'resolution_notes' => $notes,
-            'false_positive' => $falsePositive
+            'false_positive'   => $falsePositive,
         ]);
     }
 
     /**
      * Assign incident to user
      *
-     * @param User $user
+     * @param  User $user
      * @return bool
      */
     public function assignTo(User $user): bool
     {
         return $this->update([
             'assigned_to' => $user->id,
-            'status' => $this->status === 'open' ? 'investigating' : $this->status
+            'status'      => $this->status === 'open' ? 'investigating' : $this->status,
         ]);
     }
 
@@ -136,12 +136,12 @@ class SecurityIncident extends Model
     {
         $priorities = ['low', 'medium', 'high', 'critical'];
         $currentIndex = array_search($this->priority, $priorities);
-        
-        if ($currentIndex !== false && $currentIndex < count($priorities) - 1) {
+
+        if ($currentIndex !== FALSE && $currentIndex < count($priorities) - 1) {
             return $this->update(['priority' => $priorities[$currentIndex + 1]]);
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -162,7 +162,7 @@ class SecurityIncident extends Model
     public function getResolutionTime(): ?\Carbon\CarbonInterval
     {
         if (!$this->resolved_at) {
-            return null;
+            return NULL;
         }
 
         return $this->detected_at->diffAsCarbonInterval($this->resolved_at);
@@ -181,7 +181,7 @@ class SecurityIncident extends Model
      */
     public function scopeCritical($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->where('severity', 'critical')->orWhere('priority', 'critical');
         });
     }

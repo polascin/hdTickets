@@ -428,7 +428,7 @@ class UserFavoriteVenueController extends Controller
         $redirectResponse = redirect()->route('preferences.venues.index')
             ->with('success', $message);
 
-        if (! empty($errors)) {
+        if (!empty($errors)) {
             $redirectResponse->with('errors', $errors);
         }
 

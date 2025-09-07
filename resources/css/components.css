@@ -1,0 +1,439 @@
+/* HD Tickets UI Components - Clean CSS */
+/* Comprehensive component library styles without nesting syntax */
+
+/* ============================================================================
+   BUTTON COMPONENTS
+============================================================================ */
+
+.hd-button {
+  /* Base button styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  vertical-align: middle;
+}
+
+/* Focus styles for accessibility */
+.hd-button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.hd-button:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
+.hd-button:focus-visible {
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* Disabled state */
+.hd-button:disabled,
+.hd-button.hd-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Loading state */
+.hd-button.hd-button--loading {
+  cursor: wait;
+}
+
+.hd-button.hd-button--loading .hd-button__text {
+  visibility: hidden;
+}
+
+.hd-button.hd-button--loading .hd-button__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1em;
+  height: 1em;
+  animation: spin 1s linear infinite;
+}
+
+/* Button sizes */
+.hd-button--xs {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  min-height: 32px;
+}
+
+.hd-button--sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  min-height: 36px;
+}
+
+.hd-button--md {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 40px;
+}
+
+.hd-button--lg {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  min-height: 44px;
+}
+
+.hd-button--xl {
+  padding: 1rem 1.5rem;
+  font-size: 1.125rem;
+  min-height: 48px;
+}
+
+/* Button variants */
+.hd-button--primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.hd-button--primary:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.hd-button--primary:active {
+  background-color: #1e40af;
+  border-color: #1e40af;
+}
+
+.hd-button--secondary {
+  background-color: white;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.hd-button--secondary:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.hd-button--secondary:active {
+  background-color: #f3f4f6;
+}
+
+.hd-button--success {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  color: white;
+}
+
+.hd-button--success:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #15803d;
+  border-color: #15803d;
+}
+
+.hd-button--warning {
+  background-color: #d97706;
+  border-color: #d97706;
+  color: white;
+}
+
+.hd-button--warning:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #b45309;
+  border-color: #b45309;
+}
+
+.hd-button--error {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.hd-button--error:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.hd-button--ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: #374151;
+}
+
+.hd-button--ghost:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.hd-button--outline {
+  background-color: transparent;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.hd-button--outline:hover:not(:disabled):not(.hd-button--disabled) {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* Full width button */
+.hd-button--full {
+  width: 100%;
+}
+
+/* Button icons */
+.hd-button__icon {
+  display: flex;
+  align-items: center;
+}
+
+.hd-button__icon--left {
+  margin-right: 0.5rem;
+  margin-left: -0.25rem;
+}
+
+.hd-button__icon--right {
+  margin-left: 0.5rem;
+  margin-right: -0.25rem;
+}
+
+/* ============================================================================
+   CARD COMPONENTS
+============================================================================ */
+
+.hd-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.hd-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.hd-card__header {
+  padding: 1.5rem 1.5rem 0;
+}
+
+.hd-card__body {
+  padding: 1.5rem;
+}
+
+.hd-card__footer {
+  padding: 0 1.5rem 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+/* ============================================================================
+   FORM COMPONENTS
+============================================================================ */
+
+.hd-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.hd-form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.hd-form-label--required::after {
+  content: " *";
+  color: #dc2626;
+}
+
+.hd-form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #111827;
+  background-color: white;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.hd-form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.hd-form-input:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.hd-form-input--error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.hd-form-input--success {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.hd-form-error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+.hd-form-help {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* ============================================================================
+   UTILITY COMPONENTS
+============================================================================ */
+
+/* Loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hd-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Status indicators */
+.hd-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.hd-status--success {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.hd-status--warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.hd-status--error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.hd-status--info {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+/* Badges */
+.hd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.hd-badge--primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.hd-badge--secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.hd-badge--success {
+  background-color: #16a34a;
+  color: white;
+}
+
+.hd-badge--warning {
+  background-color: #d97706;
+  color: white;
+}
+
+.hd-badge--error {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITIES
+============================================================================ */
+
+@media (max-width: 768px) {
+  .hd-button--responsive {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .hd-card {
+    margin: 0 0.5rem;
+  }
+  
+  .hd-form-input {
+    font-size: 1rem; /* Prevent zoom on iOS */
+  }
+}
+
+/* ============================================================================
+   DARK MODE SUPPORT
+============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .hd-card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .hd-form-input {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .hd-form-input:focus {
+    border-color: #3b82f6;
+  }
+  
+  .hd-form-label {
+    color: #e5e7eb;
+  }
+}

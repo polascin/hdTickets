@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -20,13 +20,13 @@ class LoginAttempt extends Model
         'success',
         'failure_reason',
         'used_2fa',
-        'attempted_at'
+        'attempted_at',
     ];
 
     protected $casts = [
-        'success' => 'boolean',
-        'used_2fa' => 'boolean',
-        'attempted_at' => 'datetime'
+        'success'      => 'boolean',
+        'used_2fa'     => 'boolean',
+        'attempted_at' => 'datetime',
     ];
 
     /**
@@ -69,7 +69,7 @@ class LoginAttempt extends Model
         } elseif (str_contains($this->user_agent, 'Edge')) {
             return 'Edge Browser';
         }
-        
+
         return 'Unknown Device';
     }
 
@@ -83,7 +83,7 @@ class LoginAttempt extends Model
         } elseif ($this->country_code) {
             return $this->country_code;
         }
-        
+
         return 'Unknown Location';
     }
 
@@ -92,7 +92,7 @@ class LoginAttempt extends Model
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('success', true);
+        return $query->where('success', TRUE);
     }
 
     /**
@@ -100,7 +100,7 @@ class LoginAttempt extends Model
      */
     public function scopeFailed($query)
     {
-        return $query->where('success', false);
+        return $query->where('success', FALSE);
     }
 
     /**

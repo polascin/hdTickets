@@ -229,7 +229,7 @@ class AdvancedSecurityService
     {
         $recommendations = [];
 
-        if (! $user->two_factor_secret) {
+        if (!$user->two_factor_secret) {
             $recommendations[] = [
                 'type'           => 'two_factor',
                 'priority'       => 'high',
@@ -240,7 +240,7 @@ class AdvancedSecurityService
             ];
         }
 
-        if (! $user->email_verified_at) {
+        if (!$user->email_verified_at) {
             $recommendations[] = [
                 'type'           => 'email_verification',
                 'priority'       => 'high',

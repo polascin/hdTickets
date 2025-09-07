@@ -212,7 +212,7 @@ class RecommendationService
         $factors = [];
 
         // Sport preference matching
-        if (! empty($behaviorData['favorite_sports'])) {
+        if (!empty($behaviorData['favorite_sports'])) {
             $ticketSport = $this->extractSportFromTitle($ticket->title);
             if (in_array($ticketSport, $behaviorData['favorite_sports'], TRUE)) {
                 $factors['sport_match'] = 0.4;
@@ -230,14 +230,14 @@ class RecommendationService
         }
 
         // Venue/location matching
-        if (! empty($preferences['venues']) && $ticket->venue) {
+        if (!empty($preferences['venues']) && $ticket->venue) {
             if (in_array($ticket->venue, $preferences['venues'], TRUE)) {
                 $factors['venue_match'] = 0.2;
             }
         }
 
         // Platform preference
-        if (! empty($preferences['preferred_platforms'])) {
+        if (!empty($preferences['preferred_platforms'])) {
             if (in_array($ticket->platform, $preferences['preferred_platforms'], TRUE)) {
                 $factors['platform_match'] = 0.1;
             }
@@ -340,7 +340,7 @@ class RecommendationService
             $reasons[] = 'High demand event';
         }
 
-        if (! empty($preferences['preferred_platforms'])
+        if (!empty($preferences['preferred_platforms'])
             && in_array($ticket->platform, $preferences['preferred_platforms'], TRUE)) {
             $reasons[] = 'From your preferred platform';
         }

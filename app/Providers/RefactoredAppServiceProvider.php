@@ -180,13 +180,13 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureEloquent(): void
     {
         // Prevent lazy loading in non-production environments
-        Model::preventLazyLoading(! $this->app->isProduction());
+        Model::preventLazyLoading(!$this->app->isProduction());
 
         // Prevent silently discarding attributes
-        Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
+        Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
 
         // Prevent accessing missing attributes
-        Model::preventAccessingMissingAttributes(! $this->app->isProduction());
+        Model::preventAccessingMissingAttributes(!$this->app->isProduction());
 
         // Configure model event logging
         if (config('app.log_model_events', FALSE)) {

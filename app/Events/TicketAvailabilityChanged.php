@@ -4,11 +4,11 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TicketAvailabilityChanged implements ShouldBroadcast
+class TicketAvailabilityChanged implements ShouldBroadcastNow
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -97,9 +97,14 @@ class TicketAvailabilityChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('ticket-updates'),
-            new Channel('availability-changes'),
-            new Channel('platform.' . $this->platform),
+            // Public channel for specific ticket
+            new Channel("ticket.{$this->ticketId}"),
+
+            // Public channel for platform-wide updates
+            new Channel("platform.{$this->platform}"),
+
+            // Public channel for availability alerts
+            new Channel('availability-alerts'),
         ];
     }
 
@@ -111,7 +116,7 @@ class TicketAvailabilityChanged implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'ticket.availability.changed';
+        return 'TicketAvailabilityChanged';
     }
 
     /**
@@ -125,15 +130,19 @@ class TicketAvailabilityChanged implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'ticket_id'    => $this->ticketId,
-            'event_name'   => $this->eventName,
-            'platform'     => $this->platform,
-            'old_status'   => $this->oldStatus,
-            'new_status'   => $this->newStatus,
-            'old_quantity' => $this->oldQuantity,
-            'new_quantity' => $this->newQuantity,
-            'url'          => $this->url,
-            'timestamp'    => $this->timestamp,
+            'ticket_id'          => $this->ticketId,
+            'event_name'         => $this->eventName,
+            'event_title'        => $this->eventName,
+            'platform'           => $this->platform,
+            'old_status'         => $this->oldStatus,
+            'new_status'         => $this->newStatus,
+            'available_quantity' => $this->newQuantity ?? 0,
+            'total_quantity'     => $this->newQuantity ?? 0,
+            'is_available'       => $this->newStatus === 'available',
+            'old_quantity'       => $this->oldQuantity,
+            'new_quantity'       => $this->newQuantity,
+            'url'                => $this->url,
+            'timestamp'          => $this->timestamp,
         ];
     }
 }

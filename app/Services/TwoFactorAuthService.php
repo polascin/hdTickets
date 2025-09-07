@@ -96,7 +96,7 @@ class TwoFactorAuthService
     public function enableTwoFactor(User $user, string $secretKey, string $verificationCode): bool
     {
         // Verify the code first
-        if (! $this->verifyCode($secretKey, $verificationCode)) {
+        if (!$this->verifyCode($secretKey, $verificationCode)) {
             return FALSE;
         }
 
@@ -207,13 +207,13 @@ class TwoFactorAuthService
      */
     public function verifyRecoveryCode(User $user, string $code): bool
     {
-        if (! $user->two_factor_recovery_codes) {
+        if (!$user->two_factor_recovery_codes) {
             return FALSE;
         }
 
         $recoveryCodes = json_decode(decrypt($user->two_factor_recovery_codes), TRUE);
 
-        if (! is_array($recoveryCodes) || ! in_array(strtoupper($code), $recoveryCodes, TRUE)) {
+        if (!is_array($recoveryCodes) || !in_array(strtoupper($code), $recoveryCodes, TRUE)) {
             return FALSE;
         }
 
@@ -246,7 +246,7 @@ class TwoFactorAuthService
      */
     public function getRemainingRecoveryCodesCount(User $user): int
     {
-        if (! $user->two_factor_recovery_codes) {
+        if (!$user->two_factor_recovery_codes) {
             return 0;
         }
 
@@ -263,7 +263,7 @@ class TwoFactorAuthService
      */
     public function sendSmsCode(User $user): bool
     {
-        if (! $user->phone) {
+        if (!$user->phone) {
             return FALSE;
         }
 
@@ -301,7 +301,7 @@ class TwoFactorAuthService
     {
         $storedCode = Cache::get("sms_2fa_code:{$user->id}");
 
-        if (! $storedCode || $storedCode !== $code) {
+        if (!$storedCode || $storedCode !== $code) {
             return FALSE;
         }
 
@@ -386,7 +386,7 @@ class TwoFactorAuthService
     {
         $storedCode = Cache::get("email_2fa_code:{$user->id}");
 
-        if (! $storedCode || $storedCode !== $code) {
+        if (!$storedCode || $storedCode !== $code) {
             return FALSE;
         }
 
@@ -425,7 +425,7 @@ class TwoFactorAuthService
      */
     public function getSecret(User $user): ?string
     {
-        if (! $user->two_factor_secret) {
+        if (!$user->two_factor_secret) {
             return NULL;
         }
 
@@ -447,7 +447,7 @@ class TwoFactorAuthService
      */
     public function getRecoveryCodes(User $user): array
     {
-        if (! $user->two_factor_recovery_codes) {
+        if (!$user->two_factor_recovery_codes) {
             return [];
         }
 
@@ -472,9 +472,9 @@ class TwoFactorAuthService
     public function validateSetupRequirements(User $user): array
     {
         $requirements = [
-            'has_email'      => ! empty($user->email),
+            'has_email'      => !empty($user->email),
             'email_verified' => NULL !== $user->email_verified_at,
-            'has_phone'      => ! empty($user->phone),
+            'has_phone'      => !empty($user->phone),
             'account_secure' => NULL !== $user->password && strlen($user->password) > 8,
         ];
 
@@ -521,7 +521,7 @@ class TwoFactorAuthService
      */
     public function generateAdminBackupCodes(User $admin, User $targetUser): array
     {
-        if (! $admin->isAdmin()) {
+        if (!$admin->isAdmin()) {
             throw new Exception('Only administrators can generate backup codes.');
         }
 
@@ -562,11 +562,11 @@ class TwoFactorAuthService
     {
         $backupData = Cache::get("admin_backup_codes:{$user->id}");
 
-        if (! $backupData || ! isset($backupData['codes'])) {
+        if (!$backupData || !isset($backupData['codes'])) {
             return FALSE;
         }
 
-        if (! in_array(strtoupper($code), $backupData['codes'], TRUE)) {
+        if (!in_array(strtoupper($code), $backupData['codes'], TRUE)) {
             return FALSE;
         }
 

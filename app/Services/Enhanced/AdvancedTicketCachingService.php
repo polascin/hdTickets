@@ -190,7 +190,7 @@ class AdvancedTicketCachingService
             $ticket = ScrapedTicket::find($ticket);
         }
 
-        if (! $ticket) {
+        if (!$ticket) {
             return;
         }
 
@@ -283,7 +283,7 @@ class AdvancedTicketCachingService
 
         return Cache::remember($cacheKey, $ttl, function () use ($userId) {
             $user = User::find($userId);
-            if (! $user) {
+            if (!$user) {
                 return [];
             }
 
@@ -413,7 +413,7 @@ class AdvancedTicketCachingService
             } else {
                 // Pattern-based invalidation
                 $keys = $this->redis->keys("*{$pattern}*");
-                if (! empty($keys)) {
+                if (!empty($keys)) {
                     foreach ($keys as $key) {
                         Cache::forget($key);
                         $this->redis->del($key);

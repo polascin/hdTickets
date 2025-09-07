@@ -171,7 +171,7 @@ class SkiddlePlugin extends BaseScraperPlugin
 
         // Remove empty parameters
         $params = array_filter($params, function ($value) {
-            return ! empty($value);
+            return !empty($value);
         });
 
         return $this->baseUrl . '/whats-on/search/?' . http_build_query($params);
@@ -186,7 +186,7 @@ class SkiddlePlugin extends BaseScraperPlugin
             Log::info("Skiddle Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (! $response) {
+            if (!$response) {
                 return [];
             }
 
@@ -301,7 +301,7 @@ class SkiddlePlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 

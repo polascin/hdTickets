@@ -114,7 +114,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return redirect()->route('subscription.payment')
                 ->withErrors(['error' => 'No active subscription found.']);
         }
@@ -154,7 +154,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return redirect()->route('subscription.manage')
                 ->withErrors(['error' => 'No active subscription found.']);
         }

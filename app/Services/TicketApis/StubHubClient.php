@@ -28,7 +28,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first if credentials are available
-        if (! empty($this->config['api_key']) && ! empty($this->config['app_token'])) {
+        if (!empty($this->config['api_key']) && !empty($this->config['app_token'])) {
             try {
                 return $this->searchEventsViaApi($criteria);
             } catch (Exception $e) {
@@ -74,7 +74,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function getEvent(string $eventId): array
     {
         // Try API first if available
-        if (! empty($this->config['api_key'])) {
+        if (!empty($this->config['api_key'])) {
             try {
                 return $this->getEventViaApi($eventId);
             } catch (Exception $e) {
@@ -166,11 +166,11 @@ class StubHubClient extends BaseWebScrapingClient
             'Content-Type' => 'application/json',
         ];
 
-        if (! empty($this->config['api_key'])) {
+        if (!empty($this->config['api_key'])) {
             $headers['Authorization'] = 'Bearer ' . $this->config['api_key'];
         }
 
-        if (! empty($this->config['app_token'])) {
+        if (!empty($this->config['app_token'])) {
             $headers['X-SH-Application-Token'] = $this->config['app_token'];
         }
 
@@ -246,7 +246,7 @@ class StubHubClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (! empty($event['name'])) {
+                        if (!empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -330,7 +330,7 @@ class StubHubClient extends BaseWebScrapingClient
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
 
-            if (! empty($prices)) {
+            if (!empty($prices)) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
@@ -393,7 +393,7 @@ class StubHubClient extends BaseWebScrapingClient
                 }
             }
             $event['prices'] = $prices;
-            $event['price_range'] = ! empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
 
             // Extract min/max prices
             $this->extractPriceRange($event, $prices);
@@ -581,7 +581,7 @@ class StubHubClient extends BaseWebScrapingClient
             return 'soldout';
         }
 
-        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
@@ -643,7 +643,7 @@ class StubHubClient extends BaseWebScrapingClient
             }
         }
 
-        if (! empty($numericPrices)) {
+        if (!empty($numericPrices)) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -708,7 +708,7 @@ class StubHubClient extends BaseWebScrapingClient
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (! empty($jsonLdData)) {
+            if (!empty($jsonLdData)) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
@@ -782,7 +782,7 @@ class StubHubClient extends BaseWebScrapingClient
                     }
                 });
 
-                if (! empty($prices)) {
+                if (!empty($prices)) {
                     break;
                 }
             }

@@ -20,12 +20,12 @@ class CheckTicketPurchasePermissions
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return $this->unauthorizedResponse('Authentication required for ticket purchases');
         }
 
         // Check if user role allows ticket purchases
-        if (! $this->userCanPurchaseTickets($user)) {
+        if (!$this->userCanPurchaseTickets($user)) {
             return $this->forbiddenResponse('Your user role does not allow ticket purchases');
         }
 
@@ -71,7 +71,7 @@ class CheckTicketPurchasePermissions
         $subscription = $user->subscription;
 
         // Check if user has a subscription
-        if (! $subscription) {
+        if (!$subscription) {
             return 'No active subscription found';
         }
 
@@ -81,7 +81,7 @@ class CheckTicketPurchasePermissions
         }
 
         // Check if subscription is active
-        if (! $subscription->isActive()) {
+        if (!$subscription->isActive()) {
             return 'Subscription is not active';
         }
 
@@ -111,7 +111,7 @@ class CheckTicketPurchasePermissions
         // For customers, check monthly limits
         if ($user->isCustomer()) {
             $subscription = $user->subscription;
-            if (! $subscription) {
+            if (!$subscription) {
                 return TRUE;
             }
 

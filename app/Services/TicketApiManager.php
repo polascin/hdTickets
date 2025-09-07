@@ -68,7 +68,7 @@ class TicketApiManager
      */
     public function getEvent(string $platform, string $eventId): ?array
     {
-        if (! isset($this->clients[$platform])) {
+        if (!isset($this->clients[$platform])) {
             throw new Exception("API client for platform '{$platform}' not available");
         }
 
@@ -124,7 +124,7 @@ class TicketApiManager
                 $apiResults = $client->searchEvents($criteria);
                 $processedResults = $this->processApiResults($apiResults, $platform, $client);
 
-                if (! empty($processedResults)) {
+                if (!empty($processedResults)) {
                     $results = array_merge($results, $processedResults);
 
                     break; // Use first successful result

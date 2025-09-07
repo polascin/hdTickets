@@ -256,7 +256,7 @@ class PasswordCompromiseCheckService
      */
     private function getRecommendation(bool $isCompromised, int $count): string
     {
-        if (! $isCompromised) {
+        if (!$isCompromised) {
             return 'This password appears to be safe from known data breaches.';
         }
 

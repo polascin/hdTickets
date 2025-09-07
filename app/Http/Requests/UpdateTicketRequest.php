@@ -93,7 +93,7 @@ class UpdateTicketRequest extends FormRequest
                 $tags = array_map('trim', explode(',', $tags));
             }
             // Remove empty tags and duplicates
-            $tags = array_unique(array_filter($tags, fn ($tag) => ! empty(trim($tag))));
+            $tags = array_unique(array_filter($tags, fn ($tag) => !empty(trim($tag))));
             $this->merge(['tags' => array_values($tags)]);
         }
     }

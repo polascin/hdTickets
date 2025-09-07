@@ -325,7 +325,7 @@ class TicketSource extends Model
 
     public function getTimeUntilEventAttribute()
     {
-        if (! $this->event_date) {
+        if (!$this->event_date) {
             return;
         }
 
@@ -334,7 +334,7 @@ class TicketSource extends Model
 
     public function getLastCheckedHumanAttribute()
     {
-        if (! $this->last_checked) {
+        if (!$this->last_checked) {
             return 'Never';
         }
 

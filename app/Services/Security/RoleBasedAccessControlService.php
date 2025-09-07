@@ -5,30 +5,27 @@ declare(strict_types=1);
 namespace App\Services\Security;
 
 use App\Models\User;
-use App\Services\Security\SecurityMonitoringService;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
 /**
  * Role-Based Access Control (RBAC) Service
- * 
+ *
  * Manages user roles, permissions, and access control for the HD Tickets system.
  * Supports four primary roles: customer, agent, admin, scraper
- * 
- * @package App\Services\Security
  */
 class RoleBasedAccessControlService
 {
     private SecurityMonitoringService $securityMonitoring;
-    
+
     // Role hierarchy (lower values have higher privileges)
     private const ROLE_HIERARCHY = [
-        'admin' => 1,
-        'agent' => 2,
+        'admin'    => 1,
+        'agent'    => 2,
         'customer' => 3,
-        'scraper' => 4,
+        'scraper'  => 4,
     ];
 
     // Core permissions for each role
@@ -87,14 +84,14 @@ class RoleBasedAccessControlService
     {
         // Cache key for user permissions
         $cacheKey = "user_permissions_{$user->id}";
-        
+
         $userPermissions = Cache::remember($cacheKey, 300, function () use ($user) {
             return $this->getUserPermissions($user);
         });
 
         // Check direct permission match
         if (in_array($permission, $userPermissions)) {
-            return true;
+            return TRUE;
         }
 
         // Check wildcard permissions
@@ -102,7 +99,7 @@ class RoleBasedAccessControlService
             if (str_ends_with($userPermission, '*')) {
                 $prefix = substr($userPermission, 0, -1);
                 if (str_starts_with($permission, $prefix)) {
-                    return true;
+                    return TRUE;
                 }
             }
         }
@@ -112,16 +109,16 @@ class RoleBasedAccessControlService
             'permission_denied',
             'Permission denied for user',
             [
-                'user_id' => $user->id,
-                'user_role' => $user->role,
+                'user_id'              => $user->id,
+                'user_role'            => $user->role,
                 'requested_permission' => $permission,
-                'user_permissions' => $userPermissions,
+                'user_permissions'     => $userPermissions,
             ],
             'warning',
             $user->id
         );
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -154,10 +151,10 @@ class RoleBasedAccessControlService
     public function getUserPermissions(User $user): array
     {
         $basePermissions = self::ROLE_PERMISSIONS[$user->role] ?? [];
-        
+
         // Add dynamic permissions based on user state
         $dynamicPermissions = $this->getDynamicPermissions($user);
-        
+
         return array_merge($basePermissions, $dynamicPermissions);
     }
 
@@ -200,7 +197,7 @@ class RoleBasedAccessControlService
     {
         $userLevel = self::ROLE_HIERARCHY[$user->role] ?? 999;
         $targetLevel = self::ROLE_HIERARCHY[$targetUser->role] ?? 999;
-        
+
         return $userLevel < $targetLevel;
     }
 
@@ -229,15 +226,16 @@ class RoleBasedAccessControlService
                 'unauthorized_role_change',
                 'Unauthorized attempt to change user role',
                 [
-                    'admin_user_id' => $adminUser->id,
+                    'admin_user_id'  => $adminUser->id,
                     'target_user_id' => $targetUser->id,
-                    'new_role' => $newRole,
-                    'admin_role' => $adminUser->role,
+                    'new_role'       => $newRole,
+                    'admin_role'     => $adminUser->role,
                 ],
                 'high',
                 $adminUser->id
             );
-            return false;
+
+            return FALSE;
         }
 
         // Validate new role
@@ -247,7 +245,7 @@ class RoleBasedAccessControlService
 
         // Admins cannot demote themselves
         if ($adminUser->id === $targetUser->id && $newRole !== 'admin') {
-            return false;
+            return FALSE;
         }
 
         $oldRole = $targetUser->role;
@@ -255,26 +253,26 @@ class RoleBasedAccessControlService
         DB::transaction(function () use ($targetUser, $newRole, $adminUser, $oldRole) {
             // Update user role
             $targetUser->update(['role' => $newRole]);
-            
+
             // Clear cached permissions
             Cache::forget("user_permissions_{$targetUser->id}");
-            
+
             // Log role change
             $this->securityMonitoring->logSecurityEvent(
                 'role_changed',
                 'User role changed by admin',
                 [
-                    'admin_user_id' => $adminUser->id,
+                    'admin_user_id'  => $adminUser->id,
                     'target_user_id' => $targetUser->id,
-                    'old_role' => $oldRole,
-                    'new_role' => $newRole,
+                    'old_role'       => $oldRole,
+                    'new_role'       => $newRole,
                 ],
                 'medium',
                 $adminUser->id
             );
         });
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -283,10 +281,10 @@ class RoleBasedAccessControlService
     public function getRoleStatistics(): array
     {
         $stats = [];
-        
+
         foreach (array_keys(self::ROLE_PERMISSIONS) as $role) {
             $stats[$role] = [
-                'count' => User::where('role', $role)->count(),
+                'count'        => User::where('role', $role)->count(),
                 'active_count' => User::where('role', $role)
                     ->where('last_login_at', '>=', Carbon::now()->subDays(30))
                     ->count(),
@@ -303,21 +301,23 @@ class RoleBasedAccessControlService
     public function validateTicketPurchaseAccess(User $user, array $purchaseContext = []): array
     {
         $validation = [
-            'can_purchase' => false,
-            'reasons' => [],
-            'limitations' => [],
+            'can_purchase' => FALSE,
+            'reasons'      => [],
+            'limitations'  => [],
         ];
 
         // Scrapers cannot purchase tickets
         if ($this->isScraper($user)) {
             $validation['reasons'][] = 'Scraper accounts cannot purchase tickets';
+
             return $validation;
         }
 
         // Admins and agents have unlimited access
         if ($this->isAdmin($user) || $this->isAgent($user)) {
-            $validation['can_purchase'] = true;
+            $validation['can_purchase'] = TRUE;
             $validation['limitations'][] = 'Unlimited ticket access';
+
             return $validation;
         }
 
@@ -327,6 +327,7 @@ class RoleBasedAccessControlService
         }
 
         $validation['reasons'][] = 'Invalid user role for ticket purchases';
+
         return $validation;
     }
 
@@ -336,13 +337,13 @@ class RoleBasedAccessControlService
     public function getSecurityPermissionsSummary(User $user): array
     {
         return [
-            'role' => $user->role,
-            'role_level' => self::ROLE_HIERARCHY[$user->role] ?? 999,
-            'permissions' => $this->getUserPermissions($user),
-            'can_admin' => $this->isAdmin($user),
-            'can_agent' => $this->isAgent($user),
+            'role'               => $user->role,
+            'role_level'         => self::ROLE_HIERARCHY[$user->role] ?? 999,
+            'permissions'        => $this->getUserPermissions($user),
+            'can_admin'          => $this->isAdmin($user),
+            'can_agent'          => $this->isAgent($user),
             'restricted_actions' => $this->getRestrictedActions($user),
-            'security_score' => $this->calculateSecurityScore($user),
+            'security_score'     => $this->calculateSecurityScore($user),
         ];
     }
 
@@ -361,7 +362,7 @@ class RoleBasedAccessControlService
 
         $results = [
             'success' => [],
-            'failed' => [],
+            'failed'  => [],
             'skipped' => [],
         ];
 
@@ -372,8 +373,9 @@ class RoleBasedAccessControlService
             if ($adminUser->id === $user->id && $newRole !== 'admin') {
                 $results['skipped'][] = [
                     'user_id' => $user->id,
-                    'reason' => 'Cannot change own admin role',
+                    'reason'  => 'Cannot change own admin role',
                 ];
+
                 continue;
             }
 
@@ -383,13 +385,13 @@ class RoleBasedAccessControlService
                 } else {
                     $results['failed'][] = [
                         'user_id' => $user->id,
-                        'reason' => 'Role change failed',
+                        'reason'  => 'Role change failed',
                     ];
                 }
             } catch (\Exception $e) {
                 $results['failed'][] = [
                     'user_id' => $user->id,
-                    'reason' => $e->getMessage(),
+                    'reason'  => $e->getMessage(),
                 ];
             }
         }
@@ -400,8 +402,8 @@ class RoleBasedAccessControlService
             'Bulk role assignment performed',
             [
                 'admin_user_id' => $adminUser->id,
-                'target_role' => $newRole,
-                'results' => $results,
+                'target_role'   => $newRole,
+                'results'       => $results,
             ],
             'medium',
             $adminUser->id
@@ -417,7 +419,7 @@ class RoleBasedAccessControlService
     {
         // Only admins can access most system resources
         if (!$this->isAdmin($user) && !str_contains($resource, 'scrape')) {
-            return false;
+            return FALSE;
         }
 
         // Scrapers can only access scraping resources
@@ -435,7 +437,7 @@ class RoleBasedAccessControlService
     {
         // Only admins can access security resources
         if (!$this->isAdmin($user)) {
-            return false;
+            return FALSE;
         }
 
         // Additional validation for critical security actions
@@ -452,6 +454,7 @@ class RoleBasedAccessControlService
     private function canAccessTicketPurchase(User $user, string $resource, array $context): bool
     {
         $validation = $this->validateTicketPurchaseAccess($user, $context);
+
         return $validation['can_purchase'];
     }
 
@@ -485,34 +488,36 @@ class RoleBasedAccessControlService
     private function validateCustomerTicketAccess(User $user, array $context): array
     {
         $validation = [
-            'can_purchase' => false,
-            'reasons' => [],
-            'limitations' => [],
+            'can_purchase' => FALSE,
+            'reasons'      => [],
+            'limitations'  => [],
         ];
 
         // Check if within free access period
         $withinFreeAccess = $user->created_at->diffInDays(now()) <= config('subscription.free_access_days', 7);
-        
+
         if (!$withinFreeAccess && !$user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
+
             return $validation;
         }
 
         // Check monthly ticket limits
         $monthlyUsage = $user->getMonthlyTicketUsage();
         $monthlyLimit = $user->getMonthlyTicketLimit();
-        
+
         $requestedQuantity = $context['quantity'] ?? 1;
-        
+
         if (($monthlyUsage + $requestedQuantity) > $monthlyLimit) {
             $validation['reasons'][] = 'Would exceed monthly ticket limit';
             $validation['limitations'][] = "Monthly limit: {$monthlyLimit}, Current usage: {$monthlyUsage}";
+
             return $validation;
         }
 
-        $validation['can_purchase'] = true;
-        $validation['limitations'][] = "Remaining tickets this month: " . ($monthlyLimit - $monthlyUsage);
-        
+        $validation['can_purchase'] = TRUE;
+        $validation['limitations'][] = 'Remaining tickets this month: ' . ($monthlyLimit - $monthlyUsage);
+
         return $validation;
     }
 
@@ -522,13 +527,13 @@ class RoleBasedAccessControlService
     private function getRestrictedActions(User $user): array
     {
         $restricted = [];
-        
+
         foreach (self::RESTRICTED_ACTIONS as $action) {
             if (!$this->hasPermission($user, $action)) {
                 $restricted[] = $action;
             }
         }
-        
+
         return $restricted;
     }
 
@@ -538,37 +543,37 @@ class RoleBasedAccessControlService
     private function calculateSecurityScore(User $user): int
     {
         $score = 0;
-        
+
         // Base score by role
         $roleScores = [
-            'admin' => 100,
-            'agent' => 80,
+            'admin'    => 100,
+            'agent'    => 80,
             'customer' => 60,
-            'scraper' => 40,
+            'scraper'  => 40,
         ];
-        
+
         $score += $roleScores[$user->role] ?? 0;
-        
+
         // MFA bonus
         if ($user->mfa_enabled) {
             $score += 20;
         }
-        
+
         // Email verification bonus
         if ($user->email_verified_at) {
             $score += 10;
         }
-        
+
         // Phone verification bonus
         if ($user->phone_verified_at) {
             $score += 10;
         }
-        
+
         // Active subscription bonus (for customers)
         if ($this->isCustomer($user) && $user->hasActiveSubscription()) {
             $score += 10;
         }
-        
+
         return min($score, 100);
     }
 
@@ -579,20 +584,17 @@ class RoleBasedAccessControlService
     {
         // Require MFA for critical actions
         if (!$user->mfa_enabled) {
-            return false;
+            return FALSE;
         }
 
         // Additional validation based on action type
         switch ($action) {
             case 'security.config.modify':
                 return $this->isAdmin($user);
-                
             case 'users.role.change':
                 return $this->isAdmin($user) && isset($context['target_user']);
-                
             case 'system.maintenance':
                 return $this->isAdmin($user);
-                
             default:
                 return $this->hasPermission($user, $action);
         }

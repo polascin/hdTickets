@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Models;
 
@@ -22,53 +22,53 @@ class SecurityEvent extends Model
         'session_id',
         'threat_score',
         'incident_id',
-        'occurred_at'
+        'occurred_at',
     ];
 
     protected $casts = [
-        'event_data' => 'array',
+        'event_data'   => 'array',
         'request_data' => 'array',
-        'location' => 'array',
-        'occurred_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'location'     => 'array',
+        'occurred_at'  => 'datetime',
+        'created_at'   => 'datetime',
+        'updated_at'   => 'datetime',
     ];
 
     /**
      * Security event types
      */
-    const EVENT_TYPES = [
-        'login_successful' => 'Login Successful',
-        'login_failed' => 'Login Failed',
-        'login_attempt_locked' => 'Login Attempt While Locked',
-        'login_rate_limited' => 'Login Rate Limited',
-        'account_locked' => 'Account Locked',
-        'account_unlocked' => 'Account Unlocked',
-        'device_trusted' => 'Device Trusted',
-        'device_revoked' => 'Device Trust Revoked',
-        '2fa_enabled' => '2FA Enabled',
-        '2fa_disabled' => '2FA Disabled',
-        '2fa_backup_used' => '2FA Backup Code Used',
-        '2fa_recovery_used' => '2FA Recovery Code Used',
-        'password_changed' => 'Password Changed',
+    public const EVENT_TYPES = [
+        'login_successful'         => 'Login Successful',
+        'login_failed'             => 'Login Failed',
+        'login_attempt_locked'     => 'Login Attempt While Locked',
+        'login_rate_limited'       => 'Login Rate Limited',
+        'account_locked'           => 'Account Locked',
+        'account_unlocked'         => 'Account Unlocked',
+        'device_trusted'           => 'Device Trusted',
+        'device_revoked'           => 'Device Trust Revoked',
+        '2fa_enabled'              => '2FA Enabled',
+        '2fa_disabled'             => '2FA Disabled',
+        '2fa_backup_used'          => '2FA Backup Code Used',
+        '2fa_recovery_used'        => '2FA Recovery Code Used',
+        'password_changed'         => 'Password Changed',
         'password_reset_requested' => 'Password Reset Requested',
         'password_reset_completed' => 'Password Reset Completed',
-        'suspicious_activity' => 'Suspicious Activity Detected',
-        'high_risk_login' => 'High Risk Login Detected',
-        'permission_denied' => 'Permission Denied',
-        'role_changed' => 'User Role Changed',
-        'data_export' => 'Data Export',
-        'data_deletion' => 'Data Deletion'
+        'suspicious_activity'      => 'Suspicious Activity Detected',
+        'high_risk_login'          => 'High Risk Login Detected',
+        'permission_denied'        => 'Permission Denied',
+        'role_changed'             => 'User Role Changed',
+        'data_export'              => 'Data Export',
+        'data_deletion'            => 'Data Deletion',
     ];
 
     /**
      * Risk levels
      */
-    const RISK_LEVELS = [
-        'low' => 'Low',
-        'medium' => 'Medium',
-        'high' => 'High',
-        'critical' => 'Critical'
+    public const RISK_LEVELS = [
+        'low'      => 'Low',
+        'medium'   => 'Medium',
+        'high'     => 'High',
+        'critical' => 'Critical',
     ];
 
     /**
@@ -100,7 +100,7 @@ class SecurityEvent extends Model
      */
     public function getRiskLevel(): string
     {
-        return match($this->event_type) {
+        return match ($this->event_type) {
             'account_locked', 'suspicious_activity', 'high_risk_login' => 'high',
             'login_failed', 'login_rate_limited', 'device_revoked', '2fa_disabled' => 'medium',
             'permission_denied', 'login_attempt_locked' => 'medium',
@@ -121,7 +121,7 @@ class SecurityEvent extends Model
             'account_locked',
             '2fa_disabled',
             'password_reset_completed',
-            '2fa_recovery_used'
+            '2fa_recovery_used',
         ]);
     }
 
@@ -133,13 +133,13 @@ class SecurityEvent extends Model
         if (!$this->location || !is_array($this->location)) {
             return 'Unknown Location';
         }
-        
+
         if (isset($this->location['city']) && isset($this->location['country'])) {
             return "{$this->location['city']}, {$this->location['country']}";
         } elseif (isset($this->location['country'])) {
             return $this->location['country'];
         }
-        
+
         return 'Unknown Location';
     }
 
@@ -151,7 +151,7 @@ class SecurityEvent extends Model
         if (isset($this->event_data['device_name'])) {
             return $this->event_data['device_name'];
         }
-        
+
         // Extract from user agent
         if ($this->user_agent) {
             if (str_contains($this->user_agent, 'Mobile')) {
@@ -164,7 +164,7 @@ class SecurityEvent extends Model
                 return 'Safari Browser';
             }
         }
-        
+
         return 'Unknown Device';
     }
 
@@ -173,12 +173,12 @@ class SecurityEvent extends Model
      */
     public function getRiskLevelColor(): string
     {
-        return match($this->getRiskLevel()) {
+        return match ($this->getRiskLevel()) {
             'critical' => 'red',
-            'high' => 'orange',
-            'medium' => 'yellow',
-            'low' => 'green',
-            default => 'gray'
+            'high'     => 'orange',
+            'medium'   => 'yellow',
+            'low'      => 'green',
+            default    => 'gray'
         };
     }
 
@@ -196,14 +196,14 @@ class SecurityEvent extends Model
     public function scopeByRiskLevel($query, string $riskLevel)
     {
         $eventTypes = [];
-        
+
         foreach (self::EVENT_TYPES as $type => $name) {
             $event = new self(['event_type' => $type]);
             if ($event->getRiskLevel() === $riskLevel) {
                 $eventTypes[] = $type;
             }
         }
-        
+
         return $query->whereIn('event_type', $eventTypes);
     }
 
@@ -226,7 +226,7 @@ class SecurityEvent extends Model
             'account_locked',
             '2fa_disabled',
             'password_reset_completed',
-            '2fa_recovery_used'
+            '2fa_recovery_used',
         ]);
     }
 
@@ -239,7 +239,7 @@ class SecurityEvent extends Model
             'login_successful',
             'login_failed',
             'login_attempt_locked',
-            'login_rate_limited'
+            'login_rate_limited',
         ]);
     }
 
@@ -252,7 +252,7 @@ class SecurityEvent extends Model
             '2fa_enabled',
             '2fa_disabled',
             '2fa_backup_used',
-            '2fa_recovery_used'
+            '2fa_recovery_used',
         ]);
     }
 
@@ -278,19 +278,19 @@ class SecurityEvent extends Model
     public static function getEventSummary(int $hours = 24): array
     {
         $events = self::recent($hours)->get();
-        
+
         $summary = [
-            'total' => $events->count(),
-            'by_type' => $events->groupBy('event_type')->map->count(),
-            'by_risk' => [],
-            'critical_events' => $events->filter(fn($event) => $event->isSecurityCritical())->count()
+            'total'           => $events->count(),
+            'by_type'         => $events->groupBy('event_type')->map->count(),
+            'by_risk'         => [],
+            'critical_events' => $events->filter(fn ($event) => $event->isSecurityCritical())->count(),
         ];
-        
+
         // Group by risk level
         foreach (['low', 'medium', 'high', 'critical'] as $risk) {
-            $summary['by_risk'][$risk] = $events->filter(fn($event) => $event->getRiskLevel() === $risk)->count();
+            $summary['by_risk'][$risk] = $events->filter(fn ($event) => $event->getRiskLevel() === $risk)->count();
         }
-        
+
         return $summary;
     }
 }
