@@ -136,16 +136,18 @@
               <span id="sports-tickets-desc" class="sr-only">Browse and monitor sports event tickets</span>
             </x-nav-link>
 
-            {{-- Ticket Alerts --}}
-            <x-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')" role="menuitem" class="nav-link"
-              aria-describedby="alerts-desc" tabindex="0">
+            {{-- Ticket Monitoring & Alerts --}}
+            <x-nav-link :href="route('monitoring.index')" :active="Request::routeIs('monitoring.*')" role="menuitem" class="nav-link"
+              aria-describedby="monitoring-desc" tabindex="0">
               <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 aria-hidden="true" focusable="false">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-4 4"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4"></path>
               </svg>
-              <span>{{ __('My Alerts') }}</span>
-              <span id="alerts-desc" class="sr-only">Manage your ticket price and availability alerts</span>
+              <span>{{ __('Monitoring') }}</span>
+              <span id="monitoring-desc" class="sr-only">Monitor ticket prices and manage intelligent alerts</span>
             </x-nav-link>
 
             {{-- Purchase Queue --}}
@@ -174,6 +176,18 @@
               <span id="sources-desc" class="sr-only">Manage ticket sources and scraping configurations</span>
             </x-nav-link>
           @endif
+
+          {{-- Personal Analytics --}}
+          <x-nav-link :href="route('dashboard.analytics')" :active="Request::routeIs('dashboard.analytics')" role="menuitem" class="nav-link"
+            aria-describedby="analytics-desc" tabindex="0">
+            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              aria-hidden="true" focusable="false">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            <span>{{ __('Analytics') }}</span>
+            <span id="analytics-desc" class="sr-only">View your personal analytics and insights</span>
+          </x-nav-link>
 
           {{-- Profile Link with Completion Indicator - Available to all users --}}
           <x-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')" class="relative nav-link" role="menuitem">
@@ -488,14 +502,16 @@
             <span>{{ __('Sports Tickets') }}</span>
           </x-responsive-nav-link>
 
-          {{-- Ticket Alerts --}}
-          <x-responsive-nav-link :href="route('tickets.alerts.index')" :active="Request::routeIs('tickets.alerts.*')" class="mobile-nav-link" role="menuitem">
+          {{-- Ticket Monitoring & Alerts --}}
+          <x-responsive-nav-link :href="route('monitoring.index')" :active="Request::routeIs('monitoring.*')" class="mobile-nav-link" role="menuitem">
             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
               aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5"></path>
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-4 4"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4"></path>
             </svg>
-            <span>{{ __('My Alerts') }}</span>
+            <span>{{ __('Monitoring') }}</span>
           </x-responsive-nav-link>
 
           {{-- Purchase Queue --}}
@@ -520,6 +536,16 @@
             <span>{{ __('Sources') }}</span>
           </x-responsive-nav-link>
         @endif
+
+        {{-- Personal Analytics --}}
+        <x-responsive-nav-link :href="route('dashboard.analytics')" :active="Request::routeIs('dashboard.analytics')" class="mobile-nav-link" role="menuitem">
+          <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <span>{{ __('Analytics') }}</span>
+        </x-responsive-nav-link>
 
         {{-- Profile Link --}}
         <x-responsive-nav-link :href="route('profile.show')" :active="Request::routeIs('profile.*')" class="mobile-nav-link" role="menuitem">

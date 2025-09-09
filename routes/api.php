@@ -52,6 +52,9 @@ use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Include background sync API routes
+require __DIR__.'/sync-api.php';
+
 /*
 |--------------------------------------------------------------------------
 | Public API Routes - No Authentication Required
@@ -409,13 +412,31 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::post('/log-error', [DashboardController::class, 'logError']);
     });
 
-    // User Preferences API
+    // Advanced User Preferences API
     Route::prefix('preferences')->group(function (): void {
-        Route::get('/', [App\Http\Controllers\Api\PreferencesController::class, 'index']);
-        Route::post('/', [App\Http\Controllers\Api\PreferencesController::class, 'store']);
+        // Legacy preferences routes
+        Route::get('/', [App\Http\Controllers\UserPreferencesController::class, 'getPreferences']);
+        Route::post('/', [App\Http\Controllers\UserPreferencesController::class, 'updatePreferences']);
         Route::put('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'update']);
         Route::delete('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'destroy']);
-        Route::post('/reset', [App\Http\Controllers\Api\PreferencesController::class, 'reset']);
+        Route::post('/reset', [App\Http\Controllers\UserPreferencesController::class, 'resetPreferences']);
+        
+        // Export/Import operations
+        Route::get('/export', [App\Http\Controllers\UserPreferencesController::class, 'exportPreferences']);
+        Route::post('/import', [App\Http\Controllers\UserPreferencesController::class, 'import']);
+        
+        // Teams and venues search
+        Route::get('/teams/search', [App\Http\Controllers\UserPreferencesController::class, 'searchTeams']);
+        Route::get('/venues/search', [App\Http\Controllers\UserPreferencesController::class, 'searchVenues']);
+        
+        // Favorites management
+        Route::post('/teams/{teamId}', [App\Http\Controllers\UserPreferencesController::class, 'addFavoriteTeam']);
+        Route::delete('/teams/{teamId}', [App\Http\Controllers\UserPreferencesController::class, 'removeFavoriteTeam']);
+        Route::post('/venues/{venueId}', [App\Http\Controllers\UserPreferencesController::class, 'addFavoriteVenue']);
+        Route::delete('/venues/{venueId}', [App\Http\Controllers\UserPreferencesController::class, 'removeFavoriteVenue']);
+        
+        // Preferences summary
+        Route::get('/summary', [App\Http\Controllers\UserPreferencesController::class, 'getPreferencesSummary']);
     });
 
     // Ticket Criteria Configuration
@@ -679,6 +700,29 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         })->name('download');
     });
 
+
+    // AI Recommendations API Routes
+    Route::prefix('recommendations')->name('api.recommendations.')->group(function () {
+        // Main recommendation endpoints
+        Route::get('/', [\App\Http\Controllers\RecommendationController::class, 'getRecommendations'])->name('index');
+        Route::post('/refresh', [\App\Http\Controllers\RecommendationController::class, 'refreshRecommendations'])->name('refresh');
+        
+        // Specific recommendation types
+        Route::get('/events', [\App\Http\Controllers\RecommendationController::class, 'getEventRecommendations'])->name('events');
+        Route::get('/pricing', [\App\Http\Controllers\RecommendationController::class, 'getPricingStrategies'])->name('pricing');
+        Route::get('/alerts', [\App\Http\Controllers\RecommendationController::class, 'getAlertRecommendations'])->name('alerts');
+        Route::get('/follow', [\App\Http\Controllers\RecommendationController::class, 'getFollowRecommendations'])->name('follow');
+        
+        // User interactions
+        Route::post('/feedback', [\App\Http\Controllers\RecommendationController::class, 'submitFeedback'])->name('feedback');
+        Route::post('/alerts/apply', [\App\Http\Controllers\RecommendationController::class, 'applyAlertRecommendations'])->name('alerts.apply');
+        Route::put('/preferences', [\App\Http\Controllers\RecommendationController::class, 'updateUserPreferences'])->name('preferences.update');
+        
+        // Utility endpoints
+        Route::get('/history', [\App\Http\Controllers\RecommendationController::class, 'getRecommendationHistory'])->name('history');
+        Route::delete('/cache', [\App\Http\Controllers\RecommendationController::class, 'clearUserCache'])->name('cache.clear');
+        Route::get('/metrics', [\App\Http\Controllers\RecommendationController::class, 'getPerformanceMetrics'])->name('metrics');
+    });
 
     // Agent and Admin routes
     Route::middleware([CheckApiRole::class . ':agent,admin'])->group(function (): void {

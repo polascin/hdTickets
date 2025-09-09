@@ -1,0 +1,14 @@
+/* Safe-area insets for iOS notch devices */
+:root { --sat: env(safe-area-inset-top); --sab: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: max(var(--sat), 0px); }
+.pb-safe { padding-bottom: max(var(--sab), 0px); }
+
+/* Simple keyframes for splash progress */
+@keyframes loading { 0% { transform: translateX(-60%);} 50% { transform: translateX(0%);} 100% { transform: translateX(60%);} }
+
+/* Page transition helpers */
+.page-enter { opacity: .001; transform: translateY(4px); }
+.page-enter-active { opacity: 1; transform: translateY(0); transition: all 160ms ease; }
+.page-exit { opacity: 1; }
+.page-exit-active { opacity: .001; transition: opacity 120ms ease; }
+

@@ -51,8 +51,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Root route - Redirect to appropriate entry point
+Route::get('/', function () {
+    if (Auth::check()) {
+        // If user is logged in, redirect to dashboard
+        return redirect()->route('dashboard');
+    }
+    // If not logged in, redirect to home page
+    return redirect()->route('home');
+})->name('root');
+
 // Home route - Public landing page for sports events ticket monitoring
-Route::get('/', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
+
+// User Preferences Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/preferences', [App\Http\Controllers\UserPreferencesController::class, 'index'])->name('preferences.index');
+});
 
 // Legal document routes - Public access to legal documents
 Route::get('/legal', [App\Http\Controllers\LegalController::class, 'index'])->name('legal.index');
@@ -254,6 +269,31 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
             }
             return response()->download($path);
         })->name('download');
+    });
+    
+    /*
+     * Personal Analytics Dashboard
+     * Purpose: User-specific analytics and insights for individual ticket monitoring
+     * Access: All authenticated users (customers, agents, admins)
+     * Features: Personal stats, savings tracking, activity history
+     */
+    Route::get('/analytics', function () {
+        return view('dashboard.analytics');
+    })->name('analytics');
+    
+    /*
+     * Real-time Notification System Routes
+     * Purpose: Live notifications for ticket alerts, price changes, and system updates
+     * Access: All authenticated users
+     * Features: WebSocket notifications, notification history, push notifications
+     */
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', function () {
+            return view('notifications.index');
+        })->name('index');
+        Route::get('/history', function () {
+            return view('notifications.history');
+        })->name('history');
     });
 });
 
@@ -458,6 +498,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('/venues', [App\Http\Controllers\UserPreferencesController::class, 'storeVenue'])->name('venues.store');
         Route::put('/venues/{venue}', [App\Http\Controllers\UserPreferencesController::class, 'updateVenue'])->name('venues.update');
         Route::delete('/venues/{venue}', [App\Http\Controllers\UserPreferencesController::class, 'destroyVenue'])->name('venues.destroy');
+        
+        // Notification Settings
+        Route::get('/notifications', function () {
+            return view('settings.notifications');
+        })->name('notifications');
+        Route::put('/notification-preferences', [App\Http\Controllers\UserPreferencesController::class, 'updateNotificationPreferences'])->name('notification-preferences');
 
         // Price Preferences Routes
         Route::post('/prices', [App\Http\Controllers\UserPreferencesController::class, 'storePricePreference'])->name('prices.store');
@@ -493,6 +539,16 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     });
 });
 
+// Notification Settings Route (outside dashboard and preferences groups)
+Route::get('/settings/notifications', function () {
+    return view('settings.notifications');
+})->middleware(['auth', 'verified'])->name('settings.notifications');
+
+// AI Recommendations System Routes
+Route::middleware(['auth', 'verified'])->prefix('recommendations')->name('recommendations.')->group(function () {
+    Route::get('/', [App\Http\Controllers\RecommendationController::class, 'dashboard'])->name('dashboard');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Security Dashboard Routes
@@ -522,6 +578,41 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('security')->name(
         Route::get('/data', [SecurityDashboardController::class, 'apiDashboardData'])->name('data');
         Route::get('/live-events', [SecurityDashboardController::class, 'apiLiveEvents'])->name('live-events');
     });
+});
+
+// Ticket Monitoring & Alerts Routes
+Route::middleware(['auth', 'verified'])->prefix('monitoring')->name('monitoring.')->group(function (): void {
+    // Main monitoring dashboard
+    Route::get('/', [App\Http\Controllers\MonitoringController::class, 'index'])->name('index');
+    
+    // Alert management
+    Route::post('/alerts', [App\Http\Controllers\MonitoringController::class, 'createAlert'])->name('alerts.create');
+    Route::get('/alerts/{alert}', [App\Http\Controllers\MonitoringController::class, 'showAlert'])->name('alerts.show');
+    Route::patch('/alerts/{alert}', [App\Http\Controllers\MonitoringController::class, 'updateAlert'])->name('alerts.update');
+    Route::delete('/alerts/{alert}', [App\Http\Controllers\MonitoringController::class, 'deleteAlert'])->name('alerts.delete');
+    Route::patch('/alerts/{alert}/toggle', [App\Http\Controllers\MonitoringController::class, 'toggleAlert'])->name('alerts.toggle');
+    Route::post('/alerts/{alert}/dismiss', [App\Http\Controllers\MonitoringController::class, 'dismissAlert'])->name('alerts.dismiss');
+    
+    // Alert history and analytics
+    Route::get('/alerts/{alert}/history', [App\Http\Controllers\MonitoringController::class, 'alertHistory'])->name('alerts.history');
+    Route::get('/alerts/{alert}/chart-data', [App\Http\Controllers\MonitoringController::class, 'getAlertChartData'])->name('alerts.chart-data');
+    
+    // AJAX endpoints for real-time updates
+    Route::get('/ajax/dashboard-stats', [App\Http\Controllers\MonitoringController::class, 'getDashboardStats'])
+        ->middleware('throttle:30,1')
+        ->name('ajax.dashboard-stats');
+    
+    Route::get('/ajax/alerts', [App\Http\Controllers\MonitoringController::class, 'getAlerts'])
+        ->middleware('throttle:60,1')
+        ->name('ajax.alerts');
+    
+    Route::post('/ajax/refresh', [App\Http\Controllers\MonitoringController::class, 'refreshMonitoring'])
+        ->middleware('throttle:10,1')
+        ->name('ajax.refresh');
+    
+    Route::get('/ajax/price-updates', [App\Http\Controllers\MonitoringController::class, 'getPriceUpdates'])
+        ->middleware('throttle:120,1')
+        ->name('ajax.price-updates');
 });
 
 // Ticket Scraping Routes

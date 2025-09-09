@@ -1,26 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>User Management - {{ config('app.name') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .table-mobile { overflow-x: auto; }
-        .search-mobile { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        .actions-mobile { flex-wrap: wrap; gap: 0.25rem; }
-        .pagination-mobile { flex-direction: column; gap: 1rem; }
-        .modal-mobile { width: 90%; max-width: 400px; }
-        
-        @media (min-width: 768px) {
-            .pagination-mobile { flex-direction: row; gap: 0; }
-            .modal-mobile { width: 400px; }
-        }
-    </style>
-</head>
-<body class="bg-gray-100">
-    <div class="min-h-screen">
+@extends('layouts.modern')
+
+@section('title', 'User Management')
+@section('description', 'Manage users, roles, and permissions in the Sports Events Tickets platform')
+
+@push('styles')
+<style>
+    /* User Management Styles */
+    .table-mobile { overflow-x: auto; }
+    .search-mobile { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .actions-mobile { flex-wrap: wrap; gap: 0.25rem; }
+    .pagination-mobile { flex-direction: column; gap: 1rem; }
+    .modal-mobile { width: 90%; max-width: 500px; }
+    
+    .role-badge {
+        @apply px-3 py-1 text-xs font-semibold rounded-full;
+    }
+    
+    .role-customer {
+        @apply bg-blue-100 text-blue-800;
+    }
+    
+    .role-agent {
+        @apply bg-purple-100 text-purple-800;
+    }
+    
+    .role-admin {
+        @apply bg-red-100 text-red-800;
+    }
+    
+    .role-scraper {
+        @apply bg-gray-100 text-gray-800;
+    }
+    
+    .subscription-badge {
+        @apply px-2 py-1 text-xs font-medium rounded;
+    }
+    
+    .subscription-active {
+        @apply bg-green-100 text-green-800;
+    }
+    
+    .subscription-trial {
+        @apply bg-yellow-100 text-yellow-800;
+    }
+    
+    .subscription-expired {
+        @apply bg-red-100 text-red-800;
+    }
+    
+    .subscription-none {
+        @apply bg-gray-100 text-gray-800;
+    }
+    
+    .user-avatar {
+        @apply h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm;
+    }
+    
+    .stats-card {
+        @apply bg-white rounded-lg shadow p-4 border border-gray-200;
+    }
+    
+    @media (min-width: 768px) {
+        .pagination-mobile { flex-direction: row; gap: 0; }
+        .modal-mobile { width: 500px; }
+    }
+</style>
+@endpush
+
+@section('content')
         <!-- Simple Navigation -->
         <nav class="bg-white shadow">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,29 +87,34 @@
             </div>
         </nav>
 
-        <!-- Main Content -->
-        <div class="py-8 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto">
-                <div class="mb-6 flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900">User Management</h2>
-                        <p class="mt-1 text-sm text-gray-600">Manage system users, roles, and permissions</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="openQuickCreateModal()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Quick Add User
-                        </button>
-                        <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Create User
-                        </a>
-                    </div>
-                </div>
+<div class="py-6">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+            <p class="text-gray-600 mt-2">Manage users, roles, and permissions for the Sports Events Tickets platform</p>
+        </div>
+        <div class="flex items-center space-x-3 mt-4 lg:mt-0">
+            <button onclick="exportUsers()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                </svg>
+                Export
+            </button>
+            <button onclick="openQuickCreateModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Quick Add
+            </button>
+            <a href="{{ route('admin.users.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create User
+            </a>
+        </div>
+    </div>
             @if (session('success'))
                 <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-lg shadow-sm animate-pulse">
                     <div class="flex items-center">
@@ -195,14 +247,122 @@
                 </form>
             </div>
 
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        @php
+            $totalUsers = $users->total() ?? 0;
+            $activeUsers = \App\Models\User::where('is_active', true)->count() ?? 0;
+            $customers = \App\Models\User::where('role', 'customer')->count() ?? 0;
+            $verifiedUsers = \App\Models\User::whereNotNull('email_verified_at')->count() ?? 0;
+        @endphp
+
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-2xl font-bold text-gray-900">{{ number_format($totalUsers) }}</h3>
+                    <p class="text-sm text-gray-600">Total Users</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-2xl font-bold text-gray-900">{{ number_format($activeUsers) }}</h3>
+                    <p class="text-sm text-gray-600">Active Users</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-2xl font-bold text-gray-900">{{ number_format($customers) }}</h3>
+                    <p class="text-sm text-gray-600">Customers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <div class="flex items-center">
+                <div class="p-3 bg-teal-100 rounded-lg">
+                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-2xl font-bold text-gray-900">{{ number_format($verifiedUsers) }}</h3>
+                    <p class="text-sm text-gray-600">Verified Emails</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bulk Actions (Hidden by default) -->
+    <div id="bulkActions" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <span class="text-sm font-medium text-blue-900 mr-4">
+                    <span id="selectedCount">0</span> user(s) selected
+                </span>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="submitBulkAction('activate')" class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Enable
+                    </button>
+                    <button onclick="submitBulkAction('deactivate')" class="inline-flex items-center px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Disable
+                    </button>
+                    <button onclick="showRoleModal()" class="inline-flex items-center px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                        </svg>
+                        Update Role
+                    </button>
+                    <button onclick="submitBulkAction('export')" class="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                        Export
+                    </button>
+                </div>
+            </div>
+            <button onclick="clearBulkSelection()" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
             <!-- Users Table Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-2v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6h14z"></path>
+                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                         </svg>
-                        Users List
+                        Users Directory
                         <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
                             {{ $users->total() }} {{ Str::plural('user', $users->total()) }}
                         </span>
@@ -330,11 +490,8 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                                        @if($user->role === 'admin') bg-gradient-to-r from-red-100 to-red-200 text-red-800 
-                                        @elseif($user->role === 'agent') bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 
-                                        @else bg-gradient-to-r from-green-100 to-green-200 text-green-800 @endif">
+                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold role-badge role-{{ $user->role }}">
                                         @if($user->role === 'admin')
                                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
@@ -343,6 +500,10 @@
                                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
                                             </svg>
+                                        @elseif($user->role === 'scraper')
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M13 10V3L4 14h7v7l9-11h-7z" clip-rule="evenodd"></path>
+                                            </svg>
                                         @else
                                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
@@ -350,6 +511,25 @@
                                         @endif
                                         {{ ucfirst($user->role) }}
                                     </span>
+                                    @if($user->role === 'customer')
+                                        @php
+                                            // Determine subscription status - sample logic, adjust based on your app
+                                            $hasSub = false; // Should check actual subscription
+                                            $inFreeTrial = $user->created_at->diffInDays(now()) <= 7;
+                                            $subscriptionStatus = $hasSub ? 'active' : ($inFreeTrial ? 'trial' : 'none');
+                                        @endphp
+                                        <div class="mt-1">
+                                            <span class="subscription-badge subscription-{{ $subscriptionStatus }}">
+                                                @if($hasSub)
+                                                    Active Subscription
+                                                @elseif($inFreeTrial)
+                                                    Free Trial
+                                                @else
+                                                    No Subscription
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
@@ -841,4 +1021,65 @@
         </div>
     </div>
 </body>
-</html>
+@endsection
+
+@push('scripts')
+<script>
+    // Enhance select-all functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                toggleSelectAll();
+                updateBulkActionsPanel();
+            });
+        }
+        
+        // Update user checkboxes to trigger bulk actions panel
+        const userCheckboxes = document.querySelectorAll('input[name="selected_users[]"]');
+        userCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkActionsPanel);
+        });
+        
+        // Initialize filters if active
+        if ('{{ request()->hasAny(["role", "status", "date_from", "date_to"]) ? "true" : "false" }}' === 'true') {
+            toggleFilters();
+        }
+    });
+    
+    // Update bulk actions panel
+    function updateBulkActionsPanel() {
+        const selectedCheckboxes = document.querySelectorAll('input[name="selected_users[]"]:checked');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        if (selectedCheckboxes.length > 0) {
+            bulkActions.classList.remove('hidden');
+            selectedCount.textContent = selectedCheckboxes.length;
+        } else {
+            bulkActions.classList.add('hidden');
+        }
+    }
+    
+    // Handle user selection and bulk actions
+    function clearBulkSelection() {
+        const checkboxes = document.querySelectorAll('input[name="selected_users[]"]');
+        const selectAllCheckbox = document.getElementById('select-all');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+        }
+        
+        updateBulkActionsPanel();
+    }
+    
+    // Export users function
+    function exportUsers() {
+        window.location.href = '{{ route("admin.users.export") }}';
+    }
+</script>
+@endpush

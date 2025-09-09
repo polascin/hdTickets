@@ -1265,6 +1265,32 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     }
 
     /**
+     * User's favorite teams for sports events monitoring
+     */
+    public function favoriteTeams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'user_favorite_teams', 'user_id', 'team_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * User's favorite venues for sports events monitoring
+     */
+    public function favoriteVenues(): BelongsToMany
+    {
+        return $this->belongsToMany(Venue::class, 'user_favorite_venues', 'user_id', 'venue_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * User preferences for the sports events system
+     */
+    public function userPreferences(): HasMany
+    {
+        return $this->hasMany(UserPreference::class);
+    }
+
+    /**
      * Get the encryption service instance, with fallback for testing
      */
     protected function getEncryptionService()
