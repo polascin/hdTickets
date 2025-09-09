@@ -191,7 +191,7 @@ class WelcomePageService
             ],
             'service_disclaimer' => [
                 'title' => 'Service Disclaimer',
-                'url' => route('legal.service-disclaimer'),
+                'url' => route('legal.disclaimer'),
                 'description' => 'Service limitations and warranty disclaimers',
                 'required' => true,
                 'version' => '1.3',

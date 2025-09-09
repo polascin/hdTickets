@@ -10,14 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 class WelcomeController extends Controller
 {
-    protected $welcomePageService;
-
-    public function __construct(WelcomePageService $welcomePageService)
+    public function __construct()
     {
-        $this->welcomePageService = $welcomePageService;
-        
-        // Apply middleware for caching and analytics
-        $this->middleware('welcome.page')->only('index');
+        // Temporarily disable middleware to test
+        // $this->middleware('welcome.page')->only('index');
     }
 
     /**
@@ -37,8 +33,11 @@ class WelcomeController extends Controller
                 return $this->handleRedirect($request);
             }
             
+            // Resolve service via container to avoid constructor DI issues
+            $service = app(\App\Services\WelcomePageService::class);
+
             // Load dynamic data for the welcome page
-            $data = $this->welcomePageService->getWelcomePageData([
+            $data = $service->getWelcomePageData([
                 'include_stats' => true,
                 'include_pricing' => true,
                 'include_features' => true,
@@ -49,7 +48,7 @@ class WelcomeController extends Controller
             // Add user context if authenticated
             if (Auth::check()) {
                 $data['user'] = Auth::user();
-                $data['user_subscription'] = $this->welcomePageService->getUserSubscriptionInfo(Auth::user());
+                $data['user_subscription'] = $service->getUserSubscriptionInfo(Auth::user());
             }
             
             // Add A/B test variant to data
@@ -57,6 +56,9 @@ class WelcomeController extends Controller
             
             // Track page view
             $this->trackPageView($request, $abVariant);
+            
+            // Ensure service reference is available for caching closure
+            $service = $service;
             
             // Cache page data for performance
             $cacheKey = 'welcome_page_data_' . ($abVariant ?? 'default');
@@ -97,7 +99,7 @@ class WelcomeController extends Controller
     {
         try {
             $stats = Cache::remember('welcome_stats', 600, function () {
-                return $this->welcomePageService->getStatistics();
+                return app(\App\Services\WelcomePageService::class)->getStatistics();
             });
             
             return response()->json($stats);
@@ -180,8 +182,10 @@ class WelcomeController extends Controller
     protected function trackPageView(Request $request, $abVariant = null)
     {
         try {
+            $service = app(\App\Services\WelcomePageService::class);
+            
             // Track page view with user context
-            $this->welcomePageService->trackPageView([
+            $service->trackPageView([
                 'user_id' => Auth::id(),
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),

@@ -22,8 +22,7 @@ class WelcomePageTest extends TestCase
         Cache::flush();
     }
 
-    /** @test */
-    public function welcome_page_renders_correctly_for_guests()
+    public function test_welcome_page_renders_correctly_for_guests()
     {
         $response = $this->get('/home');
         
@@ -36,8 +35,7 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Professional Sports Event Ticket Monitoring Platform');
     }
 
-    /** @test */
-    public function welcome_page_shows_authenticated_user_greeting()
+    public function test_welcome_page_shows_authenticated_user_greeting()
     {
         $user = User::factory()->create([
             'name' => 'John Doe',
@@ -53,8 +51,7 @@ class WelcomePageTest extends TestCase
         $response->assertDontSee('Start 7-Day Free Trial');
     }
 
-    /** @test */
-    public function welcome_page_displays_correct_role_information()
+    public function test_welcome_page_displays_correct_role_information()
     {
         $response = $this->get('/home');
         
@@ -109,8 +106,7 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Privacy Policy');
     }
 
-    /** @test */
-    public function welcome_page_contains_proper_seo_meta_tags()
+    public function test_welcome_page_contains_proper_seo_meta_tags()
     {
         $response = $this->get('/home');
         
