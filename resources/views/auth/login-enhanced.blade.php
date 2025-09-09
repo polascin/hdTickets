@@ -16,5 +16,7 @@
         :show-remember-me="true"
         :show-forgot-password="true"
         :show-security-badge="true"
+        :show-registration-links="true"
+        registration_style="compact"
     />
 </x-guest-layout>

@@ -240,38 +240,114 @@ class EnhancedLoginSecurity
 
     private function getCountryFromIP(string $ip): ?string
     {
-        // In production, use a proper IP geolocation service
-        // This is a simplified example
+        // Skip for local/private IPs
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return 'Local';
+        }
+        
+        // Check cache first
+        $cacheKey = "ip_country:{$ip}";
+        $country = Cache::get($cacheKey);
+        
+        if ($country !== null) {
+            return $country;
+        }
+        
+        // Skip API call in testing/development environments
+        if (app()->environment(['testing', 'local'])) {
+            return 'Unknown';
+        }
+        
+        // Async API call with timeout and fallback
         try {
-            $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=country");
-            $data = json_decode($response, TRUE);
-
-            return $data['country'] ?? NULL;
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 2, // 2 second timeout
+                    'ignore_errors' => true,
+                ],
+            ]);
+            
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=country", false, $context);
+            
+            if ($response === false) {
+                Log::debug('Geolocation API unavailable for IP: ' . $ip);
+                Cache::put($cacheKey, 'Unknown', now()->addHours(1));
+                return 'Unknown';
+            }
+            
+            $data = json_decode($response, true);
+            $country = $data['country'] ?? 'Unknown';
+            
+            // Cache for 24 hours
+            Cache::put($cacheKey, $country, now()->addDay());
+            
+            return $country;
         } catch (Exception $e) {
-            return NULL;
+            Log::debug('Geolocation lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
+            Cache::put($cacheKey, 'Unknown', now()->addHour());
+            return 'Unknown';
         }
     }
 
     private function getLocationFromIP(string $ip): ?array
     {
-        // In production, use a proper IP geolocation service
+        // Skip for local/private IPs
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return null;
+        }
+        
+        // Check cache first
+        $cacheKey = "ip_location:{$ip}";
+        $location = Cache::get($cacheKey);
+        
+        if ($location !== null) {
+            return $location;
+        }
+        
+        // Skip API call in testing/development environments
+        if (app()->environment(['testing', 'local'])) {
+            return null;
+        }
+        
+        // Async API call with timeout and fallback
         try {
-            $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=lat,lon,city,country");
-            $data = json_decode($response, TRUE);
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 2, // 2 second timeout
+                    'ignore_errors' => true,
+                ],
+            ]);
+            
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=lat,lon,city,country", false, $context);
+            
+            if ($response === false) {
+                Log::debug('Geolocation API unavailable for IP: ' . $ip);
+                Cache::put($cacheKey, null, now()->addHours(1));
+                return null;
+            }
+            
+            $data = json_decode($response, true);
 
             if (isset($data['lat'], $data['lon'])) {
-                return [
-                    'lat'     => $data['lat'],
-                    'lon'     => $data['lon'],
+                $location = [
+                    'lat'     => (float) $data['lat'],
+                    'lon'     => (float) $data['lon'],
                     'city'    => $data['city'] ?? '',
                     'country' => $data['country'] ?? '',
                 ];
+                
+                // Cache for 24 hours
+                Cache::put($cacheKey, $location, now()->addDay());
+                
+                return $location;
             }
         } catch (Exception $e) {
-            // Silently fail for geolocation issues
+            Log::debug('Geolocation lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
         }
 
-        return NULL;
+        // Cache null result for 1 hour to prevent repeated API calls
+        Cache::put($cacheKey, null, now()->addHour());
+        return null;
     }
 
     private function calculateDistance(array $point1, array $point2): float

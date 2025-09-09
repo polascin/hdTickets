@@ -43,11 +43,17 @@
                 'id' => $inputId,
                 'name' => $name,
                 'type' => 'password',
-                'class' => 'block w-full pl-10 ' . ($showToggle ? 'pr-12' : 'pr-3') . ' py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-stadium-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white',
+                'class' => 'block w-full pl-10 ' . ($showToggle ? 'pr-14' : 'pr-3') . ' py-4 min-h-[48px] text-base border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-stadium-blue-500 focus:ring-opacity-50 focus:border-stadium-blue-500 transition-all duration-200 bg-gray-50/50 hover:bg-white hover:border-gray-400 touch-manipulation',
                 'placeholder' => $placeholder,
                 'autocomplete' => $autocomplete,
                 'required' => $required,
-                'aria-describedby' => trim(($help ? $helpId : '') . ' ' . ($error ? $errorId : '') . ' ' . ($attributes->get('aria-describedby') ?? ''))
+                'aria-describedby' => trim(($help ? $helpId : '') . ' ' . ($error ? $errorId : '') . ' ' . ($attributes->get('aria-describedby') ?? '')),
+                // Enhanced mobile attributes
+                'enterkeyhint' => 'go',
+                'minlength' => '8',
+                'title' => 'Password must be at least 8 characters long',
+                // iOS Safari optimization
+                'style' => 'font-size: 16px; -webkit-text-size-adjust: 100%;'
             ]) }}
             value="{{ old($name) }}"
             x-bind:type="showPassword ? 'text' : 'password'"
@@ -57,9 +63,10 @@
         @if($showToggle)
         <button type="button" 
                 id="{{ $toggleId }}"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 focus:ring-2 focus:ring-stadium-blue-500 focus:ring-opacity-50 rounded-r-xl transition-all duration-200 hover:bg-gray-50 active:bg-gray-100 touch-manipulation min-h-[44px]"
                 @click="showPassword = !showPassword"
-                x-bind:aria-label="showPassword ? 'Hide password' : 'Show password'">
+                x-bind:aria-label="showPassword ? 'Hide password' : 'Show password'"
+                tabindex="0">
             
             <!-- Show Password Icon (Eye Open) -->
             <svg x-show="!showPassword" 

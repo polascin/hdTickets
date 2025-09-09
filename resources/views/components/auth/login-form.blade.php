@@ -3,293 +3,380 @@
     'subtitle' => 'Access your HD Tickets sports events dashboard',
     'showRememberMe' => true,
     'showForgotPassword' => true,
-    'showSecurityBadge' => true
+    'showSecurityBadge' => true,
+    'showRegistrationLinks' => true,
+    'registration_style' => 'full' // 'full', 'compact', 'none'
 ])
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-stadium-blue-50 via-white to-stadium-purple-50 py-12 px-4 sm:px-6 lg:px-8"
-     x-data="loginForm()">
-    
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-[url('/images/stadium-pattern.svg')] opacity-5"></div>
-    
-    <!-- Login Container -->
-    <div class="relative max-w-md w-full space-y-8">
-        
-        <!-- Logo and Header -->
-        <div class="text-center">
-            <div class="mx-auto h-16 w-16 bg-gradient-to-r from-stadium-blue-600 to-stadium-purple-600 rounded-full flex items-center justify-center mb-4 shadow-lg ring-4 ring-white/20">
-                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+<div class="bg-white py-8 px-4 shadow-xl sm:rounded-3xl sm:px-10" x-data="loginFormData()">
+    <!-- Form Header -->
+    <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ $title }}</h2>
+        <p class="text-sm text-gray-600">{{ $subtitle }}</p>
+    </div>
+
+    <!-- Session Status -->
+    @if (session('status'))
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
+                <div class="text-sm font-medium text-green-800">{{ session('status') }}</div>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ $title }}</h2>
-            <p class="text-sm text-gray-600">{{ $subtitle }}</p>
         </div>
+    @endif
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
-
-        <!-- Main Login Card -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-8 transition-all duration-300 hover:shadow-2xl">
-            
-            <!-- Security Badge -->
-            @if($showSecurityBadge && config('app.env') === 'production')
-            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div class="flex items-center">
-                    <svg class="h-5 w-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-medium text-green-800">Secure Connection</p>
-                        <p class="text-xs text-green-600">Your data is encrypted and protected</p>
-                    </div>
+    <!-- Error Messages -->
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <div class="text-sm font-medium text-red-800 mb-2">There was an error with your login</div>
+                    <ul class="text-sm text-red-700 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
+        </div>
+    @endif
+
+    <!-- Login Form -->
+    <form method="POST" action="{{ route('login') }}" class="space-y-6" x-ref="loginForm" @submit="handleSubmit">
+        @csrf
+        
+        <!-- Hidden Security Fields -->
+        <input type="hidden" name="device_fingerprint" x-model="deviceFingerprint">
+        <input type="hidden" name="client_timestamp" x-model="clientTimestamp">
+        <input type="hidden" name="timezone" x-model="timezone">
+        
+        <!-- Email Field -->
+        <div>
+            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                Email Address
+            </label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                    </svg>
+                </div>
+                <input id="email" 
+                       name="email" 
+                       type="email" 
+                       autocomplete="email" 
+                       required 
+                       autofocus
+                       x-model="form.email"
+                       @input="clearErrors"
+                       class="block w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-stadium-600 focus:border-stadium-600 transition-all duration-200 text-base min-h-[48px] touch-manipulation"
+                       :class="{'border-red-300 focus:border-red-500 focus:ring-red-500': errors.email}"
+                       placeholder="Enter your email address"
+                       value="{{ old('email') }}"
+                       inputmode="email"
+                       enterkeyhint="next"
+                       style="font-size: 16px;"
+                       aria-describedby="email-error">
+            </div>
+            <div x-show="errors.email" class="mt-1 text-sm text-red-600" x-text="errors.email" id="email-error"></div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                Password
+            </label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <input id="password" 
+                       name="password" 
+                       required 
+                       autocomplete="current-password"
+                       x-model="form.password"
+                       @input="clearErrors"
+                       class="block w-full pl-10 pr-12 py-3 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-stadium-600 focus:border-stadium-600 transition-all duration-200 text-base min-h-[48px] touch-manipulation"
+                       :class="{'border-red-300 focus:border-red-500 focus:ring-red-500': errors.password}"
+                       :type="showPassword ? 'text' : 'password'"
+                       placeholder="Enter your password"
+                       enterkeyhint="go"
+                       style="font-size: 16px;"
+                       aria-describedby="password-error">
+                
+                <!-- Password Toggle -->
+                <button type="button" 
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        @click="showPassword = !showPassword"
+                        :aria-label="showPassword ? 'Hide password' : 'Show password'">
+                    <svg x-show="!showPassword" class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    <svg x-show="showPassword" class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m0 0l3.122 3.122M12 12l4.242-4.242"/>
+                    </svg>
+                </button>
+            </div>
+            <div x-show="errors.password" class="mt-1 text-sm text-red-600" x-text="errors.password" id="password-error"></div>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="flex items-center justify-between">
+            @if($showRememberMe)
+                <div class="flex items-center">
+                    <input id="remember" 
+                           name="remember" 
+                           type="checkbox" 
+                           x-model="form.remember"
+                           class="h-5 w-5 text-stadium-600 focus:ring-stadium-500 border-gray-300 rounded touch-manipulation">
+                    <label for="remember" class="ml-3 block text-sm text-gray-700 select-none cursor-pointer py-2 min-h-[44px] flex items-center">
+                        Remember me
+                    </label>
+                </div>
             @endif
 
-            <!-- Login Form -->
-            <form method="POST" action="{{ route('login') }}" 
-                  class="space-y-6" 
-                  id="login-form"
-                  novalidate
-                  x-ref="form"
-                  @submit="handleSubmit">
-                
-                @csrf
-                
-                <!-- Security Fields -->
-                <input type="hidden" name="form_token" :value="formToken">
-                <input type="hidden" name="client_timestamp" :value="clientTimestamp">
-                <input type="hidden" name="timezone" :value="timezone">
-                <input type="hidden" name="device_fingerprint" :value="deviceFingerprint">
-                
-                <!-- Honeypot -->
-                <div style="position: absolute; left: -9999px;" aria-hidden="true">
-                    <label for="website">Website</label>
-                    <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
-                </div>
-
-                <!-- Email Field -->
-                <x-auth.input-field 
-                    name="email"
-                    type="email"
-                    label="Email Address"
-                    icon="envelope"
-                    placeholder="Enter your email address"
-                    autocomplete="email username"
-                    required
-                    autofocus
-                    x-model="form.email"
-                    @blur="validateEmail"
-                    ::class="{'border-red-300 focus:border-red-500 focus:ring-red-500': errors.email}"
-                    aria-describedby="email-help email-error">
-                    
-                    <template x-if="!errors.email && form.email && emailStatus.exists === true">
-                        <div class="text-xs text-green-600 mt-1 flex items-center">
-                            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            <span>Account found</span>
-                        </div>
-                    </template>
-                </x-auth.input-field>
-
-                <!-- Password Field -->
-                <x-auth.password-field 
-                    name="password"
-                    label="Password"
-                    placeholder="Enter your password"
-                    required
-                    x-model="form.password"
-                    ::class="{'border-red-300 focus:border-red-500 focus:ring-red-500': errors.password}">
-                </x-auth.password-field>
-
-                <!-- Remember Me & Forgot Password Row -->
-                <div class="flex items-center justify-between">
-                    @if($showRememberMe)
-                    <label class="flex items-center group cursor-pointer">
-                        <input name="remember" 
-                               type="checkbox" 
-                               x-model="form.remember"
-                               class="h-4 w-4 text-stadium-blue-600 focus:ring-stadium-blue-500 border-gray-300 rounded transition-colors duration-200">
-                        <span class="ml-2 text-sm text-gray-700 select-none group-hover:text-gray-900">Keep me signed in</span>
-                    </label>
-                    @endif
-
-                    @if($showForgotPassword && Route::has('password.request'))
-                    <a class="text-sm font-medium text-stadium-blue-600 hover:text-stadium-blue-500 transition-colors duration-200 underline-offset-4 hover:underline" 
-                       href="{{ route('password.request') }}">
-                        Forgot password?
-                    </a>
-                    @endif
-                </div>
-
-                <!-- Rate Limit Warning -->
-                <div x-show="rateLimitWarning" 
-                     x-transition
-                     class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div class="flex items-center">
-                        <svg class="h-5 w-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <div>
-                            <p class="text-sm font-medium text-yellow-800">Security Notice</p>
-                            <p class="text-xs text-yellow-600">Please wait <span x-text="countdown"></span> seconds before trying again</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-stadium-blue-600 to-stadium-purple-600 hover:from-stadium-blue-700 hover:to-stadium-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stadium-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none"
-                        :disabled="isSubmitting"
-                        :class="{'animate-pulse': isSubmitting}">
-                    
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <!-- Normal Icon -->
-                        <svg x-show="!isSubmitting" 
-                             class="h-5 w-5 transition-all duration-200" 
-                             fill="none" 
-                             stroke="currentColor" 
-                             viewBox="0 0 24 24" 
-                             aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                        </svg>
-                        
-                        <!-- Loading Spinner -->
-                        <div x-show="isSubmitting" 
-                             class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full">
-                        </div>
-                    </span>
-                    
-                    <span x-text="isSubmitting ? 'Signing in...' : 'Sign In'"></span>
-                </button>
-
-                <!-- Alternative Authentication -->
-                <div x-show="showAlternatives" 
-                     x-transition 
-                     class="space-y-3"
-                     style="display: none;">
-                    
-                    <!-- Biometric Login (if supported) -->
-                    <template x-if="biometricSupported">
-                        <button type="button" 
-                                @click="tryBiometricLogin"
-                                class="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
-                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
-                            </svg>
-                            Use Biometric Login
-                        </button>
-                    </template>
-                </div>
-            </form>
-
-            <!-- Security Information -->
-            <div class="mt-6 text-center space-y-2">
-                <p class="text-xs text-gray-500">
-                    Protected by advanced security measures
-                </p>
-                <div class="flex justify-center items-center space-x-4 text-xs text-gray-400">
-                    <span class="flex items-center">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                        SSL Encrypted
-                    </span>
-                    <span class="flex items-center">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                        2FA Ready
-                    </span>
-                    <span class="flex items-center">
-                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        Fast Login
-                    </span>
-                </div>
-            </div>
+            @if($showForgotPassword && Route::has('password.request'))
+                <a href="{{ route('password.request') }}" 
+                   class="text-sm font-medium text-stadium-600 hover:text-stadium-500 transition-colors duration-200 py-2 min-h-[44px] flex items-center justify-end touch-manipulation">
+                    Forgot your password?
+                </a>
+            @endif
         </div>
 
-        <!-- Registration Notice -->
+        <!-- reCAPTCHA Status -->
+        <div x-show="recaptchaEnabled && !recaptchaReady" 
+             x-transition 
+             class="flex items-center justify-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <svg class="animate-spin h-4 w-4 mr-2 text-yellow-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-sm text-yellow-700">Initializing security verification...</span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" 
+                :disabled="isSubmitting || (recaptchaEnabled && !recaptchaReady)"
+                class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-base font-semibold rounded-xl text-white bg-stadium-600 hover:bg-stadium-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stadium-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] min-h-[48px] touch-manipulation"
+                :class="{'animate-pulse': isSubmitting}">
+            
+            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                <svg x-show="!isSubmitting" 
+                     class="h-5 w-5 transition-all duration-200" 
+                     fill="none" 
+                     stroke="currentColor" 
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" 
+                          stroke-linejoin="round" 
+                          stroke-width="2" 
+                          d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                
+                <div x-show="isSubmitting" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+            </span>
+            
+            <span x-text="isSubmitting ? 'Signing in...' : 'Sign In'"></span>
+        </button>
+    </form>
+
+    @if($showRegistrationLinks && $registration_style !== 'none')
+    <!-- Registration Links -->
+    <div class="mt-8 space-y-4">
+        @if($registration_style === 'full')
+        <!-- Primary Registration CTA -->
         <div class="text-center">
-            <div class="bg-stadium-blue-50 border border-stadium-blue-200 rounded-lg p-4">
-                <div class="flex items-center justify-center">
-                    <svg class="h-5 w-5 text-stadium-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <div class="text-left">
-                        <p class="text-sm font-medium text-stadium-blue-800">Need an account?</p>
-                        <p class="text-xs text-stadium-blue-600">Contact your system administrator for registration</p>
+            <div class="bg-gradient-to-r from-stadium-50 to-emerald-50 border border-stadium-200 rounded-xl p-6">
+                <div class="flex items-center justify-center mb-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-stadium-500 to-emerald-500 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">New to HD Tickets?</h3>
+                <p class="text-sm text-gray-600 mb-4">Join thousands of sports fans monitoring tickets across 50+ platforms</p>
+                
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    @if(Route::has('register.public'))
+                        <a href="{{ route('register.public') }}" 
+                           class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-stadium-600 to-emerald-600 hover:from-stadium-700 hover:to-emerald-700 text-white font-semibold rounded-lg shadow-lg transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stadium-500">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Start 7-Day Free Trial
+                        </a>
+                    @endif
+                    
+                    @if(Route::has('subscription.plans'))
+                        <a href="{{ route('subscription.plans') }}" 
+                           class="inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-stadium-700 font-medium border-2 border-stadium-300 rounded-lg transition-all duration-200 hover:border-stadium-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stadium-500">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            View Pricing
+                        </a>
+                    @endif
+                </div>
+                
+                <!-- Features Preview -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 text-xs text-gray-600">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        7-day free trial
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        No credit card required
+                    </div>
+                    <div class="flex items-center col-span-2 md:col-span-1">
+                        <svg class="w-4 h-4 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        GDPR compliant
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="text-center text-xs text-gray-500">
-            <p>&copy; {{ date('Y') }} HD Tickets. All rights reserved.</p>
-            <p class="mt-1 space-x-1">
-                <a href="#" class="hover:text-gray-700 transition-colors duration-200">Privacy Policy</a>
-                <span>&bull;</span>
-                <a href="#" class="hover:text-gray-700 transition-colors duration-200">Terms of Service</a>
-                <span>&bull;</span>
-                <a href="#" class="hover:text-gray-700 transition-colors duration-200">Support</a>
-            </p>
+        <!-- Alternative Registration Options -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <div class="text-center">
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Need Different Access?</h4>
+                <div class="flex flex-col sm:flex-row gap-2 justify-center text-sm">
+                    <!-- Professional Account -->
+                    <a href="mailto:support@hdtickets.com?subject=Professional Account Request&body=I'm interested in a professional account with unlimited access to HD Tickets." 
+                       class="inline-flex items-center text-purple-600 hover:text-purple-500 font-medium transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 00-2 2H6a2 2 0 00-2-2V4m8 0H8m0 0v2H6m2 0v6.5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5V6H8z"></path>
+                        </svg>
+                        Agent Account
+                    </a>
+                    
+                    <span class="text-gray-400 hidden sm:inline">•</span>
+                    
+                    <!-- Enterprise/Admin -->
+                    <a href="mailto:admin@hdtickets.com?subject=Enterprise Account Request&body=I'm interested in enterprise-level access to HD Tickets for my organization." 
+                       class="inline-flex items-center text-red-600 hover:text-red-500 font-medium transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Enterprise
+                    </a>
+                    
+                    <span class="text-gray-400 hidden sm:inline">•</span>
+                    
+                    <!-- General Support -->
+                    <a href="mailto:support@hdtickets.com?subject=Account Help&body=I need help with account access for HD Tickets." 
+                       class="inline-flex items-center text-stadium-600 hover:text-stadium-500 font-medium transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        Get Help
+                    </a>
+                </div>
+            </div>
         </div>
+        
+        <!-- System Information for Different Roles -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h4 class="text-sm font-medium text-blue-800 mb-1">About HD Tickets Access Levels</h4>
+                    <div class="text-xs text-blue-700 space-y-1">
+                        <p><strong>Customer:</strong> $29.99/month • 100 tickets/month • 7-day free trial</p>
+                        <p><strong>Agent:</strong> Unlimited access • Advanced monitoring • No subscription required</p>
+                        <p><strong>Administrator:</strong> Full system access • User management • All features</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @elseif($registration_style === 'compact')
+        <!-- Compact Registration Links -->
+        <div class="text-center">
+            <div class="bg-stadium-50 border border-stadium-200 rounded-xl p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-2">New to HD Tickets?</h3>
+                <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                    @if(Route::has('register.public'))
+                        <a href="{{ route('register.public') }}" 
+                           class="inline-flex items-center justify-center px-4 py-2 bg-stadium-600 hover:bg-stadium-700 text-white font-medium rounded-lg transition-all duration-200">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                            Register Now
+                        </a>
+                    @endif
+                    
+                    <a href="mailto:support@hdtickets.com" 
+                       class="inline-flex items-center justify-center px-4 py-2 bg-white hover:bg-gray-50 text-stadium-700 font-medium border border-stadium-300 rounded-lg transition-all duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        Get Help
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
+    @endif
 </div>
 
 <script>
-function loginForm() {
+function loginFormData() {
     return {
-        // Form data
         form: {
             email: '{{ old('email') }}',
             password: '',
             remember: false
         },
         
-        // UI state
+        showPassword: false,
         isSubmitting: false,
-        showAlternatives: false,
-        biometricSupported: false,
-        rateLimitWarning: false,
-        countdown: 0,
-        
-        // Validation
         errors: {},
-        emailStatus: {},
         
         // Security
-        formToken: '{{ Str::random(40) }}',
+        deviceFingerprint: '',
         clientTimestamp: Date.now(),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        deviceFingerprint: '',
+        
+        // reCAPTCHA
+        recaptchaEnabled: window.recaptchaConfig?.enabled || false,
+        recaptchaReady: false,
         
         async init() {
-            // Generate device fingerprint
-            this.deviceFingerprint = await this.generateFingerprint();
-            
-            // Check biometric support
-            this.checkBiometricSupport();
-            
-            // Check for rate limit errors
-            this.checkRateLimitErrors();
-            
-            // Focus email field
-            this.$nextTick(() => {
-                this.$refs.form.querySelector('[name="email"]')?.focus();
-            });
+            try {
+                // Generate device fingerprint
+                this.deviceFingerprint = await this.generateFingerprint();
+                
+                // Initialize reCAPTCHA
+                if (this.recaptchaEnabled) {
+                    await this.initializeRecaptcha();
+                } else {
+                    this.recaptchaReady = true;
+                }
+                
+            } catch (error) {
+                console.warn('Login form initialization error:', error);
+                this.recaptchaReady = true; // Ensure form is still usable
+            }
         },
         
         async generateFingerprint() {
@@ -297,81 +384,75 @@ function loginForm() {
                 userAgent: navigator.userAgent,
                 language: navigator.language,
                 platform: navigator.platform,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timezone: this.timezone,
                 screen: {
                     width: screen.width,
                     height: screen.height,
                     colorDepth: screen.colorDepth
-                },
-                canvas: this.getCanvasFingerprint()
+                }
             };
             
             return btoa(JSON.stringify(data));
         },
         
-        getCanvasFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('HD Tickets Security Canvas', 2, 2);
-            return canvas.toDataURL().slice(-50);
-        },
-        
-        async checkBiometricSupport() {
-            if (window.PublicKeyCredential) {
-                this.biometricSupported = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-            }
-        },
-        
-        checkRateLimitErrors() {
-            const rateLimitSeconds = @json($errors->get('rate_limit_seconds.0') ?? null);
-            if (rateLimitSeconds) {
-                this.rateLimitWarning = true;
-                this.countdown = parseInt(rateLimitSeconds);
-                this.startCountdown();
-            }
-        },
-        
-        startCountdown() {
-            const interval = setInterval(() => {
-                this.countdown--;
-                if (this.countdown <= 0) {
-                    this.rateLimitWarning = false;
-                    clearInterval(interval);
-                }
-            }, 1000);
-        },
-        
-        async validateEmail() {
-            if (!this.form.email || !this.isValidEmail(this.form.email)) {
-                this.emailStatus = {};
+        async initializeRecaptcha() {
+            if (!window.grecaptcha) {
+                this.recaptchaReady = true;
                 return;
             }
             
             try {
-                const response = await fetch('{{ route("login.check-email") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ email: this.form.email })
+                await new Promise((resolve) => {
+                    grecaptcha.ready(resolve);
                 });
-                
-                if (response.ok) {
-                    this.emailStatus = await response.json();
-                    if (this.emailStatus.exists && this.emailStatus.preferences?.two_factor_enabled) {
-                        this.showAlternatives = true;
-                    }
-                }
+                this.recaptchaReady = true;
             } catch (error) {
-                console.log('Email validation failed:', error);
+                console.warn('reCAPTCHA initialization failed:', error);
+                this.recaptchaEnabled = false;
+                this.recaptchaReady = true;
             }
         },
         
-        isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        async generateRecaptchaToken() {
+            if (!this.recaptchaEnabled || !this.recaptchaReady || !window.grecaptcha) {
+                return null;
+            }
+            
+            try {
+                return await grecaptcha.execute(window.recaptchaConfig.siteKey, {
+                    action: 'login'
+                });
+            } catch (error) {
+                console.warn('Failed to generate reCAPTCHA token:', error);
+                return null;
+            }
+        },
+        
+        clearErrors() {
+            this.errors = {};
+        },
+        
+        validateForm() {
+            this.errors = {};
+            let isValid = true;
+            
+            if (!this.form.email) {
+                this.errors.email = 'Email address is required';
+                isValid = false;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) {
+                this.errors.email = 'Please enter a valid email address';
+                isValid = false;
+            }
+            
+            if (!this.form.password) {
+                this.errors.password = 'Password is required';
+                isValid = false;
+            } else if (this.form.password.length < 8) {
+                this.errors.password = 'Password must be at least 8 characters';
+                isValid = false;
+            }
+            
+            return isValid;
         },
         
         async handleSubmit(event) {
@@ -380,34 +461,37 @@ function loginForm() {
                 return;
             }
             
+            if (!this.validateForm()) {
+                event.preventDefault();
+                return;
+            }
+            
+            event.preventDefault();
             this.isSubmitting = true;
-            this.errors = {};
-            
-            // Update timestamp before submission
-            this.clientTimestamp = Date.now();
-            
-            // Let the form submit naturally
-            // The loading state will be cleared on page change or error
-            setTimeout(() => {
-                if (this.isSubmitting) {
-                    this.isSubmitting = false;
-                }
-            }, 10000);
-        },
-        
-        async tryBiometricLogin() {
-            if (!this.biometricSupported || !this.form.email) return;
             
             try {
-                // This would integrate with WebAuthn API
-                console.log('Biometric login not implemented yet');
+                // Update timestamp
+                this.clientTimestamp = Date.now();
                 
-                this.$dispatch('toast', {
-                    type: 'info',
-                    message: 'Biometric login coming soon!'
-                });
+                // Generate reCAPTCHA token if enabled
+                if (this.recaptchaEnabled && this.recaptchaReady) {
+                    const token = await this.generateRecaptchaToken();
+                    if (token) {
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = 'recaptcha_token';
+                        tokenInput.value = token;
+                        this.$refs.loginForm.appendChild(tokenInput);
+                    }
+                }
+                
+                // Submit the form
+                this.$refs.loginForm.submit();
+                
             } catch (error) {
-                console.error('Biometric login failed:', error);
+                console.error('Form submission error:', error);
+                this.isSubmitting = false;
+                this.errors.general = 'Security verification failed. Please try again.';
             }
         }
     }

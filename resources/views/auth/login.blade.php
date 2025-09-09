@@ -11,5 +11,7 @@
         :show-remember-me="true"
         :show-forgot-password="true"
         :show-security-badge="config('app.env') === 'production'"
+        :show-registration-links="true"
+        registration_style="full"
     />
 </x-guest-layout>

@@ -178,4 +178,38 @@ return [
         'suspicious_activity_threshold'     => env('SUSPICIOUS_ACTIVITY_THRESHOLD', 10),
         'account_validation_interval'       => env('ACCOUNT_VALIDATION_INTERVAL', 3600),
     ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | reCAPTCHA Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Google reCAPTCHA v3 configuration for HD Tickets login security.
+    | Used to detect and prevent automated attacks on the authentication system.
+    |
+    */
+    
+    'recaptcha' => [
+        'enabled'       => env('RECAPTCHA_ENABLED', false),
+        'site_key'      => env('RECAPTCHA_SITE_KEY', ''),
+        'secret_key'    => env('RECAPTCHA_SECRET_KEY', ''),
+        'minimum_score' => env('RECAPTCHA_MINIMUM_SCORE', 0.5),
+        'timeout'       => env('RECAPTCHA_TIMEOUT', 5),
+        
+        // Actions for different parts of the application
+        'actions' => [
+            'login'         => 'hd_tickets_login',
+            'register'      => 'hd_tickets_register',
+            'password_reset' => 'hd_tickets_password_reset',
+            'contact'       => 'hd_tickets_contact',
+            'purchase'      => 'hd_tickets_purchase'
+        ],
+        
+        // Risk assessment thresholds
+        'risk_thresholds' => [
+            'high'   => 0.7,  // Always challenge
+            'medium' => 0.4,  // Challenge during suspicious activity
+            'low'    => 0.2   // Challenge only after failed attempts
+        ]
+    ],
 ];

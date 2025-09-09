@@ -22,12 +22,12 @@
             <div class="footer-section">
                 <h4 class="footer-title">Legal Documents</h4>
                 <ul class="footer-links">
-                    <li><a href="#" class="footer-link">Terms of Service</a></li>
-                    <li><a href="#" class="footer-link">Service Disclaimer</a></li>
-                    <li><a href="#" class="footer-link">Privacy Policy</a></li>
-                    <li><a href="#" class="footer-link">Data Processing Agreement</a></li>
-                    <li><a href="#" class="footer-link">Cookie Policy</a></li>
-                    <li><a href="#" class="footer-link">Acceptable Use Policy</a></li>
+                    <li><a href="{{ route('legal.terms-of-service') }}" class="footer-link">Terms of Service</a></li>
+                    <li><a href="{{ route('legal.disclaimer') }}" class="footer-link">Service Disclaimer</a></li>
+                    <li><a href="{{ route('legal.privacy-policy') }}" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="{{ route('legal.data-processing-agreement') }}" class="footer-link">Data Processing Agreement</a></li>
+                    <li><a href="{{ route('legal.cookie-policy') }}" class="footer-link">Cookie Policy</a></li>
+                    <li><a href="{{ route('legal.acceptable-use-policy') }}" class="footer-link">Acceptable Use Policy</a></li>
                 </ul>
             </div>
             

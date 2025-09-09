@@ -1,8 +1,8 @@
-/* Critical CSS for HD Tickets - Above-the-fold optimization */
-/* This CSS should be inlined to prevent render-blocking and improve initial page load */
+/* HD Tickets Login Page Critical CSS - Above-the-fold optimization */
+/* This CSS is inlined to prevent render-blocking and improve LCP */
 
 /* ========================================
-   CRITICAL PATH STYLES (ABOVE THE FOLD)
+   CRITICAL LOGIN PAGE STYLES (ABOVE THE FOLD)
 ======================================== */
 
 /* Reset and Base Styles */
@@ -10,6 +10,9 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
 }
 
 html {

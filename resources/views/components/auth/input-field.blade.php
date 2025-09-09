@@ -51,13 +51,21 @@
                 'id' => $inputId,
                 'name' => $name,
                 'type' => $type,
-                'class' => 'block w-full ' . ($icon ? 'pl-10' : 'pl-3') . ' pr-3 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-stadium-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50/50 hover:bg-white',
+                'class' => 'block w-full ' . ($icon ? 'pl-10' : 'pl-3') . ' pr-3 py-4 min-h-[48px] text-base border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-stadium-blue-500 focus:ring-opacity-50 focus:border-stadium-blue-500 transition-all duration-200 bg-gray-50/50 hover:bg-white hover:border-gray-400 touch-manipulation',
                 'placeholder' => $placeholder,
                 'autocomplete' => $autocomplete,
                 'required' => $required,
                 'autofocus' => $autofocus,
                 'spellcheck' => $type === 'email' ? 'false' : 'true',
-                'aria-describedby' => trim(($help ? $helpId : '') . ' ' . ($error ? $errorId : '') . ' ' . ($attributes->get('aria-describedby') ?? ''))
+                'aria-describedby' => trim(($help ? $helpId : '') . ' ' . ($error ? $errorId : '') . ' ' . ($attributes->get('aria-describedby') ?? '')),
+                // Enhanced mobile attributes
+                'inputmode' => $type === 'email' ? 'email' : ($type === 'tel' ? 'tel' : null),
+                'enterkeyhint' => $name === 'email' ? 'next' : ($name === 'password' ? 'go' : null),
+                'pattern' => $type === 'email' ? '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' : null,
+                'title' => $type === 'email' ? 'Please enter a valid email address' : null,
+                'minlength' => $name === 'password' ? '8' : null,
+                // iOS Safari optimization
+                'style' => 'font-size: 16px; -webkit-text-size-adjust: 100%;'
             ]) }}
             value="{{ old($name) }}"
         >

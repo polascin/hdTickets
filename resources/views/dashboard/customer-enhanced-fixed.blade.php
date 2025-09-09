@@ -1,4 +1,4 @@
-@extends('layouts.dashboard-full')
+@extends('layouts.app')
 
 @section('title', 'Enhanced Customer Dashboard - HD Tickets Sports Events')
 
@@ -6,8 +6,52 @@
     <link href="{{ asset('css/dashboard-common.css') }}" rel="stylesheet">
     <link href="{{ asset('css/customer-dashboard-enhanced.css') }}" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="dashboard-api" content="{{ route('api.dashboard.realtime') }}">
-    <meta name="analytics-api" content="{{ route('api.dashboard.analytics.data') }}">
+    <meta name="dashboard-api-realtime" content="{{ route('api.dashboard.realtime') ?? '/api/v1/dashboard/realtime' }}">
+    <meta name="dashboard-api-analytics" content="{{ route('api.dashboard.analytics.data') ?? '/api/v1/dashboard/analytics' }}">
+    
+    <style>
+        /* Fixed Customer Dashboard Layout - Modern & Responsive */
+        .enhanced-customer-dashboard {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        /* Critical Z-index Fixes */
+        nav, #main-navigation { z-index: 1000000 !important; position: relative !important; }
+        .nav-dropdown, [data-dropdown], .dropdown-menu { z-index: 999999 !important; position: absolute !important; }
+        .dashboard-header { position: sticky; top: 0; z-index: 100; }
+        .dashboard-main { position: relative; z-index: 50; }
+        
+        /* Remove problematic backdrop filters */
+        .dashboard-header, .metric-card, .dashboard-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        
+        /* Mobile-first responsive grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        @media (min-width: 640px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        }
+        
+        @media (min-width: 1024px) {
+            .metrics-grid { grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+        }
+        
+        /* Touch-friendly buttons */
+        .action-btn, button, .notification-btn {
+            min-height: 44px !important;
+            min-width: 44px !important;
+        }
+    </style>
 
     <!-- Enhanced Dashboard Layout Fixes -->
     <style>

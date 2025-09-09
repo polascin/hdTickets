@@ -5,6 +5,7 @@ namespace App\Http\Requests\Auth;
 use App\Models\User;
 use App\Rules\HoneypotRule;
 use App\Services\TwoFactorAuthService;
+use App\Services\LoginAnalyticsService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +63,15 @@ class LoginRequest extends FormRequest
         if (!$user || !Hash::check($this->string('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
+            // Track analytics for failed login
+            app(LoginAnalyticsService::class)->trackLoginAttempt(
+                $this->string('email')->toString(),
+                false,
+                $this->ip(),
+                $this->userAgent(),
+                ['error_type' => 'authentication_failed']
+            );
+
             // Track failed login attempts
             if ($user) {
                 $user->increment('failed_login_attempts');
@@ -69,6 +79,14 @@ class LoginRequest extends FormRequest
                 // Lock account after 5 failed attempts
                 if ($user->failed_login_attempts >= 5) {
                     $user->update(['locked_until' => now()->addMinutes(15)]);
+
+                    // Track security event
+                    app(LoginAnalyticsService::class)->trackSecurityEvent(
+                        'account_locked',
+                        $this->ip(),
+                        $this->userAgent(),
+                        ['email' => $this->string('email')->toString(), 'attempts' => $user->failed_login_attempts]
+                    );
 
                     activity('account_locked')
                         ->performedOn($user)
@@ -81,30 +99,77 @@ class LoginRequest extends FormRequest
                 }
             }
 
-            // Generic error message to prevent user enumeration
+            // Generic error message to prevent user enumeration with helpful suggestions
+            $suggestions = [
+                'Double-check your email address for typos',
+                'Make sure your password is entered correctly',
+                'Try using the "Forgot Password?" link if you\'re having trouble',
+                'Contact support if you continue having issues'
+            ];
+            
             throw ValidationException::withMessages([
                 'email' => 'Invalid login credentials. Please check your email and password.',
+                'login_suggestions' => $suggestions,
+                'error_type' => 'authentication_failed'
             ]);
         }
 
         // Check if account is locked
         if ($user->locked_until && $user->locked_until->isFuture()) {
+            // Track analytics for locked account attempt
+            app(LoginAnalyticsService::class)->trackLoginAttempt(
+                $this->string('email')->toString(),
+                false,
+                $this->ip(),
+                $this->userAgent(),
+                ['error_type' => 'account_locked']
+            );
+            
+            $remainingTime = $user->locked_until->diffForHumans();
+            $suggestions = [
+                'Wait for the lockout period to expire',
+                'Use the "Forgot Password?" link to reset your password',
+                'Contact support if this was not you',
+                'Review our security guidelines'
+            ];
+            
             throw ValidationException::withMessages([
-                'email' => 'Your account is temporarily locked. Please try again later.',
+                'email' => "Your account is temporarily locked until {$remainingTime}. This is for security reasons after multiple failed login attempts.",
+                'lockout_suggestions' => $suggestions,
+                'error_type' => 'account_locked',
+                'locked_until' => $user->locked_until->toISOString()
             ]);
         }
 
         // Check if account is active
         if (!$user->is_active) {
+            $suggestions = [
+                'Contact your system administrator',
+                'Email support at support@hdtickets.com',
+                'Check if your subscription is current',
+                'Review the terms of service'
+            ];
+            
             throw ValidationException::withMessages([
-                'email' => 'Your account has been deactivated. Please contact support.',
+                'email' => 'Your account has been deactivated. Please contact support for assistance.',
+                'deactivated_suggestions' => $suggestions,
+                'error_type' => 'account_deactivated'
             ]);
         }
 
         // Check if user can access the system (scrapers cannot)
         if (!$user->canAccessSystem()) {
+            $suggestions = [
+                'Use the API endpoints for scraper accounts',
+                'Contact your administrator about account type',
+                'Check the API documentation',
+                'Verify you\'re using the correct login portal'
+            ];
+            
             throw ValidationException::withMessages([
-                'email' => 'This account type cannot access the web interface.',
+                'email' => 'This account type cannot access the web interface. Scraper accounts should use the API.',
+                'access_suggestions' => $suggestions,
+                'error_type' => 'invalid_account_type'
             ]);
         }
 
@@ -123,6 +188,19 @@ class LoginRequest extends FormRequest
 
         // Standard login without 2FA
         Auth::login($user, $this->boolean('remember'));
+
+        // Track successful login analytics
+        app(LoginAnalyticsService::class)->trackLoginAttempt(
+            $this->string('email')->toString(),
+            true,
+            $this->ip(),
+            $this->userAgent(),
+            [
+                'user_role' => $user->role,
+                'login_method' => '2fa_disabled',
+                'remember_me' => $this->boolean('remember')
+            ]
+        );
 
         // Reset failed attempts and update login info
         $user->update([
@@ -196,6 +274,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->string('email')->toString()) . '|' . $this->ip());
     }
 }
