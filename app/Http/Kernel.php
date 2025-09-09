@@ -121,5 +121,6 @@ class Kernel extends HttpKernel
         'api.security'            => Middleware\ApiSecurityMiddleware::class,
         'security.headers'        => Middleware\SecurityHeadersMiddleware::class,
         'enhanced.login.security' => Middleware\EnhancedLoginSecurity::class,
+        'welcome.page'            => Middleware\WelcomePageMiddleware::class,
     ];
 }

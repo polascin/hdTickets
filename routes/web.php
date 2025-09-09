@@ -61,8 +61,11 @@ Route::get('/', function () {
     return redirect()->route('home');
 })->name('root');
 
-// Home route - Public landing page for sports events ticket monitoring
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'welcome'])->name('home');
+// Welcome page - Public landing page for sports events ticket monitoring
+Route::get('/home', [App\Http\Controllers\WelcomeController::class, 'index'])->name('home');
+
+// API endpoint for welcome page stats
+Route::get('/api/welcome-stats', [App\Http\Controllers\WelcomeController::class, 'stats'])->name('api.welcome.stats');
 
 // User Preferences Routes
 Route::middleware(['auth'])->group(function () {

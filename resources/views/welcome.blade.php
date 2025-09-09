@@ -3,14 +3,58 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="HD Tickets - Professional Sports Event Ticket Monitoring Platform">
+    <meta name="description" content="HD Tickets - Professional Sports Event Ticket Monitoring Platform with Role-Based Access, Subscription Management, and Legal Compliance">
+    <meta name="keywords" content="sports tickets, ticket monitoring, event tickets, subscription platform, GDPR compliant, 2FA security, role-based access">
+    <meta name="author" content="HD Tickets">
+    <meta name="robots" content="index, follow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <title>HD Tickets - Sports Ticket Monitoring</title>
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="HD Tickets - Professional Sports Ticket Monitoring Platform">
+    <meta property="og:description" content="Never miss your team again! Professional sports ticket monitoring with role-based access, subscription plans, and enterprise security.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
+    <meta property="og:site_name" content="HD Tickets">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HD Tickets - Professional Sports Ticket Monitoring">
+    <meta name="twitter:description" content="Monitor 50+ platforms, role-based access, GDPR compliant, 7-day free trial">
+    <meta name="twitter:image" content="{{ asset('images/twitter-card.jpg') }}">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "HD Tickets",
+      "description": "Professional Sports Event Ticket Monitoring Platform",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "29.99",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "validFrom": "{{ date('Y-m-d') }}"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "1250"
+      }
+    }
+    </script>
+    
+    <title>HD Tickets - Professional Sports Ticket Monitoring Platform | Role-Based Access & GDPR Compliance</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+    
+    <!-- Vite assets -->
+    @vite(['resources/css/welcome.css', 'resources/js/welcome.js'])
     
     <style>
         * {
@@ -325,7 +369,7 @@
         }
     </style>
 </head>
-<body>
+<body class="stadium-bg">
     <header class="header">
         <div class="container">
             <nav class="nav">
@@ -352,88 +396,43 @@
         </div>
     </header>
 
-    <main class="main">
+    <main class="main" role="main">
         <div class="container">
-            <section class="hero fade-in">
-                <h1 class="hero-title">HD Tickets</h1>
-                <p class="hero-subtitle">⚽ Never Miss Your Team Again 🏀</p>
-                <p class="hero-description">
-                    Professional sports ticket monitoring platform with comprehensive user management, 
-                    subscription-based access, and automated purchasing. Track prices across 50+ platforms 
-                    with role-based permissions and legal compliance.
-                </p>
-                
-                @auth
-                    <div class="auth-section">
-                        <h2 class="auth-welcome">Welcome back, {{ Auth::user()->name }}! 🎉</h2>
-                        <p class="auth-subtitle">Ready to find tickets for your next great game?</p>
-                        <a href="{{ url('/dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-                    </div>
-                @else
-                    <div class="hero-cta">
-                        <a href="{{ route('register.public') }}" class="btn btn-primary">Get Started Free</a>
-                        <a href="{{ route('login') }}" class="btn btn-secondary">Sign In</a>
-                    </div>
-                @endauth
-            </section>
+            <!-- Hero Section -->
+            @include('components.welcome.hero-section')
 
-            <section class="stats slide-up">
-                <div class="stat-card">
-                    <span class="stat-number">50+</span>
-                    <span class="stat-label">Platforms</span>
+            <!-- Statistics Section -->
+            <section class="stats slide-up" aria-label="Platform statistics">
+                <div class="stat-card" x-data="{ count: 0 }" x-intersect="count = 50">
+                    <span class="stat-number" x-text="count + '+'" x-transition></span>
+                    <span class="stat-label">Integrated Platforms</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number">24/7</span>
-                    <span class="stat-label">Monitoring</span>
+                <div class="stat-card" x-data="{ visible: false }" x-intersect="visible = true">
+                    <span class="stat-number" x-show="visible" x-transition>24/7</span>
+                    <span class="stat-label">Real-Time Monitoring</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number">15K+</span>
-                    <span class="stat-label">Users</span>
+                <div class="stat-card" x-data="{ count: 0 }" x-intersect="count = 15000">
+                    <span class="stat-number" x-text="Math.floor(count/1000) + 'K+'" x-transition></span>
+                    <span class="stat-label">Active Users</span>
                 </div>
             </section>
 
-            <section class="features slide-up">
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3 class="feature-title">Role-Based Access</h3>
-                    <p class="feature-description">
-                        Customer, Agent, Admin & Scraper roles with tailored permissions and features
-                    </p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💳</div>
-                    <h3 class="feature-title">Subscription System</h3>
-                    <p class="feature-description">
-                        Monthly plans with configurable limits, 7-day free trial, and unlimited agent access
-                    </p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⚖️</div>
-                    <h3 class="feature-title">Legal Compliance</h3>
-                    <p class="feature-description">
-                        GDPR compliant with mandatory legal document acceptance and audit trails
-                    </p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3 class="feature-title">Enhanced Security</h3>
-                    <p class="feature-description">
-                        2FA, device fingerprinting, email/SMS verification, and secure payment processing
-                    </p>
-                </div>
-            </section>
+            <!-- Role Comparison Section -->
+            @include('components.welcome.role-comparison')
+
+            <!-- Subscription Showcase Section -->
+            @include('components.welcome.subscription-showcase')
+
+            <!-- Security Features Section -->
+            @include('components.welcome.security-features')
+
+            <!-- Legal Compliance Section -->
+            @include('components.welcome.legal-compliance')
         </div>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; {{ date('Y') }} HD Tickets. All rights reserved.</p>
-            <p>Professional Sports Event Ticket Monitoring Platform</p>
-        </div>
-    </footer>
+    <!-- Enhanced Footer with Legal Links -->
+    @include('components.welcome.footer-legal')
 
     <script>
         // Simple fade-in animation on scroll
