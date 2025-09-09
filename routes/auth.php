@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PublicRegistrationController;
+use App\Http\Controllers\Auth\PublicRegistrationValidationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->group(function (): void {
@@ -18,6 +19,11 @@ Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    
+    // Login enhancement endpoints
+    Route::post('login/check-email', [App\Http\Controllers\Auth\LoginEnhancementController::class, 'checkEmail'])
+        ->name('login.check-email')
+        ->middleware('throttle:30,1');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -42,6 +48,19 @@ Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->
         ->name('register.public');
     
     Route::post('register/public', [PublicRegistrationController::class, 'store']);
+    
+    // Progressive enhancement validation endpoints
+    Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validate'])
+        ->name('register.public.validate')
+        ->middleware('throttle:60,1');
+    
+    Route::post('register/public/check-email', [PublicRegistrationValidationController::class, 'checkEmailAvailability'])
+        ->name('register.public.check-email')
+        ->middleware('throttle:30,1');
+    
+    Route::post('register/public/check-password', [PublicRegistrationValidationController::class, 'checkPasswordStrength'])
+        ->name('register.public.check-password')
+        ->middleware('throttle:60,1');
 
     // Two-Factor Authentication routes (guest access)
     Route::get('2fa/challenge', [TwoFactorController::class, 'challenge'])->name('2fa.challenge');
