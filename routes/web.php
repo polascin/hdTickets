@@ -357,6 +357,12 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 // API routes for ticket sources
 Route::middleware(['auth:sanctum'])->prefix('api')->group(function (): void {
     Route::get('ticket-sources', [TicketSourceController::class, 'apiIndex']);
+    // Customer Dashboard Enhanced v2 API endpoints (used by customer-dashboard-enhanced-v2.js)
+    Route::middleware(['auth', 'verified'])->prefix('dashboard')->group(function (): void {
+        Route::get('/stats', [\App\Http\Controllers\Api\CustomerDashboardApiController::class, 'stats']);
+        Route::get('/tickets', [\App\Http\Controllers\Api\CustomerDashboardApiController::class, 'tickets']);
+        Route::get('/recommendations', [\App\Http\Controllers\Api\CustomerDashboardApiController::class, 'recommendations']);
+    });
 });
 
 // AJAX routes for lazy loading and real-time updates
