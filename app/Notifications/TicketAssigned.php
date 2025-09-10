@@ -12,14 +12,11 @@ class TicketAssigned extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $ticket;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket)
+    public function __construct(protected Ticket $ticket)
     {
-        $this->ticket = $ticket;
     }
 
     /**
@@ -55,7 +52,7 @@ class TicketAssigned extends Notification implements ShouldQueue
             ->line('A ticket has been assigned to you:')
             ->line('**Ticket #' . $this->ticket->id . ':** ' . $this->ticket->title)
             ->line('**Category:** ' . ($this->ticket->category->name ?? 'Not specified'))
-            ->line('**Priority:** ' . ucfirst($this->ticket->priority))
+            ->line('**Priority:** ' . ucfirst((string) $this->ticket->priority))
             ->line('**Status:** ' . ucwords(str_replace('_', ' ', $this->ticket->status)))
             ->line('**Created by:** ' . ($this->ticket->user->username ?? 'System'))
             ->line('**Assigned by:** ' . (auth()->user()->username ?? 'System'))

@@ -4,6 +4,7 @@ namespace App\Services\Enhanced;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use PDO;
@@ -12,9 +13,7 @@ use function count;
 
 class DatabaseQueryOptimizer
 {
-    private $connectionStats = [];
-
-    private $queryStats = [];
+    private array $queryStats = [];
 
     public function __construct()
     {
@@ -27,7 +26,7 @@ class DatabaseQueryOptimizer
     /**
      * Get  optimized tickets query
      */
-    public function getOptimizedTicketsQuery(array $filters = []): \Illuminate\Database\Eloquent\Builder
+    public function getOptimizedTicketsQuery(array $filters = []): Builder
     {
         $query = DB::table('scraped_tickets');
 
@@ -128,7 +127,7 @@ class DatabaseQueryOptimizer
      */
     public function bulkInsertOptimized(string $table, array $data, int $chunkSize = 1000): bool
     {
-        if (empty($data)) {
+        if ($data === []) {
             return TRUE;
         }
 
@@ -167,7 +166,7 @@ class DatabaseQueryOptimizer
      */
     public function bulkUpdateOptimized(string $table, array $updates, string $keyColumn = 'id'): bool
     {
-        if (empty($updates)) {
+        if ($updates === []) {
             return TRUE;
         }
 
@@ -277,7 +276,7 @@ class DatabaseQueryOptimizer
                     $pdo = DB::connection($connection)->getPdo();
 
                     $stats[$connection] = [
-                        'active'      => $pdo ? TRUE : FALSE,
+                        'active'      => (bool) $pdo,
                         'server_info' => $pdo ? $pdo->getAttribute(PDO::ATTR_SERVER_INFO) : NULL,
                         'driver_name' => $pdo ? $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) : NULL,
                     ];
@@ -354,7 +353,7 @@ class DatabaseQueryOptimizer
     {
         return [
             'total_queries'          => count($this->queryStats),
-            'slow_queries'           => count(array_filter($this->queryStats, fn ($q) => $q['time'] > 1000)),
+            'slow_queries'           => count(array_filter($this->queryStats, fn (array $q): bool => $q['time'] > 1000)),
             'average_execution_time' => count($this->queryStats) > 0
                 ? round(array_sum(array_column($this->queryStats, 'time')) / count($this->queryStats), 2)
                 : 0,
@@ -537,16 +536,14 @@ class DatabaseQueryOptimizer
                     ORDER BY total_size DESC
                 ');
 
-                return collect($stats)->map(function ($stat) {
-                    return [
-                        'table'      => $stat->table_name,
-                        'rows'       => $stat->table_rows,
-                        'data_size'  => $this->formatBytes($stat->data_length),
-                        'index_size' => $this->formatBytes($stat->index_length),
-                        'free_space' => $this->formatBytes($stat->data_free),
-                        'total_size' => $this->formatBytes($stat->total_size),
-                    ];
-                })->toArray();
+                return collect($stats)->map(fn ($stat): array => [
+                    'table'      => $stat->table_name,
+                    'rows'       => $stat->table_rows,
+                    'data_size'  => $this->formatBytes($stat->data_length),
+                    'index_size' => $this->formatBytes($stat->index_length),
+                    'free_space' => $this->formatBytes($stat->data_free),
+                    'total_size' => $this->formatBytes($stat->total_size),
+                ])->toArray();
             }
 
             return [];

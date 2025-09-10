@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Override;
 
 use function count;
 use function in_array;
@@ -49,7 +50,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
         $startTime = microtime(TRUE);
 
         foreach ($this->enabledPlatforms as $platform) {
-            if (!$this->isPlatformEnabled($platform)) {
+            if (! $this->isPlatformEnabled($platform)) {
                 continue;
             }
 
@@ -124,7 +125,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
     {
         $this->ensureInitialized();
 
-        if (!$this->isPlatformEnabled($platform)) {
+        if (! $this->isPlatformEnabled($platform)) {
             throw new InvalidArgumentException("Platform '{$platform}' is not enabled");
         }
 
@@ -153,7 +154,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
      */
     public function enablePlatform(string $platform): void
     {
-        if (!in_array($platform, $this->enabledPlatforms, TRUE)) {
+        if (! in_array($platform, $this->enabledPlatforms, TRUE)) {
             $this->enabledPlatforms[] = $platform;
             $this->saveEnabledPlatforms();
         }
@@ -169,7 +170,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
     {
         $this->enabledPlatforms = array_filter(
             $this->enabledPlatforms,
-            fn ($p) => $p !== $platform,
+            fn ($p): bool => $p !== $platform,
         );
         $this->saveEnabledPlatforms();
     }
@@ -221,7 +222,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
         $scheduleKey = "scraping_schedule_{$jobId}";
         $schedule = Cache::get($scheduleKey);
 
-        if (!$schedule) {
+        if (! $schedule) {
             return FALSE;
         }
 
@@ -249,6 +250,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
     /**
      * OnInitialize
      */
+    #[Override]
     protected function onInitialize(): void
     {
         $this->validateDependencies(['cacheService', 'analyticsService']);
@@ -276,7 +278,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
      *
      * @param mixed $adapter
      */
-    private function scrapePlatformWithAdapter($adapter, array $criteria): array
+    private function scrapePlatformWithAdapter(object $adapter, array $criteria): array
     {
         $startTime = microtime(TRUE);
 
@@ -403,7 +405,7 @@ class ScrapingService extends BaseService implements ScrapingInterface
         $stats = $this->getPlatformStatistics();
         $healthyPlatforms = 0;
 
-        foreach ($stats as $platform => $platformStats) {
+        foreach ($stats as $platformStats) {
             $successRate = $platformStats['success_rate'] ?? 0;
             if ($successRate > 70) {
                 $healthyPlatforms++;

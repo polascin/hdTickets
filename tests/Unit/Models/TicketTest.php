@@ -8,6 +8,8 @@ use App\Models\Ticket;
 use App\Models\TicketPriceHistory;
 use App\Models\TicketSource;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -115,7 +117,7 @@ class TicketTest extends TestCase
             'status'    => 'pending',
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $ticket->purchaseAttempts);
+        $this->assertInstanceOf(Collection::class, $ticket->purchaseAttempts);
         $this->assertEquals(1, $ticket->purchaseAttempts->count());
         $this->assertEquals('pending', $ticket->purchaseAttempts->first()->status);
     }
@@ -134,7 +136,7 @@ class TicketTest extends TestCase
             'recorded_at' => now(),
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $ticket->priceHistory);
+        $this->assertInstanceOf(Collection::class, $ticket->priceHistory);
         $this->assertEquals(1, $ticket->priceHistory->count());
         $this->assertEquals(100.00, $ticket->priceHistory->first()->price);
     }
@@ -157,7 +159,7 @@ class TicketTest extends TestCase
             'scraped_at'  => now(),
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $ticket->scrapedData);
+        $this->assertInstanceOf(Collection::class, $ticket->scrapedData);
         $this->assertEquals(1, $ticket->scrapedData->count());
         $this->assertEquals('external_123', $ticket->scrapedData->first()->external_id);
     }
@@ -436,7 +438,7 @@ class TicketTest extends TestCase
      */
     public function it_validates_required_fields(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Ticket::create([
             'title'      => NULL, // Required field

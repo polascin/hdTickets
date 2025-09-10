@@ -29,7 +29,7 @@ class TicketPurchaseController extends Controller
         $user = Auth::user();
 
         // Check if user can access tickets
-        if (!$this->canAccessTickets($user)) {
+        if (! $this->canAccessTickets($user)) {
             return view('tickets.access-denied', ['user' => $user]);
         }
 
@@ -70,14 +70,7 @@ class TicketPurchaseController extends Controller
         $platforms = ScrapedTicket::distinct()->pluck('platform_name')->filter();
         $categories = ScrapedTicket::distinct()->pluck('category')->filter();
 
-        return view('tickets.index', compact(
-            'tickets',
-            'ticketLimits',
-            'remainingAllowance',
-            'platforms',
-            'categories',
-            'user',
-        ));
+        return view('tickets.index', ['tickets' => $tickets, 'ticketLimits' => $ticketLimits, 'remainingAllowance' => $remainingAllowance, 'platforms' => $platforms, 'categories' => $categories, 'user' => $user]);
     }
 
     /**
@@ -87,18 +80,18 @@ class TicketPurchaseController extends Controller
     {
         $user = Auth::user();
 
-        if (!$this->canAccessTickets($user)) {
+        if (! $this->canAccessTickets($user)) {
             abort(403, 'You do not have access to view tickets.');
         }
 
-        if (!$ticket->is_available || $ticket->expires_at <= now()) {
+        if (! $ticket->is_available || $ticket->expires_at <= now()) {
             abort(404, 'Ticket is no longer available.');
         }
 
         $remainingAllowance = $this->paymentService->getRemainingTicketAllowance($user);
         $canPurchase = $this->canPurchaseTicket($user, $ticket);
 
-        return view('tickets.show', compact('ticket', 'user', 'remainingAllowance', 'canPurchase'));
+        return view('tickets.show', ['ticket' => $ticket, 'user' => $user, 'remainingAllowance' => $remainingAllowance, 'canPurchase' => $canPurchase]);
     }
 
     /**
@@ -113,12 +106,12 @@ class TicketPurchaseController extends Controller
         ]);
 
         // Verify user can purchase tickets
-        if (!$this->canPurchaseTicket($user, $ticket)) {
+        if (! $this->canPurchaseTicket($user, $ticket)) {
             return back()->withErrors(['error' => 'You cannot purchase this ticket at this time.']);
         }
 
         // Check if ticket is still available
-        if (!$ticket->is_available || $ticket->expires_at <= now()) {
+        if (! $ticket->is_available || $ticket->expires_at <= now()) {
             return back()->withErrors(['error' => 'This ticket is no longer available.']);
         }
 
@@ -174,7 +167,7 @@ class TicketPurchaseController extends Controller
             ->with(['scrapedTicket', 'purchaseQueue'])
             ->findOrFail($purchaseAttemptId);
 
-        return view('tickets.purchase.success', compact('purchaseAttempt', 'user'));
+        return view('tickets.purchase.success', ['purchaseAttempt' => $purchaseAttempt, 'user' => $user]);
     }
 
     /**
@@ -189,7 +182,7 @@ class TicketPurchaseController extends Controller
             ->with(['scrapedTicket'])
             ->findOrFail($purchaseAttemptId);
 
-        return view('tickets.purchase.failed', compact('purchaseAttempt', 'user'));
+        return view('tickets.purchase.failed', ['purchaseAttempt' => $purchaseAttempt, 'user' => $user]);
     }
 
     /**
@@ -211,7 +204,7 @@ class TicketPurchaseController extends Controller
             'failed_purchases'     => $user->purchaseAttempts()->where('status', 'failed')->count(),
         ];
 
-        return view('tickets.history', compact('purchaseHistory', 'stats', 'user'));
+        return view('tickets.history', ['purchaseHistory' => $purchaseHistory, 'stats' => $stats, 'user' => $user]);
     }
 
     /**
@@ -230,11 +223,14 @@ class TicketPurchaseController extends Controller
         }
 
         // Customers need verified email and active subscription
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return FALSE;
         }
+        if ($user->hasActiveSubscription()) {
+            return TRUE;
+        }
 
-        return $user->hasActiveSubscription() || $user->isOnTrial();
+        return $user->isOnTrial();
     }
 
     /**
@@ -243,12 +239,12 @@ class TicketPurchaseController extends Controller
     private function canPurchaseTicket(User $user, ScrapedTicket $ticket): bool
     {
         // Basic access check
-        if (!$this->canAccessTickets($user)) {
+        if (! $this->canAccessTickets($user)) {
             return FALSE;
         }
 
         // Check if user can purchase tickets at all
-        if (!$this->paymentService->canPurchaseTickets($user)) {
+        if (! $this->paymentService->canPurchaseTickets($user)) {
             return FALSE;
         }
 
@@ -258,6 +254,6 @@ class TicketPurchaseController extends Controller
         }
 
         // Check ticket availability
-        return !(!$ticket->is_available || $ticket->expires_at <= now());
+        return $ticket->is_available && $ticket->expires_at > now();
     }
 }

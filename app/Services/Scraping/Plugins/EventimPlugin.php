@@ -92,27 +92,27 @@ class EventimPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['term'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['city'])) {
+        if (! empty($criteria['city'])) {
             $params['city'] = $criteria['city'];
         }
 
-        if (!empty($criteria['category'])) {
+        if (! empty($criteria['category'])) {
             $params['kategorie'] = $this->mapCategory($criteria['category']);
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['datum_von'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['datum_bis'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . ($params === [] ? '' : '?' . http_build_query($params));
     }
 
     /**
@@ -167,14 +167,14 @@ class EventimPlugin extends BaseScraperPlugin
                              });
 
             // Fallback: try to parse generic event structures
-            if (empty($events)) {
+            if ($events === []) {
                 $crawler->filter('.card, .item, .event-row, .listing-item')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         // Silently continue for fallback parsing
                     }
                 });

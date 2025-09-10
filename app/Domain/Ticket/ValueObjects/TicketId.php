@@ -3,10 +3,12 @@
 namespace App\Domain\Ticket\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
+use function in_array;
 use function strlen;
 
-final readonly class TicketId
+final readonly class TicketId implements Stringable
 {
     public function __construct(
         private string $value,
@@ -51,7 +53,7 @@ final readonly class TicketId
      */
     private function validate(string $value): void
     {
-        if (empty(trim($value))) {
+        if (in_array(trim($value), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Ticket ID cannot be empty');
         }
 
@@ -59,7 +61,7 @@ final readonly class TicketId
             throw new InvalidArgumentException('Ticket ID must be a valid string with max 255 characters');
         }
 
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
+        if (! preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
             throw new InvalidArgumentException('Ticket ID must contain only alphanumeric characters, underscores, and hyphens');
         }
     }

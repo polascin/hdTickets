@@ -2,41 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+use function in_array;
+use function is_array;
 
 class SecurityEvent extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'event_type',
-        'severity',
-        'ip_address',
-        'user_agent',
-        'location',
-        'event_data',
-        'request_data',
-        'session_id',
-        'threat_score',
-        'incident_id',
-        'occurred_at',
-    ];
-
-    protected $casts = [
-        'event_data'   => 'array',
-        'request_data' => 'array',
-        'location'     => 'array',
-        'occurred_at'  => 'datetime',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
-    ];
-
-    /**
-     * Security event types
-     */
+    /** Security event types */
     public const EVENT_TYPES = [
         'login_successful'         => 'Login Successful',
         'login_failed'             => 'Login Failed',
@@ -61,14 +39,27 @@ class SecurityEvent extends Model
         'data_deletion'            => 'Data Deletion',
     ];
 
-    /**
-     * Risk levels
-     */
+    /** Risk levels */
     public const RISK_LEVELS = [
         'low'      => 'Low',
         'medium'   => 'Medium',
         'high'     => 'High',
         'critical' => 'Critical',
+    ];
+
+    protected $fillable = [
+        'user_id',
+        'event_type',
+        'severity',
+        'ip_address',
+        'user_agent',
+        'location',
+        'event_data',
+        'request_data',
+        'session_id',
+        'threat_score',
+        'incident_id',
+        'occurred_at',
     ];
 
     /**
@@ -88,14 +79,6 @@ class SecurityEvent extends Model
     }
 
     /**
-     * Get human-readable event type
-     */
-    public function getEventTypeNameAttribute(): string
-    {
-        return self::EVENT_TYPES[$this->event_type] ?? $this->event_type;
-    }
-
-    /**
      * Determine risk level based on event type
      */
     public function getRiskLevel(): string
@@ -106,7 +89,7 @@ class SecurityEvent extends Model
             'permission_denied', 'login_attempt_locked' => 'medium',
             '2fa_recovery_used', 'password_reset_requested' => 'medium',
             'login_successful', 'device_trusted', '2fa_enabled', 'password_changed' => 'low',
-            default => 'low'
+            default => 'low',
         };
     }
 
@@ -122,50 +105,7 @@ class SecurityEvent extends Model
             '2fa_disabled',
             'password_reset_completed',
             '2fa_recovery_used',
-        ]);
-    }
-
-    /**
-     * Get formatted location string
-     */
-    public function getFormattedLocationAttribute(): string
-    {
-        if (!$this->location || !is_array($this->location)) {
-            return 'Unknown Location';
-        }
-
-        if (isset($this->location['city']) && isset($this->location['country'])) {
-            return "{$this->location['city']}, {$this->location['country']}";
-        } elseif (isset($this->location['country'])) {
-            return $this->location['country'];
-        }
-
-        return 'Unknown Location';
-    }
-
-    /**
-     * Get device information
-     */
-    public function getDeviceInfoAttribute(): string
-    {
-        if (isset($this->event_data['device_name'])) {
-            return $this->event_data['device_name'];
-        }
-
-        // Extract from user agent
-        if ($this->user_agent) {
-            if (str_contains($this->user_agent, 'Mobile')) {
-                return 'Mobile Device';
-            } elseif (str_contains($this->user_agent, 'Chrome')) {
-                return 'Chrome Browser';
-            } elseif (str_contains($this->user_agent, 'Firefox')) {
-                return 'Firefox Browser';
-            } elseif (str_contains($this->user_agent, 'Safari')) {
-                return 'Safari Browser';
-            }
-        }
-
-        return 'Unknown Device';
+        ], TRUE);
     }
 
     /**
@@ -178,12 +118,14 @@ class SecurityEvent extends Model
             'high'     => 'orange',
             'medium'   => 'yellow',
             'low'      => 'green',
-            default    => 'gray'
+            default    => 'gray',
         };
     }
 
     /**
      * Scope for events by type
+     *
+     * @param mixed $query
      */
     public function scopeByType($query, string $eventType)
     {
@@ -192,12 +134,14 @@ class SecurityEvent extends Model
 
     /**
      * Scope for events by risk level
+     *
+     * @param mixed $query
      */
     public function scopeByRiskLevel($query, string $riskLevel)
     {
         $eventTypes = [];
 
-        foreach (self::EVENT_TYPES as $type => $name) {
+        foreach (array_keys(self::EVENT_TYPES) as $type) {
             $event = new self(['event_type' => $type]);
             if ($event->getRiskLevel() === $riskLevel) {
                 $eventTypes[] = $type;
@@ -209,6 +153,8 @@ class SecurityEvent extends Model
 
     /**
      * Scope for recent events
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $hours = 24)
     {
@@ -217,6 +163,8 @@ class SecurityEvent extends Model
 
     /**
      * Scope for security critical events
+     *
+     * @param mixed $query
      */
     public function scopeSecurityCritical($query)
     {
@@ -232,6 +180,8 @@ class SecurityEvent extends Model
 
     /**
      * Scope for login-related events
+     *
+     * @param mixed $query
      */
     public function scopeLoginRelated($query)
     {
@@ -245,6 +195,8 @@ class SecurityEvent extends Model
 
     /**
      * Scope for 2FA-related events
+     *
+     * @param mixed $query
      */
     public function scopeTwoFactorRelated($query)
     {
@@ -258,6 +210,8 @@ class SecurityEvent extends Model
 
     /**
      * Scope for events from specific IP
+     *
+     * @param mixed $query
      */
     public function scopeFromIP($query, string $ipAddress)
     {
@@ -266,6 +220,10 @@ class SecurityEvent extends Model
 
     /**
      * Scope for events in date range
+     *
+     * @param mixed $query
+     * @param mixed $startDate
+     * @param mixed $endDate
      */
     public function scopeDateRange($query, $startDate, $endDate)
     {
@@ -288,9 +246,75 @@ class SecurityEvent extends Model
 
         // Group by risk level
         foreach (['low', 'medium', 'high', 'critical'] as $risk) {
-            $summary['by_risk'][$risk] = $events->filter(fn ($event) => $event->getRiskLevel() === $risk)->count();
+            $summary['by_risk'][$risk] = $events->filter(fn ($event): bool => $event->getRiskLevel() === $risk)->count();
         }
 
         return $summary;
+    }
+
+    /**
+     * Get human-readable event type
+     */
+    protected function eventTypeName(): Attribute
+    {
+        return Attribute::make(get: fn () => self::EVENT_TYPES[$this->event_type] ?? $this->event_type);
+    }
+
+    /**
+     * Get formatted location string
+     */
+    protected function formattedLocation(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->location || ! is_array($this->location)) {
+                return 'Unknown Location';
+            }
+            if (isset($this->location['city'], $this->location['country'])) {
+                return "{$this->location['city']}, {$this->location['country']}";
+            }
+
+            return $this->location['country'] ?? 'Unknown Location';
+        });
+    }
+
+    /**
+     * Get device information
+     */
+    protected function deviceInfo(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (isset($this->event_data['device_name'])) {
+                return $this->event_data['device_name'];
+            }
+            // Extract from user agent
+            if ($this->user_agent) {
+                if (str_contains($this->user_agent, 'Mobile')) {
+                    return 'Mobile Device';
+                }
+                if (str_contains($this->user_agent, 'Chrome')) {
+                    return 'Chrome Browser';
+                }
+                if (str_contains($this->user_agent, 'Firefox')) {
+                    return 'Firefox Browser';
+                }
+                if (str_contains($this->user_agent, 'Safari')) {
+                    return 'Safari Browser';
+                }
+            }
+
+            return 'Unknown Device';
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'event_data'   => 'array',
+            'request_data' => 'array',
+            'location'     => 'array',
+            'occurred_at'  => 'datetime',
+            'created_at'   => 'datetime',
+            'updated_at'   => 'datetime',
+        ];
     }
 }

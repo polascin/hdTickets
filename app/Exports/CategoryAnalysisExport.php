@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCharts;
@@ -14,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -24,24 +26,20 @@ use function count;
  */
 class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
 {
-    /** @var array<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}> */
-    protected array $categoryData;
-
     /**
      * @param array<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}> $categoryData
      */
-    public function __construct(array $categoryData)
+    public function __construct(protected array $categoryData)
     {
-        $this->categoryData = $categoryData;
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}>
+     * @return Collection<int, array{name: string, total_tickets: int, resolved_tickets: int, overdue_tickets: int, resolution_rate: float, avg_resolution_time: float}>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return collect($this->categoryData);
     }
@@ -105,7 +103,7 @@ class CategoryAnalysisExport implements FromCollection, WithHeadings, WithMappin
             'A:F' => [
                 'borders' => [
                     'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'borderStyle' => Border::BORDER_THIN,
                     ],
                 ],
             ],

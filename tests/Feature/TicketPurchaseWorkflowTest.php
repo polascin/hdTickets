@@ -9,6 +9,7 @@ use App\Models\UserSubscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Override;
 use Tests\TestCase;
 
 class TicketPurchaseWorkflowTest extends TestCase
@@ -568,6 +569,7 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertNotNull($purchase->cancelled_at);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

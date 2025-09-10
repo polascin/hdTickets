@@ -15,11 +15,8 @@ use function sprintf;
 
 class AdvancedAnalyticsController extends Controller
 {
-    private $analyticsDashboard;
-
-    public function __construct(AdvancedAnalyticsDashboard $analyticsDashboard)
+    public function __construct(private AdvancedAnalyticsDashboard $analyticsDashboard)
     {
-        $this->analyticsDashboard = $analyticsDashboard;
     }
 
     /**
@@ -49,7 +46,7 @@ class AdvancedAnalyticsController extends Controller
 
         try {
             $filters = $this->buildFilters($request);
-            $analysis = $this->analyticsDashboard->getPriceTrendAnalysis($filters);
+            $analysis = $this->analyticsDashboard->getPriceTrendAnalysis();
 
             return response()->json([
                 'success'  => TRUE,
@@ -300,7 +297,7 @@ class AdvancedAnalyticsController extends Controller
             }
 
             // For CSV/XLSX formats, return download URL or direct file response
-            $exportFile = $this->generateExportFile($data, $type, $format);
+            $exportFile = $this->generateExportFile($type, $format);
 
             return response()->json([
                 'success'      => TRUE,
@@ -364,7 +361,7 @@ class AdvancedAnalyticsController extends Controller
                 ],
                 'metadata' => [
                     'total_widgets'  => count($widgets),
-                    'data_freshness' => $this->calculateDataFreshness($dashboardData),
+                    'data_freshness' => $this->calculateDataFreshness(),
                 ],
             ]);
         } catch (Exception $e) {
@@ -415,34 +412,15 @@ class AdvancedAnalyticsController extends Controller
     {
         $endDate = Carbon::now();
 
-        switch ($timeRange) {
-            case '1h':
-                $startDate = $endDate->copy()->subHour();
-
-                break;
-            case '24h':
-                $startDate = $endDate->copy()->subDay();
-
-                break;
-            case '7d':
-                $startDate = $endDate->copy()->subWeek();
-
-                break;
-            case '30d':
-                $startDate = $endDate->copy()->subDays(30);
-
-                break;
-            case '90d':
-                $startDate = $endDate->copy()->subDays(90);
-
-                break;
-            case '1y':
-                $startDate = $endDate->copy()->subYear();
-
-                break;
-            default:
-                $startDate = $endDate->copy()->subDays(30);
-        }
+        $startDate = match ($timeRange) {
+            '1h'    => $endDate->copy()->subHour(),
+            '24h'   => $endDate->copy()->subDay(),
+            '7d'    => $endDate->copy()->subWeek(),
+            '30d'   => $endDate->copy()->subDays(30),
+            '90d'   => $endDate->copy()->subDays(90),
+            '1y'    => $endDate->copy()->subYear(),
+            default => $endDate->copy()->subDays(30),
+        };
 
         return [
             'start_date' => $startDate,
@@ -455,20 +433,14 @@ class AdvancedAnalyticsController extends Controller
      */
     private function getWidgetData(string $widget, array $filters): array
     {
-        switch ($widget) {
-            case 'price_trends':
-                return $this->analyticsDashboard->getPriceTrendAnalysis($filters);
-            case 'demand_patterns':
-                return $this->analyticsDashboard->getDemandPatternAnalysis($filters);
-            case 'success_rates':
-                return $this->analyticsDashboard->getSuccessRateOptimization($filters);
-            case 'platform_comparison':
-                return $this->analyticsDashboard->getPlatformPerformanceComparison($filters);
-            case 'real_time_metrics':
-                return $this->analyticsDashboard->getRealTimeDashboardMetrics();
-            default:
-                return [];
-        }
+        return match ($widget) {
+            'price_trends'        => $this->analyticsDashboard->getPriceTrendAnalysis(),
+            'demand_patterns'     => $this->analyticsDashboard->getDemandPatternAnalysis($filters),
+            'success_rates'       => $this->analyticsDashboard->getSuccessRateOptimization($filters),
+            'platform_comparison' => $this->analyticsDashboard->getPlatformPerformanceComparison($filters),
+            'real_time_metrics'   => $this->analyticsDashboard->getRealTimeDashboardMetrics(),
+            default               => [],
+        };
     }
 
     /**
@@ -479,8 +451,8 @@ class AdvancedAnalyticsController extends Controller
         $trends = [];
 
         if (isset($analysis['temporal_patterns'])) {
-            $trends['peak_hours'] = $this->identifyPeakHours($analysis['temporal_patterns']);
-            $trends['seasonal_peaks'] = $this->identifySeasonalPeaks($analysis['temporal_patterns']);
+            $trends['peak_hours'] = $this->identifyPeakHours();
+            $trends['seasonal_peaks'] = $this->identifySeasonalPeaks();
         }
 
         if (isset($analysis['demand_overview'])) {
@@ -498,7 +470,7 @@ class AdvancedAnalyticsController extends Controller
     {
         // Calculate confidence based on data volume, pattern consistency, etc.
         $dataVolume = $this->countDataPoints($analysis);
-        $patternConsistency = $this->assessPatternConsistency($analysis);
+        $patternConsistency = $this->assessPatternConsistency();
 
         return min(100, ($dataVolume * 0.6 + $patternConsistency * 0.4));
     }
@@ -513,7 +485,7 @@ class AdvancedAnalyticsController extends Controller
 
         $projections = [];
 
-        if (!empty($current) && !empty($recommendations)) {
+        if (! empty($current) && ! empty($recommendations)) {
             foreach ($recommendations as $recommendation) {
                 $projections[] = [
                     'metric'                => $recommendation['metric'] ?? 'overall',
@@ -538,7 +510,7 @@ class AdvancedAnalyticsController extends Controller
         if (isset($optimization['improvement_roadmap'])) {
             $items = collect($optimization['improvement_roadmap']);
 
-            $actionItems = $items->sortByDesc(function ($item) {
+            $actionItems = $items->sortByDesc(function ($item): int|float {
                 $impact = $item['expected_improvement'] ?? 0;
                 $effort = $item['implementation_effort'] ?? 5;
 
@@ -554,15 +526,11 @@ class AdvancedAnalyticsController extends Controller
      */
     private function formatPlatformComparison(array $comparison, string $type): array
     {
-        switch ($type) {
-            case 'summary':
-                return $this->createPlatformSummary($comparison);
-            case 'rankings':
-                return $comparison['platform_rankings'] ?? [];
-            case 'detailed':
-            default:
-                return $comparison;
-        }
+        return match ($type) {
+            'summary'  => $this->createPlatformSummary($comparison),
+            'rankings' => $comparison['platform_rankings'] ?? [],
+            default    => $comparison,
+        };
     }
 
     /**
@@ -594,7 +562,7 @@ class AdvancedAnalyticsController extends Controller
     {
         $rankings = $comparison['platform_rankings'] ?? [];
 
-        return !empty($rankings) ? $rankings[0] : [];
+        return empty($rankings) ? [] : $rankings[0];
     }
 
     /**
@@ -635,9 +603,9 @@ class AdvancedAnalyticsController extends Controller
     {
         return [
             'market_leader'   => $this->identifyTopPerformer($comparison)['platform'] ?? 'N/A',
-            'fastest_growing' => $this->identifyFastestGrowingPlatform($comparison),
-            'most_reliable'   => $this->identifyMostReliablePlatform($comparison),
-            'best_value'      => $this->identifyBestValuePlatform($comparison),
+            'fastest_growing' => $this->identifyFastestGrowingPlatform(),
+            'most_reliable'   => $this->identifyMostReliablePlatform(),
+            'best_value'      => $this->identifyBestValuePlatform(),
         ];
     }
 
@@ -697,7 +665,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * GenerateExportFile
      */
-    private function generateExportFile(array $data, string $type, string $format): array
+    private function generateExportFile(string $type, string $format): array
     {
         // This would implement actual file generation logic
         $filename = sprintf('%s_%s_%s.%s', $type, date('Y-m-d_H-i-s'), uniqid(), $format);
@@ -745,10 +713,11 @@ class AdvancedAnalyticsController extends Controller
     /**
      * CalculateDataFreshness
      */
-    private function calculateDataFreshness(array $dashboardData): string
+    private function calculateDataFreshness(): string
     {
         // Determine overall data freshness across all widgets
-        return 'current'; // Simplified implementation
+        return 'current';
+        // Simplified implementation
     }
 
     /**
@@ -767,7 +736,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * IdentifyPeakHours
      */
-    private function identifyPeakHours(array $temporalPatterns): array
+    private function identifyPeakHours(): array
     {
         return [];
     }
@@ -775,7 +744,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * IdentifySeasonalPeaks
      */
-    private function identifySeasonalPeaks(array $temporalPatterns): array
+    private function identifySeasonalPeaks(): array
     {
         return [];
     }
@@ -783,7 +752,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * AssessPatternConsistency
      */
-    private function assessPatternConsistency(array $analysis): float
+    private function assessPatternConsistency(): float
     {
         return 75.0;
     }
@@ -791,7 +760,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * IdentifyFastestGrowingPlatform
      */
-    private function identifyFastestGrowingPlatform(array $comparison): string
+    private function identifyFastestGrowingPlatform(): string
     {
         return 'N/A';
     }
@@ -799,7 +768,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * IdentifyMostReliablePlatform
      */
-    private function identifyMostReliablePlatform(array $comparison): string
+    private function identifyMostReliablePlatform(): string
     {
         return 'N/A';
     }
@@ -807,7 +776,7 @@ class AdvancedAnalyticsController extends Controller
     /**
      * IdentifyBestValuePlatform
      */
-    private function identifyBestValuePlatform(array $comparison): string
+    private function identifyBestValuePlatform(): string
     {
         return 'N/A';
     }

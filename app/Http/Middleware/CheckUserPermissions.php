@@ -24,19 +24,19 @@ class CheckUserPermissions
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login')->with('error', 'Please login to access this area.');
         }
 
         $user = Auth::user();
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::logout();
 
             return redirect()->route('login')->with('error', 'Account is disabled. Contact administrator.');
         }
 
-        if (!in_array($user->role, $roles, TRUE)) {
+        if (! in_array($user->role, $roles, TRUE)) {
             return redirect()->route('dashboard.basic');
         }
 

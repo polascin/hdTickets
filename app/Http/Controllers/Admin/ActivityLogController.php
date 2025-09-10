@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\SecurityService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivityLogController extends Controller
 {
-    protected SecurityService $securityService;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
     }
 
     /**
@@ -23,10 +24,10 @@ class ActivityLogController extends Controller
     /**
      * Index
      */
-    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function index(Request $request): View|RedirectResponse
     {
         // Check permissions
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to view activity logs.');
         }
 
@@ -74,17 +75,7 @@ class ActivityLogController extends Controller
         // Get summary statistics
         $stats = $this->getActivityStatsInternal();
 
-        return view('admin.activity-logs.index', compact(
-            'activities',
-            'logNames',
-            'users',
-            'stats',
-            'logName',
-            'userId',
-            'startDate',
-            'endDate',
-            'riskLevel',
-        ));
+        return view('admin.activity-logs.index', ['activities' => $activities, 'logNames' => $logNames, 'users' => $users, 'stats' => $stats, 'logName' => $logName, 'userId' => $userId, 'startDate' => $startDate, 'endDate' => $endDate, 'riskLevel' => $riskLevel]);
     }
 
     /**
@@ -95,9 +86,9 @@ class ActivityLogController extends Controller
     /**
      * Show
      */
-    public function show(int $id): \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+    public function show(int $id): View|RedirectResponse
     {
-        if (!auth()->user()?->canManageSystem()) {
+        if (! auth()->user()?->canManageSystem()) {
             abort(403, 'You do not have permission to view activity log details.');
         }
 
@@ -107,7 +98,7 @@ class ActivityLogController extends Controller
             'activity_id' => $activity->id,
         ]);
 
-        return view('admin.activity-logs.show', compact('activity'));
+        return view('admin.activity-logs.show', ['activity' => $activity]);
     }
 
     /**
@@ -116,9 +107,9 @@ class ActivityLogController extends Controller
     /**
      * Get  security activities
      */
-    public function getSecurityActivities(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function getSecurityActivities(Request $request): JsonResponse|RedirectResponse
     {
-        if (!auth()->user()?->canManageSystem()) {
+        if (! auth()->user()?->canManageSystem()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -126,17 +117,15 @@ class ActivityLogController extends Controller
         $activities = $this->securityService->getRecentSecurityActivities($limit);
 
         return response()->json([
-            'activities' => $activities->map(function ($activity) {
-                return [
-                    'id'               => $activity->id,
-                    'description'      => $activity->description,
-                    'causer'           => $activity->causer ? $activity->causer->name : 'System',
-                    'properties'       => $activity->properties,
-                    'created_at'       => $activity->created_at->format('M j, Y H:i:s'),
-                    'created_at_human' => $activity->created_at->diffForHumans(),
-                    'risk_level'       => $activity->properties['risk_level'] ?? 'low',
-                ];
-            }),
+            'activities' => $activities->map(fn ($activity): array => [
+                'id'               => $activity->id,
+                'description'      => $activity->description,
+                'causer'           => $activity->causer ? $activity->causer->name : 'System',
+                'properties'       => $activity->properties,
+                'created_at'       => $activity->created_at->format('M j, Y H:i:s'),
+                'created_at_human' => $activity->created_at->diffForHumans(),
+                'risk_level'       => $activity->properties['risk_level'] ?? 'low',
+            ]),
         ]);
     }
 
@@ -146,9 +135,9 @@ class ActivityLogController extends Controller
     /**
      * Get  user activity summary
      */
-    public function getUserActivitySummary(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function getUserActivitySummary(Request $request): JsonResponse|RedirectResponse
     {
-        if (!auth()->user()?->canManageUsers()) {
+        if (! auth()->user()?->canManageUsers()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -166,14 +155,14 @@ class ActivityLogController extends Controller
     /**
      * GenerateBulkToken
      */
-    public function generateBulkToken(Request $request): \Illuminate\Http\JsonResponse
+    public function generateBulkToken(Request $request): JsonResponse
     {
         $request->validate([
             'operation' => 'required|string',
             'items'     => 'required|array',
         ]);
 
-        if (!$this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
+        if (! $this->securityService->checkPermission(auth()->user(), 'bulk_operations')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -191,9 +180,9 @@ class ActivityLogController extends Controller
     /**
      * Export
      */
-    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+    public function export(Request $request): StreamedResponse|RedirectResponse
     {
-        if (!auth()->user()->canManageSystem()) {
+        if (! auth()->user()->canManageSystem()) {
             abort(403, 'You do not have permission to export activity logs.');
         }
 
@@ -276,9 +265,9 @@ class ActivityLogController extends Controller
     /**
      * Cleanup
      */
-    public function cleanup(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public function cleanup(Request $request): JsonResponse|RedirectResponse
     {
-        if (!auth()->user()?->isRootAdmin()) {
+        if (! auth()->user()?->isRootAdmin()) {
             abort(403, 'Only root admin can perform log cleanup.');
         }
 
@@ -310,7 +299,7 @@ class ActivityLogController extends Controller
     /**
      * Get  activity stats
      */
-    public function getActivityStats(Request $request): \Illuminate\Http\JsonResponse
+    public function getActivityStats(Request $request): JsonResponse
     {
         $today = now()->startOfDay();
         $thisWeek = now()->startOfWeek();

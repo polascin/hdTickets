@@ -3,6 +3,8 @@
 namespace App\Domain\Ticket\Entities;
 
 use App\Domain\Event\ValueObjects\EventId;
+use App\Domain\Ticket\Events\TicketAvailabilityChanged;
+use App\Domain\Ticket\Events\TicketPriceChanged;
 use App\Domain\Ticket\ValueObjects\AvailabilityStatus;
 use App\Domain\Ticket\ValueObjects\PlatformSource;
 use App\Domain\Ticket\ValueObjects\Price;
@@ -10,6 +12,7 @@ use App\Domain\Ticket\ValueObjects\TicketId;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
+use function in_array;
 use function sprintf;
 use function strlen;
 
@@ -145,13 +148,13 @@ class MonitoredTicket
      */
     public function updatePrice(Price $newPrice): void
     {
-        if (!$this->price->equals($newPrice)) {
+        if (! $this->price->equals($newPrice)) {
             $oldPrice = $this->price;
             $this->price = $newPrice;
             $this->updatedAt = new DateTimeImmutable();
 
             $this->recordDomainEvent(
-                new \App\Domain\Ticket\Events\TicketPriceChanged(
+                new TicketPriceChanged(
                     $this->id,
                     $oldPrice,
                     $newPrice,
@@ -165,13 +168,13 @@ class MonitoredTicket
      */
     public function updateAvailability(AvailabilityStatus $newStatus): void
     {
-        if (!$this->availabilityStatus->equals($newStatus)) {
+        if (! $this->availabilityStatus->equals($newStatus)) {
             $oldStatus = $this->availabilityStatus;
             $this->availabilityStatus = $newStatus;
             $this->updatedAt = new DateTimeImmutable();
 
             $this->recordDomainEvent(
-                new \App\Domain\Ticket\Events\TicketAvailabilityChanged(
+                new TicketAvailabilityChanged(
                     $this->id,
                     $oldStatus,
                     $newStatus,
@@ -244,15 +247,15 @@ class MonitoredTicket
      */
     private function validate(): void
     {
-        if (empty(trim($this->section))) {
+        if (in_array(trim($this->section), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Section cannot be empty');
         }
 
-        if (empty(trim($this->row))) {
+        if (in_array(trim($this->row), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Row cannot be empty');
         }
 
-        if (empty(trim($this->seat))) {
+        if (in_array(trim($this->seat), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Seat cannot be empty');
         }
 

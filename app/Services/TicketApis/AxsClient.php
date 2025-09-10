@@ -4,6 +4,7 @@ namespace App\Services\TicketApis;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 class AxsClient extends BaseWebScrapingClient
@@ -84,6 +85,7 @@ class AxsClient extends BaseWebScrapingClient
     /**
      * Get  base url
      */
+    #[Override]
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
@@ -133,7 +135,7 @@ class AxsClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -241,7 +243,7 @@ class AxsClient extends BaseWebScrapingClient
 
             // Extract price information
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = $priceData === [] ? '' : $this->formatPriceRange($priceData);
 
             $price = $this->trySelectors($node, [
                 '.ticket-price',
@@ -327,7 +329,7 @@ class AxsClient extends BaseWebScrapingClient
                     $feeAmount = (float) ($feeMatches[1]);
                 }
 
-                if (!empty($typeName)) {
+                if ($typeName !== '' && $typeName !== '0') {
                     $ticketInfo['tickets'][] = [
                         'type'                => trim($typeName),
                         'price'               => $price,
@@ -384,7 +386,7 @@ class AxsClient extends BaseWebScrapingClient
             'q' => $keyword,
         ];
 
-        if (!empty($location)) {
+        if ($location !== '' && $location !== '0') {
             $params['location'] = $location;
         }
 
@@ -493,10 +495,10 @@ class AxsClient extends BaseWebScrapingClient
      */
     private function resolveUrl(string $url): string
     {
-        if (strpos($url, 'http') === 0) {
+        if (str_starts_with($url, 'http')) {
             return $url;
         }
 
-        return rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
+        return rtrim((string) $this->baseUrl, '/') . '/' . ltrim($url, '/');
     }
 }

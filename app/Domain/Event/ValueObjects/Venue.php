@@ -3,11 +3,13 @@
 namespace App\Domain\Event\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
+use function in_array;
 use function sprintf;
 use function strlen;
 
-final readonly class Venue
+final readonly class Venue implements Stringable
 {
     public function __construct(
         private string $name,
@@ -97,15 +99,15 @@ final readonly class Venue
      */
     private function validate(string $name, string $city, string $country, ?int $capacity): void
     {
-        if (empty(trim($name))) {
+        if (in_array(trim($name), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Venue name cannot be empty');
         }
 
-        if (empty(trim($city))) {
+        if (in_array(trim($city), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Venue city cannot be empty');
         }
 
-        if (empty(trim($country))) {
+        if (in_array(trim($country), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Venue country cannot be empty');
         }
 

@@ -124,7 +124,7 @@ class ProductionHealthController extends Controller
             $maintenanceMode = app()->isDownForMaintenance();
 
             $status = 'healthy';
-            if (!empty($issues)) {
+            if ($issues !== []) {
                 $status = 'warning';
             }
             if ($maintenanceMode) {
@@ -256,7 +256,7 @@ class ProductionHealthController extends Controller
             $horizonStatus = Cache::get('horizon:master_supervisor');
             $isRunning = $horizonStatus !== NULL;
 
-            if (!$isRunning) {
+            if (! $isRunning) {
                 $status = 'critical';
                 $details['message'] = 'Horizon is not running';
             } else {
@@ -386,7 +386,7 @@ class ProductionHealthController extends Controller
                 'size_mb' => $sizeQuery[0]->size_mb ?? 0,
                 'tables'  => $tableQuery[0]->count ?? 0,
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ['size_mb' => 0, 'tables' => 0];
         }
     }
@@ -397,7 +397,7 @@ class ProductionHealthController extends Controller
             $result = DB::select("SHOW GLOBAL STATUS LIKE 'Slow_queries'");
 
             return (int) ($result[0]->Value ?? 0);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -408,16 +408,16 @@ class ProductionHealthController extends Controller
             $result = DB::select("SHOW STATUS LIKE 'Threads_connected'");
 
             return (int) ($result[0]->Value ?? 0);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
 
     private function getAverageResponseTime(): float
     {
-        return Cache::remember('health:avg_response_time', 300, function () {
+        return Cache::remember('health:avg_response_time', 300, function (): int {
             // This would typically come from your application metrics
-            return rand(500, 2000); // Placeholder
+            return random_int(500, 2000); // Placeholder
         });
     }
 
@@ -463,9 +463,9 @@ class ProductionHealthController extends Controller
 
     private function getErrorRate(): float
     {
-        return Cache::remember('health:error_rate', 300, function () {
+        return Cache::remember('health:error_rate', 300, function (): int {
             // This would come from your error tracking system
-            return rand(0, 10); // Placeholder
+            return random_int(0, 10); // Placeholder
         });
     }
 
@@ -477,7 +477,7 @@ class ProductionHealthController extends Controller
         foreach ($queues as $queue) {
             try {
                 $sizes[$queue] = Redis::llen("queues:{$queue}");
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $sizes[$queue] = 0;
             }
         }
@@ -520,17 +520,17 @@ class ProductionHealthController extends Controller
     // Additional placeholder methods that would be implemented based on your metrics system
     private function getRequestsPerMinute(): int
     {
-        return rand(100, 500);
+        return random_int(100, 500);
     }
 
     private function getAverageMemoryUsage(): float
     {
-        return rand(50, 200);
+        return random_int(50, 200);
     }
 
     private function getCacheHitRatio(): float
     {
-        return rand(80, 99);
+        return random_int(80, 99);
     }
 
     private function getRedisVersion(): string

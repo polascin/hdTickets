@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Override;
 use Tests\TestCase;
 
 class RoleBasedAccessControlTest extends TestCase
@@ -394,6 +395,7 @@ class RoleBasedAccessControlTest extends TestCase
         $response->assertRedirect('/dashboard/customer');
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

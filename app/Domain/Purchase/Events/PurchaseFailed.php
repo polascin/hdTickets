@@ -5,6 +5,7 @@ namespace App\Domain\Purchase\Events;
 use App\Domain\Purchase\ValueObjects\PurchaseId;
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use DateTimeImmutable;
+use Override;
 
 final class PurchaseFailed extends AbstractDomainEvent
 {
@@ -62,6 +63,7 @@ final class PurchaseFailed extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->purchaseId = new PurchaseId($payload['purchase_id']);

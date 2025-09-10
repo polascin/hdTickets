@@ -97,13 +97,11 @@ Route::middleware(['auth:sanctum'])->group(function (): void {
      *
      * Lightweight endpoint to check if session is still valid
      */
-    Route::get('/session/health', function (Request $request) {
-        return response()->json([
-            'success'       => TRUE,
-            'authenticated' => Auth::check(),
-            'timestamp'     => now()->toISOString(),
-        ]);
-    });
+    Route::get('/session/health', fn (Request $request) => response()->json([
+        'success'       => TRUE,
+        'authenticated' => Auth::check(),
+        'timestamp'     => now()->toISOString(),
+    ]));
 });
 
 /**
@@ -126,7 +124,7 @@ Route::get('/system/status', function () {
         try {
             Cache::put('health_check', 'ok', 60);
             $cacheWorking = Cache::get('health_check') === 'ok';
-        } catch (Exception $e) {
+        } catch (Exception) {
             $cacheWorking = FALSE;
         }
 
@@ -141,7 +139,7 @@ Route::get('/system/status', function () {
             ],
             'timestamp' => now()->toISOString(),
         ]);
-    } catch (Exception $e) {
+    } catch (Exception) {
         return response()->json([
             'status'    => 'down',
             'message'   => 'System health check failed',

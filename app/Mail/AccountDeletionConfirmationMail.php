@@ -15,21 +15,15 @@ class AccountDeletionConfirmationMail extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public User $user;
-
-    public AccountDeletionRequest $deletionRequest;
-
     public string $cancelUrl;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, AccountDeletionRequest $deletionRequest)
+    public function __construct(public User $user, public AccountDeletionRequest $deletionRequest)
     {
-        $this->user = $user;
-        $this->deletionRequest = $deletionRequest;
         $this->cancelUrl = route('account.deletion.cancel', [
-            'token' => $deletionRequest->confirmation_token,
+            'token' => $this->deletionRequest->confirmation_token,
         ]);
     }
 

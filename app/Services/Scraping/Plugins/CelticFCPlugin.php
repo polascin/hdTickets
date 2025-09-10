@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class CelticFCPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -161,23 +163,23 @@ class CelticFCPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['competition'])) {
-            $params['competition'] = urlencode($criteria['competition']);
+        if (! empty($criteria['competition'])) {
+            $params['competition'] = urlencode((string) $criteria['competition']);
         }
 
-        if (!empty($criteria['opponent'])) {
-            $params['opponent'] = urlencode($criteria['opponent']);
+        if (! empty($criteria['opponent'])) {
+            $params['opponent'] = urlencode((string) $criteria['opponent']);
         }
 
-        if (!empty($criteria['ticket_type'])) {
-            $params['type'] = urlencode($criteria['ticket_type']);
+        if (! empty($criteria['ticket_type'])) {
+            $params['type'] = urlencode((string) $criteria['ticket_type']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -188,7 +190,7 @@ class CelticFCPlugin extends BaseScraperPlugin
 
         $queryString = http_build_query($params);
 
-        return $baseUrl . ($queryString ? '?' . $queryString : '');
+        return $baseUrl . ($queryString !== '' && $queryString !== '0' ? '?' . $queryString : '');
     }
 
     /**
@@ -233,12 +235,12 @@ class CelticFCPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status, .sold-out');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title) && empty($opponent)) {
+            if (($title === '' || $title === '0') && ($opponent === '' || $opponent === '0')) {
                 return NULL;
             }
 
             // Build match title if needed
-            if (empty($title) && !empty($opponent)) {
+            if (($title === '' || $title === '0') && ($opponent !== '' && $opponent !== '0')) {
                 $title = "Celtic FC vs {$opponent}";
             }
 
@@ -292,31 +294,31 @@ class CelticFCPlugin extends BaseScraperPlugin
         $lowerComp = strtolower($competition);
 
         // Old Firm Derby (highest importance)
-        if (strpos($lowerOpponent, 'rangers') !== FALSE || strpos($lowerTitle, 'old firm') !== FALSE) {
+        if (str_contains($lowerOpponent, 'rangers') || str_contains($lowerTitle, 'old firm')) {
             return 'old_firm_derby';
         }
 
         // European competitions
-        if (strpos($lowerComp, 'champions league') !== FALSE) {
+        if (str_contains($lowerComp, 'champions league')) {
             return 'champions_league';
         }
-        if (strpos($lowerComp, 'europa league') !== FALSE) {
+        if (str_contains($lowerComp, 'europa league')) {
             return 'europa_league';
         }
-        if (strpos($lowerComp, 'europa conference') !== FALSE || strpos($lowerComp, 'conference league') !== FALSE) {
+        if (str_contains($lowerComp, 'europa conference') || str_contains($lowerComp, 'conference league')) {
             return 'europa_conference_league';
         }
 
         // Domestic cups
-        if (strpos($lowerComp, 'scottish cup') !== FALSE) {
+        if (str_contains($lowerComp, 'scottish cup')) {
             return 'scottish_cup';
         }
-        if (strpos($lowerComp, 'league cup') !== FALSE || strpos($lowerComp, 'viaplay cup') !== FALSE) {
+        if (str_contains($lowerComp, 'league cup') || str_contains($lowerComp, 'viaplay cup')) {
             return 'league_cup';
         }
 
         // League matches
-        if (strpos($lowerComp, 'premiership') !== FALSE || strpos($lowerComp, 'spfl') !== FALSE) {
+        if (str_contains($lowerComp, 'premiership') || str_contains($lowerComp, 'spfl')) {
             return 'scottish_premiership';
         }
 
@@ -330,19 +332,19 @@ class CelticFCPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out') || str_contains($lowerStatus, 'unavailable')) {
             return 'sold_out';
         }
 
-        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
+        if (str_contains($lowerStatus, 'limited') || str_contains($lowerStatus, 'few left')) {
             return 'limited';
         }
 
-        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
+        if (str_contains($lowerStatus, 'available') || str_contains($lowerStatus, 'on sale')) {
             return 'available';
         }
 
-        if (strpos($lowerStatus, 'season ticket') !== FALSE || strpos($lowerStatus, 'members only') !== FALSE) {
+        if (str_contains($lowerStatus, 'season ticket') || str_contains($lowerStatus, 'members only')) {
             return 'members_only';
         }
 
@@ -354,7 +356,7 @@ class CelticFCPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -376,7 +378,7 @@ class CelticFCPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 

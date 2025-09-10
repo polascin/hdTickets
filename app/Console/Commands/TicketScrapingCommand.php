@@ -24,15 +24,12 @@ class TicketScrapingCommand extends Command
     /** The console command description. */
     protected $description = 'Scrape tickets from various platforms and check alerts';
 
-    protected TicketScrapingService $scrapingService;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(TicketScrapingService $scrapingService)
+    public function __construct(protected TicketScrapingService $scrapingService)
     {
         parent::__construct();
-        $this->scrapingService = $scrapingService;
     }
 
     /**
@@ -68,10 +65,10 @@ class TicketScrapingCommand extends Command
             }
 
             // Default: Run both Manchester United and high-demand searches
-            if (!$this->option('check-alerts')
-                && !$this->option('manchester-united')
-                && !$this->option('high-demand')
-                && !$this->option('keywords')) {
+            if (! $this->option('check-alerts')
+                && ! $this->option('manchester-united')
+                && ! $this->option('high-demand')
+                && ! $this->option('keywords')) {
                 $this->info('Running default scraping: Manchester United + High-demand sports');
                 $this->scrapeManchesterUnited();
                 $this->scrapeHighDemandSports();
@@ -161,7 +158,7 @@ class TicketScrapingCommand extends Command
         $keywords = $this->option('keywords');
 
         // Ensure keywords is not null
-        if (!$keywords) {
+        if (! $keywords) {
             $this->error('Keywords must be provided');
 
             return;
@@ -183,7 +180,7 @@ class TicketScrapingCommand extends Command
         $this->info("📊 Found {$totalFound} tickets for '{$keywords}'");
 
         foreach ($results as $platform => $tickets) {
-            if (!empty($tickets)) {
+            if (! empty($tickets)) {
                 $this->line("  📍 {$platform}: " . count($tickets) . ' tickets');
             }
         }

@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Events\TicketAvailabilityUpdated;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Override;
 
 use function in_array;
 
@@ -130,28 +132,7 @@ class Ticket extends Model
         'resolved_at',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'due_date'            => 'datetime',
-        'last_activity_at'    => 'datetime',
-        'event_date'          => 'datetime',
-        'resolved_at'         => 'datetime',
-        'is_available'        => 'boolean',
-        'price'               => 'decimal:2',
-        'available_quantity'  => 'integer',
-        'tags'                => 'array',
-        'scraping_metadata'   => 'array',
-        'additional_metadata' => 'array',
-        'metadata'            => 'array',
-    ];
-
-    protected $dates = [
-        'deleted_at',
-    ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * Get the route key for the model
@@ -159,6 +140,7 @@ class Ticket extends Model
     /**
      * Get  route key name
      */
+    #[Override]
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -506,54 +488,6 @@ class Ticket extends Model
     }
 
     /**
-     * Get priority color for UI
-     */
-    /**
-     * Get  priority color attribute
-     */
-    public function getPriorityColorAttribute(): string
-    {
-        return match ($this->priority) {
-            self::PRIORITY_CRITICAL => 'red',
-            self::PRIORITY_URGENT   => 'orange',
-            self::PRIORITY_HIGH     => 'yellow',
-            self::PRIORITY_MEDIUM   => 'blue',
-            self::PRIORITY_LOW      => 'gray',
-            default                 => 'gray',
-        };
-    }
-
-    /**
-     * Get status color for UI
-     */
-    /**
-     * Get  status color attribute
-     */
-    public function getStatusColorAttribute(): string
-    {
-        return match ($this->status) {
-            self::STATUS_OPEN        => 'blue',
-            self::STATUS_IN_PROGRESS => 'yellow',
-            self::STATUS_PENDING     => 'orange',
-            self::STATUS_RESOLVED    => 'green',
-            self::STATUS_CLOSED      => 'gray',
-            self::STATUS_CANCELLED   => 'red',
-            default                  => 'gray',
-        };
-    }
-
-    /**
-     * Get formatted title with ticket number
-     */
-    /**
-     * Get  formatted title attribute
-     */
-    public function getFormattedTitleAttribute(): string
-    {
-        return "#{$this->id} - {$this->title}";
-    }
-
-    /**
      * Mark ticket as resolved
      */
     /**
@@ -589,7 +523,7 @@ class Ticket extends Model
     public function addTag(string $tag): bool
     {
         $tags = $this->tags ?? [];
-        if (!in_array($tag, $tags, TRUE)) {
+        if (! in_array($tag, $tags, TRUE)) {
             $tags[] = $tag;
 
             return $this->update(['tags' => $tags]);
@@ -618,11 +552,51 @@ class Ticket extends Model
     }
 
     /**
+     * Get  priority color attribute
+     */
+    protected function priorityColor(): Attribute
+    {
+        return Attribute::make(get: fn (): string => match ($this->priority) {
+            self::PRIORITY_CRITICAL => 'red',
+            self::PRIORITY_URGENT   => 'orange',
+            self::PRIORITY_HIGH     => 'yellow',
+            self::PRIORITY_MEDIUM   => 'blue',
+            self::PRIORITY_LOW      => 'gray',
+            default                 => 'gray',
+        });
+    }
+
+    /**
+     * Get  status color attribute
+     */
+    protected function statusColor(): Attribute
+    {
+        return Attribute::make(get: fn (): string => match ($this->status) {
+            self::STATUS_OPEN        => 'blue',
+            self::STATUS_IN_PROGRESS => 'yellow',
+            self::STATUS_PENDING     => 'orange',
+            self::STATUS_RESOLVED    => 'green',
+            self::STATUS_CLOSED      => 'gray',
+            self::STATUS_CANCELLED   => 'red',
+            default                  => 'gray',
+        });
+    }
+
+    /**
+     * Get  formatted title attribute
+     */
+    protected function formattedTitle(): Attribute
+    {
+        return Attribute::make(get: fn (): string => "#{$this->id} - {$this->title}");
+    }
+
+    /**
      * Boot the model
      */
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -642,5 +616,27 @@ class Ticket extends Model
                 event(new TicketAvailabilityUpdated($ticket));
             }
         });
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'due_date'            => 'datetime',
+            'last_activity_at'    => 'datetime',
+            'event_date'          => 'datetime',
+            'resolved_at'         => 'datetime',
+            'is_available'        => 'boolean',
+            'price'               => 'decimal:2',
+            'available_quantity'  => 'integer',
+            'tags'                => 'array',
+            'scraping_metadata'   => 'array',
+            'additional_metadata' => 'array',
+            'metadata'            => 'array',
+        ];
     }
 }

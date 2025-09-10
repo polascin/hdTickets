@@ -7,15 +7,22 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketSource;
 use App\Models\User;
 use App\Services\Analytics\AdvancedAnalyticsService;
+use App\Services\Analytics\AnalyticsExportService;
 use App\Services\Analytics\AnomalyDetectionService;
 use App\Services\Analytics\PredictiveAnalyticsEngine;
 use App\Services\CompetitiveIntelligenceService;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+
+use function array_slice;
+use function count;
+use function in_array;
 
 /**
  * Business Intelligence API Controller
@@ -30,7 +37,7 @@ class BusinessIntelligenceApiController extends Controller
         private AdvancedAnalyticsService $analyticsService,
         private CompetitiveIntelligenceService $competitiveService,
         private PredictiveAnalyticsEngine $predictiveEngine,
-        private AnomalyDetectionService $anomalyService
+        private AnomalyDetectionService $anomalyService,
     ) {
         // API routes require authentication and specific role permissions
         $this->middleware(['auth:sanctum', 'role:admin,agent']);
@@ -83,9 +90,7 @@ class BusinessIntelligenceApiController extends Controller
         $filters = $validator->validated();
         $cacheKey = 'bi_api_overview_' . md5(serialize($filters) . auth()->id());
 
-        $data = Cache::remember($cacheKey, 300, function () use ($filters) {
-            return $this->analyticsService->getDashboardData($filters);
-        });
+        $data = Cache::remember($cacheKey, 300, fn (): array => $this->analyticsService->getDashboardData($filters));
 
         return $this->successResponse([
             'overview_metrics'     => $data['overview_metrics'] ?? [],
@@ -216,15 +221,15 @@ class BusinessIntelligenceApiController extends Controller
 
         $platformsQuery = TicketSource::query();
 
-        if (!empty($filters['platform_id'])) {
+        if (! empty($filters['platform_id'])) {
             $platformsQuery->where('id', $filters['platform_id']);
         }
 
-        $platforms = $platformsQuery->with(['scrapedTickets' => function ($query) use ($dateRange) {
+        $platforms = $platformsQuery->with(['scrapedTickets' => function ($query) use ($dateRange): void {
             $query->where('created_at', '>=', $dateRange);
         }])->get();
 
-        $platformData = $platforms->map(function ($platform) use ($filters) {
+        $platformData = $platforms->map(function ($platform) use ($filters): array {
             $tickets = $platform->scrapedTickets;
 
             $baseData = [
@@ -237,7 +242,7 @@ class BusinessIntelligenceApiController extends Controller
 
             $includeMetrics = $filters['include_metrics'] ?? ['pricing', 'volume', 'trends'];
 
-            if (in_array('pricing', $includeMetrics)) {
+            if (in_array('pricing', $includeMetrics, TRUE)) {
                 $baseData['pricing_metrics'] = [
                     'average_price' => round($tickets->avg('price') ?: 0, 2),
                     'min_price'     => round($tickets->min('price') ?: 0, 2),
@@ -246,7 +251,7 @@ class BusinessIntelligenceApiController extends Controller
                 ];
             }
 
-            if (in_array('volume', $includeMetrics)) {
+            if (in_array('volume', $includeMetrics, TRUE)) {
                 $baseData['volume_metrics'] = [
                     'daily_average'   => round($tickets->count() / max(1, $tickets->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->count()), 2),
                     'peak_day_volume' => $tickets->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->map->count()->max() ?: 0,
@@ -254,11 +259,11 @@ class BusinessIntelligenceApiController extends Controller
                 ];
             }
 
-            if (in_array('trends', $includeMetrics)) {
+            if (in_array('trends', $includeMetrics, TRUE)) {
                 $baseData['trend_metrics'] = $this->calculatePlatformTrends($tickets);
             }
 
-            if (in_array('reliability', $includeMetrics)) {
+            if (in_array('reliability', $includeMetrics, TRUE)) {
                 $baseData['reliability_metrics'] = [
                     'uptime_percentage'  => 98.5, // This would be calculated from actual monitoring data
                     'data_quality_score' => $this->calculateDataQualityScore($tickets),
@@ -304,19 +309,12 @@ class BusinessIntelligenceApiController extends Controller
 
         $cacheKey = 'bi_competitive_' . $analysisType . '_' . md5(serialize($filters));
 
-        $data = Cache::remember($cacheKey, 1800, function () use ($analysisType, $filters) {
-            switch ($analysisType) {
-                case 'overview':
-                    return $this->competitiveService->getMarketOverview($filters);
-                case 'pricing':
-                    return $this->competitiveService->getPriceComparison($filters);
-                case 'positioning':
-                    return $this->competitiveService->getPlatformPositioning($filters);
-                case 'gaps':
-                    return $this->competitiveService->getCompetitiveGaps($filters);
-                default:
-                    return [];
-            }
+        $data = Cache::remember($cacheKey, 1800, fn (): array => match ($analysisType) {
+            'overview'    => $this->competitiveService->getMarketOverview($filters),
+            'pricing'     => $this->competitiveService->getPriceComparison($filters),
+            'positioning' => $this->competitiveService->getPlatformPositioning($filters),
+            'gaps'        => $this->competitiveService->getCompetitiveGaps($filters),
+            default       => [],
         });
 
         $response = [
@@ -327,7 +325,7 @@ class BusinessIntelligenceApiController extends Controller
         ];
 
         if ($filters['include_recommendations'] ?? FALSE) {
-            $response['recommendations'] = $this->generateBusinessRecommendations($analysisType, $data);
+            $response['recommendations'] = $this->generateBusinessRecommendations($analysisType);
         }
 
         return $this->successResponse($response);
@@ -357,19 +355,12 @@ class BusinessIntelligenceApiController extends Controller
 
         $cacheKey = 'bi_predictive_' . $predictionType . '_' . md5(serialize($filters));
 
-        $data = Cache::remember($cacheKey, 3600, function () use ($predictionType, $filters) {
-            switch ($predictionType) {
-                case 'price':
-                    return $this->predictiveEngine->getPricePredictions($filters);
-                case 'demand':
-                    return $this->predictiveEngine->getDemandForecast($filters);
-                case 'success':
-                    return $this->predictiveEngine->getEventSuccessProbability($filters);
-                case 'market_trends':
-                    return $this->predictiveEngine->getMarketTrendAnalysis($filters);
-                default:
-                    return [];
-            }
+        $data = Cache::remember($cacheKey, 3600, fn () => match ($predictionType) {
+            'price'         => $this->predictiveEngine->getPricePredictions($filters),
+            'demand'        => $this->predictiveEngine->getDemandForecast($filters),
+            'success'       => $this->predictiveEngine->getEventSuccessProbability($filters),
+            'market_trends' => $this->predictiveEngine->getMarketTrendAnalysis($filters),
+            default         => [],
         });
 
         return $this->successResponse([
@@ -407,12 +398,12 @@ class BusinessIntelligenceApiController extends Controller
         $anomalies = $this->anomalyService->detectRealTimeAnomalies($filters);
 
         // Filter and limit results
-        if (!empty($filters['severity'])) {
-            $anomalies = array_filter($anomalies, fn ($a) => $a['severity'] === $filters['severity']);
+        if (! empty($filters['severity'])) {
+            $anomalies = array_filter($anomalies, fn (array $a): bool => $a['severity'] === $filters['severity']);
         }
 
-        if (!empty($filters['category'])) {
-            $anomalies = array_filter($anomalies, fn ($a) => $a['category'] === $filters['category']);
+        if (! empty($filters['category'])) {
+            $anomalies = array_filter($anomalies, fn (array $a): bool => $a['category'] === $filters['category']);
         }
 
         $anomalies = array_slice($anomalies, 0, $limit);
@@ -421,8 +412,8 @@ class BusinessIntelligenceApiController extends Controller
             'anomalies' => $anomalies,
             'summary'   => [
                 'total_anomalies'     => count($anomalies),
-                'critical_count'      => count(array_filter($anomalies, fn ($a) => $a['severity'] === 'critical')),
-                'high_count'          => count(array_filter($anomalies, fn ($a) => $a['severity'] === 'high')),
+                'critical_count'      => count(array_filter($anomalies, fn (array $a): bool => $a['severity'] === 'critical')),
+                'high_count'          => count(array_filter($anomalies, fn (array $a): bool => $a['severity'] === 'high')),
                 'categories_affected' => array_unique(array_column($anomalies, 'category')),
             ],
             'generated_at'    => Carbon::now()->toISOString(),
@@ -454,12 +445,12 @@ class BusinessIntelligenceApiController extends Controller
         $params = $validator->validated();
 
         try {
-            $exportService = app(\App\Services\Analytics\AnalyticsExportService::class);
+            $exportService = app(AnalyticsExportService::class);
 
             $exportResult = $exportService->exportForApi(
                 $params['dataset'],
                 $params['format'],
-                $params
+                $params,
             );
 
             return $this->successResponse([
@@ -471,7 +462,7 @@ class BusinessIntelligenceApiController extends Controller
                 'expires_at'   => Carbon::now()->addHours(24)->toISOString(),
                 'generated_at' => Carbon::now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse('Export failed', ['error' => $e->getMessage()], 500);
         }
     }
@@ -499,7 +490,7 @@ class BusinessIntelligenceApiController extends Controller
 
         $usersQuery = User::query()->where('created_at', '>=', $dateRange);
 
-        if (!empty($filters['segment'])) {
+        if (! empty($filters['segment'])) {
             $usersQuery->where('role', $filters['segment']);
         }
 
@@ -535,23 +526,23 @@ class BusinessIntelligenceApiController extends Controller
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('scraped_tickets.created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('scraped_tickets.created_at', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('scraped_tickets.sport', $filters['sport']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('scraped_tickets.price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('scraped_tickets.price', '<=', $filters['price_max']);
         }
     }
@@ -563,7 +554,7 @@ class BusinessIntelligenceApiController extends Controller
             '30d'   => Carbon::now()->subDays(30),
             '90d'   => Carbon::now()->subDays(90),
             '1y'    => Carbon::now()->subYear(),
-            default => Carbon::now()->subDays(30)
+            default => Carbon::now()->subDays(30),
         };
     }
 
@@ -572,12 +563,12 @@ class BusinessIntelligenceApiController extends Controller
         // Compare current period with previous period
         $currentPeriod = ScrapedTicket::query()
             ->where('created_at', '>=', Carbon::now()->subDays(30))
-            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
+            ->when(! empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         $previousPeriod = ScrapedTicket::query()
             ->whereBetween('created_at', [Carbon::now()->subDays(60), Carbon::now()->subDays(30)])
-            ->when(!empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
+            ->when(! empty($filters['sport']), fn ($q) => $q->where('sport', $filters['sport']))
             ->get();
 
         return [
@@ -592,11 +583,11 @@ class BusinessIntelligenceApiController extends Controller
             'growth_rates' => [
                 'ticket_count_growth' => $this->calculateGrowthRate(
                     $previousPeriod->count(),
-                    $currentPeriod->count()
+                    $currentPeriod->count(),
                 ),
                 'avg_price_growth' => $this->calculateGrowthRate(
                     $previousPeriod->avg('price') ?: 0,
-                    $currentPeriod->avg('price') ?: 0
+                    $currentPeriod->avg('price') ?: 0,
                 ),
             ],
         ];
@@ -609,7 +600,7 @@ class BusinessIntelligenceApiController extends Controller
         }
 
         $mean = $collection->avg();
-        $variance = $collection->map(fn ($value) => pow($value - $mean, 2))->avg();
+        $variance = $collection->map(fn ($value): int|float => ($value - $mean) ** 2)->avg();
 
         return round(sqrt($variance), 2);
     }
@@ -642,22 +633,22 @@ class BusinessIntelligenceApiController extends Controller
         foreach ($tickets as $ticket) {
             $totalFields += 6; // Assuming 6 key fields per ticket
 
-            if (!empty($ticket->event_name)) {
+            if (! empty($ticket->event_name)) {
                 $validFields++;
             }
-            if (!empty($ticket->sport)) {
+            if (! empty($ticket->sport)) {
                 $validFields++;
             }
             if ($ticket->price > 0) {
                 $validFields++;
             }
-            if (!empty($ticket->event_date)) {
+            if (! empty($ticket->event_date)) {
                 $validFields++;
             }
-            if (!empty($ticket->venue)) {
+            if (! empty($ticket->venue)) {
                 $validFields++;
             }
-            if (!empty($ticket->url)) {
+            if (! empty($ticket->url)) {
                 $validFields++;
             }
         }
@@ -667,14 +658,14 @@ class BusinessIntelligenceApiController extends Controller
 
     private function calculateGrowthRate($previous, $current): float
     {
-        if ($previous == 0) {
+        if ($previous === 0) {
             return $current > 0 ? 100 : 0;
         }
 
         return round((($current - $previous) / $previous) * 100, 2);
     }
 
-    private function generateBusinessRecommendations(string $analysisType, array $data): array
+    private function generateBusinessRecommendations(string $analysisType): array
     {
         // Generate contextual business recommendations based on analysis type
         return match ($analysisType) {
@@ -694,7 +685,7 @@ class BusinessIntelligenceApiController extends Controller
                 'opportunity_focus'    => 'Prioritize high-opportunity market segments',
                 'competitive_response' => 'Develop rapid response capabilities for competitive threats',
             ],
-            default => []
+            default => [],
         };
     }
 
@@ -706,8 +697,8 @@ class BusinessIntelligenceApiController extends Controller
         if (RateLimiter::tooManyAttempts($rateLimitKey, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($rateLimitKey);
 
-            throw new \Illuminate\Http\Exceptions\ThrottleRequestsException(
-                "Too many requests. Try again in {$seconds} seconds."
+            throw new ThrottleRequestsException(
+                "Too many requests. Try again in {$seconds} seconds.",
             );
         }
 

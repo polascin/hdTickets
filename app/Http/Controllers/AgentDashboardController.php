@@ -23,7 +23,7 @@ class AgentDashboardController extends Controller
         $user = Auth::user();
 
         // Check if user has agent privileges or is admin
-        if (!$user->isAgent() && !$user->isAdmin()) {
+        if (! $user->isAgent() && ! $user->isAdmin()) {
             abort(403, 'Access denied. Agent privileges required.');
         }
 
@@ -45,15 +45,7 @@ class AgentDashboardController extends Controller
         // Get performance metrics
         $performanceMetrics = $this->getPerformanceMetrics($user);
 
-        return view('dashboard.agent', compact(
-            'user',
-            'agentMetrics',
-            'ticketData',
-            'purchaseData',
-            'alertData',
-            'recentActivity',
-            'performanceMetrics',
-        ));
+        return view('dashboard.agent', ['user' => $user, 'agentMetrics' => $agentMetrics, 'ticketData' => $ticketData, 'purchaseData' => $purchaseData, 'alertData' => $alertData, 'recentActivity' => $recentActivity, 'performanceMetrics' => $performanceMetrics]);
     }
 
     /**
@@ -63,14 +55,14 @@ class AgentDashboardController extends Controller
     {
         try {
             return [
-                'tickets_monitored'          => $this->getTicketsMonitoredCount($user),
-                'active_alerts'              => $this->getActiveAlertsCount($user),
-                'successful_purchases_today' => $this->getSuccessfulPurchasesToday($user),
-                'pending_purchase_decisions' => $this->getPendingPurchaseDecisions($user),
-                'price_drops_detected'       => $this->getPriceDropsDetected($user),
+                'tickets_monitored'          => $this->getTicketsMonitoredCount(),
+                'active_alerts'              => $this->getActiveAlertsCount(),
+                'successful_purchases_today' => $this->getSuccessfulPurchasesToday(),
+                'pending_purchase_decisions' => $this->getPendingPurchaseDecisions(),
+                'price_drops_detected'       => $this->getPriceDropsDetected(),
                 'high_demand_events'         => $this->getHighDemandEvents(),
-                'average_response_time'      => $this->getAverageResponseTime($user),
-                'success_rate'               => $this->getAgentSuccessRate($user),
+                'average_response_time'      => $this->getAverageResponseTime(),
+                'success_rate'               => $this->getAgentSuccessRate(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch agent metrics: ' . $e->getMessage());
@@ -86,7 +78,7 @@ class AgentDashboardController extends Controller
     {
         try {
             return [
-                'active_monitors'  => $this->getActiveMonitors($user),
+                'active_monitors'  => $this->getActiveMonitors(),
                 'trending_events'  => $this->getTrendingEvents(),
                 'best_deals'       => $this->getBestDeals(),
                 'new_availability' => $this->getNewAvailability(),
@@ -106,10 +98,10 @@ class AgentDashboardController extends Controller
     {
         try {
             return [
-                'pending_purchases'        => $this->getPendingPurchases($user),
-                'recent_purchases'         => $this->getRecentPurchases($user),
-                'queue_statistics'         => $this->getQueueStatistics($user),
-                'purchase_recommendations' => $this->getPurchaseRecommendations($user),
+                'pending_purchases'        => $this->getPendingPurchases(),
+                'recent_purchases'         => $this->getRecentPurchases(),
+                'queue_statistics'         => $this->getQueueStatistics(),
+                'purchase_recommendations' => $this->getPurchaseRecommendations(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch purchase queue data: ' . $e->getMessage());
@@ -125,10 +117,10 @@ class AgentDashboardController extends Controller
     {
         try {
             return [
-                'active_alerts'      => $this->getUserActiveAlerts($user),
-                'triggered_today'    => $this->getTriggeredAlertsToday($user),
-                'alert_performance'  => $this->getAlertPerformance($user),
-                'recommended_alerts' => $this->getRecommendedAlerts($user),
+                'active_alerts'      => $this->getUserActiveAlerts(),
+                'triggered_today'    => $this->getTriggeredAlertsToday(),
+                'alert_performance'  => $this->getAlertPerformance(),
+                'recommended_alerts' => $this->getRecommendedAlerts(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch alert data: ' . $e->getMessage());
@@ -183,9 +175,7 @@ class AgentDashboardController extends Controller
             }
 
             // Sort by timestamp and limit to recent 20
-            usort($activities, function ($a, $b) {
-                return strtotime($b['timestamp']) - strtotime($a['timestamp']);
-            });
+            usort($activities, fn (array $a, array $b): int => strtotime((string) $b['timestamp']) - strtotime((string) $a['timestamp']));
 
             return array_slice($activities, 0, 20);
         } catch (Exception $e) {
@@ -202,11 +192,11 @@ class AgentDashboardController extends Controller
     {
         try {
             return [
-                'success_rate'          => $this->getAgentSuccessRate($user),
-                'average_response_time' => $this->getAverageResponseTime($user),
-                'total_purchases'       => $this->getTotalPurchases($user),
-                'money_saved'           => $this->getMoneySpotted($user),
-                'alerts_effectiveness'  => $this->getAlertsEffectiveness($user),
+                'success_rate'          => $this->getAgentSuccessRate(),
+                'average_response_time' => $this->getAverageResponseTime(),
+                'total_purchases'       => $this->getTotalPurchases(),
+                'money_saved'           => $this->getMoneySpotted(),
+                'alerts_effectiveness'  => $this->getAlertsEffectiveness(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch performance metrics: ' . $e->getMessage());
@@ -216,27 +206,27 @@ class AgentDashboardController extends Controller
     }
 
     // Helper methods with default implementations
-    private function getTicketsMonitoredCount(User $user): int
+    private function getTicketsMonitoredCount(): int
     {
         return random_int(10, 50);
     }
 
-    private function getActiveAlertsCount(User $user): int
+    private function getActiveAlertsCount(): int
     {
         return random_int(5, 25);
     }
 
-    private function getSuccessfulPurchasesToday(User $user): int
+    private function getSuccessfulPurchasesToday(): int
     {
         return random_int(0, 5);
     }
 
-    private function getPendingPurchaseDecisions(User $user): int
+    private function getPendingPurchaseDecisions(): int
     {
         return random_int(0, 10);
     }
 
-    private function getPriceDropsDetected(User $user): int
+    private function getPriceDropsDetected(): int
     {
         return random_int(0, 15);
     }
@@ -250,12 +240,12 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getAverageResponseTime(User $user): float
+    private function getAverageResponseTime(): float
     {
         return round(random_int(100, 500) / 100, 2);
     }
 
-    private function getAgentSuccessRate(User $user): float
+    private function getAgentSuccessRate(): float
     {
         return round(random_int(75, 95), 1);
     }
@@ -274,7 +264,7 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getActiveMonitors(User $user): array
+    private function getActiveMonitors(): array
     {
         return [];
     }
@@ -310,22 +300,22 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getPendingPurchases(User $user): array
+    private function getPendingPurchases(): array
     {
         return [];
     }
 
-    private function getRecentPurchases(User $user): array
+    private function getRecentPurchases(): array
     {
         return [];
     }
 
-    private function getQueueStatistics(User $user): array
+    private function getQueueStatistics(): array
     {
         return [];
     }
 
-    private function getPurchaseRecommendations(User $user): array
+    private function getPurchaseRecommendations(): array
     {
         return [];
     }
@@ -340,22 +330,22 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getUserActiveAlerts(User $user): array
+    private function getUserActiveAlerts(): array
     {
         return [];
     }
 
-    private function getTriggeredAlertsToday(User $user): array
+    private function getTriggeredAlertsToday(): array
     {
         return [];
     }
 
-    private function getAlertPerformance(User $user): array
+    private function getAlertPerformance(): array
     {
         return [];
     }
 
-    private function getRecommendedAlerts(User $user): array
+    private function getRecommendedAlerts(): array
     {
         return [];
     }
@@ -370,17 +360,17 @@ class AgentDashboardController extends Controller
         ];
     }
 
-    private function getTotalPurchases(User $user): int
+    private function getTotalPurchases(): int
     {
         return random_int(0, 100);
     }
 
-    private function getMoneySpotted(User $user): float
+    private function getMoneySpotted(): float
     {
         return round(random_int(100, 5000), 2);
     }
 
-    private function getAlertsEffectiveness(User $user): float
+    private function getAlertsEffectiveness(): float
     {
         return round(random_int(60, 90), 1);
     }

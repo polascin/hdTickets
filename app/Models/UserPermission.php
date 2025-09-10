@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterval;
+use DateInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,13 +27,6 @@ class UserPermission extends Model
         'granted_at',
         'expires_at',
         'granted_by',
-    ];
-
-    protected $casts = [
-        'granted_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**
@@ -60,8 +55,6 @@ class UserPermission extends Model
 
     /**
      * Check if permission is expired
-     *
-     * @return bool
      */
     public function isExpired(): bool
     {
@@ -70,26 +63,28 @@ class UserPermission extends Model
 
     /**
      * Check if permission is active (not expired)
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
-        return !$this->isExpired();
+        return ! $this->isExpired();
     }
 
     /**
      * Scope for active permissions only
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }
 
     /**
      * Scope for expired permissions only
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
@@ -98,6 +93,8 @@ class UserPermission extends Model
 
     /**
      * Scope for specific resource type
+     *
+     * @param mixed $query
      */
     public function scopeResourceType($query, ?string $resourceType)
     {
@@ -110,15 +107,20 @@ class UserPermission extends Model
 
     /**
      * Scope for specific resource
+     *
+     * @param mixed $query
+     * @param mixed $resourceId
      */
     public function scopeResource($query, string $resourceType, $resourceId)
     {
         return $query->where('resource_type', $resourceType)
-                    ->where('resource_id', $resourceId);
+            ->where('resource_id', $resourceId);
     }
 
     /**
      * Scope for temporary permissions (with expiration)
+     *
+     * @param mixed $query
      */
     public function scopeTemporary($query)
     {
@@ -127,6 +129,8 @@ class UserPermission extends Model
 
     /**
      * Scope for permanent permissions (without expiration)
+     *
+     * @param mixed $query
      */
     public function scopePermanent($query)
     {
@@ -135,12 +139,10 @@ class UserPermission extends Model
 
     /**
      * Get remaining time until expiration
-     *
-     * @return \Carbon\CarbonInterval|null
      */
-    public function getTimeUntilExpiration(): ?\Carbon\CarbonInterval
+    public function getTimeUntilExpiration(): ?CarbonInterval
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return NULL;
         }
 
@@ -149,13 +151,10 @@ class UserPermission extends Model
 
     /**
      * Extend expiration time
-     *
-     * @param  \DateInterval $interval
-     * @return bool
      */
-    public function extend(\DateInterval $interval): bool
+    public function extend(DateInterval $interval): bool
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return FALSE;
         }
 
@@ -166,13 +165,21 @@ class UserPermission extends Model
 
     /**
      * Make permission permanent (remove expiration)
-     *
-     * @return bool
      */
     public function makePermanent(): bool
     {
         $this->expires_at = NULL;
 
         return $this->save();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'granted_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
     }
 }

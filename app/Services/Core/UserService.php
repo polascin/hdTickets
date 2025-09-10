@@ -3,6 +3,7 @@
 namespace App\Services\Core;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserService
 {
@@ -26,7 +27,7 @@ class UserService
         return $user->delete();
     }
 
-    public function getUsersByRole(string $role): \Illuminate\Database\Eloquent\Collection
+    public function getUsersByRole(string $role): Collection
     {
         return User::where('role', $role)->get();
     }

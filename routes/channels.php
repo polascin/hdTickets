@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
-});
+Broadcast::channel('App.Models.User.{id}', fn ($user, $id): bool => (int) $user->id === (int) $id);
 
 /*
 |--------------------------------------------------------------------------
@@ -28,53 +26,33 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 */
 
 // Public channels - no authentication required
-Broadcast::channel('ticket.{ticketId}', function () {
-    // Public channel for ticket-specific updates
-    return true;
-});
+Broadcast::channel('ticket.{ticketId}', fn (): true => // Public channel for ticket-specific updates
+    TRUE);
 
-Broadcast::channel('platform.{platform}', function () {
-    // Public channel for platform-wide updates
-    return true;
-});
+Broadcast::channel('platform.{platform}', fn (): true => // Public channel for platform-wide updates
+    TRUE);
 
-Broadcast::channel('price-alerts', function () {
-    // Public channel for price alert notifications
-    return true;
-});
+Broadcast::channel('price-alerts', fn (): true => // Public channel for price alert notifications
+    TRUE);
 
-Broadcast::channel('availability-alerts', function () {
-    // Public channel for availability change notifications
-    return true;
-});
+Broadcast::channel('availability-alerts', fn (): true => // Public channel for availability change notifications
+    TRUE);
 
-Broadcast::channel('status-alerts', function () {
-    // Public channel for ticket status change notifications
-    return true;
-});
+Broadcast::channel('status-alerts', fn (): true => // Public channel for ticket status change notifications
+    TRUE);
 
-Broadcast::channel('system.announcements', function () {
-    // Public channel for system-wide announcements
-    return true;
-});
+Broadcast::channel('system.announcements', fn (): true => // Public channel for system-wide announcements
+    TRUE);
 
-Broadcast::channel('search.{searchId}', function () {
-    // Public channel for search-related updates
-    return true;
-});
+Broadcast::channel('search.{searchId}', fn (): true => // Public channel for search-related updates
+    TRUE);
 
 // Private channels - authentication required
-Broadcast::channel('user.{userId}', function ($user, $userId) {
-    // Private channel for user-specific notifications
-    return $user && (int) $user->id === (int) $userId;
-});
+Broadcast::channel('user.{userId}', fn ($user, $userId): bool => // Private channel for user-specific notifications
+    $user && (int) $user->id === (int) $userId);
 
-Broadcast::channel('user.{userId}.bookmarks', function ($user, $userId) {
-    // Private channel for user bookmark updates
-    return $user && (int) $user->id === (int) $userId;
-});
+Broadcast::channel('user.{userId}.bookmarks', fn ($user, $userId): bool => // Private channel for user bookmark updates
+    $user && (int) $user->id === (int) $userId);
 
-Broadcast::channel('user.{userId}.alerts', function ($user, $userId) {
-    // Private channel for user price alerts
-    return $user && (int) $user->id === (int) $userId;
-});
+Broadcast::channel('user.{userId}.alerts', fn ($user, $userId): bool => // Private channel for user price alerts
+    $user && (int) $user->id === (int) $userId);

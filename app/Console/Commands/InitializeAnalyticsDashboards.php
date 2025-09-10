@@ -96,7 +96,7 @@ class InitializeAnalyticsDashboards extends Command
     {
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             $this->error("❌ User with ID {$userId} not found!");
 
             return;
@@ -123,7 +123,7 @@ class InitializeAnalyticsDashboards extends Command
             // Check if user already has a default dashboard
             $existingDashboard = AnalyticsDashboard::getDefaultForUser($user->id);
 
-            if ($existingDashboard && !$force) {
+            if ($existingDashboard && ! $force) {
                 return FALSE; // Skip if dashboard exists and not forcing
             }
 
@@ -257,7 +257,7 @@ class InitializeAnalyticsDashboards extends Command
             DB::connection()->getPdo();
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -276,7 +276,7 @@ class InitializeAnalyticsDashboards extends Command
             Cache::forget('analytics_test');
 
             return $value === 'test_value';
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -292,7 +292,7 @@ class InitializeAnalyticsDashboards extends Command
         try {
             // Simple check to see if queue configuration exists
             return config('queue.default') !== NULL;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -315,13 +315,13 @@ class InitializeAnalyticsDashboards extends Command
 
         try {
             foreach ($requiredTables as $table) {
-                if (!DB::getSchemaBuilder()->hasTable($table)) {
+                if (! DB::getSchemaBuilder()->hasTable($table)) {
                     return FALSE;
                 }
             }
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -338,7 +338,7 @@ class InitializeAnalyticsDashboards extends Command
             $service = app(AdvancedAnalyticsDashboard::class);
 
             return TRUE; // Service is available if we reach this point
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }

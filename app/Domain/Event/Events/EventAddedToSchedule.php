@@ -5,6 +5,7 @@ namespace App\Domain\Event\Events;
 use App\Domain\Event\ValueObjects\EventId;
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use DateTimeImmutable;
+use Override;
 
 final class EventAddedToSchedule extends AbstractDomainEvent
 {
@@ -53,6 +54,7 @@ final class EventAddedToSchedule extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->eventId = new EventId($payload['event_id']);

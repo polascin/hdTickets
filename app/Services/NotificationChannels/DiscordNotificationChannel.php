@@ -36,7 +36,7 @@ class DiscordNotificationChannel
         try {
             $discordSettings = $this->getUserDiscordSettings($user);
 
-            if (!$discordSettings || !$discordSettings->is_enabled) {
+            if (! $discordSettings || ! $discordSettings->is_enabled) {
                 Log::info('Discord notifications disabled for user', ['user_id' => $user->id]);
 
                 return FALSE;
@@ -131,7 +131,7 @@ class DiscordNotificationChannel
      */
     public function addReaction(string $channelId, string $messageId, string $emoji): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             return FALSE;
         }
 
@@ -160,7 +160,7 @@ class DiscordNotificationChannel
      */
     public function editMessage(string $channelId, string $messageId, array $alertData): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             return FALSE;
         }
 
@@ -199,7 +199,7 @@ class DiscordNotificationChannel
      */
     public function sendThreadMessage(string $channelId, string $messageId, string $content): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             return FALSE;
         }
 
@@ -235,7 +235,7 @@ class DiscordNotificationChannel
      */
     public function getGuildInfo(string $guildId): ?array
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             return NULL;
         }
 
@@ -267,7 +267,7 @@ class DiscordNotificationChannel
      */
     public function getGuildRoles(string $guildId): array
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             return [];
         }
 
@@ -304,7 +304,6 @@ class DiscordNotificationChannel
     protected function buildDiscordMessage(array $alertData, $discordSettings): array
     {
         $ticket = $alertData['ticket'];
-        $alert = $alertData['alert'];
         $priority = $alertData['priority_label'] ?? 'Normal';
         $isPing = $alertData['ping'] ?? FALSE;
         $isUrgent = $alertData['urgent'] ?? FALSE;
@@ -355,7 +354,7 @@ class DiscordNotificationChannel
         ];
 
         // Add venue and date if available
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $embed['fields'][] = [
                 'name'   => 'Venue',
                 'value'  => $ticket['venue'],
@@ -363,10 +362,10 @@ class DiscordNotificationChannel
             ];
         }
 
-        if (!empty($ticket['event_date'])) {
+        if (! empty($ticket['event_date'])) {
             $embed['fields'][] = [
                 'name'   => 'Date',
-                'value'  => date('M j, Y g:i A', strtotime($ticket['event_date'])),
+                'value'  => date('M j, Y g:i A', strtotime((string) $ticket['event_date'])),
                 'inline' => TRUE,
             ];
         }
@@ -396,7 +395,7 @@ class DiscordNotificationChannel
                 $contextValue .= "**Recommendation:** {$context['recommendation']}\n";
             }
 
-            if ($contextValue) {
+            if ($contextValue !== '' && $contextValue !== '0') {
                 $embed['fields'][] = [
                     'name'   => 'ℹ️ Context',
                     'value'  => trim($contextValue),
@@ -443,7 +442,7 @@ class DiscordNotificationChannel
             ];
 
             // Add snooze button for non-urgent alerts
-            if (!$isUrgent && isset($alertData['actions']['snooze_alert'])) {
+            if (! $isUrgent && isset($alertData['actions']['snooze_alert'])) {
                 $actionRow['components'][] = [
                     'type'  => 2, // Button
                     'style' => 5, // Link
@@ -504,7 +503,7 @@ class DiscordNotificationChannel
     {
         $webhookUrl = $discordSettings->webhook_url ?? $this->webhookUrl;
 
-        if (!$webhookUrl) {
+        if (! $webhookUrl) {
             Log::warning('No Discord webhook URL configured');
 
             return FALSE;
@@ -537,7 +536,7 @@ class DiscordNotificationChannel
      */
     protected function sendViaBotAPI(array $message, $discordSettings): bool
     {
-        if (!$this->botToken || !$discordSettings->discord_user_id) {
+        if (! $this->botToken || ! $discordSettings->discord_user_id) {
             Log::warning('No Discord bot token or user ID configured');
 
             return FALSE;
@@ -552,7 +551,7 @@ class DiscordNotificationChannel
                 'recipient_id' => $discordSettings->discord_user_id,
             ]);
 
-            if (!$dmResponse->successful()) {
+            if (! $dmResponse->successful()) {
                 Log::error('Failed to create Discord DM channel', [
                     'status'   => $dmResponse->status(),
                     'response' => $dmResponse->body(),
@@ -599,10 +598,8 @@ class DiscordNotificationChannel
      */
     protected function getUserDiscordSettings(User $user)
     {
-        return Cache::remember("discord_settings:{$user->id}", 3600, function () use ($user) {
-            return UserNotificationSettings::where('user_id', $user->id)
-                ->where('channel', 'discord')
-                ->first();
-        });
+        return Cache::remember("discord_settings:{$user->id}", 3600, fn () => UserNotificationSettings::where('user_id', $user->id)
+            ->where('channel', 'discord')
+            ->first());
     }
 }

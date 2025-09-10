@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Domain\Event\Models\SportsEvent;
+use DateTime;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,14 +31,6 @@ class ResourceAccess extends Model
         'context',
     ];
 
-    protected $casts = [
-        'granted_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'context'    => 'array',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
     /**
      * User who has the resource access
      */
@@ -54,8 +49,6 @@ class ResourceAccess extends Model
 
     /**
      * Check if access is expired
-     *
-     * @return bool
      */
     public function isExpired(): bool
     {
@@ -64,26 +57,28 @@ class ResourceAccess extends Model
 
     /**
      * Check if access is active (not expired)
-     *
-     * @return bool
      */
     public function isActive(): bool
     {
-        return !$this->isExpired();
+        return ! $this->isExpired();
     }
 
     /**
      * Scope for active access only
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         });
     }
 
     /**
      * Scope for expired access only
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
@@ -92,6 +87,8 @@ class ResourceAccess extends Model
 
     /**
      * Scope for specific resource type
+     *
+     * @param mixed $query
      */
     public function scopeResourceType($query, string $resourceType)
     {
@@ -100,15 +97,20 @@ class ResourceAccess extends Model
 
     /**
      * Scope for specific resource
+     *
+     * @param mixed $query
+     * @param mixed $resourceId
      */
     public function scopeResource($query, string $resourceType, $resourceId)
     {
         return $query->where('resource_type', $resourceType)
-                    ->where('resource_id', $resourceId);
+            ->where('resource_id', $resourceId);
     }
 
     /**
      * Scope for specific action
+     *
+     * @param mixed $query
      */
     public function scopeAction($query, string $action)
     {
@@ -117,6 +119,8 @@ class ResourceAccess extends Model
 
     /**
      * Scope for user access
+     *
+     * @param mixed $query
      */
     public function scopeForUser($query, int $userId)
     {
@@ -125,60 +129,36 @@ class ResourceAccess extends Model
 
     /**
      * Get the actual resource model if it exists
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function getResource(): ?\Illuminate\Database\Eloquent\Model
+    public function getResource(): ?Model
     {
-        if (!$this->resource_type || !$this->resource_id) {
+        if (! $this->resource_type || ! $this->resource_id) {
             return NULL;
         }
 
         try {
             $modelClass = $this->getResourceModelClass();
-            if (!$modelClass) {
+            if (! $modelClass) {
                 return NULL;
             }
 
             return $modelClass::find($this->resource_id);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return NULL;
         }
     }
 
     /**
-     * Get the model class for the resource type
-     *
-     * @return string|null
-     */
-    protected function getResourceModelClass(): ?string
-    {
-        $resourceTypeMap = [
-            'ticket'     => \App\Models\Ticket::class,
-            'user'       => \App\Models\User::class,
-            'role'       => \App\Models\Role::class,
-            'permission' => \App\Models\Permission::class,
-            'event'      => \App\Domain\Event\Models\SportsEvent::class,
-            // Add more resource type mappings as needed
-        ];
-
-        return $resourceTypeMap[$this->resource_type] ?? NULL;
-    }
-
-    /**
      * Check if context matches given criteria
-     *
-     * @param  array $criteria
-     * @return bool
      */
     public function matchesContext(array $criteria): bool
     {
-        if (empty($this->context) || empty($criteria)) {
-            return empty($this->context) && empty($criteria);
+        if (empty($this->context) || $criteria === []) {
+            return empty($this->context) && $criteria === [];
         }
 
         foreach ($criteria as $key => $value) {
-            if (!isset($this->context[$key]) || $this->context[$key] !== $value) {
+            if (! isset($this->context[$key]) || $this->context[$key] !== $value) {
                 return FALSE;
             }
         }
@@ -189,13 +169,7 @@ class ResourceAccess extends Model
     /**
      * Grant access to resource for user
      *
-     * @param  User           $user
-     * @param  string         $resourceType
-     * @param  mixed          $resourceId
-     * @param  string         $action
-     * @param  array          $context
-     * @param  \DateTime|null $expiresAt
-     * @return ResourceAccess
+     * @param mixed $resourceId
      */
     public static function grant(
         User $user,
@@ -203,8 +177,8 @@ class ResourceAccess extends Model
         $resourceId,
         string $action,
         array $context = [],
-        ?\DateTime $expiresAt = NULL
-    ): ResourceAccess {
+        ?DateTime $expiresAt = NULL,
+    ): self {
         return static::create([
             'user_id'       => $user->id,
             'resource_type' => $resourceType,
@@ -220,11 +194,7 @@ class ResourceAccess extends Model
     /**
      * Revoke access to resource for user
      *
-     * @param  User   $user
-     * @param  string $resourceType
-     * @param  mixed  $resourceId
-     * @param  string $action
-     * @return int
+     * @param mixed $resourceId
      */
     public static function revoke(User $user, string $resourceType, $resourceId, string $action): int
     {
@@ -238,26 +208,21 @@ class ResourceAccess extends Model
     /**
      * Check if user has access to resource
      *
-     * @param  User   $user
-     * @param  string $resourceType
-     * @param  mixed  $resourceId
-     * @param  string $action
-     * @param  array  $context
-     * @return bool
+     * @param mixed $resourceId
      */
     public static function hasAccess(
         User $user,
         string $resourceType,
         $resourceId,
         string $action,
-        array $context = []
+        array $context = [],
     ): bool {
         $query = static::forUser($user->id)
             ->resource($resourceType, $resourceId)
             ->action($action)
             ->active();
 
-        if (!empty($context)) {
+        if ($context !== []) {
             // For context matching, we need to check each record individually
             foreach ($query->get() as $access) {
                 if ($access->matchesContext($context)) {
@@ -269,5 +234,33 @@ class ResourceAccess extends Model
         }
 
         return $query->exists();
+    }
+
+    /**
+     * Get the model class for the resource type
+     */
+    protected function getResourceModelClass(): ?string
+    {
+        $resourceTypeMap = [
+            'ticket'     => Ticket::class,
+            'user'       => User::class,
+            'role'       => Role::class,
+            'permission' => Permission::class,
+            'event'      => SportsEvent::class,
+            // Add more resource type mappings as needed
+        ];
+
+        return $resourceTypeMap[$this->resource_type] ?? NULL;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'granted_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'context'    => 'array',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+        ];
     }
 }

@@ -21,13 +21,10 @@ use function in_array;
 
 class AuthenticationService
 {
-    protected $securityService;
+    protected Agent $agent;
 
-    protected $agent;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
         $this->agent = new Agent();
     }
 
@@ -45,7 +42,7 @@ class AuthenticationService
         // Find user
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $this->logFailedAttempt($request, $email, 'user_not_found');
 
             return ['success' => FALSE, 'reason' => 'invalid_credentials'];
@@ -57,7 +54,7 @@ class AuthenticationService
         }
 
         // Verify password
-        if (!Hash::check($password, $user->password)) {
+        if (! Hash::check($password, $user->password)) {
             $this->handleFailedLogin($user, $request, 'invalid_password');
 
             return ['success' => FALSE, 'reason' => 'invalid_credentials'];
@@ -65,7 +62,7 @@ class AuthenticationService
 
         // Check for suspicious login patterns
         $suspiciousFlags = $this->detectSuspiciousActivity($user, $request);
-        if (!empty($suspiciousFlags) && in_array('high_risk', $suspiciousFlags, TRUE)) {
+        if ($suspiciousFlags !== [] && in_array('high_risk', $suspiciousFlags, TRUE)) {
             $this->handleSuspiciousLogin($user, $request, $suspiciousFlags);
 
             return ['success' => FALSE, 'reason' => 'suspicious_activity'];
@@ -154,13 +151,13 @@ class AuthenticationService
 
             // Check if token is revoked
             $tokenData = Cache::get("jwt_token:{$decoded->jti}");
-            if (!$tokenData) {
+            if (! $tokenData) {
                 return NULL;
             }
 
             // Get user
             $user = User::find($decoded->sub);
-            if (!$user || !$user->is_active) {
+            if (! $user || ! $user->is_active) {
                 return NULL;
             }
 
@@ -170,7 +167,7 @@ class AuthenticationService
             ]), now()->addDay());
 
             return $user;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return NULL;
         }
     }
@@ -217,7 +214,7 @@ class AuthenticationService
     {
         $codeData = Cache::get("oauth_code:{$code}");
 
-        if (!$codeData
+        if (! $codeData
             || $codeData['client_id'] !== $clientId
             || $codeData['redirect_uri'] !== $redirectUri
             || $codeData['expires_at'] < time()) {
@@ -228,7 +225,7 @@ class AuthenticationService
         Cache::forget("oauth_code:{$code}");
 
         $user = User::find($codeData['user_id']);
-        if (!$user) {
+        if (! $user) {
             return NULL;
         }
 
@@ -289,7 +286,7 @@ class AuthenticationService
     {
         $challengeData = Cache::get("biometric_challenge:{$user->id}");
 
-        if (!$challengeData
+        if (! $challengeData
             || $challengeData['challenge'] !== $challenge
             || $challengeData['expires_at'] < time()
             || $challengeData['device_fingerprint'] !== $this->generateDeviceFingerprint($request)) {
@@ -317,6 +314,8 @@ class AuthenticationService
      */
     /**
      * DetectLoginAnomaly
+     *
+     * @return string[]
      */
     public function detectLoginAnomaly(User $user, Request $request): array
     {
@@ -336,7 +335,7 @@ class AuthenticationService
                 ->values();
 
             $currentHour = $currentTime->hour;
-            $timeDifference = $usualHours->map(fn ($hour) => abs($hour - $currentHour))->min();
+            $timeDifference = $usualHours->map(fn ($hour): float|int => abs($hour - $currentHour))->min();
 
             if ($timeDifference >= 6) {
                 $anomalies[] = 'unusual_time';
@@ -360,7 +359,7 @@ class AuthenticationService
                 ->where('success', TRUE)
                 ->exists();
 
-            if (!$hasLoginFromCountry) {
+            if (! $hasLoginFromCountry) {
                 $anomalies[] = 'new_location';
             }
         }
@@ -432,7 +431,7 @@ class AuthenticationService
     {
         $sessionData = Cache::get("session:{$sessionId}");
 
-        if (!$sessionData || $sessionData['expires_at'] < time()) {
+        if (! $sessionData || $sessionData['expires_at'] < time()) {
             return NULL;
         }
 
@@ -447,12 +446,10 @@ class AuthenticationService
         }
 
         // Validate IP if required
-        if (config('security.session.ip_validation')) {
-            if ($sessionData['ip_address'] !== $request->ip()) {
-                Cache::forget("session:{$sessionId}");
+        if (config('security.session.ip_validation') && $sessionData['ip_address'] !== $request->ip()) {
+            Cache::forget("session:{$sessionId}");
 
-                return NULL;
-            }
+            return NULL;
         }
 
         // Update last activity
@@ -590,6 +587,8 @@ class AuthenticationService
      */
     /**
      * DetectSuspiciousActivity
+     *
+     * @return string[]
      */
     protected function detectSuspiciousActivity(User $user, Request $request): array
     {
@@ -702,8 +701,8 @@ class AuthenticationService
     protected function hasBackupMethods(User $user): array
     {
         return [
-            'sms'            => !empty($user->phone),
-            'email'          => !empty($user->email),
+            'sms'            => ! empty($user->phone),
+            'email'          => ! empty($user->email),
             'recovery_codes' => $user->two_factor_recovery_codes !== NULL,
         ];
     }

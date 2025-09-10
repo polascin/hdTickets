@@ -6,22 +6,19 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class SmartTicketAlert extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $alertData;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(array $alertData)
+    public function __construct(protected array $alertData)
     {
-        $this->alertData = $alertData;
-
         // Set queue based on priority
-        $this->onQueue($this->getQueueName($alertData['priority'] ?? 2));
+        $this->onQueue($this->getQueueName($this->alertData['priority'] ?? 2));
     }
 
     /**
@@ -73,12 +70,12 @@ class SmartTicketAlert extends Notification implements ShouldQueue
             ->line("**Platform:** {$ticket['platform']}");
 
         // Add venue and date if available
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $message->line("**Venue:** {$ticket['venue']}");
         }
 
-        if (!empty($ticket['event_date'])) {
-            $message->line('**Date:** ' . date('M j, Y g:i A', strtotime($ticket['event_date'])));
+        if (! empty($ticket['event_date'])) {
+            $message->line('**Date:** ' . date('M j, Y g:i A', strtotime((string) $ticket['event_date'])));
         }
 
         // Add ML insights if available
@@ -225,8 +222,8 @@ class SmartTicketAlert extends Notification implements ShouldQueue
             'ticket_alert',
             'priority:' . ($this->alertData['priority'] ?? 2),
             'ticket:' . $ticket['id'],
-            'platform:' . strtolower($ticket['platform']),
-            'event:' . str_slug($ticket['event_name']),
+            'platform:' . strtolower((string) $ticket['platform']),
+            'event:' . Str::slug($ticket['event_name']),
         ];
     }
 
@@ -260,15 +257,14 @@ class SmartTicketAlert extends Notification implements ShouldQueue
      */
     protected function getQueueName(int $priority): string
     {
-        switch ($priority) {
-            case 5: // Critical
-                return 'notifications-critical';
-            case 4: // High
-                return 'notifications-high';
-            case 3: // Medium
-                return 'notifications-medium';
-            default:
-                return 'notifications-default';
-        }
+        return match ($priority) {
+            // Critical
+            5 => 'notifications-critical',
+            // High
+            4 => 'notifications-high',
+            // Medium
+            3       => 'notifications-medium',
+            default => 'notifications-default',
+        };
     }
 }

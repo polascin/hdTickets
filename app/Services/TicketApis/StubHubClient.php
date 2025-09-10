@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMXPath;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -28,7 +29,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first if credentials are available
-        if (!empty($this->config['api_key']) && !empty($this->config['app_token'])) {
+        if (! empty($this->config['api_key']) && ! empty($this->config['app_token'])) {
             try {
                 return $this->searchEventsViaApi($criteria);
             } catch (Exception $e) {
@@ -74,7 +75,7 @@ class StubHubClient extends BaseWebScrapingClient
     public function getEvent(string $eventId): array
     {
         // Try API first if available
-        if (!empty($this->config['api_key'])) {
+        if (! empty($this->config['api_key'])) {
             try {
                 return $this->getEventViaApi($eventId);
             } catch (Exception $e) {
@@ -166,11 +167,11 @@ class StubHubClient extends BaseWebScrapingClient
             'Content-Type' => 'application/json',
         ];
 
-        if (!empty($this->config['api_key'])) {
+        if (! empty($this->config['api_key'])) {
             $headers['Authorization'] = 'Bearer ' . $this->config['api_key'];
         }
 
-        if (!empty($this->config['app_token'])) {
+        if (! empty($this->config['app_token'])) {
             $headers['X-SH-Application-Token'] = $this->config['app_token'];
         }
 
@@ -246,7 +247,7 @@ class StubHubClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (!empty($event['name'])) {
+                        if (! empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -302,7 +303,7 @@ class StubHubClient extends BaseWebScrapingClient
             $url = $this->trySelectors($node, [
                 'a[href*="/event/"]',
             ], 'href');
-            if ($url) {
+            if ($url !== '' && $url !== '0') {
                 $event['url'] = $this->normalizeUrl($url);
                 $event['id'] = $this->extractEventIdFromUrl($event['url']);
             }
@@ -313,7 +314,7 @@ class StubHubClient extends BaseWebScrapingClient
                 'time',
                 '.event-date',
             ]);
-            if ($date) {
+            if ($date !== '' && $date !== '0') {
                 $event['date'] = $date;
                 $event['parsed_date'] = $this->parseEventDate($date);
             }
@@ -330,7 +331,7 @@ class StubHubClient extends BaseWebScrapingClient
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
 
-            if (!empty($prices)) {
+            if ($prices !== []) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
@@ -393,7 +394,7 @@ class StubHubClient extends BaseWebScrapingClient
                 }
             }
             $event['prices'] = $prices;
-            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = implode(' - ', $prices);
 
             // Extract min/max prices
             $this->extractPriceRange($event, $prices);
@@ -581,7 +582,7 @@ class StubHubClient extends BaseWebScrapingClient
             return 'soldout';
         }
 
-        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
@@ -604,9 +605,10 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * NormalizeUrl
      */
+    #[Override]
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
-        if (strpos($url, 'http') !== 0) {
+        if (! str_starts_with($url, 'http')) {
             return 'https://www.stubhub.com' . $url;
         }
 
@@ -632,18 +634,18 @@ class StubHubClient extends BaseWebScrapingClient
      */
     protected function extractPriceRange(array &$event, array $prices): void
     {
-        if (empty($prices)) {
+        if ($prices === []) {
             return;
         }
 
         $numericPrices = [];
         foreach ($prices as $price) {
-            if (preg_match('/\$?([\d,]+(?:\.\d{2})?)/', $price, $matches)) {
+            if (preg_match('/\$?([\d,]+(?:\.\d{2})?)/', (string) $price, $matches)) {
                 $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if ($numericPrices !== []) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -652,14 +654,15 @@ class StubHubClient extends BaseWebScrapingClient
     /**
      * ParseEventDate
      */
+    #[Override]
     protected function parseEventDate(string $dateString): ?DateTime
     {
-        if (empty($dateString)) {
+        if ($dateString === '' || $dateString === '0') {
             return NULL;
         }
 
         // Clean up the date string
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
+        $dateString = trim((string) preg_replace('/\s+/', ' ', $dateString));
 
         $formats = [
             'M j, Y \a\t g:i A',
@@ -679,14 +682,14 @@ class StubHubClient extends BaseWebScrapingClient
                 if ($date) {
                     return $date;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
 
         try {
             return new DateTime($dateString);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return NULL;
         }
     }
@@ -708,7 +711,7 @@ class StubHubClient extends BaseWebScrapingClient
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (!empty($jsonLdData)) {
+            if ($jsonLdData !== []) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
@@ -773,7 +776,7 @@ class StubHubClient extends BaseWebScrapingClient
             foreach ($priceSelectors as $selector) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$prices): void {
                     $text = $node->text();
-                    if (preg_match('/\$([0-9,]+(?:\.[0-9]{2})?)/', $text, $matches)) {
+                    if (preg_match('/\$([0-9,]+(?:\.\d{2})?)/', $text, $matches)) {
                         $prices[] = [
                             'price'    => (float) (str_replace(',', '', $matches[1])),
                             'currency' => 'USD',
@@ -782,7 +785,7 @@ class StubHubClient extends BaseWebScrapingClient
                     }
                 });
 
-                if (!empty($prices)) {
+                if ($prices !== []) {
                     break;
                 }
             }
@@ -882,19 +885,19 @@ class StubHubClient extends BaseWebScrapingClient
     {
         $sectionName = strtolower($sectionName);
 
-        if (strpos($sectionName, 'vip') !== FALSE || strpos($sectionName, 'premium') !== FALSE) {
+        if (str_contains($sectionName, 'vip') || str_contains($sectionName, 'premium')) {
             return 'premium';
         }
 
-        if (strpos($sectionName, 'floor') !== FALSE || strpos($sectionName, 'pit') !== FALSE) {
+        if (str_contains($sectionName, 'floor') || str_contains($sectionName, 'pit')) {
             return 'floor';
         }
 
-        if (strpos($sectionName, 'upper') !== FALSE || strpos($sectionName, 'balcony') !== FALSE) {
+        if (str_contains($sectionName, 'upper') || str_contains($sectionName, 'balcony')) {
             return 'upper';
         }
 
-        if (strpos($sectionName, 'lower') !== FALSE || strpos($sectionName, 'orchestra') !== FALSE) {
+        if (str_contains($sectionName, 'lower') || str_contains($sectionName, 'orchestra')) {
             return 'lower';
         }
 
@@ -930,7 +933,7 @@ class StubHubClient extends BaseWebScrapingClient
      */
     protected function determineCountry(string $location): string
     {
-        if (empty($location)) {
+        if ($location === '' || $location === '0') {
             return 'United States'; // StubHub default
         }
 

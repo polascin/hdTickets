@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,13 +20,6 @@ class TicketPriceHistory extends Model
         'recorded_at',
         'source',
         'metadata',
-    ];
-
-    protected $casts = [
-        'recorded_at' => 'datetime',
-        'price'       => 'decimal:2',
-        'quantity'    => 'integer',
-        'metadata'    => 'array',
     ];
 
     /**
@@ -62,46 +56,6 @@ class TicketPriceHistory extends Model
     }
 
     /**
-     * Get price change percentage since last record
-     */
-    /**
-     * Get  price change attribute
-     */
-    public function getPriceChangeAttribute(): ?float
-    {
-        $previousRecord = static::where('ticket_id', $this->ticket_id)
-            ->where('recorded_at', '<', $this->recorded_at)
-            ->orderBy('recorded_at', 'desc')
-            ->first();
-
-        if (!$previousRecord || $previousRecord->price === 0) {
-            return NULL;
-        }
-
-        return (($this->price - $previousRecord->price) / $previousRecord->price) * 100;
-    }
-
-    /**
-     * Get quantity change since last record
-     */
-    /**
-     * Get  quantity change attribute
-     */
-    public function getQuantityChangeAttribute(): ?int
-    {
-        $previousRecord = static::where('ticket_id', $this->ticket_id)
-            ->where('recorded_at', '<', $this->recorded_at)
-            ->orderBy('recorded_at', 'desc')
-            ->first();
-
-        if (!$previousRecord) {
-            return NULL;
-        }
-
-        return $this->quantity - $previousRecord->quantity;
-    }
-
-    /**
      * Calculate average price for a time period
      */
     /**
@@ -132,9 +86,7 @@ class TicketPriceHistory extends Model
         }
 
         $mean = array_sum($prices) / count($prices);
-        $variance = array_sum(array_map(function ($price) use ($mean) {
-            return pow($price - $mean, 2);
-        }, $prices)) / count($prices);
+        $variance = array_sum(array_map(fn ($price): float|int => ($price - $mean) ** 2, $prices)) / count($prices);
 
         return sqrt($variance);
     }
@@ -216,5 +168,51 @@ class TicketPriceHistory extends Model
     public static function cleanup(int $daysToKeep = 90): int
     {
         return static::where('recorded_at', '<', now()->subDays($daysToKeep))->delete();
+    }
+
+    /**
+     * Get  price change attribute
+     */
+    protected function priceChange(): Attribute
+    {
+        return Attribute::make(get: function (): null|int|float {
+            $previousRecord = static::where('ticket_id', $this->ticket_id)
+                ->where('recorded_at', '<', $this->recorded_at)
+                ->orderBy('recorded_at', 'desc')
+                ->first();
+            if (! $previousRecord || $previousRecord->price === 0) {
+                return NULL;
+            }
+
+            return (($this->price - $previousRecord->price) / $previousRecord->price) * 100;
+        });
+    }
+
+    /**
+     * Get  quantity change attribute
+     */
+    protected function quantityChange(): Attribute
+    {
+        return Attribute::make(get: function (): null|int|float {
+            $previousRecord = static::where('ticket_id', $this->ticket_id)
+                ->where('recorded_at', '<', $this->recorded_at)
+                ->orderBy('recorded_at', 'desc')
+                ->first();
+            if (! $previousRecord) {
+                return NULL;
+            }
+
+            return $this->quantity - $previousRecord->quantity;
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'recorded_at' => 'datetime',
+            'price'       => 'decimal:2',
+            'quantity'    => 'integer',
+            'metadata'    => 'array',
+        ];
     }
 }

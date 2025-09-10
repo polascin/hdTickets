@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,15 +22,6 @@ class DeletedUser extends Model
         'recovered_at',
     ];
 
-    protected $casts = [
-        'user_data'         => 'array',
-        'related_data'      => 'array',
-        'deleted_at'        => 'datetime',
-        'recoverable_until' => 'datetime',
-        'is_recovered'      => 'boolean',
-        'recovered_at'      => 'datetime',
-    ];
-
     /**
      * Check if the user can still be recovered
      */
@@ -38,7 +30,7 @@ class DeletedUser extends Model
      */
     public function isRecoverable(): bool
     {
-        return !$this->is_recovered && $this->recoverable_until->isFuture();
+        return ! $this->is_recovered && $this->recoverable_until->isFuture();
     }
 
     /**
@@ -49,7 +41,7 @@ class DeletedUser extends Model
      */
     public function isRecoveryExpired(): bool
     {
-        return !$this->is_recovered && $this->recoverable_until->isPast();
+        return ! $this->is_recovered && $this->recoverable_until->isPast();
     }
 
     /**
@@ -60,26 +52,11 @@ class DeletedUser extends Model
      */
     public function getRemainingRecoveryTime(): ?Carbon
     {
-        if (!$this->isRecoverable()) {
+        if (! $this->isRecoverable()) {
             return NULL;
         }
 
         return $this->recoverable_until;
-    }
-
-    /**
-     * Get human readable time remaining for recovery
-     */
-    /**
-     * Get  recovery time remaining attribute
-     */
-    public function getRecoveryTimeRemainingAttribute(): ?string
-    {
-        if (!$this->isRecoverable()) {
-            return NULL;
-        }
-
-        return $this->recoverable_until->diffForHumans();
     }
 
     /**
@@ -90,7 +67,7 @@ class DeletedUser extends Model
      */
     public function markRecovered(): bool
     {
-        if (!$this->isRecoverable()) {
+        if (! $this->isRecoverable()) {
             return FALSE;
         }
 
@@ -132,5 +109,31 @@ class DeletedUser extends Model
     public function scopeRecovered($query)
     {
         return $query->where('is_recovered', TRUE);
+    }
+
+    /**
+     * Get  recovery time remaining attribute
+     */
+    protected function recoveryTimeRemaining(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->isRecoverable()) {
+                return;
+            }
+
+            return $this->recoverable_until->diffForHumans();
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'user_data'         => 'array',
+            'related_data'      => 'array',
+            'deleted_at'        => 'datetime',
+            'recoverable_until' => 'datetime',
+            'is_recovered'      => 'boolean',
+            'recovered_at'      => 'datetime',
+        ];
     }
 }

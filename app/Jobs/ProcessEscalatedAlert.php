@@ -28,17 +28,13 @@ class ProcessEscalatedAlert implements ShouldQueue
 
     public $maxExceptions = 3;
 
-    protected $escalation;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(AlertEscalation $escalation)
+    public function __construct(protected AlertEscalation $escalation)
     {
-        $this->escalation = $escalation;
-
         // Set queue based on priority
-        $this->onQueue($this->getQueueName($escalation->priority));
+        $this->onQueue($this->getQueueName($this->escalation->priority));
     }
 
     /**
@@ -61,7 +57,7 @@ class ProcessEscalatedAlert implements ShouldQueue
             $this->escalation->refresh();
 
             // Check if escalation is still valid before processing
-            if (!$this->escalation->isValid()) {
+            if (! $this->escalation->isValid()) {
                 Log::info('Escalation is no longer valid, skipping', [
                     'escalation_id' => $this->escalation->id,
                     'status'        => $this->escalation->status,
@@ -198,16 +194,15 @@ class ProcessEscalatedAlert implements ShouldQueue
      */
     protected function getQueueName(int $priority): string
     {
-        switch ($priority) {
-            case 5: // Critical
-                return 'alerts-critical';
-            case 4: // High
-                return 'alerts-high';
-            case 3: // Medium
-                return 'alerts-medium';
-            default:
-                return 'alerts-default';
-        }
+        return match ($priority) {
+            // Critical
+            5 => 'alerts-critical',
+            // High
+            4 => 'alerts-high',
+            // Medium
+            3       => 'alerts-medium',
+            default => 'alerts-default',
+        };
     }
 
     /**

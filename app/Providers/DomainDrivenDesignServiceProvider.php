@@ -3,20 +3,25 @@
 namespace App\Providers;
 
 use App\Application\Commands\CreateSportsEventCommandHandler;
-// Domain Services
 use App\Application\Queries\GetUpcomingEventsQueryHandler;
-// Repository Interfaces
 use App\Contracts\Analytics\TicketMetricsInterface;
+use App\Domain\Event\Events\SportEventCreated;
+use App\Domain\Event\Events\SportEventMarkedAsHighDemand;
 use App\Domain\Event\Repositories\SportsEventRepositoryInterface;
-// Infrastructure Implementations
+// Domain Services
 use App\Domain\Event\Services\EventManagementService;
-// Command Handlers
+// Repository Interfaces
+use App\Domain\Ticket\Events\TicketAvailabilityChanged;
+use App\Domain\Ticket\Events\TicketPriceChanged;
+// Infrastructure Implementations
 use App\Infrastructure\External\TicketmasterAntiCorruptionLayer;
-// Query Handlers
+// Command Handlers
 use App\Infrastructure\Persistence\EloquentSportsEventRepository;
-// External Services
+// Query Handlers
 use App\Services\Analytics\TicketMetricsService;
+// External Services
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class DomainDrivenDesignServiceProvider extends ServiceProvider
 {
@@ -26,6 +31,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         // Bind Repository Interfaces to Implementations
@@ -35,26 +41,20 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         );
 
         // Register Domain Services
-        $this->app->singleton(EventManagementService::class, function ($app) {
-            return new EventManagementService(
-                $app->make(SportsEventRepositoryInterface::class),
-            );
-        });
+        $this->app->singleton(EventManagementService::class, fn ($app): EventManagementService => new EventManagementService(
+            $app->make(SportsEventRepositoryInterface::class),
+        ));
 
         // Register Command Handlers
-        $this->app->bind(CreateSportsEventCommandHandler::class, function ($app) {
-            return new CreateSportsEventCommandHandler(
-                $app->make(EventManagementService::class),
-                $app->make(SportsEventRepositoryInterface::class),
-            );
-        });
+        $this->app->bind(CreateSportsEventCommandHandler::class, fn ($app): CreateSportsEventCommandHandler => new CreateSportsEventCommandHandler(
+            $app->make(EventManagementService::class),
+            $app->make(SportsEventRepositoryInterface::class),
+        ));
 
         // Register Query Handlers
-        $this->app->bind(GetUpcomingEventsQueryHandler::class, function ($app) {
-            return new GetUpcomingEventsQueryHandler(
-                $app->make(SportsEventRepositoryInterface::class),
-            );
-        });
+        $this->app->bind(GetUpcomingEventsQueryHandler::class, fn ($app): GetUpcomingEventsQueryHandler => new GetUpcomingEventsQueryHandler(
+            $app->make(SportsEventRepositoryInterface::class),
+        ));
 
         // Register Anti-Corruption Layers
         $this->app->singleton(TicketmasterAntiCorruptionLayer::class);
@@ -113,9 +113,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         // This would register event store, event bus, etc.
         // For now, we'll use Laravel's built-in event system
 
-        $this->app->singleton('domain.event_bus', function ($app) {
-            return $app->make('events');
-        });
+        $this->app->singleton('domain.event_bus', fn ($app) => $app->make('events'));
     }
 
     /**
@@ -129,10 +127,8 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         // Register analytics services, metrics collectors, etc.
         // This would be expanded based on analytics requirements
 
-        $this->app->bind('analytics.ticket_metrics', function ($app) {
-            // Return analytics service for ticket metrics
-            return $app->make(TicketMetricsService::class);
-        });
+        $this->app->bind('analytics.ticket_metrics', fn ($app) => // Return analytics service for ticket metrics
+            $app->make(TicketMetricsService::class));
 
         // Bind the interface to the implementation
         $this->app->bind(
@@ -151,7 +147,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
     {
         // Event Management Context Events
         $this->app->make('events')->listen(
-            \App\Domain\Event\Events\SportEventCreated::class,
+            SportEventCreated::class,
             function ($event): void {
                 // Handle sport event created
                 // Could trigger notifications, analytics, etc.
@@ -164,7 +160,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         );
 
         $this->app->make('events')->listen(
-            \App\Domain\Event\Events\SportEventMarkedAsHighDemand::class,
+            SportEventMarkedAsHighDemand::class,
             function ($event): void {
                 // Handle high demand marking
                 // Could trigger price monitoring, alerts, etc.
@@ -176,7 +172,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
 
         // Ticket Monitoring Context Events
         $this->app->make('events')->listen(
-            \App\Domain\Ticket\Events\TicketPriceChanged::class,
+            TicketPriceChanged::class,
             function ($event): void {
                 // Handle ticket price changes
                 // Could trigger notifications, analytics, purchase decisions
@@ -197,7 +193,7 @@ class DomainDrivenDesignServiceProvider extends ServiceProvider
         );
 
         $this->app->make('events')->listen(
-            \App\Domain\Ticket\Events\TicketAvailabilityChanged::class,
+            TicketAvailabilityChanged::class,
             function ($event): void {
                 // Handle ticket availability changes
                 $this->app->make('analytics.ticket_metrics')

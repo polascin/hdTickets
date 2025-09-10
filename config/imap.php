@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | IMAP Configuration for HD Tickets Sports Events Monitoring System
@@ -21,65 +20,63 @@ return [
     |--------------------------------------------------------------------------
     |
     | Define multiple IMAP connections for different email providers.
-    | Each connection can be used for monitoring different types of 
+    | Each connection can be used for monitoring different types of
     | sports event notifications.
     |
     */
 
     'connections' => [
-
         'gmail' => [
-            'host' => env('IMAP_GMAIL_HOST', 'imap.gmail.com'),
-            'port' => env('IMAP_GMAIL_PORT', 993),
-            'protocol' => env('IMAP_GMAIL_PROTOCOL', 'imap'),
-            'encryption' => env('IMAP_GMAIL_ENCRYPTION', 'ssl'),
-            'validate_cert' => env('IMAP_GMAIL_VALIDATE_CERT', true),
-            'username' => env('IMAP_GMAIL_USERNAME'),
-            'password' => env('IMAP_GMAIL_PASSWORD'),
-            'timeout' => env('IMAP_GMAIL_TIMEOUT', 60),
-            'retry_count' => env('IMAP_GMAIL_RETRY_COUNT', 3),
-            'retry_delay' => env('IMAP_GMAIL_RETRY_DELAY', 5), // seconds
+            'host'          => env('IMAP_GMAIL_HOST', 'imap.gmail.com'),
+            'port'          => env('IMAP_GMAIL_PORT', 993),
+            'protocol'      => env('IMAP_GMAIL_PROTOCOL', 'imap'),
+            'encryption'    => env('IMAP_GMAIL_ENCRYPTION', 'ssl'),
+            'validate_cert' => env('IMAP_GMAIL_VALIDATE_CERT', TRUE),
+            'username'      => env('IMAP_GMAIL_USERNAME'),
+            'password'      => env('IMAP_GMAIL_PASSWORD'),
+            'timeout'       => env('IMAP_GMAIL_TIMEOUT', 60),
+            'retry_count'   => env('IMAP_GMAIL_RETRY_COUNT', 3),
+            'retry_delay'   => env('IMAP_GMAIL_RETRY_DELAY', 5), // seconds
         ],
 
         'outlook' => [
-            'host' => env('IMAP_OUTLOOK_HOST', 'outlook.office365.com'),
-            'port' => env('IMAP_OUTLOOK_PORT', 993),
-            'protocol' => env('IMAP_OUTLOOK_PROTOCOL', 'imap'),
-            'encryption' => env('IMAP_OUTLOOK_ENCRYPTION', 'ssl'),
-            'validate_cert' => env('IMAP_OUTLOOK_VALIDATE_CERT', true),
-            'username' => env('IMAP_OUTLOOK_USERNAME'),
-            'password' => env('IMAP_OUTLOOK_PASSWORD'),
-            'timeout' => env('IMAP_OUTLOOK_TIMEOUT', 60),
-            'retry_count' => env('IMAP_OUTLOOK_RETRY_COUNT', 3),
-            'retry_delay' => env('IMAP_OUTLOOK_RETRY_DELAY', 5),
+            'host'          => env('IMAP_OUTLOOK_HOST', 'outlook.office365.com'),
+            'port'          => env('IMAP_OUTLOOK_PORT', 993),
+            'protocol'      => env('IMAP_OUTLOOK_PROTOCOL', 'imap'),
+            'encryption'    => env('IMAP_OUTLOOK_ENCRYPTION', 'ssl'),
+            'validate_cert' => env('IMAP_OUTLOOK_VALIDATE_CERT', TRUE),
+            'username'      => env('IMAP_OUTLOOK_USERNAME'),
+            'password'      => env('IMAP_OUTLOOK_PASSWORD'),
+            'timeout'       => env('IMAP_OUTLOOK_TIMEOUT', 60),
+            'retry_count'   => env('IMAP_OUTLOOK_RETRY_COUNT', 3),
+            'retry_delay'   => env('IMAP_OUTLOOK_RETRY_DELAY', 5),
         ],
 
         'yahoo' => [
-            'host' => env('IMAP_YAHOO_HOST', 'imap.mail.yahoo.com'),
-            'port' => env('IMAP_YAHOO_PORT', 993),
-            'protocol' => env('IMAP_YAHOO_PROTOCOL', 'imap'),
-            'encryption' => env('IMAP_YAHOO_ENCRYPTION', 'ssl'),
-            'validate_cert' => env('IMAP_YAHOO_VALIDATE_CERT', true),
-            'username' => env('IMAP_YAHOO_USERNAME'),
-            'password' => env('IMAP_YAHOO_PASSWORD'),
-            'timeout' => env('IMAP_YAHOO_TIMEOUT', 60),
-            'retry_count' => env('IMAP_YAHOO_RETRY_COUNT', 3),
-            'retry_delay' => env('IMAP_YAHOO_RETRY_DELAY', 5),
+            'host'          => env('IMAP_YAHOO_HOST', 'imap.mail.yahoo.com'),
+            'port'          => env('IMAP_YAHOO_PORT', 993),
+            'protocol'      => env('IMAP_YAHOO_PROTOCOL', 'imap'),
+            'encryption'    => env('IMAP_YAHOO_ENCRYPTION', 'ssl'),
+            'validate_cert' => env('IMAP_YAHOO_VALIDATE_CERT', TRUE),
+            'username'      => env('IMAP_YAHOO_USERNAME'),
+            'password'      => env('IMAP_YAHOO_PASSWORD'),
+            'timeout'       => env('IMAP_YAHOO_TIMEOUT', 60),
+            'retry_count'   => env('IMAP_YAHOO_RETRY_COUNT', 3),
+            'retry_delay'   => env('IMAP_YAHOO_RETRY_DELAY', 5),
         ],
 
         'custom' => [
-            'host' => env('IMAP_CUSTOM_HOST'),
-            'port' => env('IMAP_CUSTOM_PORT', 993),
-            'protocol' => env('IMAP_CUSTOM_PROTOCOL', 'imap'),
-            'encryption' => env('IMAP_CUSTOM_ENCRYPTION', 'ssl'),
-            'validate_cert' => env('IMAP_CUSTOM_VALIDATE_CERT', true),
-            'username' => env('IMAP_CUSTOM_USERNAME'),
-            'password' => env('IMAP_CUSTOM_PASSWORD'),
-            'timeout' => env('IMAP_CUSTOM_TIMEOUT', 60),
-            'retry_count' => env('IMAP_CUSTOM_RETRY_COUNT', 3),
-            'retry_delay' => env('IMAP_CUSTOM_RETRY_DELAY', 5),
+            'host'          => env('IMAP_CUSTOM_HOST'),
+            'port'          => env('IMAP_CUSTOM_PORT', 993),
+            'protocol'      => env('IMAP_CUSTOM_PROTOCOL', 'imap'),
+            'encryption'    => env('IMAP_CUSTOM_ENCRYPTION', 'ssl'),
+            'validate_cert' => env('IMAP_CUSTOM_VALIDATE_CERT', TRUE),
+            'username'      => env('IMAP_CUSTOM_USERNAME'),
+            'password'      => env('IMAP_CUSTOM_PASSWORD'),
+            'timeout'       => env('IMAP_CUSTOM_TIMEOUT', 60),
+            'retry_count'   => env('IMAP_CUSTOM_RETRY_COUNT', 3),
+            'retry_delay'   => env('IMAP_CUSTOM_RETRY_DELAY', 5),
         ],
-
     ],
 
     /*
@@ -93,7 +90,6 @@ return [
     */
 
     'monitoring' => [
-
         // Default mailbox to monitor (usually INBOX)
         'default_mailbox' => env('IMAP_DEFAULT_MAILBOX', 'INBOX'),
 
@@ -113,17 +109,16 @@ return [
         'max_age_days' => env('IMAP_MAX_AGE_DAYS', 7),
 
         // Mark processed emails as read
-        'mark_as_read' => env('IMAP_MARK_AS_READ', true),
+        'mark_as_read' => env('IMAP_MARK_AS_READ', TRUE),
 
         // Move processed emails to specific folder
-        'move_processed' => env('IMAP_MOVE_PROCESSED', false),
+        'move_processed'   => env('IMAP_MOVE_PROCESSED', FALSE),
         'processed_folder' => env('IMAP_PROCESSED_FOLDER', 'INBOX.Processed'),
 
         // Archive old emails
-        'auto_archive' => env('IMAP_AUTO_ARCHIVE', false),
-        'archive_folder' => env('IMAP_ARCHIVE_FOLDER', 'INBOX.Archive'),
+        'auto_archive'       => env('IMAP_AUTO_ARCHIVE', FALSE),
+        'archive_folder'     => env('IMAP_ARCHIVE_FOLDER', 'INBOX.Archive'),
         'archive_after_days' => env('IMAP_ARCHIVE_AFTER_DAYS', 30),
-
     ],
 
     /*
@@ -137,7 +132,6 @@ return [
     */
 
     'platform_patterns' => [
-
         'ticketmaster' => [
             'from_patterns' => [
                 '*@ticketmaster.com',
@@ -267,7 +261,6 @@ return [
                 'match',
             ],
         ],
-
     ],
 
     /*
@@ -280,13 +273,12 @@ return [
     */
 
     'security' => [
-
         // Enable SSL/TLS verification
-        'verify_peer' => env('IMAP_VERIFY_PEER', true),
-        'verify_peer_name' => env('IMAP_VERIFY_PEER_NAME', true),
+        'verify_peer'      => env('IMAP_VERIFY_PEER', TRUE),
+        'verify_peer_name' => env('IMAP_VERIFY_PEER_NAME', TRUE),
 
         // Allow self-signed certificates (use only for testing)
-        'allow_self_signed' => env('IMAP_ALLOW_SELF_SIGNED', false),
+        'allow_self_signed' => env('IMAP_ALLOW_SELF_SIGNED', FALSE),
 
         // Connection timeout in seconds
         'connection_timeout' => env('IMAP_CONNECTION_TIMEOUT', 30),
@@ -298,9 +290,8 @@ return [
         'max_email_size_mb' => env('IMAP_MAX_EMAIL_SIZE_MB', 10),
 
         // Enable rate limiting for email processing
-        'rate_limiting' => env('IMAP_RATE_LIMITING', true),
+        'rate_limiting'         => env('IMAP_RATE_LIMITING', TRUE),
         'rate_limit_per_minute' => env('IMAP_RATE_LIMIT_PER_MINUTE', 60),
-
     ],
 
     /*
@@ -313,9 +304,8 @@ return [
     */
 
     'logging' => [
-
         // Enable detailed logging
-        'enabled' => env('IMAP_LOGGING_ENABLED', true),
+        'enabled' => env('IMAP_LOGGING_ENABLED', TRUE),
 
         // Log level (debug, info, warning, error)
         'level' => env('IMAP_LOGGING_LEVEL', 'info'),
@@ -324,17 +314,16 @@ return [
         'channel' => env('IMAP_LOGGING_CHANNEL', 'imap'),
 
         // Log successful email processing
-        'log_processed' => env('IMAP_LOG_PROCESSED', true),
+        'log_processed' => env('IMAP_LOG_PROCESSED', TRUE),
 
         // Log failed email processing
-        'log_failures' => env('IMAP_LOG_FAILURES', true),
+        'log_failures' => env('IMAP_LOG_FAILURES', TRUE),
 
         // Log connection events
-        'log_connections' => env('IMAP_LOG_CONNECTIONS', true),
+        'log_connections' => env('IMAP_LOG_CONNECTIONS', TRUE),
 
         // Maximum log file size (in MB)
         'max_log_size_mb' => env('IMAP_MAX_LOG_SIZE_MB', 100),
-
     ],
 
     /*
@@ -347,9 +336,8 @@ return [
     */
 
     'queue' => [
-
         // Enable queue processing
-        'enabled' => env('IMAP_QUEUE_ENABLED', true),
+        'enabled' => env('IMAP_QUEUE_ENABLED', TRUE),
 
         // Queue connection to use
         'connection' => env('IMAP_QUEUE_CONNECTION', 'redis'),
@@ -362,7 +350,6 @@ return [
 
         // Delay between retry attempts (in seconds)
         'retry_delay' => env('IMAP_QUEUE_RETRY_DELAY', 60),
-
     ],
 
     /*
@@ -375,9 +362,8 @@ return [
     */
 
     'cache' => [
-
         // Enable caching
-        'enabled' => env('IMAP_CACHE_ENABLED', true),
+        'enabled' => env('IMAP_CACHE_ENABLED', TRUE),
 
         // Cache driver
         'driver' => env('IMAP_CACHE_DRIVER', 'redis'),
@@ -393,7 +379,5 @@ return [
 
         // Processed emails cache TTL (in hours)
         'processed_ttl' => env('IMAP_PROCESSED_CACHE_TTL', 24),
-
     ],
-
 ];

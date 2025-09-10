@@ -21,50 +21,48 @@ class TicketCriteriaController extends Controller
         $cacheKey = "ticket_criteria_{$userId}";
 
         /** @phpstan-ignore-next-line */
-        $criteria = Cache::remember($cacheKey, 1800, function () {
-            return collect([
-                [
-                    'id'                    => 1,
-                    'name'                  => 'Lakers Home Games',
-                    'description'           => 'Lakers games at Crypto.com Arena',
-                    'is_active'             => TRUE,
-                    'platforms'             => ['ticketmaster', 'stubhub', 'seatgeek'],
-                    'keywords'              => ['Lakers', 'Los Angeles Lakers'],
-                    'venue_keywords'        => ['Crypto.com Arena', 'Staples Center'],
-                    'price_range'           => ['min' => 100, 'max' => 500],
-                    'section_preferences'   => ['Lower Bowl', 'Club Level'],
-                    'exclude_keywords'      => ['parking', 'merchandise'],
-                    'notification_settings' => [
-                        'email'                => TRUE,
-                        'sms'                  => FALSE,
-                        'push'                 => TRUE,
-                        'price_drop_threshold' => 15,
-                    ],
-                    'created_at' => now()->subDays(5)->toISOString(),
-                    'updated_at' => now()->subHours(2)->toISOString(),
+        $criteria = Cache::remember($cacheKey, 1800, fn () => collect([
+            [
+                'id'                    => 1,
+                'name'                  => 'Lakers Home Games',
+                'description'           => 'Lakers games at Crypto.com Arena',
+                'is_active'             => TRUE,
+                'platforms'             => ['ticketmaster', 'stubhub', 'seatgeek'],
+                'keywords'              => ['Lakers', 'Los Angeles Lakers'],
+                'venue_keywords'        => ['Crypto.com Arena', 'Staples Center'],
+                'price_range'           => ['min' => 100, 'max' => 500],
+                'section_preferences'   => ['Lower Bowl', 'Club Level'],
+                'exclude_keywords'      => ['parking', 'merchandise'],
+                'notification_settings' => [
+                    'email'                => TRUE,
+                    'sms'                  => FALSE,
+                    'push'                 => TRUE,
+                    'price_drop_threshold' => 15,
                 ],
-                [
-                    'id'                    => 2,
-                    'name'                  => 'NFL Playoff Games',
-                    'description'           => 'Any NFL playoff games nationwide',
-                    'is_active'             => TRUE,
-                    'platforms'             => ['ticketmaster', 'stubhub', 'viagogo'],
-                    'keywords'              => ['NFL', 'Playoff', 'Championship'],
-                    'venue_keywords'        => [],
-                    'price_range'           => ['min' => 200, 'max' => 1200],
-                    'section_preferences'   => ['Lower Level', 'Club'],
-                    'exclude_keywords'      => ['standing room', 'obstructed view'],
-                    'notification_settings' => [
-                        'email'                => TRUE,
-                        'sms'                  => TRUE,
-                        'push'                 => TRUE,
-                        'price_drop_threshold' => 20,
-                    ],
-                    'created_at' => now()->subDays(10)->toISOString(),
-                    'updated_at' => now()->subDays(1)->toISOString(),
+                'created_at' => now()->subDays(5)->toISOString(),
+                'updated_at' => now()->subHours(2)->toISOString(),
+            ],
+            [
+                'id'                    => 2,
+                'name'                  => 'NFL Playoff Games',
+                'description'           => 'Any NFL playoff games nationwide',
+                'is_active'             => TRUE,
+                'platforms'             => ['ticketmaster', 'stubhub', 'viagogo'],
+                'keywords'              => ['NFL', 'Playoff', 'Championship'],
+                'venue_keywords'        => [],
+                'price_range'           => ['min' => 200, 'max' => 1200],
+                'section_preferences'   => ['Lower Level', 'Club'],
+                'exclude_keywords'      => ['standing room', 'obstructed view'],
+                'notification_settings' => [
+                    'email'                => TRUE,
+                    'sms'                  => TRUE,
+                    'push'                 => TRUE,
+                    'price_drop_threshold' => 20,
                 ],
-            ]);
-        });
+                'created_at' => now()->subDays(10)->toISOString(),
+                'updated_at' => now()->subDays(1)->toISOString(),
+            ],
+        ]));
 
         return response()->json([
             'data'   => $criteria,
@@ -160,7 +158,7 @@ class TicketCriteriaController extends Controller
         $cacheKey = "ticket_criteria_{$userId}";
 
         $criteria = Cache::get($cacheKey, collect());
-        $criteriaIndex = $criteria->search(fn ($item) => $item['id'] === $id);
+        $criteriaIndex = $criteria->search(fn ($item): bool => $item['id'] === $id);
 
         if ($criteriaIndex === FALSE) {
             return response()->json(['message' => 'Ticket criteria not found'], 404);
@@ -192,7 +190,7 @@ class TicketCriteriaController extends Controller
         $cacheKey = "ticket_criteria_{$userId}";
 
         $criteria = Cache::get($cacheKey, collect());
-        $criteriaIndex = $criteria->search(fn ($item) => $item['id'] === $id);
+        $criteriaIndex = $criteria->search(fn ($item): bool => $item['id'] === $id);
 
         if ($criteriaIndex === FALSE) {
             return response()->json(['message' => 'Ticket criteria not found'], 404);
@@ -218,14 +216,14 @@ class TicketCriteriaController extends Controller
         $cacheKey = "ticket_criteria_{$userId}";
 
         $criteria = Cache::get($cacheKey, collect());
-        $criteriaIndex = $criteria->search(fn ($item) => $item['id'] === $id);
+        $criteriaIndex = $criteria->search(fn ($item): bool => $item['id'] === $id);
 
         if ($criteriaIndex === FALSE) {
             return response()->json(['message' => 'Ticket criteria not found'], 404);
         }
 
         $existingCriteria = $criteria[$criteriaIndex];
-        $existingCriteria['is_active'] = !$existingCriteria['is_active'];
+        $existingCriteria['is_active'] = ! $existingCriteria['is_active'];
         $existingCriteria['updated_at'] = now()->toISOString();
 
         $criteria[$criteriaIndex] = $existingCriteria;

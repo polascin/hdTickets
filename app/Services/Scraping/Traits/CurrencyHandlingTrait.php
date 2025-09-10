@@ -19,7 +19,7 @@ trait CurrencyHandlingTrait
     {
         $priceInfo = ['min' => NULL, 'max' => NULL];
 
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return $priceInfo;
         }
 
@@ -48,7 +48,7 @@ trait CurrencyHandlingTrait
 
         $prices = [];
         foreach ($pricePatterns as $pattern) {
-            if (preg_match_all($pattern, $cleanText, $matches)) {
+            if (preg_match_all($pattern, (string) $cleanText, $matches)) {
                 foreach ($matches[1] as $price) {
                     $normalizedPrice = $this->normalizePriceValue($price);
                     if ($normalizedPrice !== NULL) {
@@ -60,7 +60,7 @@ trait CurrencyHandlingTrait
             }
         }
 
-        if (!empty($prices)) {
+        if ($prices !== []) {
             $priceInfo['min'] = min($prices);
             $priceInfo['max'] = max($prices);
 

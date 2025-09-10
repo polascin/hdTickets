@@ -87,7 +87,7 @@ class CategoryController extends Controller
     {
         $category = Category::withCount(['scrapedTickets'])->find($id);
 
-        if (!$category) {
+        if (! $category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -108,12 +108,10 @@ class CategoryController extends Controller
                 ->selectRaw('platform, COUNT(*) as count, AVG(min_price) as avg_price')
                 ->groupBy('platform')
                 ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item->platform => [
-                        'count'     => $item->count,
-                        'avg_price' => round($item->avg_price ?? 0, 2),
-                    ]];
-                }),
+                ->mapWithKeys(fn ($item): array => [$item->platform => [
+                    'count'     => $item->count,
+                    'avg_price' => round($item->avg_price ?? 0, 2),
+                ]]),
             'recent_tickets' => ScrapedTicket::where('category_id', $id)
                 ->where('is_available', TRUE)
                 ->orderBy('scraped_at', 'desc')
@@ -140,7 +138,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -228,25 +226,21 @@ class CategoryController extends Controller
             ->orderBy('scraped_tickets_count', 'desc')
             ->limit(10)
             ->get()
-            ->map(function ($category) {
-                return [
-                    'id'                => $category->id,
-                    'name'              => $category->name,
-                    'sport_type'        => $category->sport_type,
-                    'total_tickets'     => $category->scraped_tickets_count,
-                    'available_tickets' => ScrapedTicket::where('category_id', $category->id)
-                        ->where('is_available', TRUE)->count(),
-                    'high_demand_tickets' => ScrapedTicket::where('category_id', $category->id)
-                        ->where('is_high_demand', TRUE)->count(),
-                ];
-            });
+            ->map(fn ($category): array => [
+                'id'                => $category->id,
+                'name'              => $category->name,
+                'sport_type'        => $category->sport_type,
+                'total_tickets'     => $category->scraped_tickets_count,
+                'available_tickets' => ScrapedTicket::where('category_id', $category->id)
+                    ->where('is_available', TRUE)->count(),
+                'high_demand_tickets' => ScrapedTicket::where('category_id', $category->id)
+                    ->where('is_high_demand', TRUE)->count(),
+            ]);
 
         $sportTypeBreakdown = Category::selectRaw('sport_type, COUNT(*) as count')
             ->groupBy('sport_type')
             ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->sport_type => $item->count];
-            });
+            ->mapWithKeys(fn ($item): array => [$item->sport_type => $item->count]);
 
         return response()->json([
             'success' => TRUE,
@@ -309,7 +303,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',
@@ -351,7 +345,7 @@ class CategoryController extends Controller
     {
         $category = Category::find($id);
 
-        if (!$category) {
+        if (! $category) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Category not found',

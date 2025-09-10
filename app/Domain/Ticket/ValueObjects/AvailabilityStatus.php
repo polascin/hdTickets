@@ -3,23 +3,24 @@
 namespace App\Domain\Ticket\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
 use function in_array;
 use function sprintf;
 
-final readonly class AvailabilityStatus
+final readonly class AvailabilityStatus implements Stringable
 {
-    public const AVAILABLE = 'AVAILABLE';
+    public const string AVAILABLE = 'AVAILABLE';
 
-    public const LIMITED = 'LIMITED';
+    public const string LIMITED = 'LIMITED';
 
-    public const SOLD_OUT = 'SOLD_OUT';
+    public const string SOLD_OUT = 'SOLD_OUT';
 
-    public const ON_SALE_SOON = 'ON_SALE_SOON';
+    public const string ON_SALE_SOON = 'ON_SALE_SOON';
 
-    public const UNKNOWN = 'UNKNOWN';
+    public const string UNKNOWN = 'UNKNOWN';
 
-    private const VALID_STATUSES = [
+    private const array VALID_STATUSES = [
         self::AVAILABLE,
         self::LIMITED,
         self::SOLD_OUT,
@@ -176,12 +177,12 @@ final readonly class AvailabilityStatus
      */
     private function validate(string $status): void
     {
-        if (empty(trim($status))) {
+        if (in_array(trim($status), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Availability status cannot be empty');
         }
 
         $normalizedStatus = strtoupper(trim($status));
-        if (!in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
+        if (! in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid availability status: %s. Valid statuses: %s',

@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class BandsintownPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -163,34 +165,34 @@ class BandsintownPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['artist'])) {
+        if (! empty($criteria['artist'])) {
             // Artist-specific search
             $artistSlug = $this->slugify($criteria['artist']);
 
             return $this->baseUrl . '/a/' . $artistSlug;
         }
 
-        if (!empty($criteria['location'])) {
-            $params['location'] = urlencode($criteria['location']);
+        if (! empty($criteria['location'])) {
+            $params['location'] = urlencode((string) $criteria['location']);
         }
 
-        if (!empty($criteria['city'])) {
-            $params['city'] = urlencode($criteria['city']);
+        if (! empty($criteria['city'])) {
+            $params['city'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['venue'])) {
-            $params['venue'] = urlencode($criteria['venue']);
+        if (! empty($criteria['venue'])) {
+            $params['venue'] = urlencode((string) $criteria['venue']);
         }
 
-        if (!empty($criteria['genre'])) {
-            $params['genre'] = urlencode($criteria['genre']);
+        if (! empty($criteria['genre'])) {
+            $params['genre'] = urlencode((string) $criteria['genre']);
         }
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -202,7 +204,7 @@ class BandsintownPlugin extends BaseScraperPlugin
         $queryString = http_build_query($params);
 
         // Use events search if we have search criteria
-        if (!empty($criteria['location']) || !empty($criteria['city'])) {
+        if (! empty($criteria['location']) || ! empty($criteria['city'])) {
             return $this->baseUrl . '/events?' . $queryString;
         }
 
@@ -240,7 +242,7 @@ class BandsintownPlugin extends BaseScraperPlugin
                 });
 
                 // If we found events with this selector, break
-                if (!empty($events)) {
+                if ($events !== []) {
                     break;
                 }
             }
@@ -266,12 +268,12 @@ class BandsintownPlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
             $imageUrl = $this->extractAttribute($node, '.artist-image img, .event-image img', 'src');
 
-            if (empty($artist)) {
+            if ($artist === '' || $artist === '0') {
                 return NULL;
             }
 
             // Create title from artist name
-            $title = $artist . ($venue ? ' at ' . $venue : '');
+            $title = $artist . ($venue !== '' && $venue !== '0' ? ' at ' . $venue : '');
 
             // Parse price
             $price = $this->parsePrice($priceText);
@@ -315,7 +317,7 @@ class BandsintownPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -339,7 +341,7 @@ class BandsintownPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 
@@ -358,9 +360,10 @@ class BandsintownPlugin extends BaseScraperPlugin
     /**
      * Parse date from various formats
      */
+    #[Override]
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 
@@ -381,7 +384,7 @@ class BandsintownPlugin extends BaseScraperPlugin
      */
     protected function slugify(string $text): string
     {
-        return strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', trim($text)));
+        return strtolower((string) preg_replace('/[^a-zA-Z0-9]+/', '-', trim($text)));
     }
 
     /**

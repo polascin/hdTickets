@@ -19,8 +19,6 @@ class PredictiveAnalyticsEngine
 {
     private array $config;
 
-    private array $models;
-
     public function __construct()
     {
         $this->config = config('analytics.predictive', [
@@ -29,36 +27,30 @@ class PredictiveAnalyticsEngine
             'confidence_threshold'       => 0.75,
             'min_historical_data_points' => 50,
         ]);
-
-        $this->models = [];
     }
 
     /**
      * Get price predictions for upcoming events
      *
-     * @param  array $filters
      * @return array Price predictions
      */
     public function getPricePredictions(array $filters = []): array
     {
         $cacheKey = 'price_predictions_' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, 900, function () use ($filters) {
-            return [
-                'upcoming_events'    => $this->predictUpcomingEventPrices($filters),
-                'price_trends'       => $this->predictPriceTrends($filters),
-                'platform_pricing'   => $this->predictPlatformPricing($filters),
-                'optimal_timing'     => $this->predictOptimalBuyingTime($filters),
-                'confidence_metrics' => $this->calculatePredictionConfidence(),
-                'model_accuracy'     => $this->getModelAccuracyMetrics(),
-            ];
-        });
+        return Cache::remember($cacheKey, 900, fn (): array => [
+            'upcoming_events'    => $this->predictUpcomingEventPrices(),
+            'price_trends'       => $this->predictPriceTrends($filters),
+            'platform_pricing'   => $this->predictPlatformPricing($filters),
+            'optimal_timing'     => $this->predictOptimalBuyingTime($filters),
+            'confidence_metrics' => $this->calculatePredictionConfidence(),
+            'model_accuracy'     => $this->getModelAccuracyMetrics(),
+        ]);
     }
 
     /**
      * Get demand forecasts
      *
-     * @param  array $filters
      * @return array Demand forecasting data
      */
     public function getDemandForecasts(array $filters = []): array
@@ -75,85 +67,81 @@ class PredictiveAnalyticsEngine
     /**
      * Predict event success probability
      *
-     * @param  array $filters
      * @return array Event success predictions
      */
     public function getEventSuccessProbability(array $filters = []): array
     {
         return [
-            'sellout_probability' => $this->predictSelloutProbability($filters),
-            'attendance_forecast' => $this->forecastAttendance($filters),
-            'revenue_potential'   => $this->predictRevenuePotential($filters),
-            'risk_factors'        => $this->identifyRiskFactors($filters),
-            'success_indicators'  => $this->calculateSuccessIndicators($filters),
+            'sellout_probability' => $this->predictSelloutProbability(),
+            'attendance_forecast' => $this->forecastAttendance(),
+            'revenue_potential'   => $this->predictRevenuePotential(),
+            'risk_factors'        => $this->identifyRiskFactors(),
+            'success_indicators'  => $this->calculateSuccessIndicators(),
         ];
     }
 
     /**
      * Get optimal pricing recommendations
      *
-     * @param  array $filters
      * @return array Optimal pricing data
      */
     public function getOptimalPricing(array $filters = []): array
     {
         return [
-            'price_elasticity'         => $this->analyzePriceElasticity($filters),
-            'optimal_price_points'     => $this->calculateOptimalPricePoints($filters),
-            'dynamic_pricing_strategy' => $this->recommendDynamicPricing($filters),
-            'competitor_analysis'      => $this->analyzeCompetitorPricing($filters),
-            'margin_optimization'      => $this->optimizeMargins($filters),
+            'price_elasticity'         => $this->analyzePriceElasticity(),
+            'optimal_price_points'     => $this->calculateOptimalPricePoints(),
+            'dynamic_pricing_strategy' => $this->recommendDynamicPricing(),
+            'competitor_analysis'      => $this->analyzeCompetitorPricing(),
+            'margin_optimization'      => $this->optimizeMargins(),
         ];
     }
 
     /**
      * Get market trend predictions
      *
-     * @param  array $filters
      * @return array Market trend predictions
      */
     public function getMarketTrends(array $filters = []): array
     {
         return [
-            'growth_projections' => $this->projectMarketGrowth($filters),
-            'emerging_segments'  => $this->identifyEmergingSegments($filters),
-            'declining_markets'  => $this->identifyDecliningMarkets($filters),
-            'technology_impact'  => $this->assessTechnologyImpact($filters),
-            'regulatory_impact'  => $this->assessRegulatoryImpact($filters),
+            'growth_projections' => $this->projectMarketGrowth(),
+            'emerging_segments'  => $this->identifyEmergingSegments(),
+            'declining_markets'  => $this->identifyDecliningMarkets(),
+            'technology_impact'  => $this->assessTechnologyImpact(),
+            'regulatory_impact'  => $this->assessRegulatoryImpact(),
         ];
     }
 
     /**
      * Get demand forecast for market intelligence
      *
-     * @param  array $filters
      * @return array Demand forecast data
      */
     public function getDemandForecast(array $filters = []): array
     {
         return [
-            'short_term'           => $this->getShortTermDemandForecast($filters),
-            'long_term'            => $this->getLongTermDemandForecast($filters),
-            'seasonal_adjustments' => $this->getSeasonalAdjustments($filters),
-            'external_factors'     => $this->assessExternalFactors($filters),
+            'short_term'           => $this->getShortTermDemandForecast(),
+            'long_term'            => $this->getLongTermDemandForecast(),
+            'seasonal_adjustments' => $this->getSeasonalAdjustments(),
+            'external_factors'     => $this->assessExternalFactors(),
         ];
     }
 
     // Private prediction methods
 
-    private function predictUpcomingEventPrices(array $filters): array
+    private function predictUpcomingEventPrices(): array
     {
         $upcomingEvents = SportsEvent::where('event_date', '>', now())
             ->where('event_date', '<=', now()->addDays($this->config['price_prediction_window']))
-            ->with(['tickets' => function ($query) {
+            ->with(['tickets' => function ($query): void {
                 $query->select('sports_event_id', 'price', 'source_platform', 'created_at')
-                      ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc');
             }])
             ->get();
 
-        return $upcomingEvents->map(function ($event) {
-            $historicalPrices = $this->getHistoricalEventPrices($event);
-            $prediction = $this->calculatePricePrediction($historicalPrices, $event);
+        return $upcomingEvents->map(function ($event): array {
+            $historicalPrices = $this->getHistoricalEventPrices();
+            $prediction = $this->calculatePricePrediction();
 
             return [
                 'event_id'          => $event->id,
@@ -171,13 +159,13 @@ class PredictiveAnalyticsEngine
     private function predictPriceTrends(array $filters): array
     {
         // Time-series analysis for price trend prediction
-        $historicalData = $this->getHistoricalPriceData($filters);
+        $this->getHistoricalPriceData($filters);
 
         return [
-            'overall_trend'         => $this->calculateOverallTrend($historicalData),
-            'sport_specific_trends' => $this->calculateSportSpecificTrends($historicalData),
-            'platform_trends'       => $this->calculatePlatformTrends($historicalData),
-            'seasonal_adjustments'  => $this->calculateSeasonalAdjustments($historicalData),
+            'overall_trend'         => $this->calculateOverallTrend(),
+            'sport_specific_trends' => $this->calculateSportSpecificTrends(),
+            'platform_trends'       => $this->calculatePlatformTrends(),
+            'seasonal_adjustments'  => $this->calculateSeasonalAdjustments(),
         ];
     }
 
@@ -188,15 +176,15 @@ class PredictiveAnalyticsEngine
             ->distinct()
             ->pluck('source_platform');
 
-        return $platforms->map(function ($platform) use ($filters) {
+        return $platforms->map(function ($platform) use ($filters): array {
             $platformFilters = array_merge($filters, ['platform' => $platform]);
             $historicalData = $this->getHistoricalPriceData($platformFilters);
 
             return [
                 'platform'             => $platform,
-                'predicted_avg_price'  => $this->predictAveragePrice($historicalData),
-                'price_volatility'     => $this->calculateVolatilityPrediction($historicalData),
-                'competitive_position' => $this->assessCompetitivePosition($platform, $historicalData),
+                'predicted_avg_price'  => $this->predictAveragePrice(),
+                'price_volatility'     => $this->calculateVolatilityPrediction(),
+                'competitive_position' => $this->assessCompetitivePosition(),
             ];
         })->toArray();
     }
@@ -205,10 +193,10 @@ class PredictiveAnalyticsEngine
     {
         // Analyze when prices typically drop or rise
         return [
-            'best_buying_windows'    => $this->identifyOptimalBuyingWindows($filters),
-            'price_drop_probability' => $this->calculatePriceDropProbability($filters),
-            'last_minute_deals'      => $this->predictLastMinuteDeals($filters),
-            'early_bird_advantages'  => $this->assessEarlyBirdPricing($filters),
+            'best_buying_windows'    => $this->identifyOptimalBuyingWindows(),
+            'price_drop_probability' => $this->calculatePriceDropProbability(),
+            'last_minute_deals'      => $this->predictLastMinuteDeals(),
+            'early_bird_advantages'  => $this->assessEarlyBirdPricing(),
         ];
     }
 
@@ -238,38 +226,38 @@ class PredictiveAnalyticsEngine
     private function forecastEventDemand(array $filters): array
     {
         return [
-            'high_demand_events' => $this->identifyHighDemandEvents($filters),
-            'demand_by_category' => $this->forecastDemandByCategory($filters),
-            'demand_by_venue'    => $this->forecastDemandByVenue($filters),
-            'demand_timeline'    => $this->createDemandTimeline($filters),
+            'high_demand_events' => $this->identifyHighDemandEvents(),
+            'demand_by_category' => $this->forecastDemandByCategory(),
+            'demand_by_venue'    => $this->forecastDemandByVenue(),
+            'demand_timeline'    => $this->createDemandTimeline(),
         ];
     }
 
     private function forecastSeasonalDemand(array $filters): array
     {
         return [
-            'seasonal_peaks'           => $this->identifySeasonalPeaks($filters),
-            'off_season_opportunities' => $this->identifyOffSeasonOpportunities($filters),
-            'holiday_impact'           => $this->assessHolidayImpact($filters),
-            'weather_correlation'      => $this->analyzeWeatherCorrelation($filters),
+            'seasonal_peaks'           => $this->identifySeasonalPeaks(),
+            'off_season_opportunities' => $this->identifyOffSeasonOpportunities(),
+            'holiday_impact'           => $this->assessHolidayImpact(),
+            'weather_correlation'      => $this->analyzeWeatherCorrelation(),
         ];
     }
 
     private function forecastPlatformDemand(array $filters): array
     {
         return [
-            'platform_growth'        => $this->forecastPlatformGrowth($filters),
-            'market_share_evolution' => $this->forecastMarketShareEvolution($filters),
-            'platform_migration'     => $this->predictPlatformMigration($filters),
+            'platform_growth'        => $this->forecastPlatformGrowth(),
+            'market_share_evolution' => $this->forecastMarketShareEvolution(),
+            'platform_migration'     => $this->predictPlatformMigration(),
         ];
     }
 
     private function forecastCapacityUtilization(array $filters): array
     {
         return [
-            'utilization_rates'       => $this->calculateUtilizationRates($filters),
-            'capacity_constraints'    => $this->identifyCapacityConstraints($filters),
-            'expansion_opportunities' => $this->identifyExpansionOpportunities($filters),
+            'utilization_rates'       => $this->calculateUtilizationRates(),
+            'capacity_constraints'    => $this->identifyCapacityConstraints(),
+            'expansion_opportunities' => $this->identifyExpansionOpportunities(),
         ];
     }
 
@@ -279,25 +267,25 @@ class PredictiveAnalyticsEngine
             'saturation_level'      => 0.65, // 0-1 scale
             'growth_potential'      => 0.35,
             'competitive_intensity' => 0.72,
-            'barriers_to_entry'     => $this->assessBarriersToEntry($filters),
+            'barriers_to_entry'     => $this->assessBarriersToEntry(),
         ];
     }
 
     // Helper methods for calculations
 
-    private function getHistoricalEventPrices(SportsEvent $event): Collection
+    private function getHistoricalEventPrices(): Collection
     {
         // Get historical pricing data for similar events
         return collect([]);
     }
 
-    private function calculatePricePrediction(Collection $historicalPrices, SportsEvent $event): array
+    private function calculatePricePrediction(): array
     {
         // Machine learning prediction algorithm
         return [
-            'price'      => rand(50, 200) + rand(0, 99) / 100,
-            'confidence' => rand(65, 95) / 100,
-            'trend'      => ['increasing', 'decreasing', 'stable'][rand(0, 2)],
+            'price'      => random_int(50, 200) + random_int(0, 99) / 100,
+            'confidence' => random_int(65, 95) / 100,
+            'trend'      => ['increasing', 'decreasing', 'stable'][random_int(0, 2)],
             'factors'    => [
                 'historical_trend',
                 'seasonal_pattern',
@@ -336,42 +324,42 @@ class PredictiveAnalyticsEngine
 
     // Stub implementations for various prediction methods
 
-    private function calculateOverallTrend(Collection $data): string
+    private function calculateOverallTrend(): string
     {
-        return ['increasing', 'decreasing', 'stable'][rand(0, 2)];
+        return ['increasing', 'decreasing', 'stable'][random_int(0, 2)];
     }
 
-    private function calculateSportSpecificTrends(Collection $data): array
-    {
-        return [];
-    }
-
-    private function calculatePlatformTrends(Collection $data): array
+    private function calculateSportSpecificTrends(): array
     {
         return [];
     }
 
-    private function calculateSeasonalAdjustments(Collection $data): array
+    private function calculatePlatformTrends(): array
     {
         return [];
     }
 
-    private function predictAveragePrice(Collection $data): float
+    private function calculateSeasonalAdjustments(): array
     {
-        return rand(75, 150) + rand(0, 99) / 100;
+        return [];
     }
 
-    private function calculateVolatilityPrediction(Collection $data): float
+    private function predictAveragePrice(): float
     {
-        return rand(10, 30) / 100;
+        return random_int(75, 150) + random_int(0, 99) / 100;
     }
 
-    private function assessCompetitivePosition(string $platform, Collection $data): string
+    private function calculateVolatilityPrediction(): float
     {
-        return ['leader', 'challenger', 'follower', 'niche'][rand(0, 3)];
+        return random_int(10, 30) / 100;
     }
 
-    private function identifyOptimalBuyingWindows(array $filters): array
+    private function assessCompetitivePosition(): string
+    {
+        return ['leader', 'challenger', 'follower', 'niche'][random_int(0, 3)];
+    }
+
+    private function identifyOptimalBuyingWindows(): array
     {
         return [
             ['start' => '45 days before', 'end' => '30 days before', 'savings' => '15%'],
@@ -380,7 +368,7 @@ class PredictiveAnalyticsEngine
         ];
     }
 
-    private function calculatePriceDropProbability(array $filters): array
+    private function calculatePriceDropProbability(): array
     {
         return [
             'next_7_days'  => 0.25,
@@ -389,7 +377,7 @@ class PredictiveAnalyticsEngine
         ];
     }
 
-    private function predictLastMinuteDeals(array $filters): array
+    private function predictLastMinuteDeals(): array
     {
         return [
             'probability'       => 0.35,
@@ -398,7 +386,7 @@ class PredictiveAnalyticsEngine
         ];
     }
 
-    private function assessEarlyBirdPricing(array $filters): array
+    private function assessEarlyBirdPricing(): array
     {
         return [
             'early_bird_discount'     => 0.12,
@@ -407,172 +395,172 @@ class PredictiveAnalyticsEngine
         ];
     }
 
-    private function predictSelloutProbability(array $filters): array
+    private function predictSelloutProbability(): array
     {
         return [];
     }
 
-    private function forecastAttendance(array $filters): array
+    private function forecastAttendance(): array
     {
         return [];
     }
 
-    private function predictRevenuePotential(array $filters): array
+    private function predictRevenuePotential(): array
     {
         return [];
     }
 
-    private function identifyRiskFactors(array $filters): array
+    private function identifyRiskFactors(): array
     {
         return [];
     }
 
-    private function calculateSuccessIndicators(array $filters): array
+    private function calculateSuccessIndicators(): array
     {
         return [];
     }
 
-    private function analyzePriceElasticity(array $filters): array
+    private function analyzePriceElasticity(): array
     {
         return [];
     }
 
-    private function calculateOptimalPricePoints(array $filters): array
+    private function calculateOptimalPricePoints(): array
     {
         return [];
     }
 
-    private function recommendDynamicPricing(array $filters): array
+    private function recommendDynamicPricing(): array
     {
         return [];
     }
 
-    private function analyzeCompetitorPricing(array $filters): array
+    private function analyzeCompetitorPricing(): array
     {
         return [];
     }
 
-    private function optimizeMargins(array $filters): array
+    private function optimizeMargins(): array
     {
         return [];
     }
 
-    private function projectMarketGrowth(array $filters): array
+    private function projectMarketGrowth(): array
     {
         return [];
     }
 
-    private function identifyEmergingSegments(array $filters): array
+    private function identifyEmergingSegments(): array
     {
         return [];
     }
 
-    private function identifyDecliningMarkets(array $filters): array
+    private function identifyDecliningMarkets(): array
     {
         return [];
     }
 
-    private function assessTechnologyImpact(array $filters): array
+    private function assessTechnologyImpact(): array
     {
         return [];
     }
 
-    private function assessRegulatoryImpact(array $filters): array
+    private function assessRegulatoryImpact(): array
     {
         return [];
     }
 
-    private function getShortTermDemandForecast(array $filters): array
+    private function getShortTermDemandForecast(): array
     {
         return [];
     }
 
-    private function getLongTermDemandForecast(array $filters): array
+    private function getLongTermDemandForecast(): array
     {
         return [];
     }
 
-    private function getSeasonalAdjustments(array $filters): array
+    private function getSeasonalAdjustments(): array
     {
         return [];
     }
 
-    private function assessExternalFactors(array $filters): array
+    private function assessExternalFactors(): array
     {
         return [];
     }
 
-    private function identifyHighDemandEvents(array $filters): array
+    private function identifyHighDemandEvents(): array
     {
         return [];
     }
 
-    private function forecastDemandByCategory(array $filters): array
+    private function forecastDemandByCategory(): array
     {
         return [];
     }
 
-    private function forecastDemandByVenue(array $filters): array
+    private function forecastDemandByVenue(): array
     {
         return [];
     }
 
-    private function createDemandTimeline(array $filters): array
+    private function createDemandTimeline(): array
     {
         return [];
     }
 
-    private function identifySeasonalPeaks(array $filters): array
+    private function identifySeasonalPeaks(): array
     {
         return [];
     }
 
-    private function identifyOffSeasonOpportunities(array $filters): array
+    private function identifyOffSeasonOpportunities(): array
     {
         return [];
     }
 
-    private function assessHolidayImpact(array $filters): array
+    private function assessHolidayImpact(): array
     {
         return [];
     }
 
-    private function analyzeWeatherCorrelation(array $filters): array
+    private function analyzeWeatherCorrelation(): array
     {
         return [];
     }
 
-    private function forecastPlatformGrowth(array $filters): array
+    private function forecastPlatformGrowth(): array
     {
         return [];
     }
 
-    private function forecastMarketShareEvolution(array $filters): array
+    private function forecastMarketShareEvolution(): array
     {
         return [];
     }
 
-    private function predictPlatformMigration(array $filters): array
+    private function predictPlatformMigration(): array
     {
         return [];
     }
 
-    private function calculateUtilizationRates(array $filters): array
+    private function calculateUtilizationRates(): array
     {
         return [];
     }
 
-    private function identifyCapacityConstraints(array $filters): array
+    private function identifyCapacityConstraints(): array
     {
         return [];
     }
 
-    private function identifyExpansionOpportunities(array $filters): array
+    private function identifyExpansionOpportunities(): array
     {
         return [];
     }
 
-    private function assessBarriersToEntry(array $filters): array
+    private function assessBarriersToEntry(): array
     {
         return [];
     }

@@ -6,6 +6,7 @@ namespace App\Services\Security;
 
 use App\Models\TrustedDevice;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -19,10 +20,8 @@ use Illuminate\Support\Str;
  */
 class DeviceTrustService
 {
-    private SecurityMonitoringService $securityMonitoring;
-
     // Device trust levels
-    private const TRUST_LEVELS = [
+    private const array TRUST_LEVELS = [
         'untrusted'     => 0,
         'new'           => 25,
         'recognized'    => 50,
@@ -30,25 +29,14 @@ class DeviceTrustService
         'fully_trusted' => 100,
     ];
 
-    // Device fingerprint components
-    private const FINGERPRINT_COMPONENTS = [
-        'user_agent',
-        'accept_language',
-        'accept_encoding',
-        'screen_resolution',
-        'timezone',
-        'platform',
-    ];
-
     // Maximum trusted devices per user
-    private const MAX_TRUSTED_DEVICES = 10;
+    private const int MAX_TRUSTED_DEVICES = 10;
 
     // Trust token expiry in days
-    private const TRUST_TOKEN_EXPIRY_DAYS = 90;
+    private const int TRUST_TOKEN_EXPIRY_DAYS = 90;
 
-    public function __construct(SecurityMonitoringService $securityMonitoring)
+    public function __construct(private SecurityMonitoringService $securityMonitoring)
     {
-        $this->securityMonitoring = $securityMonitoring;
     }
 
     /**
@@ -65,7 +53,7 @@ class DeviceTrustService
         $fingerprint['accept_encoding'] = $request->header('Accept-Encoding', '');
 
         // Client-side fingerprint components (from JavaScript)
-        if (!empty($clientData)) {
+        if ($clientData !== []) {
             $fingerprint['screen_resolution'] = $clientData['screen_resolution'] ?? '';
             $fingerprint['timezone'] = $clientData['timezone'] ?? '';
             $fingerprint['platform'] = $clientData['platform'] ?? '';
@@ -91,7 +79,7 @@ class DeviceTrustService
             ->where('device_fingerprint', $deviceFingerprint)
             ->first();
 
-        if (!$device) {
+        if (! $device) {
             return [
                 'trusted'     => FALSE,
                 'trust_level' => 'untrusted',
@@ -127,7 +115,7 @@ class DeviceTrustService
     /**
      * Add device to trusted devices
      */
-    public function trustDevice(User $user, Request $request, array $clientData = [], string $deviceName = NULL): string
+    public function trustDevice(User $user, Request $request, array $clientData = [], ?string $deviceName = NULL): string
     {
         $deviceFingerprint = $this->generateDeviceFingerprint($request, $clientData);
 
@@ -154,7 +142,7 @@ class DeviceTrustService
         $trustToken = $this->generateTrustToken();
 
         // Create new trusted device
-        $device = TrustedDevice::create([
+        TrustedDevice::create([
             'user_id'            => $user->id,
             'device_fingerprint' => $deviceFingerprint,
             'trust_token'        => $trustToken,
@@ -174,15 +162,6 @@ class DeviceTrustService
         $this->securityMonitoring->logSecurityEvent(
             'device_trusted',
             'New device added to trusted devices',
-            [
-                'user_id'            => $user->id,
-                'device_id'          => $device->id,
-                'device_name'        => $device->device_name,
-                'device_fingerprint' => substr($deviceFingerprint, 0, 16) . '...',
-                'ip_address'         => $request->ip(),
-            ],
-            'info',
-            $user->id
         );
 
         return $trustToken;
@@ -197,7 +176,7 @@ class DeviceTrustService
             ->where('id', $deviceId)
             ->first();
 
-        if (!$device) {
+        if (! $device) {
             return FALSE;
         }
 
@@ -205,14 +184,6 @@ class DeviceTrustService
         $this->securityMonitoring->logSecurityEvent(
             'device_untrusted',
             'Device removed from trusted devices',
-            [
-                'user_id'     => $user->id,
-                'device_id'   => $device->id,
-                'device_name' => $device->device_name,
-                'trust_score' => $device->trust_score,
-            ],
-            'info',
-            $user->id
         );
 
         $device->delete();
@@ -223,11 +194,11 @@ class DeviceTrustService
     /**
      * Get user's trusted devices
      */
-    public function getUserTrustedDevices(User $user): \Illuminate\Database\Eloquent\Collection
+    public function getUserTrustedDevices(User $user): Collection
     {
         return TrustedDevice::where('user_id', $user->id)
             ->where('is_active', TRUE)
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
@@ -243,13 +214,13 @@ class DeviceTrustService
         $device = TrustedDevice::where('user_id', $user->id)
             ->where('trust_token', $trustToken)
             ->where('is_active', TRUE)
-            ->where(function ($query) {
+            ->where(function ($query): void {
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
             ->first();
 
-        if (!$device) {
+        if (! $device) {
             return FALSE;
         }
 
@@ -276,12 +247,6 @@ class DeviceTrustService
         $this->securityMonitoring->logSecurityEvent(
             'all_devices_revoked',
             'All trusted devices revoked for user',
-            [
-                'user_id'       => $user->id,
-                'devices_count' => $count,
-            ],
-            'medium',
-            $user->id
         );
 
         return $count;
@@ -290,7 +255,7 @@ class DeviceTrustService
     /**
      * Get device risk assessment
      */
-    public function assessDeviceRisk(Request $request, User $user = NULL): array
+    public function assessDeviceRisk(Request $request, ?User $user = NULL): array
     {
         $risk = [
             'risk_level'      => 'low',
@@ -322,11 +287,11 @@ class DeviceTrustService
         }
 
         // Check if device is known
-        if ($user) {
+        if ($user instanceof User) {
             $deviceFingerprint = $this->generateDeviceFingerprint($request);
             $deviceTrust = $this->isDeviceTrusted($user, $deviceFingerprint);
 
-            if (!$deviceTrust['trusted']) {
+            if (! $deviceTrust['trusted']) {
                 $riskScore += 20;
                 $risk['risk_factors'][] = 'Unknown device';
             }
@@ -507,15 +472,13 @@ class DeviceTrustService
         // Cache key for IP reputation
         $cacheKey = "ip_reputation_{$ip}";
 
-        return Cache::remember($cacheKey, 3600, function () use ($ip) {
-            // This would integrate with IP reputation services
+        return Cache::remember($cacheKey, 3600, fn (): array => // This would integrate with IP reputation services
             // For now, return basic check
-            return [
+            [
                 'is_malicious'     => FALSE,
                 'reputation_score' => 100,
                 'categories'       => [],
-            ];
-        });
+            ]);
     }
 
     /**
@@ -527,9 +490,7 @@ class DeviceTrustService
         $userLocations = TrustedDevice::where('user_id', $user->id)
             ->whereNotNull('location_data')
             ->pluck('location_data')
-            ->map(function ($location) {
-                return json_decode($location, TRUE);
-            });
+            ->map(fn ($location): mixed => json_decode((string) $location, TRUE));
 
         if ($userLocations->isEmpty()) {
             return FALSE;
@@ -538,7 +499,7 @@ class DeviceTrustService
         // Get current location
         $currentLocation = $this->getLocationData($ip);
 
-        if (!$currentLocation) {
+        if (! $currentLocation) {
             return FALSE;
         }
 
@@ -548,7 +509,7 @@ class DeviceTrustService
                 $currentLocation['latitude'] ?? 0,
                 $currentLocation['longitude'] ?? 0,
                 $knownLocation['latitude'] ?? 0,
-                $knownLocation['longitude'] ?? 0
+                $knownLocation['longitude'] ?? 0,
             );
 
             // If within 100km of known location, not anomalous
@@ -672,7 +633,7 @@ class DeviceTrustService
     /**
      * Analyze device types from trusted devices
      */
-    private function analyzeDeviceTypes($devices): array
+    private function analyzeDeviceTypes(Collection $devices): array
     {
         $types = [];
 
@@ -691,7 +652,7 @@ class DeviceTrustService
     /**
      * Analyze location spread from trusted devices
      */
-    private function analyzeLocationSpread($devices): array
+    private function analyzeLocationSpread(Collection $devices): array
     {
         $locations = [];
 
@@ -709,7 +670,7 @@ class DeviceTrustService
     /**
      * Analyze usage patterns from trusted devices
      */
-    private function analyzeUsagePatterns($devices): array
+    private function analyzeUsagePatterns(Collection $devices): array
     {
         return [
             'total_usage'     => $devices->sum('usage_count'),

@@ -20,44 +20,42 @@ class PreferencesController extends Controller
         $userId = auth()->id();
         $cacheKey = "user_preferences_{$userId}";
 
-        $preferences = Cache::remember($cacheKey, 3600, function () {
-            return [
-                'dashboard' => [
-                    'theme'              => 'light',
-                    'auto_refresh'       => TRUE,
-                    'refresh_interval'   => 30,
-                    'show_notifications' => TRUE,
-                    'compact_mode'       => FALSE,
-                ],
-                'tickets' => [
-                    'default_sort'      => 'price_asc',
-                    'items_per_page'    => 25,
-                    'show_unavailable'  => FALSE,
-                    'auto_hide_expired' => TRUE,
-                    'price_format'      => 'USD',
-                ],
-                'alerts' => [
-                    'price_drop_threshold' => 10,
-                    'availability_alerts'  => TRUE,
-                    'email_notifications'  => TRUE,
-                    'sms_notifications'    => FALSE,
-                    'alert_frequency'      => 'immediate',
-                ],
-                'monitoring' => [
-                    'platforms'          => ['ticketmaster', 'stubhub', 'viagogo'],
-                    'max_price'          => 1000,
-                    'min_price'          => 50,
-                    'preferred_sections' => [],
-                    'exclude_keywords'   => [],
-                ],
-                'display' => [
-                    'timezone'        => 'UTC',
-                    'date_format'     => 'Y-m-d',
-                    'time_format'     => 'H:i',
-                    'currency_symbol' => '$',
-                ],
-            ];
-        });
+        $preferences = Cache::remember($cacheKey, 3600, fn (): array => [
+            'dashboard' => [
+                'theme'              => 'light',
+                'auto_refresh'       => TRUE,
+                'refresh_interval'   => 30,
+                'show_notifications' => TRUE,
+                'compact_mode'       => FALSE,
+            ],
+            'tickets' => [
+                'default_sort'      => 'price_asc',
+                'items_per_page'    => 25,
+                'show_unavailable'  => FALSE,
+                'auto_hide_expired' => TRUE,
+                'price_format'      => 'USD',
+            ],
+            'alerts' => [
+                'price_drop_threshold' => 10,
+                'availability_alerts'  => TRUE,
+                'email_notifications'  => TRUE,
+                'sms_notifications'    => FALSE,
+                'alert_frequency'      => 'immediate',
+            ],
+            'monitoring' => [
+                'platforms'          => ['ticketmaster', 'stubhub', 'viagogo'],
+                'max_price'          => 1000,
+                'min_price'          => 50,
+                'preferred_sections' => [],
+                'exclude_keywords'   => [],
+            ],
+            'display' => [
+                'timezone'        => 'UTC',
+                'date_format'     => 'Y-m-d',
+                'time_format'     => 'H:i',
+                'currency_symbol' => '$',
+            ],
+        ]);
 
         return response()->json([
             'data'      => $preferences,

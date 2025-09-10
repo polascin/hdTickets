@@ -61,11 +61,7 @@ class UserFavoriteVenueController extends Controller
             ]);
         }
 
-        return view('preferences.venues.index', compact(
-            'venues',
-            'stats',
-            'venueTypes',
-        ));
+        return view('preferences.venues.index', ['venues' => $venues, 'stats' => $stats, 'venueTypes' => $venueTypes]);
     }
 
     /**
@@ -79,10 +75,7 @@ class UserFavoriteVenueController extends Controller
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
         $popularVenues = UserFavoriteVenue::getPopularVenues();
 
-        return view('preferences.venues.create', compact(
-            'venueTypes',
-            'popularVenues',
-        ));
+        return view('preferences.venues.create', ['venueTypes' => $venueTypes, 'popularVenues' => $popularVenues]);
     }
 
     /**
@@ -163,7 +156,7 @@ class UserFavoriteVenueController extends Controller
             return response()->json(['venue' => $venue]);
         }
 
-        return view('preferences.venues.show', compact('venue'));
+        return view('preferences.venues.show', ['venue' => $venue]);
     }
 
     /**
@@ -178,10 +171,7 @@ class UserFavoriteVenueController extends Controller
 
         $venueTypes = UserFavoriteVenue::getAvailableVenueTypes();
 
-        return view('preferences.venues.edit', compact(
-            'venue',
-            'venueTypes',
-        ));
+        return view('preferences.venues.edit', ['venue' => $venue, 'venueTypes' => $venueTypes]);
     }
 
     /**
@@ -288,18 +278,16 @@ class UserFavoriteVenueController extends Controller
         $term = $request->get('q', '');
         $city = $request->get('city');
 
-        if (strlen($term) < 2) {
+        if (strlen((string) $term) < 2) {
             return response()->json([]);
         }
 
         $popularVenues = UserFavoriteVenue::getPopularVenues($city);
 
         $results = collect($popularVenues)
-            ->filter(function ($venue) use ($term) {
-                return str_contains(strtolower($venue['full_name']), strtolower($term))
-                       || str_contains(strtolower($venue['name']), strtolower($term))
-                       || str_contains(strtolower($venue['city'] ?? ''), strtolower($term));
-            })
+            ->filter(fn ($venue): bool => str_contains(strtolower((string) $venue['full_name']), strtolower((string) $term))
+                   || str_contains(strtolower((string) $venue['name']), strtolower((string) $term))
+                   || str_contains(strtolower($venue['city'] ?? ''), strtolower((string) $term)))
             ->take(10)
             ->values();
 
@@ -428,7 +416,7 @@ class UserFavoriteVenueController extends Controller
         $redirectResponse = redirect()->route('preferences.venues.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $redirectResponse->with('errors', $errors);
         }
 

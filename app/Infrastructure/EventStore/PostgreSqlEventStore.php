@@ -2,7 +2,19 @@
 
 namespace App\Infrastructure\EventStore;
 
+use App\Domain\Monitoring\Events\AlertTriggered;
+use App\Domain\Monitoring\Events\MonitoringStarted;
+use App\Domain\Monitoring\Events\MonitoringStopped;
+use App\Domain\Purchase\Events\PaymentProcessed;
+use App\Domain\Purchase\Events\PurchaseCompleted;
+use App\Domain\Purchase\Events\PurchaseFailed;
+use App\Domain\Purchase\Events\PurchaseInitiated;
 use App\Domain\Shared\Events\DomainEventInterface;
+use App\Domain\System\Events\ScrapingJobStarted;
+use App\Domain\Ticket\Events\TicketAvailabilityChanged;
+use App\Domain\Ticket\Events\TicketDiscovered;
+use App\Domain\Ticket\Events\TicketPriceChanged;
+use App\Domain\Ticket\Events\TicketSoldOut;
 use App\Infrastructure\EventStore\Exceptions\EventStoreException;
 use App\Infrastructure\EventStore\Exceptions\OptimisticLockException;
 use Exception;
@@ -36,7 +48,7 @@ class PostgreSqlEventStore implements EventStoreInterface
      */
     public function storeMany(array $events, string $aggregateId, ?int $expectedVersion = NULL): void
     {
-        if (empty($events)) {
+        if ($events === []) {
             return;
         }
 
@@ -68,9 +80,7 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->orderBy('aggregate_version')
             ->get();
 
-        return $rows->map(function ($row) {
-            return $this->deserializeEvent($row);
-        });
+        return $rows->map(fn ($row): DomainEventInterface => $this->deserializeEvent($row));
     }
 
     /**
@@ -89,9 +99,7 @@ class PostgreSqlEventStore implements EventStoreInterface
 
         $rows = $query->get();
 
-        return $rows->map(function ($row) {
-            return $this->deserializeEvent($row);
-        });
+        return $rows->map(fn ($row): DomainEventInterface => $this->deserializeEvent($row));
     }
 
     /**
@@ -105,9 +113,7 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->limit($limit)
             ->get();
 
-        return $rows->map(function ($row) {
-            return $this->deserializeEvent($row);
-        });
+        return $rows->map(fn ($row): DomainEventInterface => $this->deserializeEvent($row));
     }
 
     /**
@@ -150,13 +156,13 @@ class PostgreSqlEventStore implements EventStoreInterface
             ->orderBy('aggregate_version', 'desc')
             ->first();
 
-        if (!$snapshot) {
+        if (! $snapshot) {
             return NULL;
         }
 
         return [
             'version'    => $snapshot->aggregate_version,
-            'data'       => json_decode($snapshot->aggregate_data, TRUE),
+            'data'       => json_decode((string) $snapshot->aggregate_data, TRUE),
             'created_at' => $snapshot->created_at,
         ];
     }
@@ -233,18 +239,18 @@ class PostgreSqlEventStore implements EventStoreInterface
     {
         // Map event class names to their full class paths for deserialization
         $this->eventMap = [
-            'App\\Domain\\Ticket\\Events\\TicketDiscovered'          => \App\Domain\Ticket\Events\TicketDiscovered::class,
-            'App\\Domain\\Ticket\\Events\\TicketPriceChanged'        => \App\Domain\Ticket\Events\TicketPriceChanged::class,
-            'App\\Domain\\Ticket\\Events\\TicketAvailabilityChanged' => \App\Domain\Ticket\Events\TicketAvailabilityChanged::class,
-            'App\\Domain\\Ticket\\Events\\TicketSoldOut'             => \App\Domain\Ticket\Events\TicketSoldOut::class,
-            'App\\Domain\\Purchase\\Events\\PurchaseInitiated'       => \App\Domain\Purchase\Events\PurchaseInitiated::class,
-            'App\\Domain\\Purchase\\Events\\PurchaseCompleted'       => \App\Domain\Purchase\Events\PurchaseCompleted::class,
-            'App\\Domain\\Purchase\\Events\\PurchaseFailed'          => \App\Domain\Purchase\Events\PurchaseFailed::class,
-            'App\\Domain\\Purchase\\Events\\PaymentProcessed'        => \App\Domain\Purchase\Events\PaymentProcessed::class,
-            'App\\Domain\\Monitoring\\Events\\MonitoringStarted'     => \App\Domain\Monitoring\Events\MonitoringStarted::class,
-            'App\\Domain\\Monitoring\\Events\\MonitoringStopped'     => \App\Domain\Monitoring\Events\MonitoringStopped::class,
-            'App\\Domain\\Monitoring\\Events\\AlertTriggered'        => \App\Domain\Monitoring\Events\AlertTriggered::class,
-            'App\\Domain\\System\\Events\\ScrapingJobStarted'        => \App\Domain\System\Events\ScrapingJobStarted::class,
+            TicketDiscovered::class          => TicketDiscovered::class,
+            TicketPriceChanged::class        => TicketPriceChanged::class,
+            TicketAvailabilityChanged::class => TicketAvailabilityChanged::class,
+            TicketSoldOut::class             => TicketSoldOut::class,
+            PurchaseInitiated::class         => PurchaseInitiated::class,
+            PurchaseCompleted::class         => PurchaseCompleted::class,
+            PurchaseFailed::class            => PurchaseFailed::class,
+            PaymentProcessed::class          => PaymentProcessed::class,
+            MonitoringStarted::class         => MonitoringStarted::class,
+            MonitoringStopped::class         => MonitoringStopped::class,
+            AlertTriggered::class            => AlertTriggered::class,
+            ScrapingJobStarted::class        => ScrapingJobStarted::class,
         ];
     }
 
@@ -307,11 +313,11 @@ class PostgreSqlEventStore implements EventStoreInterface
     {
         $eventClass = $this->eventMap[$row->event_type] ?? NULL;
 
-        if (!$eventClass) {
+        if (! $eventClass) {
             throw new EventStoreException("Unknown event type: {$row->event_type}");
         }
 
-        if (!class_exists($eventClass)) {
+        if (! class_exists($eventClass)) {
             throw new EventStoreException("Event class does not exist: {$eventClass}");
         }
 
@@ -322,8 +328,8 @@ class PostgreSqlEventStore implements EventStoreInterface
             'aggregate_type'    => $row->aggregate_type,
             'occurred_at'       => $row->recorded_at,
             'version'           => $row->event_version,
-            'payload'           => json_decode($row->payload, TRUE),
-            'metadata'          => json_decode($row->metadata, TRUE) ?? [],
+            'payload'           => json_decode((string) $row->payload, TRUE),
+            'metadata'          => json_decode((string) $row->metadata, TRUE) ?? [],
         ];
 
         return $eventClass::fromArray($data);

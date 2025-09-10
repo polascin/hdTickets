@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,12 +25,6 @@ class UserPreferencePreset extends Model
         'is_system_preset',
         'created_by',
         'is_active',
-    ];
-
-    protected $casts = [
-        'preference_data'  => 'json',
-        'is_system_preset' => 'boolean',
-        'is_active'        => 'boolean',
     ];
 
     /**
@@ -177,7 +172,7 @@ class UserPreferencePreset extends Model
     {
         $defaults = self::getDefaultPresets();
 
-        foreach ($defaults as $key => $presetData) {
+        foreach ($defaults as $presetData) {
             self::updateOrCreate(
                 [
                     'name'             => $presetData['name'],
@@ -214,14 +209,10 @@ class UserPreferencePreset extends Model
 
         $preferences = $query->get()
             ->groupBy('category')
-            ->map(function ($categoryPrefs) {
-                return $categoryPrefs->mapWithKeys(function ($pref) {
-                    return [$pref->key => [
-                        'value'     => UserPreference::castValue($pref->value, $pref->data_type),
-                        'data_type' => $pref->data_type,
-                    ]];
-                });
-            });
+            ->map(fn ($categoryPrefs) => $categoryPrefs->mapWithKeys(fn ($pref): array => [$pref->key => [
+                'value'     => UserPreference::castValue($pref->value, $pref->data_type),
+                'data_type' => $pref->data_type,
+            ]]));
 
         return self::create([
             'name'             => $name,
@@ -285,7 +276,7 @@ class UserPreferencePreset extends Model
     /**
      * Get  accessible presets with stats
      */
-    public static function getAccessiblePresetsWithStats(int $userId): \Illuminate\Database\Eloquent\Collection
+    public static function getAccessiblePresetsWithStats(int $userId): Collection
     {
         return self::accessibleTo($userId)
             ->active()
@@ -329,7 +320,7 @@ class UserPreferencePreset extends Model
             ? json_decode($this->preference_data, TRUE)
             : $this->preference_data;
 
-        if (!is_array($presetData)) {
+        if (! is_array($presetData)) {
             $errors[] = 'Preference data must be a valid JSON object';
 
             return $errors;
@@ -337,7 +328,7 @@ class UserPreferencePreset extends Model
 
         // Validate structure
         foreach ($presetData as $category => $preferences) {
-            if (!is_array($preferences)) {
+            if (! is_array($preferences)) {
                 $errors[] = "Category '{$category}' must contain an array of preferences";
 
                 continue;
@@ -346,12 +337,12 @@ class UserPreferencePreset extends Model
             foreach ($preferences as $key => $prefData) {
                 // Allow both simple values and structured data
                 if (is_array($prefData)) {
-                    if (!isset($prefData['value'])) {
+                    if (! isset($prefData['value'])) {
                         $errors[] = "Preference '{$category}.{$key}' must have a 'value' field";
                     }
 
                     $dataType = $prefData['data_type'] ?? 'string';
-                    if (!in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], TRUE)) {
+                    if (! in_array($dataType, ['string', 'boolean', 'integer', 'array', 'json'], TRUE)) {
                         $errors[] = "Invalid data type '{$dataType}' for preference '{$category}.{$key}'";
                     }
                 }
@@ -388,16 +379,14 @@ class UserPreferencePreset extends Model
                 $pushEnabled = $preferences['push_enabled']['value'] ?? $preferences['push_enabled'] ?? FALSE;
                 $smsEnabled = $preferences['sms_enabled']['value'] ?? $preferences['sms_enabled'] ?? FALSE;
 
-                $notificationTypes = array_filter(['Email', 'Push', 'SMS'], function ($type) use ($emailEnabled, $pushEnabled, $smsEnabled) {
-                    return match ($type) {
-                        'Email' => $emailEnabled,
-                        'Push'  => $pushEnabled,
-                        'SMS'   => $smsEnabled,
-                        default => FALSE,
-                    };
+                $notificationTypes = array_filter(['Email', 'Push', 'SMS'], fn (string $type) => match ($type) {
+                    'Email' => $emailEnabled,
+                    'Push'  => $pushEnabled,
+                    'SMS'   => $smsEnabled,
+                    default => FALSE,
                 });
 
-                if ($notificationTypes) {
+                if ($notificationTypes !== []) {
                     $summary['key_features'][] = 'Notifications: ' . implode(', ', $notificationTypes);
                 }
             }
@@ -407,14 +396,23 @@ class UserPreferencePreset extends Model
                 $density = $preferences['density']['value'] ?? $preferences['density'] ?? NULL;
 
                 if ($theme) {
-                    $summary['key_features'][] = ucfirst($theme) . ' theme';
+                    $summary['key_features'][] = ucfirst((string) $theme) . ' theme';
                 }
                 if ($density) {
-                    $summary['key_features'][] = ucfirst($density) . ' density';
+                    $summary['key_features'][] = ucfirst((string) $density) . ' density';
                 }
             }
         }
 
         return $summary;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'preference_data'  => 'json',
+            'is_system_preset' => 'boolean',
+            'is_active'        => 'boolean',
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\AdvancedReportingService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,11 +13,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AdvancedReportingController extends Controller
 {
-    protected AdvancedReportingService $reportingService;
-
-    public function __construct(AdvancedReportingService $reportingService)
+    public function __construct(protected AdvancedReportingService $reportingService)
     {
-        $this->reportingService = $reportingService;
     }
 
     /**
@@ -46,8 +44,8 @@ class AdvancedReportingController extends Controller
 
         try {
             $parameters = array_merge($request->get('parameters', []), [
-                'start_date'     => $request->get('start_date') ? \Carbon\Carbon::parse($request->get('start_date')) : NULL,
-                'end_date'       => $request->get('end_date') ? \Carbon\Carbon::parse($request->get('end_date')) : NULL,
+                'start_date'     => $request->get('start_date') ? Carbon::parse($request->get('start_date')) : NULL,
+                'end_date'       => $request->get('end_date') ? Carbon::parse($request->get('end_date')) : NULL,
                 'format'         => $request->get('format', 'pdf'),
                 'include_charts' => $request->get('include_charts', TRUE),
             ]);
@@ -372,7 +370,7 @@ class AdvancedReportingController extends Controller
             // Mock implementation - in reality, you'd retrieve from storage
             $filePath = storage_path("app/reports/pdf/report_{$reportId}.pdf");
 
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Report file not found',

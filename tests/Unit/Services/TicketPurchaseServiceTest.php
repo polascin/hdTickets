@@ -10,6 +10,7 @@ use App\Services\TicketPurchaseService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
+use Override;
 use Tests\TestCase;
 
 class TicketPurchaseServiceTest extends TestCase
@@ -456,6 +457,7 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertContains('Active subscription required', $eligibility['reasons']);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();

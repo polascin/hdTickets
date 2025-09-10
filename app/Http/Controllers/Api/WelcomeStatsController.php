@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -15,17 +16,15 @@ class WelcomeStatsController extends Controller
     public function index(): JsonResponse
     {
         // Cache stats for 5 minutes to reduce database load
-        $stats = Cache::remember('welcome_stats', 300, function () {
-            return [
-                'platforms'      => $this->getPlatformCount(),
-                'monitoring'     => '24/7',
-                'users'          => $this->getUserCount(),
-                'alerts'         => $this->getAlertsToday(),
-                'priceDrops'     => $this->getPriceDropsToday(),
-                'activeMonitors' => $this->getActiveMonitors(),
-                'lastUpdate'     => now()->toISOString(),
-            ];
-        });
+        $stats = Cache::remember('welcome_stats', 300, fn (): array => [
+            'platforms'      => $this->getPlatformCount(),
+            'monitoring'     => '24/7',
+            'users'          => $this->getUserCount(),
+            'alerts'         => $this->getAlertsToday(),
+            'priceDrops'     => $this->getPriceDropsToday(),
+            'activeMonitors' => $this->getActiveMonitors(),
+            'lastUpdate'     => now()->toISOString(),
+        ]);
 
         return response()->json($stats);
     }
@@ -46,14 +45,14 @@ class WelcomeStatsController extends Controller
     private function getUserCount(): string
     {
         try {
-            $userCount = \App\Models\User::count();
+            $userCount = User::count();
 
             if ($userCount >= 1000) {
                 return number_format($userCount / 1000, 1) . 'K+';
             }
 
             return (string) $userCount;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return '15K+'; // Fallback
         }
     }
@@ -66,8 +65,8 @@ class WelcomeStatsController extends Controller
         try {
             // This would typically query an alerts/notifications table
             // For now, return a random realistic number
-            return rand(15, 45);
-        } catch (Exception $e) {
+            return random_int(15, 45);
+        } catch (Exception) {
             return 0;
         }
     }
@@ -79,8 +78,8 @@ class WelcomeStatsController extends Controller
     {
         try {
             // This would query price change logs
-            return rand(5, 15);
-        } catch (Exception $e) {
+            return random_int(5, 15);
+        } catch (Exception) {
             return 0;
         }
     }
@@ -92,8 +91,8 @@ class WelcomeStatsController extends Controller
     {
         try {
             // This would query active ticket monitoring jobs
-            return rand(100, 300);
-        } catch (Exception $e) {
+            return random_int(100, 300);
+        } catch (Exception) {
             return 0;
         }
     }

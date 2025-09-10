@@ -2,8 +2,14 @@
 
 namespace Tests\EndToEnd;
 
+use App\Jobs\ProcessPurchaseAttempt;
+use App\Mail\AccountDeletionRequested;
+use App\Mail\SubscriptionConfirmation;
+use App\Mail\TicketAlert;
+use App\Mail\WelcomeUser;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\EnhancedAlertSystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -38,13 +44,13 @@ class UserJourneyTest extends TestCase
         ]);
 
         // Verify welcome email was sent
-        Mail::assertQueued(\App\Mail\WelcomeUser::class);
+        Mail::assertQueued(WelcomeUser::class);
 
         // 2. User verifies email
         $user = User::where('email', 'john.doe@example.com')->first();
         $this->assertNotNull($user);
 
-        $verificationUrl = "/api/email/verify/{$user->id}/" . sha1($user->email);
+        $verificationUrl = "/api/email/verify/{$user->id}/" . sha1((string) $user->email);
         $response = $this->getJson($verificationUrl);
 
         $this->assertEquals(200, $response->status());
@@ -147,7 +153,7 @@ class UserJourneyTest extends TestCase
         ]);
 
         // Verify purchase attempt was queued for processing
-        Queue::assertPushed(\App\Jobs\ProcessPurchaseAttempt::class);
+        Queue::assertPushed(ProcessPurchaseAttempt::class);
 
         // 4. User checks purchase attempt status
         $purchaseAttempt = $response->json();
@@ -200,7 +206,7 @@ class UserJourneyTest extends TestCase
         $this->assertTrue($user->isPremium());
 
         // Verify subscription confirmation email was sent
-        Mail::assertQueued(\App\Mail\SubscriptionConfirmation::class);
+        Mail::assertQueued(SubscriptionConfirmation::class);
 
         // 3. Premium user creates purchase attempt with higher priority
         $ticket = $this->createTestTicket(['status' => 'available']);
@@ -276,11 +282,11 @@ class UserJourneyTest extends TestCase
         ]);
 
         // 3. Alert system processes the new ticket
-        $alertSystem = app(\App\Services\EnhancedAlertSystem::class);
+        $alertSystem = app(EnhancedAlertSystem::class);
         $alertSystem->checkAndTriggerAlerts($ticket);
 
         // Verify notifications were sent
-        Mail::assertQueued(\App\Mail\TicketAlert::class);
+        Mail::assertQueued(TicketAlert::class);
 
         // 4. User receives notification and clicks through
         Sanctum::actingAs($user);
@@ -411,7 +417,7 @@ class UserJourneyTest extends TestCase
             'secret',
         ]);
 
-        $secret = $response->json('secret');
+        $response->json('secret');
 
         // Verify 2FA setup
         $verificationData = [
@@ -465,7 +471,7 @@ class UserJourneyTest extends TestCase
             'status'  => 'pending',
         ]);
 
-        Mail::assertQueued(\App\Mail\AccountDeletionRequested::class);
+        Mail::assertQueued(AccountDeletionRequested::class);
     }
 
     /**

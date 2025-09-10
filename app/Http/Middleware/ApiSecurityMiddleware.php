@@ -17,14 +17,8 @@ use function strlen;
 
 class ApiSecurityMiddleware
 {
-    protected SecurityService $securityService;
-
-    protected InputValidationService $validationService;
-
-    public function __construct(SecurityService $securityService, InputValidationService $validationService)
+    public function __construct(protected SecurityService $securityService, protected InputValidationService $validationService)
     {
-        $this->securityService = $securityService;
-        $this->validationService = $validationService;
     }
 
     /**
@@ -101,19 +95,19 @@ class ApiSecurityMiddleware
     {
         $apiKey = $request->header('X-API-Key') ?? $request->input('api_key');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->logSecurityViolation($request, 'Missing API key');
             abort(401, 'API key is required');
         }
 
-        if (!$this->isValidApiKey($apiKey)) {
+        if (! $this->isValidApiKey($apiKey)) {
             $this->logSecurityViolation($request, 'Invalid API key');
             abort(401, 'Invalid API key');
         }
 
         // Verify API key signature if present
         $signature = $request->header('X-API-Signature');
-        if ($signature && !$this->verifyApiSignature($request, $apiKey, $signature)) {
+        if ($signature && ! $this->verifyApiSignature($request, $apiKey, $signature)) {
             $this->logSecurityViolation($request, 'Invalid API signature');
             abort(401, 'Invalid API signature');
         }
@@ -181,12 +175,10 @@ class ApiSecurityMiddleware
     protected function isSuspiciousIp(string $ip): bool
     {
         // Check against known bad IP lists
-        $suspiciousIps = Cache::remember('suspicious_ips', 3600, function () {
-            // In production, this would fetch from a threat intelligence service
-            return [
+        $suspiciousIps = Cache::remember('suspicious_ips', 3600, fn (): array => // In production, this would fetch from a threat intelligence service
+            [
                 '127.0.0.1', // Example - in production would be real threat IPs
-            ];
-        });
+            ]);
 
         return in_array($ip, $suspiciousIps, TRUE);
     }
@@ -199,7 +191,7 @@ class ApiSecurityMiddleware
      */
     protected function isMaliciousUserAgent(?string $userAgent): bool
     {
-        if (!$userAgent) {
+        if (! $userAgent) {
             return TRUE; // Require user agent
         }
 
@@ -275,14 +267,13 @@ class ApiSecurityMiddleware
     protected function isValidApiKey(string $apiKey): bool
     {
         // Check API key format (should be 40 character hash)
-        if (strlen($apiKey) !== 40 || !ctype_alnum($apiKey)) {
+        if (strlen($apiKey) !== 40 || ! ctype_alnum($apiKey)) {
             return FALSE;
         }
 
         // Check against database of valid API keys
-        $validKeys = Cache::remember('valid_api_keys', 300, function () {
-            // In production, fetch from database
-            return [
+        $validKeys = Cache::remember('valid_api_keys', 300, fn (): array => // In production, fetch from database
+            [
                 'valid_key_hash_1' => [
                     'id'          => 1,
                     'name'        => 'Sports Events Monitor',
@@ -291,8 +282,7 @@ class ApiSecurityMiddleware
                     'permissions' => ['scrape', 'purchase', 'analytics'],
                 ],
                 // Add more API keys as needed
-            ];
-        });
+            ]);
 
         return isset($validKeys[$apiKey]);
     }

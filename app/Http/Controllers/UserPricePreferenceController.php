@@ -61,12 +61,7 @@ class UserPricePreferenceController extends Controller
             ]);
         }
 
-        return view('preferences.prices.index', compact(
-            'preferences',
-            'stats',
-            'eventCategories',
-            'seatPreferences',
-        ));
+        return view('preferences.prices.index', ['preferences' => $preferences, 'stats' => $stats, 'eventCategories' => $eventCategories, 'seatPreferences' => $seatPreferences]);
     }
 
     /**
@@ -81,11 +76,7 @@ class UserPricePreferenceController extends Controller
         $seatPreferences = UserPricePreference::getSeatPreferences();
         $alertFrequencies = UserPricePreference::getAlertFrequencies();
 
-        return view('preferences.prices.create', compact(
-            'eventCategories',
-            'seatPreferences',
-            'alertFrequencies',
-        ));
+        return view('preferences.prices.create', ['eventCategories' => $eventCategories, 'seatPreferences' => $seatPreferences, 'alertFrequencies' => $alertFrequencies]);
     }
 
     /**
@@ -122,7 +113,7 @@ class UserPricePreferenceController extends Controller
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (!empty($validationErrors)) {
+        if ($validationErrors !== []) {
             if ($request->wantsJson()) {
                 return response()->json([
                     'errors' => $validationErrors,
@@ -167,7 +158,7 @@ class UserPricePreferenceController extends Controller
             return response()->json(['preference' => $preference]);
         }
 
-        return view('preferences.prices.show', compact('preference'));
+        return view('preferences.prices.show', ['preference' => $preference]);
     }
 
     /**
@@ -184,12 +175,7 @@ class UserPricePreferenceController extends Controller
         $seatPreferences = UserPricePreference::getSeatPreferences();
         $alertFrequencies = UserPricePreference::getAlertFrequencies();
 
-        return view('preferences.prices.edit', compact(
-            'preference',
-            'eventCategories',
-            'seatPreferences',
-            'alertFrequencies',
-        ));
+        return view('preferences.prices.edit', ['preference' => $preference, 'eventCategories' => $eventCategories, 'seatPreferences' => $seatPreferences, 'alertFrequencies' => $alertFrequencies]);
     }
 
     /**
@@ -226,7 +212,7 @@ class UserPricePreferenceController extends Controller
 
         // Validate the preference data
         $validationErrors = UserPricePreference::validatePreferenceData($validated);
-        if (!empty($validationErrors)) {
+        if ($validationErrors !== []) {
             if ($request->wantsJson()) {
                 return response()->json([
                     'errors' => $validationErrors,
@@ -288,7 +274,7 @@ class UserPricePreferenceController extends Controller
     {
         $this->authorize('update', $preference);
 
-        $preference->update(['is_active' => !$preference->is_active]);
+        $preference->update(['is_active' => ! $preference->is_active]);
 
         return response()->json([
             'is_active' => $preference->is_active,
@@ -473,7 +459,7 @@ class UserPricePreferenceController extends Controller
         $redirectResponse = redirect()->route('preferences.prices.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $redirectResponse->with('errors', $errors);
         }
 
@@ -636,10 +622,8 @@ class UserPricePreferenceController extends Controller
     {
         $recommendations = [];
 
-        if (!$results['matches_price']) {
-            if (isset($results['ticket_price'])) {
-                $recommendations[] = 'This ticket price is outside your preferred range of ' . $preference->getFormattedPriceRange();
-            }
+        if (! $results['matches_price'] && isset($results['ticket_price'])) {
+            $recommendations[] = 'This ticket price is outside your preferred range of ' . $preference->getFormattedPriceRange();
         }
 
         if ($results['should_auto_purchase']) {
@@ -650,15 +634,15 @@ class UserPricePreferenceController extends Controller
             $recommendations[] = 'This ticket has experienced a significant price drop';
         }
 
-        if (isset($results['matches_seat_preferences']) && !$results['matches_seat_preferences']) {
+        if (isset($results['matches_seat_preferences']) && ! $results['matches_seat_preferences']) {
             $recommendations[] = 'This ticket does not match your seat preferences';
         }
 
-        if (isset($results['matches_section_preferences']) && !$results['matches_section_preferences']) {
+        if (isset($results['matches_section_preferences']) && ! $results['matches_section_preferences']) {
             $recommendations[] = 'This ticket is not in your preferred sections';
         }
 
-        if (empty($recommendations)) {
+        if ($recommendations === []) {
             $recommendations[] = 'This ticket matches your preferences';
         }
 

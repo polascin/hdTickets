@@ -213,7 +213,7 @@ class EncryptionService
     public function generateSearchableHash(string $value): string
     {
         // Use HMAC with app key for consistent, secure hashing
-        return hash_hmac('sha256', strtolower(trim($value)), config('app.key'));
+        return hash_hmac('sha256', strtolower(trim($value)), (string) config('app.key'));
     }
 
     /**

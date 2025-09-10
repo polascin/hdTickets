@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\TicketApis\TicketmasterClient;
 use App\Services\TicketmasterScraper;
 use Exception;
 use Illuminate\Console\Command;
@@ -51,7 +52,7 @@ class ScrapeTicketmaster extends Command
 
             if ($dryRun) {
                 // For dry run, just get search results without importing
-                $client = new \App\Services\TicketApis\TicketmasterClient([
+                $client = new TicketmasterClient([
                     'enabled'  => TRUE,
                     'base_url' => 'https://app.ticketmaster.com/discovery/v2/',
                     'timeout'  => 30,
@@ -59,7 +60,7 @@ class ScrapeTicketmaster extends Command
 
                 $results = $client->scrapeSearchResults($keyword, $location, $limit);
 
-                if (empty($results)) {
+                if ($results === []) {
                     $this->error("No events found for keyword: {$keyword}");
 
                     return Command::FAILURE;
@@ -68,15 +69,13 @@ class ScrapeTicketmaster extends Command
                 $this->info('Found ' . count($results) . ' events:');
                 $this->table(
                     ['Name', 'Date', 'Venue', 'Price Range', 'URL'],
-                    collect($results)->map(function ($event) {
-                        return [
-                            substr($event['name'], 0, 50) . (strlen($event['name']) > 50 ? '...' : ''),
-                            $event['date'] ?? 'N/A',
-                            substr($event['venue'] ?? 'N/A', 0, 30),
-                            $event['price_range'] ?? 'N/A',
-                            $event['url'] ? 'Yes' : 'No',
-                        ];
-                    })->toArray(),
+                    collect($results)->map(fn ($event): array => [
+                        substr((string) $event['name'], 0, 50) . (strlen((string) $event['name']) > 50 ? '...' : ''),
+                        $event['date'] ?? 'N/A',
+                        substr($event['venue'] ?? 'N/A', 0, 30),
+                        $event['price_range'] ?? 'N/A',
+                        $event['url'] ? 'Yes' : 'No',
+                    ])->toArray(),
                 );
 
                 return Command::SUCCESS;
@@ -90,7 +89,7 @@ class ScrapeTicketmaster extends Command
                 $this->info("Total found: {$result['total_found']}");
                 $this->info("Successfully imported: {$result['imported']}");
 
-                if (!empty($result['errors'])) {
+                if (! empty($result['errors'])) {
                     $this->warn('Errors encountered: ' . count($result['errors']));
                     foreach ($result['errors'] as $error) {
                         $this->error("- {$error['event']}: {$error['error']}");
@@ -136,7 +135,7 @@ class ScrapeTicketmaster extends Command
                 $this->info("Last scrape: {$stats['last_scrape']->format('Y-m-d H:i:s')}");
             }
 
-            if (!empty($stats['category_breakdown']) && $stats['category_breakdown']->isNotEmpty()) {
+            if (! empty($stats['category_breakdown']) && $stats['category_breakdown']->isNotEmpty()) {
                 $this->info("\nCategory breakdown:");
                 foreach ($stats['category_breakdown'] as $categoryStats) {
                     $categoryName = $categoryStats->category->name ?? 'Unknown';

@@ -155,9 +155,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/tickets?' . http_build_query($params);
     }
@@ -173,7 +171,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
             Log::info("StadionWelt Germany Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -265,26 +263,6 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Map competition names to German terms
-     */
-    private function mapCompetition(string $competition): string
-    {
-        $competitions = [
-            'bundesliga'        => '1. Bundesliga',
-            '2_bundesliga'      => '2. Bundesliga',
-            '3_liga'            => '3. Liga',
-            'dfb_pokal'         => 'DFB-Pokal',
-            'champions_league'  => 'Champions League',
-            'europa_league'     => 'Europa League',
-            'conference_league' => 'Conference League',
-            'der_klassiker'     => 'Der Klassiker',
-            'revierderby'       => 'Revierderby',
-        ];
-
-        return $competitions[strtolower($competition)] ?? $competition;
-    }
-
-    /**
      * Extract ticket data from DOM node
      */
     private function extractTicketData(Crawler $node): ?array
@@ -302,11 +280,11 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
 
             // Create match title
             $title = trim($homeTeam . ' vs ' . $awayTeam);
-            if (empty($title) || $title === 'vs') {
+            if ($title === '' || $title === '0' || $title === 'vs') {
                 $title = $this->extractText($node, '.spieltitel, .match-title, h3');
             }
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -317,7 +295,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -351,7 +329,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
     {
         $eventDate = $this->parseDate($date);
 
-        if ($eventDate && !empty($time)) {
+        if ($eventDate && ($time !== '' && $time !== '0')) {
             $timeFormatted = $this->parseTime($time);
             if ($timeFormatted) {
                 return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
@@ -379,7 +357,7 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
@@ -388,11 +366,9 @@ class StadionWeltGermanyPlugin extends BaseScraperPlugin
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '.', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '.', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

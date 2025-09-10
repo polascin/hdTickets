@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreTicketRequest;
 use App\Http\Requests\Api\UpdateTicketRequest;
 use App\Http\Resources\TicketResource;
+use App\Models\Comment;
 use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -180,7 +181,7 @@ class TicketController extends Controller
 
         // Create system comment for status changes
         if (isset($request->validated()['status']) && $oldStatus !== $ticket->status) {
-            \App\Models\Comment::createStatusChangeComment(
+            Comment::createStatusChangeComment(
                 $ticket,
                 $oldStatus,
                 $ticket->status,

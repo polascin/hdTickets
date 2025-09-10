@@ -1,5 +1,13 @@
 <?php declare(strict_types=1);
 
+use App\Models\Category;
+use App\Models\PurchaseAttempt;
+use App\Models\PurchaseQueue;
+use App\Models\ScrapedTicket;
+use App\Models\TicketSource;
+use App\Models\User;
+use Spatie\Activitylog\Models\Activity;
+
 return [
     // If set to false, no activities will be saved to the database.
     'enabled' => env('ACTIVITY_LOGGER_ENABLED', TRUE),
@@ -30,7 +38,7 @@ return [
      * It should implement the Spatie\Activitylog\Contracts\Activity interface
      * and extend Illuminate\Database\Eloquent\Model.
      */
-    'activity_model' => Spatie\Activitylog\Models\Activity::class,
+    'activity_model' => Activity::class,
 
     /*
      * This is the name of the table that will be created by the migration and
@@ -58,12 +66,12 @@ return [
      * logged when they are updated.
      */
     'log_model_changes' => [
-        'App\Models\User',
-        'App\Models\ScrapedTicket',
-        'App\Models\PurchaseQueue',
-        'App\Models\PurchaseAttempt',
-        'App\Models\TicketSource',
-        'App\Models\Category',
+        User::class,
+        ScrapedTicket::class,
+        PurchaseQueue::class,
+        PurchaseAttempt::class,
+        TicketSource::class,
+        Category::class,
     ],
 
     // Log additional model attributes when models are created, updated or deleted.

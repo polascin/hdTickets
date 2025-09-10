@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+
+use function count;
+use function function_exists;
+use function strlen;
 
 /**
  * Advanced Redis Caching Service
@@ -52,6 +57,226 @@ class RedisCacheService
     {
         $this->initializeLayers();
         $this->enableDistributedCache = config('cache.distributed', TRUE);
+    }
+
+    /**
+     * Store data in specific cache layer with intelligent configuration
+     *
+     * @param mixed $data
+     */
+    public function putLayer(string $layer, string $key, $data, array $options = []): bool
+    {
+        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
+        $fullKey = $this->buildLayerKey($layer, $key);
+
+        // Apply options overrides
+        $ttl = $options['ttl'] ?? $config['ttl'];
+        $compression = $options['compression'] ?? $config['compression'];
+        $tags = array_merge($config['tags'], $options['tags'] ?? []);
+
+        // Prepare data for storage
+        $processedData = $this->prepareDataForStorage($data, $config, $compression);
+
+        try {
+            // Store with tags for easy invalidation
+            $success = Cache::tags($tags)->put($fullKey, $processedData, $ttl);
+
+            if ($success) {
+                $this->recordCacheStats('put', $layer, $key, [
+                    'size' => strlen(serialize($processedData)),
+                    'ttl'  => $ttl,
+                    'tags' => $tags,
+                ]);
+            }
+
+            return $success;
+        } catch (Exception $e) {
+            Log::error('Cache put error', [
+                'layer' => $layer,
+                'key'   => $key,
+                'error' => $e->getMessage(),
+            ]);
+
+            return FALSE;
+        }
+    }
+
+    /**
+     * Retrieve data from specific cache layer
+     *
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getLayer(string $layer, string $key, $default = NULL)
+    {
+        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
+        $fullKey = $this->buildLayerKey($layer, $key);
+
+        try {
+            $data = Cache::get($fullKey);
+
+            if ($data !== NULL) {
+                $this->recordCacheStats('hit', $layer, $key);
+
+                return $this->processDataFromStorage($data, $config);
+            }
+
+            $this->recordCacheStats('miss', $layer, $key);
+
+            return $default;
+        } catch (Exception $e) {
+            Log::error('Cache get error', [
+                'layer' => $layer,
+                'key'   => $key,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->recordCacheStats('error', $layer, $key);
+
+            return $default;
+        }
+    }
+
+    /**
+     * Remember pattern with layer-specific configuration
+     *
+     * @return mixed
+     */
+    public function rememberLayer(string $layer, string $key, callable $callback, array $options = [])
+    {
+        $data = $this->getLayer($layer, $key);
+
+        if ($data !== NULL) {
+            return $data;
+        }
+
+        // Execute callback and cache result
+        $result = $callback();
+
+        if ($result !== NULL) {
+            $this->putLayer($layer, $key, $result, $options);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Intelligent cache invalidation with dependency tracking
+     */
+    public function invalidateLayer(string $layer, array $keys = [], bool $cascadeInvalidation = TRUE): array
+    {
+        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
+        $invalidated = [];
+
+        try {
+            if ($keys === []) {
+                // Invalidate entire layer by tags
+                Cache::tags($config['tags'])->flush();
+                $invalidated[] = "layer:{$layer}:*";
+
+                $this->recordCacheStats('invalidate_layer', $layer, '*', [
+                    'tags' => $config['tags'],
+                ]);
+            } else {
+                // Invalidate specific keys
+                foreach ($keys as $key) {
+                    $fullKey = $this->buildLayerKey($layer, $key);
+                    Cache::forget($fullKey);
+                    $invalidated[] = $fullKey;
+                }
+
+                $this->recordCacheStats('invalidate_keys', $layer, implode(',', $keys));
+            }
+
+            // Cascade invalidation to dependent layers
+            if ($cascadeInvalidation && isset($config['dependencies'])) {
+                foreach ($config['dependencies'] as $dependentLayer) {
+                    $dependentInvalidated = $this->invalidateLayer($dependentLayer, [], FALSE);
+                    $invalidated = array_merge($invalidated, $dependentInvalidated);
+                }
+            }
+        } catch (Exception $e) {
+            Log::error('Cache invalidation error', [
+                'layer' => $layer,
+                'keys'  => $keys,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return $invalidated;
+    }
+
+    /**
+     * Warm up cache layers with common queries
+     */
+    public function warmupLayers(array $warmupConfig = []): array
+    {
+        $defaultConfig = [
+            self::LAYER_EVENTS => [
+                'upcoming_events' => fn () => $this->getUpcomingEventsData(),
+                'popular_events'  => fn () => $this->getPopularEventsData(),
+                'featured_events' => fn () => $this->getFeaturedEventsData(),
+            ],
+            self::LAYER_TICKETS => [
+                'available_tickets' => fn () => $this->getAvailableTicketsData(),
+                'price_ranges'      => fn () => $this->getPriceRangesData(),
+            ],
+            self::LAYER_SYSTEM => [
+                'app_config'    => fn () => $this->getAppConfigData(),
+                'feature_flags' => fn () => $this->getFeatureFlagsData(),
+            ],
+        ];
+
+        $config = array_merge($defaultConfig, $warmupConfig);
+        $results = [];
+
+        foreach ($config as $layer => $queries) {
+            $layerResults = [];
+
+            foreach ($queries as $key => $callback) {
+                try {
+                    $startTime = microtime(TRUE);
+                    $data = $callback();
+                    $executionTime = microtime(TRUE) - $startTime;
+
+                    $success = $this->putLayer($layer, $key, $data);
+
+                    $layerResults[$key] = [
+                        'success'        => $success,
+                        'execution_time' => $executionTime,
+                        'data_size'      => $data ? strlen(serialize($data)) : 0,
+                    ];
+                } catch (Exception $e) {
+                    $layerResults[$key] = [
+                        'success' => FALSE,
+                        'error'   => $e->getMessage(),
+                    ];
+                }
+            }
+
+            $results[$layer] = $layerResults;
+        }
+
+        $this->recordCacheStats('warmup', 'all', '*', $results);
+
+        return $results;
+    }
+
+    /**
+     * Get comprehensive cache statistics
+     */
+    public function getCacheStats(): array
+    {
+        $redisInfo = $this->getRedisInfo();
+        $layerStats = $this->getLayerStats();
+
+        return [
+            'redis'       => $redisInfo,
+            'layers'      => $layerStats,
+            'performance' => $this->getPerformanceStats(),
+            'health'      => $this->getCacheHealth(),
+        ];
     }
 
     /**
@@ -106,248 +331,7 @@ class RedisCacheService
     }
 
     /**
-     * Store data in specific cache layer with intelligent configuration
-     *
-     * @param  string $layer
-     * @param  string $key
-     * @param  mixed  $data
-     * @param  array  $options
-     * @return bool
-     */
-    public function putLayer(string $layer, string $key, $data, array $options = []): bool
-    {
-        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
-        $fullKey = $this->buildLayerKey($layer, $key);
-
-        // Apply options overrides
-        $ttl = $options['ttl'] ?? $config['ttl'];
-        $compression = $options['compression'] ?? $config['compression'];
-        $tags = array_merge($config['tags'], $options['tags'] ?? []);
-
-        // Prepare data for storage
-        $processedData = $this->prepareDataForStorage($data, $config, $compression);
-
-        try {
-            // Store with tags for easy invalidation
-            $success = Cache::tags($tags)->put($fullKey, $processedData, $ttl);
-
-            if ($success) {
-                $this->recordCacheStats('put', $layer, $key, [
-                    'size' => strlen(serialize($processedData)),
-                    'ttl'  => $ttl,
-                    'tags' => $tags,
-                ]);
-            }
-
-            return $success;
-        } catch (\Exception $e) {
-            Log::error('Cache put error', [
-                'layer' => $layer,
-                'key'   => $key,
-                'error' => $e->getMessage(),
-            ]);
-
-            return FALSE;
-        }
-    }
-
-    /**
-     * Retrieve data from specific cache layer
-     *
-     * @param  string $layer
-     * @param  string $key
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public function getLayer(string $layer, string $key, $default = NULL)
-    {
-        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
-        $fullKey = $this->buildLayerKey($layer, $key);
-
-        try {
-            $data = Cache::get($fullKey);
-
-            if ($data !== NULL) {
-                $this->recordCacheStats('hit', $layer, $key);
-
-                return $this->processDataFromStorage($data, $config);
-            }
-
-            $this->recordCacheStats('miss', $layer, $key);
-
-            return $default;
-        } catch (\Exception $e) {
-            Log::error('Cache get error', [
-                'layer' => $layer,
-                'key'   => $key,
-                'error' => $e->getMessage(),
-            ]);
-
-            $this->recordCacheStats('error', $layer, $key);
-
-            return $default;
-        }
-    }
-
-    /**
-     * Remember pattern with layer-specific configuration
-     *
-     * @param  string   $layer
-     * @param  string   $key
-     * @param  callable $callback
-     * @param  array    $options
-     * @return mixed
-     */
-    public function rememberLayer(string $layer, string $key, callable $callback, array $options = [])
-    {
-        $data = $this->getLayer($layer, $key);
-
-        if ($data !== NULL) {
-            return $data;
-        }
-
-        // Execute callback and cache result
-        $result = $callback();
-
-        if ($result !== NULL) {
-            $this->putLayer($layer, $key, $result, $options);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Intelligent cache invalidation with dependency tracking
-     *
-     * @param  string $layer
-     * @param  array  $keys
-     * @param  bool   $cascadeInvalidation
-     * @return array
-     */
-    public function invalidateLayer(string $layer, array $keys = [], bool $cascadeInvalidation = TRUE): array
-    {
-        $config = $this->layerConfig[$layer] ?? $this->getDefaultConfig();
-        $invalidated = [];
-
-        try {
-            if (empty($keys)) {
-                // Invalidate entire layer by tags
-                Cache::tags($config['tags'])->flush();
-                $invalidated[] = "layer:{$layer}:*";
-
-                $this->recordCacheStats('invalidate_layer', $layer, '*', [
-                    'tags' => $config['tags'],
-                ]);
-            } else {
-                // Invalidate specific keys
-                foreach ($keys as $key) {
-                    $fullKey = $this->buildLayerKey($layer, $key);
-                    Cache::forget($fullKey);
-                    $invalidated[] = $fullKey;
-                }
-
-                $this->recordCacheStats('invalidate_keys', $layer, implode(',', $keys));
-            }
-
-            // Cascade invalidation to dependent layers
-            if ($cascadeInvalidation && isset($config['dependencies'])) {
-                foreach ($config['dependencies'] as $dependentLayer) {
-                    $dependentInvalidated = $this->invalidateLayer($dependentLayer, [], FALSE);
-                    $invalidated = array_merge($invalidated, $dependentInvalidated);
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Cache invalidation error', [
-                'layer' => $layer,
-                'keys'  => $keys,
-                'error' => $e->getMessage(),
-            ]);
-        }
-
-        return $invalidated;
-    }
-
-    /**
-     * Warm up cache layers with common queries
-     *
-     * @param  array $warmupConfig
-     * @return array
-     */
-    public function warmupLayers(array $warmupConfig = []): array
-    {
-        $defaultConfig = [
-            self::LAYER_EVENTS => [
-                'upcoming_events' => fn () => $this->getUpcomingEventsData(),
-                'popular_events'  => fn () => $this->getPopularEventsData(),
-                'featured_events' => fn () => $this->getFeaturedEventsData(),
-            ],
-            self::LAYER_TICKETS => [
-                'available_tickets' => fn () => $this->getAvailableTicketsData(),
-                'price_ranges'      => fn () => $this->getPriceRangesData(),
-            ],
-            self::LAYER_SYSTEM => [
-                'app_config'    => fn () => $this->getAppConfigData(),
-                'feature_flags' => fn () => $this->getFeatureFlagsData(),
-            ],
-        ];
-
-        $config = array_merge($defaultConfig, $warmupConfig);
-        $results = [];
-
-        foreach ($config as $layer => $queries) {
-            $layerResults = [];
-
-            foreach ($queries as $key => $callback) {
-                try {
-                    $startTime = microtime(TRUE);
-                    $data = $callback();
-                    $executionTime = microtime(TRUE) - $startTime;
-
-                    $success = $this->putLayer($layer, $key, $data);
-
-                    $layerResults[$key] = [
-                        'success'        => $success,
-                        'execution_time' => $executionTime,
-                        'data_size'      => $data ? strlen(serialize($data)) : 0,
-                    ];
-                } catch (\Exception $e) {
-                    $layerResults[$key] = [
-                        'success' => FALSE,
-                        'error'   => $e->getMessage(),
-                    ];
-                }
-            }
-
-            $results[$layer] = $layerResults;
-        }
-
-        $this->recordCacheStats('warmup', 'all', '*', $results);
-
-        return $results;
-    }
-
-    /**
-     * Get comprehensive cache statistics
-     *
-     * @return array
-     */
-    public function getCacheStats(): array
-    {
-        $redisInfo = $this->getRedisInfo();
-        $layerStats = $this->getLayerStats();
-
-        return [
-            'redis'       => $redisInfo,
-            'layers'      => $layerStats,
-            'performance' => $this->getPerformanceStats(),
-            'health'      => $this->getCacheHealth(),
-        ];
-    }
-
-    /**
      * Get Redis server information
-     *
-     * @return array
      */
     protected function getRedisInfo(): array
     {
@@ -365,15 +349,13 @@ class RedisCacheService
                 'hit_ratio'         => $this->calculateRedisHitRatio($info),
                 'total_keys'        => $this->getTotalKeys(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
     }
 
     /**
      * Get statistics for each cache layer
-     *
-     * @return array
      */
     protected function getLayerStats(): array
     {
@@ -397,8 +379,6 @@ class RedisCacheService
 
     /**
      * Get cache performance metrics
-     *
-     * @return array
      */
     protected function getPerformanceStats(): array
     {
@@ -418,8 +398,6 @@ class RedisCacheService
 
     /**
      * Assess overall cache health
-     *
-     * @return array
      */
     protected function getCacheHealth(): array
     {
@@ -468,8 +446,10 @@ class RedisCacheService
 
     /**
      * Prepare data for storage with compression and serialization
+     *
+     * @param mixed $data
      */
-    protected function prepareDataForStorage($data, array $config, bool $compression = FALSE)
+    protected function prepareDataForStorage($data, array $config, bool $compression = FALSE): string|false
     {
         // Serialize based on configuration
         $serialized = $config['serialization'] === 'json'
@@ -478,7 +458,7 @@ class RedisCacheService
 
         // Compress if enabled
         if ($compression && function_exists('gzcompress')) {
-            $serialized = gzcompress($serialized, 6);
+            return gzcompress($serialized, 6);
         }
 
         return $serialized;
@@ -486,6 +466,8 @@ class RedisCacheService
 
     /**
      * Process data from storage with decompression and deserialization
+     *
+     * @param mixed $data
      */
     protected function processDataFromStorage($data, array $config)
     {
@@ -499,7 +481,7 @@ class RedisCacheService
 
         // Deserialize based on configuration
         return $config['serialization'] === 'json'
-            ? json_decode($data, TRUE)
+            ? json_decode((string) $data, TRUE)
             : unserialize($data);
     }
 
@@ -522,7 +504,7 @@ class RedisCacheService
      */
     protected function recordCacheStats(string $operation, string $layer, string $key, array $metadata = []): void
     {
-        if (!isset($this->cacheStats[$operation])) {
+        if (! isset($this->cacheStats[$operation])) {
             $this->cacheStats[$operation] = [];
         }
 
@@ -555,7 +537,7 @@ class RedisCacheService
             $redis = Redis::connection();
 
             return $redis->dbsize();
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -570,7 +552,7 @@ class RedisCacheService
             $pattern = "hdtickets:{$layer}:*";
 
             return $redis->keys($pattern);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -588,7 +570,7 @@ class RedisCacheService
             foreach ($keys as $key) {
                 $totalSize += $redis->memory('usage', $key);
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             // Fallback estimation
             $totalSize = count($keys) * 1024; // Rough estimate
         }
@@ -615,12 +597,12 @@ class RedisCacheService
     {
         $allAccesses = array_merge(
             $this->cacheStats['hit'] ?? [],
-            $this->cacheStats['miss'] ?? []
+            $this->cacheStats['miss'] ?? [],
         );
 
-        $layerAccesses = array_filter($allAccesses, fn ($access) => $access['layer'] === $layer);
+        $layerAccesses = array_filter($allAccesses, fn (array $access): bool => $access['layer'] === $layer);
 
-        if (empty($layerAccesses)) {
+        if ($layerAccesses === []) {
             return NULL;
         }
 
@@ -652,7 +634,7 @@ class RedisCacheService
     {
         preg_match('/([0-9.]+)([KMGT]?)/', $memory, $matches);
 
-        if (empty($matches)) {
+        if ($matches === []) {
             return 0;
         }
 
@@ -683,37 +665,37 @@ class RedisCacheService
     }
 
     // Placeholder methods for warmup data - these would be implemented based on actual models
-    protected function getUpcomingEventsData()
+    protected function getUpcomingEventsData(): array
     {
         return ['placeholder' => 'upcoming_events'];
     }
 
-    protected function getPopularEventsData()
+    protected function getPopularEventsData(): array
     {
         return ['placeholder' => 'popular_events'];
     }
 
-    protected function getFeaturedEventsData()
+    protected function getFeaturedEventsData(): array
     {
         return ['placeholder' => 'featured_events'];
     }
 
-    protected function getAvailableTicketsData()
+    protected function getAvailableTicketsData(): array
     {
         return ['placeholder' => 'available_tickets'];
     }
 
-    protected function getPriceRangesData()
+    protected function getPriceRangesData(): array
     {
         return ['placeholder' => 'price_ranges'];
     }
 
-    protected function getAppConfigData()
+    protected function getAppConfigData(): array
     {
         return ['placeholder' => 'app_config'];
     }
 
-    protected function getFeatureFlagsData()
+    protected function getFeatureFlagsData(): array
     {
         return ['placeholder' => 'feature_flags'];
     }

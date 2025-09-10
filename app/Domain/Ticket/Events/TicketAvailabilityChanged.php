@@ -5,6 +5,7 @@ namespace App\Domain\Ticket\Events;
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use App\Domain\Ticket\ValueObjects\AvailabilityStatus;
 use App\Domain\Ticket\ValueObjects\TicketId;
+use Override;
 
 final class TicketAvailabilityChanged extends AbstractDomainEvent
 {
@@ -54,7 +55,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function becameAvailable(): bool
     {
-        return !$this->oldStatus->canPurchase() && $this->newStatus->canPurchase();
+        return ! $this->oldStatus->canPurchase() && $this->newStatus->canPurchase();
     }
 
     /**
@@ -62,7 +63,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function becameUnavailable(): bool
     {
-        return $this->oldStatus->canPurchase() && !$this->newStatus->canPurchase();
+        return $this->oldStatus->canPurchase() && ! $this->newStatus->canPurchase();
     }
 
     /**
@@ -70,7 +71,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
      */
     public function soldOut(): bool
     {
-        return $this->newStatus->isSoldOut() && !$this->oldStatus->isSoldOut();
+        return $this->newStatus->isSoldOut() && ! $this->oldStatus->isSoldOut();
     }
 
     /**
@@ -79,6 +80,7 @@ final class TicketAvailabilityChanged extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->ticketId = new TicketId($payload['ticket_id']);

@@ -85,23 +85,23 @@ class Real_madridPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['buscar'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competicion'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['fecha_desde'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['fecha_hasta'] = $criteria['date_to'];
         }
 
-        return $baseSearchUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseSearchUrl . ($params === [] ? '' : '?' . http_build_query($params));
     }
 
     /**
@@ -151,14 +151,14 @@ class Real_madridPlugin extends BaseScraperPlugin
             });
 
             // Fallback: try to parse generic event structures
-            if (empty($events)) {
+            if ($events === []) {
                 $crawler->filter('.card, .item, .entry')->each(function (Crawler $node) use (&$events): void {
                     try {
                         $event = $this->parseEventNode($node);
                         if ($event) {
                             $events[] = $event;
                         }
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         // Silently continue for fallback parsing
                     }
                 });

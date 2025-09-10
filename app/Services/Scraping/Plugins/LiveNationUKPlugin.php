@@ -187,9 +187,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -203,7 +201,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
             Log::info("LiveNation UK Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -302,7 +300,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.event-title, .title, .name, h2 a, h3 a, .artist-name');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -318,7 +316,7 @@ class LiveNationUKPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -338,8 +336,8 @@ class LiveNationUKPlugin extends BaseScraperPlugin
                 'link'              => $link,
                 'platform'          => $this->platform,
                 'category'          => $category,
-                'availability'      => !empty($soldOut) ? 'sold_out' : 'available',
-                'presale_available' => !empty($presale),
+                'availability'      => $soldOut === '' || $soldOut === '0' ? 'available' : 'sold_out',
+                'presale_available' => $presale !== '' && $presale !== '0',
                 'scraped_at'        => now(),
             ];
         } catch (Exception $e) {
@@ -354,13 +352,13 @@ class LiveNationUKPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
         // Handle LiveNation price formats
         $cleanPrice = preg_replace('/from\s*£?|tickets from\s*£?/i', '', $priceText);
-        $cleanPrice = preg_replace('/[^0-9.,£]/', '', $cleanPrice);
+        $cleanPrice = preg_replace('/[^0-9.,£]/', '', (string) $cleanPrice);
         $cleanPrice = str_replace(',', '', $cleanPrice);
 
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {

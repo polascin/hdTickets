@@ -15,7 +15,7 @@ use function count;
 
 class AnalyticsInsightsService
 {
-    private const CACHE_TTL = 1800; // 30 minutes
+    private const int CACHE_TTL = 1800; // 30 minutes
 
     /**
      * Generate predictive insights for ticket demand
@@ -27,7 +27,7 @@ class AnalyticsInsightsService
     {
         $cacheKey = 'insights:predictive:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(90);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -41,10 +41,10 @@ class AnalyticsInsightsService
                 'demand_forecasting'   => $demandForecasting,
                 'price_projections'    => $priceProjections,
                 'seasonal_trends'      => $seasonalTrends,
-                'market_opportunities' => $this->identifyMarketOpportunities($historicalData),
-                'risk_assessment'      => $this->assessMarketRisks($historicalData),
-                'recommendations'      => $this->generatePredictiveRecommendations($historicalData),
-                'confidence_scores'    => $this->calculatePredictionConfidence($historicalData),
+                'market_opportunities' => $this->identifyMarketOpportunities(),
+                'risk_assessment'      => $this->assessMarketRisks(),
+                'recommendations'      => $this->generatePredictiveRecommendations(),
+                'confidence_scores'    => $this->calculatePredictionConfidence(),
                 'generated_at'         => now()->toISOString(),
             ];
         });
@@ -60,19 +60,19 @@ class AnalyticsInsightsService
     {
         $cacheKey = 'insights:user_behavior:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
             return [
                 'engagement_patterns' => $this->analyzeEngagementPatterns($startDate, $endDate),
-                'user_segmentation'   => $this->performUserSegmentation($startDate, $endDate),
-                'conversion_analysis' => $this->analyzeConversionPatterns($startDate, $endDate),
-                'retention_insights'  => $this->analyzeUserRetention($startDate, $endDate),
-                'behavior_trends'     => $this->identifyBehaviorTrends($startDate, $endDate),
-                'churn_prediction'    => $this->predictUserChurn($startDate, $endDate),
-                'lifetime_value'      => $this->calculateUserLifetimeValue($startDate, $endDate),
-                'actionable_insights' => $this->generateUserActionableInsights($startDate, $endDate),
+                'user_segmentation'   => $this->performUserSegmentation(),
+                'conversion_analysis' => $this->analyzeConversionPatterns(),
+                'retention_insights'  => $this->analyzeUserRetention(),
+                'behavior_trends'     => $this->identifyBehaviorTrends(),
+                'churn_prediction'    => $this->predictUserChurn(),
+                'lifetime_value'      => $this->calculateUserLifetimeValue(),
+                'actionable_insights' => $this->generateUserActionableInsights(),
             ];
         });
     }
@@ -87,19 +87,19 @@ class AnalyticsInsightsService
     {
         $cacheKey = 'insights:market_intelligence:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(60);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
             return [
                 'competitive_analysis'      => $this->performCompetitiveAnalysis($startDate, $endDate),
-                'market_share_trends'       => $this->analyzeMarketShareTrends($startDate, $endDate),
-                'pricing_intelligence'      => $this->generatePricingIntelligence($startDate, $endDate),
-                'demand_hotspots'           => $this->identifyDemandHotspots($startDate, $endDate),
-                'supply_analysis'           => $this->analyzeSupplyPatterns($startDate, $endDate),
-                'market_gaps'               => $this->identifyMarketGaps($startDate, $endDate),
-                'strategic_recommendations' => $this->generateStrategicRecommendations($startDate, $endDate),
-                'market_health_score'       => $this->calculateMarketHealthScore($startDate, $endDate),
+                'market_share_trends'       => $this->analyzeMarketShareTrends(),
+                'pricing_intelligence'      => $this->generatePricingIntelligence(),
+                'demand_hotspots'           => $this->identifyDemandHotspots(),
+                'supply_analysis'           => $this->analyzeSupplyPatterns(),
+                'market_gaps'               => $this->identifyMarketGaps(),
+                'strategic_recommendations' => $this->generateStrategicRecommendations(),
+                'market_health_score'       => $this->calculateMarketHealthScore(),
             ];
         });
     }
@@ -114,19 +114,19 @@ class AnalyticsInsightsService
     {
         $cacheKey = 'insights:optimization:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
             return [
                 'platform_optimization'     => $this->analyzePlatformOptimization($startDate, $endDate),
-                'scraping_efficiency'       => $this->analyzeScrapingEfficiency($startDate, $endDate),
-                'alert_optimization'        => $this->analyzeAlertOptimization($startDate, $endDate),
-                'resource_utilization'      => $this->analyzeResourceUtilization($startDate, $endDate),
-                'bottleneck_analysis'       => $this->identifyBottlenecks($startDate, $endDate),
-                'improvement_opportunities' => $this->identifyImprovementOpportunities($startDate, $endDate),
-                'performance_benchmarks'    => $this->establishPerformanceBenchmarks($startDate, $endDate),
-                'optimization_roadmap'      => $this->generateOptimizationRoadmap($startDate, $endDate),
+                'scraping_efficiency'       => $this->analyzeScrapingEfficiency(),
+                'alert_optimization'        => $this->analyzeAlertOptimization(),
+                'resource_utilization'      => $this->analyzeResourceUtilization(),
+                'bottleneck_analysis'       => $this->identifyBottlenecks(),
+                'improvement_opportunities' => $this->identifyImprovementOpportunities(),
+                'performance_benchmarks'    => $this->establishPerformanceBenchmarks(),
+                'optimization_roadmap'      => $this->generateOptimizationRoadmap(),
             ];
         });
     }
@@ -172,33 +172,27 @@ class AnalyticsInsightsService
      */
     private function analyzeSeasonalTrends(Collection $data): array
     {
-        $monthlyTrends = $data->groupBy(function ($item) {
-            return $item->created_at->format('Y-m');
-        })->map(function ($monthData, $month) {
-            return [
-                'month'                  => $month,
-                'total_tickets'          => $monthData->count(),
-                'avg_price'              => $monthData->avg('min_price'),
-                'high_demand_percentage' => $monthData->where('is_high_demand', TRUE)->count() / $monthData->count() * 100,
-                'availability_rate'      => $monthData->where('is_available', TRUE)->count() / $monthData->count() * 100,
-            ];
-        })->values();
+        $monthlyTrends = $data->groupBy(fn ($item) => $item->created_at->format('Y-m'))->map(fn ($monthData, $month): array => [
+            'month'                  => $month,
+            'total_tickets'          => $monthData->count(),
+            'avg_price'              => $monthData->avg('min_price'),
+            'high_demand_percentage' => $monthData->where('is_high_demand', TRUE)->count() / $monthData->count() * 100,
+            'availability_rate'      => $monthData->where('is_available', TRUE)->count() / $monthData->count() * 100,
+        ])->values();
 
         $weeklyTrends = $data->groupBy(function ($item) {
             return $item->created_at->format('l'); // Day name
-        })->map(function ($dayData, $day) {
-            return [
-                'day'          => $day,
-                'avg_tickets'  => $dayData->count(),
-                'demand_score' => $dayData->where('is_high_demand', TRUE)->count() / max(1, $dayData->count()) * 100,
-            ];
-        });
+        })->map(fn ($dayData, $day): array => [
+            'day'          => $day,
+            'avg_tickets'  => $dayData->count(),
+            'demand_score' => $dayData->where('is_high_demand', TRUE)->count() / max(1, $dayData->count()) * 100,
+        ]);
 
         return [
             'monthly_trends'           => $monthlyTrends,
             'weekly_patterns'          => $weeklyTrends,
-            'peak_seasons'             => $this->identifyPeakSeasons($monthlyTrends),
-            'seasonal_recommendations' => $this->generateSeasonalRecommendations($monthlyTrends),
+            'peak_seasons'             => $this->identifyPeakSeasons(),
+            'seasonal_recommendations' => $this->generateSeasonalRecommendations(),
         ];
     }
 
@@ -207,15 +201,11 @@ class AnalyticsInsightsService
      */
     private function generateDemandForecasting(Collection $data): array
     {
-        $demandTrends = $data->groupBy(function ($item) {
-            return $item->created_at->format('Y-m-d');
-        })->map(function ($dayData) {
-            return [
-                'total_demand'        => $dayData->count(),
-                'high_demand_tickets' => $dayData->where('is_high_demand', TRUE)->count(),
-                'demand_intensity'    => $dayData->where('is_high_demand', TRUE)->count() / max(1, $dayData->count()),
-            ];
-        })->values();
+        $demandTrends = $data->groupBy(fn ($item) => $item->created_at->format('Y-m-d'))->map(fn ($dayData): array => [
+            'total_demand'        => $dayData->count(),
+            'high_demand_tickets' => $dayData->where('is_high_demand', TRUE)->count(),
+            'demand_intensity'    => $dayData->where('is_high_demand', TRUE)->count() / max(1, $dayData->count()),
+        ])->values();
 
         // Simple trend analysis (in production, use more sophisticated ML models)
         $recentTrend = $demandTrends->take(-7)->avg('demand_intensity');
@@ -225,9 +215,9 @@ class AnalyticsInsightsService
         return [
             'current_demand_level' => $this->categorizeDemandLevel($recentTrend),
             'trend_direction'      => $trendDirection,
-            'forecasted_demand'    => $this->forecastDemand($demandTrends),
-            'demand_drivers'       => $this->identifyDemandDrivers($data),
-            'seasonal_adjustments' => $this->calculateSeasonalAdjustments($demandTrends),
+            'forecasted_demand'    => $this->forecastDemand(),
+            'demand_drivers'       => $this->identifyDemandDrivers(),
+            'seasonal_adjustments' => $this->calculateSeasonalAdjustments(),
         ];
     }
 
@@ -236,29 +226,23 @@ class AnalyticsInsightsService
      */
     private function generatePriceProjections(Collection $data): array
     {
-        $priceData = $data->reject(function ($item) {
-            return NULL === $item->min_price || $item->min_price <= 0;
-        });
+        $priceData = $data->reject(fn ($item): bool => NULL === $item->min_price || $item->min_price <= 0);
 
         if ($priceData->isEmpty()) {
             return ['error' => 'Insufficient price data for projections'];
         }
 
-        $priceHistory = $priceData->groupBy(function ($item) {
-            return $item->created_at->format('Y-m-d');
-        })->map(function ($dayData) {
-            return [
-                'avg_price'        => $dayData->avg('min_price'),
-                'median_price'     => $dayData->median('min_price'),
-                'price_volatility' => $this->calculateVolatility($dayData->pluck('min_price')),
-            ];
-        });
+        $priceData->groupBy(fn ($item) => $item->created_at->format('Y-m-d'))->map(fn ($dayData): array => [
+            'avg_price'        => $dayData->avg('min_price'),
+            'median_price'     => $dayData->median('min_price'),
+            'price_volatility' => $this->calculateVolatility($dayData->pluck('min_price')),
+        ]);
 
         return [
-            'current_price_trend'              => $this->analyzePriceTrend($priceHistory),
-            'projected_price_range'            => $this->projectPriceRange($priceHistory),
-            'volatility_forecast'              => $this->forecastVolatility($priceHistory),
-            'price_optimization_opportunities' => $this->identifyPriceOptimizationOpportunities($priceData),
+            'current_price_trend'              => $this->analyzePriceTrend(),
+            'projected_price_range'            => $this->projectPriceRange(),
+            'volatility_forecast'              => $this->forecastVolatility(),
+            'price_optimization_opportunities' => $this->identifyPriceOptimizationOpportunities(),
         ];
     }
 
@@ -273,7 +257,7 @@ class AnalyticsInsightsService
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }])->get();
 
-        $engagementMetrics = $userData->map(function ($user) {
+        $engagementMetrics = $userData->map(function ($user): array {
             $alerts = $user->ticketAlerts;
 
             return [
@@ -287,20 +271,19 @@ class AnalyticsInsightsService
 
         return [
             'average_engagement'              => $engagementMetrics->avg('engagement_score'),
-            'engagement_distribution'         => $this->categorizeEngagementLevels($engagementMetrics),
-            'high_engagement_characteristics' => $this->identifyHighEngagementCharacteristics($engagementMetrics),
-            'engagement_trends'               => $this->analyzeEngagementTrends($engagementMetrics),
+            'engagement_distribution'         => $this->categorizeEngagementLevels(),
+            'high_engagement_characteristics' => $this->identifyHighEngagementCharacteristics(),
+            'engagement_trends'               => $this->analyzeEngagementTrends(),
         ];
     }
 
     /**
      * PerformUserSegmentation
      */
-    private function performUserSegmentation(Carbon $startDate, Carbon $endDate): array
+    private function performUserSegmentation(): array
     {
         $users = User::with(['ticketAlerts'])->get();
-
-        $segments = $users->groupBy(function ($user) {
+        $segments = $users->groupBy(function ($user): string {
             $alertCount = $user->ticketAlerts->count();
             $recentActivity = $user->last_activity_at && $user->last_activity_at->isAfter(Carbon::now()->subDays(7));
 
@@ -318,18 +301,16 @@ class AnalyticsInsightsService
             }
 
             return 'new_users';
-        })->map(function ($segment) {
-            return [
-                'count'                => $segment->count(),
-                'avg_alerts'           => $segment->avg(function ($user) { return $user->ticketAlerts->count(); }),
-                'conversion_potential' => $this->assessConversionPotential($segment),
-            ];
-        });
+        })->map(fn ($segment): array => [
+            'count'                => $segment->count(),
+            'avg_alerts'           => $segment->avg(fn ($user) => $user->ticketAlerts->count()),
+            'conversion_potential' => $this->assessConversionPotential(),
+        ]);
 
         return [
             'segments'            => $segments,
-            'segment_insights'    => $this->generateSegmentInsights($segments),
-            'targeted_strategies' => $this->generateTargetedStrategies($segments),
+            'segment_insights'    => $this->generateSegmentInsights(),
+            'targeted_strategies' => $this->generateTargetedStrategies(),
         ];
     }
 
@@ -351,16 +332,14 @@ class AnalyticsInsightsService
             ->groupBy('platform')
             ->get();
 
-        return $platformMetrics->map(function ($platform) {
-            return [
-                'platform'               => $platform->platform,
-                'market_share'           => $platform->ticket_count,
-                'avg_price_position'     => $this->determinePricePosition($platform->avg_price),
-                'availability_advantage' => $platform->available_count / max(1, $platform->ticket_count),
-                'demand_capture'         => $platform->demand_count / max(1, $platform->ticket_count),
-                'competitive_strength'   => $this->calculateCompetitiveStrength($platform),
-            ];
-        })->sortByDesc('competitive_strength')->values()->toArray();
+        return $platformMetrics->map(fn ($platform): array => [
+            'platform'               => $platform->platform,
+            'market_share'           => $platform->ticket_count,
+            'avg_price_position'     => $this->determinePricePosition(),
+            'availability_advantage' => $platform->available_count / max(1, $platform->ticket_count),
+            'demand_capture'         => $platform->demand_count / max(1, $platform->ticket_count),
+            'competitive_strength'   => $this->calculateCompetitiveStrength(),
+        ])->sortByDesc('competitive_strength')->values()->toArray();
     }
 
     // Optimization insights methods
@@ -381,16 +360,16 @@ class AnalyticsInsightsService
             ->groupBy('platform')
             ->get();
 
-        return $platformPerformance->map(function ($platform) {
+        return $platformPerformance->map(function ($platform): array {
             $errorRate = $platform->error_count / max(1, $platform->total_tickets);
 
             return [
                 'platform'                 => $platform->platform,
-                'efficiency_score'         => $this->calculateEfficiencyScore($platform),
+                'efficiency_score'         => $this->calculateEfficiencyScore(),
                 'error_rate'               => $errorRate,
                 'coverage_score'           => $platform->venue_coverage,
-                'optimization_potential'   => $this->assessOptimizationPotential($platform),
-                'recommended_improvements' => $this->generatePlatformImprovements($platform),
+                'optimization_potential'   => $this->assessOptimizationPotential(),
+                'recommended_improvements' => $this->generatePlatformImprovements(),
             ];
         })->toArray();
     }
@@ -453,9 +432,7 @@ class AnalyticsInsightsService
             ->get();
 
         $anomalies = [];
-        $hourlyBaselines = $hourlyDemand->groupBy('hour')->map(function ($hourData) {
-            return $hourData->avg('demand_count');
-        });
+        $hourlyBaselines = $hourlyDemand->groupBy('hour')->map(fn ($hourData) => $hourData->avg('demand_count'));
 
         foreach ($hourlyDemand as $data) {
             $baseline = $hourlyBaselines->get($data->hour, 0);
@@ -488,9 +465,7 @@ class AnalyticsInsightsService
         }
 
         $mean = array_sum($values) / count($values);
-        $squaredDifferences = array_map(function ($value) use ($mean) {
-            return pow($value - $mean, 2);
-        }, $values);
+        $squaredDifferences = array_map(fn ($value): float|int => ($value - $mean) ** 2, $values);
 
         $variance = array_sum($squaredDifferences) / count($values);
 
@@ -508,273 +483,274 @@ class AnalyticsInsightsService
 
         $returns = [];
         $priceArray = $prices->values()->toArray();
+        $counter = count($priceArray);
 
-        for ($i = 1; $i < count($priceArray); $i++) {
+        for ($i = 1; $i < $counter; $i++) {
             if ($priceArray[$i - 1] > 0) {
                 $returns[] = log($priceArray[$i] / $priceArray[$i - 1]);
             }
         }
 
-        return empty($returns) ? 0 : $this->calculateStandardDeviation($returns) * sqrt(252); // Annualized
+        return $returns === [] ? 0 : $this->calculateStandardDeviation($returns) * sqrt(252); // Annualized
     }
 
     // Placeholder methods for complex calculations (would be implemented with proper ML/statistical libraries)
-    private function identifyPeakSeasons($trends)
+    private function identifyPeakSeasons(): array
     {
         return [];
     }
 
-    private function generateSeasonalRecommendations($trends)
+    private function generateSeasonalRecommendations(): array
     {
         return [];
     }
 
-    private function categorizeDemandLevel($level)
+    private function categorizeDemandLevel($level): string
     {
         return $level > 0.7 ? 'high' : ($level > 0.3 ? 'medium' : 'low');
     }
 
-    private function forecastDemand($trends)
+    private function forecastDemand(): array
     {
         return ['next_week' => 'stable', 'next_month' => 'increasing'];
     }
 
-    private function identifyDemandDrivers(array $data)
+    private function identifyDemandDrivers(): array
     {
         return ['event_popularity', 'seasonal_factors', 'price_sensitivity'];
     }
 
-    private function calculateSeasonalAdjustments($trends)
+    private function calculateSeasonalAdjustments(): array
     {
         return ['summer' => 1.2, 'winter' => 0.8];
     }
 
-    private function analyzePriceTrend($history)
+    private function analyzePriceTrend(): string
     {
         return 'stable';
     }
 
-    private function projectPriceRange($history)
+    private function projectPriceRange(): array
     {
         return ['min' => 50, 'max' => 200];
     }
 
-    private function forecastVolatility($history)
+    private function forecastVolatility(): string
     {
         return 'low';
     }
 
-    private function identifyPriceOptimizationOpportunities(array $data)
+    private function identifyPriceOptimizationOpportunities(): array
     {
         return [];
     }
 
-    private function calculateEngagementFrequency(App\Models\User $user, $alerts)
+    private function calculateEngagementFrequency(App\Models\User $user, $alerts): int|float
     {
         return $alerts->count() / max(1, $user->created_at->diffInDays(now()));
     }
 
-    private function calculateEngagementScore($alerts)
+    private function calculateEngagementScore($alerts): float|int
     {
         return min(100, $alerts->count() * 10);
     }
 
-    private function categorizeEngagementLevels($metrics)
+    private function categorizeEngagementLevels(): array
     {
         return [];
     }
 
-    private function identifyHighEngagementCharacteristics($metrics)
+    private function identifyHighEngagementCharacteristics(): array
     {
         return [];
     }
 
-    private function analyzeEngagementTrends($metrics)
+    private function analyzeEngagementTrends(): array
     {
         return [];
     }
 
-    private function assessConversionPotential($segment)
+    private function assessConversionPotential(): int
     {
-        return rand(60, 90);
+        return random_int(60, 90);
     }
 
-    private function generateSegmentInsights($segments)
-    {
-        return [];
-    }
-
-    private function generateTargetedStrategies($segments)
+    private function generateSegmentInsights(): array
     {
         return [];
     }
 
-    private function determinePricePosition(float $price)
+    private function generateTargetedStrategies(): array
+    {
+        return [];
+    }
+
+    private function determinePricePosition(): string
     {
         return 'competitive';
     }
 
-    private function calculateCompetitiveStrength($platform)
+    private function calculateCompetitiveStrength(): int
     {
-        return rand(70, 95);
+        return random_int(70, 95);
     }
 
-    private function calculateEfficiencyScore($platform)
+    private function calculateEfficiencyScore(): int
     {
-        return rand(75, 95);
+        return random_int(75, 95);
     }
 
-    private function assessOptimizationPotential($platform)
+    private function assessOptimizationPotential(): string
     {
         return 'medium';
     }
 
-    private function generatePlatformImprovements($platform)
+    private function generatePlatformImprovements(): array
     {
         return [];
     }
 
-    private function detectPlatformAnomalies()
+    private function detectPlatformAnomalies(): array
     {
         return [];
     }
 
-    private function detectUserBehaviorAnomalies()
+    private function detectUserBehaviorAnomalies(): array
     {
         return [];
     }
 
-    private function detectSystemAnomalies()
+    private function detectSystemAnomalies(): array
     {
         return [];
     }
 
-    private function classifyAnomalySeverity()
+    private function classifyAnomalySeverity(): array
     {
         return [];
     }
 
-    private function generateAnomalyActions()
+    private function generateAnomalyActions(): array
     {
         return [];
     }
 
-    private function identifyMarketOpportunities(array $data)
+    private function identifyMarketOpportunities(): array
     {
         return [];
     }
 
-    private function assessMarketRisks(array $data)
+    private function assessMarketRisks(): array
     {
         return [];
     }
 
-    private function generatePredictiveRecommendations(array $data)
+    private function generatePredictiveRecommendations(): array
     {
         return [];
     }
 
-    private function calculatePredictionConfidence(array $data)
+    private function calculatePredictionConfidence(): array
     {
         return [];
     }
 
-    private function analyzeConversionPatterns($start, $end)
+    private function analyzeConversionPatterns(): array
     {
         return [];
     }
 
-    private function analyzeUserRetention($start, $end)
+    private function analyzeUserRetention(): array
     {
         return [];
     }
 
-    private function identifyBehaviorTrends($start, $end)
+    private function identifyBehaviorTrends(): array
     {
         return [];
     }
 
-    private function predictUserChurn($start, $end)
+    private function predictUserChurn(): array
     {
         return [];
     }
 
-    private function calculateUserLifetimeValue($start, $end)
+    private function calculateUserLifetimeValue(): array
     {
         return [];
     }
 
-    private function generateUserActionableInsights($start, $end)
+    private function generateUserActionableInsights(): array
     {
         return [];
     }
 
-    private function analyzeMarketShareTrends($start, $end)
+    private function analyzeMarketShareTrends(): array
     {
         return [];
     }
 
-    private function generatePricingIntelligence($start, $end)
+    private function generatePricingIntelligence(): array
     {
         return [];
     }
 
-    private function identifyDemandHotspots($start, $end)
+    private function identifyDemandHotspots(): array
     {
         return [];
     }
 
-    private function analyzeSupplyPatterns($start, $end)
+    private function analyzeSupplyPatterns(): array
     {
         return [];
     }
 
-    private function identifyMarketGaps($start, $end)
+    private function identifyMarketGaps(): array
     {
         return [];
     }
 
-    private function generateStrategicRecommendations($start, $end)
+    private function generateStrategicRecommendations(): array
     {
         return [];
     }
 
-    private function calculateMarketHealthScore($start, $end)
+    private function calculateMarketHealthScore(): int
     {
-        return rand(70, 90);
+        return random_int(70, 90);
     }
 
-    private function analyzeScrapingEfficiency($start, $end)
-    {
-        return [];
-    }
-
-    private function analyzeAlertOptimization($start, $end)
+    private function analyzeScrapingEfficiency(): array
     {
         return [];
     }
 
-    private function analyzeResourceUtilization($start, $end)
+    private function analyzeAlertOptimization(): array
     {
         return [];
     }
 
-    private function identifyBottlenecks($start, $end)
+    private function analyzeResourceUtilization(): array
     {
         return [];
     }
 
-    private function identifyImprovementOpportunities($start, $end)
+    private function identifyBottlenecks(): array
     {
         return [];
     }
 
-    private function establishPerformanceBenchmarks($start, $end)
+    private function identifyImprovementOpportunities(): array
     {
         return [];
     }
 
-    private function generateOptimizationRoadmap($start, $end)
+    private function establishPerformanceBenchmarks(): array
+    {
+        return [];
+    }
+
+    private function generateOptimizationRoadmap(): array
     {
         return [];
     }

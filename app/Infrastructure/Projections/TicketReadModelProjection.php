@@ -138,7 +138,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             Log::warning('Attempting to update price for non-existent ticket', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);
@@ -146,7 +146,7 @@ class TicketReadModelProjection implements ProjectionInterface
             return;
         }
 
-        $priceHistory = json_decode($ticket->price_history, TRUE) ?? [];
+        $priceHistory = json_decode((string) $ticket->price_history, TRUE) ?? [];
         $priceHistory[] = [
             'price'     => $event->newPrice->getAmount(),
             'currency'  => $event->newPrice->getCurrency(),
@@ -172,7 +172,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             Log::warning('Attempting to update availability for non-existent ticket', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);
@@ -180,7 +180,7 @@ class TicketReadModelProjection implements ProjectionInterface
             return;
         }
 
-        $availabilityHistory = json_decode($ticket->availability_history, TRUE) ?? [];
+        $availabilityHistory = json_decode((string) $ticket->availability_history, TRUE) ?? [];
         $availabilityHistory[] = [
             'status'    => $event->newStatus->getValue(),
             'timestamp' => $event->getOccurredAt()->format('Y-m-d H:i:s'),
@@ -211,7 +211,7 @@ class TicketReadModelProjection implements ProjectionInterface
             ->where('ticket_id', $event->ticketId->getValue())
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             Log::warning('Attempting to mark non-existent ticket as sold out', [
                 'ticket_id' => $event->ticketId->getValue(),
             ]);
@@ -219,7 +219,7 @@ class TicketReadModelProjection implements ProjectionInterface
             return;
         }
 
-        $availabilityHistory = json_decode($ticket->availability_history, TRUE) ?? [];
+        $availabilityHistory = json_decode((string) $ticket->availability_history, TRUE) ?? [];
         $availabilityHistory[] = [
             'status'           => 'sold_out',
             'timestamp'        => $event->soldOutAt->format('Y-m-d H:i:s'),

@@ -3,11 +3,14 @@
 namespace App\Services\Email;
 
 use App\Events\ImapMonitoringEvent;
+use App\Mail\ImapAlertMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+
+use function count;
 
 /**
  * IMAP Notification Service
@@ -19,17 +22,16 @@ class ImapNotificationService
 {
     private array $config;
 
-    private array $alertThresholds;
+    private array $alertThresholds = [
+        'connection_failures' => 3, // Alert after 3 consecutive failures
+        'processing_errors'   => 5,   // Alert after 5 processing errors in 10 minutes
+        'low_discovery_rate'  => 0,  // Alert if no sports events discovered in 2 hours
+        'high_response_time'  => 10, // Alert if connection time > 10 seconds
+    ];
 
     public function __construct()
     {
         $this->config = config('imap');
-        $this->alertThresholds = [
-            'connection_failures' => 3, // Alert after 3 consecutive failures
-            'processing_errors'   => 5,   // Alert after 5 processing errors in 10 minutes
-            'low_discovery_rate'  => 0,  // Alert if no sports events discovered in 2 hours
-            'high_response_time'  => 10, // Alert if connection time > 10 seconds
-        ];
     }
 
     /**
@@ -151,10 +153,10 @@ class ImapNotificationService
     public function notifyTicketAvailability(array $ticketData, string $alertType): void
     {
         $message = match ($alertType) {
-            'price_drop'   => "Price drop detected: {$ticketData['title']} - ${$ticketData['price']}",
-            'new_listing'  => "New ticket listing: {$ticketData['title']} - ${$ticketData['price']}",
+            'price_drop'   => "Price drop detected: {$ticketData['title']} - {${$ticketData['price']}}",
+            'new_listing'  => "New ticket listing: {$ticketData['title']} - {${$ticketData['price']}}",
             'availability' => "Ticket availability alert: {$ticketData['title']}",
-            default        => "Ticket alert: {$ticketData['title']}"
+            default        => "Ticket alert: {$ticketData['title']}",
         };
 
         $this->sendAlert('ticket_availability', $message, [
@@ -176,11 +178,11 @@ class ImapNotificationService
     {
         $issues = [];
 
-        if (!($healthData['imap_extension'] ?? TRUE)) {
+        if (! ($healthData['imap_extension'] ?? TRUE)) {
             $issues[] = 'IMAP extension not loaded';
         }
 
-        if (!($healthData['redis_connection'] ?? TRUE)) {
+        if (! ($healthData['redis_connection'] ?? TRUE)) {
             $issues[] = 'Redis connection failed';
         }
 
@@ -188,7 +190,7 @@ class ImapNotificationService
             $issues[] = 'Disk space usage above 90%';
         }
 
-        if (!empty($issues)) {
+        if ($issues !== []) {
             $message = 'System health issues detected: ' . implode(', ', $issues);
 
             $this->sendAlert('system_health', $message, [
@@ -200,6 +202,31 @@ class ImapNotificationService
             // Broadcast to dashboard
             ImapMonitoringEvent::systemHealthUpdate($healthData)->dispatch();
         }
+    }
+
+    /**
+     * Get notification statistics
+     *
+     * @return array Notification statistics
+     */
+    public function getNotificationStats(): array
+    {
+        // This would return actual statistics from your notification system
+        return [
+            'total_sent_today' => random_int(5, 25),
+            'by_type'          => [
+                'connection_failure'      => random_int(0, 3),
+                'processing_error'        => random_int(1, 8),
+                'sports_event_discovered' => random_int(3, 15),
+                'system_health'           => random_int(0, 2),
+            ],
+            'by_severity' => [
+                'high'   => random_int(0, 3),
+                'medium' => random_int(2, 10),
+                'low'    => random_int(1, 5),
+                'info'   => random_int(5, 15),
+            ],
+        ];
     }
 
     /**
@@ -221,7 +248,7 @@ class ImapNotificationService
             // Get notification recipients
             $recipients = $this->getNotificationRecipients($data['severity'] ?? 'medium');
 
-            if (empty($recipients)) {
+            if ($recipients === []) {
                 return;
             }
 
@@ -239,8 +266,9 @@ class ImapNotificationService
     /**
      * Get notification recipients based on severity
      *
-     * @param  string $severity Alert severity
-     * @return array  User IDs to notify
+     * @param string $severity Alert severity
+     *
+     * @return array User IDs to notify
      */
     private function getNotificationRecipients(string $severity): array
     {
@@ -253,8 +281,8 @@ class ImapNotificationService
         }
 
         return $query->where('notification_preferences->imap_alerts', TRUE)
-                    ->pluck('id')
-                    ->toArray();
+            ->pluck('id')
+            ->toArray();
     }
 
     /**
@@ -283,7 +311,7 @@ class ImapNotificationService
         }
 
         // Store in-app notifications
-        $this->storeInAppNotifications($type, $message, $data, $recipients);
+        $this->storeInAppNotifications($type, $message, $recipients);
     }
 
     /**
@@ -300,7 +328,7 @@ class ImapNotificationService
 
         foreach ($users as $user) {
             try {
-                Mail::to($user->email)->send(new \App\Mail\ImapAlertMail($type, $message, $data));
+                Mail::to($user->email)->send(new ImapAlertMail($type, $message, $data));
             } catch (Exception $e) {
                 Log::error('Failed to send IMAP email notification', [
                     'user_id' => $user->id,
@@ -402,10 +430,9 @@ class ImapNotificationService
      *
      * @param string $type       Alert type
      * @param string $message    Alert message
-     * @param array  $data       Alert data
      * @param array  $recipients Recipient user IDs
      */
-    private function storeInAppNotifications(string $type, string $message, array $data, array $recipients): void
+    private function storeInAppNotifications(string $type, string $message, array $recipients): void
     {
         // This would integrate with your notification system
         // For now, we'll just log it
@@ -419,8 +446,7 @@ class ImapNotificationService
     /**
      * Check if event is high-value
      *
-     * @param  array $eventData Event data
-     * @return bool
+     * @param array $eventData Event data
      */
     private function isHighValueEvent(array $eventData): bool
     {
@@ -433,7 +459,7 @@ class ImapNotificationService
         $eventName = strtolower($eventData['name'] ?? '');
 
         foreach ($highValueCriteria as $criterion) {
-            if (strpos($eventName, $criterion) !== FALSE) {
+            if (str_contains($eventName, $criterion)) {
                 return TRUE;
             }
         }
@@ -444,7 +470,8 @@ class ImapNotificationService
     /**
      * Get color for severity (Slack format)
      *
-     * @param  string $severity Severity level
+     * @param string $severity Severity level
+     *
      * @return string Color code
      */
     private function getSeverityColor(string $severity): string
@@ -454,15 +481,16 @@ class ImapNotificationService
             'medium' => 'warning',
             'low'    => 'good',
             'info'   => '#439FE0',
-            default  => 'warning'
+            default  => 'warning',
         };
     }
 
     /**
      * Get color for severity (Discord format)
      *
-     * @param  string $severity Severity level
-     * @return int    Color integer
+     * @param string $severity Severity level
+     *
+     * @return int Color integer
      */
     private function getSeverityColorInt(string $severity): int
     {
@@ -471,32 +499,7 @@ class ImapNotificationService
             'medium' => 0xFFA500,  // Orange
             'low'    => 0x00FF00,     // Green
             'info'   => 0x0099FF,    // Blue
-            default  => 0xFFA500    // Orange
+            default  => 0xFFA500,    // Orange
         };
-    }
-
-    /**
-     * Get notification statistics
-     *
-     * @return array Notification statistics
-     */
-    public function getNotificationStats(): array
-    {
-        // This would return actual statistics from your notification system
-        return [
-            'total_sent_today' => rand(5, 25),
-            'by_type'          => [
-                'connection_failure'      => rand(0, 3),
-                'processing_error'        => rand(1, 8),
-                'sports_event_discovered' => rand(3, 15),
-                'system_health'           => rand(0, 2),
-            ],
-            'by_severity' => [
-                'high'   => rand(0, 3),
-                'medium' => rand(2, 10),
-                'low'    => rand(1, 5),
-                'info'   => rand(5, 15),
-            ],
-        ];
     }
 }

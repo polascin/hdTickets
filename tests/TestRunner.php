@@ -87,30 +87,14 @@ class TestRunner
     {
         $startTime = microtime(TRUE);
 
-        switch ($suite) {
-            case 'unit':
-                $command = 'vendor/bin/phpunit --testsuite=Unit --coverage-clover=storage/quality/coverage/unit-clover.xml';
-
-                break;
-            case 'integration':
-                $command = 'vendor/bin/phpunit --testsuite=Integration --coverage-clover=storage/quality/coverage/integration-clover.xml';
-
-                break;
-            case 'feature':
-                $command = 'vendor/bin/phpunit --testsuite=Feature --coverage-clover=storage/quality/coverage/feature-clover.xml';
-
-                break;
-            case 'performance':
-                $command = 'vendor/bin/phpunit tests/Performance --coverage-clover=storage/quality/coverage/performance-clover.xml';
-
-                break;
-            case 'endtoend':
-                $command = 'vendor/bin/phpunit tests/EndToEnd --coverage-clover=storage/quality/coverage/e2e-clover.xml';
-
-                break;
-            default:
-                throw new InvalidArgumentException("Unknown test suite: {$suite}");
-        }
+        $command = match ($suite) {
+            'unit'        => 'vendor/bin/phpunit --testsuite=Unit --coverage-clover=storage/quality/coverage/unit-clover.xml',
+            'integration' => 'vendor/bin/phpunit --testsuite=Integration --coverage-clover=storage/quality/coverage/integration-clover.xml',
+            'feature'     => 'vendor/bin/phpunit --testsuite=Feature --coverage-clover=storage/quality/coverage/feature-clover.xml',
+            'performance' => 'vendor/bin/phpunit tests/Performance --coverage-clover=storage/quality/coverage/performance-clover.xml',
+            'endtoend'    => 'vendor/bin/phpunit tests/EndToEnd --coverage-clover=storage/quality/coverage/e2e-clover.xml',
+            default       => throw new InvalidArgumentException("Unknown test suite: {$suite}"),
+        };
 
         // Set up test environment
         $this->setupTestEnvironment();
@@ -145,7 +129,7 @@ class TestRunner
 
         $results = [
             'unit'     => $this->runTestSuite('unit'),
-            'coverage' => $this->generateCoverageReport(['unit']),
+            'coverage' => $this->generateCoverageReport(),
         ];
 
         $this->checkCoverageThresholds($results['coverage']);
@@ -191,17 +175,13 @@ class TestRunner
     /**
      * Generate coverage report
      */
-    private function generateCoverageReport(?array $suites = NULL): array
+    private function generateCoverageReport(): array
     {
-        $suites = $suites ?: array_keys($this->testSuites);
-
         // Generate HTML coverage report
         $coverageCommand = 'vendor/bin/phpunit --coverage-html=' . $this->coverageDir . '/html';
         $coverageCommand .= ' --coverage-text=' . $this->coverageDir . '/text.txt';
         $coverageCommand .= ' --coverage-xml=' . $this->coverageDir . '/xml';
-
         exec($coverageCommand . ' 2>&1', $output);
-
         // Parse coverage results
         $coverageData = $this->parseCoverageResults();
 
@@ -280,7 +260,6 @@ class TestRunner
      */
     private function generateSummary(array $results): array
     {
-        $totalTests = 0;
         $passedTests = 0;
         $failedTests = 0;
         $totalTime = 0;

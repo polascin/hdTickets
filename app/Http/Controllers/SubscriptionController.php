@@ -6,9 +6,11 @@ use App\Models\PaymentPlan;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\PaymentService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -45,12 +47,7 @@ class SubscriptionController extends Controller
         $accountAge = $user->created_at->diffInDays(now());
         $remainingFreeDays = max(0, $freeAccessDays - $accountAge);
 
-        return view('subscription.payment', compact(
-            'user',
-            'plans',
-            'currentSubscription',
-            'remainingFreeDays',
-        ));
+        return view('subscription.payment', ['user' => $user, 'plans' => $plans, 'currentSubscription' => $currentSubscription, 'remainingFreeDays' => $remainingFreeDays]);
     }
 
     /**
@@ -73,25 +70,18 @@ class SubscriptionController extends Controller
             $stripeCustomer = $this->paymentService->createOrUpdateCustomer($user);
 
             // Create subscription based on payment method
-            switch ($request->payment_method) {
-                case 'stripe':
-                    $subscription = $this->paymentService->createStripeSubscription(
-                        $user,
-                        $plan,
-                        $stripeCustomer->id,
-                    );
-
-                    break;
-                case 'paypal':
-                    $subscription = $this->paymentService->createPayPalSubscription(
-                        $user,
-                        $plan,
-                    );
-
-                    break;
-                default:
-                    throw new Exception('Invalid payment method');
-            }
+            $subscription = match ($request->payment_method) {
+                'stripe' => $this->paymentService->createStripeSubscription(
+                    $user,
+                    $plan,
+                    $stripeCustomer->id,
+                ),
+                'paypal' => $this->paymentService->createPayPalSubscription(
+                    $user,
+                    $plan,
+                ),
+                default => throw new Exception('Invalid payment method'),
+            };
 
             DB::commit();
 
@@ -114,12 +104,12 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return redirect()->route('subscription.payment')
                 ->withErrors(['error' => 'No active subscription found.']);
         }
 
-        return view('subscription.success', compact('user', 'subscription'));
+        return view('subscription.success', ['user' => $user, 'subscription' => $subscription]);
     }
 
     /**
@@ -138,12 +128,7 @@ class SubscriptionController extends Controller
         $currentMonth = now()->startOfMonth();
         $ticketUsage = $this->getTicketUsage($user, $currentMonth);
 
-        return view('subscription.manage', compact(
-            'user',
-            'subscription',
-            'subscriptionHistory',
-            'ticketUsage',
-        ));
+        return view('subscription.manage', ['user' => $user, 'subscription' => $subscription, 'subscriptionHistory' => $subscriptionHistory, 'ticketUsage' => $ticketUsage]);
     }
 
     /**
@@ -154,7 +139,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
         $subscription = $user->activeSubscription();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return redirect()->route('subscription.manage')
                 ->withErrors(['error' => 'No active subscription found.']);
         }
@@ -182,7 +167,7 @@ class SubscriptionController extends Controller
     /**
      * Handle Stripe webhooks
      */
-    public function webhook(Request $request): \Illuminate\Http\Response
+    public function webhook(Request $request): Response
     {
         $payload = $request->getContent();
         $sigHeader = $request->header('Stripe-Signature');
@@ -190,34 +175,20 @@ class SubscriptionController extends Controller
 
         try {
             $event = Webhook::constructEvent($payload, $sigHeader, $endpoint_secret);
-        } catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException) {
             return response('Invalid payload', 400);
-        } catch (SignatureVerificationException $e) {
+        } catch (SignatureVerificationException) {
             return response('Invalid signature', 400);
         }
 
         // Handle the event
-        switch ($event->type) {
-            case 'customer.subscription.created':
-            case 'customer.subscription.updated':
-                $this->handleSubscriptionUpdated($event->data->object);
-
-                break;
-            case 'customer.subscription.deleted':
-                $this->handleSubscriptionCancelled($event->data->object);
-
-                break;
-            case 'invoice.payment_succeeded':
-                $this->handlePaymentSucceeded($event->data->object);
-
-                break;
-            case 'invoice.payment_failed':
-                $this->handlePaymentFailed($event->data->object);
-
-                break;
-            default:
-                Log::info('Unhandled Stripe webhook event: ' . $event->type);
-        }
+        match ($event->type) {
+            'customer.subscription.created', 'customer.subscription.updated' => $this->handleSubscriptionUpdated($event->data->object),
+            'customer.subscription.deleted' => $this->handleSubscriptionCancelled($event->data->object),
+            'invoice.payment_succeeded'     => $this->handlePaymentSucceeded($event->data->object),
+            'invoice.payment_failed'        => $this->handlePaymentFailed($event->data->object),
+            default                         => Log::info('Unhandled Stripe webhook event: ' . $event->type),
+        };
 
         return response('Webhook handled', 200);
     }
@@ -234,8 +205,8 @@ class SubscriptionController extends Controller
         if ($subscription) {
             $subscription->update([
                 'status'    => $stripeSubscription->status,
-                'starts_at' => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'ends_at'   => \Carbon\Carbon::createFromTimestamp($stripeSubscription->current_period_end),
+                'starts_at' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
+                'ends_at'   => Carbon::createFromTimestamp($stripeSubscription->current_period_end),
             ]);
         }
     }
@@ -297,7 +268,7 @@ class SubscriptionController extends Controller
     /**
      * Get ticket usage for a user in a given period
      */
-    private function getTicketUsage(User $user, \Carbon\Carbon $period): array
+    private function getTicketUsage(User $user, Carbon $period): array
     {
         // This would need to be implemented based on your ticket tracking system
         // For now, return mock data

@@ -7,6 +7,7 @@ use App\Domain\Ticket\ValueObjects\PlatformSource;
 use App\Domain\Ticket\ValueObjects\Price;
 use App\Domain\Ticket\ValueObjects\TicketId;
 use DateTimeImmutable;
+use Override;
 
 final class TicketDiscovered extends AbstractDomainEvent
 {
@@ -73,6 +74,7 @@ final class TicketDiscovered extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->ticketId = new TicketId($payload['ticket_id']);

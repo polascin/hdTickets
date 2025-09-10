@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Exception;
@@ -46,7 +47,7 @@ class PerformanceMetricsController extends Controller
     /**
      * ReceiveMetrics
      */
-    public function receiveMetrics(Request $request): Illuminate\Http\JsonResponse
+    public function receiveMetrics(Request $request): JsonResponse
     {
         try {
             $data = $request->validate([
@@ -99,7 +100,7 @@ class PerformanceMetricsController extends Controller
     /**
      * Get  dashboard data
      */
-    public function getDashboardData(Request $request): Illuminate\Http\JsonResponse
+    public function getDashboardData(Request $request): JsonResponse
     {
         $period = $request->get('period', '24h');
 
@@ -107,11 +108,11 @@ class PerformanceMetricsController extends Controller
             $data = [
                 'overview'         => $this->getPerformanceOverview($period),
                 'web_vitals'       => $this->getWebVitalsData($period),
-                'page_performance' => $this->getPagePerformanceData($period),
+                'page_performance' => $this->getPagePerformanceData(),
                 'api_performance'  => $this->getApiPerformanceData($period),
-                'user_sessions'    => $this->getUserSessionsData($period),
+                'user_sessions'    => $this->getUserSessionsData(),
                 'alerts'           => $this->getRecentAlerts($period),
-                'trends'           => $this->getPerformanceTrends($period),
+                'trends'           => $this->getPerformanceTrends(),
             ];
 
             return response()->json($data);
@@ -155,29 +156,29 @@ class PerformanceMetricsController extends Controller
         // Process specific metric types
         switch ($metric['type']) {
             case 'web_vital':
-                $this->processWebVital($metric['data'], $page, $session);
+                $this->processWebVital($metric['data'], $page);
 
                 break;
             case 'ajax_request':
-                $this->processAjaxRequest($metric['data'], $page, $session);
+                $this->processAjaxRequest($metric['data'], $page);
 
                 break;
             case 'long_task':
-                $this->processLongTask($metric['data'], $page, $session);
+                $this->processLongTask($metric['data'], $page);
 
                 break;
             case 'custom_measurement':
-                $this->processCustomMeasurement($metric['data'], $page, $session);
+                $this->processCustomMeasurement($metric['data'], $page);
 
                 break;
             case 'visibility_change':
-                $this->processVisibilityChange($metric['data'], $page, $session);
+                $this->processVisibilityChange($metric['data'], $page);
 
                 break;
         }
 
         // Update counters
-        $this->updateMetricCounters($metric['type'], $page);
+        $this->updateMetricCounters($metric['type']);
     }
 
     /**
@@ -186,9 +187,9 @@ class PerformanceMetricsController extends Controller
     /**
      * ProcessWebVital
      */
-    private function processWebVital(array $data, array $page, array $session): void
+    private function processWebVital(array $data, array $page): void
     {
-        $vitalName = strtolower($data['name']);
+        $vitalName = strtolower((string) $data['name']);
         $value = $data['value'];
         $rating = $data['rating'];
 
@@ -206,7 +207,7 @@ class PerformanceMetricsController extends Controller
         $this->redis->expire($vitalKey, 86400 * 30); // Keep for 30 days
 
         // Update running averages
-        $this->updateVitalAverages($vitalName, $value, $page);
+        $this->updateVitalAverages($vitalName, $value);
 
         // Check for poor performance
         if ($rating === 'poor') {
@@ -226,7 +227,7 @@ class PerformanceMetricsController extends Controller
     /**
      * ProcessAjaxRequest
      */
-    private function processAjaxRequest(array $data, array $page, array $session): void
+    private function processAjaxRequest(array $data, array $page): void
     {
         $duration = $data['duration'];
         $url = $data['url'];
@@ -267,7 +268,7 @@ class PerformanceMetricsController extends Controller
     /**
      * ProcessLongTask
      */
-    private function processLongTask(array $data, array $page, array $session): void
+    private function processLongTask(array $data, array $page): void
     {
         $duration = $data['duration'];
         $attribution = $data['attribution'] ?? [];
@@ -301,7 +302,7 @@ class PerformanceMetricsController extends Controller
     /**
      * ProcessCustomMeasurement
      */
-    private function processCustomMeasurement(array $data, array $page, array $session): void
+    private function processCustomMeasurement(array $data, array $page): void
     {
         $name = $data['name'];
         $duration = $data['duration'];
@@ -319,7 +320,7 @@ class PerformanceMetricsController extends Controller
         $this->redis->expire($measurementKey, 86400 * 7);
 
         // Update measurement averages
-        $this->updateMeasurementAverages($name, $duration, $page);
+        $this->updateMeasurementAverages($name, $duration);
     }
 
     /**
@@ -328,7 +329,7 @@ class PerformanceMetricsController extends Controller
     /**
      * ProcessVisibilityChange
      */
-    private function processVisibilityChange(array $data, array $page, array $session): void
+    private function processVisibilityChange(array $data, array $page): void
     {
         $hidden = $data['hidden'];
         $visibilityState = $data['visibilityState'];
@@ -360,7 +361,7 @@ class PerformanceMetricsController extends Controller
         // Get existing summary or create new
         $summary = $this->redis->get($summaryKey);
         if ($summary) {
-            $summary = json_decode($summary, TRUE);
+            $summary = json_decode((string) $summary, TRUE);
         } else {
             $summary = [
                 'total_metrics' => 0,
@@ -401,9 +402,7 @@ class PerformanceMetricsController extends Controller
     {
         $webVitals = collect($metrics)->where('type', 'web_vital');
 
-        $poorVitals = $webVitals->filter(function ($metric) {
-            return $metric['data']['rating'] === 'poor';
-        });
+        $poorVitals = $webVitals->filter(fn ($metric): bool => $metric['data']['rating'] === 'poor');
 
         if ($poorVitals->count() >= 2) {
             $this->createPerformanceAlert('multiple_poor_vitals', [
@@ -485,7 +484,7 @@ class PerformanceMetricsController extends Controller
         // Update or create session
         $existingSession = $this->redis->get($sessionKey);
         if ($existingSession) {
-            $existingSession = json_decode($existingSession, TRUE);
+            $existingSession = json_decode((string) $existingSession, TRUE);
             $sessionData['pages_visited'] = array_unique(
                 array_merge($existingSession['pages_visited'], [$page['url']]),
             );
@@ -519,7 +518,7 @@ class PerformanceMetricsController extends Controller
         foreach ($keys as $key) {
             $summary = $this->redis->get($key);
             if ($summary) {
-                $summary = json_decode($summary, TRUE);
+                $summary = json_decode((string) $summary, TRUE);
                 $totalMetrics += $summary['total_metrics'] ?? 0;
                 $uniquePages = array_merge($uniquePages, array_keys($summary['unique_pages'] ?? []));
 
@@ -559,14 +558,14 @@ class PerformanceMetricsController extends Controller
 
                 $vitalData = $this->redis->lrange($key, 0, -1);
                 foreach ($vitalData as $item) {
-                    $item = json_decode($item, TRUE);
+                    $item = json_decode((string) $item, TRUE);
                     $values[] = $item['value'];
                     $ratings[$item['rating']]++;
                 }
             }
 
             $data[$vital] = [
-                'average'   => !empty($values) ? array_sum($values) / count($values) : 0,
+                'average'   => $values === [] ? 0 : array_sum($values) / count($values),
                 'count'     => count($values),
                 'ratings'   => $ratings,
                 'threshold' => self::THRESHOLDS[$vital] ?? NULL,
@@ -582,7 +581,7 @@ class PerformanceMetricsController extends Controller
     /**
      * Get  page performance data
      */
-    private function getPagePerformanceData(string $period): array
+    private function getPagePerformanceData(): array
     {
         // This would require aggregating metrics by page URL
         // For now, return sample data structure
@@ -610,10 +609,10 @@ class PerformanceMetricsController extends Controller
 
             $apiData = $this->redis->lrange($key, 0, -1);
             foreach ($apiData as $item) {
-                $item = json_decode($item, TRUE);
+                $item = json_decode((string) $item, TRUE);
                 $url = $item['url'];
 
-                if (!isset($endpoints[$url])) {
+                if (! isset($endpoints[$url])) {
                     $endpoints[$url] = [
                         'requests'       => 0,
                         'total_duration' => 0,
@@ -631,7 +630,7 @@ class PerformanceMetricsController extends Controller
         }
 
         // Calculate averages and sort
-        foreach ($endpoints as $url => &$data) {
+        foreach ($endpoints as &$data) {
             $data['average_duration'] = $data['total_duration'] / $data['requests'];
             $data['error_rate'] = ($data['errors'] / $data['requests']) * 100;
         }
@@ -645,7 +644,7 @@ class PerformanceMetricsController extends Controller
     /**
      * Get  user sessions data
      */
-    private function getUserSessionsData(string $period): array
+    private function getUserSessionsData(): array
     {
         // This would require aggregating session data
         // For now, return sample structure
@@ -673,14 +672,12 @@ class PerformanceMetricsController extends Controller
 
             $dayAlerts = $this->redis->lrange($key, 0, -1);
             foreach ($dayAlerts as $alert) {
-                $alerts[] = json_decode($alert, TRUE);
+                $alerts[] = json_decode((string) $alert, TRUE);
             }
         }
 
         // Sort by timestamp (newest first)
-        usort($alerts, function ($a, $b) {
-            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
-        });
+        usort($alerts, fn (array $a, array $b): int => strtotime((string) $b['timestamp']) - strtotime((string) $a['timestamp']));
 
         return array_slice($alerts, 0, 50); // Return latest 50 alerts
     }
@@ -691,7 +688,7 @@ class PerformanceMetricsController extends Controller
     /**
      * Get  performance trends
      */
-    private function getPerformanceTrends(string $period): array
+    private function getPerformanceTrends(): array
     {
         // This would calculate trends over time
         // For now, return sample structure
@@ -709,20 +706,20 @@ class PerformanceMetricsController extends Controller
      */
     private function getPeriodHours(string $period): int
     {
-        switch ($period) {
-            case '1h': return 1;
-            case '6h': return 6;
-            case '24h': return 24;
-            case '7d': return 168;
-            case '30d': return 720;
-            default: return 24;
-        }
+        return match ($period) {
+            '1h'    => 1,
+            '6h'    => 6,
+            '24h'   => 24,
+            '7d'    => 168,
+            '30d'   => 720,
+            default => 24,
+        };
     }
 
     /**
      * UpdateVitalAverages
      */
-    private function updateVitalAverages(string $vital, float $value, array $page): void
+    private function updateVitalAverages(string $vital, float $value): void
     {
         $key = "performance:vitals:{$vital}:average:" . date('Y-m-d');
 
@@ -744,7 +741,7 @@ class PerformanceMetricsController extends Controller
     /**
      * UpdateMeasurementAverages
      */
-    private function updateMeasurementAverages(string $name, float $duration, array $page): void
+    private function updateMeasurementAverages(string $name, float $duration): void
     {
         $key = "performance:custom:{$name}:average:" . date('Y-m-d');
 
@@ -766,7 +763,7 @@ class PerformanceMetricsController extends Controller
     /**
      * UpdateMetricCounters
      */
-    private function updateMetricCounters(string $type, array $page): void
+    private function updateMetricCounters(string $type): void
     {
         $counterKey = 'performance:counters:' . date('Y-m-d');
         $this->redis->hincrby($counterKey, $type, 1);

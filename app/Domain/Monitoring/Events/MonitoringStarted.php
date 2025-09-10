@@ -4,6 +4,7 @@ namespace App\Domain\Monitoring\Events;
 
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use DateTimeImmutable;
+use Override;
 
 final class MonitoringStarted extends AbstractDomainEvent
 {
@@ -59,6 +60,7 @@ final class MonitoringStarted extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->monitorId = $payload['monitor_id'];

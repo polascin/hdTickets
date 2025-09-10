@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Illuminate\Contracts\View\View;
+use App\Http\Controllers\Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Illuminate\Http\RedirectResponse;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -22,12 +25,12 @@ class ScraperDashboardController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $user = Auth::user();
 
         // Check if user has scraper privileges or is admin
-        if (!$user->isScraper() && !$user->isAdmin()) {
+        if (! $user->isScraper() && ! $user->isAdmin()) {
             abort(403, 'Access denied. Scraper privileges required.');
         }
 
@@ -49,15 +52,7 @@ class ScraperDashboardController extends Controller
         // Get scraping statistics
         $scrapingStats = $this->getScrapingStatistics($user);
 
-        return view('dashboard.scraper', compact(
-            'user',
-            'scraperMetrics',
-            'scrapingJobs',
-            'platformData',
-            'performanceData',
-            'recentActivity',
-            'scrapingStats',
-        ));
+        return view('dashboard.scraper', ['user' => $user, 'scraperMetrics' => $scraperMetrics, 'scrapingJobs' => $scrapingJobs, 'platformData' => $platformData, 'performanceData' => $performanceData, 'recentActivity' => $recentActivity, 'scrapingStats' => $scrapingStats]);
     }
 
     /**
@@ -66,32 +61,30 @@ class ScraperDashboardController extends Controller
     /**
      * Get  realtime metrics
      */
-    public function getRealtimeMetrics(Request $request): Illuminate\Http\RedirectResponse
+    public function getRealtimeMetrics(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user->isScraper() && !$user->isAdmin()) {
+        if (! $user->isScraper() && ! $user->isAdmin()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $cacheKey = "scraper_metrics_{$user->id}";
 
-        return Cache::remember($cacheKey, 30, function () use ($user) {
-            return [
-                'success' => TRUE,
-                'data'    => [
-                    'current_jobs'        => $this->getActiveJobs($user),
-                    'platform_status'     => $this->getPlatformStatus(),
-                    'recent_activity'     => array_slice($this->getRecentScrapingActivity($user), 0, 5),
-                    'performance_summary' => [
-                        'tickets_scraped_today' => $this->getTicketsScrapedToday($user),
-                        'success_rate'          => $this->getScraperSuccessRate($user),
-                        'active_jobs'           => $this->getActiveScrapingJobs($user),
-                    ],
+        return Cache::remember($cacheKey, 30, fn (): array => [
+            'success' => TRUE,
+            'data'    => [
+                'current_jobs'        => $this->getActiveJobs(),
+                'platform_status'     => $this->getPlatformStatus(),
+                'recent_activity'     => array_slice($this->getRecentScrapingActivity($user), 0, 5),
+                'performance_summary' => [
+                    'tickets_scraped_today' => $this->getTicketsScrapedToday($user),
+                    'success_rate'          => $this->getScraperSuccessRate(),
+                    'active_jobs'           => $this->getActiveScrapingJobs($user),
                 ],
-                'timestamp' => now()->toISOString(),
-            ];
-        });
+            ],
+            'timestamp' => now()->toISOString(),
+        ]);
     }
 
     /**
@@ -104,11 +97,11 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $jobId
      */
-    public function getJobDetails(Request $request, $jobId): Illuminate\Http\RedirectResponse
+    public function getJobDetails(Request $request, $jobId): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user->isScraper() && !$user->isAdmin()) {
+        if (! $user->isScraper() && ! $user->isAdmin()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -120,12 +113,12 @@ class ScraperDashboardController extends Controller
                 'platform'             => 'Ticketmaster',
                 'event_type'           => 'Sports Events',
                 'status'               => 'running',
-                'progress'             => rand(20, 80),
-                'started_at'           => Carbon::now()->subMinutes(rand(10, 60)),
-                'estimated_completion' => Carbon::now()->addMinutes(rand(5, 30)),
-                'tickets_found'        => rand(50, 200),
-                'errors'               => rand(0, 3),
-                'last_activity'        => Carbon::now()->subMinutes(rand(1, 5)),
+                'progress'             => random_int(20, 80),
+                'started_at'           => Carbon::now()->subMinutes(random_int(10, 60)),
+                'estimated_completion' => Carbon::now()->addMinutes(random_int(5, 30)),
+                'tickets_found'        => random_int(50, 200),
+                'errors'               => random_int(0, 3),
+                'last_activity'        => Carbon::now()->subMinutes(random_int(1, 5)),
             ],
         ]);
     }
@@ -142,11 +135,11 @@ class ScraperDashboardController extends Controller
                 'tickets_scraped_today'    => $this->getTicketsScrapedToday($user),
                 'active_scraping_jobs'     => $this->getActiveScrapingJobs($user),
                 'successful_scrapes_today' => $this->getSuccessfulScrapesToday($user),
-                'platforms_monitored'      => $this->getPlatformsMonitored($user),
-                'average_scrape_time'      => $this->getAverageScrapeTime($user),
-                'success_rate'             => $this->getScraperSuccessRate($user),
-                'data_quality_score'       => $this->getDataQualityScore($user),
-                'proxy_rotation_health'    => $this->getProxyRotationHealth($user),
+                'platforms_monitored'      => $this->getPlatformsMonitored(),
+                'average_scrape_time'      => $this->getAverageScrapeTime(),
+                'success_rate'             => $this->getScraperSuccessRate(),
+                'data_quality_score'       => $this->getDataQualityScore(),
+                'proxy_rotation_health'    => $this->getProxyRotationHealth(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch scraper metrics: ' . $e->getMessage());
@@ -169,12 +162,12 @@ class ScraperDashboardController extends Controller
     {
         try {
             return [
-                'active_jobs'          => $this->getActiveJobs($user),
-                'queued_jobs'          => $this->getQueuedJobs($user),
-                'completed_jobs_today' => $this->getCompletedJobsToday($user),
-                'failed_jobs_today'    => $this->getFailedJobsToday($user),
+                'active_jobs'          => $this->getActiveJobs(),
+                'queued_jobs'          => $this->getQueuedJobs(),
+                'completed_jobs_today' => $this->getCompletedJobsToday(),
+                'failed_jobs_today'    => $this->getFailedJobsToday(),
                 'job_queue_health'     => $this->getJobQueueHealth(),
-                'upcoming_schedules'   => $this->getUpcomingSchedules($user),
+                'upcoming_schedules'   => $this->getUpcomingSchedules(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch scraping job data: ' . $e->getMessage());
@@ -222,10 +215,10 @@ class ScraperDashboardController extends Controller
     {
         try {
             return [
-                'hourly_performance' => $this->getHourlyPerformance($user),
-                'platform_breakdown' => $this->getPlatformBreakdown($user),
-                'error_analysis'     => $this->getErrorAnalysis($user),
-                'data_freshness'     => $this->getDataFreshness($user),
+                'hourly_performance' => $this->getHourlyPerformance(),
+                'platform_breakdown' => $this->getPlatformBreakdown(),
+                'error_analysis'     => $this->getErrorAnalysis(),
+                'data_freshness'     => $this->getDataFreshness(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch performance data: ' . $e->getMessage());
@@ -252,18 +245,16 @@ class ScraperDashboardController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->limit(10)
                     ->get()
-                    ->map(function ($ticket) {
-                        return [
-                            'type'        => 'ticket_scraped',
-                            'title'       => 'Ticket Scraped Successfully',
-                            'description' => 'Event: ' . ($ticket->event_name ?? 'Sports Event'),
-                            'timestamp'   => Carbon::parse($ticket->created_at),
-                            'status'      => 'success',
-                            'platform'    => $ticket->platform ?? 'Unknown',
-                            'icon'        => 'ticket',
-                            'color'       => 'green',
-                        ];
-                    });
+                    ->map(fn ($ticket): array => [
+                        'type'        => 'ticket_scraped',
+                        'title'       => 'Ticket Scraped Successfully',
+                        'description' => 'Event: ' . ($ticket->event_name ?? 'Sports Event'),
+                        'timestamp'   => Carbon::parse($ticket->created_at),
+                        'status'      => 'success',
+                        'platform'    => $ticket->platform ?? 'Unknown',
+                        'icon'        => 'ticket',
+                        'color'       => 'green',
+                    ]);
 
                 $activities = array_merge($activities, $recentTickets->toArray());
             }
@@ -277,32 +268,28 @@ class ScraperDashboardController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->limit(5)
                     ->get()
-                    ->map(function ($log) {
-                        return [
-                            'type'        => 'scraping_error',
-                            'title'       => 'Scraping Error',
-                            'description' => $log->message ?? 'Unknown error occurred',
-                            'timestamp'   => Carbon::parse($log->created_at),
-                            'status'      => 'error',
-                            'platform'    => $log->platform ?? 'Unknown',
-                            'icon'        => 'alert',
-                            'color'       => 'red',
-                        ];
-                    });
+                    ->map(fn ($log): array => [
+                        'type'        => 'scraping_error',
+                        'title'       => 'Scraping Error',
+                        'description' => $log->message ?? 'Unknown error occurred',
+                        'timestamp'   => Carbon::parse($log->created_at),
+                        'status'      => 'error',
+                        'platform'    => $log->platform ?? 'Unknown',
+                        'icon'        => 'alert',
+                        'color'       => 'red',
+                    ]);
 
                 $activities = array_merge($activities, $recentErrors->toArray());
             }
 
             // Sort by timestamp and return top 15
-            usort($activities, function ($a, $b) {
-                return $b['timestamp'] <=> $a['timestamp'];
-            });
+            usort($activities, fn (array $a, array $b): int => $b['timestamp'] <=> $a['timestamp']);
 
             return array_slice($activities, 0, 15);
         } catch (Exception $e) {
             Log::warning('Could not fetch recent scraping activity: ' . $e->getMessage());
 
-            return $this->getDefaultActivity($user);
+            return $this->getDefaultActivity();
         }
     }
 
@@ -311,14 +298,14 @@ class ScraperDashboardController extends Controller
      *
      * @param mixed $user
      */
-    private function getScrapingStatistics(App\Models\User $user)
+    private function getScrapingStatistics(App\Models\User $user): array
     {
         try {
             return [
-                'daily_stats'    => $this->getDailyStats($user),
-                'weekly_stats'   => $this->getWeeklyStats($user),
-                'monthly_stats'  => $this->getMonthlyStats($user),
-                'platform_stats' => $this->getPlatformStats($user),
+                'daily_stats'    => $this->getDailyStats(),
+                'weekly_stats'   => $this->getWeeklyStats(),
+                'monthly_stats'  => $this->getMonthlyStats(),
+                'platform_stats' => $this->getPlatformStats(),
             ];
         } catch (Exception $e) {
             Log::warning('Could not fetch scraping statistics: ' . $e->getMessage());
@@ -329,7 +316,7 @@ class ScraperDashboardController extends Controller
 
     // Helper methods for metrics calculation
 
-    private function getTicketsScrapedToday(App\Models\User $user)
+    private function getTicketsScrapedToday(App\Models\User $user): int
     {
         try {
             if (Schema::hasTable('scraped_tickets')) {
@@ -339,13 +326,13 @@ class ScraperDashboardController extends Controller
                     ->count();
             }
 
-            return rand(50, 200);
-        } catch (Exception $e) {
-            return rand(50, 200);
+            return random_int(50, 200);
+        } catch (Exception) {
+            return random_int(50, 200);
         }
     }
 
-    private function getActiveScrapingJobs(App\Models\User $user)
+    private function getActiveScrapingJobs(App\Models\User $user): int
     {
         try {
             if (Schema::hasTable('scraping_jobs')) {
@@ -355,13 +342,13 @@ class ScraperDashboardController extends Controller
                     ->count();
             }
 
-            return rand(2, 8);
-        } catch (Exception $e) {
-            return rand(2, 8);
+            return random_int(2, 8);
+        } catch (Exception) {
+            return random_int(2, 8);
         }
     }
 
-    private function getSuccessfulScrapesToday(App\Models\User $user)
+    private function getSuccessfulScrapesToday(App\Models\User $user): int
     {
         try {
             if (Schema::hasTable('scraping_logs')) {
@@ -372,13 +359,13 @@ class ScraperDashboardController extends Controller
                     ->count();
             }
 
-            return rand(80, 180);
-        } catch (Exception $e) {
-            return rand(80, 180);
+            return random_int(80, 180);
+        } catch (Exception) {
+            return random_int(80, 180);
         }
     }
 
-    private function getPlatformsMonitored(App\Models\User $user)
+    private function getPlatformsMonitored(): array
     {
         return ['Ticketmaster', 'StubHub', 'Vivid Seats', 'Viagogo', 'SeatGeek'];
     }
@@ -388,64 +375,64 @@ class ScraperDashboardController extends Controller
      */
     private function getAverageScrapeTime(): float
     {
-        return rand(2, 8) . '.' . rand(10, 99) . 's';
+        return random_int(2, 8) . '.' . random_int(10, 99) . 's';
     }
 
     /**
      * Get  scraper success rate
      */
-    private function getScraperSuccessRate(App\Models\User $user): float
+    private function getScraperSuccessRate(): float
     {
-        return rand(88, 98) . '%';
+        return random_int(88, 98) . '%';
     }
 
     /**
      * Get  data quality score
      */
-    private function getDataQualityScore(): Illuminate\Http\JsonResponse
+    private function getDataQualityScore(): JsonResponse
     {
-        return rand(92, 99);
+        return random_int(92, 99);
     }
 
-    private function getProxyRotationHealth(App\Models\User $user)
+    private function getProxyRotationHealth(): array
     {
-        return ['status' => 'healthy', 'active_proxies' => rand(8, 15), 'rotation_rate' => rand(85, 95) . '%'];
+        return ['status' => 'healthy', 'active_proxies' => random_int(8, 15), 'rotation_rate' => random_int(85, 95) . '%'];
     }
 
-    private function getActiveJobs(App\Models\User $user)
+    private function getActiveJobs(): array
     {
         return [
-            ['platform' => 'Ticketmaster', 'event_type' => 'Sports Events', 'status' => 'running', 'progress' => rand(20, 80)],
-            ['platform' => 'StubHub', 'event_type' => 'Concerts', 'status' => 'running', 'progress' => rand(30, 90)],
-            ['platform' => 'Vivid Seats', 'event_type' => 'Sports Events', 'status' => 'running', 'progress' => rand(15, 70)],
+            ['platform' => 'Ticketmaster', 'event_type' => 'Sports Events', 'status' => 'running', 'progress' => random_int(20, 80)],
+            ['platform' => 'StubHub', 'event_type' => 'Concerts', 'status' => 'running', 'progress' => random_int(30, 90)],
+            ['platform' => 'Vivid Seats', 'event_type' => 'Sports Events', 'status' => 'running', 'progress' => random_int(15, 70)],
         ];
     }
 
-    private function getQueuedJobs(App\Models\User $user)
+    private function getQueuedJobs(): int
     {
-        return rand(3, 12);
+        return random_int(3, 12);
     }
 
-    private function getCompletedJobsToday(App\Models\User $user)
+    private function getCompletedJobsToday(): int
     {
-        return rand(15, 35);
+        return random_int(15, 35);
     }
 
-    private function getFailedJobsToday(App\Models\User $user)
+    private function getFailedJobsToday(): int
     {
-        return rand(0, 5);
+        return random_int(0, 5);
     }
 
-    private function getJobQueueHealth()
+    private function getJobQueueHealth(): array
     {
-        return ['status' => 'healthy', 'queue_size' => rand(5, 20), 'processing_rate' => rand(85, 98) . '%'];
+        return ['status' => 'healthy', 'queue_size' => random_int(5, 20), 'processing_rate' => random_int(85, 98) . '%'];
     }
 
-    private function getUpcomingSchedules(App\Models\User $user)
+    private function getUpcomingSchedules(): array
     {
         return [
-            ['platform' => 'Ticketmaster', 'next_run' => Carbon::now()->addMinutes(rand(10, 60)), 'frequency' => 'Every 30 minutes'],
-            ['platform' => 'StubHub', 'next_run' => Carbon::now()->addMinutes(rand(20, 90)), 'frequency' => 'Every 45 minutes'],
+            ['platform' => 'Ticketmaster', 'next_run' => Carbon::now()->addMinutes(random_int(10, 60)), 'frequency' => 'Every 30 minutes'],
+            ['platform' => 'StubHub', 'next_run' => Carbon::now()->addMinutes(random_int(20, 90)), 'frequency' => 'Every 45 minutes'],
         ];
     }
 
@@ -455,26 +442,29 @@ class ScraperDashboardController extends Controller
     private function getPlatformStatus(): string
     {
         return [
-            'ticketmaster' => ['status' => 'online', 'response_time' => rand(150, 300) . 'ms', 'success_rate' => rand(92, 98) . '%'],
-            'stubhub'      => ['status' => 'online', 'response_time' => rand(200, 400) . 'ms', 'success_rate' => rand(88, 95) . '%'],
-            'vivid_seats'  => ['status' => 'online', 'response_time' => rand(180, 350) . 'ms', 'success_rate' => rand(85, 93) . '%'],
-            'viagogo'      => ['status' => rand(0, 10) > 8 ? 'slow' : 'online', 'response_time' => rand(300, 600) . 'ms', 'success_rate' => rand(78, 90) . '%'],
+            'ticketmaster' => ['status' => 'online', 'response_time' => random_int(150, 300) . 'ms', 'success_rate' => random_int(92, 98) . '%'],
+            'stubhub'      => ['status' => 'online', 'response_time' => random_int(200, 400) . 'ms', 'success_rate' => random_int(88, 95) . '%'],
+            'vivid_seats'  => ['status' => 'online', 'response_time' => random_int(180, 350) . 'ms', 'success_rate' => random_int(85, 93) . '%'],
+            'viagogo'      => ['status' => random_int(0, 10) > 8 ? 'slow' : 'online', 'response_time' => random_int(300, 600) . 'ms', 'success_rate' => random_int(78, 90) . '%'],
         ];
     }
 
-    private function getResponseTimes()
+    /**
+     * @return mixed[]
+     */
+    private function getResponseTimes(): array
     {
         $times = [];
         for ($i = 23; $i >= 0; $i--) {
             $hour = Carbon::now()->subHours($i);
             $times[] = [
                 'hour'                  => $hour->format('H:00'),
-                'average_response_time' => rand(200, 500),
+                'average_response_time' => random_int(200, 500),
                 'platform_breakdown'    => [
-                    'ticketmaster' => rand(150, 300),
-                    'stubhub'      => rand(200, 400),
-                    'vivid_seats'  => rand(180, 350),
-                    'viagogo'      => rand(300, 600),
+                    'ticketmaster' => random_int(150, 300),
+                    'stubhub'      => random_int(200, 400),
+                    'vivid_seats'  => random_int(180, 350),
+                    'viagogo'      => random_int(300, 600),
                 ],
             ];
         }
@@ -488,23 +478,23 @@ class ScraperDashboardController extends Controller
     private function getRateLimits(): float
     {
         return [
-            'ticketmaster' => ['limit' => 1000, 'used' => rand(200, 800), 'reset_time' => Carbon::now()->addHour()],
-            'stubhub'      => ['limit' => 500, 'used' => rand(100, 400), 'reset_time' => Carbon::now()->addHour()],
-            'vivid_seats'  => ['limit' => 750, 'used' => rand(150, 600), 'reset_time' => Carbon::now()->addHour()],
-            'viagogo'      => ['limit' => 300, 'used' => rand(50, 250), 'reset_time' => Carbon::now()->addHour()],
+            'ticketmaster' => ['limit' => 1000, 'used' => random_int(200, 800), 'reset_time' => Carbon::now()->addHour()],
+            'stubhub'      => ['limit' => 500, 'used' => random_int(100, 400), 'reset_time' => Carbon::now()->addHour()],
+            'vivid_seats'  => ['limit' => 750, 'used' => random_int(150, 600), 'reset_time' => Carbon::now()->addHour()],
+            'viagogo'      => ['limit' => 300, 'used' => random_int(50, 250), 'reset_time' => Carbon::now()->addHour()],
         ];
     }
 
-    private function getBlockedRequests()
+    private function getBlockedRequests(): array
     {
         return [
-            'today'       => rand(2, 15),
-            'this_week'   => rand(10, 50),
+            'today'       => random_int(2, 15),
+            'this_week'   => random_int(10, 50),
             'by_platform' => [
-                'ticketmaster' => rand(0, 5),
-                'stubhub'      => rand(1, 8),
-                'vivid_seats'  => rand(0, 3),
-                'viagogo'      => rand(2, 12),
+                'ticketmaster' => random_int(0, 5),
+                'stubhub'      => random_int(1, 8),
+                'vivid_seats'  => random_int(0, 3),
+                'viagogo'      => random_int(2, 12),
             ],
         ];
     }
@@ -515,16 +505,16 @@ class ScraperDashboardController extends Controller
     private function getAntiDetectionStatus(): string
     {
         return [
-            'user_agent_rotation' => ['status' => 'active', 'pool_size' => rand(50, 100)],
-            'proxy_rotation'      => ['status' => 'active', 'active_proxies' => rand(8, 15)],
-            'request_delays'      => ['status' => 'active', 'average_delay' => rand(2, 8) . 's'],
-            'captcha_detection'   => ['status' => 'monitoring', 'encounters_today' => rand(0, 3)],
+            'user_agent_rotation' => ['status' => 'active', 'pool_size' => random_int(50, 100)],
+            'proxy_rotation'      => ['status' => 'active', 'active_proxies' => random_int(8, 15)],
+            'request_delays'      => ['status' => 'active', 'average_delay' => random_int(2, 8) . 's'],
+            'captcha_detection'   => ['status' => 'monitoring', 'encounters_today' => random_int(0, 3)],
         ];
     }
 
     // Default data methods for fallback
 
-    private function getDefaultScraperMetrics()
+    private function getDefaultScraperMetrics(): array
     {
         return [
             'tickets_scraped_today'    => 0,
@@ -586,7 +576,7 @@ class ScraperDashboardController extends Controller
         ];
     }
 
-    private function getDefaultActivity(App\Models\User $user)
+    private function getDefaultActivity(): array
     {
         return [
             [
@@ -617,53 +607,55 @@ class ScraperDashboardController extends Controller
     }
 
     // Additional helper methods for comprehensive data
-
-    private function getHourlyPerformance(App\Models\User $user)
+    /**
+     * @return mixed[]
+     */
+    private function getHourlyPerformance(): array
     {
         $data = [];
         for ($i = 23; $i >= 0; $i--) {
             $hour = Carbon::now()->subHours($i);
             $data[] = [
                 'hour'                  => $hour->format('H:00'),
-                'tickets_scraped'       => rand(10, 50),
-                'success_rate'          => rand(85, 98),
-                'average_response_time' => rand(200, 500),
+                'tickets_scraped'       => random_int(10, 50),
+                'success_rate'          => random_int(85, 98),
+                'average_response_time' => random_int(200, 500),
             ];
         }
 
         return $data;
     }
 
-    private function getPlatformBreakdown(App\Models\User $user)
+    private function getPlatformBreakdown(): array
     {
         return [
-            'ticketmaster' => ['tickets' => rand(100, 300), 'success_rate' => rand(90, 98), 'avg_response' => rand(150, 300)],
-            'stubhub'      => ['tickets' => rand(80, 250), 'success_rate' => rand(85, 95), 'avg_response' => rand(200, 400)],
-            'vivid_seats'  => ['tickets' => rand(60, 200), 'success_rate' => rand(80, 92), 'avg_response' => rand(180, 350)],
-            'viagogo'      => ['tickets' => rand(40, 150), 'success_rate' => rand(75, 88), 'avg_response' => rand(300, 600)],
+            'ticketmaster' => ['tickets' => random_int(100, 300), 'success_rate' => random_int(90, 98), 'avg_response' => random_int(150, 300)],
+            'stubhub'      => ['tickets' => random_int(80, 250), 'success_rate' => random_int(85, 95), 'avg_response' => random_int(200, 400)],
+            'vivid_seats'  => ['tickets' => random_int(60, 200), 'success_rate' => random_int(80, 92), 'avg_response' => random_int(180, 350)],
+            'viagogo'      => ['tickets' => random_int(40, 150), 'success_rate' => random_int(75, 88), 'avg_response' => random_int(300, 600)],
         ];
     }
 
-    private function getErrorAnalysis(App\Models\User $user)
+    private function getErrorAnalysis(): array
     {
         return [
-            'connection_errors' => rand(2, 10),
-            'timeout_errors'    => rand(1, 5),
-            'blocked_requests'  => rand(0, 8),
-            'parsing_errors'    => rand(0, 3),
-            'rate_limit_errors' => rand(1, 6),
+            'connection_errors' => random_int(2, 10),
+            'timeout_errors'    => random_int(1, 5),
+            'blocked_requests'  => random_int(0, 8),
+            'parsing_errors'    => random_int(0, 3),
+            'rate_limit_errors' => random_int(1, 6),
         ];
     }
 
     /**
      * Get  data freshness
      */
-    private function getDataFreshness(): Illuminate\Http\JsonResponse
+    private function getDataFreshness(): JsonResponse
     {
         return [
-            'average_age'     => rand(5, 30) . ' minutes',
-            'oldest_record'   => rand(1, 4) . ' hours',
-            'freshness_score' => rand(85, 98),
+            'average_age'     => random_int(5, 30) . ' minutes',
+            'oldest_record'   => random_int(1, 4) . ' hours',
+            'freshness_score' => random_int(85, 98),
         ];
     }
 
@@ -672,16 +664,16 @@ class ScraperDashboardController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function getDailyStats(App\Models\User $user): array
+    private function getDailyStats(): array
     {
         $data = [];
         for ($i = 29; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i);
             $data[] = [
                 'date'            => $date->format('Y-m-d'),
-                'tickets_scraped' => rand(100, 500),
-                'success_rate'    => rand(85, 98),
-                'errors'          => rand(2, 15),
+                'tickets_scraped' => random_int(100, 500),
+                'success_rate'    => random_int(85, 98),
+                'errors'          => random_int(2, 15),
             ];
         }
 
@@ -693,16 +685,16 @@ class ScraperDashboardController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function getWeeklyStats(App\Models\User $user): array
+    private function getWeeklyStats(): array
     {
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $week = Carbon::now()->subWeeks($i);
             $data[] = [
                 'week'            => $week->format('W Y'),
-                'tickets_scraped' => rand(1000, 3500),
-                'success_rate'    => rand(85, 98),
-                'errors'          => rand(10, 80),
+                'tickets_scraped' => random_int(1000, 3500),
+                'success_rate'    => random_int(85, 98),
+                'errors'          => random_int(10, 80),
             ];
         }
 
@@ -714,16 +706,16 @@ class ScraperDashboardController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function getMonthlyStats(App\Models\User $user): array
+    private function getMonthlyStats(): array
     {
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
             $data[] = [
                 'month'           => $month->format('M Y'),
-                'tickets_scraped' => rand(4000, 15000),
-                'success_rate'    => rand(85, 98),
-                'errors'          => rand(50, 300),
+                'tickets_scraped' => random_int(4000, 15000),
+                'success_rate'    => random_int(85, 98),
+                'errors'          => random_int(50, 300),
             ];
         }
 
@@ -735,13 +727,13 @@ class ScraperDashboardController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function getPlatformStats(App\Models\User $user): array
+    private function getPlatformStats(): array
     {
         return [
-            'ticketmaster' => ['total_scraped' => rand(5000, 15000), 'success_rate' => rand(90, 98)],
-            'stubhub'      => ['total_scraped' => rand(3000, 12000), 'success_rate' => rand(85, 95)],
-            'vivid_seats'  => ['total_scraped' => rand(2000, 8000), 'success_rate' => rand(80, 92)],
-            'viagogo'      => ['total_scraped' => rand(1000, 6000), 'success_rate' => rand(75, 88)],
+            'ticketmaster' => ['total_scraped' => random_int(5000, 15000), 'success_rate' => random_int(90, 98)],
+            'stubhub'      => ['total_scraped' => random_int(3000, 12000), 'success_rate' => random_int(85, 95)],
+            'vivid_seats'  => ['total_scraped' => random_int(2000, 8000), 'success_rate' => random_int(80, 92)],
+            'viagogo'      => ['total_scraped' => random_int(1000, 6000), 'success_rate' => random_int(75, 88)],
         ];
     }
 }

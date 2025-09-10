@@ -166,7 +166,7 @@ class RedisRateLimitService
             'email_attempts' => $emailLimit['current_count'],
             'ip_attempts'    => $ipLimit['current_count'],
             'retry_after'    => max($emailLimit['retry_after'], $ipLimit['retry_after']),
-            'blocked_by'     => !$emailLimit['allowed'] ? 'email' : (!$ipLimit['allowed'] ? 'ip' : NULL),
+            'blocked_by'     => $emailLimit['allowed'] ? (! $ipLimit['allowed'] ? 'ip' : NULL) : ('email'),
         ];
     }
 
@@ -239,7 +239,7 @@ class RedisRateLimitService
             // Get all keys matching the pattern
             $keys = $this->redis->keys($pattern);
 
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 $this->redis->del($keys);
             }
 
@@ -449,14 +449,12 @@ class RedisRateLimitService
                     $ttl = $this->redis->ttl($key);
 
                     // Remove keys that have expired or have no TTL but are old
-                    if ($ttl === -1) {
-                        // No TTL set, check if it's an old key by trying to parse timestamp
-                        if (preg_match('/:(\d+)$/', $key, $matches)) {
-                            $timestamp = (int) $matches[1];
-                            if ($timestamp < (time() - 3600)) { // Older than 1 hour
-                                $this->redis->del($key);
-                                $cleaned++;
-                            }
+                    // No TTL set, check if it's an old key by trying to parse timestamp
+                    if ($ttl === -1 && preg_match('/:(\d+)$/', (string) $key, $matches)) {
+                        $timestamp = (int) $matches[1];
+                        if ($timestamp < (time() - 3600)) { // Older than 1 hour
+                            $this->redis->del($key);
+                            $cleaned++;
                         }
                     }
                 }
@@ -497,7 +495,7 @@ class RedisRateLimitService
             return "api:{$endpoint}:user:{$user->id}";
         }
 
-        return "api:{$endpoint}:ip:" . hash('sha256', $request->ip());
+        return "api:{$endpoint}:ip:" . hash('sha256', (string) $request->ip());
     }
 
     /**

@@ -13,13 +13,10 @@ use function strlen;
 
 class AdvancedApiAggregator
 {
-    protected $rateLimiter;
-
     protected $clients = [];
 
-    public function __construct(ApiRateLimiter $rateLimiter)
+    public function __construct(protected ApiRateLimiter $rateLimiter)
     {
-        $this->rateLimiter = $rateLimiter;
         $this->initializeClients();
     }
 
@@ -66,7 +63,6 @@ class AdvancedApiAggregator
     protected function executeBatch(array $batch): array
     {
         $results = [];
-        $promises = [];
 
         foreach ($batch as $task) {
             try {
@@ -206,9 +202,7 @@ class AdvancedApiAggregator
         }
 
         // Find the event with highest confidence score as base
-        $baseEvent = array_reduce($eventGroup, function ($carry, $event) {
-            return ($event['confidence_score'] ?? 0) > ($carry['confidence_score'] ?? 0) ? $event : $carry;
-        }, $eventGroup[0]);
+        $baseEvent = array_reduce($eventGroup, fn ($carry, $event) => ($event['confidence_score'] ?? 0) > ($carry['confidence_score'] ?? 0) ? $event : $carry, $eventGroup[0]);
 
         // Merge additional data from other events
         $mergedEvent = $baseEvent;
@@ -228,7 +222,7 @@ class AdvancedApiAggregator
             }
 
             // Take the best available URL
-            if (empty($mergedEvent['url']) && !empty($event['url'])) {
+            if (empty($mergedEvent['url']) && ! empty($event['url'])) {
                 $mergedEvent['url'] = $event['url'];
             }
         }
@@ -244,7 +238,7 @@ class AdvancedApiAggregator
             }
         }
 
-        if ($allPrices) {
+        if ($allPrices !== []) {
             $mergedEvent['price_min'] = min($allPrices);
             $mergedEvent['price_max'] = max($allPrices);
         }
@@ -266,24 +260,24 @@ class AdvancedApiAggregator
         $score = 0;
 
         // Base score for having essential fields
-        if (!empty($event['name'])) {
+        if (! empty($event['name'])) {
             $score += 20;
         }
-        if (!empty($event['date'])) {
+        if (! empty($event['date'])) {
             $score += 20;
         }
-        if (!empty($event['venue'])) {
+        if (! empty($event['venue'])) {
             $score += 15;
         }
 
         // Additional points for extra data
-        if (!empty($event['url'])) {
+        if (! empty($event['url'])) {
             $score += 10;
         }
-        if (!empty($event['price_min'])) {
+        if (! empty($event['price_min'])) {
             $score += 10;
         }
-        if (!empty($event['description'])) {
+        if (! empty($event['description'])) {
             $score += 5;
         }
 
@@ -356,18 +350,11 @@ class AdvancedApiAggregator
         $events = [];
 
         // Extract events based on platform response structure
-        switch ($platform) {
-            case 'ticketmaster':
-                $eventData = $data['_embedded']['events'] ?? [];
-
-                break;
-            case 'seatgeek':
-                $eventData = $data['events'] ?? [];
-
-                break;
-            default:
-                $eventData = $data['events'] ?? $data['data'] ?? [];
-        }
+        $eventData = match ($platform) {
+            'ticketmaster' => $data['_embedded']['events'] ?? [],
+            'seatgeek'     => $data['events'] ?? [],
+            default        => $data['events'] ?? $data['data'] ?? [],
+        };
 
         foreach ($eventData as $event) {
             $events[] = $client->transformEventData($event);

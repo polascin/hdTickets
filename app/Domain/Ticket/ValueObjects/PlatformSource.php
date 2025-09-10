@@ -3,13 +3,14 @@
 namespace App\Domain\Ticket\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
 use function in_array;
 use function sprintf;
 
-final readonly class PlatformSource
+final readonly class PlatformSource implements Stringable
 {
-    private const VALID_PLATFORMS = [
+    private const array VALID_PLATFORMS = [
         'TICKETMASTER',
         'STUBHUB',
         'VIAGOGO',
@@ -162,12 +163,12 @@ final readonly class PlatformSource
      */
     private function validate(string $platform): void
     {
-        if (empty(trim($platform))) {
+        if (in_array(trim($platform), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Platform source cannot be empty');
         }
 
         $normalizedPlatform = strtoupper(trim($platform));
-        if (!in_array($normalizedPlatform, self::VALID_PLATFORMS, TRUE)) {
+        if (! in_array($normalizedPlatform, self::VALID_PLATFORMS, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid platform source: %s. Valid platforms: %s',

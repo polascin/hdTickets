@@ -16,7 +16,7 @@ use function count;
 
 class ChartDataService
 {
-    private const CACHE_TTL = 900; // 15 minutes for chart data
+    private const int CACHE_TTL = 900; // 15 minutes for chart data
 
     /**
      * Generate comprehensive ticket trends chart data
@@ -28,14 +28,14 @@ class ChartDataService
     {
         $cacheKey = 'chart:ticket_trends:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
             $platforms = $filters['platforms'] ?? [];
 
             // Daily ticket counts with status breakdown
             $dailyTrends = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
-                ->when(!empty($platforms), function ($query) use ($platforms): void {
+                ->when(! empty($platforms), function ($query) use ($platforms): void {
                     $query->whereIn('platform', $platforms);
                 })
                 ->select([
@@ -136,7 +136,7 @@ class ChartDataService
     {
         $cacheKey = 'chart:price_volatility:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -154,15 +154,11 @@ class ChartDataService
                 ->limit(20)
                 ->get();
 
-            $labels = $volatilityData->map(function ($item) {
-                return substr($item->ticket->title ?? 'Event ' . $item->ticket_id, 0, 30);
-            })->toArray();
+            $labels = $volatilityData->map(fn ($item): string => substr($item->ticket->title ?? 'Event ' . $item->ticket_id, 0, 30))->toArray();
 
-            $data = $volatilityData->map(function ($item) {
-                return round($item->price_volatility, 2);
-            })->toArray();
+            $data = $volatilityData->map(fn ($item): float => round($item->price_volatility, 2))->toArray();
 
-            $backgroundColors = $volatilityData->map(function ($item) {
+            $backgroundColors = $volatilityData->map(function ($item): string {
                 $volatility = $item->price_volatility;
                 if ($volatility > 50) {
                     return '#ef4444';
@@ -224,7 +220,7 @@ class ChartDataService
     {
         $cacheKey = 'chart:platform_market_share:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -237,9 +233,7 @@ class ChartDataService
 
             $totalTickets = $platformData->sum('ticket_count');
 
-            $labels = $platformData->pluck('platform')->map(function ($platform) {
-                return ucfirst(str_replace('_', ' ', $platform));
-            })->toArray();
+            $labels = $platformData->pluck('platform')->map(fn ($platform): string => ucfirst(str_replace('_', ' ', $platform)))->toArray();
 
             $data = $platformData->pluck('ticket_count')->toArray();
 
@@ -296,7 +290,7 @@ class ChartDataService
     {
         $cacheKey = 'chart:user_engagement_funnel:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -370,7 +364,7 @@ class ChartDataService
     {
         $cacheKey = 'chart:sports_category_radar:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -388,7 +382,7 @@ class ChartDataService
                 },
             ])
                 ->get()
-                ->map(function ($category) {
+                ->map(function ($category): array {
                     $availabilityRate = $category->total_tickets > 0
                         ? ($category->available_tickets / $category->total_tickets) * 100
                         : 0;
@@ -401,7 +395,7 @@ class ChartDataService
                         'volume_score'      => min(100, ($category->total_tickets / 10)), // Normalize to 0-100
                         'availability_rate' => round($availabilityRate, 1),
                         'demand_rate'       => round($demandRate, 1),
-                        'engagement_score'  => rand(60, 95), // Placeholder for actual engagement calculation
+                        'engagement_score'  => random_int(60, 95), // Placeholder for actual engagement calculation
                     ];
                 });
 
@@ -470,7 +464,7 @@ class ChartDataService
     {
         $cacheKey = 'chart:hourly_activity_heatmap:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $startDate = $filters['start_date'] ?? Carbon::now()->subDays(7);
             $endDate = $filters['end_date'] ?? Carbon::now();
 
@@ -506,7 +500,7 @@ class ChartDataService
                     'datasets' => [[
                         'label'           => 'User Activity',
                         'data'            => $heatmapData,
-                        'backgroundColor' => function ($context) {
+                        'backgroundColor' => function (array $context): string {
                             $value = $context['parsed']['v'];
                             $alpha = min(1, $value / 100); // Normalize opacity
 

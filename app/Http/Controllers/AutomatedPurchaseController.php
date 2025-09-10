@@ -14,11 +14,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AutomatedPurchaseController extends Controller
 {
-    private AutomatedPurchaseEngine $purchaseEngine;
-
-    public function __construct(AutomatedPurchaseEngine $purchaseEngine)
+    public function __construct(private AutomatedPurchaseEngine $purchaseEngine)
     {
-        $this->purchaseEngine = $purchaseEngine;
         $this->middleware('auth:api');
     }
 
@@ -133,7 +130,7 @@ class AutomatedPurchaseController extends Controller
         }
 
         // Check if automated purchases are enabled
-        if (!config('purchase_automation.enabled', FALSE)) {
+        if (! config('purchase_automation.enabled', FALSE)) {
             return response()->json([
                 'success' => FALSE,
                 'error'   => 'Automated purchases are currently disabled',
@@ -145,7 +142,7 @@ class AutomatedPurchaseController extends Controller
 
             // Check user's auto-purchase settings
             $userSettings = $user->preferences['auto_purchase'] ?? [];
-            if (!($userSettings['enabled'] ?? FALSE)) {
+            if (! ($userSettings['enabled'] ?? FALSE)) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Automated purchases are disabled for this user',
@@ -390,9 +387,7 @@ class AutomatedPurchaseController extends Controller
                     DB::raw('SUM(CASE WHEN success = 1 THEN final_price ELSE 0 END) as total_spent'),
                 )
                 ->where('created_at', '>=', $dateRange)
-                ->when($platform, function ($query, $platform) {
-                    return $query->where('platform', $platform);
-                })
+                ->when($platform, fn ($query, $platform) => $query->where('platform', $platform))
                 ->groupBy('platform')
                 ->get()
                 ->map(function ($stat) {

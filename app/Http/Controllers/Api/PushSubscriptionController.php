@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\WebPushSubscription;
+use App\Services\NotificationSystem\Channels\WebPushChannel;
+use App\Services\NotificationSystem\NotificationManager;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -126,7 +129,7 @@ class PushSubscriptionController extends Controller
                 ->where('endpoint', $endpoint)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -173,16 +176,14 @@ class PushSubscriptionController extends Controller
             $subscriptions = WebPushSubscription::where('user_id', $user->id)
                 ->where('is_active', TRUE)
                 ->get()
-                ->map(function ($subscription) {
-                    return [
-                        'id'           => $subscription->id,
-                        'endpoint'     => $subscription->endpoint,
-                        'user_agent'   => $subscription->user_agent,
-                        'is_active'    => $subscription->is_active,
-                        'last_used_at' => $subscription->last_used_at,
-                        'created_at'   => $subscription->created_at,
-                    ];
-                });
+                ->map(fn ($subscription): array => [
+                    'id'           => $subscription->id,
+                    'endpoint'     => $subscription->endpoint,
+                    'user_agent'   => $subscription->user_agent,
+                    'is_active'    => $subscription->is_active,
+                    'last_used_at' => $subscription->last_used_at,
+                    'created_at'   => $subscription->created_at,
+                ]);
 
             return response()->json([
                 'success' => TRUE,
@@ -228,7 +229,7 @@ class PushSubscriptionController extends Controller
             }
 
             // Use the notification system to send a test notification
-            $notificationManager = app(\App\Services\NotificationSystem\NotificationManager::class);
+            $notificationManager = app(NotificationManager::class);
 
             $testNotification = [
                 'type'    => 'test_notification',
@@ -299,7 +300,7 @@ class PushSubscriptionController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -351,7 +352,7 @@ class PushSubscriptionController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$subscription) {
+            if (! $subscription) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Subscription not found',
@@ -392,10 +393,10 @@ class PushSubscriptionController extends Controller
     /**
      * SendTestPushNotification
      */
-    private function sendTestPushNotification(App\Models\User $user, array $notification): bool
+    private function sendTestPushNotification(User $user, array $notification): bool
     {
         try {
-            $webPushChannel = app(\App\Services\NotificationSystem\Channels\WebPushChannel::class);
+            $webPushChannel = app(WebPushChannel::class);
 
             return $webPushChannel->send($user, $notification);
         } catch (Exception $e) {

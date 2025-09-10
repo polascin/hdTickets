@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -111,9 +112,9 @@ return new class() extends Migration {
     private function configureDevelopmentMode(): void
     {
         // Clear all caches for development
-        Illuminate\Support\Facades\Artisan::call('config:clear');
-        Illuminate\Support\Facades\Artisan::call('route:clear');
-        Illuminate\Support\Facades\Artisan::call('view:clear');
+        Artisan::call('config:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
 
         // Enable query logging in development
         if (config('app.env') === 'local') {

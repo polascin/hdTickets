@@ -39,11 +39,11 @@ class PublicRegistrationController extends Controller
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         $missingDocuments = array_diff($requiredTypes, array_keys($legalDocuments));
 
-        if (!empty($missingDocuments)) {
+        if ($missingDocuments !== []) {
             abort(503, 'Registration is temporarily unavailable. Missing legal documents: ' . implode(', ', $missingDocuments));
         }
 
-        return view('auth.public-register', compact('legalDocuments'));
+        return view('auth.public-register', ['legalDocuments' => $legalDocuments]);
     }
 
     /**
@@ -111,11 +111,11 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
-        return view('auth.verify-phone', compact('user'));
+        return view('auth.verify-phone', ['user' => $user]);
     }
 
     /**
@@ -129,7 +129,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -151,7 +151,7 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->phone) {
+        if (! $user || ! $user->phone) {
             return redirect()->route('dashboard');
         }
 
@@ -160,7 +160,7 @@ class PublicRegistrationController extends Controller
 
             return back()
                 ->with('success', 'Verification code sent!');
-        } catch (Exception $e) {
+        } catch (Exception) {
             return back()
                 ->withErrors(['error' => 'Failed to send verification code.']);
         }
@@ -173,13 +173,13 @@ class PublicRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
+        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
         $qrCodeUrl = $this->twoFactorService->generateQrCodeUrl($user);
 
-        return view('auth.setup-2fa', compact('user', 'qrCodeUrl'));
+        return view('auth.setup-2fa', ['user' => $user, 'qrCodeUrl' => $qrCodeUrl]);
     }
 
     /**
@@ -193,7 +193,7 @@ class PublicRegistrationController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || !$user->two_factor_secret || $user->two_factor_enabled) {
+        if (! $user || ! $user->two_factor_secret || $user->two_factor_enabled) {
             return redirect()->route('dashboard');
         }
 
@@ -220,7 +220,7 @@ class PublicRegistrationController extends Controller
         $legalDocuments = LegalDocument::getActiveRequiredDocuments();
 
         foreach ($requiredTypes as $type) {
-            if (!$request->boolean("accept_{$type}")) {
+            if (! $request->boolean("accept_{$type}")) {
                 throw new Exception("You must accept the {$legalDocuments[$type]->type_name} to register.");
             }
         }

@@ -163,7 +163,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($searchUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch search results from TickPick');
             }
 
@@ -241,18 +241,18 @@ class TickPickClient extends BaseApiClient
             if ($eventNodes !== FALSE) {
                 foreach ($eventNodes as $eventNode) {
                     $event = $this->parseEventCard($xpath, $eventNode);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
             }
 
             // Alternative approach if no events found
-            if (empty($events)) {
+            if ($events === []) {
                 $linkNodes = $xpath->query('//a[contains(@href, "/buy-") and contains(@href, "-tickets")]');
                 foreach ($linkNodes as $linkNode) {
                     $event = $this->parseEventFromLink($xpath, $linkNode);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                     }
                 }
@@ -325,7 +325,7 @@ class TickPickClient extends BaseApiClient
 
             $event['prices'] = array_unique($prices);
             $event['no_fee_prices'] = array_unique($noFeePrices);
-            $event['price_range'] = !empty($prices) ? implode(' - ', $prices) : '';
+            $event['price_range'] = implode(' - ', $prices);
 
             // Extract min/max prices (both regular and no-fee)
             $this->extractPriceRange($event, $prices);
@@ -372,13 +372,13 @@ class TickPickClient extends BaseApiClient
             }
 
             // Event name from link text or title
-            $event['name'] = trim($linkNode->textContent);
+            $event['name'] = trim((string) $linkNode->textContent);
             if (empty($event['name']) && $linkNode->hasAttribute('title')) {
-                $event['name'] = trim($linkNode->getAttribute('title'));
+                $event['name'] = trim((string) $linkNode->getAttribute('title'));
             }
 
             // Extract event name from URL if text is empty
-            if (empty($event['name']) && !empty($event['url'])) {
+            if (empty($event['name']) && (isset($event['url']) && ($event['url'] !== '' && $event['url'] !== '0'))) {
                 $event['name'] = $this->extractEventNameFromUrl($event['url']);
             }
 
@@ -418,7 +418,7 @@ class TickPickClient extends BaseApiClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch event details from TickPick');
             }
 
@@ -439,7 +439,7 @@ class TickPickClient extends BaseApiClient
     protected function buildEventUrl(string $eventId): string
     {
         // If eventId contains a URL fragment, use it directly
-        if (strpos($eventId, '/') !== FALSE) {
+        if (str_contains($eventId, '/')) {
             return $this->normalizeUrl($eventId);
         }
 
@@ -468,7 +468,7 @@ class TickPickClient extends BaseApiClient
             $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
 
             // Clean up the title if it contains site name
-            if (strpos($event['name'], '|') !== FALSE) {
+            if (str_contains($event['name'], '|')) {
                 $event['name'] = trim(explode('|', $event['name'])[0]);
             }
 
@@ -503,7 +503,7 @@ class TickPickClient extends BaseApiClient
 
                     // TickPick specializes in no-fee pricing - check if this listing is marked as such
                     $listingText = strtolower($listingNode->textContent);
-                    if (strpos($listingText, 'no fee') !== FALSE || strpos($listingText, 'all-in') !== FALSE || strpos($listingText, 'final price') !== FALSE) {
+                    if (str_contains($listingText, 'no fee') || str_contains($listingText, 'all-in') || str_contains($listingText, 'final price')) {
                         $noFeePrices[] = $price;
                     }
                 }
@@ -583,11 +583,11 @@ class TickPickClient extends BaseApiClient
             return 'soldout';
         }
 
-        if (!empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
+        if (! empty($eventData['ticket_count']) && $eventData['ticket_count'] > 0) {
             return 'onsale';
         }
 
-        if (!empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
+        if (! empty($eventData['available_listings']) && $eventData['available_listings'] > 0) {
             return 'onsale';
         }
 
@@ -599,7 +599,7 @@ class TickPickClient extends BaseApiClient
      */
     protected function extractCity(string $location): string
     {
-        if (empty($location)) {
+        if ($location === '' || $location === '0') {
             return 'Unknown City';
         }
 
@@ -616,7 +616,7 @@ class TickPickClient extends BaseApiClient
      */
     protected function normalizeUrl(string $url): string
     {
-        if (strpos($url, 'http') !== 0) {
+        if (! str_starts_with($url, 'http')) {
             return 'https://www.tickpick.com' . $url;
         }
 
@@ -661,18 +661,18 @@ class TickPickClient extends BaseApiClient
      */
     protected function extractPriceRange(array &$event, array $prices): void
     {
-        if (empty($prices)) {
+        if ($prices === []) {
             return;
         }
 
         $numericPrices = [];
         foreach ($prices as $price) {
-            if (preg_match('/\$?([,\d]+(?:\.\d{2})?)/', $price, $matches)) {
+            if (preg_match('/\$?([,\d]+(?:\.\d{2})?)/', (string) $price, $matches)) {
                 $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if ($numericPrices !== []) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -685,18 +685,18 @@ class TickPickClient extends BaseApiClient
      */
     protected function extractNoFeePriceRange(array &$event, array $noFeePrices): void
     {
-        if (empty($noFeePrices)) {
+        if ($noFeePrices === []) {
             return;
         }
 
         $numericPrices = [];
         foreach ($noFeePrices as $price) {
-            if (preg_match('/\$?([,\d]+(?:\.\d{2})?)/', $price, $matches)) {
+            if (preg_match('/\$?([,\d]+(?:\.\d{2})?)/', (string) $price, $matches)) {
                 $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if ($numericPrices !== []) {
             $event['no_fee_price_min'] = min($numericPrices);
             $event['no_fee_price_max'] = max($numericPrices);
         }
@@ -707,12 +707,12 @@ class TickPickClient extends BaseApiClient
      */
     protected function parseEventDate(string $dateString): ?DateTime
     {
-        if (empty($dateString)) {
+        if ($dateString === '' || $dateString === '0') {
             return NULL;
         }
 
         // Clean up the date string
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
+        $dateString = trim((string) preg_replace('/\s+/', ' ', $dateString));
 
         // Remove common prefixes
         $dateString = preg_replace('/^(Event\s+date:?\s*|Date:?\s*)/i', '', $dateString);
@@ -741,14 +741,14 @@ class TickPickClient extends BaseApiClient
                 if ($date) {
                     return $date;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
 
         try {
             return new DateTime($dateString);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return NULL;
         }
     }

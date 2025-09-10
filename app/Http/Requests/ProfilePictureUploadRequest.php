@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class ProfilePictureUploadRequest extends FormRequest
 {
@@ -51,6 +52,7 @@ class ProfilePictureUploadRequest extends FormRequest
     /**
      * Messages
      */
+    #[Override]
     public function messages(): array
     {
         return [
@@ -72,6 +74,7 @@ class ProfilePictureUploadRequest extends FormRequest
     /**
      * Attributes
      */
+    #[Override]
     public function attributes(): array
     {
         return [

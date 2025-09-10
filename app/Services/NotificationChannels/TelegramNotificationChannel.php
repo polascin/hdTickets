@@ -29,7 +29,7 @@ class TelegramNotificationChannel
         try {
             $telegramSettings = $this->getUserTelegramSettings($user);
 
-            if (!$telegramSettings || !$telegramSettings->is_enabled) {
+            if (! $telegramSettings || ! $telegramSettings->is_enabled) {
                 Log::info('Telegram notifications disabled for user', ['user_id' => $user->id]);
 
                 return FALSE;
@@ -38,7 +38,7 @@ class TelegramNotificationChannel
             $message = $this->buildTelegramMessage($alertData);
 
             $chatId = $telegramSettings->chat_id;
-            if (!$chatId) {
+            if (! $chatId) {
                 Log::warning('No Telegram chat ID configured');
 
                 return FALSE;
@@ -72,7 +72,7 @@ Platform: Test Platform';
 
             $telegramSettings = $this->getUserTelegramSettings($user);
 
-            if (!$telegramSettings || !$telegramSettings->chat_id) {
+            if (! $telegramSettings || ! $telegramSettings->chat_id) {
                 return [
                     'success' => FALSE,
                     'message' => 'No Telegram chat ID configured',
@@ -110,12 +110,12 @@ Platform: Test Platform';
                    '*Available:* ' . $ticket['quantity'] . " tickets\n" .
                    '*Platform:* ' . $ticket['platform'] . "\n";
 
-        if (!empty($ticket['venue'])) {
+        if (! empty($ticket['venue'])) {
             $message .= "*Venue:* {$ticket['venue']}\n";
         }
 
-        if (!empty($ticket['event_date'])) {
-            $message .= '*Date:* ' . date('M j, Y g:i A', strtotime($ticket['event_date'])) . "\n";
+        if (! empty($ticket['event_date'])) {
+            $message .= '*Date:* ' . date('M j, Y g:i A', strtotime((string) $ticket['event_date'])) . "\n";
         }
 
         return $message;
@@ -129,7 +129,7 @@ Platform: Test Platform';
      */
     protected function sendMessage(string $chatId, string $message): bool
     {
-        if (!$this->botToken) {
+        if (! $this->botToken) {
             Log::warning('No Telegram bot token configured');
 
             return FALSE;
@@ -159,10 +159,8 @@ Platform: Test Platform';
      */
     protected function getUserTelegramSettings(User $user)
     {
-        return Cache::remember("telegram_settings:{$user->id}", 3600, function () use ($user) {
-            return UserNotificationSettings::where('user_id', $user->id)
-                ->where('channel', 'telegram')
-                ->first();
-        });
+        return Cache::remember("telegram_settings:{$user->id}", 3600, fn () => UserNotificationSettings::where('user_id', $user->id)
+            ->where('channel', 'telegram')
+            ->first());
     }
 }

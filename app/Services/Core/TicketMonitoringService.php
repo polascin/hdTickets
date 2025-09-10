@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Redis;
 use InvalidArgumentException;
+use Override;
 
 use function array_slice;
 use function count;
@@ -19,11 +20,9 @@ use function count;
  */
 class TicketMonitoringService extends BaseService implements TicketMonitoringInterface
 {
-    private const MONITORING_PREFIX = 'ticket_monitoring:';
+    private const string MONITORING_PREFIX = 'ticket_monitoring:';
 
-    private const ALERT_PREFIX = 'ticket_alerts:';
-
-    private const AVAILABILITY_PREFIX = 'ticket_availability:';
+    private const string ALERT_PREFIX = 'ticket_alerts:';
 
     private array $monitoredTickets = [];
 
@@ -139,7 +138,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
         $this->getDependency('analyticsService')->trackEvent('monitoring_check_completed', [
             'total_tickets'     => count($activeTickets),
-            'successful_checks' => count(array_filter($results, fn ($r) => $r['status'] !== 'error')),
+            'successful_checks' => count(array_filter($results, fn (array $r): bool => $r['status'] !== 'error')),
         ]);
 
         return $results;
@@ -341,6 +340,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * OnInitialize
      */
+    #[Override]
     protected function onInitialize(): void
     {
         $this->validateDependencies(['scrapingService', 'notificationService', 'analyticsService']);
@@ -362,7 +362,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
             $monitoringKey = self::MONITORING_PREFIX . $ticketId;
             $data = Redis::hgetall($monitoringKey);
 
-            if (!empty($data)) {
+            if (! empty($data)) {
                 $this->monitoredTickets[$ticketId] = $data;
             }
         }
@@ -373,7 +373,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
      */
     private function loadAlertRules(): void
     {
-        foreach ($this->monitoredTickets as $ticketId => $data) {
+        foreach (array_keys($this->monitoredTickets) as $ticketId) {
             $this->alertRules[$ticketId] = $this->getTicketAlertRules($ticketId);
         }
     }
@@ -514,7 +514,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
             }
 
             if ($shouldTrigger) {
-                $this->triggerAlert($ticketId, $condition, $message, $rule['channels'] ?? ['email']);
+                $this->triggerAlert($ticketId, $condition, $message);
             }
         }
     }
@@ -522,7 +522,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
     /**
      * TriggerAlert
      */
-    private function triggerAlert(int $ticketId, string $condition, string $message, array $channels): void
+    private function triggerAlert(int $ticketId, string $condition, string $message): void
     {
         try {
             // Send notification
@@ -564,7 +564,7 @@ class TicketMonitoringService extends BaseService implements TicketMonitoringInt
 
         foreach ($ruleKeys as $ruleKey) {
             $ruleData = Redis::hgetall($ruleKey);
-            if (!empty($ruleData)) {
+            if (! empty($ruleData)) {
                 $condition = $ruleData['condition'] ?? '';
                 $rules[$condition] = $ruleData;
             }

@@ -1,25 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Events;
 
+use App\Models\Notification;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Models\Notification;
 use App\Models\UserWatchlist;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
+use function in_array;
+
 class AvailabilityChanged implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable;
+    use InteractsWithSockets;
+    use SerializesModels;
 
     public Collection $notifications;
+
     public Collection $watchingUsers;
 
     /**
@@ -29,46 +33,47 @@ class AvailabilityChanged implements ShouldBroadcast
         public Ticket $ticket,
         public string $oldStatus,
         public string $newStatus,
-        public ?int $oldQuantity = null,
-        public ?int $newQuantity = null
+        public ?int $oldQuantity = NULL,
+        public ?int $newQuantity = NULL,
     ) {
         // Get users watching this ticket
         $this->watchingUsers = UserWatchlist::with(['user.notificationSettings'])
             ->where('ticket_id', $this->ticket->id)
             ->get()
             ->pluck('user')
-            ->filter(function ($user) {
+            ->filter(function ($user): bool {
                 $settings = $user->notificationSettings;
-                return $settings && 
-                       $settings->availability_alerts_enabled &&
-                       (!$settings->snoozed_until || $settings->snoozed_until <= now());
+
+                return $settings
+                       && $settings->availability_alerts_enabled
+                       && (! $settings->snoozed_until || $settings->snoozed_until <= now());
             });
 
         // Create notifications for watching users
         $this->notifications = collect();
-        
+
         foreach ($this->watchingUsers as $user) {
             $notification = Notification::create([
                 'user_id' => $user->id,
-                'type' => 'availability_alert',
-                'title' => 'Availability Update: ' . $this->ticket->event_title,
+                'type'    => 'availability_alert',
+                'title'   => 'Availability Update: ' . $this->ticket->event_title,
                 'message' => $this->getStatusMessage(),
-                'data' => [
-                    'ticket_id' => $this->ticket->id,
-                    'event_title' => $this->ticket->event_title,
-                    'venue' => $this->ticket->venue,
-                    'event_date' => $this->ticket->event_date,
-                    'old_status' => $this->oldStatus,
-                    'new_status' => $this->newStatus,
+                'data'    => [
+                    'ticket_id'    => $this->ticket->id,
+                    'event_title'  => $this->ticket->event_title,
+                    'venue'        => $this->ticket->venue,
+                    'event_date'   => $this->ticket->event_date,
+                    'old_status'   => $this->oldStatus,
+                    'new_status'   => $this->newStatus,
                     'old_quantity' => $this->oldQuantity,
                     'new_quantity' => $this->newQuantity,
-                    'price' => $this->ticket->price,
-                    'action_url' => route('tickets.show', $this->ticket->id),
-                    'ticket_url' => route('tickets.show', $this->ticket->id),
-                    'purchase_url' => $this->newStatus === 'available' ? route('tickets.purchase', $this->ticket->id) : null
+                    'price'        => $this->ticket->price,
+                    'action_url'   => route('tickets.show', $this->ticket->id),
+                    'ticket_url'   => route('tickets.show', $this->ticket->id),
+                    'purchase_url' => $this->newStatus === 'available' ? route('tickets.purchase', $this->ticket->id) : NULL,
                 ],
-                'read_at' => null,
-                'created_at' => now()
+                'read_at'    => NULL,
+                'created_at' => now(),
             ]);
 
             $this->notifications->push($notification);
@@ -78,7 +83,7 @@ class AvailabilityChanged implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
@@ -105,36 +110,34 @@ class AvailabilityChanged implements ShouldBroadcast
     {
         return [
             'ticket' => [
-                'id' => $this->ticket->id,
-                'event_title' => $this->ticket->event_title,
-                'venue' => $this->ticket->venue,
-                'event_date' => $this->ticket->event_date,
-                'price' => $this->ticket->price,
-                'old_status' => $this->oldStatus,
-                'new_status' => $this->newStatus,
-                'old_quantity' => $this->oldQuantity,
-                'new_quantity' => $this->newQuantity,
-                'status' => $this->ticket->status,
+                'id'                 => $this->ticket->id,
+                'event_title'        => $this->ticket->event_title,
+                'venue'              => $this->ticket->venue,
+                'event_date'         => $this->ticket->event_date,
+                'price'              => $this->ticket->price,
+                'old_status'         => $this->oldStatus,
+                'new_status'         => $this->newStatus,
+                'old_quantity'       => $this->oldQuantity,
+                'new_quantity'       => $this->newQuantity,
+                'status'             => $this->ticket->status,
                 'quantity_available' => $this->ticket->quantity_available,
-                'url' => route('tickets.show', $this->ticket->id)
+                'url'                => route('tickets.show', $this->ticket->id),
             ],
-            'change_type' => $this->getChangeType(),
-            'urgency' => $this->getUrgencyLevel(),
-            'message' => $this->getStatusMessage(),
-            'notifications' => $this->notifications->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'user_id' => $notification->user_id,
-                    'type' => $notification->type,
-                    'title' => $notification->title,
-                    'message' => $notification->message,
-                    'data' => $notification->data,
-                    'created_at' => $notification->created_at->toISOString(),
-                    'read_at' => null
-                ];
-            }),
+            'change_type'   => $this->getChangeType(),
+            'urgency'       => $this->getUrgencyLevel(),
+            'message'       => $this->getStatusMessage(),
+            'notifications' => $this->notifications->map(fn ($notification): array => [
+                'id'         => $notification->id,
+                'user_id'    => $notification->user_id,
+                'type'       => $notification->type,
+                'title'      => $notification->title,
+                'message'    => $notification->message,
+                'data'       => $notification->data,
+                'created_at' => $notification->created_at->toISOString(),
+                'read_at'    => NULL,
+            ]),
             'watching_users_count' => $this->watchingUsers->count(),
-            'timestamp' => now()->toISOString()
+            'timestamp'            => now()->toISOString(),
         ];
     }
 
@@ -152,7 +155,11 @@ class AvailabilityChanged implements ShouldBroadcast
     public function shouldBroadcast(): bool
     {
         // Only broadcast if there are users watching this ticket
-        return $this->watchingUsers->count() > 0 || $this->isSignificantChange();
+        if ($this->watchingUsers->count() > 0) {
+            return TRUE;
+        }
+
+        return $this->isSignificantChange();
     }
 
     /**
@@ -172,8 +179,41 @@ class AvailabilityChanged implements ShouldBroadcast
             'availability-alert',
             'ticket:' . $this->ticket->id,
             'status:' . $this->newStatus,
-            'urgency:' . $this->getUrgencyLevel()
+            'urgency:' . $this->getUrgencyLevel(),
         ];
+    }
+
+    /**
+     * Get channels for specific user
+     */
+    public function getChannelsForUser(User $user): array
+    {
+        return [
+            new PrivateChannel('notifications.' . $user->id),
+            new PrivateChannel('availability-alerts.' . $user->id),
+        ];
+    }
+
+    /**
+     * Check if user should receive this notification
+     */
+    public function shouldNotifyUser(User $user): bool
+    {
+        $settings = $user->notificationSettings;
+
+        if (! $settings || ! $settings->availability_alerts_enabled) {
+            return FALSE;
+        }
+
+        if ($settings->snoozed_until && $settings->snoozed_until > now()) {
+            return FALSE;
+        }
+
+        // Check if user is watching this ticket
+        return UserWatchlist::where([
+            'user_id'   => $user->id,
+            'ticket_id' => $this->ticket->id,
+        ])->exists();
     }
 
     /**
@@ -184,15 +224,15 @@ class AvailabilityChanged implements ShouldBroadcast
         return match ($this->newStatus) {
             'available' => match ($this->oldStatus) {
                 'sold_out' => 'Tickets are now available again!',
-                'limited' => 'More tickets became available!',
-                default => 'Tickets are now available!'
+                'limited'  => 'More tickets became available!',
+                default    => 'Tickets are now available!',
             },
-            'limited' => 'Only limited tickets remaining!',
+            'limited'      => 'Only limited tickets remaining!',
             'selling_fast' => 'Tickets are selling fast!',
-            'sold_out' => 'Event is now sold out.',
-            'cancelled' => 'Event has been cancelled.',
-            'postponed' => 'Event has been postponed.',
-            default => "Status changed from {$this->oldStatus} to {$this->newStatus}."
+            'sold_out'     => 'Event is now sold out.',
+            'cancelled'    => 'Event has been cancelled.',
+            'postponed'    => 'Event has been postponed.',
+            default        => "Status changed from {$this->oldStatus} to {$this->newStatus}.",
         };
     }
 
@@ -217,7 +257,7 @@ class AvailabilityChanged implements ShouldBroadcast
             return 'high_demand';
         }
 
-        if (in_array($this->newStatus, ['cancelled', 'postponed'])) {
+        if (in_array($this->newStatus, ['cancelled', 'postponed'], TRUE)) {
             return 'event_change';
         }
 
@@ -231,11 +271,11 @@ class AvailabilityChanged implements ShouldBroadcast
     {
         return match ($this->getChangeType()) {
             'back_in_stock' => 'high',
-            'sold_out' => 'medium',
-            'low_stock' => 'medium',
-            'high_demand' => 'medium',
-            'event_change' => 'high',
-            default => 'low'
+            'sold_out'      => 'medium',
+            'low_stock'     => 'medium',
+            'high_demand'   => 'medium',
+            'event_change'  => 'high',
+            default         => 'low',
         };
     }
 
@@ -248,42 +288,9 @@ class AvailabilityChanged implements ShouldBroadcast
             'back_in_stock',
             'sold_out',
             'low_stock',
-            'event_change'
+            'event_change',
         ];
 
-        return in_array($this->getChangeType(), $significantChanges);
-    }
-
-    /**
-     * Get channels for specific user
-     */
-    public function getChannelsForUser(User $user): array
-    {
-        return [
-            new PrivateChannel('notifications.' . $user->id),
-            new PrivateChannel('availability-alerts.' . $user->id)
-        ];
-    }
-
-    /**
-     * Check if user should receive this notification
-     */
-    public function shouldNotifyUser(User $user): bool
-    {
-        $settings = $user->notificationSettings;
-        
-        if (!$settings || !$settings->availability_alerts_enabled) {
-            return false;
-        }
-
-        if ($settings->snoozed_until && $settings->snoozed_until > now()) {
-            return false;
-        }
-
-        // Check if user is watching this ticket
-        return UserWatchlist::where([
-            'user_id' => $user->id,
-            'ticket_id' => $this->ticket->id
-        ])->exists();
+        return in_array($this->getChangeType(), $significantChanges, TRUE);
     }
 }

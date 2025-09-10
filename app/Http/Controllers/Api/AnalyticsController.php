@@ -18,11 +18,8 @@ use function in_array;
 
 class AnalyticsController extends Controller
 {
-    protected PlatformMonitoringService $platformMonitoringService;
-
-    public function __construct(PlatformMonitoringService $platformMonitoringService)
+    public function __construct(protected PlatformMonitoringService $platformMonitoringService)
     {
-        $this->platformMonitoringService = $platformMonitoringService;
     }
 
     /**
@@ -36,7 +33,7 @@ class AnalyticsController extends Controller
         $timeframe = $request->get('timeframe', '7d');
         $cacheKey = "analytics_overview_{$timeframe}";
 
-        $data = Cache::remember($cacheKey, 600, function () use ($timeframe) {
+        $data = Cache::remember($cacheKey, 600, function () use ($timeframe): array {
             $days = $this->getTimeframeDays($timeframe);
             $startDate = now()->subDays($days);
 
@@ -98,16 +95,14 @@ class AnalyticsController extends Controller
                 ->orderBy('period')
                 ->get();
 
-            return $trends->map(function ($trend) {
-                return [
-                    'period'        => $trend->period,
-                    'tickets_found' => (int) $trend->tickets_found,
-                    'unique_events' => (int) $trend->unique_events,
-                    'avg_price'     => round($trend->avg_price, 2),
-                    'min_price'     => round($trend->min_price, 2),
-                    'max_price'     => round($trend->max_price, 2),
-                ];
-            });
+            return $trends->map(fn ($trend): array => [
+                'period'        => $trend->period,
+                'tickets_found' => (int) $trend->tickets_found,
+                'unique_events' => (int) $trend->unique_events,
+                'avg_price'     => round($trend->avg_price, 2),
+                'min_price'     => round($trend->min_price, 2),
+                'max_price'     => round($trend->max_price, 2),
+            ]);
         });
 
         return response()->json([
@@ -133,20 +128,18 @@ class AnalyticsController extends Controller
         $data = Cache::remember($cacheKey, 300, function () use ($hours) {
             $platformStats = $this->platformMonitoringService->getAllPlatformStats($hours);
 
-            return $platformStats->map(function ($stats) {
-                return [
-                    'platform'            => $stats['platform'],
-                    'success_rate'        => round($stats['success_rate'], 2),
-                    'avg_response_time'   => round($stats['avg_response_time'], 2),
-                    'total_requests'      => $stats['total_requests'],
-                    'successful_requests' => $stats['successful_requests'],
-                    'failed_requests'     => $stats['failed_requests'],
-                    'uptime_percentage'   => round($stats['availability'], 2),
-                    'last_success'        => $stats['last_success'],
-                    'status'              => $this->determinePlatformStatus($stats),
-                    'tickets_found'       => $this->getTicketsFoundByPlatform($stats['platform'], $hours),
-                ];
-            });
+            return $platformStats->map(fn ($stats): array => [
+                'platform'            => $stats['platform'],
+                'success_rate'        => round($stats['success_rate'], 2),
+                'avg_response_time'   => round($stats['avg_response_time'], 2),
+                'total_requests'      => $stats['total_requests'],
+                'successful_requests' => $stats['successful_requests'],
+                'failed_requests'     => $stats['failed_requests'],
+                'uptime_percentage'   => round($stats['availability'], 2),
+                'last_success'        => $stats['last_success'],
+                'status'              => $this->determinePlatformStatus($stats),
+                'tickets_found'       => $this->getTicketsFoundByPlatform($stats['platform'], $hours),
+            ]);
         });
 
         return response()->json([
@@ -166,7 +159,7 @@ class AnalyticsController extends Controller
         $timeframe = $request->get('timeframe', '7d');
         $cacheKey = "success_rates_{$timeframe}";
 
-        $data = Cache::remember($cacheKey, 600, function () use ($timeframe) {
+        $data = Cache::remember($cacheKey, 600, function () use ($timeframe): array {
             $days = $this->getTimeframeDays($timeframe);
             $startDate = now()->subDays($days);
 
@@ -177,7 +170,7 @@ class AnalyticsController extends Controller
                     'platform_uptime'          => $this->getPlatformUptime($days),
                 ],
                 'by_platform'    => $this->getSuccessRatesByPlatform($days),
-                'by_event_type'  => $this->getSuccessRatesByEventType($days),
+                'by_event_type'  => $this->getSuccessRatesByEventType(),
                 'by_time_of_day' => $this->getSuccessRatesByTimeOfDay($days),
             ];
         });
@@ -201,7 +194,7 @@ class AnalyticsController extends Controller
 
         $cacheKey = "price_analysis_{$timeframe}" . ($eventType ? "_{$eventType}" : '');
 
-        $data = Cache::remember($cacheKey, 900, function () use ($timeframe, $eventType) {
+        $data = Cache::remember($cacheKey, 900, function () use ($timeframe, $eventType): array {
             $days = $this->getTimeframeDays($timeframe);
             $startDate = now()->subDays($days);
 
@@ -227,9 +220,9 @@ class AnalyticsController extends Controller
                     'price_volatility' => round($priceStats->price_stddev ?? 0, 2),
                     'total_tickets'    => $priceStats->total_tickets ?? 0,
                 ],
-                'price_ranges' => $this->getPriceRangeDistribution($days, $eventType),
-                'price_trends' => $this->getPriceTrends($days, $eventType),
-                'best_deals'   => $this->getBestDeals($days, $eventType),
+                'price_ranges' => $this->getPriceRangeDistribution(),
+                'price_trends' => $this->getPriceTrends(),
+                'best_deals'   => $this->getBestDeals(),
             ];
         });
 
@@ -251,15 +244,15 @@ class AnalyticsController extends Controller
         $timeframe = $request->get('timeframe', '30d');
         $cacheKey = "demand_patterns_{$timeframe}";
 
-        $data = Cache::remember($cacheKey, 1800, function () use ($timeframe) {
+        $data = Cache::remember($cacheKey, 1800, function () use ($timeframe): array {
             $days = $this->getTimeframeDays($timeframe);
 
             return [
-                'peak_hours'               => $this->getPeakHours($days),
-                'popular_events'           => $this->getPopularEvents($days),
-                'venue_popularity'         => $this->getVenuePopularity($days),
-                'seasonal_trends'          => $this->getSeasonalTrends($days),
-                'price_demand_correlation' => $this->getPriceDemandCorrelation($days),
+                'peak_hours'               => $this->getPeakHours(),
+                'popular_events'           => $this->getPopularEvents(),
+                'venue_popularity'         => $this->getVenuePopularity(),
+                'seasonal_trends'          => $this->getSeasonalTrends(),
+                'price_demand_correlation' => $this->getPriceDemandCorrelation(),
             ];
         });
 
@@ -279,7 +272,7 @@ class AnalyticsController extends Controller
     {
         $allowedTypes = ['overview', 'trends', 'platforms', 'prices', 'demand'];
 
-        if (!in_array($type, $allowedTypes, TRUE)) {
+        if (! in_array($type, $allowedTypes, TRUE)) {
             return response()->json(['error' => 'Invalid export type'], 400);
         }
 
@@ -397,7 +390,7 @@ class AnalyticsController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn ($item): array => [
                 'date'          => $item->date,
                 'tickets_found' => (int) $item->count,
             ])
@@ -418,7 +411,7 @@ class AnalyticsController extends Controller
             ->orderBy('ticket_count', 'desc')
             ->limit(10)
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn ($item): array => [
                 'event_title'  => $item->event_title,
                 'venue'        => $item->venue,
                 'ticket_count' => (int) $item->ticket_count,
@@ -440,7 +433,7 @@ class AnalyticsController extends Controller
             ->groupBy('platform')
             ->orderBy('ticket_count', 'desc')
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn ($item): array => [
                 'platform'     => $item->platform,
                 'ticket_count' => (int) $item->ticket_count,
                 'avg_price'    => round($item->avg_price, 2),
@@ -512,7 +505,7 @@ class AnalyticsController extends Controller
     {
         return $this->platformMonitoringService
             ->getAllPlatformStats($days * 24)
-            ->map(fn ($stats) => [
+            ->map(fn ($stats): array => [
                 'platform'     => $stats['platform'],
                 'success_rate' => round($stats['success_rate'], 2),
             ])
@@ -522,7 +515,7 @@ class AnalyticsController extends Controller
     /**
      * Get  success rates by event type
      */
-    private function getSuccessRatesByEventType(int $days): array
+    private function getSuccessRatesByEventType(): array
     {
         // Placeholder - would need event type classification
         return [
@@ -544,7 +537,7 @@ class AnalyticsController extends Controller
             ->groupBy('hour')
             ->orderBy('hour')
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn ($item): array => [
                 'hour'           => (int) $item->hour,
                 'activity_level' => (int) $item->total,
             ])
@@ -555,7 +548,7 @@ class AnalyticsController extends Controller
     /**
      * Get  price range distribution
      */
-    private function getPriceRangeDistribution(int $days, ?string $eventType): array
+    private function getPriceRangeDistribution(): array
     {
         // Implementation for price range distribution
         return [
@@ -570,7 +563,7 @@ class AnalyticsController extends Controller
     /**
      * Get  price trends
      */
-    private function getPriceTrends(int $days, ?string $eventType): array
+    private function getPriceTrends(): array
     {
         // Implementation for price trends over time
         return [];
@@ -579,7 +572,7 @@ class AnalyticsController extends Controller
     /**
      * Get  best deals
      */
-    private function getBestDeals(int $days, ?string $eventType): array
+    private function getBestDeals(): array
     {
         // Implementation for identifying best deals
         return [];
@@ -588,7 +581,7 @@ class AnalyticsController extends Controller
     /**
      * Get  peak hours
      */
-    private function getPeakHours(int $days): array
+    private function getPeakHours(): array
     {
         // Implementation for peak activity hours
         return [];
@@ -597,7 +590,7 @@ class AnalyticsController extends Controller
     /**
      * Get  popular events
      */
-    private function getPopularEvents(int $days): array
+    private function getPopularEvents(): array
     {
         // Implementation for popular events
         return [];
@@ -606,7 +599,7 @@ class AnalyticsController extends Controller
     /**
      * Get  venue popularity
      */
-    private function getVenuePopularity(int $days): array
+    private function getVenuePopularity(): array
     {
         // Implementation for venue popularity
         return [];
@@ -615,7 +608,7 @@ class AnalyticsController extends Controller
     /**
      * Get  seasonal trends
      */
-    private function getSeasonalTrends(int $days): array
+    private function getSeasonalTrends(): array
     {
         // Implementation for seasonal trends
         return [];
@@ -624,7 +617,7 @@ class AnalyticsController extends Controller
     /**
      * Get  price demand correlation
      */
-    private function getPriceDemandCorrelation(int $days): array
+    private function getPriceDemandCorrelation(): array
     {
         // Implementation for price-demand correlation
         return [];
@@ -654,7 +647,7 @@ class AnalyticsController extends Controller
         // Process specific event types
         switch ($data['event_category']) {
             case 'sports_interaction':
-                $this->processSportsEvent($event, $data);
+                $this->processSportsEvent($data);
 
                 break;
             case 'performance':
@@ -662,11 +655,11 @@ class AnalyticsController extends Controller
 
                 break;
             case 'error_tracking':
-                $this->processErrorEvent($event, $data);
+                $this->processErrorEvent($data);
 
                 break;
             case 'conversion':
-                $this->processConversionEvent($event, $data);
+                $this->processConversionEvent($data);
 
                 break;
         }
@@ -681,15 +674,15 @@ class AnalyticsController extends Controller
         $hour = now()->format('H');
 
         // Increment counters
-        Cache::increment("analytics:events:{$today}", 1, 86400);
-        Cache::increment("analytics:events:{$today}:{$hour}", 1, 3600);
-        Cache::increment("analytics:event_types:{$event}:{$today}", 1, 86400);
+        Cache::increment("analytics:events:{$today}", 1);
+        Cache::increment("analytics:events:{$today}:{$hour}", 1);
+        Cache::increment("analytics:event_types:{$event}:{$today}", 1);
 
         // Track unique sessions
         if (isset($data['session_id'])) {
             $sessionsKey = "analytics:sessions:{$today}";
             $sessions = Cache::get($sessionsKey, []);
-            if (!in_array($data['session_id'], $sessions, TRUE)) {
+            if (! in_array($data['session_id'], $sessions, TRUE)) {
                 $sessions[] = $data['session_id'];
                 Cache::put($sessionsKey, $sessions, 86400);
             }
@@ -699,17 +692,17 @@ class AnalyticsController extends Controller
     /**
      * Process sports-specific events
      */
-    private function processSportsEvent(string $event, array $data): void
+    private function processSportsEvent(array $data): void
     {
         $sport = $data['sport_type'] ?? NULL;
         $team = $data['team_preference'] ?? NULL;
 
         if ($sport) {
-            Cache::increment("analytics:sports:{$sport}:" . now()->format('Y-m-d'), 1, 86400);
+            Cache::increment("analytics:sports:{$sport}:" . now()->format('Y-m-d'), 1);
         }
 
         if ($team) {
-            Cache::increment("analytics:teams:{$team}:" . now()->format('Y-m-d'), 1, 86400);
+            Cache::increment("analytics:teams:{$team}:" . now()->format('Y-m-d'), 1);
         }
     }
 
@@ -737,7 +730,7 @@ class AnalyticsController extends Controller
     /**
      * Process error events
      */
-    private function processErrorEvent(string $event, array $data): void
+    private function processErrorEvent(array $data): void
     {
         $errorType = $data['error_type'] ?? 'unknown';
         $today = now()->format('Y-m-d');
@@ -751,21 +744,21 @@ class AnalyticsController extends Controller
         ]);
 
         // Increment error counters
-        Cache::increment("analytics:errors:{$errorType}:{$today}", 1, 86400);
-        Cache::increment("analytics:errors:total:{$today}", 1, 86400);
+        Cache::increment("analytics:errors:{$errorType}:{$today}", 1);
+        Cache::increment("analytics:errors:total:{$today}", 1);
     }
 
     /**
      * Process conversion events
      */
-    private function processConversionEvent(string $event, array $data): void
+    private function processConversionEvent(array $data): void
     {
         $funnelName = $data['funnel_name'] ?? 'unknown';
         $stepNumber = $data['step_number'] ?? 0;
         $today = now()->format('Y-m-d');
 
         // Track funnel progression
-        Cache::increment("analytics:funnel:{$funnelName}:step_{$stepNumber}:{$today}", 1, 86400);
+        Cache::increment("analytics:funnel:{$funnelName}:step_{$stepNumber}:{$today}", 1);
     }
 
     /**
@@ -787,9 +780,7 @@ class AnalyticsController extends Controller
         }
 
         // Sort by interactions
-        usort($sportData, function ($a, $b) {
-            return $b['interactions'] - $a['interactions'];
-        });
+        usort($sportData, fn (array $a, array $b): int|float => $b['interactions'] - $a['interactions']);
 
         return array_slice($sportData, 0, 5);
     }
@@ -804,7 +795,7 @@ class AnalyticsController extends Controller
 
         foreach ($metrics as $metric) {
             $values = Cache::get("analytics:performance:{$metric}:{$date}", []);
-            if (!empty($values)) {
+            if (! empty($values)) {
                 $performanceData[$metric] = [
                     'average' => round(array_sum($values) / count($values), 2),
                     'min'     => min($values),

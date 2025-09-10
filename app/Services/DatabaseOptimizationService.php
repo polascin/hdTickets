@@ -2,11 +2,16 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+
+use function count;
+use function is_array;
+use function is_string;
 
 /**
  * Database Query Optimization Service
@@ -37,8 +42,6 @@ class DatabaseOptimizationService
     /**
      * Execute optimized query with caching and performance monitoring
      *
-     * @param  Builder               $query
-     * @param  array                 $cacheOptions
      * @return Collection|Model|null
      */
     public function optimizedQuery(Builder $query, array $cacheOptions = [])
@@ -71,7 +74,7 @@ class DatabaseOptimizationService
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $executionTime = microtime(TRUE) - $startTime;
             $this->recordQueryError($query, $e, $executionTime);
 
@@ -81,10 +84,6 @@ class DatabaseOptimizationService
 
     /**
      * Optimized eager loading for relationships
-     *
-     * @param  Builder $query
-     * @param  array   $relations
-     * @return Builder
      */
     public function optimizedEagerLoad(Builder $query, array $relations): Builder
     {
@@ -96,11 +95,6 @@ class DatabaseOptimizationService
 
     /**
      * Batch processing for large datasets
-     *
-     * @param  Builder  $query
-     * @param  callable $callback
-     * @param  int      $chunkSize
-     * @return array
      */
     public function batchProcess(Builder $query, callable $callback, int $chunkSize = 1000): array
     {
@@ -108,7 +102,7 @@ class DatabaseOptimizationService
         $totalProcessed = 0;
         $startTime = microtime(TRUE);
 
-        $query->chunk($chunkSize, function ($items) use ($callback, &$results, &$totalProcessed) {
+        $query->chunk($chunkSize, function ($items) use ($callback, &$results, &$totalProcessed): void {
             $chunkStartTime = microtime(TRUE);
 
             $chunkResults = $callback($items);
@@ -137,9 +131,6 @@ class DatabaseOptimizationService
 
     /**
      * Intelligent query optimization suggestions
-     *
-     * @param  Builder $query
-     * @return array
      */
     public function analyzeQuery(Builder $query): array
     {
@@ -149,7 +140,7 @@ class DatabaseOptimizationService
         $suggestions = [];
 
         // Analyze for common optimization opportunities
-        if (strpos($sql, 'SELECT *') !== FALSE) {
+        if (str_contains($sql, 'SELECT *')) {
             $suggestions[] = [
                 'type'       => 'select_optimization',
                 'message'    => 'Consider selecting specific columns instead of using SELECT *',
@@ -158,7 +149,7 @@ class DatabaseOptimizationService
             ];
         }
 
-        if (strpos($sql, 'ORDER BY') !== FALSE && strpos($sql, 'LIMIT') === FALSE) {
+        if (str_contains($sql, 'ORDER BY') && ! str_contains($sql, 'LIMIT')) {
             $suggestions[] = [
                 'type'       => 'pagination',
                 'message'    => 'ORDER BY without LIMIT can be expensive for large datasets',
@@ -178,7 +169,7 @@ class DatabaseOptimizationService
 
         // Check for N+1 query potential
         $model = $query->getModel();
-        if ($model && !$query->getEagerLoads()) {
+        if ($model && ! $query->getEagerLoads()) {
             $suggestions[] = [
                 'type'       => 'eager_loading',
                 'message'    => 'Query might cause N+1 problems if relationships are accessed',
@@ -197,8 +188,6 @@ class DatabaseOptimizationService
 
     /**
      * Get database performance statistics
-     *
-     * @return array
      */
     public function getPerformanceStats(): array
     {
@@ -225,11 +214,8 @@ class DatabaseOptimizationService
 
     /**
      * Clear query caches
-     *
-     * @param  string|null $pattern
-     * @return int
      */
-    public function clearQueryCache(string $pattern = NULL): int
+    public function clearQueryCache(?string $pattern = NULL): int
     {
         if ($pattern) {
             // Clear specific cache pattern
@@ -254,9 +240,6 @@ class DatabaseOptimizationService
 
     /**
      * Warm up cache with common queries
-     *
-     * @param  array $queries
-     * @return array
      */
     public function warmupCache(array $queries): array
     {
@@ -274,7 +257,7 @@ class DatabaseOptimizationService
                     'success' => TRUE,
                     'count'   => $result ? count($result) : 0,
                 ];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[] = [
                     'query'   => $queryConfig['query']->toSql(),
                     'success' => FALSE,
@@ -338,7 +321,7 @@ class DatabaseOptimizationService
      */
     protected function recordQueryMetrics(Builder $query, float $executionTime, int $resultCount): void
     {
-        if (!$this->enableProfiling) {
+        if (! $this->enableProfiling) {
             return;
         }
 
@@ -368,7 +351,7 @@ class DatabaseOptimizationService
     /**
      * Record query error
      */
-    protected function recordQueryError(Builder $query, \Exception $e, float $executionTime): void
+    protected function recordQueryError(Builder $query, Exception $e, float $executionTime): void
     {
         $this->performanceMetrics['errors'][] = [
             'sql'            => $query->toSql(),
@@ -388,10 +371,12 @@ class DatabaseOptimizationService
 
     /**
      * Record general metric
+     *
+     * @param mixed $data
      */
     protected function recordMetric(string $type, $data): void
     {
-        if (!isset($this->performanceMetrics[$type])) {
+        if (! isset($this->performanceMetrics[$type])) {
             $this->performanceMetrics[$type] = [];
         }
 
@@ -556,7 +541,7 @@ class DatabaseOptimizationService
             $redis = Cache::getRedis();
 
             return $redis->keys($pattern);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }

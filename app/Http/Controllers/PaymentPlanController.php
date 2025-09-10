@@ -15,7 +15,7 @@ class PaymentPlanController extends Controller
     {
         $plans = PaymentPlan::ordered()->get();
 
-        return view('admin.payment-plans.index', compact('plans'));
+        return view('admin.payment-plans.index', ['plans' => $plans]);
     }
 
     /**
@@ -76,7 +76,7 @@ class PaymentPlanController extends Controller
     {
         $paymentPlan->load(['subscriptions.user']);
 
-        return view('admin.payment-plans.show', compact('paymentPlan'));
+        return view('admin.payment-plans.show', ['paymentPlan' => $paymentPlan]);
     }
 
     /**
@@ -84,7 +84,7 @@ class PaymentPlanController extends Controller
      */
     public function edit(PaymentPlan $paymentPlan)
     {
-        return view('admin.payment-plans.edit', compact('paymentPlan'));
+        return view('admin.payment-plans.edit', ['paymentPlan' => $paymentPlan]);
     }
 
     /**

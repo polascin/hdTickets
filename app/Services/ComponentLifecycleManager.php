@@ -95,7 +95,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (!$componentState) {
+        if (! $componentState) {
             throw new InvalidArgumentException("Component not registered: {$componentName}");
         }
 
@@ -111,22 +111,12 @@ class ComponentLifecycleManager
             $this->updateComponentState($componentName, $componentState);
 
             // Initialize based on component type
-            switch ($componentState['type']) {
-                case 'blade':
-                    $this->initializeBladeComponent($componentName, $componentState, $initData);
-
-                    break;
-                case 'alpine':
-                    $this->initializeAlpineComponent($componentName, $componentState, $initData);
-
-                    break;
-                case 'vue':
-                    $this->initializeVueComponent($componentName, $componentState, $initData);
-
-                    break;
-                default:
-                    throw new InvalidArgumentException("Unknown component type: {$componentState['type']}");
-            }
+            match ($componentState['type']) {
+                'blade'  => $this->initializeBladeComponent($componentName, $initData),
+                'alpine' => $this->initializeAlpineComponent($componentName, $componentState, $initData),
+                'vue'    => $this->initializeVueComponent($componentName, $componentState, $initData),
+                default  => throw new InvalidArgumentException("Unknown component type: {$componentState['type']}"),
+            };
 
             // Record performance metrics
             $componentState['performance_metrics']['creation_time'] = (microtime(TRUE) - $startTime) * 1000;
@@ -154,7 +144,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (!$componentState || $componentState['state'] !== 'created') {
+        if (! $componentState || $componentState['state'] !== 'created') {
             throw new InvalidArgumentException("Component must be created before mounting: {$componentName}");
         }
 
@@ -171,7 +161,7 @@ class ComponentLifecycleManager
             // Mount based on component type
             switch ($componentState['type']) {
                 case 'blade':
-                    $this->mountBladeComponent($componentName, $componentState, $mountData);
+                    $this->mountBladeComponent($componentName, $mountData);
 
                     break;
                 case 'alpine':
@@ -212,7 +202,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (!$componentState || $componentState['state'] !== 'mounted') {
+        if (! $componentState || $componentState['state'] !== 'mounted') {
             throw new InvalidArgumentException("Component must be mounted before updating: {$componentName}");
         }
 
@@ -228,7 +218,7 @@ class ComponentLifecycleManager
             // Update based on component type
             switch ($componentState['type']) {
                 case 'blade':
-                    $this->updateBladeComponent($componentName, $componentState, $updateData);
+                    $this->updateBladeComponent($componentName, $updateData);
 
                     break;
                 case 'alpine':
@@ -265,7 +255,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (!$componentState) {
+        if (! $componentState) {
             return; // Already unmounted or never mounted
         }
 
@@ -280,7 +270,7 @@ class ComponentLifecycleManager
             // Unmount based on component type
             switch ($componentState['type']) {
                 case 'blade':
-                    $this->unmountBladeComponent($componentName, $componentState, $unmountData);
+                    $this->unmountBladeComponent($componentName, $unmountData);
 
                     break;
                 case 'alpine':
@@ -336,13 +326,13 @@ class ComponentLifecycleManager
      */
     public function addHook(string $componentName, string $lifecycle, callable $callback): void
     {
-        if (!in_array($lifecycle, $this->lifecycleEvents, TRUE)) {
+        if (! in_array($lifecycle, $this->lifecycleEvents, TRUE)) {
             throw new InvalidArgumentException("Invalid lifecycle event: {$lifecycle}");
         }
 
         $hookKey = "{$componentName}.{$lifecycle}";
 
-        if (!$this->lifecycleHooks->has($hookKey)) {
+        if (! $this->lifecycleHooks->has($hookKey)) {
             $this->lifecycleHooks->put($hookKey, new Collection());
         }
 
@@ -462,7 +452,7 @@ class ComponentLifecycleManager
     {
         $componentState = $this->getComponentState($componentName);
 
-        if (!$componentState) {
+        if (! $componentState) {
             return NULL;
         }
 
@@ -520,11 +510,11 @@ class ComponentLifecycleManager
             }
         }
 
-        if (!empty($creationTimes)) {
+        if ($creationTimes !== []) {
             $stats['average_creation_time'] = array_sum($creationTimes) / count($creationTimes);
         }
 
-        if (!empty($mountTimes)) {
+        if ($mountTimes !== []) {
             $stats['average_mount_time'] = array_sum($mountTimes) / count($mountTimes);
         }
 
@@ -563,7 +553,7 @@ class ComponentLifecycleManager
     private function setupLifecycleEvents(): void
     {
         foreach ($this->lifecycleEvents as $eventName) {
-            Event::listen("component.{$eventName}", [$this, 'handleLifecycleEvent']);
+            Event::listen("component.{$eventName}", $this->handleLifecycleEvent(...));
         }
     }
 
@@ -573,7 +563,7 @@ class ComponentLifecycleManager
     /**
      * InitializeBladeComponent
      */
-    private function initializeBladeComponent(string $componentName, array $componentState, array $initData): void
+    private function initializeBladeComponent(string $componentName, array $initData): void
     {
         // Blade components are server-side rendered, minimal initialization
         $this->emitLifecycleEvent('blade.initialized', $componentName, $initData);
@@ -588,7 +578,7 @@ class ComponentLifecycleManager
     private function initializeAlpineComponent(string $componentName, array $componentState, array $initData): void
     {
         // Alpine.js components need client-side initialization script
-        $initScript = $this->generateAlpineInitScript($componentName, $componentState, $initData);
+        $initScript = $this->generateAlpineInitScript($componentName, $initData);
         $this->emitLifecycleEvent('alpine.initialized', $componentName, ['script' => $initScript]);
     }
 
@@ -611,7 +601,7 @@ class ComponentLifecycleManager
     /**
      * MountBladeComponent
      */
-    private function mountBladeComponent(string $componentName, array $componentState, array $mountData): void
+    private function mountBladeComponent(string $componentName, array $mountData): void
     {
         // Blade components are rendered server-side, emit event for client-side hooks
         $this->emitLifecycleEvent('blade.mounted', $componentName, $mountData);
@@ -626,7 +616,7 @@ class ComponentLifecycleManager
     private function mountAlpineComponent(string $componentName, array $componentState, array $mountData): void
     {
         // Generate Alpine.js mount instructions
-        $mountScript = $this->generateAlpineMountScript($componentName, $componentState, $mountData);
+        $mountScript = $this->generateAlpineMountScript($componentName, $componentState);
         $this->emitLifecycleEvent('alpine.mounted', $componentName, ['script' => $mountScript]);
     }
 
@@ -649,7 +639,7 @@ class ComponentLifecycleManager
     /**
      * UpdateBladeComponent
      */
-    private function updateBladeComponent(string $componentName, array $componentState, array $updateData): void
+    private function updateBladeComponent(string $componentName, array $updateData): void
     {
         // Blade components need re-rendering on server side for updates
         $this->emitLifecycleEvent('blade.updated', $componentName, $updateData);
@@ -677,7 +667,7 @@ class ComponentLifecycleManager
     private function updateVueComponent(string $componentName, array $componentState, array $updateData): void
     {
         // Generate Vue.js update instructions
-        $updateConfig = $this->generateVueUpdateConfig($componentName, $componentState, $updateData);
+        $updateConfig = $this->generateVueUpdateConfig($componentName, $updateData);
         $this->emitLifecycleEvent('vue.updated', $componentName, ['config' => $updateConfig]);
     }
 
@@ -687,7 +677,7 @@ class ComponentLifecycleManager
     /**
      * UnmountBladeComponent
      */
-    private function unmountBladeComponent(string $componentName, array $componentState, array $unmountData): void
+    private function unmountBladeComponent(string $componentName, array $unmountData): void
     {
         $this->emitLifecycleEvent('blade.unmounted', $componentName, $unmountData);
     }
@@ -700,7 +690,7 @@ class ComponentLifecycleManager
      */
     private function unmountAlpineComponent(string $componentName, array $componentState, array $unmountData): void
     {
-        $unmountScript = $this->generateAlpineUnmountScript($componentName, $componentState, $unmountData);
+        $unmountScript = $this->generateAlpineUnmountScript($componentName, $componentState);
         $this->emitLifecycleEvent('alpine.unmounted', $componentName, ['script' => $unmountScript]);
     }
 
@@ -712,7 +702,7 @@ class ComponentLifecycleManager
      */
     private function unmountVueComponent(string $componentName, array $componentState, array $unmountData): void
     {
-        $unmountConfig = $this->generateVueUnmountConfig($componentName, $componentState, $unmountData);
+        $unmountConfig = $this->generateVueUnmountConfig($componentName, $componentState);
         $this->emitLifecycleEvent('vue.unmounted', $componentName, ['config' => $unmountConfig]);
     }
 
@@ -722,7 +712,7 @@ class ComponentLifecycleManager
     /**
      * GenerateAlpineInitScript
      */
-    private function generateAlpineInitScript(string $componentName, array $componentState, array $initData): string
+    private function generateAlpineInitScript(string $componentName, array $initData): string
     {
         $initDataJson = json_encode($initData);
 
@@ -735,7 +725,7 @@ class ComponentLifecycleManager
     /**
      * GenerateAlpineMountScript
      */
-    private function generateAlpineMountScript(string $componentName, array $componentState, array $mountData): string
+    private function generateAlpineMountScript(string $componentName, array $componentState): string
     {
         $selector = $componentState['config']['selector'] ?? "[x-data='{$componentName}']";
 
@@ -762,7 +752,7 @@ class ComponentLifecycleManager
     /**
      * GenerateAlpineUnmountScript
      */
-    private function generateAlpineUnmountScript(string $componentName, array $componentState, array $unmountData): string
+    private function generateAlpineUnmountScript(string $componentName, array $componentState): string
     {
         $selector = $componentState['config']['selector'] ?? "[x-data='{$componentName}']";
 
@@ -805,7 +795,7 @@ class ComponentLifecycleManager
     /**
      * GenerateVueUpdateConfig
      */
-    private function generateVueUpdateConfig(string $componentName, array $componentState, array $updateData): array
+    private function generateVueUpdateConfig(string $componentName, array $updateData): array
     {
         return [
             'component' => $componentName,
@@ -819,7 +809,7 @@ class ComponentLifecycleManager
     /**
      * GenerateVueUnmountConfig
      */
-    private function generateVueUnmountConfig(string $componentName, array $componentState, array $unmountData): array
+    private function generateVueUnmountConfig(string $componentName, array $componentState): array
     {
         return [
             'component' => $componentName,

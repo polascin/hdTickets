@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Override;
 
 class PriceAlertThreshold extends Model
 {
@@ -23,15 +25,6 @@ class PriceAlertThreshold extends Model
         'last_triggered_at',
         'trigger_count',
         'notification_channels',
-    ];
-
-    protected $casts = [
-        'target_price'          => 'decimal:2',
-        'percentage_threshold'  => 'decimal:2',
-        'is_active'             => 'boolean',
-        'last_triggered_at'     => 'datetime',
-        'trigger_count'         => 'integer',
-        'notification_channels' => 'array',
     ];
 
     /**
@@ -94,7 +87,7 @@ class PriceAlertThreshold extends Model
      */
     public function shouldTrigger($currentPrice): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
@@ -104,7 +97,7 @@ class PriceAlertThreshold extends Model
             case 'above':
                 return $currentPrice >= $this->target_price;
             case 'percentage_change':
-                if (!$this->percentage_threshold) {
+                if (! $this->percentage_threshold) {
                     return FALSE;
                 }
 
@@ -130,19 +123,17 @@ class PriceAlertThreshold extends Model
     }
 
     /**
-     * Get formatted target price
-     */
-    /**
      * Get  formatted target price attribute
      */
-    public function getFormattedTargetPriceAttribute(): string
+    protected function formattedTargetPrice(): Attribute
     {
-        return '£' . number_format($this->target_price, 2);
+        return Attribute::make(get: fn (): string => '£' . number_format($this->target_price, 2));
     }
 
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -152,5 +143,17 @@ class PriceAlertThreshold extends Model
                 $threshold->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'target_price'          => 'decimal:2',
+            'percentage_threshold'  => 'decimal:2',
+            'is_active'             => 'boolean',
+            'last_triggered_at'     => 'datetime',
+            'trigger_count'         => 'integer',
+            'notification_channels' => 'array',
+        ];
     }
 }

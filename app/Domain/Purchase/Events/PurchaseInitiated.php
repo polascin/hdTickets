@@ -5,6 +5,7 @@ namespace App\Domain\Purchase\Events;
 use App\Domain\Purchase\ValueObjects\PurchaseId;
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use App\Domain\Ticket\ValueObjects\TicketId;
+use Override;
 
 final class PurchaseInitiated extends AbstractDomainEvent
 {
@@ -62,6 +63,7 @@ final class PurchaseInitiated extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->purchaseId = new PurchaseId($payload['purchase_id']);

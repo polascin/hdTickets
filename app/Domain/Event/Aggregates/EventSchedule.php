@@ -3,6 +3,8 @@
 namespace App\Domain\Event\Aggregates;
 
 use App\Domain\Event\Entities\SportsEvent;
+use App\Domain\Event\Events\EventAddedToSchedule;
+use App\Domain\Event\Events\EventRemovedFromSchedule;
 use App\Domain\Event\ValueObjects\EventId;
 use App\Domain\Event\ValueObjects\SportCategory;
 use DateTimeImmutable;
@@ -39,7 +41,7 @@ class EventSchedule
         $this->events[$eventId] = $event;
 
         $this->recordDomainEvent(
-            new \App\Domain\Event\Events\EventAddedToSchedule($event->getId(), $this->scheduleDate),
+            new EventAddedToSchedule($event->getId(), $this->scheduleDate),
         );
     }
 
@@ -50,14 +52,14 @@ class EventSchedule
     {
         $id = $eventId->value();
 
-        if (!isset($this->events[$id])) {
+        if (! isset($this->events[$id])) {
             throw new DomainException('Event not found in schedule');
         }
 
         unset($this->events[$id]);
 
         $this->recordDomainEvent(
-            new \App\Domain\Event\Events\EventRemovedFromSchedule($eventId, $this->scheduleDate),
+            new EventRemovedFromSchedule($eventId, $this->scheduleDate),
         );
     }
 
@@ -90,7 +92,7 @@ class EventSchedule
     {
         return array_filter(
             $this->events,
-            fn (SportsEvent $event) => $event->getCategory()->equals($category),
+            fn (SportsEvent $event): bool => $event->getCategory()->equals($category),
         );
     }
 
@@ -104,7 +106,7 @@ class EventSchedule
     {
         return array_filter(
             $this->events,
-            fn (SportsEvent $event) => $event->isUpcoming(),
+            fn (SportsEvent $event): bool => $event->isUpcoming(),
         );
     }
 
@@ -118,7 +120,7 @@ class EventSchedule
     {
         return array_filter(
             $this->events,
-            fn (SportsEvent $event) => $event->isHighDemand(),
+            fn (SportsEvent $event): bool => $event->isHighDemand(),
         );
     }
 
@@ -197,7 +199,7 @@ class EventSchedule
      */
     public function isEmpty(): bool
     {
-        return empty($this->events);
+        return $this->events === [];
     }
 
     /**

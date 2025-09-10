@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 /**
  * Permission Model for Advanced RBAC
@@ -23,12 +24,6 @@ class Permission extends Model
         'category',
         'is_system_permission',
         'created_by',
-    ];
-
-    protected $casts = [
-        'is_system_permission' => 'boolean',
-        'created_at'           => 'datetime',
-        'updated_at'           => 'datetime',
     ];
 
     /**
@@ -61,31 +56,28 @@ class Permission extends Model
 
     /**
      * Get permission by name
-     *
-     * @param  string          $name
-     * @return Permission|null
      */
-    public static function findByName(string $name): ?Permission
+    public static function findByName(string $name): ?self
     {
         return static::where('name', $name)->first();
     }
 
     /**
      * Check if permission is assigned to any role or user
-     *
-     * @return bool
      */
     public function isInUse(): bool
     {
-        return $this->roles()->exists() || $this->users()->exists();
+        if ($this->roles()->exists()) {
+            return TRUE;
+        }
+
+        return $this->users()->exists();
     }
 
     /**
      * Get all users who have this permission (directly or through roles)
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function getAllUsers(): \Illuminate\Support\Collection
+    public function getAllUsers(): Collection
     {
         $users = collect();
 
@@ -102,6 +94,8 @@ class Permission extends Model
 
     /**
      * Scope for specific category
+     *
+     * @param mixed $query
      */
     public function scopeCategory($query, string $category)
     {
@@ -110,6 +104,8 @@ class Permission extends Model
 
     /**
      * Scope for system permissions
+     *
+     * @param mixed $query
      */
     public function scopeSystemPermissions($query)
     {
@@ -118,6 +114,8 @@ class Permission extends Model
 
     /**
      * Scope for custom permissions
+     *
+     * @param mixed $query
      */
     public function scopeCustomPermissions($query)
     {
@@ -126,11 +124,18 @@ class Permission extends Model
 
     /**
      * Get permissions grouped by category
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public static function getByCategory(): \Illuminate\Support\Collection
+    public static function getByCategory(): Collection
     {
         return static::all()->groupBy('category');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_system_permission' => 'boolean',
+            'created_at'           => 'datetime',
+            'updated_at'           => 'datetime',
+        ];
     }
 }

@@ -10,6 +10,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function array_slice;
+use function in_array;
+use function strlen;
+
 /**
  * Advanced Ticket Filtering Service
  *
@@ -30,20 +34,6 @@ class TicketFilteringService
     {
         $this->query = ScrapedTicket::query();
         $this->applyDefaultConstraints();
-    }
-
-    /**
-     * Apply default constraints (active tickets, future events)
-     */
-    protected function applyDefaultConstraints(): self
-    {
-        $this->query->where('status', 'active')
-                   ->where(function ($q) {
-                       $q->whereNull('event_date')
-                         ->orWhere('event_date', '>', now());
-                   });
-
-        return $this;
     }
 
     /**
@@ -69,14 +59,14 @@ class TicketFilteringService
         if ($request->filled('min_price') || $request->filled('max_price')) {
             $service->priceRange(
                 $request->filled('min_price') ? (float) $request->min_price : NULL,
-                $request->filled('max_price') ? (float) $request->max_price : NULL
+                $request->filled('max_price') ? (float) $request->max_price : NULL,
             );
         }
 
         if ($request->filled('date_from') || $request->filled('date_to')) {
             $service->dateRange(
                 $request->filled('date_from') ? Carbon::parse($request->date_from) : NULL,
-                $request->filled('date_to') ? Carbon::parse($request->date_to) : NULL
+                $request->filled('date_to') ? Carbon::parse($request->date_to) : NULL,
             );
         }
 
@@ -118,25 +108,25 @@ class TicketFilteringService
     public function search(string $keywords): self
     {
         $keywords = trim($keywords);
-        if (empty($keywords)) {
+        if ($keywords === '' || $keywords === '0') {
             return $this;
         }
 
         $this->appliedFilters['search'] = $keywords;
 
         // Use full-text search if available, otherwise use LIKE queries
-        $this->query->where(function ($q) use ($keywords) {
+        $this->query->where(function ($q) use ($keywords): void {
             $searchTerms = explode(' ', $keywords);
 
             foreach ($searchTerms as $term) {
                 $term = '%' . $term . '%';
-                $q->where(function ($subQuery) use ($term) {
+                $q->where(function ($subQuery) use ($term): void {
                     $subQuery->where('title', 'LIKE', $term)
-                            ->orWhere('venue', 'LIKE', $term)
-                            ->orWhere('location', 'LIKE', $term)
-                            ->orWhere('team', 'LIKE', $term)
-                            ->orWhere('sport', 'LIKE', $term)
-                            ->orWhere('search_keyword', 'LIKE', $term);
+                        ->orWhere('venue', 'LIKE', $term)
+                        ->orWhere('location', 'LIKE', $term)
+                        ->orWhere('team', 'LIKE', $term)
+                        ->orWhere('sport', 'LIKE', $term)
+                        ->orWhere('search_keyword', 'LIKE', $term);
                 });
             }
         });
@@ -183,9 +173,9 @@ class TicketFilteringService
             $this->query->where('currency', $currency);
 
             if ($minPrice !== NULL) {
-                $this->query->where(function ($q) use ($minPrice) {
+                $this->query->where(function ($q) use ($minPrice): void {
                     $q->where('min_price', '>=', $minPrice)
-                      ->orWhere('max_price', '>=', $minPrice);
+                        ->orWhere('max_price', '>=', $minPrice);
                 });
                 $this->appliedFilters['min_price'] = $minPrice;
             }
@@ -204,13 +194,13 @@ class TicketFilteringService
      */
     public function dateRange(?Carbon $dateFrom = NULL, ?Carbon $dateTo = NULL): self
     {
-        if ($dateFrom !== NULL || $dateTo !== NULL) {
-            if ($dateFrom !== NULL) {
+        if ($dateFrom instanceof Carbon || $dateTo instanceof Carbon) {
+            if ($dateFrom instanceof Carbon) {
                 $this->query->where('event_date', '>=', $dateFrom->startOfDay());
                 $this->appliedFilters['date_from'] = $dateFrom->toDateString();
             }
 
-            if ($dateTo !== NULL) {
+            if ($dateTo instanceof Carbon) {
                 $this->query->where('event_date', '<=', $dateTo->endOfDay());
                 $this->appliedFilters['date_to'] = $dateTo->toDateString();
             }
@@ -246,14 +236,14 @@ class TicketFilteringService
      */
     public function byTeam(string $team): self
     {
-        $this->query->where(function ($q) use ($team) {
+        $this->query->where(function ($q) use ($team): void {
             $q->where('team', 'LIKE', '%' . $team . '%')
-              ->orWhereHas('homeTeam', function ($q) use ($team) {
-                  $q->where('name', 'LIKE', '%' . $team . '%');
-              })
-              ->orWhereHas('awayTeam', function ($q) use ($team) {
-                  $q->where('name', 'LIKE', '%' . $team . '%');
-              });
+                ->orWhereHas('homeTeam', function ($q) use ($team): void {
+                    $q->where('name', 'LIKE', '%' . $team . '%');
+                })
+                ->orWhereHas('awayTeam', function ($q) use ($team): void {
+                    $q->where('name', 'LIKE', '%' . $team . '%');
+                });
         });
 
         $this->appliedFilters['team'] = $team;
@@ -266,9 +256,9 @@ class TicketFilteringService
      */
     public function byLeague(string $league): self
     {
-        $this->query->whereHas('league', function ($q) use ($league) {
+        $this->query->whereHas('league', function ($q) use ($league): void {
             $q->where('name', 'LIKE', '%' . $league . '%')
-              ->orWhere('slug', 'LIKE', '%' . $league . '%');
+                ->orWhere('slug', 'LIKE', '%' . $league . '%');
         });
 
         $this->appliedFilters['league'] = $league;
@@ -324,30 +314,15 @@ class TicketFilteringService
             : 'desc';
 
         if (in_array($sortField, $allowedSorts, TRUE)) {
-            switch ($sortField) {
-                case 'min_price':
-                case 'max_price':
-                    $this->query->orderByRaw("COALESCE({$sortField}, 999999) {$direction}");
-
-                    break;
-                case 'availability':
-                    $this->query->orderByRaw('CASE WHEN is_available = 1 THEN 0 ELSE 1 END')
-                               ->orderBy('scraped_at', 'desc');
-
-                    break;
-                case 'platform':
-                    $this->query->orderBy('platform', 'asc')
-                               ->orderBy('scraped_at', 'desc');
-
-                    break;
-                case 'predicted_demand':
-                    $this->query->orderByRaw("COALESCE(predicted_demand, 0) {$direction}");
-
-                    break;
-                default:
-                    $this->query->orderBy($sortField, $direction);
-            }
-
+            match ($sortField) {
+                'min_price', 'max_price' => $this->query->orderByRaw("COALESCE({$sortField}, 999999) {$direction}"),
+                'availability' => $this->query->orderByRaw('CASE WHEN is_available = 1 THEN 0 ELSE 1 END')
+                    ->orderBy('scraped_at', 'desc'),
+                'platform' => $this->query->orderBy('platform', 'asc')
+                    ->orderBy('scraped_at', 'desc'),
+                'predicted_demand' => $this->query->orderByRaw("COALESCE(predicted_demand, 0) {$direction}"),
+                default            => $this->query->orderBy($sortField, $direction),
+            };
             $this->appliedFilters['sort_by'] = $sortField;
             $this->appliedFilters['sort_dir'] = $direction;
         }
@@ -399,7 +374,7 @@ class TicketFilteringService
     {
         $cacheKey = 'ticket_stats_' . md5(serialize($this->appliedFilters));
 
-        return Cache::remember($cacheKey, $this->cacheTimeMinutes, function () {
+        return Cache::remember($cacheKey, $this->cacheTimeMinutes, function (): array {
             $baseQuery = clone $this->query;
 
             $stats = [
@@ -421,7 +396,7 @@ class TicketFilteringService
                     MIN(COALESCE(min_price, max_price)) as min_price,
                     MAX(COALESCE(max_price, min_price)) as max_price
                 ')
-                ->where(function ($q) {
+                ->where(function ($q): void {
                     $q->whereNotNull('min_price')->orWhereNotNull('max_price');
                 })
                 ->first();
@@ -467,7 +442,7 @@ class TicketFilteringService
     {
         $cacheKey = 'search_suggestions_' . md5($term);
 
-        return Cache::remember($cacheKey, 60, function () use ($term, $limit) {
+        return Cache::remember($cacheKey, 60, function () use ($term, $limit): array {
             $suggestions = [];
 
             if (strlen($term) >= 2) {
@@ -481,7 +456,7 @@ class TicketFilteringService
                     ->limit($limit)
                     ->pluck('team')
                     ->filter()
-                    ->map(fn ($team) => ['type' => 'team', 'value' => $team])
+                    ->map(fn ($team): array => ['type' => 'team', 'value' => $team])
                     ->toArray();
 
                 // Venue suggestions
@@ -492,7 +467,7 @@ class TicketFilteringService
                     ->limit($limit)
                     ->pluck('venue')
                     ->filter()
-                    ->map(fn ($venue) => ['type' => 'venue', 'value' => $venue])
+                    ->map(fn ($venue): array => ['type' => 'venue', 'value' => $venue])
                     ->toArray();
 
                 // Sport suggestions
@@ -502,7 +477,7 @@ class TicketFilteringService
                     ->limit($limit)
                     ->pluck('sport')
                     ->filter()
-                    ->map(fn ($sport) => ['type' => 'sport', 'value' => ucfirst($sport)])
+                    ->map(fn ($sport): array => ['type' => 'sport', 'value' => ucfirst($sport)])
                     ->toArray();
 
                 $suggestions = array_merge($teams, $venues, $sports);
@@ -520,7 +495,7 @@ class TicketFilteringService
     {
         $cacheKey = 'ticket_facets_' . md5(serialize($this->appliedFilters));
 
-        return Cache::remember($cacheKey, $this->cacheTimeMinutes, function () {
+        return Cache::remember($cacheKey, $this->cacheTimeMinutes, function (): array {
             $baseQuery = clone $this->query;
 
             return [
@@ -529,7 +504,7 @@ class TicketFilteringService
                     ->groupBy('platform')
                     ->orderByDesc('count')
                     ->get()
-                    ->mapWithKeys(fn ($item) => [$item->platform => $item->count])
+                    ->mapWithKeys(fn ($item): array => [$item->platform => $item->count])
                     ->toArray(),
 
                 'sports' => (clone $baseQuery)
@@ -537,7 +512,7 @@ class TicketFilteringService
                     ->groupBy('sport')
                     ->orderByDesc('count')
                     ->get()
-                    ->mapWithKeys(fn ($item) => [$item->sport => $item->count])
+                    ->mapWithKeys(fn ($item): array => [$item->sport => $item->count])
                     ->toArray(),
 
                 'price_ranges' => [
@@ -571,24 +546,22 @@ class TicketFilteringService
             ->limit($limit)
             ->get();
 
-        return $tickets->map(function ($ticket) {
-            return [
-                'id'             => $ticket->id,
-                'title'          => $ticket->title,
-                'platform'       => $ticket->platform,
-                'sport'          => $ticket->sport,
-                'venue'          => $ticket->venue,
-                'location'       => $ticket->location,
-                'event_date'     => $ticket->event_date?->toDateTimeString(),
-                'min_price'      => $ticket->min_price,
-                'max_price'      => $ticket->max_price,
-                'currency'       => $ticket->currency,
-                'is_available'   => $ticket->is_available ? 'Yes' : 'No',
-                'is_high_demand' => $ticket->is_high_demand ? 'Yes' : 'No',
-                'scraped_at'     => $ticket->scraped_at?->toDateTimeString(),
-                'ticket_url'     => $ticket->ticket_url,
-            ];
-        });
+        return $tickets->map(fn ($ticket): array => [
+            'id'             => $ticket->id,
+            'title'          => $ticket->title,
+            'platform'       => $ticket->platform,
+            'sport'          => $ticket->sport,
+            'venue'          => $ticket->venue,
+            'location'       => $ticket->location,
+            'event_date'     => $ticket->event_date?->toDateTimeString(),
+            'min_price'      => $ticket->min_price,
+            'max_price'      => $ticket->max_price,
+            'currency'       => $ticket->currency,
+            'is_available'   => $ticket->is_available ? 'Yes' : 'No',
+            'is_high_demand' => $ticket->is_high_demand ? 'Yes' : 'No',
+            'scraped_at'     => $ticket->scraped_at?->toDateTimeString(),
+            'ticket_url'     => $ticket->ticket_url,
+        ]);
     }
 
     /**
@@ -597,5 +570,19 @@ class TicketFilteringService
     public function clearCache(): void
     {
         Cache::tags(['ticket_filters', 'ticket_stats'])->flush();
+    }
+
+    /**
+     * Apply default constraints (active tickets, future events)
+     */
+    protected function applyDefaultConstraints(): self
+    {
+        $this->query->where('status', 'active')
+            ->where(function ($q): void {
+                $q->whereNull('event_date')
+                    ->orWhere('event_date', '>', now());
+            });
+
+        return $this;
     }
 }

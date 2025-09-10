@@ -7,6 +7,7 @@ use App\Services\AutomatedPurchaseEngine;
 use App\Services\PurchaseAnalyticsService;
 use App\Services\PurchaseService;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class PurchaseServiceProvider extends ServiceProvider
 {
@@ -16,26 +17,19 @@ class PurchaseServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
-        $this->app->singleton(PurchaseAnalyticsService::class, function ($app) {
-            return new PurchaseAnalyticsService();
-        });
+        $this->app->singleton(PurchaseAnalyticsService::class, fn ($app): PurchaseAnalyticsService => new PurchaseAnalyticsService());
 
-        $this->app->singleton(AdvancedAnalyticsDashboard::class, function ($app) {
-            return new AdvancedAnalyticsDashboard();
-        });
+        $this->app->singleton(AdvancedAnalyticsDashboard::class, fn ($app): AdvancedAnalyticsDashboard => new AdvancedAnalyticsDashboard());
 
-        $this->app->singleton(AutomatedPurchaseEngine::class, function ($app) {
-            return new AutomatedPurchaseEngine(
-                $app->make(PurchaseAnalyticsService::class),
-                $app->make(AdvancedAnalyticsDashboard::class),
-            );
-        });
+        $this->app->singleton(AutomatedPurchaseEngine::class, fn ($app): AutomatedPurchaseEngine => new AutomatedPurchaseEngine(
+            $app->make(PurchaseAnalyticsService::class),
+            $app->make(AdvancedAnalyticsDashboard::class),
+        ));
 
-        $this->app->singleton(PurchaseService::class, function ($app) {
-            return new PurchaseService();
-        });
+        $this->app->singleton(PurchaseService::class, fn ($app): PurchaseService => new PurchaseService());
     }
 
     /**

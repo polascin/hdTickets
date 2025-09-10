@@ -4,7 +4,9 @@ namespace App\Http\Requests;
 
 use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
+use function in_array;
 use function is_string;
 
 class StoreTicketRequest extends FormRequest
@@ -45,6 +47,7 @@ class StoreTicketRequest extends FormRequest
     /**
      * Messages
      */
+    #[Override]
     public function messages(): array
     {
         return [
@@ -65,6 +68,7 @@ class StoreTicketRequest extends FormRequest
     /**
      * Attributes
      */
+    #[Override]
     public function attributes(): array
     {
         return [
@@ -89,7 +93,7 @@ class StoreTicketRequest extends FormRequest
                 $tags = array_map('trim', explode(',', $tags));
             }
             // Remove empty tags and duplicates
-            $tags = array_unique(array_filter($tags, fn ($tag) => !empty(trim($tag))));
+            $tags = array_unique(array_filter($tags, fn ($tag): bool => ! in_array(trim((string) $tag), ['', '0'], TRUE)));
             $this->merge(['tags' => array_values($tags)]);
         }
     }

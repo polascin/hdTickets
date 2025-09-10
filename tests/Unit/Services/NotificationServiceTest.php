@@ -2,12 +2,20 @@
 
 namespace Tests\Unit\Services;
 
+use App\Jobs\SendDelayedNotification;
+use App\Mail\BulkNotification;
+use App\Mail\PaymentFailure;
+use App\Mail\PurchaseConfirmation;
+use App\Mail\TemplatedNotification;
+use App\Mail\TicketAlert;
+use App\Mail\TicketNotification;
 use App\Services\NotificationService;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
+use Override;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -37,7 +45,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\TicketNotification::class);
+        Mail::assertQueued(TicketNotification::class);
     }
 
     /**
@@ -204,7 +212,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\TicketAlert::class);
+        Mail::assertQueued(TicketAlert::class);
     }
 
     /**
@@ -265,7 +273,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\BulkNotification::class, 3);
+        Mail::assertQueued(BulkNotification::class, 3);
     }
 
     /**
@@ -306,7 +314,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Queue::assertPushed(\App\Jobs\SendDelayedNotification::class);
+        Queue::assertPushed(SendDelayedNotification::class);
     }
 
     /**
@@ -314,7 +322,7 @@ class NotificationServiceTest extends TestCase
      */
     public function it_can_send_admin_notifications(): void
     {
-        $admins = collect([
+        collect([
             $this->createTestUser(['role' => 'admin', 'email' => 'admin1@example.com']),
             $this->createTestUser(['role' => 'admin', 'email' => 'admin2@example.com']),
         ]);
@@ -348,7 +356,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\PurchaseConfirmation::class);
+        Mail::assertQueued(PurchaseConfirmation::class);
     }
 
     /**
@@ -367,7 +375,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\PaymentFailure::class);
+        Mail::assertQueued(PaymentFailure::class);
     }
 
     /**
@@ -484,7 +492,7 @@ class NotificationServiceTest extends TestCase
         );
 
         $this->assertTrue($result);
-        Mail::assertQueued(\App\Mail\TemplatedNotification::class);
+        Mail::assertQueued(TemplatedNotification::class);
     }
 
     /**
@@ -509,12 +517,13 @@ class NotificationServiceTest extends TestCase
      * @param mixed $channel
      * @param mixed $isValid
      */
-    public function it_validates_notification_channels($channel, $isValid): void
+    public function it_validates_notification_channels(string $channel, bool $isValid): void
     {
         $result = $this->notificationService->isValidNotificationChannel($channel);
         $this->assertEquals($isValid, $result);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -537,6 +546,7 @@ class NotificationServiceTest extends TestCase
         Queue::fake();
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         Mockery::close();

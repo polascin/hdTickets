@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\TicketAvailabilityUpdated;
+use App\Http\Controllers\Api\App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
 use App\Services\ActivityLogger;
 use App\Services\AnalyticsService;
-use App\Services\Enhanced\AdvancedTicketCachingService;
 use App\Services\NotificationService;
 use App\Services\PlatformMonitoringService;
 use Carbon\Carbon;
@@ -30,7 +30,6 @@ class DashboardController extends Controller
         private PlatformMonitoringService $platformMonitoringService,
         private AnalyticsService $analytics,
         private NotificationService $notifications,
-        private AdvancedTicketCachingService $ticketCache,
     ) {
     }
 
@@ -47,7 +46,7 @@ class DashboardController extends Controller
 
             $cacheKey = 'dashboard_stats_' . now()->format('YmdH');
 
-            $stats = Cache::remember($cacheKey, 300, function () { // Cache for 5 minutes
+            $stats = Cache::remember($cacheKey, 300, function (): array { // Cache for 5 minutes
                 // Get enhanced stats for customer dashboard compatibility
                 $data = $this->getEnhancedDashboardStats();
 
@@ -161,7 +160,7 @@ class DashboardController extends Controller
         broadcast(new TicketAvailabilityUpdated("monitor-{$monitorId}", 'checking'));
 
         // Simulate finding tickets
-        $foundTickets = rand(0, 5);
+        $foundTickets = random_int(0, 5);
         if ($foundTickets > 0) {
             broadcast(new TicketAvailabilityUpdated("monitor-{$monitorId}", 'found'));
         } else {
@@ -211,18 +210,16 @@ class DashboardController extends Controller
         $platformStats = $this->platformMonitoringService->getAllPlatformStats(1); // Last hour
 
         return response()->json([
-            'data' => $platformStats->map(function ($stats) {
-                return [
-                    'platform'          => $stats['platform'],
-                    'success_rate'      => $stats['success_rate'],
-                    'avg_response_time' => $stats['avg_response_time'],
-                    'availability'      => $stats['availability'],
-                    'status'            => $this->determinePlatformStatus($stats),
-                    'last_success'      => $stats['last_success'],
-                    'total_requests'    => $stats['total_requests'],
-                    'failed_requests'   => $stats['failed_requests'],
-                ];
-            }),
+            'data' => $platformStats->map(fn ($stats): array => [
+                'platform'          => $stats['platform'],
+                'success_rate'      => $stats['success_rate'],
+                'avg_response_time' => $stats['avg_response_time'],
+                'availability'      => $stats['availability'],
+                'status'            => $this->determinePlatformStatus($stats),
+                'last_success'      => $stats['last_success'],
+                'total_requests'    => $stats['total_requests'],
+                'failed_requests'   => $stats['failed_requests'],
+            ]),
         ]);
     }
 
@@ -246,22 +243,20 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => TRUE,
-                'data'    => $tickets->map(function ($ticket) {
-                    return [
-                        'uuid'               => $ticket->uuid,
-                        'platform'           => $ticket->platform_display_name ?? 'Unknown',
-                        'event_title'        => $ticket->event_title,
-                        'venue'              => $ticket->venue,
-                        'event_date'         => $ticket->event_date?->toISOString(),
-                        'price'              => $ticket->formatted_price ?? '$' . number_format((float) $ticket->price, 2),
-                        'section'            => $ticket->section,
-                        'row'                => $ticket->row,
-                        'quantity_available' => $ticket->quantity_available,
-                        'demand_score'       => $ticket->demand_score ?? 0,
-                        'is_recent'          => $ticket->is_recent ?? FALSE,
-                        'scraped_at'         => $ticket->scraped_at->toISOString(),
-                    ];
-                }),
+                'data'    => $tickets->map(fn ($ticket): array => [
+                    'uuid'               => $ticket->uuid,
+                    'platform'           => $ticket->platform_display_name ?? 'Unknown',
+                    'event_title'        => $ticket->event_title,
+                    'venue'              => $ticket->venue,
+                    'event_date'         => $ticket->event_date?->toISOString(),
+                    'price'              => $ticket->formatted_price ?? '$' . number_format((float) $ticket->price, 2),
+                    'section'            => $ticket->section,
+                    'row'                => $ticket->row,
+                    'quantity_available' => $ticket->quantity_available,
+                    'demand_score'       => $ticket->demand_score ?? 0,
+                    'is_recent'          => $ticket->is_recent ?? FALSE,
+                    'scraped_at'         => $ticket->scraped_at->toISOString(),
+                ]),
             ]);
         } catch (Exception $e) {
             Log::error('Error retrieving high demand tickets', [
@@ -292,7 +287,7 @@ class DashboardController extends Controller
             $timeframe = $request->get('timeframe', '7d');
             $cacheKey = "dashboard_analytics_{$timeframe}";
 
-            $data = Cache::remember($cacheKey, 900, function () use ($timeframe) {
+            $data = Cache::remember($cacheKey, 900, function () use ($timeframe): array {
                 $days = $this->getTimeframeDays($timeframe);
 
                 return [
@@ -300,7 +295,7 @@ class DashboardController extends Controller
                     'platform_performance' => $this->getPlatformPerformanceData($days),
                     'price_trends'         => [], // Skip price trends due to missing price column
                     'success_metrics'      => $this->getSuccessMetrics($days),
-                    'user_activity'        => $this->getUserActivityData($days),
+                    'user_activity'        => $this->getUserActivityData(),
                 ];
             });
 
@@ -360,14 +355,14 @@ class DashboardController extends Controller
         $timeframe = $request->get('timeframe', '24h');
         $cacheKey = "performance_metrics_{$timeframe}";
 
-        $data = Cache::remember($cacheKey, 300, function () use ($timeframe) {
+        $data = Cache::remember($cacheKey, 300, function () use ($timeframe): array {
             $hours = $this->getTimeframeHours($timeframe);
 
             return [
                 'response_times' => $this->getResponseTimeMetrics($hours),
                 'throughput'     => $this->getThroughputMetrics($hours),
                 'error_rates'    => $this->getErrorRateMetrics($hours),
-                'resource_usage' => $this->getResourceUsageMetrics($hours),
+                'resource_usage' => $this->getResourceUsageMetrics(),
             ];
         });
 
@@ -388,7 +383,7 @@ class DashboardController extends Controller
         $timeframe = $request->get('timeframe', '7d');
         $cacheKey = "success_rates_{$timeframe}";
 
-        $data = Cache::remember($cacheKey, 600, function () use ($timeframe) {
+        $data = Cache::remember($cacheKey, 600, function () use ($timeframe): array {
             $days = $this->getTimeframeDays($timeframe);
 
             return [
@@ -443,30 +438,13 @@ class DashboardController extends Controller
                 ];
 
                 // Log based on error type and severity
-                switch ($errorType) {
-                    case 'javascript_error':
-                    case 'unhandled_promise_rejection':
-                        $activityLogger->logJavaScriptEvent('error', $context);
-
-                        break;
-                    case 'console_error':
-                    case 'console_warn':
-                        $activityLogger->logJavaScriptEvent($errorType, $context);
-
-                        break;
-                    case 'performance_issue':
-                    case 'long_task':
-                    case 'slow_operation':
-                        Log::channel('performance')->warning('Frontend Performance Issue', $context);
-
-                        break;
-                    case 'page_performance':
-                        Log::channel('performance')->info('Page Performance Metrics', $context);
-
-                        break;
-                    default:
-                        $activityLogger->logJavaScriptEvent('custom_event', $context);
-                }
+                match ($errorType) {
+                    'javascript_error', 'unhandled_promise_rejection' => $activityLogger->logJavaScriptEvent('error', $context),
+                    'console_error', 'console_warn' => $activityLogger->logJavaScriptEvent($errorType, $context),
+                    'performance_issue', 'long_task', 'slow_operation' => Log::channel('performance')->warning('Frontend Performance Issue', $context),
+                    'page_performance' => Log::channel('performance')->info('Page Performance Metrics', $context),
+                    default            => $activityLogger->logJavaScriptEvent('custom_event', $context),
+                };
 
                 // Log critical errors with admin notification
                 if ($errorLevel === 'critical') {
@@ -567,7 +545,7 @@ class DashboardController extends Controller
     {
         try {
             $userId = $request->user()->id ?? NULL;
-            if (!$userId) {
+            if (! $userId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Authentication required',
@@ -613,14 +591,14 @@ class DashboardController extends Controller
             $userId = $request->user()->id ?? NULL;
             $notificationId = $request->get('notification_id');
 
-            if (!$userId) {
+            if (! $userId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Authentication required',
                 ], 401);
             }
 
-            if (!$notificationId) {
+            if (! $notificationId) {
                 return response()->json([
                     'success' => FALSE,
                     'error'   => 'Notification ID required',
@@ -683,26 +661,24 @@ class DashboardController extends Controller
     public function liveMetrics(): JsonResponse
     {
         try {
-            $metrics = Cache::remember('dashboard:live_metrics', 10, function () {
-                return [
-                    'timestamp'    => Carbon::now()->toISOString(),
-                    'active_users' => $this->getActiveUsersCount(),
-                    'tickets'      => [
-                        'total_available' => $this->getTotalAvailableTickets(),
-                        'high_demand'     => count($this->getHighDemandTickets()),
-                        'recent_sales'    => $this->getRecentSales(),
-                    ],
-                    'performance' => [
-                        'response_time'  => $this->getAverageResponseTime(),
-                        'cache_hit_rate' => $this->getCacheHitRate(),
-                        'error_rate'     => $this->getErrorRate(),
-                    ],
-                    'alerts' => [
-                        'active_count' => $this->getActiveAlertsCount(),
-                        'recent'       => $this->getRecentAlerts(5),
-                    ],
-                ];
-            });
+            $metrics = Cache::remember('dashboard:live_metrics', 10, fn (): array => [
+                'timestamp'    => Carbon::now()->toISOString(),
+                'active_users' => $this->getActiveUsersCount(),
+                'tickets'      => [
+                    'total_available' => $this->getTotalAvailableTickets(),
+                    'high_demand'     => count($this->getHighDemandTickets()),
+                    'recent_sales'    => $this->getRecentSales(),
+                ],
+                'performance' => [
+                    'response_time'  => $this->getAverageResponseTime(),
+                    'cache_hit_rate' => $this->getCacheHitRate(),
+                    'error_rate'     => $this->getErrorRate(),
+                ],
+                'alerts' => [
+                    'active_count' => $this->getActiveAlertsCount(),
+                    'recent'       => $this->getRecentAlerts(),
+                ],
+            ]);
 
             return response()->json([
                 'success' => TRUE,
@@ -789,14 +765,12 @@ class DashboardController extends Controller
     {
         try {
             return $this->platformMonitoringService->getAllPlatformStats(24)
-                ->map(function ($stats) {
-                    return [
-                        'platform'       => $stats['platform'],
-                        'success_rate'   => $stats['success_rate'],
-                        'total_requests' => $stats['total_requests'],
-                        'status'         => $this->determinePlatformStatus($stats),
-                    ];
-                })
+                ->map(fn ($stats): array => [
+                    'platform'       => $stats['platform'],
+                    'success_rate'   => $stats['success_rate'],
+                    'total_requests' => $stats['total_requests'],
+                    'status'         => $this->determinePlatformStatus($stats),
+                ])
                 ->toArray();
         } catch (Exception $e) {
             Log::error('Error getting platform stats', ['error' => $e->getMessage()]);
@@ -817,13 +791,11 @@ class DashboardController extends Controller
                 ->orderBy('event_date')
                 ->limit(5)
                 ->get()
-                ->map(function ($ticket) {
-                    return [
-                        'event_title' => $ticket->event_title,
-                        'venue'       => $ticket->venue,
-                        'event_date'  => $ticket->event_date?->toISOString(),
-                    ];
-                })
+                ->map(fn ($ticket): array => [
+                    'event_title' => $ticket->event_title,
+                    'venue'       => $ticket->venue,
+                    'event_date'  => $ticket->event_date?->toISOString(),
+                ])
                 ->toArray();
         } catch (Exception $e) {
             Log::error('Error getting high demand events', ['error' => $e->getMessage()]);
@@ -841,14 +813,12 @@ class DashboardController extends Controller
             return ScrapedTicket::orderBy('scraped_at', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(function ($ticket) {
-                    return [
-                        'platform'    => $ticket->platform_display_name,
-                        'event_title' => $ticket->event_title,
-                        'status'      => $ticket->availability_status,
-                        'scraped_at'  => $ticket->scraped_at->toISOString(),
-                    ];
-                })
+                ->map(fn ($ticket): array => [
+                    'platform'    => $ticket->platform_display_name,
+                    'event_title' => $ticket->event_title,
+                    'status'      => $ticket->availability_status,
+                    'scraped_at'  => $ticket->scraped_at->toISOString(),
+                ])
                 ->toArray();
         } catch (Exception $e) {
             Log::error('Error getting recent updates', ['error' => $e->getMessage()]);
@@ -915,7 +885,7 @@ class DashboardController extends Controller
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get()
-                ->map(fn ($item) => [
+                ->map(fn ($item): array => [
                     'date'  => $item->date,
                     'count' => (int) $item->count,
                 ])
@@ -925,7 +895,7 @@ class DashboardController extends Controller
                 ->groupBy('hour')
                 ->orderBy('hour')
                 ->get()
-                ->map(fn ($item) => [
+                ->map(fn ($item): array => [
                     'hour'  => (int) $item->hour,
                     'count' => (int) $item->count,
                 ])
@@ -939,15 +909,13 @@ class DashboardController extends Controller
     private function getPlatformPerformanceData(int $days): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($days * 24)
-            ->map(function ($stats) {
-                return [
-                    'platform'          => $stats['platform'],
-                    'success_rate'      => $stats['success_rate'],
-                    'avg_response_time' => $stats['avg_response_time'],
-                    'total_requests'    => $stats['total_requests'],
-                    'status'            => $this->determinePlatformStatus($stats),
-                ];
-            })
+            ->map(fn ($stats): array => [
+                'platform'          => $stats['platform'],
+                'success_rate'      => $stats['success_rate'],
+                'avg_response_time' => $stats['avg_response_time'],
+                'total_requests'    => $stats['total_requests'],
+                'status'            => $this->determinePlatformStatus($stats),
+            ])
             ->toArray();
     }
 
@@ -964,7 +932,7 @@ class DashboardController extends Controller
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get()
-                ->map(fn ($item) => [
+                ->map(fn ($item): array => [
                     'date'      => $item->date,
                     'avg_price' => round($item->avg_price, 2),
                 ])
@@ -974,7 +942,7 @@ class DashboardController extends Controller
                 ->selectRaw('AVG((min_price + max_price) / 2) as avg_price, MIN(min_price) as min_price, MAX(max_price) as max_price')
                 ->groupBy('platform')
                 ->get()
-                ->map(fn ($item) => [
+                ->map(fn ($item): array => [
                     'platform'  => $item->platform,
                     'avg_price' => round($item->avg_price, 2),
                     'min_price' => round($item->min_price, 2),
@@ -992,14 +960,14 @@ class DashboardController extends Controller
         return [
             'scraping_success_rate' => $this->getOverallSuccessRate(),
             'ticket_discovery_rate' => $this->getTicketDiscoveryRate($days),
-            'alert_accuracy'        => $this->getAlertAccuracy($days),
+            'alert_accuracy'        => $this->getAlertAccuracy(),
         ];
     }
 
     /**
      * Get  user activity data
      */
-    private function getUserActivityData(int $days): array
+    private function getUserActivityData(): array
     {
         // Mock data - would integrate with actual user activity tracking
         return [
@@ -1033,7 +1001,7 @@ class DashboardController extends Controller
     private function getCurrentPlatformStatuses(): array
     {
         return $this->platformMonitoringService->getAllPlatformStats(1)
-            ->map(fn ($stats) => [
+            ->map(fn ($stats): array => [
                 'platform'   => $stats['platform'],
                 'status'     => $this->determinePlatformStatus($stats),
                 'last_check' => $stats['last_success'],
@@ -1082,7 +1050,7 @@ class DashboardController extends Controller
     private function getResponseTimeMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
-            ->map(fn ($stats) => [
+            ->map(fn ($stats): array => [
                 'platform'          => $stats['platform'],
                 'avg_response_time' => $stats['avg_response_time'],
                 'min_response_time' => $stats['min_response_time'] ?? 0,
@@ -1097,7 +1065,7 @@ class DashboardController extends Controller
     private function getThroughputMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
-            ->map(fn ($stats) => [
+            ->map(fn ($stats): array => [
                 'platform'                     => $stats['platform'],
                 'requests_per_hour'            => round($stats['total_requests'] / $hours, 2),
                 'successful_requests_per_hour' => round($stats['successful_requests'] / $hours, 2),
@@ -1111,7 +1079,7 @@ class DashboardController extends Controller
     private function getErrorRateMetrics(int $hours): array
     {
         return $this->platformMonitoringService->getAllPlatformStats($hours)
-            ->map(fn ($stats) => [
+            ->map(fn ($stats): array => [
                 'platform'     => $stats['platform'],
                 'error_rate'   => round((1 - $stats['success_rate'] / 100) * 100, 2),
                 'total_errors' => $stats['failed_requests'],
@@ -1122,7 +1090,7 @@ class DashboardController extends Controller
     /**
      * Get  resource usage metrics
      */
-    private function getResourceUsageMetrics(int $hours): array
+    private function getResourceUsageMetrics(): array
     {
         // Mock data - would integrate with system monitoring
         return [
@@ -1145,7 +1113,7 @@ class DashboardController extends Controller
             ->groupBy('hour')
             ->orderBy('hour')
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn ($item): array => [
                 'hour'               => (int) $item->hour,
                 'successful_scrapes' => (int) $item->successful_scrapes,
             ])
@@ -1166,7 +1134,7 @@ class DashboardController extends Controller
     /**
      * Get  alert accuracy
      */
-    private function getAlertAccuracy(int $days): float
+    private function getAlertAccuracy(): float
     {
         // Mock calculation - would track alert accuracy
         return 92.5;
@@ -1190,9 +1158,7 @@ class DashboardController extends Controller
      */
     private function getTotalAvailableTickets(): int
     {
-        return (int) Cache::remember('dashboard:total_tickets', 300, function () {
-            return ScrapedTicket::where('availability_status', 'available')->count();
-        });
+        return (int) Cache::remember('dashboard:total_tickets', 300, fn () => ScrapedTicket::where('availability_status', 'available')->count());
     }
 
     /**
@@ -1200,17 +1166,15 @@ class DashboardController extends Controller
      */
     private function getRecentTicketUpdates(): array
     {
-        return Cache::remember('dashboard:recent_ticket_updates', 60, function () {
-            return ScrapedTicket::orderBy('scraped_at', 'desc')
-                ->limit(20)
-                ->get([
-                    'event_title',
-                    'platform',
-                    'availability_status',
-                    'scraped_at',
-                ])
-                ->toArray();
-        });
+        return Cache::remember('dashboard:recent_ticket_updates', 60, fn () => ScrapedTicket::orderBy('scraped_at', 'desc')
+            ->limit(20)
+            ->get([
+                'event_title',
+                'platform',
+                'availability_status',
+                'scraped_at',
+            ])
+            ->toArray());
     }
 
     /**
@@ -1218,7 +1182,7 @@ class DashboardController extends Controller
      */
     private function getNotificationData(?int $userId): array
     {
-        if (!$userId) {
+        if (! $userId) {
             return [
                 'unread_count' => 0,
                 'recent'       => [],
@@ -1254,9 +1218,9 @@ class DashboardController extends Controller
     /**
      * Get  user metrics
      */
-    private function getUserMetrics(App\Models\User $user): array
+    private function getUserMetrics(User $user): array
     {
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 
@@ -1313,7 +1277,7 @@ class DashboardController extends Controller
             DB::connection()->getPdo();
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -1327,7 +1291,7 @@ class DashboardController extends Controller
             Redis::ping();
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -1432,10 +1396,8 @@ class DashboardController extends Controller
      */
     private function getRecentSales(): int
     {
-        return (int) Cache::remember('dashboard:recent_sales', 60, function () {
-            // Mock data - would integrate with actual sales tracking
-            return rand(10, 50);
-        });
+        return (int) Cache::remember('dashboard:recent_sales', 60, fn (): int => // Mock data - would integrate with actual sales tracking
+            random_int(10, 50));
     }
 
     /**
@@ -1443,10 +1405,8 @@ class DashboardController extends Controller
      */
     private function getActiveAlertsCount(): int
     {
-        return (int) Cache::remember('dashboard:active_alerts', 60, function () {
-            // Mock data - would check actual alerts
-            return rand(5, 15);
-        });
+        return (int) Cache::remember('dashboard:active_alerts', 60, fn (): int => // Mock data - would check actual alerts
+            random_int(5, 15));
     }
 
     /**

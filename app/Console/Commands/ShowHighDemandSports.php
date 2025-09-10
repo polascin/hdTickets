@@ -103,9 +103,7 @@ class ShowHighDemandSports extends Command
             ],
         ];
 
-        $filteredEvents = array_filter($highDemandEvents, function ($event) use ($maxPrice) {
-            return $event['min_price'] <= $maxPrice;
-        });
+        $filteredEvents = array_filter($highDemandEvents, fn (array $event): bool => $event['min_price'] <= $maxPrice);
 
         $filteredEvents = array_slice($filteredEvents, 0, $limit ?: 20);
 
@@ -140,7 +138,7 @@ class ShowHighDemandSports extends Command
             ['Platforms Searched', count($platforms)],
             ['Average Min Price', '$' . number_format(array_sum(array_column($filteredEvents, 'min_price')) / count($filteredEvents))],
             ['Average Max Price', '$' . number_format(array_sum(array_column($filteredEvents, 'max_price')) / count($filteredEvents))],
-            ['High Demand Events', count(array_filter($filteredEvents, fn ($e) => in_array($e['demand_level'], ['HIGH', 'VERY HIGH', 'EXTREMELY HIGH', 'MAXIMUM'], TRUE)))],
+            ['High Demand Events', count(array_filter($filteredEvents, fn (array $e): bool => in_array($e['demand_level'], ['HIGH', 'VERY HIGH', 'EXTREMELY HIGH', 'MAXIMUM'], TRUE)))],
             ['Search Time', '~2.3 seconds'],
             ['Cache Status', 'Fresh data (15min cache)'],
         ]);

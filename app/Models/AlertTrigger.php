@@ -20,13 +20,6 @@ class AlertTrigger extends Model
         'user_acknowledged',
     ];
 
-    protected $casts = [
-        'triggered_at'      => 'datetime',
-        'match_score'       => 'decimal:2',
-        'notification_sent' => 'boolean',
-        'user_acknowledged' => 'boolean',
-    ];
-
     // Relationships
     public function ticketAlert(): BelongsTo
     {
@@ -36,5 +29,15 @@ class AlertTrigger extends Model
     public function scrapedTicket(): BelongsTo
     {
         return $this->belongsTo(ScrapedTicket::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'triggered_at'      => 'datetime',
+            'match_score'       => 'decimal:2',
+            'notification_sent' => 'boolean',
+            'user_acknowledged' => 'boolean',
+        ];
     }
 }

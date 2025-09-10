@@ -16,8 +16,6 @@ use function count;
 
 class RealTimeMonitoringService
 {
-    protected $scraperManager;
-
     protected $monitoringActive = FALSE;
 
     protected $monitoringInterval = 30; // seconds
@@ -26,9 +24,8 @@ class RealTimeMonitoringService
 
     protected $alertThresholds = [];
 
-    public function __construct(PluginBasedScraperManager $scraperManager)
+    public function __construct(protected PluginBasedScraperManager $scraperManager)
     {
-        $this->scraperManager = $scraperManager;
         $this->loadConfiguration();
     }
 
@@ -93,7 +90,7 @@ class RealTimeMonitoringService
     {
         $ticket = Ticket::find($ticketId);
 
-        if (!$ticket) {
+        if (! $ticket) {
             throw new Exception("Ticket {$ticketId} not found");
         }
 
@@ -272,7 +269,7 @@ class RealTimeMonitoringService
             try {
                 $ticket = Ticket::find($ticketId);
 
-                if (!$ticket) {
+                if (! $ticket) {
                     $this->removeFromWatchList($ticketId);
 
                     continue;
@@ -280,7 +277,7 @@ class RealTimeMonitoringService
 
                 $changes = $this->checkTicketChanges($ticket, $watchData);
 
-                if (!empty($changes)) {
+                if ($changes !== []) {
                     $this->processTicketChanges($ticket, $changes);
                     $updatedTickets++;
                     $alerts += count($changes);
@@ -325,7 +322,7 @@ class RealTimeMonitoringService
             // Get fresh ticket data from scraping
             $freshData = $this->getFreshTicketData($ticket);
 
-            if (empty($freshData)) {
+            if ($freshData === []) {
                 return [];
             }
 
@@ -388,7 +385,7 @@ class RealTimeMonitoringService
         $source = $ticket->metadata['source'] ?? NULL;
         $url = $ticket->metadata['url'] ?? NULL;
 
-        if (!$source || !$url) {
+        if (! $source || ! $url) {
             return [];
         }
 
@@ -396,7 +393,7 @@ class RealTimeMonitoringService
             // Use appropriate scraper plugin
             $plugin = $this->scraperManager->getPlugin($source);
 
-            if (!$plugin) {
+            if (! $plugin) {
                 return [];
             }
 
@@ -406,7 +403,7 @@ class RealTimeMonitoringService
                 'max_results' => 1,
             ]);
 
-            return !empty($results) ? $results[0] : [];
+            return empty($results) ? [] : $results[0];
         } catch (Exception $e) {
             Log::debug("Failed to get fresh data for ticket {$ticket->id}", [
                 'error' => $e->getMessage(),
@@ -492,14 +489,11 @@ class RealTimeMonitoringService
         $changeType = $change['type'];
 
         // Check if user wants notifications for this type of change
-        switch ($changeType) {
-            case 'availability':
-                return $preferences['availability_changes'] ?? TRUE;
-            case 'price':
-                return $preferences['price_changes'] ?? TRUE;
-            default:
-                return $preferences['all_changes'] ?? TRUE;
-        }
+        return match ($changeType) {
+            'availability' => $preferences['availability_changes'] ?? TRUE,
+            'price'        => $preferences['price_changes'] ?? TRUE,
+            default        => $preferences['all_changes'] ?? TRUE,
+        };
     }
 
     /**
@@ -601,7 +595,7 @@ class RealTimeMonitoringService
         $errorRate = $this->calculateErrorRate();
 
         $status = 'healthy';
-        if (!$isActive) {
+        if (! $isActive) {
             $status = 'inactive';
         } elseif ($errorRate > 20) {
             $status = 'critical';

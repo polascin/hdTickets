@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\ActivityLogger;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class ActivityLoggerServiceProvider extends ServiceProvider
 {
@@ -13,12 +14,11 @@ class ActivityLoggerServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         // Bind the ActivityLogger service as a singleton
-        $this->app->singleton(ActivityLogger::class, function ($app) {
-            return new ActivityLogger();
-        });
+        $this->app->singleton(ActivityLogger::class, fn ($app): ActivityLogger => new ActivityLogger());
 
         // Bind 'log.activity' to the ActivityLogger class
         $this->app->bind('log.activity', ActivityLogger::class);
@@ -40,6 +40,7 @@ class ActivityLoggerServiceProvider extends ServiceProvider
     /**
      * Provides
      */
+    #[Override]
     public function provides(): array
     {
         return [

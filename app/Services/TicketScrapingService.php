@@ -5,10 +5,13 @@ namespace App\Services;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
+use App\Notifications\HighValueTicketAlert;
 use App\Services\TicketApis\StubHubClient;
 use App\Services\TicketApis\TicketmasterClient;
 use App\Services\TicketApis\ViagogoClient;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -17,8 +20,11 @@ use function count;
 
 class TicketScrapingService
 {
+    /** @var UserRotationService */
+    public $userRotation;
+
     /** @var array<string, mixed> */
-    protected $platforms;
+    protected array $platforms;
 
     /** @var array<string> */
     protected $manchesterUnitedKeywords = [
@@ -124,7 +130,7 @@ class TicketScrapingService
     /**
      * Get trending Manchester United tickets
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int,ScrapedTicket>
+     * @return Collection<int, ScrapedTicket>
      */
     public function getTrendingManchesterUnitedTickets(int $limit = 20)
     {
@@ -147,7 +153,7 @@ class TicketScrapingService
      * @param mixed $sport
      * @param int   $limit
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int,ScrapedTicket>
+     * @return Collection<int, ScrapedTicket>
      */
     public function getBestSportsDeals($sport = 'football', $limit = 50)
     {
@@ -189,13 +195,13 @@ class TicketScrapingService
                     }
                 }
 
-                if (!empty($foundTickets)) {
+                if ($foundTickets !== []) {
                     $alert->incrementMatches();
                     $this->sendAlertNotification($alert, $foundTickets);
                 }
 
                 $alertsChecked++;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Alert check error for alert {$alert->id}: " . $e->getMessage());
             }
         }
@@ -236,7 +242,7 @@ class TicketScrapingService
                 $results[$platform] = $tickets;
 
                 Log::info("Completed scrape for {$platform}", ['count' => count($tickets)]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error("Error scraping {$platform}: " . $e->getMessage(), [
                     'platform'  => $platform,
                     'keywords'  => $keywords,
@@ -268,7 +274,7 @@ class TicketScrapingService
     public function attemptAutoPurchase($ticketId, $userId, $maxPrice): array
     {
         $ticket = ScrapedTicket::findOrFail($ticketId);
-        $user = User::findOrFail($userId);
+        User::findOrFail($userId);
 
         // Validate purchase criteria
         if ($ticket->min_price > $maxPrice) {
@@ -278,7 +284,7 @@ class TicketScrapingService
             ];
         }
 
-        if (!$ticket->is_available || !$ticket->ticket_url) {
+        if (! $ticket->is_available || ! $ticket->ticket_url) {
             return [
                 'success' => FALSE,
                 'message' => 'Ticket no longer available',
@@ -379,7 +385,7 @@ class TicketScrapingService
 
                 return [];
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('StubHub search error: ' . $e->getMessage());
 
             return [];
@@ -400,7 +406,7 @@ class TicketScrapingService
     protected function searchTicketmaster(string $keyword, array $filters = [])
     {
         try {
-            if (!$this->platforms['ticketmaster']['api_key']) {
+            if (! $this->platforms['ticketmaster']['api_key']) {
                 Log::warning('Ticketmaster API key not configured');
 
                 return [];
@@ -431,7 +437,7 @@ class TicketScrapingService
 
                 return [];
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Ticketmaster search error: ' . $e->getMessage());
 
             return [];
@@ -466,7 +472,7 @@ class TicketScrapingService
                 // Simulated results for demo - replace with actual API call
                 return $this->generateMockViagogo($keyword, $filters);
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Viagogo search error: ' . $e->getMessage());
 
             return [];
@@ -481,7 +487,7 @@ class TicketScrapingService
     /**
      * @return array<int,array<string,mixed>>
      */
-    protected function parseStubHubResults(mixed $data, string $keyword)
+    protected function parseStubHubResults(mixed $data, string $keyword): array
     {
         $tickets = [];
 
@@ -518,7 +524,7 @@ class TicketScrapingService
     /**
      * @return array<int,array<string,mixed>>
      */
-    protected function parseTicketmasterResults(mixed $data, string $keyword)
+    protected function parseTicketmasterResults(mixed $data, string $keyword): array
     {
         $tickets = [];
 
@@ -538,7 +544,7 @@ class TicketScrapingService
                     'max_price'      => $priceRange['max'] ?? NULL,
                     'currency'       => $priceRange['currency'] ?? 'USD',
                     'availability'   => $event['pleaseNote'] ?? 'Available',
-                    'is_high_demand' => isset($event['promoter']['name']) && str_contains($event['promoter']['name'], 'Official'),
+                    'is_high_demand' => isset($event['promoter']['name']) && str_contains((string) $event['promoter']['name'], 'Official'),
                     'ticket_url'     => $event['url'] ?? NULL,
                     'scraped_at'     => now(),
                     'search_keyword' => $keyword,
@@ -563,9 +569,9 @@ class TicketScrapingService
      *
      * @return array<int,array<string,mixed>>
      */
-    protected function generateMockViagogo(string $keyword, array $filters)
+    protected function generateMockViagogo(string $keyword, array $filters): array
     {
-        if (!str_contains(strtolower($keyword), 'manchester')) {
+        if (! str_contains(strtolower($keyword), 'manchester')) {
             return [];
         }
 
@@ -576,11 +582,11 @@ class TicketScrapingService
                 'title'          => 'Manchester United vs Liverpool',
                 'venue'          => 'Old Trafford',
                 'location'       => 'Manchester, UK',
-                'event_date'     => Carbon::now()->addDays(rand(7, 60)),
-                'min_price'      => rand(80, 150),
-                'max_price'      => rand(300, 800),
+                'event_date'     => Carbon::now()->addDays(random_int(7, 60)),
+                'min_price'      => random_int(80, 150),
+                'max_price'      => random_int(300, 800),
                 'currency'       => 'GBP',
-                'availability'   => rand(10, 100),
+                'availability'   => random_int(10, 100),
                 'is_high_demand' => TRUE,
                 'ticket_url'     => 'https://viagogo.com/sports-tickets/football/manchester-united',
                 'scraped_at'     => now(),
@@ -635,7 +641,7 @@ class TicketScrapingService
                     $highDemandCount++;
                     $this->triggerHighDemandAlert($ticketData);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Error saving scraped ticket: ' . $e->getMessage(), $ticketData);
             }
         }
@@ -665,7 +671,7 @@ class TicketScrapingService
      *
      * @param mixed $ticketData
      */
-    protected function triggerHighDemandAlert($ticketData): void
+    protected function triggerHighDemandAlert(array $ticketData): void
     {
         // Find users with alerts for this type of event
         $alerts = TicketAlert::where('status', 'active')
@@ -697,11 +703,11 @@ class TicketScrapingService
      *
      * @param mixed $ticketData
      */
-    protected function sendTicketAlert(User $user, $ticketData): void
+    protected function sendTicketAlert(User $user, array $ticketData): void
     {
         // Implementation for sending alerts (email, push notification, etc.)
         try {
-            $user->notify(new \App\Notifications\HighValueTicketAlert(
+            $user->notify(new HighValueTicketAlert(
                 new ScrapedTicket($ticketData),
                 new TicketAlert(['name' => 'Custom Alert']),
                 100,
@@ -722,7 +728,7 @@ class TicketScrapingService
      *
      * @return array<string, mixed>|null
      */
-    private function getConfig($platform)
+    private function getConfig(string $platform)
     {
         return config("ticket_apis.{$platform}");
     }
@@ -741,13 +747,11 @@ class TicketScrapingService
     {
         $cacheKey = "tickets:{$platform}:" . md5($keywords . serialize($options));
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($platform, $keywords, $options) {
-            return match ($platform) {
-                'stubhub'      => $this->searchStubHub($keywords, $options),
-                'ticketmaster' => $this->searchTicketmaster($keywords, $options),
-                'viagogo'      => $this->searchViagogo($keywords, $options),
-                default        => [],
-            };
+        return Cache::remember($cacheKey, now()->addMinutes(15), fn () => match ($platform) {
+            'stubhub'      => $this->searchStubHub($keywords, $options),
+            'ticketmaster' => $this->searchTicketmaster($keywords, $options),
+            'viagogo'      => $this->searchViagogo($keywords, $options),
+            default        => [],
         });
     }
 
@@ -771,7 +775,7 @@ class TicketScrapingService
                 $matchScore = $this->calculateMatchScore($alert, $ticketData);
 
                 // Send the high-value ticket alert notification
-                $alert->user->notify(new \App\Notifications\HighValueTicketAlert(
+                $alert->user->notify(new HighValueTicketAlert(
                     $scrapedTicket,
                     $alert,
                     $matchScore,
@@ -791,7 +795,7 @@ class TicketScrapingService
                 'alert_name'    => $alert->name,
                 'tickets_found' => count($tickets),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send alert notifications', [
                 'alert_id'      => $alert->id,
                 'user_id'       => $alert->user_id,

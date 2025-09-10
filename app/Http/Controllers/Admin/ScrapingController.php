@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Illuminate\Contracts\View\View;
+use App\Http\Controllers\Admin\Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapingStats;
 use App\Models\User;
@@ -13,13 +15,10 @@ use Illuminate\Support\Facades\DB;
 
 class ScrapingController extends Controller
 {
-    protected $userRotationService;
-
-    public function __construct(UserRotationService $userRotationService)
+    public function __construct(protected UserRotationService $userRotationService)
     {
         $this->middleware('auth');
         $this->middleware('admin:access_scraping');
-        $this->userRotationService = $userRotationService;
     }
 
     /**
@@ -28,7 +27,7 @@ class ScrapingController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $stats = $this->getScrapingStats();
         $platforms = $this->getPlatformStats();
@@ -36,13 +35,7 @@ class ScrapingController extends Controller
         $userRotationStats = $this->userRotationService->getRotationStatistics();
         $advancedStats = $this->getAdvancedStats();
 
-        return view('admin.scraping.index', compact(
-            'stats',
-            'platforms',
-            'recentOperations',
-            'userRotationStats',
-            'advancedStats',
-        ));
+        return view('admin.scraping.index', ['stats' => $stats, 'platforms' => $platforms, 'recentOperations' => $recentOperations, 'userRotationStats' => $userRotationStats, 'advancedStats' => $advancedStats]);
     }
 
     /**
@@ -51,7 +44,7 @@ class ScrapingController extends Controller
     /**
      * Get  stats
      */
-    public function getStats(): Illuminate\Http\JsonResponse
+    public function getStats(): JsonResponse
     {
         return response()->json($this->getScrapingStats());
     }
@@ -111,21 +104,19 @@ class ScrapingController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
-            ->map(function ($stat) {
-                return [
-                    'id'             => $stat->id,
-                    'platform'       => $stat->platform,
-                    'operation'      => $stat->operation,
-                    'status'         => $stat->status,
-                    'response_time'  => $stat->response_time_ms,
-                    'results_count'  => $stat->results_count,
-                    'user_agent'     => $stat->user_agent ? substr($stat->user_agent, 0, 50) . '...' : NULL,
-                    'ip_address'     => $stat->ip_address,
-                    'error_message'  => $stat->error_message,
-                    'created_at'     => $stat->created_at->toISOString(),
-                    'formatted_time' => $stat->created_at->diffForHumans(),
-                ];
-            });
+            ->map(fn ($stat): array => [
+                'id'             => $stat->id,
+                'platform'       => $stat->platform,
+                'operation'      => $stat->operation,
+                'status'         => $stat->status,
+                'response_time'  => $stat->response_time_ms,
+                'results_count'  => $stat->results_count,
+                'user_agent'     => $stat->user_agent ? substr((string) $stat->user_agent, 0, 50) . '...' : NULL,
+                'ip_address'     => $stat->ip_address,
+                'error_message'  => $stat->error_message,
+                'created_at'     => $stat->created_at->toISOString(),
+                'formatted_time' => $stat->created_at->diffForHumans(),
+            ]);
     }
 
     /**
@@ -307,17 +298,17 @@ class ScrapingController extends Controller
         foreach ($platforms as $platform) {
             for ($i = 0; $i < $testCount; $i++) {
                 $totalTests++;
-                $responseTime = rand(800, 3000); // Simulated response time
+                $responseTime = random_int(800, 3000); // Simulated response time
                 $totalResponseTime += $responseTime;
 
                 // Simulate anti-detection test result
-                $bypassed = rand(0, 100) > 30; // 70% success rate for demo
+                $bypassed = random_int(0, 100) > 30; // 70% success rate for demo
                 if ($bypassed) {
                     $successfulTests++;
                 }
 
                 $results[] = [
-                    'platform'           => ucfirst($platform),
+                    'platform'           => ucfirst((string) $platform),
                     'protection_methods' => ['User-Agent Rotation', 'IP Masking', 'Request Timing'],
                     'bypassed'           => $bypassed,
                     'response_time'      => $responseTime,
@@ -350,22 +341,22 @@ class ScrapingController extends Controller
         ]);
 
         $concurrentRequests = $request->get('concurrent_requests', 10);
-        $priorityEvents = $request->get('priority_events', ['concert', 'sports']);
+        $request->get('priority_events', ['concert', 'sports']);
 
         // Simulate high-demand test results
-        $totalProcessed = $concurrentRequests * rand(8, 12);
-        $successfulProcessed = round($totalProcessed * (rand(85, 95) / 100));
+        $totalProcessed = $concurrentRequests * random_int(8, 12);
+        $successfulProcessed = round($totalProcessed * (random_int(85, 95) / 100));
 
         $queueStats = [
             [
                 'queue_type'    => 'Priority Queue',
                 'processed'     => round($totalProcessed * 0.4),
-                'avg_wait_time' => rand(50, 200),
+                'avg_wait_time' => random_int(50, 200),
             ],
             [
                 'queue_type'    => 'Standard Queue',
                 'processed'     => round($totalProcessed * 0.6),
-                'avg_wait_time' => rand(200, 500),
+                'avg_wait_time' => random_int(200, 500),
             ],
         ];
 
@@ -374,7 +365,7 @@ class ScrapingController extends Controller
                 'concurrent_requests' => $concurrentRequests,
                 'total_processed'     => $totalProcessed,
                 'success_rate'        => round(($successfulProcessed / $totalProcessed) * 100, 1),
-                'avg_processing_time' => rand(1200, 2500),
+                'avg_processing_time' => random_int(1200, 2500),
             ],
             'queue_stats' => $queueStats,
         ]);
@@ -547,7 +538,7 @@ class ScrapingController extends Controller
      *
      * @param mixed $since
      */
-    private function getErrorRate($since): float
+    private function getErrorRate(Carbon $since): float
     {
         $total = ScrapingStats::whereDate('created_at', '>=', $since)->count();
         $errors = ScrapingStats::whereDate('created_at', '>=', $since)
@@ -562,7 +553,7 @@ class ScrapingController extends Controller
      *
      * @param mixed $successRate
      */
-    private function getPlatformStatus($successRate): string
+    private function getPlatformStatus(int|float $successRate): string
     {
         if ($successRate >= 90) {
             return 'excellent';
@@ -588,7 +579,7 @@ class ScrapingController extends Controller
     private function getAdvancedStats(): array
     {
         $today = Carbon::today();
-        $totalOpsToday = ScrapingStats::whereDate('created_at', $today)->count();
+        ScrapingStats::whereDate('created_at', $today)->count();
 
         return [
             // Anti-detection operations (operations with special user agents or proxy rotation)
@@ -627,9 +618,9 @@ class ScrapingController extends Controller
                 ->count(),
 
             // Queue and optimization stats
-            'priority_queue_size' => rand(15, 35), // Simulated - replace with actual queue size
+            'priority_queue_size' => random_int(15, 35), // Simulated - replace with actual queue size
             'dedicated_pools'     => 3, // Number of dedicated proxy pools
-            'cache_hit_rate'      => rand(75, 95), // Simulated cache hit rate
+            'cache_hit_rate'      => random_int(75, 95), // Simulated cache hit rate
         ];
     }
 
@@ -643,7 +634,7 @@ class ScrapingController extends Controller
      *
      * @param mixed $since
      */
-    private function getProtectedSuccessRate($since): float
+    private function getProtectedSuccessRate(Carbon $since): float
     {
         $protectedTotal = ScrapingStats::whereDate('created_at', '>=', $since)
             ->where(function ($query): void {

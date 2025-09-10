@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use Override;
 use Tests\TestCase;
 
 /**
@@ -170,7 +171,7 @@ class SportsTicketSystemTest extends TestCase
             ],
         ];
 
-        $result = $smsChannel->send($this->user, $notification);
+        $smsChannel->send($this->user, $notification);
 
         // In test environment with mocked Twilio, this should handle gracefully
         // Type assertion not needed - already established
@@ -206,7 +207,7 @@ class SportsTicketSystemTest extends TestCase
             ],
         ];
 
-        $result = $pusherChannel->send($this->user, $notification);
+        $pusherChannel->send($this->user, $notification);
 
         // In test environment, this should handle gracefully
         // Type assertion not needed - already established
@@ -283,7 +284,7 @@ class SportsTicketSystemTest extends TestCase
         $this->assertTrue($smsResult);
 
         // Test email code sending
-        $emailResult = $twoFactorService->sendEmailCode($this->user);
+        $twoFactorService->sendEmailCode($this->user);
         // $this->assertIsBool($emailResult); // May fail in test env without proper email setup
 
         // Test 2FA statistics
@@ -458,8 +459,8 @@ class SportsTicketSystemTest extends TestCase
         ];
 
         // Test both notification channels
-        $smsResult = $smsChannel->send($this->user, $notification);
-        $pusherResult = $pusherChannel->send($this->user, $notification);
+        $smsChannel->send($this->user, $notification);
+        $pusherChannel->send($this->user, $notification);
 
         // $this->assertIsBool($smsResult);
         // $this->assertIsBool($pusherResult);
@@ -513,6 +514,7 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Error handling and resilience test completed');
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -539,6 +541,7 @@ class SportsTicketSystemTest extends TestCase
         ]);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         // Clean up any test data

@@ -42,9 +42,7 @@ Route::get('/application/status', [HealthCheckController::class, 'applicationSta
 Route::get('/status', [HealthCheckController::class, 'basic'])
     ->name('status.basic');
 
-Route::get('/ping', function () {
-    return response()->json(['status' => 'pong', 'timestamp' => now()->toISOString()]);
-})->name('ping');
+Route::get('/ping', fn () => response()->json(['status' => 'pong', 'timestamp' => now()->toISOString()]))->name('ping');
 
 /*
 |--------------------------------------------------------------------------
@@ -164,14 +162,12 @@ Route::get('/ready', function () {
     ->withoutMiddleware(['auth']);
 
 // Application liveness check (for Kubernetes-style deployments)
-Route::get('/live', function () {
-    return response()->json([
-        'status'    => 'alive',
-        'timestamp' => now()->toISOString(),
-        'service'   => 'HD Tickets Sports Events Monitoring',
-        'version'   => config('app.version', '1.0.0'),
-    ]);
-})->name('liveness')
+Route::get('/live', fn () => response()->json([
+    'status'    => 'alive',
+    'timestamp' => now()->toISOString(),
+    'service'   => 'HD Tickets Sports Events Monitoring',
+    'version'   => config('app.version', '1.0.0'),
+]))->name('liveness')
     ->withoutMiddleware(['auth']);
 
 /*
@@ -181,7 +177,7 @@ Route::get('/live', function () {
 */
 
 if (! function_exists('measureDatabaseResponseTime')) {
-    function measureDatabaseResponseTime()
+    function measureDatabaseResponseTime(): ?float
     {
         $start = microtime(TRUE);
 
@@ -189,14 +185,14 @@ if (! function_exists('measureDatabaseResponseTime')) {
             DB::select('SELECT 1');
 
             return round((microtime(TRUE) - $start) * 1000, 2);
-        } catch (Exception $e) {
-            return;
+        } catch (Exception) {
+            return NULL;
         }
     }
 }
 
 if (! function_exists('measureCacheResponseTime')) {
-    function measureCacheResponseTime()
+    function measureCacheResponseTime(): ?float
     {
         $start = microtime(TRUE);
 
@@ -207,8 +203,8 @@ if (! function_exists('measureCacheResponseTime')) {
             Cache::forget($key);
 
             return round((microtime(TRUE) - $start) * 1000, 2);
-        } catch (Exception $e) {
-            return;
+        } catch (Exception) {
+            return NULL;
         }
     }
 }

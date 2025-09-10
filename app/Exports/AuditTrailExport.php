@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -16,49 +17,45 @@ use Spatie\Activitylog\Models\Activity;
  */
 class AuditTrailExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
-    /** @var array<string, mixed> */
-    protected array $filters;
-
     /**
      * @param array<string, mixed> $filters
      */
-    public function __construct(array $filters = [])
+    public function __construct(protected array $filters = [])
     {
-        $this->filters = $filters;
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, Activity>
+     * @return Collection<int, Activity>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Database\Eloquent\Collection
+    public function collection(): Collection
     {
         $query = Activity::with(['causer', 'subject']);
 
         // Apply filters
-        if (!empty($this->filters['log_name'])) {
+        if (! empty($this->filters['log_name'])) {
             $query->where('log_name', $this->filters['log_name']);
         }
 
-        if (!empty($this->filters['event'])) {
+        if (! empty($this->filters['event'])) {
             $query->where('event', $this->filters['event']);
         }
 
-        if (!empty($this->filters['causer_id'])) {
+        if (! empty($this->filters['causer_id'])) {
             $query->where('causer_id', $this->filters['causer_id']);
         }
 
-        if (!empty($this->filters['subject_type'])) {
+        if (! empty($this->filters['subject_type'])) {
             $query->where('subject_type', $this->filters['subject_type']);
         }
 
-        if (!empty($this->filters['date_from'])) {
+        if (! empty($this->filters['date_from'])) {
             $query->where('created_at', '>=', $this->filters['date_from']);
         }
 
-        if (!empty($this->filters['date_to'])) {
+        if (! empty($this->filters['date_to'])) {
             $query->where('created_at', '<=', $this->filters['date_to']);
         }
 

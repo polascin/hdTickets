@@ -12,15 +12,15 @@ use function array_slice;
 
 class AnalyticsService
 {
-    private const ANALYTICS_PREFIX = 'analytics:';
+    private const string ANALYTICS_PREFIX = 'analytics:';
 
-    private const EVENTS_KEY = 'events';
+    private const string EVENTS_KEY = 'events';
 
-    private const METRICS_KEY = 'metrics';
+    private const string METRICS_KEY = 'metrics';
 
-    private const USER_BEHAVIOR_KEY = 'user_behavior';
+    private const string USER_BEHAVIOR_KEY = 'user_behavior';
 
-    private const TICKET_PERFORMANCE_KEY = 'ticket_performance';
+    private const string TICKET_PERFORMANCE_KEY = 'ticket_performance';
 
     /**
      * Track user events and behavior
@@ -255,7 +255,7 @@ class AnalyticsService
             // Calculate derived metrics
             if ($metrics['views'] > 0) {
                 $metrics['conversion_rate'] = ($metrics['purchases'] / $metrics['views']) * 100;
-                $metrics['avg_time_on_page'] = $metrics['avg_time_on_page'] / $metrics['views'];
+                $metrics['avg_time_on_page'] /= $metrics['views'];
             }
 
             $metrics['popularity_score'] = $this->calculatePopularityScore($metrics);
@@ -291,14 +291,14 @@ class AnalyticsService
                     'end'   => $endDate->toISOString(),
                     'days'  => $startDate->diffInDays($endDate) + 1,
                 ],
-                'overview'           => $this->getOverviewMetrics($startDate, $endDate),
-                'user_engagement'    => $this->getUserEngagementMetrics($startDate, $endDate),
-                'ticket_performance' => $this->getTopTicketPerformance($startDate, $endDate),
-                'search_analytics'   => $this->getSearchAnalytics($startDate, $endDate),
-                'conversion_funnel'  => $this->getConversionFunnel($startDate, $endDate),
-                'revenue_analysis'   => $this->getRevenueAnalysis($startDate, $endDate),
-                'trends'             => $this->getTrendAnalysis($startDate, $endDate),
-                'recommendations'    => $this->generateRecommendations($startDate, $endDate),
+                'overview'           => $this->getOverviewMetrics(),
+                'user_engagement'    => $this->getUserEngagementMetrics(),
+                'ticket_performance' => $this->getTopTicketPerformance(),
+                'search_analytics'   => $this->getSearchAnalytics(),
+                'conversion_funnel'  => $this->getConversionFunnel(),
+                'revenue_analysis'   => $this->getRevenueAnalysis(),
+                'trends'             => $this->getTrendAnalysis(),
+                'recommendations'    => $this->generateRecommendations(),
             ];
 
             // Cache the report for 1 hour
@@ -495,7 +495,7 @@ class AnalyticsService
      */
     private function updateSearchHistory(string $behaviorKey, string $query): void
     {
-        if (empty($query)) {
+        if ($query === '' || $query === '0') {
             return;
         }
 
@@ -521,7 +521,7 @@ class AnalyticsService
      */
     private function updateSportPreferences(string $behaviorKey, string $sport): void
     {
-        if (empty($sport)) {
+        if ($sport === '' || $sport === '0') {
             return;
         }
 
@@ -558,7 +558,7 @@ class AnalyticsService
     /**
      * Get  overview metrics
      */
-    private function getOverviewMetrics(Carbon $startDate, Carbon $endDate): array
+    private function getOverviewMetrics(): array
     {
         // Implementation for overview metrics
         return [
@@ -574,7 +574,7 @@ class AnalyticsService
     /**
      * Get  user engagement metrics
      */
-    private function getUserEngagementMetrics(Carbon $startDate, Carbon $endDate): array
+    private function getUserEngagementMetrics(): array
     {
         // Implementation for user engagement metrics
         return [];
@@ -583,7 +583,7 @@ class AnalyticsService
     /**
      * Get  top ticket performance
      */
-    private function getTopTicketPerformance(Carbon $startDate, Carbon $endDate): array
+    private function getTopTicketPerformance(): array
     {
         // Implementation for top ticket performance
         return [];
@@ -592,7 +592,7 @@ class AnalyticsService
     /**
      * Get  search analytics
      */
-    private function getSearchAnalytics(Carbon $startDate, Carbon $endDate): array
+    private function getSearchAnalytics(): array
     {
         // Implementation for search analytics
         return [];
@@ -601,7 +601,7 @@ class AnalyticsService
     /**
      * Get  conversion funnel
      */
-    private function getConversionFunnel(Carbon $startDate, Carbon $endDate): array
+    private function getConversionFunnel(): array
     {
         // Implementation for conversion funnel
         return [];
@@ -610,7 +610,7 @@ class AnalyticsService
     /**
      * Get  revenue analysis
      */
-    private function getRevenueAnalysis(Carbon $startDate, Carbon $endDate): array
+    private function getRevenueAnalysis(): array
     {
         // Implementation for revenue analysis
         return [];
@@ -619,7 +619,7 @@ class AnalyticsService
     /**
      * Get  trend analysis
      */
-    private function getTrendAnalysis(Carbon $startDate, Carbon $endDate): array
+    private function getTrendAnalysis(): array
     {
         // Implementation for trend analysis
         return [];
@@ -628,7 +628,7 @@ class AnalyticsService
     /**
      * GenerateRecommendations
      */
-    private function generateRecommendations(Carbon $startDate, Carbon $endDate): array
+    private function generateRecommendations(): array
     {
         // Implementation for generating recommendations
         return [];

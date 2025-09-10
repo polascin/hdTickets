@@ -13,11 +13,8 @@ use function in_array;
 
 class ActivityLoggerMiddleware
 {
-    protected $securityService;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
     }
 
     /**
@@ -46,7 +43,7 @@ class ActivityLoggerMiddleware
      */
     private function logActivity(Request $request, Response $response): void
     {
-        $user = Auth::user();
+        Auth::user();
         $method = $request->method();
         $route = $request->route();
         $routeName = $route ? $route->getName() : 'unknown';

@@ -19,20 +19,8 @@ use function is_array;
 
 class EnhancedAnalyticsController extends Controller
 {
-    protected $chartDataService;
-
-    protected $exportService;
-
-    protected $insightsService;
-
-    public function __construct(
-        ChartDataService $chartDataService,
-        DataExportService $exportService,
-        AnalyticsInsightsService $insightsService,
-    ) {
-        $this->chartDataService = $chartDataService;
-        $this->exportService = $exportService;
-        $this->insightsService = $insightsService;
+    public function __construct(protected ChartDataService $chartDataService, protected DataExportService $exportService, protected AnalyticsInsightsService $insightsService)
+    {
     }
 
     /**
@@ -238,7 +226,7 @@ class EnhancedAnalyticsController extends Controller
                 'behavior_summary' => [
                     'total_segments'          => count($insights['user_segmentation']['segments'] ?? []),
                     'average_engagement'      => $insights['engagement_patterns']['average_engagement'] ?? 0,
-                    'churn_risk_level'        => $this->assessChurnRiskLevel($insights['churn_prediction'] ?? []),
+                    'churn_risk_level'        => $this->assessChurnRiskLevel(),
                     'key_actionable_insights' => array_slice($insights['actionable_insights'] ?? [], 0, 5),
                 ],
                 'metadata' => [
@@ -340,7 +328,7 @@ class EnhancedAnalyticsController extends Controller
                 'optimization_summary' => [
                     'total_opportunities'    => count($insights['improvement_opportunities'] ?? []),
                     'bottlenecks_identified' => count($insights['bottleneck_analysis'] ?? []),
-                    'optimization_score'     => $this->calculateOptimizationScore($insights),
+                    'optimization_score'     => $this->calculateOptimizationScore(),
                     'priority_actions'       => $this->extractPriorityActions($insights),
                 ],
                 'metadata' => [
@@ -553,7 +541,7 @@ class EnhancedAnalyticsController extends Controller
     private function assessOverallRiskLevel(array $riskAssessment): string
     {
         // Simplified risk assessment logic
-        return empty($riskAssessment) ? 'low' : (count($riskAssessment) > 3 ? 'high' : 'medium');
+        return $riskAssessment === [] ? 'low' : (count($riskAssessment) > 3 ? 'high' : 'medium');
     }
 
     /**
@@ -561,7 +549,7 @@ class EnhancedAnalyticsController extends Controller
      */
     private function calculateAverageConfidence(array $confidenceScores): float
     {
-        if (empty($confidenceScores)) {
+        if ($confidenceScores === []) {
             return 0.0;
         }
 
@@ -571,10 +559,11 @@ class EnhancedAnalyticsController extends Controller
     /**
      * AssessChurnRiskLevel
      */
-    private function assessChurnRiskLevel(array $churnPrediction): string
+    private function assessChurnRiskLevel(): string
     {
         // Simplified churn risk assessment
-        return 'medium'; // Placeholder
+        return 'medium';
+        // Placeholder
     }
 
     /**
@@ -588,10 +577,11 @@ class EnhancedAnalyticsController extends Controller
     /**
      * CalculateOptimizationScore
      */
-    private function calculateOptimizationScore(array $insights): float
+    private function calculateOptimizationScore(): float
     {
         // Calculate overall optimization score based on insights
-        return rand(70, 95); // Placeholder
+        return random_int(70, 95);
+        // Placeholder
     }
 
     /**
@@ -611,10 +601,8 @@ class EnhancedAnalyticsController extends Controller
         $critical = [];
         foreach ($anomalies as $type => $anomalyList) {
             if (is_array($anomalyList)) {
-                $criticalItems = array_filter($anomalyList, function ($item) {
-                    return isset($item['severity']) && $item['severity'] === 'high';
-                });
-                if (!empty($criticalItems)) {
+                $criticalItems = array_filter($anomalyList, fn (array $item): bool => isset($item['severity']) && $item['severity'] === 'high');
+                if ($criticalItems !== []) {
                     $critical[$type] = $criticalItems;
                 }
             }

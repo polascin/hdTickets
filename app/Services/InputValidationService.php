@@ -6,6 +6,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 use function in_array;
@@ -15,7 +16,7 @@ use function is_string;
 class InputValidationService
 {
     /** Security patterns to detect potential attacks */
-    private const DANGEROUS_PATTERNS = [
+    private const array DANGEROUS_PATTERNS = [
         // SQL Injection patterns
         '/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT)\b)/i',
 
@@ -51,10 +52,10 @@ class InputValidationService
     public function sanitizeInput(array $data): mixed
     {
         if (is_array($data)) {
-            return array_map([$this, 'sanitizeInput'], $data);
+            return array_map($this->sanitizeInput(...), $data);
         }
 
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             return $data;
         }
 
@@ -109,7 +110,7 @@ class InputValidationService
         $validator = Validator::make($data, $rules, $messages);
 
         if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
+            throw new ValidationException($validator);
         }
 
         return $this->sanitizeValidatedData($validator->validated());
@@ -133,7 +134,7 @@ class InputValidationService
         $validator = Validator::make($sanitizedData, $rules);
 
         if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
+            throw new ValidationException($validator);
         }
 
         return $validator->validated();
@@ -218,7 +219,7 @@ class InputValidationService
     {
         $slug = Str::slug($title);
 
-        if ($sport) {
+        if ($sport !== '' && $sport !== '0') {
             $slug = Str::slug($sport) . '-' . $slug;
         }
 
@@ -250,7 +251,7 @@ class InputValidationService
         $validator = Validator::make(['file' => $file], $rules);
 
         if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
+            throw new ValidationException($validator);
         }
 
         return $validator->validated();
@@ -268,10 +269,10 @@ class InputValidationService
         $sanitized = preg_replace('/[^\w\s\-\.,&]/', '', $query);
 
         // Limit length
-        $sanitized = substr($sanitized, 0, 200);
+        $sanitized = substr((string) $sanitized, 0, 200);
 
         // Trim and normalize spaces
-        return trim(preg_replace('/\s+/', ' ', $sanitized));
+        return trim((string) preg_replace('/\s+/', ' ', $sanitized));
     }
 
     /**
@@ -292,7 +293,7 @@ class InputValidationService
             return;
         }
 
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             return;
         }
 

@@ -29,7 +29,7 @@ class SmsChannel
         // Get the phone number - check multiple possible attributes
         $phone = $this->getPhoneNumber($notifiable);
 
-        if (!$phone) {
+        if (! $phone) {
             Log::warning('SMS notification not sent: No phone number found for user', [
                 'user_id'      => $notifiable->id ?? NULL,
                 'notification' => get_class($notification),
@@ -39,7 +39,7 @@ class SmsChannel
         }
 
         // Get SMS message content
-        if (!method_exists($notification, 'toSms')) {
+        if (! method_exists($notification, 'toSms')) {
             Log::error('SMS notification not sent: toSms method not implemented', [
                 'notification' => get_class($notification),
             ]);
@@ -85,7 +85,7 @@ class SmsChannel
         $phoneFields = ['phone', 'phone_number', 'mobile', 'cell_phone'];
 
         foreach ($phoneFields as $field) {
-            if (isset($notifiable->{$field}) && !empty($notifiable->{$field})) {
+            if (isset($notifiable->{$field}) && ! empty($notifiable->{$field})) {
                 return $this->formatPhoneNumber($notifiable->{$field});
             }
         }
@@ -164,7 +164,7 @@ class SmsChannel
         $authToken = config('services.twilio.token');
         $fromNumber = config('services.twilio.from');
 
-        if (!$accountSid || !$authToken || !$fromNumber) {
+        if (! $accountSid || ! $authToken || ! $fromNumber) {
             throw new Exception('Twilio credentials not configured');
         }
 
@@ -177,7 +177,7 @@ class SmsChannel
                 'StatusCallback' => config('services.twilio.status_callback'),
             ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new Exception('Twilio API error: ' . $response->body());
         }
 
@@ -206,7 +206,7 @@ class SmsChannel
         $apiSecret = config('services.nexmo.secret');
         $fromNumber = config('services.nexmo.from');
 
-        if (!$apiKey || !$apiSecret || !$fromNumber) {
+        if (! $apiKey || ! $apiSecret || ! $fromNumber) {
             throw new Exception('Nexmo credentials not configured');
         }
 
@@ -218,7 +218,7 @@ class SmsChannel
             'text'       => $message,
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new Exception('Nexmo API error: ' . $response->body());
         }
 

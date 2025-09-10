@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Middleware\App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,7 @@ class TrackUserActivity
         $lastActivity = Cache::get("user_last_activity:{$userId}");
         $activityData = Cache::get("user_activity:{$userId}", []);
 
-        if (!$lastActivity) {
+        if (! $lastActivity) {
             return [
                 'is_active'              => FALSE,
                 'last_seen'              => NULL,
@@ -129,7 +130,7 @@ class TrackUserActivity
     /**
      * TrackUserActivity
      */
-    protected function trackUserActivity(App\Models\User $user): void
+    protected function trackUserActivity(User $user): void
     {
         $cacheKey = "user_activity:{$user->id}";
         $activityData = [
@@ -161,15 +162,15 @@ class TrackUserActivity
     /**
      * TrackPageActivity
      */
-    protected function trackPageActivity(App\Models\User $user): void
+    protected function trackPageActivity(User $user): void
     {
         $route = request()->route();
-        if (!$route) {
+        if (! $route) {
             return;
         }
 
         $routeName = $route->getName();
-        if (!$routeName) {
+        if (! $routeName) {
             return;
         }
 
@@ -189,7 +190,7 @@ class TrackUserActivity
         }
 
         // Track ticket viewing activity
-        if (str_contains($routeName, 'tickets')) {
+        if (str_contains((string) $routeName, 'tickets')) {
             Cache::put("user_ticket_activity:{$user->id}", now(), 1800);
         }
     }
@@ -202,12 +203,12 @@ class TrackUserActivity
     /**
      * UpdateUserLastActive
      */
-    protected function updateUserLastActive(App\Models\User $user): void
+    protected function updateUserLastActive(User $user): void
     {
         $cacheKey = "user_db_update:{$user->id}";
 
         // Only update database every 5 minutes to avoid excessive writes
-        if (!Cache::has($cacheKey)) {
+        if (! Cache::has($cacheKey)) {
             $user->update(['last_active_at' => now()]);
             Cache::put($cacheKey, TRUE, 300); // 5 minutes
         }
@@ -244,7 +245,7 @@ class TrackUserActivity
         }
 
         // Skip tracking for API calls that are not user-initiated
-        return !($request->is('api/*') && $this->isAutomatedApiCall($request));
+        return ! ($request->is('api/*') && $this->isAutomatedApiCall($request));
     }
 
     /**
@@ -291,7 +292,7 @@ class TrackUserActivity
         ];
 
         foreach ($automatedAgents as $agent) {
-            if (stripos($userAgent, $agent) !== FALSE) {
+            if (stripos((string) $userAgent, $agent) !== FALSE) {
                 return TRUE;
             }
         }

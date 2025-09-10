@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Middleware\App\Models\User;
 use App\Services\TwoFactorAuthService;
 use Closure;
 use Illuminate\Http\Request;
@@ -14,11 +15,8 @@ use function in_array;
 
 class RequireTwoFactorMiddleware
 {
-    protected $twoFactorService;
-
-    public function __construct(TwoFactorAuthService $twoFactorService)
+    public function __construct(protected TwoFactorAuthService $twoFactorService)
     {
-        $this->twoFactorService = $twoFactorService;
     }
 
     /**
@@ -33,14 +31,14 @@ class RequireTwoFactorMiddleware
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
         // Check if 2FA is required for this user/action
         $requires2FA = $this->requiresTwoFactor($user, $action);
 
-        if ($requires2FA && !$this->twoFactorService->isEnabled($user)) {
+        if ($requires2FA && ! $this->twoFactorService->isEnabled($user)) {
             // Redirect to 2FA setup if required but not enabled
             Session::put('2fa_required_for', $action);
             Session::put('2fa_redirect_url', $request->fullUrl());
@@ -67,7 +65,7 @@ class RequireTwoFactorMiddleware
 
             $verificationTimeout = config('security.two_factor.recovery_window', 300); // 5 minutes default
 
-            if (!$lastVerified || now()->diffInSeconds($lastVerified) > $verificationTimeout) {
+            if (! $lastVerified || now()->diffInSeconds($lastVerified) > $verificationTimeout) {
                 // Store the original request for after 2FA verification
                 Session::put('2fa_pending_action', $action);
                 Session::put('2fa_pending_url', $request->fullUrl());
@@ -133,7 +131,7 @@ class RequireTwoFactorMiddleware
     {
         $sessionKeys = collect(Session::all())
             ->keys()
-            ->filter(fn ($key) => str_starts_with($key, '2fa_verified_for_'))
+            ->filter(fn ($key): bool => str_starts_with((string) $key, '2fa_verified_for_'))
             ->toArray();
 
         foreach ($sessionKeys as $key) {
@@ -157,7 +155,7 @@ class RequireTwoFactorMiddleware
     /**
      * RequiresTwoFactor
      */
-    protected function requiresTwoFactor(App\Models\User $user, string $action): bool
+    protected function requiresTwoFactor(User $user, string $action): bool
     {
         $securityConfig = config('security.two_factor', []);
 
@@ -167,31 +165,20 @@ class RequireTwoFactorMiddleware
         }
 
         // Check action-specific requirements
-        switch ($action) {
-            case 'purchase':
-                return $securityConfig['required_for_purchase'] ?? TRUE;
-            case 'admin_actions':
-                return $user->isAdmin();
-            case 'user_management':
-                return $user->canManageUsers();
-            case 'system_management':
-                return $user->canManageSystem();
-            case 'financial_access':
-                return $user->canAccessFinancials();
-            case 'bulk_operations':
-                return TRUE; // Always require 2FA for bulk operations
-            case 'password_reset':
-                return TRUE;
-            case 'account_deletion':
-                return TRUE;
-            case 'api_key_generation':
-                return TRUE;
-            case 'sensitive_data_export':
-                return TRUE;
-            default:
-                // Check if user has 2FA enabled and enforce for general sensitive actions
-                return $this->twoFactorService->isEnabled($user) && $this->isSensitiveAction($action);
-        }
+        return match ($action) {
+            'purchase'              => $securityConfig['required_for_purchase'] ?? TRUE,
+            'admin_actions'         => $user->isAdmin(),
+            'user_management'       => $user->canManageUsers(),
+            'system_management'     => $user->canManageSystem(),
+            'financial_access'      => $user->canAccessFinancials(),
+            'bulk_operations'       => TRUE,
+            'password_reset'        => TRUE,
+            'account_deletion'      => TRUE,
+            'api_key_generation'    => TRUE,
+            'sensitive_data_export' => TRUE,
+            // Check if user has 2FA enabled and enforce for general sensitive actions
+            default => $this->twoFactorService->isEnabled($user) && $this->isSensitiveAction($action),
+        };
     }
 
     /**

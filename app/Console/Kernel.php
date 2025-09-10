@@ -2,9 +2,12 @@
 
 namespace App\Console;
 
+use App\Models\ScrapedTicket;
+use App\Services\PerformanceOptimizationService;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Log;
+use Override;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,6 +17,7 @@ class Kernel extends ConsoleKernel
     /**
      * Schedule
      */
+    #[Override]
     protected function schedule(Schedule $schedule): void
     {
         // Ticket scraping schedules
@@ -48,7 +52,7 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/full-scraping.log'));
 
         // Clean up old scraped tickets (older than 7 days) daily at 3 AM
-        $schedule->command('model:prune', ['--model' => 'App\\Models\\ScrapedTicket'])
+        $schedule->command('model:prune', ['--model' => ScrapedTicket::class])
             ->dailyAt('03:00')
             ->timezone('Europe/London');
 
@@ -70,7 +74,7 @@ class Kernel extends ConsoleKernel
 
         // Cache statistics every hour for monitoring
         $schedule->call(function (): void {
-            $service = app(\App\Services\PerformanceOptimizationService::class);
+            $service = app(PerformanceOptimizationService::class);
             $stats = $service->getCacheStatistics();
             Log::info('Cache Statistics', $stats);
         })->hourly()->name('cache-stats');
@@ -82,6 +86,7 @@ class Kernel extends ConsoleKernel
     /**
      * Commands
      */
+    #[Override]
     protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');

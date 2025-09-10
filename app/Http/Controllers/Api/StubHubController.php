@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use App\Services\TicketApis\StubHubClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 use function count;
@@ -101,7 +103,7 @@ class StubHubController extends Controller
 
             $eventDetails = $client->scrapeEventDetails($url);
 
-            if (empty($eventDetails)) {
+            if ($eventDetails === []) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No event details found for the provided URL',
@@ -154,7 +156,7 @@ class StubHubController extends Controller
             // Search for events
             $events = $client->scrapeSearchResults($keyword, $location, $limit);
 
-            if (empty($events)) {
+            if ($events === []) {
                 return response()->json([
                     'success'  => FALSE,
                     'message'  => 'No events found for the search criteria',
@@ -233,7 +235,7 @@ class StubHubController extends Controller
                     // Get event details
                     $eventDetails = $client->scrapeEventDetails($url);
 
-                    if (!empty($eventDetails)) {
+                    if ($eventDetails !== []) {
                         if ($this->importEventAsTicket($eventDetails)) {
                             $imported++;
                         }
@@ -279,12 +281,12 @@ class StubHubController extends Controller
             // Get statistics from database
             $stats = [
                 'platform'      => 'stubhub',
-                'total_scraped' => \App\Models\Ticket::where('platform', 'stubhub')->count(),
-                'last_scrape'   => \App\Models\Ticket::where('platform', 'stubhub')
+                'total_scraped' => Ticket::where('platform', 'stubhub')->count(),
+                'last_scrape'   => Ticket::where('platform', 'stubhub')
                     ->latest('created_at')
                     ->value('created_at'),
-                'success_rate'      => $this->calculateSuccessRate('stubhub'),
-                'avg_response_time' => $this->getAverageResponseTime('stubhub'),
+                'success_rate'      => $this->calculateSuccessRate(),
+                'avg_response_time' => $this->getAverageResponseTime(),
             ];
 
             return response()->json([
@@ -306,7 +308,7 @@ class StubHubController extends Controller
     {
         try {
             // Check if ticket already exists
-            $existingTicket = \App\Models\Ticket::where('platform', 'stubhub')
+            $existingTicket = Ticket::where('platform', 'stubhub')
                 ->where('external_id', $eventData['id'] ?? NULL)
                 ->first();
 
@@ -315,7 +317,7 @@ class StubHubController extends Controller
             }
 
             // Create new ticket
-            $ticket = new \App\Models\Ticket([
+            $ticket = new Ticket([
                 'platform'    => 'stubhub',
                 'external_id' => $eventData['id'] ?? NULL,
                 'title'       => $eventData['name'] ?? 'Unknown Event',
@@ -335,7 +337,7 @@ class StubHubController extends Controller
 
             return TRUE;
         } catch (Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to import StubHub event as ticket', [
+            Log::error('Failed to import StubHub event as ticket', [
                 'event_data' => $eventData,
                 'error'      => $e->getMessage(),
             ]);
@@ -347,18 +349,20 @@ class StubHubController extends Controller
     /**
      * Calculate success rate for platform
      */
-    private function calculateSuccessRate(string $platform): float
+    private function calculateSuccessRate(): float
     {
         // This would be implemented based on your logging/metrics system
-        return 85.5; // Placeholder
+        return 85.5;
+        // Placeholder
     }
 
     /**
      * Get average response time for platform
      */
-    private function getAverageResponseTime(string $platform): float
+    private function getAverageResponseTime(): float
     {
         // This would be implemented based on your logging/metrics system
-        return 1250.0; // Placeholder in milliseconds
+        return 1250.0;
+        // Placeholder in milliseconds
     }
 }

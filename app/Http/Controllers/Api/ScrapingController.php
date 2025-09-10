@@ -16,14 +16,8 @@ use function count;
 
 class ScrapingController extends Controller
 {
-    protected $scrapingService;
-
-    protected $scraperManager;
-
-    public function __construct(TicketScrapingService $scrapingService, PluginBasedScraperManager $scraperManager)
+    public function __construct(protected TicketScrapingService $scrapingService, protected PluginBasedScraperManager $scraperManager)
     {
-        $this->scrapingService = $scrapingService;
-        $this->scraperManager = $scraperManager;
     }
 
     /**
@@ -178,7 +172,7 @@ class ScrapingController extends Controller
             ->where('uuid', $uuid)
             ->first();
 
-        if (!$ticket) {
+        if (! $ticket) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket not found',
@@ -200,7 +194,7 @@ class ScrapingController extends Controller
             $ticket = ScrapedTicket::with(['category'])
                 ->find($id);
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return response()->json([
                     'success'    => FALSE,
                     'message'    => 'Ticket not found',
@@ -217,14 +211,12 @@ class ScrapingController extends Controller
                         ->orderBy('recorded_at', 'desc')
                         ->limit(10)
                         ->get()
-                        ->map(function ($history) {
-                            return [
-                                'price'          => (float) $history->price,
-                                'recorded_at'    => $history->recorded_at->toISOString(),
-                                'recorded_human' => $history->recorded_at->diffForHumans(),
-                                'source'         => $history->source ?? 'scraper',
-                            ];
-                        });
+                        ->map(fn ($history): array => [
+                            'price'          => (float) $history->price,
+                            'recorded_at'    => $history->recorded_at->toISOString(),
+                            'recorded_human' => $history->recorded_at->diffForHumans(),
+                            'source'         => $history->source ?? 'scraper',
+                        ]);
                 }
             } catch (Exception $e) {
                 // Price history not available, continue without it
@@ -237,7 +229,7 @@ class ScrapingController extends Controller
                 $maxPrice = (float) ($ticket->max_price ?? $basePrice * 1.5);
 
                 for ($i = 0; $i < 7; $i++) {
-                    $variation = ($i === 0) ? 0 : rand(-15, 20);
+                    $variation = ($i === 0) ? 0 : random_int(-15, 20);
                     $price = max($basePrice * 0.8, min($maxPrice * 1.2, $basePrice + $variation));
 
                     $priceHistory[] = [
@@ -261,7 +253,7 @@ class ScrapingController extends Controller
                 'price_volatility' => 'low',
             ];
 
-            if (!empty($priceHistory)) {
+            if (! empty($priceHistory)) {
                 $prices = array_column($priceHistory, 'price');
                 $stats['avg_price'] = round(array_sum($prices) / count($prices), 2);
                 $stats['lowest_price'] = min($prices);
@@ -300,7 +292,7 @@ class ScrapingController extends Controller
                 'event_date_human'      => $ticket->event_date ? $ticket->event_date->format('M j, Y g:i A') : NULL,
                 'event_date_relative'   => $ticket->event_date ? $ticket->event_date->diffForHumans() : NULL,
                 'days_until_event'      => $ticket->event_date ? now()->diffInDays($ticket->event_date, FALSE) : NULL,
-                'is_upcoming'           => $ticket->event_date ? $ticket->event_date->isFuture() : FALSE,
+                'is_upcoming'           => $ticket->event_date && $ticket->event_date->isFuture(),
                 'min_price'             => (float) ($ticket->min_price ?? 0),
                 'max_price'             => (float) ($ticket->max_price ?? 0),
                 'currency'              => $ticket->currency ?? 'USD',
@@ -316,7 +308,7 @@ class ScrapingController extends Controller
                 'metadata'              => $ticket->metadata ?? [],
                 'scraped_at'            => $ticket->scraped_at ? $ticket->scraped_at->toISOString() : NULL,
                 'scraped_at_human'      => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : NULL,
-                'is_recent'             => $ticket->scraped_at ? $ticket->scraped_at->diffInHours() <= 24 : FALSE,
+                'is_recent'             => $ticket->scraped_at && $ticket->scraped_at->diffInHours() <= 24,
                 'created_at'            => $ticket->created_at->toISOString(),
                 'updated_at'            => $ticket->updated_at->toISOString(),
                 'category'              => $ticket->category ? [
@@ -424,7 +416,7 @@ class ScrapingController extends Controller
     {
         $cacheKey = 'scraping_statistics_' . now()->format('Y-m-d-H');
 
-        $stats = Cache::remember($cacheKey, 3600, function () {
+        $stats = Cache::remember($cacheKey, 3600, function (): array {
             $totalTickets = ScrapedTicket::count();
             $availableTickets = ScrapedTicket::where('is_available', TRUE)->count();
             $highDemandTickets = ScrapedTicket::where('is_high_demand', TRUE)->count();
@@ -460,21 +452,17 @@ class ScrapingController extends Controller
                     'available_found'   => $todayStats->today_available ?? 0,
                     'high_demand_found' => $todayStats->today_high_demand ?? 0,
                 ],
-                'platforms' => $platformStats->map(function ($platform) {
-                    return [
-                        'name'              => $platform->platform,
-                        'total_tickets'     => $platform->total,
-                        'available_tickets' => $platform->available,
-                        'avg_min_price'     => round($platform->avg_min_price ?? 0, 2),
-                        'avg_max_price'     => round($platform->avg_max_price ?? 0, 2),
-                    ];
-                }),
-                'recent_activity' => $recentActivity->map(function ($activity) {
-                    return [
-                        'platform'            => $activity->platform,
-                        'tickets_scraped_24h' => $activity->count,
-                    ];
-                }),
+                'platforms' => $platformStats->map(fn ($platform): array => [
+                    'name'              => $platform->platform,
+                    'total_tickets'     => $platform->total,
+                    'available_tickets' => $platform->available,
+                    'avg_min_price'     => round($platform->avg_min_price ?? 0, 2),
+                    'avg_max_price'     => round($platform->avg_max_price ?? 0, 2),
+                ]),
+                'recent_activity' => $recentActivity->map(fn ($activity): array => [
+                    'platform'            => $activity->platform,
+                    'tickets_scraped_24h' => $activity->count,
+                ]),
                 'last_updated' => now()->toISOString(),
             ];
         });
@@ -683,7 +671,7 @@ class ScrapingController extends Controller
                 })
                 ->where('is_available', TRUE)
                 ->count();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -715,7 +703,7 @@ class ScrapingController extends Controller
 
         $presentFields = 0;
         foreach ($requiredFields as $field) {
-            if (!empty($data[$field])) {
+            if (! empty($data[$field])) {
                 $presentFields++;
             }
         }

@@ -21,25 +21,15 @@ class WarmPerformanceCaches extends Command
     /** The console command description. */
     protected $description = 'Warm up all performance-related caches for optimal application speed';
 
-    protected AdvancedTicketCachingService $ticketCache;
-
-    protected ViewFragmentCachingService $fragmentCache;
-
-    protected PerformanceCacheService $performanceCache;
-
     /**
      * Create a new command instance.
      */
     public function __construct(
-        AdvancedTicketCachingService $ticketCache,
-        ViewFragmentCachingService $fragmentCache,
-        PerformanceCacheService $performanceCache,
+        protected AdvancedTicketCachingService $ticketCache,
+        protected ViewFragmentCachingService $fragmentCache,
+        protected PerformanceCacheService $performanceCache,
     ) {
         parent::__construct();
-
-        $this->ticketCache = $ticketCache;
-        $this->fragmentCache = $fragmentCache;
-        $this->performanceCache = $performanceCache;
     }
 
     /**
@@ -62,25 +52,12 @@ class WarmPerformanceCaches extends Command
         }
 
         try {
-            switch ($type) {
-                case 'tickets':
-                    $this->warmTicketCaches();
-
-                    break;
-                case 'views':
-                    $this->warmViewCaches();
-
-                    break;
-                case 'fragments':
-                    $this->warmViewFragments();
-
-                    break;
-                case 'all':
-                default:
-                    $this->warmAllCaches();
-
-                    break;
-            }
+            match ($type) {
+                'tickets'   => $this->warmTicketCaches(),
+                'views'     => $this->warmViewCaches(),
+                'fragments' => $this->warmViewFragments(),
+                default     => $this->warmAllCaches(),
+            };
 
             $duration = round(microtime(TRUE) - $startTime, 2);
 
@@ -130,7 +107,7 @@ class WarmPerformanceCaches extends Command
             // Warm critical ticket data
             $result = $this->ticketCache->warmCriticalCaches();
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 throw new Exception('Failed to warm ticket caches: ' . ($result['error'] ?? 'Unknown error'));
             }
 
@@ -182,7 +159,7 @@ class WarmPerformanceCaches extends Command
 
             $result = $this->fragmentCache->warmupFragments($userRoles);
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 throw new Exception('Failed to warm view fragments: ' . ($result['error'] ?? 'Unknown error'));
             }
 
@@ -209,7 +186,7 @@ class WarmPerformanceCaches extends Command
             // Get ticket cache metrics
             $ticketMetrics = $this->ticketCache->getCacheMetrics();
 
-            if (!isset($ticketMetrics['error'])) {
+            if (! isset($ticketMetrics['error'])) {
                 $this->line('🎫 Ticket Cache:');
                 $this->line('   • Hit Rate: ' . $ticketMetrics['hit_rate'] . '%');
                 $this->line('   • Memory Usage: ' . $ticketMetrics['memory_usage']);
@@ -219,7 +196,7 @@ class WarmPerformanceCaches extends Command
 
             // Get performance cache status
             $cacheStatus = $this->performanceCache->getCacheStatus();
-            $totalCached = count(array_filter($cacheStatus, fn ($item) => $item['exists']));
+            $totalCached = count(array_filter($cacheStatus, fn (array $item) => $item['exists']));
 
             $this->line('📋 Performance Cache:');
             $this->line("   • Active Caches: {$totalCached}/" . count($cacheStatus));

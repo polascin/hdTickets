@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use App\Models\Ticket;
+use App\Models\TicketSource;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -10,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
+use Override;
 use Tests\Factories\TestDataFactory;
 
 use function get_class;
@@ -22,6 +26,7 @@ abstract class TestCase extends BaseTestCase
 
     protected TestDataFactory $testDataFactory;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +38,7 @@ abstract class TestCase extends BaseTestCase
         $this->configureTestEnvironment();
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         // Clean up test resources
@@ -73,7 +79,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create a test user with specified role
      */
-    protected function createTestUser(array $attributes = [], string $role = 'user'): \App\Models\User
+    protected function createTestUser(array $attributes = [], string $role = 'user'): User
     {
         return $this->testDataFactory->createUser($attributes, $role);
     }
@@ -81,7 +87,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create test ticket with specified attributes
      */
-    protected function createTestTicket(array $attributes = []): \App\Models\Ticket
+    protected function createTestTicket(array $attributes = []): Ticket
     {
         return $this->testDataFactory->createTicket($attributes);
     }
@@ -89,7 +95,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create test ticket source
      */
-    protected function createTestTicketSource(array $attributes = []): \App\Models\TicketSource
+    protected function createTestTicketSource(array $attributes = []): TicketSource
     {
         return $this->testDataFactory->createTicketSource($attributes);
     }
@@ -206,14 +212,14 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create test API headers
      */
-    protected function getApiHeaders(?\App\Models\User $user = NULL): array
+    protected function getApiHeaders(?User $user = NULL): array
     {
         $headers = [
             'Accept'       => 'application/json',
             'Content-Type' => 'application/json',
         ];
 
-        if ($user) {
+        if ($user instanceof User) {
             $token = $user->createToken('test-token')->plainTextToken;
             $headers['Authorization'] = "Bearer {$token}";
         }
@@ -230,7 +236,7 @@ abstract class TestCase extends BaseTestCase
     {
         $response->assertStatus($statusCode);
 
-        if (! empty($structure)) {
+        if ($structure !== []) {
             $response->assertJsonStructure($structure);
         }
     }

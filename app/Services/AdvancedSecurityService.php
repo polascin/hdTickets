@@ -11,7 +11,7 @@ use function count;
 
 class AdvancedSecurityService
 {
-    protected $agent;
+    protected Agent $agent;
 
     public function __construct()
     {
@@ -23,16 +23,14 @@ class AdvancedSecurityService
      */
     public function getSecurityDashboard(User $user): array
     {
-        return Cache::remember("security_dashboard_{$user->id}", 300, function () use ($user) {
-            return [
-                'session_management' => $this->getSessionManagement($user),
-                'device_tracking'    => $this->getDeviceTracking($user),
-                'login_history'      => $this->getLoginHistory($user),
-                'security_alerts'    => $this->getSecurityAlerts($user),
-                'security_score'     => $this->calculateAdvancedSecurityScore($user),
-                'recommendations'    => $this->getSecurityRecommendations($user),
-            ];
-        });
+        return Cache::remember("security_dashboard_{$user->id}", 300, fn (): array => [
+            'session_management' => $this->getSessionManagement(),
+            'device_tracking'    => $this->getDeviceTracking(),
+            'login_history'      => $this->getLoginHistory(),
+            'security_alerts'    => $this->getSecurityAlerts(),
+            'security_score'     => $this->calculateAdvancedSecurityScore($user),
+            'recommendations'    => $this->getSecurityRecommendations($user),
+        ]);
     }
 
     /**
@@ -60,7 +58,7 @@ class AdvancedSecurityService
     /**
      * Get session management data
      */
-    private function getSessionManagement(User $user): array
+    private function getSessionManagement(): array
     {
         // This would typically query the sessions table
         $activeSessions = collect([
@@ -88,14 +86,14 @@ class AdvancedSecurityService
             'active_sessions'        => $activeSessions->toArray(),
             'session_count'          => $activeSessions->count(),
             'suspicious_sessions'    => $this->detectSuspiciousSessions($activeSessions),
-            'session_security_score' => $this->calculateSessionSecurityScore($activeSessions),
+            'session_security_score' => $this->calculateSessionSecurityScore(),
         ];
     }
 
     /**
      * Get device tracking data
      */
-    private function getDeviceTracking(User $user): array
+    private function getDeviceTracking(): array
     {
         $trustedDevices = collect([
             [
@@ -130,22 +128,22 @@ class AdvancedSecurityService
             'trusted_devices'        => $trustedDevices->toArray(),
             'device_count'           => $trustedDevices->count(),
             'new_devices_this_month' => $trustedDevices->where('first_seen', '>', now()->subMonth())->count(),
-            'device_security_score'  => $this->calculateDeviceSecurityScore($trustedDevices),
+            'device_security_score'  => $this->calculateDeviceSecurityScore(),
         ];
     }
 
     /**
      * Get login history
      */
-    private function getLoginHistory(User $user): array
+    private function getLoginHistory(): array
     {
-        $loginHistory = collect(range(0, 19))->map(function ($i) {
+        $loginHistory = collect(range(0, 19))->map(function (string $i): array {
             $timestamp = now()->subHours($i * 6);
 
             return [
                 'id'         => 'login_' . $i,
                 'timestamp'  => $timestamp,
-                'ip_address' => '192.168.1.' . rand(100, 255),
+                'ip_address' => '192.168.1.' . random_int(100, 255),
                 'location'   => collect(['New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX'])->random(),
                 'device'     => collect(['Desktop - Chrome', 'Mobile - Safari', 'Tablet - Firefox'])->random(),
                 'success'    => $i < 18, // Last 2 failed for demonstration
@@ -165,7 +163,7 @@ class AdvancedSecurityService
     /**
      * Get security alerts
      */
-    private function getSecurityAlerts(User $user): array
+    private function getSecurityAlerts(): array
     {
         $alerts = collect([
             [
@@ -229,7 +227,7 @@ class AdvancedSecurityService
     {
         $recommendations = [];
 
-        if (!$user->two_factor_secret) {
+        if (! $user->two_factor_secret) {
             $recommendations[] = [
                 'type'           => 'two_factor',
                 'priority'       => 'high',
@@ -240,7 +238,7 @@ class AdvancedSecurityService
             ];
         }
 
-        if (!$user->email_verified_at) {
+        if (! $user->email_verified_at) {
             $recommendations[] = [
                 'type'           => 'email_verification',
                 'priority'       => 'high',
@@ -270,32 +268,28 @@ class AdvancedSecurityService
      */
     private function detectSuspiciousSessions($sessions): array
     {
-        return $sessions->filter(function ($session) {
+        return $sessions->filter(function ($session): bool {
             // Check for unusual locations, IP ranges, etc.
-            return rand(0, 100) < 10; // 10% chance for demo
+            return random_int(0, 100) < 10; // 10% chance for demo
         })->toArray();
     }
 
     /**
      * Calculate session security score
-     *
-     * @param mixed $sessions
      */
-    private function calculateSessionSecurityScore($sessions): int
+    private function calculateSessionSecurityScore(): int
     {
         // Calculate based on session patterns, locations, devices
-        return rand(80, 98);
+        return random_int(80, 98);
     }
 
     /**
      * Calculate device security score
-     *
-     * @param mixed $devices
      */
-    private function calculateDeviceSecurityScore($devices): int
+    private function calculateDeviceSecurityScore(): int
     {
         // Calculate based on trusted devices, patterns, etc.
-        return rand(85, 99);
+        return random_int(85, 99);
     }
 
     /**
@@ -305,9 +299,7 @@ class AdvancedSecurityService
      */
     private function detectUnusualActivity($loginHistory): array
     {
-        return $loginHistory->filter(function ($login) {
-            return $login['risk_level'] === 'high';
-        })->take(3)->toArray();
+        return $loginHistory->filter(fn ($login): bool => $login['risk_level'] === 'high')->take(3)->toArray();
     }
 
     /**
@@ -337,10 +329,10 @@ class AdvancedSecurityService
     private function getImprovementAreas(array $factors): array
     {
         return collect($factors)
-            ->filter(fn ($score) => $score < 90)
+            ->filter(fn ($score): bool => $score < 90)
             ->keys()
-            ->map(fn ($key) => str_replace('_', ' ', $key))
-            ->map(fn ($text) => ucwords($text))
+            ->map(fn ($key): string => str_replace('_', ' ', $key))
+            ->map(fn ($text): string => ucwords((string) $text))
             ->toArray();
     }
 

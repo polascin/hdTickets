@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Category>
+ * @extends Factory<Category>
  */
 class CategoryFactory extends Factory
 {
@@ -17,7 +18,7 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = fake()->words(2, TRUE);
+        fake()->words(2, TRUE);
 
         // Category names related to sports events
         $sportCategories = [
@@ -81,8 +82,8 @@ class CategoryFactory extends Factory
      */
     public function subcategory($parentId = NULL): static
     {
-        return $this->state(fn (array $attributes) => [
-            'parent_id'  => $parentId ?: \App\Models\Category::factory()->create()->id,
+        return $this->state(fn (array $attributes): array => [
+            'parent_id'  => $parentId ?: Category::factory()->create()->id,
             'sort_order' => fake()->numberBetween(1, 50),
         ]);
     }
@@ -92,7 +93,7 @@ class CategoryFactory extends Factory
      */
     public function inactive(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'is_active' => FALSE,
         ]);
     }
@@ -102,7 +103,7 @@ class CategoryFactory extends Factory
      */
     public function withName(string $name): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'name' => $name,
             'slug' => Str::slug($name),
         ]);

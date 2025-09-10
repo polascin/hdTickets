@@ -16,16 +16,6 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $alertType;
-
-    public $message;
-
-    public $level;
-
-    public $data;
-
-    public $user;
-
     public $timestamp;
 
     /**
@@ -37,13 +27,8 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
      * @param mixed      $user
      * @param mixed|null $data
      */
-    public function __construct($alertType, $message, $level, $user, $data = NULL)
+    public function __construct(public $alertType, public $message, public $level, public $user, public $data = NULL)
     {
-        $this->alertType = $alertType;
-        $this->message = $message;
-        $this->level = $level; // info, warning, error, critical
-        $this->user = $user;
-        $this->data = $data;
         $this->timestamp = now();
     }
 
@@ -56,12 +41,12 @@ class SystemAlertNotification extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $subject = $this->getSubjectLine();
-        $priority = $this->getPriority();
+        $this->getPriority();
 
         return new Envelope(
-            subject: $subject,
             from: config('mail.from.address'),
             replyTo: config('mail.from.address'),
+            subject: $subject,
             tags: ['system-alert', $this->level, $this->alertType],
             metadata: [
                 'alert_type' => $this->alertType,

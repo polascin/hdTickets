@@ -11,9 +11,9 @@ use function array_slice;
 
 class UserRotationService
 {
-    private const CACHE_KEY_PREFIX = 'user_rotation_';
+    private const string CACHE_KEY_PREFIX = 'user_rotation_';
 
-    private const DEFAULT_CACHE_TTL = 3600; // 1 hour
+    private const int DEFAULT_CACHE_TTL = 3600; // 1 hour
 
     /**
      * Get a rotated user for scraping operations
@@ -85,16 +85,13 @@ class UserRotationService
         if ($rotationPool->isEmpty()) {
             return $users;
         }
-
-        // Get unique users for batch operation
-        $usedIndices = [];
         $maxAttempts = min($count * 2, $rotationPool->count()); // Prevent infinite loops
         $attempts = 0;
 
         while ($users->count() < $count && $attempts < $maxAttempts) {
             $user = $this->getRotatedUser($platform, $operation);
 
-            if ($user && !$users->contains('id', $user->id)) {
+            if ($user && ! $users->contains('id', $user->id)) {
                 $users->push($user);
             }
 
@@ -211,9 +208,7 @@ class UserRotationService
     {
         $cacheKey = $this->getCacheKey($platform, $operation) . '_pool';
 
-        return Cache::remember($cacheKey, self::DEFAULT_CACHE_TTL, function () use ($platform, $operation) {
-            return $this->buildRotationPool($platform, $operation);
-        });
+        return Cache::remember($cacheKey, self::DEFAULT_CACHE_TTL, fn (): Collection => $this->buildRotationPool($platform, $operation));
     }
 
     /**
@@ -231,40 +226,24 @@ class UserRotationService
             ->whereNotNull('email_verified_at');
 
         // Platform-specific user selection
-        switch ($platform) {
-            case 'stubhub':
-            case 'viagogo':
-            case 'seatgeek':
-            case 'tickpick':
-            case 'fanzone':
-                // Prioritize platform-specific agents and premium customers
-                $query->where(function ($q) use ($platform): void {
-                    $q->where('email', 'like', "%{$platform}%")
-                        ->orWhere('email', 'like', '%premium%')
-                        ->orWhere('email', 'like', '%rotationpool%')
-                        ->orWhere('role', User::ROLE_AGENT);
-                });
-
-                break;
-            case 'high_frequency':
-                // For high-frequency operations, use rotation pool users
-                $query->where('email', 'like', '%rotationpool%');
-
-                break;
-            case 'premium':
-                // For premium operations, use premium customers and agents
-                $query->where(function ($q): void {
-                    $q->where('email', 'like', '%premium%')
-                        ->orWhere('role', User::ROLE_AGENT);
-                });
-
-                break;
-            default:
-                // General rotation - use all suitable users
-                $query->where('role', '!=', User::ROLE_ADMIN);
-
-                break;
-        }
+        match ($platform) {
+            // Prioritize platform-specific agents and premium customers
+            'stubhub', 'viagogo', 'seatgeek', 'tickpick', 'fanzone' => $query->where(function ($q) use ($platform): void {
+                $q->where('email', 'like', "%{$platform}%")
+                    ->orWhere('email', 'like', '%premium%')
+                    ->orWhere('email', 'like', '%rotationpool%')
+                    ->orWhere('role', User::ROLE_AGENT);
+            }),
+            // For high-frequency operations, use rotation pool users
+            'high_frequency' => $query->where('email', 'like', '%rotationpool%'),
+            // For premium operations, use premium customers and agents
+            'premium' => $query->where(function ($q): void {
+                $q->where('email', 'like', '%premium%')
+                    ->orWhere('role', User::ROLE_AGENT);
+            }),
+            // General rotation - use all suitable users
+            default => $query->where('role', '!=', User::ROLE_ADMIN),
+        };
 
         // Operation-specific filtering
         if ($operation === 'search') {

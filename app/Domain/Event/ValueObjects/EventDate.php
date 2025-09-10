@@ -5,8 +5,9 @@ namespace App\Domain\Event\ValueObjects;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
+use Stringable;
 
-final readonly class EventDate
+final readonly class EventDate implements Stringable
 {
     public function __construct(
         private DateTimeImmutable $value,
@@ -62,7 +63,7 @@ final readonly class EventDate
         try {
             return new self(new DateTimeImmutable($dateString));
         } catch (Exception $e) {
-            throw new InvalidArgumentException('Invalid date string provided: ' . $e->getMessage());
+            throw new InvalidArgumentException('Invalid date string provided: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 

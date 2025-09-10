@@ -13,14 +13,13 @@ use function count;
 
 class TicketAvailabilityPredictor
 {
-    protected $featureWeights;
+    protected array $featureWeights;
 
-    protected $modelCache;
+    protected $modelCache = [];
 
     public function __construct()
     {
         $this->featureWeights = $this->loadModelWeights();
-        $this->modelCache = [];
     }
 
     /**
@@ -33,7 +32,7 @@ class TicketAvailabilityPredictor
     {
         $cacheKey = "prediction:{$ticket->id}:" . md5($ticket->updated_at);
 
-        return Cache::remember($cacheKey, 300, function () use ($ticket) {
+        return Cache::remember($cacheKey, 300, function () use ($ticket): array {
             try {
                 // Extract features for ML prediction
                 $features = $this->extractFeatures($ticket);
@@ -164,16 +163,16 @@ class TicketAvailabilityPredictor
         // Determine trend
         if ($score <= -0.4) {
             $trend = 'decreasing';
-            $changePercentage = rand(-50, -20);
+            $changePercentage = random_int(-50, -20);
         } elseif ($score <= -0.1) {
             $trend = 'stable_decreasing';
-            $changePercentage = rand(-20, -5);
+            $changePercentage = random_int(-20, -5);
         } elseif ($score >= 0.1) {
             $trend = 'increasing';
-            $changePercentage = rand(5, 20);
+            $changePercentage = random_int(5, 20);
         } else {
             $trend = 'stable';
-            $changePercentage = rand(-5, 5);
+            $changePercentage = random_int(-5, 5);
         }
 
         return [
@@ -220,16 +219,16 @@ class TicketAvailabilityPredictor
         // Determine trend
         if ($score >= 0.3) {
             $trend = 'increasing';
-            $changePercentage = rand(10, 30);
+            $changePercentage = random_int(10, 30);
         } elseif ($score >= 0.1) {
             $trend = 'stable_increasing';
-            $changePercentage = rand(2, 10);
+            $changePercentage = random_int(2, 10);
         } elseif ($score <= -0.1) {
             $trend = 'decreasing';
-            $changePercentage = rand(-20, -5);
+            $changePercentage = random_int(-20, -5);
         } else {
             $trend = 'stable';
-            $changePercentage = rand(-5, 5);
+            $changePercentage = random_int(-5, 5);
         }
 
         return [
@@ -312,9 +311,7 @@ class TicketAvailabilityPredictor
         $confidence = 0.5; // Base confidence
 
         // More data points increase confidence
-        $dataPoints = count(array_filter($features, function ($value) {
-            return $value !== NULL && $value !== 0;
-        }));
+        $dataPoints = count(array_filter($features, fn ($value): bool => $value !== NULL && $value !== 0));
 
         $confidence += min(0.3, $dataPoints * 0.01);
 
@@ -466,9 +463,7 @@ class TicketAvailabilityPredictor
 
         $prices = array_values($priceHistory);
         $mean = array_sum($prices) / count($prices);
-        $variance = array_sum(array_map(function ($price) use ($mean) {
-            return pow($price - $mean, 2);
-        }, $prices)) / count($prices);
+        $variance = array_sum(array_map(fn ($price): float|int => ($price - $mean) ** 2, $prices)) / count($prices);
 
         return sqrt($variance) / $mean; // Coefficient of variation
     }
@@ -479,9 +474,7 @@ class TicketAvailabilityPredictor
     protected function calculatePriceTrend(array $priceHistory, int $days): float
     {
         $cutoff = now()->subDays($days);
-        $recentPrices = array_filter($priceHistory, function ($timestamp) use ($cutoff) {
-            return Carbon::parse($timestamp)->gte($cutoff);
-        }, ARRAY_FILTER_USE_KEY);
+        $recentPrices = array_filter($priceHistory, fn ($timestamp): bool => Carbon::parse($timestamp)->gte($cutoff), ARRAY_FILTER_USE_KEY);
 
         if (count($recentPrices) < 2) {
             return 0;
@@ -528,16 +521,16 @@ class TicketAvailabilityPredictor
     {
         $eventName = strtolower($eventName);
 
-        if (strpos($eventName, 'concert') !== FALSE) {
+        if (str_contains($eventName, 'concert')) {
             return 1;
         }
-        if (strpos($eventName, 'sports') !== FALSE) {
+        if (str_contains($eventName, 'sports')) {
             return 2;
         }
-        if (strpos($eventName, 'theater') !== FALSE) {
+        if (str_contains($eventName, 'theater')) {
             return 3;
         }
-        if (strpos($eventName, 'comedy') !== FALSE) {
+        if (str_contains($eventName, 'comedy')) {
             return 4;
         }
 
@@ -581,7 +574,7 @@ class TicketAvailabilityPredictor
     {
         // Calculate based on search volume, social mentions, etc.
         // Mock implementation
-        return rand(10, 90) / 100;
+        return random_int(10, 90) / 100;
     }
 
     /**
@@ -638,7 +631,7 @@ class TicketAvailabilityPredictor
     protected function calculateEventPopularityScore(ScrapedTicket $ticket): float
     {
         // Mock calculation based on social media mentions, search trends, etc.
-        return rand(10, 95) / 100;
+        return random_int(10, 95) / 100;
     }
 
     /**

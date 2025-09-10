@@ -4,10 +4,6 @@ namespace App\Services;
 
 class AdvancedAlertSystem
 {
-    public function __construct()
-    {
-    }
-
     public function createAlert(array $alertData): bool
     {
         return TRUE;

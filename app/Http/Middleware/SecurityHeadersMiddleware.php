@@ -162,8 +162,8 @@ class SecurityHeadersMiddleware
             }
 
             // Extract controller method
-            if (str_contains($action, '@')) {
-                [$controller, $method] = explode('@', $action);
+            if (str_contains((string) $action, '@')) {
+                [$controller, $method] = explode('@', (string) $action);
                 $controller = class_basename($controller);
 
                 return strtolower("{$controller}.{$method}");
@@ -240,7 +240,7 @@ class SecurityHeadersMiddleware
         Log::info('Built CSP Policies count:', ['count' => count($policies)]);
 
         // Use fallback only if no valid policies were generated from config
-        if (empty($policies)) {
+        if ($policies === []) {
             Log::info('Using fallback CSP policy - policies array was empty');
             $policies = [
                 "default-src 'self'",

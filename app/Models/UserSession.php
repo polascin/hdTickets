@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,13 +32,6 @@ class UserSession extends Model
         'is_trusted',
         'last_activity',
         'expires_at',
-    ];
-
-    protected $casts = [
-        'is_current'    => 'boolean',
-        'is_trusted'    => 'boolean',
-        'last_activity' => 'datetime',
-        'expires_at'    => 'datetime',
     ];
 
     /**
@@ -100,58 +94,6 @@ class UserSession extends Model
     }
 
     /**
-     * Get formatted location string.
-     */
-    /**
-     * Get  location string attribute
-     */
-    public function getLocationStringAttribute(): string
-    {
-        if ($this->city && $this->country) {
-            return "{$this->city}, {$this->country}";
-        }
-
-        if ($this->country) {
-            return $this->country;
-        }
-
-        return 'Unknown Location';
-    }
-
-    /**
-     * Get formatted device information.
-     */
-    /**
-     * Get  device info attribute
-     */
-    public function getDeviceInfoAttribute(): string
-    {
-        $parts = array_filter([
-            $this->browser,
-            $this->operating_system,
-            $this->device_type ? "({$this->device_type})" : NULL,
-        ]);
-
-        return implode(' on ', $parts) ?: 'Unknown Device';
-    }
-
-    /**
-     * Get device icon based on device type.
-     */
-    /**
-     * Get  device icon attribute
-     */
-    public function getDeviceIconAttribute(): string
-    {
-        return match (strtolower($this->device_type ?? '')) {
-            'mobile'  => 'device-mobile',
-            'tablet'  => 'device-tablet',
-            'desktop' => 'computer-desktop',
-            default   => 'device-desktop',
-        };
-    }
-
-    /**
      * Check if session is expired.
      */
     /**
@@ -170,33 +112,7 @@ class UserSession extends Model
      */
     public function isActive(): bool
     {
-        return !$this->isExpired();
-    }
-
-    /**
-     * Get time since last activity.
-     */
-    /**
-     * Get  time since last activity attribute
-     */
-    public function getTimeSinceLastActivityAttribute(): string
-    {
-        return $this->last_activity->diffForHumans();
-    }
-
-    /**
-     * Get session duration.
-     */
-    /**
-     * Get  session duration attribute
-     */
-    public function getSessionDurationAttribute(): string
-    {
-        if ($this->expires_at) {
-            return $this->created_at->diffForHumans($this->expires_at, ['syntax' => 1]);
-        }
-
-        return $this->created_at->diffForHumans(now(), ['syntax' => 1]);
+        return ! $this->isExpired();
     }
 
     /**
@@ -219,5 +135,83 @@ class UserSession extends Model
     public function revoke(): void
     {
         $this->delete();
+    }
+
+    /**
+     * Get  location string attribute
+     */
+    protected function locationString(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if ($this->city && $this->country) {
+                return "{$this->city}, {$this->country}";
+            }
+            if ($this->country) {
+                return $this->country;
+            }
+
+            return 'Unknown Location';
+        });
+    }
+
+    /**
+     * Get  device info attribute
+     */
+    protected function deviceInfo(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            $parts = array_filter([
+                $this->browser,
+                $this->operating_system,
+                $this->device_type ? "({$this->device_type})" : NULL,
+            ]);
+
+            return implode(' on ', $parts) ?: 'Unknown Device';
+        });
+    }
+
+    /**
+     * Get  device icon attribute
+     */
+    protected function deviceIcon(): Attribute
+    {
+        return Attribute::make(get: fn (): string => match (strtolower($this->device_type ?? '')) {
+            'mobile'  => 'device-mobile',
+            'tablet'  => 'device-tablet',
+            'desktop' => 'computer-desktop',
+            default   => 'device-desktop',
+        });
+    }
+
+    /**
+     * Get  time since last activity attribute
+     */
+    protected function timeSinceLastActivity(): Attribute
+    {
+        return Attribute::make(get: fn () => $this->last_activity->diffForHumans());
+    }
+
+    /**
+     * Get  session duration attribute
+     */
+    protected function sessionDuration(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if ($this->expires_at) {
+                return $this->created_at->diffForHumans($this->expires_at, ['syntax' => 1]);
+            }
+
+            return $this->created_at->diffForHumans(now(), ['syntax' => 1]);
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_current'    => 'boolean',
+            'is_trusted'    => 'boolean',
+            'last_activity' => 'datetime',
+            'expires_at'    => 'datetime',
+        ];
     }
 }

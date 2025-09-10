@@ -100,7 +100,7 @@ class TicketmasterAntiCorruptionLayer
 
         try {
             return new SportCategory($mappedCategory);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             return new SportCategory('OTHER');
         }
     }
@@ -146,7 +146,7 @@ class TicketmasterAntiCorruptionLayer
 
         try {
             return new EventDate(new DateTimeImmutable($dateString));
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Fallback to tomorrow if date parsing fails
             return new EventDate(new DateTimeImmutable('+1 day'));
         }
@@ -175,19 +175,19 @@ class TicketmasterAntiCorruptionLayer
     {
         $addressParts = [];
 
-        if (!empty($venue['address']['line1'])) {
+        if (! empty($venue['address']['line1'])) {
             $addressParts[] = $venue['address']['line1'];
         }
 
-        if (!empty($venue['address']['line2'])) {
+        if (! empty($venue['address']['line2'])) {
             $addressParts[] = $venue['address']['line2'];
         }
 
-        if (!empty($venue['postalCode'])) {
+        if (! empty($venue['postalCode'])) {
             $addressParts[] = $venue['postalCode'];
         }
 
-        return !empty($addressParts) ? implode(', ', $addressParts) : NULL;
+        return $addressParts === [] ? NULL : implode(', ', $addressParts);
     }
 
     /**
@@ -279,7 +279,7 @@ class TicketmasterAntiCorruptionLayer
     {
         $available = $ticketData['available'] ?? TRUE;
 
-        if (!$available) {
+        if (! $available) {
             return new AvailabilityStatus(AvailabilityStatus::SOLD_OUT);
         }
 

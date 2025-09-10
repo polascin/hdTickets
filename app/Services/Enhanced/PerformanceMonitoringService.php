@@ -18,7 +18,7 @@ class PerformanceMonitoringService
 {
     private $redis;
 
-    private $metrics = [];
+    private array $metrics = [];
 
     public function __construct()
     {
@@ -137,7 +137,7 @@ class PerformanceMonitoringService
             'success'   => $success,
         ]);
 
-        if (!$success) {
+        if (! $success) {
             $this->recordMetric('scraping.failure_rate', 1, [
                 'platform'  => $platform,
                 'operation' => $operation,
@@ -153,16 +153,14 @@ class PerformanceMonitoringService
      */
     public function getDashboardMetrics(): array
     {
-        return Cache::remember('performance_dashboard', 30, function () {
-            return [
-                'system'   => $this->getSystemMetrics(),
-                'database' => $this->getDatabaseMetrics(),
-                'cache'    => $this->getCacheMetrics(),
-                'api'      => $this->getApiMetrics(),
-                'scraping' => $this->getScrapingMetrics(),
-                'alerts'   => $this->getPerformanceAlerts(),
-            ];
-        });
+        return Cache::remember('performance_dashboard', 30, fn (): array => [
+            'system'   => $this->getSystemMetrics(),
+            'database' => $this->getDatabaseMetrics(),
+            'cache'    => $this->getCacheMetrics(),
+            'api'      => $this->getApiMetrics(),
+            'scraping' => $this->getScrapingMetrics(),
+            'alerts'   => $this->getPerformanceAlerts(),
+        ]);
     }
 
     /**
@@ -175,14 +173,11 @@ class PerformanceMonitoringService
     {
         $metrics = $this->getDashboardMetrics();
 
-        switch ($format) {
-            case 'prometheus':
-                return $this->exportPrometheusMetrics($metrics);
-            case 'influxdb':
-                return $this->exportInfluxDBMetrics($metrics);
-            default:
-                return json_encode($metrics, JSON_PRETTY_PRINT);
-        }
+        return match ($format) {
+            'prometheus' => $this->exportPrometheusMetrics($metrics),
+            'influxdb'   => $this->exportInfluxDBMetrics($metrics),
+            default      => json_encode($metrics, JSON_PRETTY_PRINT),
+        };
     }
 
     /**
@@ -361,25 +356,25 @@ class PerformanceMonitoringService
     {
         $sql = trim(strtoupper($sql));
 
-        if (strpos($sql, 'SELECT') === 0) {
+        if (str_starts_with($sql, 'SELECT')) {
             return 'SELECT';
         }
-        if (strpos($sql, 'INSERT') === 0) {
+        if (str_starts_with($sql, 'INSERT')) {
             return 'INSERT';
         }
-        if (strpos($sql, 'UPDATE') === 0) {
+        if (str_starts_with($sql, 'UPDATE')) {
             return 'UPDATE';
         }
-        if (strpos($sql, 'DELETE') === 0) {
+        if (str_starts_with($sql, 'DELETE')) {
             return 'DELETE';
         }
-        if (strpos($sql, 'CREATE') === 0) {
+        if (str_starts_with($sql, 'CREATE')) {
             return 'CREATE';
         }
-        if (strpos($sql, 'ALTER') === 0) {
+        if (str_starts_with($sql, 'ALTER')) {
             return 'ALTER';
         }
-        if (strpos($sql, 'DROP') === 0) {
+        if (str_starts_with($sql, 'DROP')) {
             return 'DROP';
         }
 
@@ -507,7 +502,7 @@ class PerformanceMonitoringService
     {
         $metrics = $this->getRecentMetrics('database.query_time', 100);
 
-        if (empty($metrics)) {
+        if ($metrics === []) {
             return ['count' => 0, 'average' => 0, 'max' => 0];
         }
 
@@ -530,7 +525,7 @@ class PerformanceMonitoringService
     {
         $hits = $this->getRecentMetrics('cache.hit_rate', 50);
 
-        if (empty($hits)) {
+        if ($hits === []) {
             return ['hit_rate' => 0, 'operations' => 0];
         }
 
@@ -560,17 +555,15 @@ class PerformanceMonitoringService
             foreach (array_slice($keys, 0, $limit) as $key) {
                 $data = $this->redis->lrange($key, 0, -1);
                 foreach ($data as $item) {
-                    $metrics[] = json_decode($item, TRUE);
+                    $metrics[] = json_decode((string) $item, TRUE);
                 }
             }
 
             // Sort by timestamp (most recent first)
-            usort($metrics, function ($a, $b) {
-                return $b['timestamp'] <=> $a['timestamp'];
-            });
+            usort($metrics, fn (array $a, array $b): int => $b['timestamp'] <=> $a['timestamp']);
 
             return array_slice($metrics, 0, $limit);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -640,7 +633,7 @@ class PerformanceMonitoringService
 
         for ($i = 23; $i >= 0; $i--) {
             $hour = $now->copy()->subHours($i);
-            $hours[$hour->format('H:00')] = rand(50, 300); // Mock data
+            $hours[$hour->format('H:00')] = random_int(50, 300); // Mock data
         }
 
         return $hours;
@@ -730,7 +723,7 @@ class PerformanceMonitoringService
             $result = DB::select('SHOW STATUS LIKE "Slow_queries"');
 
             return $result[0]->Value ?? 0;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -750,7 +743,7 @@ class PerformanceMonitoringService
             $total = $hits + $misses;
 
             return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }

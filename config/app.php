@@ -1,5 +1,17 @@
 <?php declare(strict_types=1);
 
+use App\Providers\ActivityLoggerServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+use App\Providers\BroadcastServiceProvider;
+use App\Providers\ComponentArchitectureServiceProvider;
+use App\Providers\CssTimestampServiceProvider;
+use App\Providers\DomainDrivenDesignServiceProvider;
+use App\Providers\EnvServiceProvider;
+use App\Providers\EventDrivenArchitectureServiceProvider;
+use App\Providers\EventServiceProvider;
+use App\Providers\PurchaseServiceProvider;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
@@ -176,19 +188,19 @@ return [
         // Package Service Providers...
 
         // Application Service Providers...
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\ComponentArchitectureServiceProvider::class,
-        App\Providers\ActivityLoggerServiceProvider::class,
-        App\Providers\CssTimestampServiceProvider::class,
-        App\Providers\PurchaseServiceProvider::class,
-        App\Providers\DomainDrivenDesignServiceProvider::class,
-        App\Providers\EventDrivenArchitectureServiceProvider::class,
+        AppServiceProvider::class,
+        AuthServiceProvider::class,
+        BroadcastServiceProvider::class,
+        EventServiceProvider::class,
+        RouteServiceProvider::class,
+        ComponentArchitectureServiceProvider::class,
+        ActivityLoggerServiceProvider::class,
+        CssTimestampServiceProvider::class,
+        PurchaseServiceProvider::class,
+        DomainDrivenDesignServiceProvider::class,
+        EventDrivenArchitectureServiceProvider::class,
         // App\Providers\TelescopeServiceProvider::class, // Temporarily disabled until dev dependencies are installed
-        App\Providers\EnvServiceProvider::class,
+        EnvServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -3,8 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Services\Analytics\AutomatedReportingService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+
+use function count;
 
 class GenerateScheduledReports extends Command
 {
@@ -25,15 +28,12 @@ class GenerateScheduledReports extends Command
      */
     protected $description = 'Generate and distribute scheduled analytics reports for HD Tickets';
 
-    private AutomatedReportingService $reportingService;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(AutomatedReportingService $reportingService)
+    public function __construct(private AutomatedReportingService $reportingService)
     {
         parent::__construct();
-        $this->reportingService = $reportingService;
     }
 
     /**
@@ -68,12 +68,12 @@ class GenerateScheduledReports extends Command
             try {
                 $results = $this->reportingService->generateScheduledReports(
                     $reportType,
-                    ['force' => $force]
+                    ['force' => $force],
                 );
 
                 $allResults = array_merge($allResults, $results);
                 $this->displayResults($reportType, $results);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("❌ Failed to generate {$reportType} reports: {$e->getMessage()}");
                 Log::error('Scheduled report generation command failed', [
                     'type'  => $reportType,
@@ -117,18 +117,18 @@ class GenerateScheduledReports extends Command
      */
     private function displayResults(string $type, array $results): void
     {
-        if (empty($results)) {
+        if ($results === []) {
             $this->comment("  ℹ️  No {$type} reports were due for generation");
 
             return;
         }
 
-        $successful = array_filter($results, fn ($r) => $r['success']);
-        $failed = array_filter($results, fn ($r) => !$r['success']);
+        $successful = array_filter($results, fn (array $r) => $r['success']);
+        $failed = array_filter($results, fn (array $r): bool => ! $r['success']);
 
         $this->info('  ✅ Successfully generated: ' . count($successful));
 
-        if (!empty($failed)) {
+        if ($failed !== []) {
             $this->error('  ❌ Failed to generate: ' . count($failed));
         }
 
@@ -141,7 +141,7 @@ class GenerateScheduledReports extends Command
 
                 // Show delivery status
                 if (isset($result['delivery'])) {
-                    $deliverySuccess = count(array_filter($result['delivery'], fn ($d) => $d['success']));
+                    $deliverySuccess = count(array_filter($result['delivery'], fn (array $d) => $d['success']));
                     $deliveryTotal = count($result['delivery']);
                     $this->line("      📧 Delivered to {$deliverySuccess}/{$deliveryTotal} recipients");
                 }
@@ -160,7 +160,7 @@ class GenerateScheduledReports extends Command
         $this->info('===========');
 
         $totalReports = count($allResults);
-        $successful = count(array_filter($allResults, fn ($r) => $r['success']));
+        $successful = count(array_filter($allResults, fn (array $r) => $r['success']));
         $failed = $totalReports - $successful;
 
         $this->info("Total reports processed: {$totalReports}");
@@ -195,7 +195,7 @@ class GenerateScheduledReports extends Command
         }
 
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pow = floor(($size ? log($size) : 0) / log(1024));
+        $pow = floor(($size !== 0 ? log($size) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
 
         $size /= (1 << (10 * $pow));

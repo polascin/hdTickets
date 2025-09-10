@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Override;
 
 /**
  * Sports Event Category Model
@@ -57,20 +59,7 @@ class Category extends Model
         'metadata',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'is_active'  => 'boolean',
-        'sort_order' => 'integer',
-        'metadata'   => 'array',
-    ];
-
-    protected $dates = [
-        'deleted_at',
-    ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * Get the route key for the model
@@ -78,6 +67,7 @@ class Category extends Model
     /**
      * Get  route key name
      */
+    #[Override]
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -242,25 +232,6 @@ class Category extends Model
     }
 
     /**
-     * Get the full category path (parent > child)
-     */
-    /**
-     * Get  full path attribute
-     */
-    public function getFullPathAttribute(): string
-    {
-        $path = $this->name;
-        $parent = $this->parent;
-
-        while ($parent) {
-            $path = $parent->name . ' > ' . $path;
-            $parent = $parent->parent;
-        }
-
-        return $path;
-    }
-
-    /**
      * Get all ancestors (parents, grandparents, etc.)
      */
     /**
@@ -299,36 +270,44 @@ class Category extends Model
     }
 
     /**
-     * Get available scraped tickets count
+     * Get  full path attribute
      */
+    protected function fullPath(): Attribute
+    {
+        return Attribute::make(get: function () {
+            $path = $this->name;
+            $parent = $this->parent;
+            while ($parent) {
+                $path = $parent->name . ' > ' . $path;
+                $parent = $parent->parent;
+            }
+
+            return $path;
+        });
+    }
+
     /**
      * Get  available tickets count attribute
      */
-    public function getAvailableTicketsCountAttribute(): int
+    protected function availableTicketsCount(): Attribute
     {
-        return $this->scrapedTickets()->where('is_available', TRUE)->count();
+        return Attribute::make(get: fn () => $this->scrapedTickets()->where('is_available', TRUE)->count());
     }
 
-    /**
-     * Get total scraped tickets count
-     */
     /**
      * Get  total scraped tickets count attribute
      */
-    public function getTotalScrapedTicketsCountAttribute(): int
+    protected function totalScrapedTicketsCount(): Attribute
     {
-        return $this->scrapedTickets()->count();
+        return Attribute::make(get: fn () => $this->scrapedTickets()->count());
     }
 
     /**
-     * Get ticket sources count
-     */
-    /**
      * Get  ticket sources count attribute
      */
-    public function getTicketSourcesCountAttribute(): int
+    protected function ticketSourcesCount(): Attribute
     {
-        return $this->ticketSources()->count();
+        return Attribute::make(get: fn () => $this->ticketSources()->count());
     }
 
     /**
@@ -337,6 +316,7 @@ class Category extends Model
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -355,5 +335,19 @@ class Category extends Model
                 $category->slug = Str::slug($category->name);
             }
         });
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active'  => 'boolean',
+            'sort_order' => 'integer',
+            'metadata'   => 'array',
+        ];
     }
 }

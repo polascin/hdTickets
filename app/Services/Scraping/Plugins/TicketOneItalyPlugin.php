@@ -138,9 +138,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -156,7 +154,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
             Log::info("TicketOne Italy Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -248,24 +246,6 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     }
 
     /**
-     * Map competition names to Italian terms
-     */
-    private function mapCompetition(string $competition): string
-    {
-        $competitions = [
-            'serie_a'          => 'Serie A TIM',
-            'serie_b'          => 'Serie BKT',
-            'champions_league' => 'Champions League',
-            'europa_league'    => 'Europa League',
-            'coppa_italia'     => 'Coppa Italia',
-            'supercoppa'       => 'Supercoppa Italiana',
-            'derby'            => 'Derby',
-        ];
-
-        return $competitions[strtolower($competition)] ?? $competition;
-    }
-
-    /**
      * Extract ticket data from DOM node
      */
     private function extractTicketData(Crawler $node): ?array
@@ -273,7 +253,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.titolo, .event-title, .nome-evento, h3 a, .title');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -291,7 +271,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -326,7 +306,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
     {
         $eventDate = $this->parseDate($date);
 
-        if ($eventDate && !empty($time)) {
+        if ($eventDate && ($time !== '' && $time !== '0')) {
             // Try to combine date and time
             $timeFormatted = $this->parseTime($time);
             if ($timeFormatted) {
@@ -355,7 +335,7 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
@@ -364,11 +344,9 @@ class TicketOneItalyPlugin extends BaseScraperPlugin
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '.', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '.', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function array_slice;
+use function count;
+
 /**
  * Query Performance Monitoring Middleware
  *
@@ -23,10 +26,6 @@ use Illuminate\Support\Facades\Log;
  */
 class QueryPerformanceMonitoringMiddleware
 {
-    protected DatabaseOptimizationService $dbOptimizer;
-
-    protected RedisCacheService $cacheService;
-
     protected array $queryLog = [];
 
     protected float $requestStartTime;
@@ -35,19 +34,13 @@ class QueryPerformanceMonitoringMiddleware
 
     protected float $totalQueryTime = 0;
 
-    public function __construct(
-        DatabaseOptimizationService $dbOptimizer,
-        RedisCacheService $cacheService
-    ) {
-        $this->dbOptimizer = $dbOptimizer;
-        $this->cacheService = $cacheService;
+    public function __construct(protected DatabaseOptimizationService $dbOptimizer, protected RedisCacheService $cacheService)
+    {
     }
 
     /**
      * Handle an incoming request
      *
-     * @param  Request $request
-     * @param  Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -73,7 +66,7 @@ class QueryPerformanceMonitoringMiddleware
      */
     protected function startQueryLogging(): void
     {
-        DB::listen(function ($query) {
+        DB::listen(function ($query): void {
             $this->logQuery($query);
         });
     }
@@ -89,6 +82,8 @@ class QueryPerformanceMonitoringMiddleware
 
     /**
      * Log individual query with performance metrics
+     *
+     * @param mixed $query
      */
     protected function logQuery($query): void
     {
@@ -210,19 +205,12 @@ class QueryPerformanceMonitoringMiddleware
      */
     protected function storeQueryMetrics(array $queryInfo): void
     {
-        $metrics = [
-            'query_count'  => 1,
-            'total_time'   => $queryInfo['time'],
-            'memory_usage' => $queryInfo['memory'],
-            'timestamp'    => $queryInfo['timestamp'],
-        ];
-
         // Store in Redis with layer-specific key
         $key = 'query_metrics:' . date('Y-m-d:H:i');
         $existing = $this->cacheService->getLayer(
             RedisCacheService::LAYER_MONITORING,
             $key,
-            []
+            [],
         );
 
         // Aggregate metrics
@@ -238,12 +226,14 @@ class QueryPerformanceMonitoringMiddleware
             RedisCacheService::LAYER_MONITORING,
             $key,
             $aggregated,
-            ['ttl' => RedisCacheService::TTL_SHORT]
+            ['ttl' => RedisCacheService::TTL_SHORT],
         );
     }
 
     /**
      * Analyze overall request performance
+     *
+     * @param mixed $response
      */
     protected function analyzeRequestPerformance(Request $request, $response): void
     {
@@ -290,7 +280,7 @@ class QueryPerformanceMonitoringMiddleware
         $existing = $this->cacheService->getLayer(
             RedisCacheService::LAYER_MONITORING,
             $key,
-            []
+            [],
         );
 
         // Aggregate hourly metrics
@@ -308,7 +298,7 @@ class QueryPerformanceMonitoringMiddleware
             RedisCacheService::LAYER_MONITORING,
             $key,
             $aggregated,
-            ['ttl' => RedisCacheService::TTL_EXTENDED]
+            ['ttl' => RedisCacheService::TTL_EXTENDED],
         );
     }
 

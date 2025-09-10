@@ -27,25 +27,12 @@ use Illuminate\Http\Request;
  */
 class SecurityDashboardController extends Controller
 {
-    protected SecurityMonitoringService $securityMonitoring;
-
-    protected EnhancedLoginSecurityService $loginSecurity;
-
-    protected MultiFactorAuthService $mfaService;
-
-    protected AdvancedRBACService $rbacService;
-
     public function __construct(
-        SecurityMonitoringService $securityMonitoring,
-        EnhancedLoginSecurityService $loginSecurity,
-        MultiFactorAuthService $mfaService,
-        AdvancedRBACService $rbacService
+        protected SecurityMonitoringService $securityMonitoring,
+        protected EnhancedLoginSecurityService $loginSecurity,
+        protected MultiFactorAuthService $mfaService,
+        protected AdvancedRBACService $rbacService,
     ) {
-        $this->securityMonitoring = $securityMonitoring;
-        $this->loginSecurity = $loginSecurity;
-        $this->mfaService = $mfaService;
-        $this->rbacService = $rbacService;
-
         $this->middleware('auth');
         $this->middleware('role:admin'); // Only admins can access security dashboard
     }
@@ -57,7 +44,184 @@ class SecurityDashboardController extends Controller
     {
         $dashboardData = $this->getDashboardData();
 
-        return view('security.dashboard.index', compact('dashboardData'));
+        return view('security.dashboard.index', ['dashboardData' => $dashboardData]);
+    }
+
+    /**
+     * Security incidents management page
+     */
+    public function incidents()
+    {
+        $incidents = SecurityIncident::with(['affectedUser', 'assignee', 'securityEvents'])
+            ->orderByDesc('detected_at')
+            ->paginate(20);
+
+        $stats = [
+            'open'           => SecurityIncident::open()->count(),
+            'critical'       => SecurityIncident::critical()->count(),
+            'unassigned'     => SecurityIncident::unassigned()->count(),
+            'resolved_today' => SecurityIncident::where('resolved_at', '>=', now()->startOfDay())->count(),
+        ];
+
+        return view('security.dashboard.incidents', ['incidents' => $incidents, 'stats' => $stats]);
+    }
+
+    /**
+     * Security events timeline
+     */
+    public function events(Request $request)
+    {
+        $query = SecurityEvent::with('user')->orderByDesc('occurred_at');
+
+        // Apply filters
+        if ($request->filled('event_type')) {
+            $query->where('event_type', $request->event_type);
+        }
+
+        if ($request->filled('severity')) {
+            $query->where('severity', $request->severity);
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('occurred_at', '>=', Carbon::parse($request->date_from));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('occurred_at', '<=', Carbon::parse($request->date_to)->endOfDay());
+        }
+
+        $events = $query->paginate(50);
+
+        $eventTypes = SecurityEvent::distinct('event_type')
+            ->orderBy('event_type')
+            ->pluck('event_type');
+
+        return view('security.dashboard.events', ['events' => $events, 'eventTypes' => $eventTypes]);
+    }
+
+    /**
+     * User security management
+     */
+    public function users()
+    {
+        $users = User::with(['roles', 'loginAttempts' => function ($query): void {
+            $query->recent(24);
+        }])->paginate(20);
+
+        $stats = [
+            'total'       => User::count(),
+            'active_24h'  => User::where('last_login_at', '>=', now()->subDay())->count(),
+            'mfa_enabled' => User::where('two_factor_enabled', TRUE)->count(),
+            'locked'      => User::where('locked_until', '>', now())->count(),
+        ];
+
+        return view('security.dashboard.users', ['users' => $users, 'stats' => $stats]);
+    }
+
+    /**
+     * Audit log viewer
+     */
+    public function audit(Request $request)
+    {
+        $query = AuditLog::with('user')->orderByDesc('performed_at');
+
+        // Apply filters
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('resource_type')) {
+            $query->where('resource_type', $request->resource_type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->where('performed_at', '>=', Carbon::parse($request->date_from));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('performed_at', '<=', Carbon::parse($request->date_to)->endOfDay());
+        }
+
+        $logs = $query->paginate(50);
+
+        $actions = AuditLog::distinct('action')
+            ->orderBy('action')
+            ->pluck('action');
+
+        $resourceTypes = AuditLog::whereNotNull('resource_type')
+            ->distinct('resource_type')
+            ->orderBy('resource_type')
+            ->pluck('resource_type');
+
+        return view('security.dashboard.audit', ['logs' => $logs, 'actions' => $actions, 'resourceTypes' => $resourceTypes]);
+    }
+
+    /**
+     * Security configuration management
+     */
+    public function configuration()
+    {
+        $config = [
+            'monitoring'     => config('security.monitoring'),
+            'authentication' => config('security.authentication'),
+            'rbac'           => config('security.rbac'),
+            'audit'          => config('security.audit'),
+            'compliance'     => config('security.compliance'),
+        ];
+
+        return view('security.dashboard.configuration', ['config' => $config]);
+    }
+
+    /**
+     * Security demo and testing interface
+     */
+    public function demo()
+    {
+        $demoData = [
+            'mfa_demo'          => $this->getMfaDemoData(),
+            'threat_simulation' => $this->getThreatSimulationData(),
+            'rbac_demo'         => $this->getRbacDemoData(),
+            'audit_demo'        => $this->getAuditDemoData(),
+        ];
+
+        return view('security.dashboard.demo', ['demoData' => $demoData]);
+    }
+
+    /**
+     * API endpoint for real-time dashboard updates
+     */
+    public function apiDashboardData()
+    {
+        return response()->json([
+            'success'   => TRUE,
+            'data'      => $this->getDashboardData(),
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
+     * API endpoint for live security events
+     */
+    public function apiLiveEvents()
+    {
+        $events = SecurityEvent::with('user')
+            ->where('occurred_at', '>=', now()->subMinutes(5))
+            ->orderByDesc('occurred_at')
+            ->get();
+
+        return response()->json([
+            'success'   => TRUE,
+            'events'    => $events,
+            'timestamp' => now()->toISOString(),
+        ]);
     }
 
     /**
@@ -254,183 +418,6 @@ class SecurityDashboardController extends Controller
             'system_alerts'    => $this->getSystemAlerts(),
             'refresh_interval' => config('security.metrics.dashboard_refresh_interval', 30),
         ];
-    }
-
-    /**
-     * Security incidents management page
-     */
-    public function incidents()
-    {
-        $incidents = SecurityIncident::with(['affectedUser', 'assignee', 'securityEvents'])
-            ->orderByDesc('detected_at')
-            ->paginate(20);
-
-        $stats = [
-            'open'           => SecurityIncident::open()->count(),
-            'critical'       => SecurityIncident::critical()->count(),
-            'unassigned'     => SecurityIncident::unassigned()->count(),
-            'resolved_today' => SecurityIncident::where('resolved_at', '>=', now()->startOfDay())->count(),
-        ];
-
-        return view('security.dashboard.incidents', compact('incidents', 'stats'));
-    }
-
-    /**
-     * Security events timeline
-     */
-    public function events(Request $request)
-    {
-        $query = SecurityEvent::with('user')->orderByDesc('occurred_at');
-
-        // Apply filters
-        if ($request->filled('event_type')) {
-            $query->where('event_type', $request->event_type);
-        }
-
-        if ($request->filled('severity')) {
-            $query->where('severity', $request->severity);
-        }
-
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('occurred_at', '>=', Carbon::parse($request->date_from));
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('occurred_at', '<=', Carbon::parse($request->date_to)->endOfDay());
-        }
-
-        $events = $query->paginate(50);
-
-        $eventTypes = SecurityEvent::distinct('event_type')
-            ->orderBy('event_type')
-            ->pluck('event_type');
-
-        return view('security.dashboard.events', compact('events', 'eventTypes'));
-    }
-
-    /**
-     * User security management
-     */
-    public function users()
-    {
-        $users = User::with(['roles', 'loginAttempts' => function ($query) {
-            $query->recent(24);
-        }])->paginate(20);
-
-        $stats = [
-            'total'       => User::count(),
-            'active_24h'  => User::where('last_login_at', '>=', now()->subDay())->count(),
-            'mfa_enabled' => User::where('two_factor_enabled', TRUE)->count(),
-            'locked'      => User::where('locked_until', '>', now())->count(),
-        ];
-
-        return view('security.dashboard.users', compact('users', 'stats'));
-    }
-
-    /**
-     * Audit log viewer
-     */
-    public function audit(Request $request)
-    {
-        $query = AuditLog::with('user')->orderByDesc('performed_at');
-
-        // Apply filters
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
-        }
-
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        if ($request->filled('resource_type')) {
-            $query->where('resource_type', $request->resource_type);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->where('performed_at', '>=', Carbon::parse($request->date_from));
-        }
-
-        if ($request->filled('date_to')) {
-            $query->where('performed_at', '<=', Carbon::parse($request->date_to)->endOfDay());
-        }
-
-        $logs = $query->paginate(50);
-
-        $actions = AuditLog::distinct('action')
-            ->orderBy('action')
-            ->pluck('action');
-
-        $resourceTypes = AuditLog::whereNotNull('resource_type')
-            ->distinct('resource_type')
-            ->orderBy('resource_type')
-            ->pluck('resource_type');
-
-        return view('security.dashboard.audit', compact('logs', 'actions', 'resourceTypes'));
-    }
-
-    /**
-     * Security configuration management
-     */
-    public function configuration()
-    {
-        $config = [
-            'monitoring'     => config('security.monitoring'),
-            'authentication' => config('security.authentication'),
-            'rbac'           => config('security.rbac'),
-            'audit'          => config('security.audit'),
-            'compliance'     => config('security.compliance'),
-        ];
-
-        return view('security.dashboard.configuration', compact('config'));
-    }
-
-    /**
-     * Security demo and testing interface
-     */
-    public function demo()
-    {
-        $demoData = [
-            'mfa_demo'          => $this->getMfaDemoData(),
-            'threat_simulation' => $this->getThreatSimulationData(),
-            'rbac_demo'         => $this->getRbacDemoData(),
-            'audit_demo'        => $this->getAuditDemoData(),
-        ];
-
-        return view('security.dashboard.demo', compact('demoData'));
-    }
-
-    /**
-     * API endpoint for real-time dashboard updates
-     */
-    public function apiDashboardData()
-    {
-        return response()->json([
-            'success'   => TRUE,
-            'data'      => $this->getDashboardData(),
-            'timestamp' => now()->toISOString(),
-        ]);
-    }
-
-    /**
-     * API endpoint for live security events
-     */
-    public function apiLiveEvents()
-    {
-        $events = SecurityEvent::with('user')
-            ->where('occurred_at', '>=', now()->subMinutes(5))
-            ->orderByDesc('occurred_at')
-            ->get();
-
-        return response()->json([
-            'success'   => TRUE,
-            'events'    => $events,
-            'timestamp' => now()->toISOString(),
-        ]);
     }
 
     // Protected helper methods for data processing

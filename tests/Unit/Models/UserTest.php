@@ -7,6 +7,8 @@ use App\Models\TicketAlert;
 use App\Models\User;
 use App\Models\UserSubscription;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -102,7 +104,7 @@ class UserTest extends TestCase
             'ends_at'   => now()->addYear(),
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->subscriptions);
+        $this->assertInstanceOf(Collection::class, $user->subscriptions);
         $this->assertEquals(1, $user->subscriptions->count());
         $this->assertEquals('premium', $user->subscriptions->first()->plan_name);
     }
@@ -122,7 +124,7 @@ class UserTest extends TestCase
             'is_active'             => TRUE,
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->ticketAlerts);
+        $this->assertInstanceOf(Collection::class, $user->ticketAlerts);
         $this->assertEquals(1, $user->ticketAlerts->count());
         $this->assertEquals('Football Alerts', $user->ticketAlerts->first()->title);
     }
@@ -143,7 +145,7 @@ class UserTest extends TestCase
             'status'    => 'pending',
         ]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->purchaseAttempts);
+        $this->assertInstanceOf(Collection::class, $user->purchaseAttempts);
         $this->assertEquals(1, $user->purchaseAttempts->count());
         $this->assertEquals('pending', $user->purchaseAttempts->first()->status);
     }
@@ -378,7 +380,7 @@ class UserTest extends TestCase
      */
     public function it_validates_email_format(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         User::create([
             'name'     => 'Test User',
@@ -395,7 +397,7 @@ class UserTest extends TestCase
     {
         $this->createTestUser(['email' => 'test@example.com']);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         $this->createTestUser(['email' => 'test@example.com']);
     }

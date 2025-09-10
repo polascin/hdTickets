@@ -16,14 +16,11 @@ use function strlen;
 
 class TicketmasterScraper
 {
-    /** @var TicketmasterClient */
-    protected $ticketmasterClient;
+    protected TicketmasterClient $ticketmasterClient;
 
-    /** @var int */
-    protected $defaultUserId;
+    protected int $defaultUserId;
 
-    /** @var int */
-    protected $defaultCategoryId;
+    protected int $defaultCategoryId;
 
     public function __construct()
     {
@@ -75,9 +72,9 @@ class TicketmasterScraper
             foreach ($searchResults as $eventData) {
                 try {
                     // Get detailed event information
-                    if (!empty($eventData['url'])) {
+                    if (! empty($eventData['url'])) {
                         $detailedEvent = $this->ticketmasterClient->scrapeEventDetails($eventData['url']);
-                        if (!empty($detailedEvent)) {
+                        if (! empty($detailedEvent)) {
                             $eventData = array_merge($eventData, $detailedEvent);
                         }
                     }
@@ -269,14 +266,14 @@ class TicketmasterScraper
             foreach ($formats as $format) {
                 try {
                     return Carbon::createFromFormat($format, $dateString);
-                } catch (Exception $e) {
+                } catch (Exception) {
                     continue;
                 }
             }
 
             // Try Carbon's flexible parsing
             return Carbon::parse($dateString);
-        } catch (Exception $e) {
+        } catch (Exception) {
             Log::warning('Failed to parse event date: ' . $dateString);
 
             return NULL;
@@ -296,28 +293,28 @@ class TicketmasterScraper
     {
         $parts = [];
 
-        if (!empty($eventData['description'])) {
+        if (! empty($eventData['description'])) {
             $parts[] = $eventData['description'];
         }
 
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $parts[] = 'Venue: ' . $eventData['venue'];
         }
 
-        if (!empty($eventData['address'])) {
+        if (! empty($eventData['address'])) {
             $parts[] = 'Address: ' . $eventData['address'];
         }
 
-        if (!empty($eventData['date_time']) || !empty($eventData['date'])) {
+        if (! empty($eventData['date_time']) || ! empty($eventData['date'])) {
             $dateTime = $eventData['date_time'] ?? $eventData['date'];
             $parts[] = 'Event Date: ' . $dateTime;
         }
 
-        if (!empty($eventData['price_range'])) {
+        if (! empty($eventData['price_range'])) {
             $parts[] = 'Price Range: ' . $eventData['price_range'];
         }
 
-        if (!empty($eventData['url'])) {
+        if (! empty($eventData['url'])) {
             $parts[] = 'Ticketmaster URL: ' . $eventData['url'];
         }
 
@@ -341,7 +338,7 @@ class TicketmasterScraper
         // High priority keywords
         $highPriorityKeywords = ['concert', 'festival', 'championship', 'final', 'playoff'];
         foreach ($highPriorityKeywords as $keyword) {
-            if (strpos($name, $keyword) !== FALSE) {
+            if (str_contains($name, $keyword)) {
                 return Ticket::PRIORITY_HIGH;
             }
         }
@@ -378,21 +375,21 @@ class TicketmasterScraper
         $name = strtolower($eventData['name'] ?? '');
 
         // Add category-based tags
-        if (strpos($name, 'concert') !== FALSE || strpos($name, 'music') !== FALSE) {
+        if (str_contains($name, 'concert') || str_contains($name, 'music')) {
             $tags[] = 'music';
         }
-        if (strpos($name, 'sport') !== FALSE || strpos($name, 'game') !== FALSE) {
+        if (str_contains($name, 'sport') || str_contains($name, 'game')) {
             $tags[] = 'sports';
         }
-        if (strpos($name, 'theater') !== FALSE || strpos($name, 'play') !== FALSE) {
+        if (str_contains($name, 'theater') || str_contains($name, 'play')) {
             $tags[] = 'theater';
         }
-        if (strpos($name, 'comedy') !== FALSE) {
+        if (str_contains($name, 'comedy')) {
             $tags[] = 'comedy';
         }
 
         // Add venue as tag if available
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $venueTag = Str::slug($eventData['venue']);
             if (strlen($venueTag) <= 30) {
                 $tags[] = $venueTag;
@@ -412,7 +409,7 @@ class TicketmasterScraper
     {
         $user = User::where('email', 'ticketmaster.scraper@hdtickets.local')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'name'              => 'Ticketmaster Scraper',
                 'email'             => 'ticketmaster.scraper@hdtickets.local',
@@ -435,7 +432,7 @@ class TicketmasterScraper
     {
         $category = Category::where('name', 'Ticketmaster Events')->first();
 
-        if (!$category) {
+        if (! $category) {
             $category = Category::create([
                 'name'        => 'Ticketmaster Events',
                 'description' => 'Events imported from Ticketmaster scraping',

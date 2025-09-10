@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use RuntimeException;
 
+use function count;
+
 /**
  * Email Monitoring Service
  *
@@ -20,20 +22,13 @@ use RuntimeException;
  */
 class EmailMonitoringService
 {
-    private ImapConnectionService $connectionService;
-
-    private EmailParsingService $parsingService;
-
     private array $config;
 
     private array $platformPatterns;
 
     public function __construct(
-        ImapConnectionService $connectionService,
-        EmailParsingService $parsingService
+        private ImapConnectionService $connectionService,
     ) {
-        $this->connectionService = $connectionService;
-        $this->parsingService = $parsingService;
         $this->config = Config::get('imap');
         $this->platformPatterns = $this->config['platform_patterns'] ?? [];
     }
@@ -89,8 +84,9 @@ class EmailMonitoringService
     /**
      * Monitor specific email connection
      *
-     * @param  string $connection Connection name
-     * @return array  Connection monitoring results
+     * @param string $connection Connection name
+     *
+     * @return array Connection monitoring results
      */
     public function monitorConnection(string $connection): array
     {
@@ -147,12 +143,61 @@ class EmailMonitoringService
     }
 
     /**
+     * Get monitoring statistics
+     *
+     * @return array Monitoring statistics
+     */
+    public function getMonitoringStats(): array
+    {
+        $stats = [
+            'total_connections'  => count($this->config['connections'] ?? []),
+            'active_connections' => 0,
+            'total_mailboxes'    => count($this->config['monitoring']['mailboxes'] ?? []),
+            'platform_patterns'  => count($this->platformPatterns),
+            'platforms'          => array_keys($this->platformPatterns),
+        ];
+
+        // Count active connections
+        foreach (array_keys($this->config['connections'] ?? []) as $connection) {
+            try {
+                $testResult = $this->connectionService->testConnection($connection);
+                if ($testResult['success']) {
+                    $stats['active_connections']++;
+                }
+            } catch (Exception) {
+                // Connection not available
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Clear processed emails cache
+     *
+     * @param string|null $connection Specific connection or all
+     */
+    public function clearProcessedCache(?string $connection = NULL): void
+    {
+        if (! $this->config['cache']['enabled']) {
+            return;
+        }
+
+        $prefix = $this->config['cache']['prefix'] . '_processed';
+
+        // This would need a custom implementation based on your cache driver
+        // For Redis, you could use KEYS pattern and DEL commands
+        // For other drivers, you might need to track keys differently
+    }
+
+    /**
      * Monitor specific mailbox for sports event emails
      *
-     * @param  resource $imapConnection IMAP connection
-     * @param  string   $mailbox        Mailbox name
-     * @param  string   $connection     Connection name
-     * @return array    Mailbox monitoring results
+     * @param resource $imapConnection IMAP connection
+     * @param string   $mailbox        Mailbox name
+     * @param string   $connection     Connection name
+     *
+     * @return array Mailbox monitoring results
      */
     private function monitorMailbox($imapConnection, string $mailbox, string $connection): array
     {
@@ -165,7 +210,7 @@ class EmailMonitoringService
         ];
 
         // Select mailbox
-        if (!$this->connectionService->selectMailbox($imapConnection, $mailbox)) {
+        if (! $this->connectionService->selectMailbox($imapConnection, $mailbox)) {
             throw new RuntimeException("Failed to select mailbox '{$mailbox}'");
         }
 
@@ -173,7 +218,7 @@ class EmailMonitoringService
         $emails = $this->getUnreadEmails($imapConnection);
         $result['emails_found'] = count($emails);
 
-        if (empty($emails)) {
+        if ($emails === []) {
             $result['completed_at'] = now()->toISOString();
 
             return $result;
@@ -197,8 +242,9 @@ class EmailMonitoringService
     /**
      * Get unread emails from mailbox
      *
-     * @param  resource $imapConnection IMAP connection
-     * @return array    Email UIDs
+     * @param resource $imapConnection IMAP connection
+     *
+     * @return array Email UIDs
      */
     private function getUnreadEmails($imapConnection): array
     {
@@ -213,7 +259,7 @@ class EmailMonitoringService
 
             if ($emails === FALSE) {
                 $error = imap_last_error();
-                if ($error && strpos($error, 'SEARCH completed') === FALSE) {
+                if ($error && ! str_contains($error, 'SEARCH completed')) {
                     Log::channel($this->config['logging']['channel'])
                         ->warning('IMAP search returned no results or error', [
                             'criteria' => $searchCriteria,
@@ -238,10 +284,11 @@ class EmailMonitoringService
     /**
      * Process batch of emails
      *
-     * @param  resource $imapConnection IMAP connection
-     * @param  array    $emailUids      Email UIDs
-     * @param  string   $connection     Connection name
-     * @return array    Batch processing results
+     * @param resource $imapConnection IMAP connection
+     * @param array    $emailUids      Email UIDs
+     * @param string   $connection     Connection name
+     *
+     * @return array Batch processing results
      */
     private function processEmailBatch($imapConnection, array $emailUids, string $connection): array
     {
@@ -283,10 +330,11 @@ class EmailMonitoringService
     /**
      * Process individual email
      *
-     * @param  resource $imapConnection IMAP connection
-     * @param  int      $uid            Email UID
-     * @param  string   $connection     Connection name
-     * @return array    Email processing result
+     * @param resource $imapConnection IMAP connection
+     * @param int      $uid            Email UID
+     * @param string   $connection     Connection name
+     *
+     * @return array Email processing result
      */
     private function processEmail($imapConnection, int $uid, string $connection): array
     {
@@ -303,13 +351,13 @@ class EmailMonitoringService
 
         // Get email headers
         $headers = $this->getEmailHeaders($imapConnection, $uid);
-        if (!$headers) {
+        if (! $headers) {
             return $result;
         }
 
         // Check if email is from a sports event platform
         $platform = $this->identifyPlatform($headers);
-        if (!$platform) {
+        if (! $platform) {
             $this->markEmailAsProcessed($uid, $connection);
 
             return $result;
@@ -318,7 +366,7 @@ class EmailMonitoringService
         $result['platform'] = $platform;
 
         // Check if email contains sports event content
-        if (!$this->containsSportsEventContent($imapConnection, $uid, $platform)) {
+        if (! $this->containsSportsEventContent($imapConnection, $uid, $platform)) {
             $this->markEmailAsProcessed($uid, $connection);
             $result['processed'] = TRUE;
 
@@ -345,13 +393,12 @@ class EmailMonitoringService
     /**
      * Check if email was already processed
      *
-     * @param  int    $uid        Email UID
-     * @param  string $connection Connection name
-     * @return bool
+     * @param int    $uid        Email UID
+     * @param string $connection Connection name
      */
     private function isEmailProcessed(int $uid, string $connection): bool
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return FALSE;
         }
 
@@ -368,7 +415,7 @@ class EmailMonitoringService
      */
     private function markEmailAsProcessed(int $uid, string $connection): void
     {
-        if (!$this->config['cache']['enabled']) {
+        if (! $this->config['cache']['enabled']) {
             return;
         }
 
@@ -381,16 +428,17 @@ class EmailMonitoringService
     /**
      * Get email headers
      *
-     * @param  resource   $imapConnection IMAP connection
-     * @param  int        $uid            Email UID
+     * @param resource $imapConnection IMAP connection
+     * @param int      $uid            Email UID
+     *
      * @return array|null Email headers
      */
     private function getEmailHeaders($imapConnection, int $uid): ?array
     {
         try {
-            $headerInfo = @imap_headerinfo($imapConnection, $uid, 0, 0, 0, UID: TRUE);
+            $headerInfo = @imap_headerinfo($imapConnection, $uid, 0, 0);
 
-            if (!$headerInfo) {
+            if (! $headerInfo) {
                 return NULL;
             }
 
@@ -416,12 +464,13 @@ class EmailMonitoringService
     /**
      * Identify platform from email headers
      *
-     * @param  array       $headers Email headers
+     * @param array $headers Email headers
+     *
      * @return string|null Platform identifier
      */
     private function identifyPlatform(array $headers): ?string
     {
-        $fromEmail = $headers['from']->mailbox ?? '' . '@' . ($headers['from']->host ?? '');
+        $fromEmail = $headers['from']->mailbox ?? '@' . ($headers['from']->host ?? '');
         $subject = strtolower($headers['subject'] ?? '');
 
         foreach ($this->platformPatterns as $platform => $patterns) {
@@ -434,7 +483,7 @@ class EmailMonitoringService
 
             // Check subject keywords
             foreach ($patterns['subject_keywords'] ?? [] as $keyword) {
-                if (strpos($subject, strtolower($keyword)) !== FALSE) {
+                if (str_contains($subject, strtolower((string) $keyword))) {
                     return $platform;
                 }
             }
@@ -446,17 +495,16 @@ class EmailMonitoringService
     /**
      * Check if email contains sports event content
      *
-     * @param  resource $imapConnection IMAP connection
-     * @param  int      $uid            Email UID
-     * @param  string   $platform       Platform identifier
-     * @return bool
+     * @param resource $imapConnection IMAP connection
+     * @param int      $uid            Email UID
+     * @param string   $platform       Platform identifier
      */
     private function containsSportsEventContent($imapConnection, int $uid, string $platform): bool
     {
         try {
             // Get email body
             $body = $this->getEmailBody($imapConnection, $uid);
-            if (!$body) {
+            if (! $body) {
                 return FALSE;
             }
 
@@ -466,12 +514,12 @@ class EmailMonitoringService
             // Check for sports event keywords
             $keywords = array_merge(
                 $platformPatterns['body_keywords'] ?? [],
-                $this->platformPatterns['generic']['body_keywords'] ?? []
+                $this->platformPatterns['generic']['body_keywords'] ?? [],
             );
 
             $keywordMatches = 0;
             foreach ($keywords as $keyword) {
-                if (strpos($bodyLower, strtolower($keyword)) !== FALSE) {
+                if (str_contains($bodyLower, strtolower((string) $keyword))) {
                     $keywordMatches++;
                 }
             }
@@ -493,27 +541,28 @@ class EmailMonitoringService
     /**
      * Get email body content
      *
-     * @param  resource    $imapConnection IMAP connection
-     * @param  int         $uid            Email UID
+     * @param resource $imapConnection IMAP connection
+     * @param int      $uid            Email UID
+     *
      * @return string|null Email body
      */
     private function getEmailBody($imapConnection, int $uid): ?string
     {
         try {
             $structure = @imap_fetchstructure($imapConnection, $uid, FT_UID);
-            if (!$structure) {
+            if (! $structure) {
                 return NULL;
             }
 
             // Get body
             $body = @imap_fetchbody($imapConnection, $uid, 1, FT_UID);
-            if (!$body) {
+            if (! $body) {
                 return NULL;
             }
 
             // Handle encoding
             if ($structure->encoding === 3) { // Base64
-                $body = base64_decode($body);
+                $body = base64_decode($body, TRUE);
             } elseif ($structure->encoding === 4) { // Quoted-printable
                 $body = quoted_printable_decode($body);
             }
@@ -541,7 +590,7 @@ class EmailMonitoringService
      */
     private function queueEmailForProcessing($imapConnection, int $uid, string $connection, string $platform, array $headers): void
     {
-        if (!$this->config['queue']['enabled']) {
+        if (! $this->config['queue']['enabled']) {
             return;
         }
 
@@ -597,59 +646,5 @@ class EmailMonitoringService
                     'error' => $e->getMessage(),
                 ]);
         }
-    }
-
-    /**
-     * Get monitoring statistics
-     *
-     * @return array Monitoring statistics
-     */
-    public function getMonitoringStats(): array
-    {
-        $stats = [
-            'total_connections'  => count($this->config['connections'] ?? []),
-            'active_connections' => 0,
-            'total_mailboxes'    => count($this->config['monitoring']['mailboxes'] ?? []),
-            'platform_patterns'  => count($this->platformPatterns),
-            'platforms'          => array_keys($this->platformPatterns),
-        ];
-
-        // Count active connections
-        foreach (array_keys($this->config['connections'] ?? []) as $connection) {
-            try {
-                $testResult = $this->connectionService->testConnection($connection);
-                if ($testResult['success']) {
-                    $stats['active_connections']++;
-                }
-            } catch (Exception $e) {
-                // Connection not available
-            }
-        }
-
-        return $stats;
-    }
-
-    /**
-     * Clear processed emails cache
-     *
-     * @param string|null $connection Specific connection or all
-     */
-    public function clearProcessedCache(?string $connection = NULL): void
-    {
-        if (!$this->config['cache']['enabled']) {
-            return;
-        }
-
-        $prefix = $this->config['cache']['prefix'] . '_processed';
-
-        if ($connection) {
-            $pattern = "{$prefix}_{$connection}_*";
-        } else {
-            $pattern = "{$prefix}_*";
-        }
-
-        // This would need a custom implementation based on your cache driver
-        // For Redis, you could use KEYS pattern and DEL commands
-        // For other drivers, you might need to track keys differently
     }
 }

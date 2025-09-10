@@ -68,7 +68,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_01_15_120000_create_comprehensive_user_preferences_tables.php' => 
     array (
-      0 => '0893f8c300711d5959ccdd0c8677088a407dcaad',
+      0 => '35e6ec4fc94ef5d2449888800adae2cc9f0e018b',
       1 => 
       array (
       ),
@@ -271,7 +271,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_08_04_194835_consolidate_and_optimize_schema.php' => 
     array (
-      0 => 'd2d8877971da47a30f9c1d3da30f8dc0ac066a1d',
+      0 => '52c200bb838dae4e4501d98fd86ca04bc8eefab9',
       1 => 
       array (
       ),
@@ -401,7 +401,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_01_30_120004_phase4_migration_strategy_and_validation.php' => 
     array (
-      0 => 'e72a2da29af8604e097590255f1bf8afe1f885c5',
+      0 => '87685594a4e346b8a0f48f6f89e2dd049ec323b0',
       1 => 
       array (
       ),
@@ -426,7 +426,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_08_04_194423_decrypt_user_emails.php' => 
     array (
-      0 => 'bec41dbb5b50ab5a2c1b3519ec3da06dbcf6bc3e',
+      0 => '6b3d40d85ddde0a6ca8c4b2a224ed5ead6776d3d',
       1 => 
       array (
       ),
@@ -658,7 +658,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/TicketAlertFactory.php' => 
     array (
-      0 => 'dc4a0c72281b69469dc4a80bf7953c5c3440fcdd',
+      0 => '340f4261ee1a5873b521091b66089c19bf445d30',
       1 => 
       array (
         0 => 'database\\factories\\ticketalertfactory',
@@ -673,7 +673,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/ScrapedTicketFactory.php' => 
     array (
-      0 => '12ee9149bd7f1f98662cb054a6186686b336aa5d',
+      0 => 'a100461708f565571d48c4e395a0c648f8129759',
       1 => 
       array (
         0 => 'database\\factories\\scrapedticketfactory',
@@ -695,7 +695,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/UserFactory.php' => 
     array (
-      0 => 'bb1b29a04b90bdfbcb4e39d6a14d1b4bae21462e',
+      0 => '09f5f0a40a17349bf860a3d6085ec4bfcfea9396',
       1 => 
       array (
         0 => 'database\\factories\\userfactory',
@@ -713,7 +713,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/CategoryFactory.php' => 
     array (
-      0 => '850771a090061d9adc375ff9ae494e6a7cc43716',
+      0 => 'febd8c9f9e8e282a8e31f0c74a2090113daf0c0e',
       1 => 
       array (
         0 => 'database\\factories\\categoryfactory',
@@ -731,7 +731,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/TicketFactory.php' => 
     array (
-      0 => 'a1723f17463c242bf505f9900b9e70533c782085',
+      0 => '26b6ea3965bc3826d95233f8f0d11d77237c39cc',
       1 => 
       array (
         0 => 'database\\factories\\ticketfactory',
@@ -821,7 +821,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/seeders/DashboardSeeder.php' => 
     array (
-      0 => 'ca071a885270cd78632566a9f5760e4cd665b28c',
+      0 => '0392d4bc7d8af27db43a5c772fc5970abac08906',
       1 => 
       array (
         0 => 'database\\seeders\\dashboardseeder',
@@ -837,7 +837,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/seeders/TicketSeeder.php' => 
     array (
-      0 => 'c8c3d80124460172d5909ce69e95ab68e6ffb56a',
+      0 => '11898172eab298977f4fdf17426c360d60693ea7',
       1 => 
       array (
         0 => 'database\\seeders\\ticketseeder',
@@ -927,7 +927,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_08_20_102948_add_popularity_score_to_scraped_tickets_table.php' => 
     array (
-      0 => '1201d09aa63690da79a775aab7b44bfac8e3a664',
+      0 => '901fc91721da23998968703ff48d238ee27330b7',
       1 => 
       array (
       ),
@@ -942,7 +942,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_08_20_105032_create_alert_triggers_table.php' => 
     array (
-      0 => 'b6057f5759d145fbbad3109ee38b66b63a82f95e',
+      0 => 'fd5895d95aaa288dd6599c3c94e60811fce860f6',
       1 => 
       array (
       ),
@@ -957,7 +957,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/factories/AlertTriggerFactory.php' => 
     array (
-      0 => '4322426fb338733aed83b7eeae2bfc213249f9cf',
+      0 => 'c495217f518b00e2cdbb95718339d13e724b067f',
       1 => 
       array (
         0 => 'database\\factories\\alerttriggerfactory',
@@ -972,7 +972,7 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
     ),
     '/var/www/hdtickets/database/migrations/2025_08_25_180816_create_cache_table.php' => 
     array (
-      0 => '1e63143baede25661ec2075259ba517cbf2c2400',
+      0 => 'c1f849caefec79c9ca62a48af4286a1c1cd8ff7e',
       1 => 
       array (
       ),
@@ -980,6 +980,359 @@ return \PHPStan\Cache\CacheItem::__set_state(array(
       array (
         0 => 'up',
         1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_06_102657_reencrypt_plain_text_phone_data.php' => 
+    array (
+      0 => '0758efaf6c222fe3a27df3a3bf10461f6369aee1',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_01_06_160000_enhance_ticket_scraping_infrastructure.php' => 
+    array (
+      0 => '97dfdcf39deb8e39df3db5c5fa5b9719ddf66db4',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185408_create_role_permissions_table.php' => 
+    array (
+      0 => '9c2b79509acd4bbcb764c2638cf17c4bbcf470cc',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185350_create_user_roles_table.php' => 
+    array (
+      0 => '68d1ca4a27ececd7c2ca890d2156752d5deb01ca',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_08_083020_create_user_favorite_teams_table.php' => 
+    array (
+      0 => '3329fab9fe73aea6c25d0166cdf369e12c0ac5a0',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_190214_create_security_incidents_table.php' => 
+    array (
+      0 => 'f009e21835e3cc9edb28c02e66c0ddd048e3f0fe',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_08_083110_create_user_favorite_venues_table.php' => 
+    array (
+      0 => 'f5e4bbae38e96499c1a2d582397d87df1d0b6d9a',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_152420_fix_phone_column_size_for_encryption.php' => 
+    array (
+      0 => 'f5828f93e884ed02d0f09b96834a879af20a3d5d',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_04_093658_create_user_legal_acceptances_table.php' => 
+    array (
+      0 => '7cdb6b0d475ce2a7e4fbf85462fbfd7f7fbfd73a',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_06_101823_fix_encrypted_columns_size.php' => 
+    array (
+      0 => 'a2d9b48a1a2f51d7471d379b748cc359dde05639',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_152217_add_registration_source_to_users_table.php' => 
+    array (
+      0 => '212bccc128cf2368f946aa1b61ba08ca49867175',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_190258_update_security_events_table_for_monitoring.php' => 
+    array (
+      0 => 'aa337ddd86d541573af034e9fe74cc55e993df14',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185445_create_resource_access_table.php' => 
+    array (
+      0 => '9c34019d682fd54173ee38287925b006e88bbefc',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185422_create_user_permissions_table.php' => 
+    array (
+      0 => '070b9b9d9403341cf539d81cd182af862fc11358',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_06_102439_decrypt_double_encrypted_phone_data.php' => 
+    array (
+      0 => 'a5cd4da5463b6462e6f5d0bc62c46507f4c2f554',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2024_01_20_000000_create_ticket_alerts_table.php' => 
+    array (
+      0 => '88fef0a774956c43ca51cfd388190409121ef7d8',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_190243_create_audit_logs_table.php' => 
+    array (
+      0 => 'bfe27b9054bdb82765d3019338c6864a6e032b4d',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185302_create_roles_table.php' => 
+    array (
+      0 => '2d861921008799390030f08569d8b4bc9f22df87',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_05_185321_create_permissions_table.php' => 
+    array (
+      0 => '4ba98b065cc6a854c1986c124fa474efe8c9ea9a',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_06_130943_create_scheduled_reports_table.php' => 
+    array (
+      0 => 'b4041929428da30fa453f365a5f6e8e0cf18fe3d',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_04_093621_create_legal_documents_table.php' => 
+    array (
+      0 => '94c055bc176ee6748f626ff160b33120241bb486',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/migrations/2025_09_06_075617_update_trusted_devices_table.php' => 
+    array (
+      0 => '10b0bfb83d6b58142fa88414106c5503a8c350db',
+      1 => 
+      array (
+      ),
+      2 => 
+      array (
+        0 => 'up',
+        1 => 'down',
+      ),
+      3 => 
+      array (
+      ),
+    ),
+    '/var/www/hdtickets/database/seeders/LegalDocumentSeeder.php' => 
+    array (
+      0 => '213641ca26b5c2c614602f80fc361c6bbc809799',
+      1 => 
+      array (
+        0 => 'database\\seeders\\legaldocumentseeder',
+      ),
+      2 => 
+      array (
+        0 => 'database\\seeders\\run',
+        1 => 'database\\seeders\\gettermsofservicecontent',
+        2 => 'database\\seeders\\getdisclaimercontent',
+        3 => 'database\\seeders\\getprivacypolicycontent',
+        4 => 'database\\seeders\\getdataprocessingagreementcontent',
+        5 => 'database\\seeders\\getcookiepolicycontent',
+        6 => 'database\\seeders\\getgdprcompliancecontent',
+        7 => 'database\\seeders\\getacceptableusepolicycontent',
+        8 => 'database\\seeders\\getlegalnoticescontent',
       ),
       3 => 
       array (

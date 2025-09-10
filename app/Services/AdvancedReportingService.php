@@ -43,18 +43,13 @@ class AdvancedReportingService
         $format = $parameters['format'] ?? 'pdf';
         $includeCharts = $parameters['include_charts'] ?? TRUE;
 
-        switch ($reportType) {
-            case 'ticket_availability_trends':
-                return $this->generateTicketAvailabilityTrends($startDate, $endDate, $format, $includeCharts);
-            case 'price_fluctuation_analysis':
-                return $this->generatePriceFluctuationAnalysis($startDate, $endDate, $format, $includeCharts);
-            case 'platform_performance_comparison':
-                return $this->generatePlatformPerformanceComparison($startDate, $endDate, $format, $includeCharts);
-            case 'user_engagement_metrics':
-                return $this->generateUserEngagementMetrics($startDate, $endDate, $format, $includeCharts);
-            default:
-                throw new InvalidArgumentException("Unsupported report type: {$reportType}");
-        }
+        return match ($reportType) {
+            'ticket_availability_trends'      => $this->generateTicketAvailabilityTrends($startDate, $endDate, $format, $includeCharts),
+            'price_fluctuation_analysis'      => $this->generatePriceFluctuationAnalysis($startDate, $endDate, $format, $includeCharts),
+            'platform_performance_comparison' => $this->generatePlatformPerformanceComparison($startDate, $endDate, $format, $includeCharts),
+            'user_engagement_metrics'         => $this->generateUserEngagementMetrics($startDate, $endDate, $format, $includeCharts),
+            default                           => throw new InvalidArgumentException("Unsupported report type: {$reportType}"),
+        };
     }
 
     /**
@@ -96,7 +91,7 @@ class AdvancedReportingService
      * @param mixed $format
      * @param mixed $includeCharts
      */
-    protected function generateTicketAvailabilityTrends($startDate, $endDate, $format, $includeCharts): array
+    protected function generateTicketAvailabilityTrends($startDate, $endDate, string $format, bool $includeCharts): array
     {
         // Collect data
         $trends = ScrapedTicket::whereBetween('scraped_at', [$startDate, $endDate])
@@ -160,7 +155,7 @@ class AdvancedReportingService
      * @param mixed $format
      * @param mixed $includeCharts
      */
-    protected function generatePriceFluctuationAnalysis($startDate, $endDate, $format, $includeCharts): array
+    protected function generatePriceFluctuationAnalysis($startDate, $endDate, string $format, bool $includeCharts): array
     {
         // Get price trends
         $priceData = TicketPriceHistory::betweenDates($startDate, $endDate)
@@ -226,7 +221,7 @@ class AdvancedReportingService
      * @param mixed $format
      * @param mixed $includeCharts
      */
-    protected function generatePlatformPerformanceComparison($startDate, $endDate, $format, $includeCharts): array
+    protected function generatePlatformPerformanceComparison($startDate, $endDate, string $format, bool $includeCharts): array
     {
         $platformMetrics = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
             ->select([
@@ -282,7 +277,7 @@ class AdvancedReportingService
      * @param mixed $format
      * @param mixed $includeCharts
      */
-    protected function generateUserEngagementMetrics($startDate, $endDate, $format, $includeCharts): array
+    protected function generateUserEngagementMetrics($startDate, $endDate, string $format, bool $includeCharts): array
     {
         $userMetrics = [
             'total_users'      => User::count(),
@@ -335,16 +330,12 @@ class AdvancedReportingService
         $timestamp = now()->format('Y-m-d_H-i-s');
         $filename = "{$reportName}_{$timestamp}";
 
-        switch ($format) {
-            case 'pdf':
-                return $this->exportToPdf($data, $filename, $includeCharts);
-            case 'xlsx':
-                return $this->exportToExcel($data, $filename, $includeCharts);
-            case 'csv':
-                return $this->exportToCsv($data, $filename);
-            default:
-                throw new InvalidArgumentException("Unsupported export format: {$format}");
-        }
+        return match ($format) {
+            'pdf'   => $this->exportToPdf($data, $filename, $includeCharts),
+            'xlsx'  => $this->exportToExcel($data, $filename, $includeCharts),
+            'csv'   => $this->exportToCsv($data, $filename),
+            default => throw new InvalidArgumentException("Unsupported export format: {$format}"),
+        };
     }
 
     /**
@@ -469,15 +460,13 @@ class AdvancedReportingService
      */
     protected function generatePlatformRankings(Collection $platformMetrics): array
     {
-        return $platformMetrics->map(function ($platform, $index) {
-            return [
-                'rank'       => $index + 1,
-                'platform'   => $platform->platform,
-                'score'      => $platform->performance_score,
-                'strengths'  => $this->identifyPlatformStrengths($platform),
-                'weaknesses' => $this->identifyPlatformWeaknesses($platform),
-            ];
-        })->values()->toArray();
+        return $platformMetrics->map(fn ($platform, $index): array => [
+            'rank'       => $index + 1,
+            'platform'   => $platform->platform,
+            'score'      => $platform->performance_score,
+            'strengths'  => $this->identifyPlatformStrengths($platform),
+            'weaknesses' => $this->identifyPlatformWeaknesses($platform),
+        ])->values()->toArray();
     }
 
     /**
@@ -512,16 +501,12 @@ class AdvancedReportingService
      */
     protected function calculateNextRun(string $frequency): Carbon
     {
-        switch ($frequency) {
-            case 'daily':
-                return now()->addDay();
-            case 'weekly':
-                return now()->addWeek();
-            case 'monthly':
-                return now()->addMonth();
-            default:
-                return now()->addWeek();
-        }
+        return match ($frequency) {
+            'daily'   => now()->addDay(),
+            'weekly'  => now()->addWeek(),
+            'monthly' => now()->addMonth(),
+            default   => now()->addWeek(),
+        };
     }
 
     /**

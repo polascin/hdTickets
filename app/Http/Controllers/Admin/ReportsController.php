@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\AuditTrailExport;
 use App\Exports\CategoryAnalysisExport;
+use App\Exports\GenericArrayExport;
 use App\Exports\ResponseTimeExport;
 use App\Exports\ScrapedTicketsExport;
 use App\Exports\UsersExport;
@@ -12,15 +13,20 @@ use App\Imports\UsersImport;
 use App\Models\Category;
 use App\Models\ScrapedTicket;
 use App\Models\Ticket;
+use App\Models\TicketAlert;
 use App\Models\TicketPriceHistory;
 use App\Models\User;
 use Barryvdh\DomPDF\Facades\Pdf;
 use Exception;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 use function count;
 use function sprintf;
@@ -33,7 +39,7 @@ class ReportsController extends Controller
     /**
      * Index
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
         $this->authorize('access_reports');
 
@@ -88,25 +94,7 @@ class ReportsController extends Controller
                 ->toArray(),
         ];
 
-        return view('admin.reports.index', compact(
-            'totalUsers',
-            'totalScrapedTickets',
-            'totalCategories',
-            'totalActivities',
-            'totalTickets',
-            'openTickets',
-            'resolvedTickets',
-            'overdueTickets',
-            'avgResponseTime',
-            'avgResolutionTime',
-            'resolutionRate',
-            'topAgents',
-            'agentWorkload',
-            'weeklyTrend',
-            'recentActivities',
-            'userStats',
-            'ticketStats',
-        ));
+        return view('admin.reports.index', ['totalUsers' => $totalUsers, 'totalScrapedTickets' => $totalScrapedTickets, 'totalCategories' => $totalCategories, 'totalActivities' => $totalActivities, 'totalTickets' => $totalTickets, 'openTickets' => $openTickets, 'resolvedTickets' => $resolvedTickets, 'overdueTickets' => $overdueTickets, 'avgResponseTime' => $avgResponseTime, 'avgResolutionTime' => $avgResolutionTime, 'resolutionRate' => $resolutionRate, 'topAgents' => $topAgents, 'agentWorkload' => $agentWorkload, 'weeklyTrend' => $weeklyTrend, 'recentActivities' => $recentActivities, 'userStats' => $userStats, 'ticketStats' => $ticketStats]);
     }
 
     /**
@@ -115,7 +103,7 @@ class ReportsController extends Controller
     /**
      * TicketVolume
      */
-    public function ticketVolume(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
+    public function ticketVolume(Request $request): View|JsonResponse
     {
         $startDate = $request->input('start_date', now()->subMonth()->startOfDay());
         $endDate = $request->input('end_date', now()->endOfDay());
@@ -146,7 +134,7 @@ class ReportsController extends Controller
             return response()->json($data);
         }
 
-        return view('admin.reports.ticket-volume', compact('data', 'startDate', 'endDate', 'groupBy'));
+        return view('admin.reports.ticket-volume', ['data' => $data, 'startDate' => $startDate, 'endDate' => $endDate, 'groupBy' => $groupBy]);
     }
 
     /**
@@ -155,7 +143,7 @@ class ReportsController extends Controller
     /**
      * AgentPerformance
      */
-    public function agentPerformance(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
+    public function agentPerformance(Request $request): View|JsonResponse
     {
         $startDate = $request->input('start_date', now()->subMonth()->startOfDay());
         $endDate = $request->input('end_date', now()->endOfDay());
@@ -167,7 +155,7 @@ class ReportsController extends Controller
                 },
             ])
             ->get()
-            ->map(function ($agent) use ($startDate, $endDate) {
+            ->map(function ($agent) use ($startDate, $endDate): array {
                 $assignedTickets = $agent->assignedTickets;
                 $resolvedTickets = $assignedTickets->where('status', Ticket::STATUS_RESOLVED);
 
@@ -190,7 +178,7 @@ class ReportsController extends Controller
             return response()->json($agents);
         }
 
-        return view('admin.reports.agent-performance', compact('agents', 'startDate', 'endDate'));
+        return view('admin.reports.agent-performance', ['agents' => $agents, 'startDate' => $startDate, 'endDate' => $endDate]);
     }
 
     /**
@@ -199,7 +187,7 @@ class ReportsController extends Controller
     /**
      * CategoryAnalysis
      */
-    public function categoryAnalysis(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
+    public function categoryAnalysis(Request $request): View|JsonResponse
     {
         $startDate = $request->input('start_date', now()->subMonth()->startOfDay());
         $endDate = $request->input('end_date', now()->endOfDay());
@@ -220,18 +208,16 @@ class ReportsController extends Controller
         ])
             ->having('total_tickets', '>', 0)
             ->get()
-            ->map(function ($category) use ($startDate, $endDate) {
-                return [
-                    'name'             => $category->name,
-                    'total_tickets'    => $category->total_tickets,
-                    'resolved_tickets' => $category->resolved_tickets,
-                    'overdue_tickets'  => $category->overdue_tickets,
-                    'resolution_rate'  => $category->total_tickets > 0
-                        ? round(($category->resolved_tickets / $category->total_tickets) * 100, 1)
-                        : 0,
-                    'avg_resolution_time' => $this->getCategoryAverageResolutionTime($category->id, $startDate, $endDate),
-                ];
-            })
+            ->map(fn ($category): array => [
+                'name'             => $category->name,
+                'total_tickets'    => $category->total_tickets,
+                'resolved_tickets' => $category->resolved_tickets,
+                'overdue_tickets'  => $category->overdue_tickets,
+                'resolution_rate'  => $category->total_tickets > 0
+                    ? round(($category->resolved_tickets / $category->total_tickets) * 100, 1)
+                    : 0,
+                'avg_resolution_time' => $this->getCategoryAverageResolutionTime($category->id, $startDate, $endDate),
+            ])
             ->sortByDesc('total_tickets')
             ->values();
 
@@ -239,7 +225,7 @@ class ReportsController extends Controller
             return response()->json($categoryData);
         }
 
-        return view('admin.reports.category-analysis', compact('categoryData', 'startDate', 'endDate'));
+        return view('admin.reports.category-analysis', ['categoryData' => $categoryData, 'startDate' => $startDate, 'endDate' => $endDate]);
     }
 
     /**
@@ -248,7 +234,7 @@ class ReportsController extends Controller
     /**
      * ResponseTime
      */
-    public function responseTime(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Http\JsonResponse
+    public function responseTime(Request $request): View|JsonResponse
     {
         $startDate = $request->input('start_date', now()->subMonth()->startOfDay());
         $endDate = $request->input('end_date', now()->endOfDay());
@@ -285,7 +271,7 @@ class ReportsController extends Controller
             ]);
         }
 
-        return view('admin.reports.response-time', compact('responseTimeData', 'stats', 'startDate', 'endDate'));
+        return view('admin.reports.response-time', ['responseTimeData' => $responseTimeData, 'stats' => $stats, 'startDate' => $startDate, 'endDate' => $endDate]);
     }
 
     /**
@@ -294,21 +280,17 @@ class ReportsController extends Controller
     /**
      * Export
      */
-    public function export(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function export(Request $request): BinaryFileResponse
     {
         $type = $request->input('type', 'tickets');
         $format = $request->input('format', 'csv');
 
-        switch ($type) {
-            case 'agent_performance':
-                return $this->exportAgentPerformance($request, $format);
-            case 'category_analysis':
-                return $this->exportCategoryAnalysis($request, $format);
-            case 'response_time':
-                return $this->exportResponseTime($request, $format);
-            default:
-                return $this->exportTickets($request, $format);
-        }
+        return match ($type) {
+            'agent_performance' => $this->exportAgentPerformance($request, $format),
+            'category_analysis' => $this->exportCategoryAnalysis($request, $format),
+            'response_time'     => $this->exportResponseTime($request, $format),
+            default             => $this->exportTickets($format),
+        };
     }
 
     /**
@@ -317,7 +299,7 @@ class ReportsController extends Controller
     /**
      * ExportUsers
      */
-    public function exportUsers(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportUsers(Request $request): BinaryFileResponse
     {
         $this->authorize('access_reports');
 
@@ -339,7 +321,7 @@ class ReportsController extends Controller
     /**
      * ExportScrapedTickets
      */
-    public function exportScrapedTickets(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportScrapedTickets(Request $request): BinaryFileResponse
     {
         $this->authorize('access_reports');
 
@@ -359,7 +341,7 @@ class ReportsController extends Controller
     /**
      * ExportAuditTrail
      */
-    public function exportAuditTrail(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function exportAuditTrail(Request $request): BinaryFileResponse
     {
         $this->authorize('access_reports');
 
@@ -382,7 +364,7 @@ class ReportsController extends Controller
     /**
      * ImportUsers
      */
-    public function importUsers(Request $request): \Illuminate\Http\RedirectResponse
+    public function importUsers(Request $request): RedirectResponse
     {
         $this->authorize('manage_users');
 
@@ -535,7 +517,7 @@ class ReportsController extends Controller
     /**
      * TicketAvailabilityTrends
      */
-    public function ticketAvailabilityTrends(Request $request): \Illuminate\Contracts\View\View
+    public function ticketAvailabilityTrends(Request $request): View
     {
         $startDate = $request->input('start_date', now()->startOfMonth());
         $endDate = $request->input('end_date', now()->endOfMonth());
@@ -546,13 +528,13 @@ class ReportsController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
-        return view('admin.reports.ticket-availability', compact('trends', 'startDate', 'endDate'));
+        return view('admin.reports.ticket-availability', ['trends' => $trends, 'startDate' => $startDate, 'endDate' => $endDate]);
     }
 
     /**
      * PriceFluctuationAnalysis
      */
-    public function priceFluctuationAnalysis(Request $request): \Illuminate\Contracts\View\View
+    public function priceFluctuationAnalysis(Request $request): View
     {
         $startDate = $request->input('start_date', now()->subMonth());
         $endDate = $request->input('end_date', now());
@@ -563,27 +545,27 @@ class ReportsController extends Controller
             ->groupBy('ticket_id')
             ->get();
 
-        return view('admin.reports.price-fluctuation', compact('trends', 'startDate', 'endDate'));
+        return view('admin.reports.price-fluctuation', ['trends' => $trends, 'startDate' => $startDate, 'endDate' => $endDate]);
     }
 
     /**
      * PlatformPerformanceComparison
      */
-    public function platformPerformanceComparison(Request $request): \Illuminate\Contracts\View\View
+    public function platformPerformanceComparison(Request $request): View
     {
         $metrics = $this->getPlatformPerformanceMetrics();
 
-        return view('admin.reports.platform-performance', compact('metrics'));
+        return view('admin.reports.platform-performance', ['metrics' => $metrics]);
     }
 
     /**
      * UserEngagementMetrics
      */
-    public function userEngagementMetrics(Request $request): \Illuminate\Contracts\View\View
+    public function userEngagementMetrics(Request $request): View
     {
         $engagement = $this->getUserEngagementData();
 
-        return view('admin.reports.user-engagement', compact('engagement'));
+        return view('admin.reports.user-engagement', ['engagement' => $engagement]);
     }
 
     /**
@@ -648,8 +630,10 @@ class ReportsController extends Controller
 
     /**
      * Get weekly ticket trend
+     *
+     * @return mixed[]
      */
-    private function getWeeklyTrend()
+    private function getWeeklyTrend(): array
     {
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -666,8 +650,10 @@ class ReportsController extends Controller
 
     /**
      * Get weekly scraped ticket trend for chart
+     *
+     * @return mixed[]
      */
-    private function getWeeklyTrendForScrapedTickets()
+    private function getWeeklyTrendForScrapedTickets(): array
     {
         $data = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -684,8 +670,10 @@ class ReportsController extends Controller
 
     /**
      * Get monthly ticket trend
+     *
+     * @return mixed[]
      */
-    private function getMonthlyTrend()
+    private function getMonthlyTrend(): array
     {
         $data = [];
         for ($i = 11; $i >= 0; $i--) {
@@ -707,7 +695,7 @@ class ReportsController extends Controller
      */
     private function calculateMedian(array $numbers)
     {
-        if (empty($numbers)) {
+        if ($numbers === []) {
             return 0;
         }
 
@@ -800,7 +788,6 @@ class ReportsController extends Controller
     /**
      * Export methods (placeholder implementations)
      *
-     * @param mixed $request
      * @param mixed $format
      */
     /**
@@ -808,7 +795,7 @@ class ReportsController extends Controller
      *
      * @param mixed $format
      */
-    private function exportTickets(Illuminate\Http\Request $request, $format): Illuminate\Http\RedirectResponse
+    private function exportTickets($format): Illuminate\Http\RedirectResponse
     {
         $tickets = ScrapedTicket::with(['category'])->latest()->limit(5000)->get();
 
@@ -837,19 +824,17 @@ class ReportsController extends Controller
         }
 
         // Create a simple export array for agents
-        $exportData = collect($agentData)->map(function ($agent) {
-            return [
-                'name'                => $agent['name'],
-                'email'               => $agent['email'],
-                'assigned_tickets'    => $agent['assigned_tickets'],
-                'resolved_tickets'    => $agent['resolved_tickets'],
-                'resolution_rate'     => $agent['resolution_rate'] . '%',
-                'avg_resolution_time' => $agent['avg_resolution_time'] . ' hours',
-                'first_response_time' => $agent['first_response_time'] . ' hours',
-            ];
-        });
+        $exportData = collect($agentData)->map(fn ($agent): array => [
+            'name'                => $agent['name'],
+            'email'               => $agent['email'],
+            'assigned_tickets'    => $agent['assigned_tickets'],
+            'resolved_tickets'    => $agent['resolved_tickets'],
+            'resolution_rate'     => $agent['resolution_rate'] . '%',
+            'avg_resolution_time' => $agent['avg_resolution_time'] . ' hours',
+            'first_response_time' => $agent['first_response_time'] . ' hours',
+        ]);
 
-        return Excel::download(new \App\Exports\GenericArrayExport($exportData, [
+        return Excel::download(new GenericArrayExport($exportData, [
             'Name', 'Email', 'Assigned Tickets', 'Resolved Tickets',
             'Resolution Rate', 'Avg Resolution Time', 'First Response Time',
         ]), 'agent_performance_' . date('Y-m-d') . '.' . $format);
@@ -899,7 +884,7 @@ class ReportsController extends Controller
             'total_users'                   => User::count(),
             'active_users_last_30_days'     => User::where('updated_at', '>=', now()->subDays(30))->count(),
             'user_registrations_this_month' => User::whereMonth('created_at', now()->month)->count(),
-            'alerts_created'                => \App\Models\TicketAlert::count(),
+            'alerts_created'                => TicketAlert::count(),
             'recent_activities'             => Activity::latest()->limit(50)->get(),
         ];
     }

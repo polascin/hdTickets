@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Mockery;
+use Override;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Tests\TestCase;
 
@@ -44,14 +45,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 2,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Purchase allowed', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Purchase allowed', 200));
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Purchase allowed', $response->getContent());
@@ -65,14 +62,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -89,14 +82,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 50,  // Large quantity
         ]);
-        $request->setUserResolver(function () {
-            return $this->agentUser;
-        });
+        $request->setUserResolver(fn (): User => $this->agentUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Agent purchase allowed', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Agent purchase allowed', 200));
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Agent purchase allowed', $response->getContent());
@@ -119,14 +108,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 5,  // Exceeds limit
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -153,14 +138,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $unavailableTicket->id . '/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $unavailableTicket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -190,14 +171,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $limitedTicket->id . '/purchase', 'POST', [
             'quantity' => 5,  // More than available
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $limitedTicket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -220,14 +197,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         ]);
 
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST');
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_BAD_REQUEST, $response->getStatusCode());
 
@@ -252,14 +225,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 'invalid',
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_BAD_REQUEST, $response->getStatusCode());
 
@@ -284,14 +253,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 0,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_BAD_REQUEST, $response->getStatusCode());
 
@@ -308,14 +273,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/invalid/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         // Not setting ticket parameter to simulate missing ticket
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_NOT_FOUND, $response->getStatusCode());
 
@@ -333,13 +294,11 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
             'quantity' => 1,
         ]);
         $request->setUserResolver(function (): void {
-             // No authenticated user
+            // No authenticated user
         });
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
@@ -364,14 +323,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 60,  // Exceeds limit
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -398,14 +353,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () use ($newCustomer) {
-            return $newCustomer;
-        });
+        $request->setUserResolver(fn (): User => $newCustomer);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Free access purchase allowed', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Free access purchase allowed', 200));
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('Free access purchase allowed', $response->getContent());
@@ -426,14 +377,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () use ($oldCustomer) {
-            return $oldCustomer;
-        });
+        $request->setUserResolver(fn (): User => $oldCustomer);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $this->middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $this->middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_FORBIDDEN, $response->getStatusCode());
 
@@ -457,14 +404,10 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
             'quantity' => 1,
         ]);
-        $request->setUserResolver(function () {
-            return $this->customerUser;
-        });
+        $request->setUserResolver(fn (): User => $this->customerUser);
         $request->route()->setParameter('ticket', $this->ticket);
 
-        $response = $middleware->handle($request, function ($req) {
-            return new Response('Should not reach here', 200);
-        });
+        $response = $middleware->handle($request, fn ($req): Response => new Response('Should not reach here', 200));
 
         $this->assertEquals(HttpResponse::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
 
@@ -473,6 +416,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Unable to validate purchase at this time. Please try again later.', $responseData['message']);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -490,6 +434,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         ]);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         Mockery::close();

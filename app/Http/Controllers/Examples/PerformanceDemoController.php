@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Examples;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\View\View;
+
+use function count;
+use function function_exists;
+use function strlen;
 
 class PerformanceDemoController extends Controller
 {
     /**
      * Show the performance optimization demo page.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index()
     {
@@ -21,8 +27,7 @@ class PerformanceDemoController extends Controller
     /**
      * Generate sample content for lazy loading demo
      *
-     * @param  Request                       $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function sampleContent(Request $request)
     {
@@ -41,20 +46,19 @@ class PerformanceDemoController extends Controller
     /**
      * Search API endpoint for the debounce demo
      *
-     * @param  Request                       $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function search(Request $request)
     {
         $query = $request->input('query', '');
 
         // Validate query
-        if (strlen($query) < 2) {
+        if (strlen((string) $query) < 2) {
             return response()->json(['results' => []]);
         }
 
         // Check cache first
-        $cacheKey = 'search_' . md5($query);
+        $cacheKey = 'search_' . md5((string) $query);
         if (Cache::has($cacheKey)) {
             return response()->json([
                 'results'    => Cache::get($cacheKey),
@@ -63,7 +67,7 @@ class PerformanceDemoController extends Controller
         }
 
         // Simulate processing time
-        usleep(rand(200000, 500000)); // 200-500ms delay
+        usleep(random_int(200000, 500000)); // 200-500ms delay
 
         // Generate mock results
         $events = [
@@ -80,9 +84,7 @@ class PerformanceDemoController extends Controller
         ];
 
         // Filter results based on query
-        $results = array_filter($events, function ($event) use ($query) {
-            return stripos($event, $query) !== FALSE;
-        });
+        $results = array_filter($events, fn (string $event): bool => stripos($event, (string) $query) !== FALSE);
 
         // Format results
         $formattedResults = [];
@@ -90,24 +92,24 @@ class PerformanceDemoController extends Controller
             $formattedResults[] = [
                 'id'           => $index + 1,
                 'title'        => $event,
-                'price'        => '$' . (rand(50, 500)),
-                'availability' => rand(1, 10) > 3 ? 'Available' : 'Limited',
+                'price'        => '$' . (random_int(50, 500)),
+                'availability' => random_int(1, 10) > 3 ? 'Available' : 'Limited',
             ];
         }
 
         // Add some fallback results if no matches
-        if (empty($formattedResults)) {
+        if ($formattedResults === []) {
             $formattedResults = [
                 [
                     'id'           => 1,
                     'title'        => "Best tickets for {$query}",
-                    'price'        => '$' . (rand(50, 500)),
+                    'price'        => '$' . (random_int(50, 500)),
                     'availability' => 'Available',
                 ],
                 [
                     'id'           => 2,
                     'title'        => "{$query} Championship Tickets",
-                    'price'        => '$' . (rand(50, 500)),
+                    'price'        => '$' . (random_int(50, 500)),
                     'availability' => 'Limited',
                 ],
             ];
@@ -125,7 +127,7 @@ class PerformanceDemoController extends Controller
     /**
      * API endpoint that provides performance metrics
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function metrics()
     {
@@ -144,7 +146,7 @@ class PerformanceDemoController extends Controller
     /**
      * Clear search cache
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function clearSearchCache()
     {
@@ -152,9 +154,7 @@ class PerformanceDemoController extends Controller
         $keys = Cache::getRedis()->keys('laravel_cache:search_*');
 
         // Format them to remove the prefix
-        $keys = array_map(function ($key) {
-            return str_replace('laravel_cache:', '', $key);
-        }, $keys);
+        $keys = array_map(fn ($key) => str_replace('laravel_cache:', '', $key), $keys);
 
         // Clear these keys
         foreach ($keys as $key) {

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Infrastructure\EventStore\EventStoreInterface;
 use App\Infrastructure\Projections\ProjectionManagerInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +18,6 @@ use function strlen;
 class EventMonitoringController extends Controller
 {
     public function __construct(
-        private readonly EventStoreInterface $eventStore,
         private readonly ProjectionManagerInterface $projectionManager,
     ) {
     }
@@ -32,42 +30,36 @@ class EventMonitoringController extends Controller
      */
     public function overview(): JsonResponse
     {
-        $data = Cache::remember('event_monitoring_overview', 60, function () {
-            return [
-                'total_events' => DB::table('event_store')->count(),
-                'events_today' => DB::table('event_store')
-                    ->whereDate('recorded_at', today())
-                    ->count(),
-                'active_projections' => count($this->projectionManager->getProjections()),
-                'failed_processing'  => DB::table('event_processing_failures')
-                    ->where('is_resolved', FALSE)
-                    ->count(),
-                'event_types' => DB::table('event_store')
-                    ->select('event_type', DB::raw('count(*) as count'))
-                    ->groupBy('event_type')
-                    ->orderBy('count', 'desc')
-                    ->limit(10)
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'type'  => class_basename($item->event_type),
-                            'count' => $item->count,
-                        ];
-                    }),
-                'recent_activity' => DB::table('event_store')
-                    ->select(DB::raw('DATE(recorded_at) as date'), DB::raw('count(*) as count'))
-                    ->where('recorded_at', '>=', now()->subDays(7))
-                    ->groupBy('date')
-                    ->orderBy('date', 'desc')
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'date'  => $item->date,
-                            'count' => $item->count,
-                        ];
-                    }),
-            ];
-        });
+        $data = Cache::remember('event_monitoring_overview', 60, fn (): array => [
+            'total_events' => DB::table('event_store')->count(),
+            'events_today' => DB::table('event_store')
+                ->whereDate('recorded_at', today())
+                ->count(),
+            'active_projections' => count($this->projectionManager->getProjections()),
+            'failed_processing'  => DB::table('event_processing_failures')
+                ->where('is_resolved', FALSE)
+                ->count(),
+            'event_types' => DB::table('event_store')
+                ->select('event_type', DB::raw('count(*) as count'))
+                ->groupBy('event_type')
+                ->orderBy('count', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(fn ($item): array => [
+                    'type'  => class_basename($item->event_type),
+                    'count' => $item->count,
+                ]),
+            'recent_activity' => DB::table('event_store')
+                ->select(DB::raw('DATE(recorded_at) as date'), DB::raw('count(*) as count'))
+                ->where('recorded_at', '>=', now()->subDays(7))
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->get()
+                ->map(fn ($item): array => [
+                    'date'  => $item->date,
+                    'count' => $item->count,
+                ]),
+        ]);
 
         return response()->json([
             'success' => TRUE,
@@ -120,7 +112,7 @@ class EventMonitoringController extends Controller
         $query = DB::table('event_processing_failures')
             ->orderBy('failed_at', 'desc');
 
-        if (!$resolved) {
+        if (! $resolved) {
             $query->where('is_resolved', FALSE);
         }
 
@@ -129,21 +121,19 @@ class EventMonitoringController extends Controller
             ->limit($limit)
             ->get();
 
-        $data = $failures->map(function ($failure) {
-            return [
-                'id'                => $failure->id,
-                'event_id'          => $failure->event_id,
-                'subscription_name' => $failure->subscription_name,
-                'handler_class'     => class_basename($failure->handler_class),
-                'error_type'        => class_basename($failure->error_type),
-                'error_message'     => $failure->error_message,
-                'retry_count'       => $failure->retry_count,
-                'failed_at'         => $failure->failed_at,
-                'retry_after'       => $failure->retry_after,
-                'is_resolved'       => $failure->is_resolved,
-                'resolved_at'       => $failure->resolved_at,
-            ];
-        });
+        $data = $failures->map(fn ($failure): array => [
+            'id'                => $failure->id,
+            'event_id'          => $failure->event_id,
+            'subscription_name' => $failure->subscription_name,
+            'handler_class'     => class_basename($failure->handler_class),
+            'error_type'        => class_basename($failure->error_type),
+            'error_message'     => $failure->error_message,
+            'retry_count'       => $failure->retry_count,
+            'failed_at'         => $failure->failed_at,
+            'retry_after'       => $failure->retry_after,
+            'is_resolved'       => $failure->is_resolved,
+            'resolved_at'       => $failure->resolved_at,
+        ]);
 
         return response()->json([
             'success' => TRUE,
@@ -183,18 +173,16 @@ class EventMonitoringController extends Controller
             $query->where('aggregate_type', $aggregateType);
         }
 
-        $events = $query->get()->map(function ($event) {
-            return [
-                'id'                => $event->id,
-                'event_id'          => $event->event_id,
-                'event_type'        => class_basename($event->event_type),
-                'aggregate_type'    => $event->aggregate_type,
-                'aggregate_root_id' => $event->aggregate_root_id,
-                'aggregate_version' => $event->aggregate_version,
-                'recorded_at'       => $event->recorded_at,
-                'payload_preview'   => $this->getPayloadPreview(json_decode($event->payload, TRUE)),
-            ];
-        });
+        $events = $query->get()->map(fn ($event): array => [
+            'id'                => $event->id,
+            'event_id'          => $event->event_id,
+            'event_type'        => class_basename($event->event_type),
+            'aggregate_type'    => $event->aggregate_type,
+            'aggregate_root_id' => $event->aggregate_root_id,
+            'aggregate_version' => $event->aggregate_version,
+            'recorded_at'       => $event->recorded_at,
+            'payload_preview'   => $this->getPayloadPreview(json_decode((string) $event->payload, TRUE)),
+        ]);
 
         return response()->json([
             'success' => TRUE,
@@ -210,39 +198,35 @@ class EventMonitoringController extends Controller
      */
     public function statistics(): JsonResponse
     {
-        $data = Cache::remember('event_statistics', 300, function () {
-            return [
-                'events_by_type' => DB::table('event_store')
-                    ->select('event_type', DB::raw('count(*) as count'))
-                    ->groupBy('event_type')
-                    ->orderBy('count', 'desc')
-                    ->get()
-                    ->map(function ($item) {
-                        return [
-                            'type'      => class_basename($item->event_type),
-                            'full_type' => $item->event_type,
-                            'count'     => $item->count,
-                        ];
-                    }),
-                'events_by_aggregate' => DB::table('event_store')
-                    ->select('aggregate_type', DB::raw('count(*) as count'))
-                    ->groupBy('aggregate_type')
-                    ->orderBy('count', 'desc')
-                    ->get(),
-                'hourly_activity' => DB::table('event_store')
-                    ->select(DB::raw('HOUR(recorded_at) as hour'), DB::raw('count(*) as count'))
-                    ->whereDate('recorded_at', today())
-                    ->groupBy('hour')
-                    ->orderBy('hour')
-                    ->get(),
-                'daily_activity' => DB::table('event_store')
-                    ->select(DB::raw('DATE(recorded_at) as date'), DB::raw('count(*) as count'))
-                    ->where('recorded_at', '>=', now()->subDays(30))
-                    ->groupBy('date')
-                    ->orderBy('date')
-                    ->get(),
-            ];
-        });
+        $data = Cache::remember('event_statistics', 300, fn (): array => [
+            'events_by_type' => DB::table('event_store')
+                ->select('event_type', DB::raw('count(*) as count'))
+                ->groupBy('event_type')
+                ->orderBy('count', 'desc')
+                ->get()
+                ->map(fn ($item): array => [
+                    'type'      => class_basename($item->event_type),
+                    'full_type' => $item->event_type,
+                    'count'     => $item->count,
+                ]),
+            'events_by_aggregate' => DB::table('event_store')
+                ->select('aggregate_type', DB::raw('count(*) as count'))
+                ->groupBy('aggregate_type')
+                ->orderBy('count', 'desc')
+                ->get(),
+            'hourly_activity' => DB::table('event_store')
+                ->select(DB::raw('HOUR(recorded_at) as hour'), DB::raw('count(*) as count'))
+                ->whereDate('recorded_at', today())
+                ->groupBy('hour')
+                ->orderBy('hour')
+                ->get(),
+            'daily_activity' => DB::table('event_store')
+                ->select(DB::raw('DATE(recorded_at) as date'), DB::raw('count(*) as count'))
+                ->where('recorded_at', '>=', now()->subDays(30))
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get(),
+        ]);
 
         return response()->json([
             'success' => TRUE,

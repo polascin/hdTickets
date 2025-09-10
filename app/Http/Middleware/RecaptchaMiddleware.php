@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
+use function in_array;
+
 class RecaptchaMiddleware
 {
     public function __construct(
-        private RecaptchaService $recaptchaService
-    ) {}
+        private RecaptchaService $recaptchaService,
+    ) {
+    }
 
     /**
      * Handle an incoming request.
@@ -21,39 +24,39 @@ class RecaptchaMiddleware
     public function handle(Request $request, Closure $next, string $action = 'login'): Response
     {
         // Only validate POST requests that might require CAPTCHA
-        if (!$request->isMethod('POST')) {
+        if (! $request->isMethod('POST')) {
             return $next($request);
         }
 
         // Skip if reCAPTCHA is disabled
-        if (!$this->recaptchaService->isEnabled()) {
+        if (! $this->recaptchaService->isEnabled()) {
             return $next($request);
         }
 
         // Check if this request should be challenged
         $shouldChallenge = $this->recaptchaService->shouldChallenge($request);
-        
+
         // Always verify token if present, regardless of challenge status
-        $recaptchaToken = $request->input('g-recaptcha-response') ?: 
+        $recaptchaToken = $request->input('g-recaptcha-response') ?:
                          $request->input('recaptcha_token');
 
         if ($recaptchaToken) {
             $verification = $this->recaptchaService->verify(
-                $recaptchaToken, 
-                $action, 
-                $request->ip()
+                $recaptchaToken,
+                $action,
+                $request->ip(),
             );
 
             // Check if verification passed
-            if (!$this->recaptchaService->passes($verification)) {
+            if (! $this->recaptchaService->passes($verification)) {
                 $this->handleFailedVerification($verification, $request);
             }
         } elseif ($shouldChallenge) {
             // No token provided but challenge is required
             throw ValidationException::withMessages([
-                'recaptcha' => 'Security verification is required. Please complete the CAPTCHA.',
-                'challenge_required' => true,
-                'error_type' => 'recaptcha_required'
+                'recaptcha'          => 'Security verification is required. Please complete the CAPTCHA.',
+                'challenge_required' => TRUE,
+                'error_type'         => 'recaptcha_required',
             ]);
         }
 
@@ -78,12 +81,12 @@ class RecaptchaMiddleware
         $suggestions = $this->getErrorSuggestions($verification);
 
         throw ValidationException::withMessages([
-            'recaptcha' => $message,
+            'recaptcha'             => $message,
             'recaptcha_suggestions' => $suggestions,
-            'error_type' => 'recaptcha_failed',
-            'score' => $score,
-            'error_codes' => $errorCodes,
-            'challenge_required' => true
+            'error_type'            => 'recaptcha_failed',
+            'score'                 => $score,
+            'error_codes'           => $errorCodes,
+            'challenge_required'    => TRUE,
         ]);
     }
 
@@ -95,19 +98,19 @@ class RecaptchaMiddleware
         $errorCodes = $verification['error-codes'] ?? [];
         $score = $verification['score'] ?? 0.0;
 
-        if (in_array('timeout-or-duplicate', $errorCodes)) {
+        if (in_array('timeout-or-duplicate', $errorCodes, TRUE)) {
             return 'Security verification expired. Please try again.';
         }
 
-        if (in_array('invalid-input-response', $errorCodes)) {
+        if (in_array('invalid-input-response', $errorCodes, TRUE)) {
             return 'Invalid security verification. Please refresh and try again.';
         }
 
-        if (in_array('token-already-used', $errorCodes)) {
+        if (in_array('token-already-used', $errorCodes, TRUE)) {
             return 'Security verification was already used. Please refresh and try again.';
         }
 
-        if (in_array('action-mismatch', $errorCodes)) {
+        if (in_array('action-mismatch', $errorCodes, TRUE)) {
             return 'Security verification failed. Please refresh and try again.';
         }
 
@@ -130,30 +133,30 @@ class RecaptchaMiddleware
         $errorCodes = $verification['error-codes'] ?? [];
         $suggestions = [];
 
-        if (in_array('timeout-or-duplicate', $errorCodes)) {
+        if (in_array('timeout-or-duplicate', $errorCodes, TRUE)) {
             $suggestions = [
                 'Refresh the page and try again',
                 'Make sure you complete the verification quickly',
-                'Check your internet connection'
+                'Check your internet connection',
             ];
-        } elseif (in_array('token-already-used', $errorCodes)) {
+        } elseif (in_array('token-already-used', $errorCodes, TRUE)) {
             $suggestions = [
                 'Refresh the page to get a new verification',
                 'Do not use the browser back button after submitting',
-                'Clear your browser cache if the issue persists'
+                'Clear your browser cache if the issue persists',
             ];
-        } elseif (in_array('action-mismatch', $errorCodes)) {
+        } elseif (in_array('action-mismatch', $errorCodes, TRUE)) {
             $suggestions = [
                 'Refresh the page completely',
                 'Make sure JavaScript is enabled',
-                'Try a different browser if the issue continues'
+                'Try a different browser if the issue continues',
             ];
         } else {
             $suggestions = [
                 'Refresh the page and try logging in again',
                 'Make sure JavaScript is enabled in your browser',
                 'Try using a different browser or device',
-                'Contact support if you continue having issues'
+                'Contact support if you continue having issues',
             ];
         }
 

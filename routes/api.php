@@ -36,24 +36,42 @@
  * - All routes prefixed with /api/v1/
  * - Backward compatibility maintained
  */
-
+use App\Http\Controllers\Api\AlertController;
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BusinessIntelligenceApiController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\EnhancedAnalyticsController;
+use App\Http\Controllers\Api\ImapMonitoringController;
 use App\Http\Controllers\Api\MonitoringController;
+use App\Http\Controllers\Api\PerformanceMetricsController;
+use App\Http\Controllers\Api\PreferencesController;
+use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\ScrapingController;
 use App\Http\Controllers\Api\StubHubController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TicketCriteriaController;
 use App\Http\Controllers\Api\TicketmasterController;
 use App\Http\Controllers\Api\TickPickController;
 use App\Http\Controllers\Api\ViagogoController;
+use App\Http\Controllers\Api\WelcomeStatsController;
 use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\AutomatedPurchaseController;
+use App\Http\Controllers\EnhancedDashboardController;
+use App\Http\Controllers\HealthController;
+use App\Http\Controllers\RecommendationController;
+use App\Http\Controllers\TicketApiController;
+use App\Http\Controllers\UserPreferencesController;
 use App\Http\Middleware\Api\ApiRateLimit;
 use App\Http\Middleware\Api\CheckApiRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 // Include background sync API routes
-require __DIR__.'/sync-api.php';
+require __DIR__ . '/sync-api.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -93,15 +111,13 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
      * Access: Public (no authentication required)
      * Used by: Load balancers, monitoring systems, integration partners
      */
-    Route::get('/status', function () {
-        return response()->json([
-            'status'      => 'active',
-            'service'     => 'HD Tickets Sports Events Monitoring',
-            'version'     => '2025.07.v4.0',
-            'timestamp'   => now()->toISOString(),
-            'environment' => 'Ubuntu 24.04 LTS, Apache2, PHP8.4, MySQL/MariaDB 10.4',
-        ]);
-    });
+    Route::get('/status', fn () => response()->json([
+        'status'      => 'active',
+        'service'     => 'HD Tickets Sports Events Monitoring',
+        'version'     => '2025.07.v4.0',
+        'timestamp'   => now()->toISOString(),
+        'environment' => 'Ubuntu 24.04 LTS, Apache2, PHP8.4, MySQL/MariaDB 10.4',
+    ]));
 
     /*
      * Welcome Page Statistics Endpoint
@@ -109,7 +125,7 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
      * Access: Public (no authentication required)
      * Used by: Welcome page for displaying live statistics
      */
-    Route::get('/stats/welcome', [App\Http\Controllers\Api\WelcomeStatsController::class, 'index']);
+    Route::get('/stats/welcome', [WelcomeStatsController::class, 'index']);
 
     /*
      * Analytics Event Tracking Endpoint
@@ -117,7 +133,7 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
      * Access: Public (no authentication required)
      * Used by: JavaScript analytics service for event tracking
      */
-    Route::post('/analytics/event', [App\Http\Controllers\Api\AnalyticsController::class, 'receiveEvent']);
+    Route::post('/analytics/event', [AnalyticsController::class, 'receiveEvent']);
 
     /*
      * Analytics Dashboard Data Endpoint
@@ -125,7 +141,7 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
      * Access: Public (no authentication required)
      * Used by: Analytics dashboard components
      */
-    Route::get('/analytics/dashboard', [App\Http\Controllers\Api\AnalyticsController::class, 'getDashboardData']);
+    Route::get('/analytics/dashboard', [AnalyticsController::class, 'getDashboardData']);
 });
 
 /*
@@ -140,24 +156,24 @@ Route::prefix('v1')->middleware([ApiRateLimit::class . ':auth,10,1'])->group(fun
 */
 Route::prefix('v1/tickets')->middleware([ApiRateLimit::class . ':api,120,1'])->name('api.tickets.')->group(function (): void {
     // Public ticket endpoints (no authentication required)
-    Route::get('/filter', [App\Http\Controllers\TicketApiController::class, 'filter'])
+    Route::get('/filter', [TicketApiController::class, 'filter'])
         ->name('filter');
-    
-    Route::get('/suggestions', [App\Http\Controllers\TicketApiController::class, 'suggestions'])
+
+    Route::get('/suggestions', [TicketApiController::class, 'suggestions'])
         ->name('suggestions');
-    
-    Route::get('/{ticket}/details', [App\Http\Controllers\TicketApiController::class, 'getTicketDetails'])
+
+    Route::get('/{ticket}/details', [TicketApiController::class, 'getTicketDetails'])
         ->name('details');
-    
+
     // Development endpoints (non-production only)
     Route::middleware('throttle:10,1')->group(function (): void {
-        Route::post('/{ticket}/test-price-change', [App\Http\Controllers\TicketApiController::class, 'testPriceChange'])
+        Route::post('/{ticket}/test-price-change', [TicketApiController::class, 'testPriceChange'])
             ->name('test-price-change');
     });
-    
+
     // Authenticated ticket endpoints
     Route::middleware('auth:sanctum')->group(function (): void {
-        Route::post('/{ticket}/bookmark', [App\Http\Controllers\TicketApiController::class, 'toggleBookmark'])
+        Route::post('/{ticket}/bookmark', [TicketApiController::class, 'toggleBookmark'])
             ->name('bookmark');
     });
 });
@@ -178,7 +194,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard for real-time updates
      */
-    Route::get('/realtime', [App\Http\Controllers\EnhancedDashboardController::class, 'getRealtimeData'])
+    Route::get('/realtime', [EnhancedDashboardController::class, 'getRealtimeData'])
         ->name('realtime');
 
     /*
@@ -187,7 +203,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard analytics widgets
      */
-    Route::get('/analytics-data', [App\Http\Controllers\EnhancedDashboardController::class, 'getAnalytics'])
+    Route::get('/analytics-data', [EnhancedDashboardController::class, 'getAnalytics'])
         ->name('analytics.data');
 
     /*
@@ -196,7 +212,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard recommendations widget
      */
-    Route::get('/recommendations', [App\Http\Controllers\EnhancedDashboardController::class, 'getPersonalizedRecommendations'])
+    Route::get('/recommendations', [EnhancedDashboardController::class, 'getPersonalizedRecommendations'])
         ->name('recommendations');
 
     /*
@@ -207,19 +223,19 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      */
     Route::get('/stats', function (Request $request) {
         $user = $request->user();
-        $controller = app(App\Http\Controllers\EnhancedDashboardController::class);
+        $controller = app(EnhancedDashboardController::class);
         $data = $controller->getRealtimeData($request)->getData();
-        
+
         return response()->json([
-            'success' => true,
-            'stats' => [
+            'success' => TRUE,
+            'stats'   => [
                 'available_tickets' => $data->data->statistics->available_tickets->current ?? 0,
-                'new_today' => $data->data->statistics->available_tickets->change_24h ?? 0,
-                'monitored_events' => $data->data->statistics->high_demand->current ?? 0,
-                'active_alerts' => $data->data->statistics->active_alerts->current ?? 0,
-                'price_alerts' => $data->data->statistics->active_alerts->current ?? 0,
-                'triggered_today' => $data->data->statistics->active_alerts->triggered_today ?? 0,
-            ]
+                'new_today'         => $data->data->statistics->available_tickets->change_24h ?? 0,
+                'monitored_events'  => $data->data->statistics->high_demand->current ?? 0,
+                'active_alerts'     => $data->data->statistics->active_alerts->current ?? 0,
+                'price_alerts'      => $data->data->statistics->active_alerts->current ?? 0,
+                'triggered_today'   => $data->data->statistics->active_alerts->triggered_today ?? 0,
+            ],
         ]);
     })->name('stats');
 
@@ -231,12 +247,12 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      */
     Route::get('/tickets', function (Request $request) {
         $user = $request->user();
-        $controller = app(App\Http\Controllers\EnhancedDashboardController::class);
+        $controller = app(EnhancedDashboardController::class);
         $data = $controller->getRealtimeData($request)->getData();
-        
+
         return response()->json([
-            'success' => true,
-            'tickets' => $data->data->recent_tickets ?? []
+            'success' => TRUE,
+            'tickets' => $data->data->recent_tickets ?? [],
         ]);
     })->name('tickets');
 
@@ -246,7 +262,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard upcoming events widget
      */
-    Route::get('/events', [App\Http\Controllers\EnhancedDashboardController::class, 'getUpcomingEvents'])
+    Route::get('/events', [EnhancedDashboardController::class, 'getUpcomingEvents'])
         ->name('events');
 
     /*
@@ -255,9 +271,9 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Methods: GET (fetch), POST (mark as read)
      */
-    Route::get('/notifications', [App\Http\Controllers\EnhancedDashboardController::class, 'getNotifications'])
+    Route::get('/notifications', [EnhancedDashboardController::class, 'getNotifications'])
         ->name('notifications.index');
-    Route::post('/notifications', [App\Http\Controllers\EnhancedDashboardController::class, 'markNotificationsRead'])
+    Route::post('/notifications', [EnhancedDashboardController::class, 'markNotificationsRead'])
         ->name('notifications.read');
 
     /*
@@ -266,9 +282,9 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Methods: GET (fetch), POST (save)
      */
-    Route::get('/settings', [App\Http\Controllers\EnhancedDashboardController::class, 'getUserSettings'])
+    Route::get('/settings', [EnhancedDashboardController::class, 'getUserSettings'])
         ->name('settings.index');
-    Route::post('/settings', [App\Http\Controllers\EnhancedDashboardController::class, 'saveUserSettings'])
+    Route::post('/settings', [EnhancedDashboardController::class, 'saveUserSettings'])
         ->name('settings.save');
 
     /*
@@ -277,7 +293,7 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard for performance monitoring
      */
-    Route::get('/metrics', [App\Http\Controllers\EnhancedDashboardController::class, 'getPerformanceMetrics'])
+    Route::get('/metrics', [EnhancedDashboardController::class, 'getPerformanceMetrics'])
         ->name('metrics');
 
     /*
@@ -286,72 +302,68 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
      * Access: Authenticated users
      * Used by: Enhanced dashboard for usage analytics
      */
-    Route::post('/analytics', [App\Http\Controllers\EnhancedDashboardController::class, 'receiveAnalytics'])
+    Route::post('/analytics', [EnhancedDashboardController::class, 'receiveAnalytics'])
         ->name('analytics.receive');
 });
 
 // Scraping routes
 Route::prefix('v1/scraping')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
-    Route::get('/tickets', [App\Http\Controllers\Api\ScrapingController::class, 'tickets']);
-    Route::get('/tickets/{uuid}', [App\Http\Controllers\Api\ScrapingController::class, 'show']);
-    Route::post('/start-scraping', [App\Http\Controllers\Api\ScrapingController::class, 'startScraping']);
-    Route::get('/statistics', [App\Http\Controllers\Api\ScrapingController::class, 'statistics']);
-    Route::get('/platforms', [App\Http\Controllers\Api\ScrapingController::class, 'platforms']);
-    Route::delete('/cleanup', [App\Http\Controllers\Api\ScrapingController::class, 'cleanup']);
+    Route::get('/tickets', [ScrapingController::class, 'tickets']);
+    Route::get('/tickets/{uuid}', [ScrapingController::class, 'show']);
+    Route::post('/start-scraping', [ScrapingController::class, 'startScraping']);
+    Route::get('/statistics', [ScrapingController::class, 'statistics']);
+    Route::get('/platforms', [ScrapingController::class, 'platforms']);
+    Route::delete('/cleanup', [ScrapingController::class, 'cleanup']);
 });
 
 // Alert routes
 Route::prefix('v1/alerts')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
-    Route::get('/', [App\Http\Controllers\Api\AlertController::class, 'index']);
-    Route::post('/', [App\Http\Controllers\Api\AlertController::class, 'store']);
-    Route::get('/{uuid}', [App\Http\Controllers\Api\AlertController::class, 'show']);
-    Route::put('/{uuid}', [App\Http\Controllers\Api\AlertController::class, 'update']);
-    Route::delete('/{uuid}', [App\Http\Controllers\Api\AlertController::class, 'destroy']);
-    Route::post('/{uuid}/toggle', [App\Http\Controllers\Api\AlertController::class, 'toggle']);
-    Route::post('/{uuid}/test', [App\Http\Controllers\Api\AlertController::class, 'test']);
-    Route::get('/statistics', [App\Http\Controllers\Api\AlertController::class, 'statistics']);
-    Route::post('/check-all', [App\Http\Controllers\Api\AlertController::class, 'checkAll']);
-    
+    Route::get('/', [AlertController::class, 'index']);
+    Route::post('/', [AlertController::class, 'store']);
+    Route::get('/{uuid}', [AlertController::class, 'show']);
+    Route::put('/{uuid}', [AlertController::class, 'update']);
+    Route::delete('/{uuid}', [AlertController::class, 'destroy']);
+    Route::post('/{uuid}/toggle', [AlertController::class, 'toggle']);
+    Route::post('/{uuid}/test', [AlertController::class, 'test']);
+    Route::get('/statistics', [AlertController::class, 'statistics']);
+    Route::post('/check-all', [AlertController::class, 'checkAll']);
+
     // Dashboard alert toggling (expects ticket ID instead of alert UUID)
-    Route::post('/{ticketId}', function (Request $request, string $ticketId) {
-        // Create new alert for ticket
-        return response()->json(['success' => true, 'message' => 'Alert created']);
-    });
-    
-    Route::delete('/{ticketId}', function (Request $request, string $ticketId) {
-        // Remove alert for ticket
-        return response()->json(['success' => true, 'message' => 'Alert removed']);
-    });
+    Route::post('/{ticketId}', fn (Request $request, string $ticketId) => // Create new alert for ticket
+        response()->json(['success' => TRUE, 'message' => 'Alert created']));
+
+    Route::delete('/{ticketId}', fn (Request $request, string $ticketId) => // Remove alert for ticket
+        response()->json(['success' => TRUE, 'message' => 'Alert removed']));
 });
 
 // Purchase routes
 Route::prefix('v1/purchases')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
-    Route::get('/queue', [App\Http\Controllers\Api\PurchaseController::class, 'queue']);
-    Route::post('/queue', [App\Http\Controllers\Api\PurchaseController::class, 'addToQueue']);
-    Route::put('/queue/{uuid}', [App\Http\Controllers\Api\PurchaseController::class, 'updateQueue']);
-    Route::delete('/queue/{uuid}', [App\Http\Controllers\Api\PurchaseController::class, 'removeFromQueue']);
-    Route::get('/attempts', [App\Http\Controllers\Api\PurchaseController::class, 'attempts']);
-    Route::post('/attempts/initiate', [App\Http\Controllers\Api\PurchaseController::class, 'initiatePurchase']);
-    Route::get('/attempts/{uuid}', [App\Http\Controllers\Api\PurchaseController::class, 'attemptDetails']);
-    Route::post('/attempts/{uuid}/cancel', [App\Http\Controllers\Api\PurchaseController::class, 'cancelAttempt']);
-    Route::get('/statistics', [App\Http\Controllers\Api\PurchaseController::class, 'statistics']);
-    Route::get('/configuration', [App\Http\Controllers\Api\PurchaseController::class, 'configuration']);
-    Route::put('/configuration', [App\Http\Controllers\Api\PurchaseController::class, 'updateConfiguration']);
+    Route::get('/queue', [PurchaseController::class, 'queue']);
+    Route::post('/queue', [PurchaseController::class, 'addToQueue']);
+    Route::put('/queue/{uuid}', [PurchaseController::class, 'updateQueue']);
+    Route::delete('/queue/{uuid}', [PurchaseController::class, 'removeFromQueue']);
+    Route::get('/attempts', [PurchaseController::class, 'attempts']);
+    Route::post('/attempts/initiate', [PurchaseController::class, 'initiatePurchase']);
+    Route::get('/attempts/{uuid}', [PurchaseController::class, 'attemptDetails']);
+    Route::post('/attempts/{uuid}/cancel', [PurchaseController::class, 'cancelAttempt']);
+    Route::get('/statistics', [PurchaseController::class, 'statistics']);
+    Route::get('/configuration', [PurchaseController::class, 'configuration']);
+    Route::put('/configuration', [PurchaseController::class, 'updateConfiguration']);
 });
 
 // Category routes
 Route::prefix('v1/categories')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,60,1'])->group(function (): void {
-    Route::get('/', [App\Http\Controllers\Api\CategoryController::class, 'index']);
-    Route::get('/statistics', [App\Http\Controllers\Api\CategoryController::class, 'statistics']);
-    Route::get('/sport-types', [App\Http\Controllers\Api\CategoryController::class, 'sportTypes']);
-    Route::get('/{id}', [App\Http\Controllers\Api\CategoryController::class, 'show']);
-    Route::get('/{id}/tickets', [App\Http\Controllers\Api\CategoryController::class, 'tickets']);
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/statistics', [CategoryController::class, 'statistics']);
+    Route::get('/sport-types', [CategoryController::class, 'sportTypes']);
+    Route::get('/{id}', [CategoryController::class, 'show']);
+    Route::get('/{id}/tickets', [CategoryController::class, 'tickets']);
 
     // Admin only routes
     Route::middleware([CheckApiRole::class . ':admin'])->group(function (): void {
-        Route::post('/', [App\Http\Controllers\Api\CategoryController::class, 'store']);
-        Route::put('/{id}', [App\Http\Controllers\Api\CategoryController::class, 'update']);
-        Route::delete('/{id}', [App\Http\Controllers\Api\CategoryController::class, 'destroy']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
     });
 });
 
@@ -368,7 +380,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Session Management Routes for Professional Auth Features
     Route::post('/session/extend', function (Request $request) {
         try {
-            if (! Illuminate\Support\Facades\Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User not authenticated',
@@ -378,9 +390,9 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
             $request->session()->regenerate();
             $request->session()->put('last_activity', time());
 
-            Illuminate\Support\Facades\Log::info('Session extended for user', [
-                'user_id'    => Illuminate\Support\Facades\Auth::id(),
-                'email'      => Illuminate\Support\Facades\Auth::user()->email,
+            Log::info('Session extended for user', [
+                'user_id'    => Auth::id(),
+                'email'      => Auth::user()->email,
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'timestamp'  => now()->toDateTimeString(),
@@ -392,8 +404,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
                 'expires_at' => now()->addMinutes(config('session.lifetime'))->toISOString(),
             ]);
         } catch (Exception $e) {
-            Illuminate\Support\Facades\Log::error('Session extension failed', [
-                'user_id'   => Illuminate\Support\Facades\Auth::id() ?? 'unknown',
+            Log::error('Session extension failed', [
+                'user_id'   => Auth::id() ?? 'unknown',
                 'error'     => $e->getMessage(),
                 'ip'        => $request->ip(),
                 'timestamp' => now()->toDateTimeString(),
@@ -407,7 +419,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     Route::get('/session/status', function (Request $request) {
-        if (! Illuminate\Support\Facades\Auth::check()) {
+        if (! Auth::check()) {
             return response()->json([
                 'success'       => FALSE,
                 'authenticated' => FALSE,
@@ -428,9 +440,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     // Get current user
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', fn (Request $request) => $request->user());
 
     // Ticket routes
     Route::apiResource('tickets', TicketController::class)->parameters([
@@ -454,11 +464,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
         Route::get('/success-rates', [DashboardController::class, 'successRates']);
 
         // Comprehensive health endpoint
-        Route::get('/health', [App\Http\Controllers\HealthController::class, 'index']);
-        Route::get('/health/database', [App\Http\Controllers\HealthController::class, 'database']);
-        Route::get('/health/redis', [App\Http\Controllers\HealthController::class, 'redis']);
-        Route::get('/health/websockets', [App\Http\Controllers\HealthController::class, 'websockets']);
-        Route::get('/health/services', [App\Http\Controllers\HealthController::class, 'services']);
+        Route::get('/health', [HealthController::class, 'index']);
+        Route::get('/health/database', [HealthController::class, 'database']);
+        Route::get('/health/redis', [HealthController::class, 'redis']);
+        Route::get('/health/websockets', [HealthController::class, 'websockets']);
+        Route::get('/health/services', [HealthController::class, 'services']);
 
         // Error logging endpoint
         Route::post('/log-error', [DashboardController::class, 'logError']);
@@ -467,109 +477,101 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Advanced User Preferences API
     Route::prefix('preferences')->group(function (): void {
         // Legacy preferences routes
-        Route::get('/', [App\Http\Controllers\UserPreferencesController::class, 'getPreferences']);
-        Route::post('/', [App\Http\Controllers\UserPreferencesController::class, 'updatePreferences']);
-        Route::put('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'update']);
-        Route::delete('/{key}', [App\Http\Controllers\Api\PreferencesController::class, 'destroy']);
-        Route::post('/reset', [App\Http\Controllers\UserPreferencesController::class, 'resetPreferences']);
-        
+        Route::get('/', [UserPreferencesController::class, 'getPreferences']);
+        Route::post('/', [UserPreferencesController::class, 'updatePreferences']);
+        Route::put('/{key}', [PreferencesController::class, 'update']);
+        Route::delete('/{key}', [PreferencesController::class, 'destroy']);
+        Route::post('/reset', [UserPreferencesController::class, 'resetPreferences']);
+
         // Export/Import operations
-        Route::get('/export', [App\Http\Controllers\UserPreferencesController::class, 'exportPreferences']);
-        Route::post('/import', [App\Http\Controllers\UserPreferencesController::class, 'import']);
-        
+        Route::get('/export', [UserPreferencesController::class, 'exportPreferences']);
+        Route::post('/import', [UserPreferencesController::class, 'import']);
+
         // Teams and venues search
-        Route::get('/teams/search', [App\Http\Controllers\UserPreferencesController::class, 'searchTeams']);
-        Route::get('/venues/search', [App\Http\Controllers\UserPreferencesController::class, 'searchVenues']);
-        
+        Route::get('/teams/search', [UserPreferencesController::class, 'searchTeams']);
+        Route::get('/venues/search', [UserPreferencesController::class, 'searchVenues']);
+
         // Favorites management
-        Route::post('/teams/{teamId}', [App\Http\Controllers\UserPreferencesController::class, 'addFavoriteTeam']);
-        Route::delete('/teams/{teamId}', [App\Http\Controllers\UserPreferencesController::class, 'removeFavoriteTeam']);
-        Route::post('/venues/{venueId}', [App\Http\Controllers\UserPreferencesController::class, 'addFavoriteVenue']);
-        Route::delete('/venues/{venueId}', [App\Http\Controllers\UserPreferencesController::class, 'removeFavoriteVenue']);
-        
+        Route::post('/teams/{teamId}', [UserPreferencesController::class, 'addFavoriteTeam']);
+        Route::delete('/teams/{teamId}', [UserPreferencesController::class, 'removeFavoriteTeam']);
+        Route::post('/venues/{venueId}', [UserPreferencesController::class, 'addFavoriteVenue']);
+        Route::delete('/venues/{venueId}', [UserPreferencesController::class, 'removeFavoriteVenue']);
+
         // Preferences summary
-        Route::get('/summary', [App\Http\Controllers\UserPreferencesController::class, 'getPreferencesSummary']);
+        Route::get('/summary', [UserPreferencesController::class, 'getPreferencesSummary']);
     });
 
     // Ticket Criteria Configuration
     Route::prefix('ticket-criteria')->group(function (): void {
-        Route::get('/', [App\Http\Controllers\Api\TicketCriteriaController::class, 'index']);
-        Route::post('/', [App\Http\Controllers\Api\TicketCriteriaController::class, 'store']);
-        Route::put('/{id}', [App\Http\Controllers\Api\TicketCriteriaController::class, 'update']);
-        Route::delete('/{id}', [App\Http\Controllers\Api\TicketCriteriaController::class, 'destroy']);
-        Route::post('/{id}/toggle', [App\Http\Controllers\Api\TicketCriteriaController::class, 'toggle']);
+        Route::get('/', [TicketCriteriaController::class, 'index']);
+        Route::post('/', [TicketCriteriaController::class, 'store']);
+        Route::put('/{id}', [TicketCriteriaController::class, 'update']);
+        Route::delete('/{id}', [TicketCriteriaController::class, 'destroy']);
+        Route::post('/{id}/toggle', [TicketCriteriaController::class, 'toggle']);
     });
 
     // Analytics API
     Route::prefix('analytics')->group(function (): void {
-        Route::get('/overview', [App\Http\Controllers\Api\AnalyticsController::class, 'overview']);
-        Route::get('/ticket-trends', [App\Http\Controllers\Api\AnalyticsController::class, 'ticketTrends']);
-        Route::get('/platform-performance', [App\Http\Controllers\Api\AnalyticsController::class, 'platformPerformance']);
-        Route::get('/success-rates', [App\Http\Controllers\Api\AnalyticsController::class, 'successRates']);
-        Route::get('/price-analysis', [App\Http\Controllers\Api\AnalyticsController::class, 'priceAnalysis']);
-        Route::get('/demand-patterns', [App\Http\Controllers\Api\AnalyticsController::class, 'demandPatterns']);
-        Route::get('/export/{type}', [App\Http\Controllers\Api\AnalyticsController::class, 'export']);
+        Route::get('/overview', [AnalyticsController::class, 'overview']);
+        Route::get('/ticket-trends', [AnalyticsController::class, 'ticketTrends']);
+        Route::get('/platform-performance', [AnalyticsController::class, 'platformPerformance']);
+        Route::get('/success-rates', [AnalyticsController::class, 'successRates']);
+        Route::get('/price-analysis', [AnalyticsController::class, 'priceAnalysis']);
+        Route::get('/demand-patterns', [AnalyticsController::class, 'demandPatterns']);
+        Route::get('/export/{type}', [AnalyticsController::class, 'export']);
     });
 
     // Enhanced Analytics & Reporting API Routes
     Route::prefix('enhanced-analytics')->group(function (): void {
         // Chart Data Endpoints
-        Route::get('/charts', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getChartData']);
-        Route::get('/charts/{type}', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getChartData']);
+        Route::get('/charts', [EnhancedAnalyticsController::class, 'getChartData']);
+        Route::get('/charts/{type}', [EnhancedAnalyticsController::class, 'getChartData']);
 
         // Export Endpoints
-        Route::post('/export', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'exportData']);
-        Route::get('/export/formats', function () {
-            return response()->json([
-                'success' => TRUE,
-                'formats' => ['csv', 'xlsx', 'pdf', 'json'],
-                'types'   => ['ticket_trends', 'price_analysis', 'platform_performance', 'user_engagement', 'comprehensive_analytics'],
-            ]);
-        });
+        Route::post('/export', [EnhancedAnalyticsController::class, 'exportData']);
+        Route::get('/export/formats', fn () => response()->json([
+            'success' => TRUE,
+            'formats' => ['csv', 'xlsx', 'pdf', 'json'],
+            'types'   => ['ticket_trends', 'price_analysis', 'platform_performance', 'user_engagement', 'comprehensive_analytics'],
+        ]));
 
         // Insights Endpoints
-        Route::get('/insights/predictive', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getPredictiveInsights']);
-        Route::get('/insights/user-behavior', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getUserBehaviorInsights']);
-        Route::get('/insights/market-intelligence', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getMarketIntelligence']);
-        Route::get('/insights/optimization', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getOptimizationInsights']);
-        Route::get('/insights/anomaly-detection', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getAnomalyDetection']);
+        Route::get('/insights/predictive', [EnhancedAnalyticsController::class, 'getPredictiveInsights']);
+        Route::get('/insights/user-behavior', [EnhancedAnalyticsController::class, 'getUserBehaviorInsights']);
+        Route::get('/insights/market-intelligence', [EnhancedAnalyticsController::class, 'getMarketIntelligence']);
+        Route::get('/insights/optimization', [EnhancedAnalyticsController::class, 'getOptimizationInsights']);
+        Route::get('/insights/anomaly-detection', [EnhancedAnalyticsController::class, 'getAnomalyDetection']);
 
         // Dashboard Configuration
-        Route::get('/dashboard/config', [App\Http\Controllers\Api\EnhancedAnalyticsController::class, 'getDashboardConfig']);
-        Route::post('/dashboard/custom', function (Request $request) {
-            // Custom dashboard configuration endpoint
-            return response()->json([
+        Route::get('/dashboard/config', [EnhancedAnalyticsController::class, 'getDashboardConfig']);
+        Route::post('/dashboard/custom', fn (Request $request) => // Custom dashboard configuration endpoint
+            response()->json([
                 'success' => TRUE,
                 'message' => 'Custom dashboard configuration saved',
                 'config'  => $request->all(),
-            ]);
-        });
+            ]));
 
         // Real-time Data Endpoints
-        Route::get('/realtime/metrics', function () {
-            return response()->json([
-                'success' => TRUE,
-                'data'    => [
-                    'active_scrapers'   => rand(8, 12),
-                    'tickets_processed' => rand(1000, 5000),
-                    'alerts_sent'       => rand(50, 200),
-                    'system_load'       => rand(30, 80),
-                    'last_updated'      => now()->toISOString(),
-                ],
-            ]);
-        });
+        Route::get('/realtime/metrics', fn () => response()->json([
+            'success' => TRUE,
+            'data'    => [
+                'active_scrapers'   => random_int(8, 12),
+                'tickets_processed' => random_int(1000, 5000),
+                'alerts_sent'       => random_int(50, 200),
+                'system_load'       => random_int(30, 80),
+                'last_updated'      => now()->toISOString(),
+            ],
+        ]));
 
-        Route::get('/realtime/alerts', function () {
-            return response()->json([
-                'success' => TRUE,
-                'data'    => [
-                    'active_alerts'   => rand(20, 100),
-                    'triggered_today' => rand(5, 25),
-                    'success_rate'    => rand(75, 95),
-                    'last_updated'    => now()->toISOString(),
-                ],
-            ]);
-        });
+        Route::get('/realtime/alerts', fn () => response()->json([
+            'success' => TRUE,
+            'data'    => [
+                'active_alerts'   => random_int(20, 100),
+                'triggered_today' => random_int(5, 25),
+                'success_rate'    => random_int(75, 95),
+                'last_updated'    => now()->toISOString(),
+            ],
+        ]));
     });
 
     // Enhanced Monitoring API
@@ -586,11 +588,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     // Performance Metrics API
     Route::prefix('performance')->group(function (): void {
         // Public endpoint for receiving metrics from browser
-        Route::post('/metrics', [App\Http\Controllers\Api\PerformanceMetricsController::class, 'receiveMetrics']);
+        Route::post('/metrics', [PerformanceMetricsController::class, 'receiveMetrics']);
 
         // Admin-only dashboard data
         Route::middleware([CheckApiRole::class . ':admin'])->group(function (): void {
-            Route::get('/dashboard', [App\Http\Controllers\Api\PerformanceMetricsController::class, 'getDashboardData']);
+            Route::get('/dashboard', [PerformanceMetricsController::class, 'getDashboardData']);
         });
     });
 
@@ -667,23 +669,23 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     });
 
     // IMAP Email Monitoring API Routes
-    Route::prefix('imap')->middleware([CheckApiRole::class . ':agent,admin'])->name('api.imap.')->group(function () {
+    Route::prefix('imap')->middleware([CheckApiRole::class . ':agent,admin'])->name('api.imap.')->group(function (): void {
         // Dashboard and statistics
-        Route::get('/dashboard', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'dashboard']);
-        Route::get('/statistics', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'statistics']);
-        
+        Route::get('/dashboard', [ImapMonitoringController::class, 'dashboard']);
+        Route::get('/statistics', [ImapMonitoringController::class, 'statistics']);
+
         // Connection management
-        Route::post('/test-connection', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'testConnection']);
-        Route::get('/connection-health', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'connectionHealth']);
-        
+        Route::post('/test-connection', [ImapMonitoringController::class, 'testConnection']);
+        Route::get('/connection-health', [ImapMonitoringController::class, 'connectionHealth']);
+
         // Monitoring operations
-        Route::post('/start-monitoring', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'startMonitoring']);
-        
+        Route::post('/start-monitoring', [ImapMonitoringController::class, 'startMonitoring']);
+
         // Cache management
-        Route::post('/clear-cache', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'clearCache']);
-        
+        Route::post('/clear-cache', [ImapMonitoringController::class, 'clearCache']);
+
         // Platform configuration
-        Route::get('/platform-config', [\App\Http\Controllers\Api\ImapMonitoringController::class, 'platformConfig']);
+        Route::get('/platform-config', [ImapMonitoringController::class, 'platformConfig']);
     });
 
     /*
@@ -698,82 +700,82 @@ Route::prefix('v1')->middleware(['auth:sanctum', ApiRateLimit::class . ':api,120
     */
     Route::prefix('bi')->middleware([CheckApiRole::class . ':admin,agent'])->name('api.bi.')->group(function (): void {
         // API Health and Documentation
-        Route::get('/health', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'health'])
+        Route::get('/health', [BusinessIntelligenceApiController::class, 'health'])
             ->name('health');
 
         // Core Analytics Endpoints
-        Route::get('/analytics/overview', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getAnalyticsOverview'])
+        Route::get('/analytics/overview', [BusinessIntelligenceApiController::class, 'getAnalyticsOverview'])
             ->middleware('throttle:bi-api,100')
             ->name('analytics.overview');
-        
-        Route::get('/tickets/metrics', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getTicketMetrics'])
+
+        Route::get('/tickets/metrics', [BusinessIntelligenceApiController::class, 'getTicketMetrics'])
             ->middleware('throttle:bi-api,100')
             ->name('tickets.metrics');
-        
-        Route::get('/platforms/performance', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getPlatformData'])
+
+        Route::get('/platforms/performance', [BusinessIntelligenceApiController::class, 'getPlatformData'])
             ->middleware('throttle:bi-api,100')
             ->name('platforms.performance');
-        
+
         // Advanced Analytics Endpoints (More Restrictive Rate Limits)
-        Route::get('/competitive/intelligence', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getCompetitiveIntelligence'])
+        Route::get('/competitive/intelligence', [BusinessIntelligenceApiController::class, 'getCompetitiveIntelligence'])
             ->middleware('throttle:bi-api-heavy,20')
             ->name('competitive.intelligence');
-        
-        Route::get('/predictive/insights', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getPredictiveInsights'])
+
+        Route::get('/predictive/insights', [BusinessIntelligenceApiController::class, 'getPredictiveInsights'])
             ->middleware('throttle:bi-api-heavy,20')
             ->name('predictive.insights');
-        
-        Route::get('/anomalies/current', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getCurrentAnomalies'])
+
+        Route::get('/anomalies/current', [BusinessIntelligenceApiController::class, 'getCurrentAnomalies'])
             ->middleware('throttle:bi-api,100')
             ->name('anomalies.current');
-        
+
         // Data Export Endpoints (Very Restrictive Rate Limits)
-        Route::post('/export/dataset', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'exportDataSet'])
+        Route::post('/export/dataset', [BusinessIntelligenceApiController::class, 'exportDataSet'])
             ->middleware('throttle:bi-export,5')
             ->name('export.dataset');
-        
+
         // User Analytics (Admin Only)
         Route::middleware([CheckApiRole::class . ':admin'])->group(function (): void {
-            Route::get('/users/analytics', [\App\Http\Controllers\Api\BusinessIntelligenceApiController::class, 'getUserAnalytics'])
+            Route::get('/users/analytics', [BusinessIntelligenceApiController::class, 'getUserAnalytics'])
                 ->middleware('throttle:bi-api,100')
                 ->name('users.analytics');
         });
-        
+
         // Download route for API exports
-        Route::get('/download/{file}', function ($file) {
+        Route::get('/download/{file}', function (string $file) {
             $path = storage_path('app/analytics/exports/api/' . $file);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Export file not found or has expired'
+                    'success' => FALSE,
+                    'message' => 'Export file not found or has expired',
                 ], 404);
             }
+
             return response()->download($path);
         })->name('download');
     });
 
-
     // AI Recommendations API Routes
-    Route::prefix('recommendations')->name('api.recommendations.')->group(function () {
+    Route::prefix('recommendations')->name('api.recommendations.')->group(function (): void {
         // Main recommendation endpoints
-        Route::get('/', [\App\Http\Controllers\RecommendationController::class, 'getRecommendations'])->name('index');
-        Route::post('/refresh', [\App\Http\Controllers\RecommendationController::class, 'refreshRecommendations'])->name('refresh');
-        
+        Route::get('/', [RecommendationController::class, 'getRecommendations'])->name('index');
+        Route::post('/refresh', [RecommendationController::class, 'refreshRecommendations'])->name('refresh');
+
         // Specific recommendation types
-        Route::get('/events', [\App\Http\Controllers\RecommendationController::class, 'getEventRecommendations'])->name('events');
-        Route::get('/pricing', [\App\Http\Controllers\RecommendationController::class, 'getPricingStrategies'])->name('pricing');
-        Route::get('/alerts', [\App\Http\Controllers\RecommendationController::class, 'getAlertRecommendations'])->name('alerts');
-        Route::get('/follow', [\App\Http\Controllers\RecommendationController::class, 'getFollowRecommendations'])->name('follow');
-        
+        Route::get('/events', [RecommendationController::class, 'getEventRecommendations'])->name('events');
+        Route::get('/pricing', [RecommendationController::class, 'getPricingStrategies'])->name('pricing');
+        Route::get('/alerts', [RecommendationController::class, 'getAlertRecommendations'])->name('alerts');
+        Route::get('/follow', [RecommendationController::class, 'getFollowRecommendations'])->name('follow');
+
         // User interactions
-        Route::post('/feedback', [\App\Http\Controllers\RecommendationController::class, 'submitFeedback'])->name('feedback');
-        Route::post('/alerts/apply', [\App\Http\Controllers\RecommendationController::class, 'applyAlertRecommendations'])->name('alerts.apply');
-        Route::put('/preferences', [\App\Http\Controllers\RecommendationController::class, 'updateUserPreferences'])->name('preferences.update');
-        
+        Route::post('/feedback', [RecommendationController::class, 'submitFeedback'])->name('feedback');
+        Route::post('/alerts/apply', [RecommendationController::class, 'applyAlertRecommendations'])->name('alerts.apply');
+        Route::put('/preferences', [RecommendationController::class, 'updateUserPreferences'])->name('preferences.update');
+
         // Utility endpoints
-        Route::get('/history', [\App\Http\Controllers\RecommendationController::class, 'getRecommendationHistory'])->name('history');
-        Route::delete('/cache', [\App\Http\Controllers\RecommendationController::class, 'clearUserCache'])->name('cache.clear');
-        Route::get('/metrics', [\App\Http\Controllers\RecommendationController::class, 'getPerformanceMetrics'])->name('metrics');
+        Route::get('/history', [RecommendationController::class, 'getRecommendationHistory'])->name('history');
+        Route::delete('/cache', [RecommendationController::class, 'clearUserCache'])->name('cache.clear');
+        Route::get('/metrics', [RecommendationController::class, 'getPerformanceMetrics'])->name('metrics');
     });
 
     // Agent and Admin routes

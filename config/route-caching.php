@@ -1,5 +1,11 @@
 <?php declare(strict_types=1);
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\AgentMiddleware;
+use App\Http\Middleware\CustomerMiddleware;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\ScraperMiddleware;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -37,27 +43,27 @@ return [
      */
     'middleware_considerations' => [
         'role' => [
-            'class'     => 'App\\Http\\Middleware\\RoleMiddleware',
+            'class'     => RoleMiddleware::class,
             'cacheable' => TRUE,
             'note'      => 'Role middleware is fully cacheable as it uses string parameters',
         ],
         'admin' => [
-            'class'     => 'App\\Http\\Middleware\\AdminMiddleware',
+            'class'     => AdminMiddleware::class,
             'cacheable' => TRUE,
             'note'      => 'Admin middleware with permissions is cacheable',
         ],
         'agent' => [
-            'class'     => 'App\\Http\\Middleware\\AgentMiddleware',
+            'class'     => AgentMiddleware::class,
             'cacheable' => TRUE,
             'note'      => 'Agent middleware is cacheable',
         ],
         'scraper' => [
-            'class'     => 'App\\Http\\Middleware\\ScraperMiddleware',
+            'class'     => ScraperMiddleware::class,
             'cacheable' => TRUE,
             'note'      => 'Scraper middleware is cacheable',
         ],
         'customer' => [
-            'class'     => 'App\\Http\\Middleware\\CustomerMiddleware',
+            'class'     => CustomerMiddleware::class,
             'cacheable' => TRUE,
             'note'      => 'Customer middleware is cacheable',
         ],

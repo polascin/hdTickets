@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\LoginHistory;
 use App\Models\User;
 use App\Models\UserSession;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +34,7 @@ class SecurityService
      *
      * @param mixed $subject
      */
-    public function logSecurityActivity(string $description, array $properties = [], $subject = NULL): void
+    public function logSecurityActivity(string $description, array $properties = [], ?Model $subject = NULL): void
     {
         $user = Auth::user();
         $request = request();
@@ -46,7 +48,7 @@ class SecurityService
             'method'     => $request->method(),
             'user_id'    => $user?->id,
             'user_role'  => $user?->role,
-            'risk_level' => $this->calculateRiskLevel($description, $properties),
+            'risk_level' => $this->calculateRiskLevel($description),
         ], $properties);
 
         activity('security')
@@ -66,7 +68,7 @@ class SecurityService
      *
      * @param mixed $subject
      */
-    public function logUserActivity(string $action, array $context = [], $subject = NULL): void
+    public function logUserActivity(string $action, array $context = [], ?Model $subject = NULL): void
     {
         $user = Auth::user();
         $request = request();
@@ -160,7 +162,7 @@ class SecurityService
             default                   => FALSE,
         };
 
-        if (!$hasPermission) {
+        if (! $hasPermission) {
             $this->logSecurityActivity(
                 'Permission denied',
                 array_merge([
@@ -182,7 +184,11 @@ class SecurityService
      */
     public function canPerformBulkOperations(User $user): bool
     {
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 
     /**
@@ -207,11 +213,9 @@ class SecurityService
         }
 
         // Check for destructive operations
-        if (in_array($operation, ['delete', 'disable', 'remove'], TRUE)) {
-            if (!$user->canDeleteAnyData() && count($items) > 10) {
-                $validation['valid'] = FALSE;
-                $validation['errors'][] = 'Destructive bulk operations limited to 10 items for non-root users';
-            }
+        if (in_array($operation, ['delete', 'disable', 'remove'], TRUE) && (! $user->canDeleteAnyData() && count($items) > 10)) {
+            $validation['valid'] = FALSE;
+            $validation['errors'][] = 'Destructive bulk operations limited to 10 items for non-root users';
         }
 
         // Rate limiting check
@@ -276,7 +280,7 @@ class SecurityService
     /**
      * Get  recent security activities
      */
-    public function getRecentSecurityActivities(int $limit = 50): \Illuminate\Database\Eloquent\Collection
+    public function getRecentSecurityActivities(int $limit = 50): Collection
     {
         return Activity::where('log_name', 'security')
             ->with('causer')
@@ -312,7 +316,7 @@ class SecurityService
      */
     public function initAgent(): void
     {
-        if (!$this->agent) {
+        if (! $this->agent) {
             $this->agent = new Agent();
         }
     }
@@ -449,13 +453,11 @@ class SecurityService
         ];
 
         // Check if device is already trusted
-        $exists = collect($trustedDevices)->contains(function ($device) use ($newDevice) {
-            return $device['browser'] === $newDevice['browser']
-                   && $device['os'] === $newDevice['os']
-                   && $device['ip_address'] === $newDevice['ip_address'];
-        });
+        $exists = collect($trustedDevices)->contains(fn ($device): bool => $device['browser'] === $newDevice['browser']
+               && $device['os'] === $newDevice['os']
+               && $device['ip_address'] === $newDevice['ip_address']);
 
-        if (!$exists) {
+        if (! $exists) {
             $trustedDevices[] = $newDevice;
             $user->update(['trusted_devices' => $trustedDevices]);
         }
@@ -539,7 +541,7 @@ class SecurityService
     /**
      * Get  recent login history
      */
-    public function getRecentLoginHistory(User $user, int $limit = 20): \Illuminate\Database\Eloquent\Collection
+    public function getRecentLoginHistory(User $user, int $limit = 20): Collection
     {
         return LoginHistory::where('user_id', $user->id)
             ->orderBy('attempted_at', 'desc')
@@ -553,7 +555,7 @@ class SecurityService
     /**
      * Get  active sessions
      */
-    public function getActiveSessions(User $user): \Illuminate\Database\Eloquent\Collection
+    public function getActiveSessions(User $user): Collection
     {
         return UserSession::where('user_id', $user->id)
             ->active()
@@ -573,7 +575,7 @@ class SecurityService
         $recommendations = [];
 
         // Check 2FA status
-        if (!$user->two_factor_enabled) {
+        if (! $user->two_factor_enabled) {
             $issues[] = [
                 'type'        => 'critical',
                 'title'       => 'Two-Factor Authentication Disabled',
@@ -641,7 +643,7 @@ class SecurityService
             'issues'          => $issues,
             'recommendations' => $recommendations,
             'total_issues'    => count($issues),
-            'critical_issues' => count(array_filter($issues, fn ($i) => $i['type'] === 'critical')),
+            'critical_issues' => count(array_filter($issues, fn (array $i): bool => $i['type'] === 'critical')),
         ];
     }
 
@@ -703,6 +705,8 @@ class SecurityService
      */
     /**
      * AnalyzeSuspiciousActivity
+     *
+     * @return string[]
      */
     protected function analyzeSuspiciousActivity(User $user, Request $request, array $deviceInfo, array $locationInfo): array
     {
@@ -724,7 +728,7 @@ class SecurityService
             ->where('country', $locationInfo['country'])
             ->exists();
 
-        if ($locationInfo['country'] && !$hasLoginFromLocation) {
+        if ($locationInfo['country'] && ! $hasLoginFromLocation) {
             $flags[] = 'new_location';
         }
 
@@ -735,7 +739,7 @@ class SecurityService
             ->where('operating_system', $deviceInfo['os'])
             ->exists();
 
-        if (!$hasLoginFromDevice) {
+        if (! $hasLoginFromDevice) {
             $flags[] = 'new_device';
         }
 
@@ -747,8 +751,8 @@ class SecurityService
             ->map(fn ($record) => $record->attempted_at->hour)
             ->unique();
 
-        if ($usualLoginTimes->isNotEmpty() && !$usualLoginTimes->contains($currentHour)) {
-            $timeDifference = $usualLoginTimes->map(fn ($hour) => abs($hour - $currentHour))->min();
+        if ($usualLoginTimes->isNotEmpty() && ! $usualLoginTimes->contains($currentHour)) {
+            $timeDifference = $usualLoginTimes->map(fn ($hour): float|int => abs($hour - $currentHour))->min();
             if ($timeDifference >= 6) {
                 $flags[] = 'unusual_time';
             }
@@ -786,7 +790,7 @@ class SecurityService
      */
     protected function generateDeviceName(array $deviceInfo): string
     {
-        $deviceType = ucfirst($deviceInfo['device_type']);
+        $deviceType = ucfirst((string) $deviceInfo['device_type']);
         $browser = $deviceInfo['browser'];
         $os = $deviceInfo['os'];
 
@@ -815,11 +819,11 @@ class SecurityService
 
         // Add points for good practices
         if ($user->two_factor_enabled) {
-            $score += 0; // Already included in base score
+            // Already included in base score
         }
 
         if ($user->email_verified_at) {
-            $score += 0; // Already included in base score
+            // Already included in base score
         }
 
         if (count($user->trusted_devices ?? []) > 0) {
@@ -839,7 +843,7 @@ class SecurityService
     /**
      * CalculateRiskLevel
      */
-    private function calculateRiskLevel(string $description, array $properties): string
+    private function calculateRiskLevel(string $description): string
     {
         $highRiskKeywords = ['delete', 'disable', 'permission', 'admin', 'bulk', 'failed'];
         $mediumRiskKeywords = ['update', 'modify', 'change', 'access'];

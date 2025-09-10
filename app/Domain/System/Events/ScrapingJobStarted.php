@@ -4,6 +4,7 @@ namespace App\Domain\System\Events;
 
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use DateTimeImmutable;
+use Override;
 
 final class ScrapingJobStarted extends AbstractDomainEvent
 {
@@ -59,6 +60,7 @@ final class ScrapingJobStarted extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->jobId = $payload['job_id'];

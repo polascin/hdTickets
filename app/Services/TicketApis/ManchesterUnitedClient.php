@@ -10,6 +10,7 @@ namespace App\Services\TicketApis;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ManchesterUnitedClient extends BaseWebScrapingClient
@@ -98,6 +99,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
     /**
      * Get  base url
      */
+    #[Override]
     public function getBaseUrl(): string
     {
         return $this->baseUrl;
@@ -158,13 +160,10 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                     }
 
                     $fixture = $this->extractFixtureFromNode($node);
-                    if (!empty($fixture['name'])) {
-                        // Filter by keyword if provided
-                        if (empty($keyword) || stripos($fixture['name'], $keyword) !== FALSE
-                            || stripos($fixture['opponent'], $keyword) !== FALSE) {
-                            $fixtures[] = $fixture;
-                            $count++;
-                        }
+                    // Filter by keyword if provided
+                    if (! empty($fixture['name']) && ($keyword === '' || $keyword === '0' || stripos((string) $fixture['name'], $keyword) !== FALSE || stripos((string) $fixture['opponent'], $keyword) !== FALSE)) {
+                        $fixtures[] = $fixture;
+                        $count++;
                     }
                 });
 
@@ -265,7 +264,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             ]);
 
             // If no venue specified, assume Old Trafford for home games
-            if (empty($venue) || stripos($venue, 'home') !== FALSE) {
+            if ($venue === '' || $venue === '0' || stripos($venue, 'home') !== FALSE) {
                 $venue = 'Old Trafford, Manchester';
             }
 
@@ -296,7 +295,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
                 'status'              => trim($status),
                 'home_team'           => 'Manchester United',
                 'away_team'           => trim($opponent),
-                'ticket_availability' => !empty($ticketLink) ? 'available' : 'check_website',
+                'ticket_availability' => $ticketLink === '' || $ticketLink === '0' ? 'check_website' : 'available',
                 'source'              => 'manchester_united_scrape',
                 'scraped_at'          => now()->toISOString(),
             ];
@@ -422,7 +421,7 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
             $categoryNodes = $crawler->filter('.seating-category, .ticket-type, [data-testid="seat-category"]');
             $categoryNodes->each(function (Crawler $node) use (&$ticketInfo): void {
                 $categoryName = $node->filter('.category-name, h3, .title')->text('');
-                if (!empty($categoryName)) {
+                if ($categoryName !== '' && $categoryName !== '0') {
                     $ticketInfo['categories'][] = trim($categoryName);
                 }
             });
@@ -460,10 +459,10 @@ class ManchesterUnitedClient extends BaseWebScrapingClient
      */
     private function resolveUrl(string $url): string
     {
-        if (strpos($url, 'http') === 0) {
+        if (str_starts_with($url, 'http')) {
             return $url;
         }
 
-        return rtrim($this->baseUrl, '/') . '/' . ltrim($url, '/');
+        return rtrim((string) $this->baseUrl, '/') . '/' . ltrim($url, '/');
     }
 }

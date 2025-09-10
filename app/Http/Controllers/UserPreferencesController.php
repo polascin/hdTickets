@@ -44,14 +44,7 @@ class UserPreferencesController extends Controller
         $languages = $this->getLanguages();
         $themes = $this->getThemes();
 
-        return view('profile.preferences', compact(
-            'user',
-            'preferences',
-            'notificationChannels',
-            'timezones',
-            'languages',
-            'themes',
-        ));
+        return view('profile.preferences', ['user' => $user, 'preferences' => $preferences, 'notificationChannels' => $notificationChannels, 'timezones' => $timezones, 'languages' => $languages, 'themes' => $themes]);
     }
 
     /**
@@ -162,7 +155,7 @@ class UserPreferencesController extends Controller
                     break;
             }
 
-            if (!$this->validatePreference($key, $value)) {
+            if (! $this->validatePreference($key, $value)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid preference value',
@@ -211,7 +204,7 @@ class UserPreferencesController extends Controller
     {
         $timezone = $request->input('timezone');
 
-        if (!$timezone || !in_array($timezone, timezone_identifiers_list(), TRUE)) {
+        if (! $timezone || ! in_array($timezone, timezone_identifiers_list(), TRUE)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Invalid timezone',
@@ -230,7 +223,7 @@ class UserPreferencesController extends Controller
                 'timezone'     => $timezone,
                 'display_name' => $this->getTimezoneDisplayName($timezone),
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Failed to update timezone',
@@ -275,7 +268,7 @@ class UserPreferencesController extends Controller
                 'message'     => 'Preferences reset successfully',
                 'preferences' => $this->getUserPreferences($user),
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             DB::rollBack();
 
             return response()->json([
@@ -540,14 +533,10 @@ class UserPreferencesController extends Controller
             $exportData = [
                 'user_id'     => $user->id,
                 'exported_at' => now()->toISOString(),
-                'preferences' => $preferences->map(function ($categoryPrefs, $category) {
-                    return $categoryPrefs->mapWithKeys(function ($pref) {
-                        return [$pref->key => [
-                            'value'     => $this->castPreferenceValue($pref->value, $pref->data_type),
-                            'data_type' => $pref->data_type,
-                        ]];
-                    });
-                }),
+                'preferences' => $preferences->map(fn ($categoryPrefs, $category) => $categoryPrefs->mapWithKeys(fn ($pref): array => [$pref->key => [
+                    'value'     => $this->castPreferenceValue($pref->value, $pref->data_type),
+                    'data_type' => $pref->data_type,
+                ]])),
             ];
 
             return response()->json([
@@ -651,7 +640,7 @@ class UserPreferencesController extends Controller
                 })
                 ->first();
 
-            if (!$preset) {
+            if (! $preset) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Preset not found',
@@ -803,7 +792,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $teamId)
                 ->first();
 
-            if (!$team) {
+            if (! $team) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Team not found',
@@ -907,7 +896,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $venueId)
                 ->first();
 
-            if (!$venue) {
+            if (! $venue) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Venue not found',
@@ -968,7 +957,7 @@ class UserPreferencesController extends Controller
 
         // Validate price range
         $errors = UserPricePreference::validatePreferenceData($request->all());
-        if (!empty($errors)) {
+        if ($errors !== []) {
             return response()->json([
                 'success' => FALSE,
                 'message' => implode(', ', $errors),
@@ -1028,7 +1017,7 @@ class UserPreferencesController extends Controller
                 ->where('id', $preferenceId)
                 ->first();
 
-            if (!$preference) {
+            if (! $preference) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Price preference not found',
@@ -1137,11 +1126,9 @@ class UserPreferencesController extends Controller
 
             // Filter by query
             $results = collect($popularTeams)
-                ->filter(function ($team) use ($query) {
-                    return str_contains(strtolower($team['full_name']), strtolower($query))
-                           || str_contains(strtolower($team['name']), strtolower($query))
-                           || str_contains(strtolower($team['city']), strtolower($query));
-                })
+                ->filter(fn ($team): bool => str_contains(strtolower((string) $team['full_name']), strtolower($query))
+                       || str_contains(strtolower((string) $team['name']), strtolower($query))
+                       || str_contains(strtolower((string) $team['city']), strtolower($query)))
                 ->take($limit)
                 ->values();
 
@@ -1193,11 +1180,9 @@ class UserPreferencesController extends Controller
 
             // Filter by query
             $results = collect($popularVenues)
-                ->filter(function ($venue) use ($query) {
-                    return str_contains(strtolower($venue['full_name']), strtolower($query))
-                           || str_contains(strtolower($venue['name']), strtolower($query))
-                           || str_contains(strtolower($venue['city']), strtolower($query));
-                })
+                ->filter(fn ($venue): bool => str_contains(strtolower((string) $venue['full_name']), strtolower($query))
+                       || str_contains(strtolower((string) $venue['name']), strtolower($query))
+                       || str_contains(strtolower((string) $venue['city']), strtolower($query)))
                 ->take($limit)
                 ->values();
 
@@ -1262,7 +1247,7 @@ class UserPreferencesController extends Controller
                     break;
             }
 
-            if (!$model) {
+            if (! $model) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Item not found',
@@ -1304,20 +1289,16 @@ class UserPreferencesController extends Controller
     {
         $cacheKey = "user_preferences_{$user->id}";
 
-        return Cache::remember($cacheKey, 3600, function () use ($user) {
+        return Cache::remember($cacheKey, 3600, function () use ($user): array {
             $preferences = UserPreference::where('user_id', $user->id)
                 ->get()
-                ->mapWithKeys(function ($pref) {
-                    return [$pref->key => $pref->value];
-                })
+                ->mapWithKeys(fn ($pref): array => [$pref->key => $pref->value])
                 ->toArray();
 
             // Get notification settings
             $notificationSettings = UserNotificationSettings::where('user_id', $user->id)
                 ->get()
-                ->mapWithKeys(function ($setting) {
-                    return [$setting->channel => $setting->is_enabled];
-                })
+                ->mapWithKeys(fn ($setting): array => [$setting->channel => $setting->is_enabled])
                 ->toArray();
 
             return array_merge($this->getDefaultPreferences(), $preferences, [
@@ -1410,7 +1391,7 @@ class UserPreferencesController extends Controller
                 return is_numeric($value) && $value >= 1 && $value <= 50;
             case 'escalation_delay_minutes':
                 return is_numeric($value) && $value >= 1 && $value <= 60;
-            case strpos($key, '.') !== FALSE:
+            case str_contains($key, '.'):
                 // Handle nested keys
                 return $this->validateNestedPreference($key, $value);
             default:
@@ -1527,7 +1508,7 @@ class UserPreferencesController extends Controller
             $offsetString = sprintf('%+03d:%02d', $offsetHours, $offsetMinutes);
 
             return str_replace('_', ' ', $timezone) . " (UTC{$offsetString})";
-        } catch (Exception $e) {
+        } catch (Exception) {
             return $timezone;
         }
     }
@@ -1591,9 +1572,7 @@ class UserPreferencesController extends Controller
     {
         switch ($dataType) {
             case 'boolean':
-                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL
-                    ? (bool) $value : FALSE;
-
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL && (bool) $value;
             case 'integer':
                 return is_numeric($value) ? (int) $value : 0;
             case 'array':
@@ -1618,17 +1597,11 @@ class UserPreferencesController extends Controller
      */
     private function castPreferenceValue($value, string $dataType)
     {
-        switch ($dataType) {
-            case 'boolean':
-                return (bool) $value;
-            case 'integer':
-                return (int) $value;
-            case 'array':
-            case 'json':
-                return json_decode($value, TRUE);
-            case 'string':
-            default:
-                return (string) $value;
-        }
+        return match ($dataType) {
+            'boolean' => (bool) $value,
+            'integer' => (int) $value,
+            'array', 'json' => json_decode((string) $value, TRUE),
+            default => (string) $value,
+        };
     }
 }

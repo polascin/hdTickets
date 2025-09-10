@@ -48,7 +48,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $model = ScrapedTicket::where('external_id', $id->value())->first();
 
-        if (!$model) {
+        if (! $model) {
             return NULL;
         }
 
@@ -62,7 +62,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $model = ScrapedTicket::where('event_name', $name)->first();
 
-        if (!$model) {
+        if (! $model) {
             return NULL;
         }
 
@@ -79,7 +79,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $models = ScrapedTicket::where('sport_category', $category->value())->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -95,7 +95,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             ->limit($limit)
             ->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -113,7 +113,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             $endDate->format('Y-m-d H:i:s'),
         ])->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -126,7 +126,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $models = ScrapedTicket::where('is_high_demand', TRUE)->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -139,7 +139,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $models = ScrapedTicket::where('venue_name', $venue)->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -154,7 +154,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             ->orWhere('away_team', $team)
             ->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -167,7 +167,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     {
         $models = ScrapedTicket::where('competition', $competition)->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -184,7 +184,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             ->where('event_date', $eventDate->format('Y-m-d H:i:s'))
             ->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -220,7 +220,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     ): array {
         $query = ScrapedTicket::query();
 
-        if ($category) {
+        if ($category instanceof SportCategory) {
             $query->where('sport_category', $category->value());
         }
 
@@ -232,11 +232,11 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             $query->where('is_high_demand', $highDemand);
         }
 
-        if ($fromDate) {
+        if ($fromDate instanceof DateTimeImmutable) {
             $query->where('event_date', '>=', $fromDate->format('Y-m-d H:i:s'));
         }
 
-        if ($toDate) {
+        if ($toDate instanceof DateTimeImmutable) {
             $query->where('event_date', '<=', $toDate->format('Y-m-d H:i:s'));
         }
 
@@ -245,7 +245,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             ->take($perPage)
             ->get();
 
-        return $models->map(fn ($model) => $this->toDomainEntity($model))->all();
+        return $models->map(fn ($model): SportsEvent => $this->toDomainEntity($model))->all();
     }
 
     /**
@@ -260,7 +260,7 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
     ): int {
         $query = ScrapedTicket::query();
 
-        if ($category) {
+        if ($category instanceof SportCategory) {
             $query->where('sport_category', $category->value());
         }
 
@@ -272,11 +272,11 @@ class EloquentSportsEventRepository implements SportsEventRepositoryInterface
             $query->where('is_high_demand', $highDemand);
         }
 
-        if ($fromDate) {
+        if ($fromDate instanceof DateTimeImmutable) {
             $query->where('event_date', '>=', $fromDate->format('Y-m-d H:i:s'));
         }
 
-        if ($toDate) {
+        if ($toDate instanceof DateTimeImmutable) {
             $query->where('event_date', '<=', $toDate->format('Y-m-d H:i:s'));
         }
 

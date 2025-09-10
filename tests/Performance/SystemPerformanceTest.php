@@ -2,6 +2,8 @@
 
 namespace Tests\Performance;
 
+use App\Jobs\SendBulkNotifications;
+use App\Models\PurchaseAttempt;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\AutomatedPurchaseEngine;
@@ -19,11 +21,11 @@ class SystemPerformanceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const PERFORMANCE_THRESHOLD_MS = 1000; // 1 second max
+    private const int PERFORMANCE_THRESHOLD_MS = 1000; // 1 second max
 
-    private const MEMORY_THRESHOLD_MB = 100; // 100MB max
+    private const int MEMORY_THRESHOLD_MB = 100; // 100MB max
 
-    private const CONCURRENT_USERS = 10;
+    private const int CONCURRENT_USERS = 10;
 
     /**
      * @test
@@ -179,7 +181,7 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(2.0, $metrics['execution_time']);
 
         // Verify notifications were queued, not sent immediately
-        Queue::assertPushed(\App\Jobs\SendBulkNotifications::class);
+        Queue::assertPushed(SendBulkNotifications::class);
     }
 
     /**
@@ -357,8 +359,8 @@ class SystemPerformanceTest extends TestCase
                     'title'      => "Performance Test Ticket {$i}",
                     'sport_type' => ['football', 'basketball', 'baseball'][$i % 3],
                     'city'       => ['Manchester', 'Liverpool', 'London', 'Birmingham'][$i % 4],
-                    'price_min'  => rand(25, 100),
-                    'price_max'  => rand(100, 500),
+                    'price_min'  => random_int(25, 100),
+                    'price_max'  => random_int(100, 500),
                     'source_id'  => $sources[$i % 5]->id,
                 ]);
             }
@@ -416,7 +418,7 @@ class SystemPerformanceTest extends TestCase
     /**
      * Create a purchase attempt
      */
-    private function createPurchaseAttempt(array $attributes = []): \App\Models\PurchaseAttempt
+    private function createPurchaseAttempt(array $attributes = []): PurchaseAttempt
     {
         return $this->testDataFactory->createPurchaseAttempt($attributes);
     }

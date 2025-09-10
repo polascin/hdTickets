@@ -15,11 +15,8 @@ use Illuminate\Support\Str;
 
 class PurchaseDecisionController extends Controller
 {
-    protected AutomatedPurchaseEngine $purchaseEngine;
-
-    public function __construct(AutomatedPurchaseEngine $purchaseEngine)
+    public function __construct(protected AutomatedPurchaseEngine $purchaseEngine)
     {
-        $this->purchaseEngine = $purchaseEngine;
         $this->middleware(['auth', 'verified']);
     }
 
@@ -62,7 +59,7 @@ class PurchaseDecisionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('purchase-decisions.index', compact('purchaseQueue', 'stats', 'agents'));
+        return view('purchase-decisions.index', ['purchaseQueue' => $purchaseQueue, 'stats' => $stats, 'agents' => $agents]);
     }
 
     /**
@@ -102,7 +99,7 @@ class PurchaseDecisionController extends Controller
 
         $availableTickets = $query->paginate(20)->withQueryString();
 
-        return view('purchase-decisions.select-tickets', compact('availableTickets'));
+        return view('purchase-decisions.select-tickets', ['availableTickets' => $availableTickets]);
     }
 
     /**
@@ -132,7 +129,7 @@ class PurchaseDecisionController extends Controller
         // Get AI purchase recommendation
         $decision = $this->purchaseEngine->evaluatePurchaseDecision($scrapedTicket, Auth::user());
 
-        $purchaseQueue = PurchaseQueue::create([
+        PurchaseQueue::create([
             'scraped_ticket_id'   => $scrapedTicket->id,
             'selected_by_user_id' => Auth::id(),
             'user_id'             => Auth::id(),
@@ -181,7 +178,7 @@ class PurchaseDecisionController extends Controller
      */
     public function cancelQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->isActive()) {
+        if (! $purchaseQueue->isActive()) {
             return redirect()->back()->with('error', 'Cannot cancel a queue item that is not active.');
         }
 
@@ -195,7 +192,7 @@ class PurchaseDecisionController extends Controller
      */
     public function processQueue(PurchaseQueue $purchaseQueue)
     {
-        if (!$purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
+        if (! $purchaseQueue->status === PurchaseQueue::STATUS_QUEUED) {
             return redirect()->back()->with('error', 'Queue item is not ready for processing.');
         }
 
@@ -241,7 +238,7 @@ class PurchaseDecisionController extends Controller
     {
         $purchaseQueue->load(['scrapedTicket', 'selectedByUser', 'purchaseAttempts']);
 
-        return view('purchase-decisions.show', compact('purchaseQueue'));
+        return view('purchase-decisions.show', ['purchaseQueue' => $purchaseQueue]);
     }
 
     /**
@@ -289,7 +286,7 @@ class PurchaseDecisionController extends Controller
     /**
      * Get purchase queue statistics
      */
-    protected function getPurchaseStats()
+    protected function getPurchaseStats(): array
     {
         return [
             'total_queued'    => PurchaseQueue::byStatus(PurchaseQueue::STATUS_QUEUED)->count(),
@@ -311,7 +308,7 @@ class PurchaseDecisionController extends Controller
     /**
      * Calculate overall success rate
      */
-    protected function getSuccessRate()
+    protected function getSuccessRate(): int|float
     {
         $totalAttempts = PurchaseAttempt::count();
         if ($totalAttempts === 0) {
@@ -335,7 +332,7 @@ class PurchaseDecisionController extends Controller
         // In a real implementation, this would be handled by a queue job
 
         // Random success/failure for demo purposes
-        $success = rand(1, 100) <= 75; // 75% success rate
+        $success = random_int(1, 100) <= 75; // 75% success rate
 
         if ($success) {
             $attempt->markSuccessful(

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -27,15 +28,6 @@ class PaymentPlan extends Model
         'is_active',
         'sort_order',
         'stripe_price_id',
-    ];
-
-    protected $casts = [
-        'features'             => 'array',
-        'price'                => 'decimal:2',
-        'priority_support'     => 'boolean',
-        'advanced_analytics'   => 'boolean',
-        'automated_purchasing' => 'boolean',
-        'is_active'            => 'boolean',
     ];
 
     /**
@@ -86,53 +78,6 @@ class PaymentPlan extends Model
     }
 
     /**
-     * Get formatted price for display
-     */
-    /**
-     * Get  formatted price attribute
-     */
-    public function getFormattedPriceAttribute(): string
-    {
-        if ($this->price === 0) {
-            return 'Free';
-        }
-
-        $currency = '$'; // You can make this configurable
-        $price = number_format($this->price, 2);
-
-        switch ($this->billing_cycle) {
-            case 'monthly':
-                return "{$currency}{$price}/month";
-            case 'yearly':
-                return "{$currency}{$price}/year";
-            case 'lifetime':
-                return "{$currency}{$price} one-time";
-            default:
-                return "{$currency}{$price}";
-        }
-    }
-
-    /**
-     * Get monthly equivalent price for comparison
-     */
-    /**
-     * Get  monthly equivalent attribute
-     */
-    public function getMonthlyEquivalentAttribute(): float
-    {
-        switch ($this->billing_cycle) {
-            case 'monthly':
-                return $this->price;
-            case 'yearly':
-                return $this->price / 12;
-            case 'lifetime':
-                return $this->price / 60; // Assume 5 year value
-            default:
-                return $this->price;
-        }
-    }
-
-    /**
      * Check if plan has unlimited tickets
      */
     /**
@@ -141,25 +86,6 @@ class PaymentPlan extends Model
     public function hasUnlimitedTickets(): bool
     {
         return $this->max_tickets_per_month === 0;
-    }
-
-    /**
-     * Get feature list as HTML
-     */
-    /**
-     * Get  features list attribute
-     */
-    public function getFeaturesListAttribute(): string
-    {
-        if (empty($this->features)) {
-            return '';
-        }
-
-        $features = collect($this->features)->map(function ($feature) {
-            return "<li class='flex items-center'><svg class='w-4 h-4 text-green-500 mr-2' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'></path></svg>{$feature}</li>";
-        })->join('');
-
-        return "<ul class='space-y-2'>{$features}</ul>";
     }
 
     /**
@@ -258,6 +184,68 @@ class PaymentPlan extends Model
                 'automated_purchasing'     => TRUE,
                 'sort_order'               => 4,
             ],
+        ];
+    }
+
+    /**
+     * Get  formatted price attribute
+     */
+    protected function formattedPrice(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            if ($this->price === 0) {
+                return 'Free';
+            }
+            $currency = '$';
+            // You can make this configurable
+            $price = number_format($this->price, 2);
+
+            return match ($this->billing_cycle) {
+                'monthly'  => "{$currency}{$price}/month",
+                'yearly'   => "{$currency}{$price}/year",
+                'lifetime' => "{$currency}{$price} one-time",
+                default    => "{$currency}{$price}",
+            };
+        });
+    }
+
+    /**
+     * Get  monthly equivalent attribute
+     */
+    protected function monthlyEquivalent(): Attribute
+    {
+        return Attribute::make(get: fn () => match ($this->billing_cycle) {
+            'monthly'  => $this->price,
+            'yearly'   => $this->price / 12,
+            'lifetime' => $this->price / 60,
+            default    => $this->price,
+        });
+    }
+
+    /**
+     * Get  features list attribute
+     */
+    protected function featuresList(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            if (empty($this->features)) {
+                return '';
+            }
+            $features = collect($this->features)->map(fn ($feature): string => "<li class='flex items-center'><svg class='w-4 h-4 text-green-500 mr-2' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'></path></svg>{$feature}</li>")->join('');
+
+            return "<ul class='space-y-2'>{$features}</ul>";
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'features'             => 'array',
+            'price'                => 'decimal:2',
+            'priority_support'     => 'boolean',
+            'advanced_analytics'   => 'boolean',
+            'automated_purchasing' => 'boolean',
+            'is_active'            => 'boolean',
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services\Security;
 use App\Models\User;
 use App\Services\SecurityService;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class ApiSecurityService
 {
     /** Rate limiting configurations per endpoint */
     public const RATE_LIMITS = [
-        'auth.login' => [
+        Login::class => [
             'limit'       => 5,
             'window'      => 900, // 15 minutes
             'penalty'     => 3600, // 1 hour lockout
@@ -66,11 +67,8 @@ class ApiSecurityService
         ],
     ];
 
-    protected $securityService;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
     }
 
     /**
@@ -86,14 +84,14 @@ class ApiSecurityService
 
         // Check IP-based rate limiting
         $ipResult = $this->checkIpRateLimit($request, $endpoint, $config);
-        if (!$ipResult['allowed']) {
+        if (! $ipResult['allowed']) {
             return $ipResult;
         }
 
         // Check user-based rate limiting
-        if ($user) {
+        if ($user instanceof User) {
             $userResult = $this->checkUserRateLimit($user, $endpoint, $config);
-            if (!$userResult['allowed']) {
+            if (! $userResult['allowed']) {
                 return $userResult;
             }
         }
@@ -101,7 +99,7 @@ class ApiSecurityService
         // Check concurrent request limits
         if (isset($config['concurrent_limit'])) {
             $concurrentResult = $this->checkConcurrentLimit($identifier, $endpoint, $config);
-            if (!$concurrentResult['allowed']) {
+            if (! $concurrentResult['allowed']) {
                 return $concurrentResult;
             }
         }
@@ -109,7 +107,7 @@ class ApiSecurityService
         // Check burst limits
         if (isset($config['burst_limit'])) {
             $burstResult = $this->checkBurstLimit($identifier, $endpoint, $config);
-            if (!$burstResult['allowed']) {
+            if (! $burstResult['allowed']) {
                 return $burstResult;
             }
         }
@@ -182,7 +180,7 @@ class ApiSecurityService
     public function validateApiKey(string $apiKey): ?array
     {
         // Parse API key
-        if (!str_starts_with($apiKey, 'hdtickets_')) {
+        if (! str_starts_with($apiKey, 'hdtickets_')) {
             return NULL;
         }
 
@@ -197,12 +195,12 @@ class ApiSecurityService
 
         // Get API key data
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || !$apiKeyData['is_active']) {
+        if (! $apiKeyData || ! $apiKeyData['is_active']) {
             return NULL;
         }
 
         // Verify key secret
-        if (!Hash::check($keySecret, $apiKeyData['key_hash'])) {
+        if (! Hash::check($keySecret, $apiKeyData['key_hash'])) {
             $this->logInvalidKeyAttempt($keyId);
 
             return NULL;
@@ -219,7 +217,7 @@ class ApiSecurityService
 
         // Get user
         $user = User::find($apiKeyData['user_id']);
-        if (!$user || !$user->is_active) {
+        if (! $user || ! $user->is_active) {
             return NULL;
         }
 
@@ -241,7 +239,7 @@ class ApiSecurityService
     public function rotateApiKey(string $keyId, User $user): ?array
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || $apiKeyData['user_id'] !== $user->id) {
+        if (! $apiKeyData || $apiKeyData['user_id'] !== $user->id) {
             return NULL;
         }
 
@@ -280,7 +278,7 @@ class ApiSecurityService
     public function revokeApiKey(string $keyId, User $user): bool
     {
         $apiKeyData = Cache::get("api_key:{$keyId}");
-        if (!$apiKeyData || $apiKeyData['user_id'] !== $user->id) {
+        if (! $apiKeyData || $apiKeyData['user_id'] !== $user->id) {
             return FALSE;
         }
 
@@ -291,7 +289,7 @@ class ApiSecurityService
 
         // Remove from user's active keys
         $userKeys = Cache::get("user_api_keys:{$user->id}", []);
-        $userKeys = array_filter($userKeys, fn ($k) => $k !== $keyId);
+        $userKeys = array_filter($userKeys, fn ($k): bool => $k !== $keyId);
         Cache::put("user_api_keys:{$user->id}", $userKeys, now()->addYears(5));
 
         // Log key revocation
@@ -311,7 +309,7 @@ class ApiSecurityService
     public function verifyRequestSignature(Request $request, string $signature, string $keySecret): bool
     {
         $timestamp = $request->header('X-Timestamp');
-        if (!$timestamp || abs(time() - $timestamp) > config('security.api.timestamp_tolerance', 300)) {
+        if (! $timestamp || abs(time() - $timestamp) > config('security.api.timestamp_tolerance', 300)) {
             return FALSE;
         }
 
@@ -326,7 +324,7 @@ class ApiSecurityService
 
         // Calculate expected signature
         $expectedSignature = hash_hmac(
-            config('security.api.signature_algorithm', 'sha256'),
+            (string) config('security.api.signature_algorithm', 'sha256'),
             $payload,
             $keySecret,
         );
@@ -342,7 +340,7 @@ class ApiSecurityService
      */
     public function checkIpWhitelist(Request $request, array $allowedIps = []): bool
     {
-        if (empty($allowedIps)) {
+        if ($allowedIps === []) {
             return TRUE;
         }
 
@@ -414,17 +412,15 @@ class ApiSecurityService
         $period = $options['period'] ?? 'last_24_hours';
         $cacheKey = "system_api_analytics:{$period}";
 
-        return Cache::remember($cacheKey, 300, function () use ($period) {
-            return [
-                'period'                    => $period,
-                'total_requests'            => $this->getSystemRequestCount($period),
-                'unique_users'              => $this->getUniqueApiUsers($period),
-                'top_endpoints'             => $this->getTopEndpoints($period),
-                'rate_limit_violations'     => $this->getRateLimitViolations($period),
-                'geographical_distribution' => $this->getGeographicalDistribution($period),
-                'response_times'            => $this->getAverageResponseTimes($period),
-            ];
-        });
+        return Cache::remember($cacheKey, 300, fn (): array => [
+            'period'                    => $period,
+            'total_requests'            => $this->getSystemRequestCount($period),
+            'unique_users'              => $this->getUniqueApiUsers($period),
+            'top_endpoints'             => $this->getTopEndpoints($period),
+            'rate_limit_violations'     => $this->getRateLimitViolations($period),
+            'geographical_distribution' => $this->getGeographicalDistribution($period),
+            'response_times'            => $this->getAverageResponseTimes($period),
+        ]);
     }
 
     /**
@@ -439,7 +435,7 @@ class ApiSecurityService
 
         // Calculate progressive penalty
         $baseLimit = $config['limit'];
-        $penaltyMultiplier = min(pow(2, $violations), 32); // Cap at 32x penalty
+        $penaltyMultiplier = min(2 ** $violations, 32); // Cap at 32x penalty
         $adjustedLimit = max(1, (int) ($baseLimit / $penaltyMultiplier));
 
         $currentCount = Cache::get("rate_limit:{$identifier}:{$endpoint}", 0);
@@ -481,7 +477,7 @@ class ApiSecurityService
     protected function getRateLimitIdentifier(Request $request, ?User $user = NULL): string
     {
         $parts = [$request->ip()];
-        if ($user) {
+        if ($user instanceof User) {
             $parts[] = "user:{$user->id}";
         }
 
@@ -714,7 +710,7 @@ class ApiSecurityService
      */
     protected function calculateProgressiveRetryAfter(int $violations): int
     {
-        return min(3600, (int) (60 * pow(2, $violations))); // Cap at 1 hour
+        return min(3600, (int) (60 * 2 ** $violations)); // Cap at 1 hour
     }
 
     /**
@@ -731,7 +727,7 @@ class ApiSecurityService
         ]);
 
         // Track invalid attempts
-        Cache::increment("invalid_api_key_attempts:{$keyId}", 1, 3600);
+        Cache::increment("invalid_api_key_attempts:{$keyId}", 1);
     }
 
     /**

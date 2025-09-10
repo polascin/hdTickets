@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\ScrapedTicket;
+use App\Services\Scraping\PluginBasedScraperManager;
+use App\Services\TicketScrapingService;
+use Carbon\Carbon;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
@@ -15,7 +18,7 @@ class ScrapingSystemStatus extends Command
 
     protected $description = 'Display comprehensive status of the scraping system';
 
-    public function handle()
+    public function handle(): int
     {
         $detailed = $this->option('detailed');
 
@@ -57,14 +60,14 @@ class ScrapingSystemStatus extends Command
 
         // Check services
         try {
-            app(\App\Services\TicketScrapingService::class);
+            app(TicketScrapingService::class);
             $this->comment('✅ TicketScrapingService: Healthy');
         } catch (Exception $e) {
             $this->error('❌ TicketScrapingService: Error - ' . $e->getMessage());
         }
 
         try {
-            app(\App\Services\Scraping\PluginBasedScraperManager::class);
+            app(PluginBasedScraperManager::class);
             $this->comment('✅ PluginManager: Healthy');
         } catch (Exception $e) {
             $this->error('❌ PluginManager: Error - ' . $e->getMessage());
@@ -74,7 +77,7 @@ class ScrapingSystemStatus extends Command
         try {
             DB::connection()->getPdo();
             $this->comment('✅ Database: Connected');
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->error('❌ Database: Connection error');
         }
 
@@ -135,7 +138,7 @@ class ScrapingSystemStatus extends Command
             if ($platformStats->count() > 0) {
                 foreach ($platformStats as $platform) {
                     $avgPrice = $platform->avg_min_price ? '£' . number_format((float) $platform->avg_min_price, 0) : 'N/A';
-                    $lastScraped = $platform->last_scraped ? \Carbon\Carbon::parse($platform->last_scraped)->diffForHumans() : 'Never';
+                    $lastScraped = $platform->last_scraped ? Carbon::parse($platform->last_scraped)->diffForHumans() : 'Never';
 
                     $this->comment("🏪 {$platform->platform}:");
                     $this->comment("   📊 {$platform->total} total, {$platform->available} available, {$platform->high_demand} high-demand");
@@ -155,7 +158,7 @@ class ScrapingSystemStatus extends Command
         $this->info(str_repeat('-', 40));
 
         try {
-            $manager = app(\App\Services\Scraping\PluginBasedScraperManager::class);
+            $manager = app(PluginBasedScraperManager::class);
             $plugins = $manager->getPlugins();
 
             $enabled = 0;

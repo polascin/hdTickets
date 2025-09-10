@@ -29,14 +29,6 @@ class ScrapingStats extends Model
         'completed_at',
     ];
 
-    protected $casts = [
-        'search_criteria'        => 'array',
-        'selectors_used'         => 'array',
-        'selector_effectiveness' => 'array',
-        'started_at'             => 'datetime',
-        'completed_at'           => 'datetime',
-    ];
-
     /**
      * Scope for successful operations
      *
@@ -142,15 +134,13 @@ class ScrapingStats extends Model
      */
     public static function getErrorStats(string $platform, int $hours = 24): array
     {
-        $errors = static::platform($platform)
+        return static::platform($platform)
             ->recent($hours)
             ->failed()
             ->selectRaw('error_type, COUNT(*) as count')
             ->groupBy('error_type')
             ->pluck('count', 'error_type')
             ->toArray();
-
-        return $errors;
     }
 
     /**
@@ -161,26 +151,31 @@ class ScrapingStats extends Model
      */
     public static function getSelectorStats(string $platform, int $hours = 24): array
     {
-        $stats = static::platform($platform)
+        return static::platform($platform)
             ->recent($hours)
             ->whereNotNull('selector_effectiveness')
             ->get(['selector_effectiveness'])
             ->pluck('selector_effectiveness')
             ->filter()
             ->collapse()
-            ->groupBy(function ($item, $key) {
-                return $key;
-            })
-            ->map(function ($group) {
-                return [
-                    'total_uses'      => $group->sum('uses'),
-                    'successful_uses' => $group->sum('successful'),
-                    'success_rate'    => $group->sum('uses') > 0 ?
-                        round(($group->sum('successful') / $group->sum('uses')) * 100, 2) : 0,
-                ];
-            })
+            ->groupBy(fn ($item, $key) => $key)
+            ->map(fn ($group): array => [
+                'total_uses'      => $group->sum('uses'),
+                'successful_uses' => $group->sum('successful'),
+                'success_rate'    => $group->sum('uses') > 0 ?
+                    round(($group->sum('successful') / $group->sum('uses')) * 100, 2) : 0,
+            ])
             ->toArray();
+    }
 
-        return $stats;
+    protected function casts(): array
+    {
+        return [
+            'search_criteria'        => 'array',
+            'selectors_used'         => 'array',
+            'selector_effectiveness' => 'array',
+            'started_at'             => 'datetime',
+            'completed_at'           => 'datetime',
+        ];
     }
 }

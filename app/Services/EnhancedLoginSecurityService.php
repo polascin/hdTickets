@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
+use function count;
+use function in_array;
+
 /**
  * Enhanced Login Security Service
  *
@@ -41,10 +44,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Validate login attempt with enhanced security checks
-     *
-     * @param  User    $user
-     * @param  Request $request
-     * @return array
      */
     public function validateLoginAttempt(User $user, Request $request): array
     {
@@ -98,7 +97,7 @@ class EnhancedLoginSecurityService
             'allowed'             => TRUE,
             'requires_2fa'        => $requires2FA,
             'device_trusted'      => $deviceCheck['trusted'],
-            'location_suspicious' => !$geoCheck['trusted'],
+            'location_suspicious' => ! $geoCheck['trusted'],
             'suspicious_activity' => $suspiciousActivity,
             'security_score'      => $this->calculateSecurityScore($geoCheck, $deviceCheck, $suspiciousActivity),
             'recommendations'     => $this->getSecurityRecommendations($geoCheck, $deviceCheck, $suspiciousActivity),
@@ -107,11 +106,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Record successful login
-     *
-     * @param  User         $user
-     * @param  Request      $request
-     * @param  bool         $used2FA
-     * @return LoginAttempt
      */
     public function recordSuccessfulLogin(User $user, Request $request, bool $used2FA = FALSE): LoginAttempt
     {
@@ -143,7 +137,7 @@ class EnhancedLoginSecurityService
         ]);
 
         // Check if device should be trusted
-        if ($used2FA && !$this->isDeviceTrusted($user, $deviceFingerprint)) {
+        if ($used2FA && ! $this->isDeviceTrusted($user, $deviceFingerprint)) {
             $this->addTrustedDevice($user, $deviceFingerprint, $request);
         }
 
@@ -159,11 +153,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Record failed login attempt
-     *
-     * @param  User|null    $user
-     * @param  Request      $request
-     * @param  string       $reason
-     * @return LoginAttempt
      */
     public function recordFailedLogin(?User $user, Request $request, string $reason = 'invalid_credentials'): LoginAttempt
     {
@@ -206,9 +195,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Generate device fingerprint
-     *
-     * @param  Request $request
-     * @return string
      */
     public function generateDeviceFingerprint(Request $request): string
     {
@@ -240,9 +226,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Check if account is locked
-     *
-     * @param  User $user
-     * @return bool
      */
     public function isAccountLocked(User $user): bool
     {
@@ -253,9 +236,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Lock user account
-     *
-     * @param  User $user
-     * @return void
      */
     public function lockAccount(User $user): void
     {
@@ -279,9 +259,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Get lockout expiration time
-     *
-     * @param  User        $user
-     * @return Carbon|null
      */
     public function getLockoutExpiration(User $user): ?Carbon
     {
@@ -293,21 +270,17 @@ class EnhancedLoginSecurityService
 
     /**
      * Perform geolocation check
-     *
-     * @param  User   $user
-     * @param  string $ipAddress
-     * @return array
      */
     public function performGeolocationCheck(User $user, string $ipAddress): array
     {
         $geolocation = $this->getGeolocation($ipAddress);
 
-        if (!$geolocation) {
+        if (! $geolocation) {
             return ['trusted' => FALSE, 'reason' => 'unknown_location'];
         }
 
         // Check if country is in trusted list
-        $countryTrusted = in_array($geolocation['country_code'], $this->trustedCountries);
+        $countryTrusted = in_array($geolocation['country_code'], $this->trustedCountries, TRUE);
 
         // Check user's login history for this location
         $locationHistory = $this->hasLocationHistory($user, $geolocation);
@@ -325,57 +298,7 @@ class EnhancedLoginSecurityService
     }
 
     /**
-     * Get geolocation data for IP address
-     *
-     * @param  string     $ipAddress
-     * @return array|null
-     */
-    protected function getGeolocation(string $ipAddress): ?array
-    {
-        // For demo purposes, return mock data
-        // In production, integrate with services like MaxMind, IPInfo, etc.
-
-        if ($ipAddress === '127.0.0.1' || $ipAddress === '::1') {
-            return [
-                'country_code' => 'US',
-                'country_name' => 'United States',
-                'region'       => 'Local',
-                'city'         => 'Localhost',
-                'latitude'     => 0,
-                'longitude'    => 0,
-            ];
-        }
-
-        // Cache geolocation data
-        $cacheKey = "geolocation:{$ipAddress}";
-
-        return Cache::remember($cacheKey, 86400, function () use ($ipAddress) {
-            // Mock geolocation data for demo
-            $mockLocations = [
-                'US' => ['country_name' => 'United States', 'city' => 'New York', 'latitude' => 40.7128, 'longitude' => -74.0060],
-                'CA' => ['country_name' => 'Canada', 'city' => 'Toronto', 'latitude' => 43.6532, 'longitude' => -79.3832],
-                'GB' => ['country_name' => 'United Kingdom', 'city' => 'London', 'latitude' => 51.5074, 'longitude' => -0.1278],
-                'DE' => ['country_name' => 'Germany', 'city' => 'Berlin', 'latitude' => 52.5200, 'longitude' => 13.4050],
-                'FR' => ['country_name' => 'France', 'city' => 'Paris', 'latitude' => 48.8566, 'longitude' => 2.3522],
-                'CN' => ['country_name' => 'China', 'city' => 'Beijing', 'latitude' => 39.9042, 'longitude' => 116.4074],
-            ];
-
-            $country = array_keys($mockLocations)[crc32($ipAddress) % count($mockLocations)];
-            $location = $mockLocations[$country];
-
-            return array_merge([
-                'country_code' => $country,
-                'region'       => $location['city'] . ' Region',
-            ], $location);
-        });
-    }
-
-    /**
      * Check device trust status
-     *
-     * @param  User   $user
-     * @param  string $deviceFingerprint
-     * @return array
      */
     public function checkDeviceTrust(User $user, string $deviceFingerprint): array
     {
@@ -395,11 +318,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Add trusted device
-     *
-     * @param  User          $user
-     * @param  string        $deviceFingerprint
-     * @param  Request       $request
-     * @return TrustedDevice
      */
     public function addTrustedDevice(User $user, string $deviceFingerprint, Request $request): TrustedDevice
     {
@@ -429,10 +347,6 @@ class EnhancedLoginSecurityService
 
     /**
      * Detect suspicious activity patterns
-     *
-     * @param  User    $user
-     * @param  Request $request
-     * @return array
      */
     public function detectSuspiciousActivity(User $user, Request $request): array
     {
@@ -456,7 +370,7 @@ class EnhancedLoginSecurityService
         // Check for unusual time of day
         $currentHour = now()->hour;
         $usualLoginHours = $this->getUserUsualLoginHours($user);
-        if (!in_array($currentHour, $usualLoginHours)) {
+        if (! in_array($currentHour, $usualLoginHours, TRUE)) {
             $suspiciousFactors[] = 'unusual_time';
             $riskScore += 15;
         }
@@ -483,46 +397,32 @@ class EnhancedLoginSecurityService
 
     /**
      * Determine if 2FA is required
-     *
-     * @param  User  $user
-     * @param  array $geoCheck
-     * @param  array $deviceCheck
-     * @return bool
      */
     public function requires2FA(User $user, array $geoCheck, array $deviceCheck): bool
     {
         // Always require 2FA if user has it enabled and device is not trusted
         if ($user->two_factor_enabled) {
-            return !$deviceCheck['trusted'];
+            return ! $deviceCheck['trusted'];
         }
 
         // Require 2FA for suspicious locations
-        if (!$geoCheck['trusted']) {
-            return TRUE;
-        }
-
-        return FALSE;
+        return ! $geoCheck['trusted'];
     }
 
     /**
      * Calculate security score
-     *
-     * @param  array $geoCheck
-     * @param  array $deviceCheck
-     * @param  array $suspiciousActivity
-     * @return int
      */
     public function calculateSecurityScore(array $geoCheck, array $deviceCheck, array $suspiciousActivity): int
     {
         $score = 100;
 
         // Deduct for untrusted location
-        if (!$geoCheck['trusted']) {
+        if (! $geoCheck['trusted']) {
             $score -= 20;
         }
 
         // Deduct for untrusted device
-        if (!$deviceCheck['trusted']) {
+        if (! $deviceCheck['trusted']) {
             $score -= 15;
         }
 
@@ -535,20 +435,17 @@ class EnhancedLoginSecurityService
     /**
      * Get security recommendations
      *
-     * @param  array $geoCheck
-     * @param  array $deviceCheck
-     * @param  array $suspiciousActivity
-     * @return array
+     * @return string[]
      */
     public function getSecurityRecommendations(array $geoCheck, array $deviceCheck, array $suspiciousActivity): array
     {
         $recommendations = [];
 
-        if (!$geoCheck['trusted']) {
+        if (! $geoCheck['trusted']) {
             $recommendations[] = 'Consider enabling 2FA for enhanced security from new locations';
         }
 
-        if (!$deviceCheck['trusted']) {
+        if (! $deviceCheck['trusted']) {
             $recommendations[] = 'This device will be remembered for future logins after 2FA verification';
         }
 
@@ -561,6 +458,49 @@ class EnhancedLoginSecurityService
         }
 
         return $recommendations;
+    }
+
+    /**
+     * Get geolocation data for IP address
+     */
+    protected function getGeolocation(string $ipAddress): ?array
+    {
+        // For demo purposes, return mock data
+        // In production, integrate with services like MaxMind, IPInfo, etc.
+
+        if ($ipAddress === '127.0.0.1' || $ipAddress === '::1') {
+            return [
+                'country_code' => 'US',
+                'country_name' => 'United States',
+                'region'       => 'Local',
+                'city'         => 'Localhost',
+                'latitude'     => 0,
+                'longitude'    => 0,
+            ];
+        }
+
+        // Cache geolocation data
+        $cacheKey = "geolocation:{$ipAddress}";
+
+        return Cache::remember($cacheKey, 86400, function () use ($ipAddress): array {
+            // Mock geolocation data for demo
+            $mockLocations = [
+                'US' => ['country_name' => 'United States', 'city' => 'New York', 'latitude' => 40.7128, 'longitude' => -74.0060],
+                'CA' => ['country_name' => 'Canada', 'city' => 'Toronto', 'latitude' => 43.6532, 'longitude' => -79.3832],
+                'GB' => ['country_name' => 'United Kingdom', 'city' => 'London', 'latitude' => 51.5074, 'longitude' => -0.1278],
+                'DE' => ['country_name' => 'Germany', 'city' => 'Berlin', 'latitude' => 52.5200, 'longitude' => 13.4050],
+                'FR' => ['country_name' => 'France', 'city' => 'Paris', 'latitude' => 48.8566, 'longitude' => 2.3522],
+                'CN' => ['country_name' => 'China', 'city' => 'Beijing', 'latitude' => 39.9042, 'longitude' => 116.4074],
+            ];
+
+            $country = array_keys($mockLocations)[crc32($ipAddress) % count($mockLocations)];
+            $location = $mockLocations[$country];
+
+            return array_merge([
+                'country_code' => $country,
+                'region'       => $location['city'] . ' Region',
+            ], $location);
+        });
     }
 
     // Helper methods (abbreviated for space - full implementations would follow)
@@ -636,15 +576,19 @@ class EnhancedLoginSecurityService
     protected function generateDeviceName(Request $request): string
     {
         $userAgent = $request->userAgent();
+        // Simple device name generation from user agent
+        if (str_contains((string) $userAgent, 'Mobile')) {
+            return 'Mobile Device';
+        }
+        if (str_contains((string) $userAgent, 'Chrome')) {
+            return 'Chrome Browser';
+        }
+        if (str_contains((string) $userAgent, 'Firefox')) {
+            return 'Firefox Browser';
+        }
 
         // Simple device name generation from user agent
-        if (str_contains($userAgent, 'Mobile')) {
-            return 'Mobile Device';
-        } elseif (str_contains($userAgent, 'Chrome')) {
-            return 'Chrome Browser';
-        } elseif (str_contains($userAgent, 'Firefox')) {
-            return 'Firefox Browser';
-        } elseif (str_contains($userAgent, 'Safari')) {
+        if (str_contains((string) $userAgent, 'Safari')) {
             return 'Safari Browser';
         }
 
@@ -680,7 +624,7 @@ class EnhancedLoginSecurityService
         $automatedTools = ['curl', 'wget', 'python', 'bot', 'crawler', 'spider', 'scraper'];
 
         foreach ($automatedTools as $tool) {
-            if (str_contains(strtolower($userAgent), $tool)) {
+            if (str_contains(strtolower((string) $userAgent), $tool)) {
                 return TRUE;
             }
         }
@@ -695,19 +639,22 @@ class EnhancedLoginSecurityService
         return FALSE;
     }
 
+    /**
+     * @return string[]
+     */
     protected function getSuspiciousActivityRecommendations(array $factors, int $riskScore): array
     {
         $recommendations = [];
 
-        if (in_array('rapid_attempts', $factors)) {
+        if (in_array('rapid_attempts', $factors, TRUE)) {
             $recommendations[] = 'Consider enabling account lockout protection';
         }
 
-        if (in_array('multiple_ips', $factors)) {
+        if (in_array('multiple_ips', $factors, TRUE)) {
             $recommendations[] = 'Review recent login locations for unauthorized access';
         }
 
-        if (in_array('automated_tools', $factors)) {
+        if (in_array('automated_tools', $factors, TRUE)) {
             $recommendations[] = 'Potential automated attack detected - consider IP blocking';
         }
 

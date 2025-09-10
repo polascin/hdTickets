@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\Analytics\AdvancedAnalyticsService;
 use App\Services\Analytics\AnomalyDetectionService;
+use DB;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -18,26 +20,16 @@ use Illuminate\View\View;
  */
 class AnalyticsDashboardController extends Controller
 {
-    private AdvancedAnalyticsService $analyticsService;
-
-    private AnomalyDetectionService $anomalyService;
-
     public function __construct(
-        AdvancedAnalyticsService $analyticsService,
-        AnomalyDetectionService $anomalyService
+        private AdvancedAnalyticsService $analyticsService,
+        private AnomalyDetectionService $anomalyService,
     ) {
-        $this->analyticsService = $analyticsService;
-        $this->anomalyService = $anomalyService;
-
         // Ensure only admin and agent roles can access analytics
         $this->middleware(['auth', 'role:admin,agent']);
     }
 
     /**
      * Display the main analytics dashboard
-     *
-     * @param  Request $request
-     * @return View
      */
     public function index(Request $request): View
     {
@@ -59,9 +51,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get dashboard data for AJAX requests
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getDashboardData(Request $request): JsonResponse
     {
@@ -74,7 +63,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $data,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics dashboard data fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -91,9 +80,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get overview metrics for the dashboard
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getOverviewMetrics(Request $request): JsonResponse
     {
@@ -106,7 +92,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $metrics,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics overview metrics fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -121,9 +107,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get platform performance data for charts
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getPlatformPerformance(Request $request): JsonResponse
     {
@@ -136,7 +119,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $performance,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics platform performance fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -151,9 +134,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get pricing trends data for charts
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getPricingTrends(Request $request): JsonResponse
     {
@@ -166,7 +146,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $trends,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics pricing trends fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -181,9 +161,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get event popularity data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getEventPopularity(Request $request): JsonResponse
     {
@@ -196,7 +173,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $popularity,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics event popularity fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -211,9 +188,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get anomalies data for alerts widget
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getAnomalies(Request $request): JsonResponse
     {
@@ -226,7 +200,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $anomalies,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics anomalies fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -241,9 +215,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get real-time analytics data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getRealtimeData(Request $request): JsonResponse
     {
@@ -256,7 +227,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $realtimeData,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics realtime data fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -271,9 +242,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get predictive insights data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getPredictiveInsights(Request $request): JsonResponse
     {
@@ -286,7 +254,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $insights,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics predictive insights fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -301,9 +269,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get historical comparison data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getHistoricalComparison(Request $request): JsonResponse
     {
@@ -325,7 +290,7 @@ class AnalyticsDashboardController extends Controller
                 'data'      => $comparison,
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics historical comparison fetch failed', [
                 'error'   => $e->getMessage(),
                 'filters' => $filters ?? [],
@@ -341,9 +306,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Export analytics data
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function exportData(Request $request): JsonResponse
     {
@@ -402,7 +364,7 @@ class AnalyticsDashboardController extends Controller
             ]);
 
             return response()->json($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics data export failed', [
                 'error'   => $e->getMessage(),
                 'format'  => $request->get('format'),
@@ -419,9 +381,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Clear analytics cache
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -445,7 +404,7 @@ class AnalyticsDashboardController extends Controller
                 'message'   => 'Analytics cache cleared successfully',
                 'timestamp' => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics cache clear failed', [
                 'error'   => $e->getMessage(),
                 'user_id' => auth()->id(),
@@ -460,8 +419,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get available filters and their options
-     *
-     * @return JsonResponse
      */
     public function getFilterOptions(): JsonResponse
     {
@@ -477,7 +434,7 @@ class AnalyticsDashboardController extends Controller
                 'success' => TRUE,
                 'data'    => $options,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Filter options fetch failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -490,12 +447,8 @@ class AnalyticsDashboardController extends Controller
     }
 
     // Private helper methods
-
     /**
      * Extract filters from request
-     *
-     * @param  Request $request
-     * @return array
      */
     private function getFiltersFromRequest(Request $request): array
     {
@@ -530,54 +483,40 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get available platforms from database
-     *
-     * @return array
      */
     private function getAvailablePlatforms(): array
     {
-        return Cache::remember('analytics_platforms', 3600, function () {
-            return \DB::table('tickets')
-                ->select('source_platform')
-                ->distinct()
-                ->whereNotNull('source_platform')
-                ->pluck('source_platform')
-                ->map(function ($platform) {
-                    return [
-                        'value' => $platform,
-                        'label' => ucfirst($platform),
-                    ];
-                })
-                ->toArray();
-        });
+        return Cache::remember('analytics_platforms', 3600, fn () => DB::table('tickets')
+            ->select('source_platform')
+            ->distinct()
+            ->whereNotNull('source_platform')
+            ->pluck('source_platform')
+            ->map(fn ($platform): array => [
+                'value' => $platform,
+                'label' => ucfirst((string) $platform),
+            ])
+            ->toArray());
     }
 
     /**
      * Get available sport categories
-     *
-     * @return array
      */
     private function getAvailableCategories(): array
     {
-        return Cache::remember('analytics_categories', 3600, function () {
-            return \DB::table('sports_events')
-                ->select('category')
-                ->distinct()
-                ->whereNotNull('category')
-                ->pluck('category')
-                ->map(function ($category) {
-                    return [
-                        'value' => $category,
-                        'label' => ucwords(str_replace('_', ' ', $category)),
-                    ];
-                })
-                ->toArray();
-        });
+        return Cache::remember('analytics_categories', 3600, fn () => DB::table('sports_events')
+            ->select('category')
+            ->distinct()
+            ->whereNotNull('category')
+            ->pluck('category')
+            ->map(fn ($category): array => [
+                'value' => $category,
+                'label' => ucwords(str_replace('_', ' ', $category)),
+            ])
+            ->toArray());
     }
 
     /**
      * Get time range options
-     *
-     * @return array
      */
     private function getTimeRangeOptions(): array
     {
@@ -594,8 +533,6 @@ class AnalyticsDashboardController extends Controller
 
     /**
      * Get date range presets
-     *
-     * @return array
      */
     private function getDateRangePresets(): array
     {

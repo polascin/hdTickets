@@ -34,22 +34,6 @@ class UserPricePreference extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'min_price'                => 'decimal:2',
-        'max_price'                => 'decimal:2',
-        'preferred_quantity'       => 'integer',
-        'seat_preferences'         => 'array',
-        'section_preferences'      => 'array',
-        'price_drop_threshold'     => 'decimal:2',
-        'price_increase_threshold' => 'decimal:2',
-        'auto_purchase_enabled'    => 'boolean',
-        'auto_purchase_max_price'  => 'decimal:2',
-        'email_alerts'             => 'boolean',
-        'push_alerts'              => 'boolean',
-        'sms_alerts'               => 'boolean',
-        'is_active'                => 'boolean',
-    ];
-
     /**
      * Get the user that owns this price preference
      */
@@ -205,7 +189,7 @@ class UserPricePreference extends Model
             return FALSE;
         }
 
-        return !($ticketPrice > $this->max_price);
+        return $ticketPrice <= $this->max_price;
     }
 
     /**
@@ -286,7 +270,7 @@ class UserPricePreference extends Model
      */
     public function shouldAutoPurchase(float $ticketPrice): bool
     {
-        if (!$this->auto_purchase_enabled || !$this->auto_purchase_max_price) {
+        if (! $this->auto_purchase_enabled || ! $this->auto_purchase_max_price) {
             return FALSE;
         }
 
@@ -399,15 +383,11 @@ class UserPricePreference extends Model
             'average_max_price'     => round($avgMaxPrice, 2),
             'average_min_price'     => round($avgMinPrice, 2),
             'total_budget'          => round($activePref->sum('max_price'), 2),
-            'by_sport'              => $preferences->groupBy('sport_type')->map(function ($group) {
-                return [
-                    'count'         => $group->count(),
-                    'avg_max_price' => round($group->avg('max_price'), 2),
-                ];
-            })->toArray(),
-            'by_category' => $preferences->groupBy('event_category')->map(function ($group) {
-                return $group->count();
-            })->toArray(),
+            'by_sport'              => $preferences->groupBy('sport_type')->map(fn ($group): array => [
+                'count'         => $group->count(),
+                'avg_max_price' => round($group->avg('max_price'), 2),
+            ])->toArray(),
+            'by_category'   => $preferences->groupBy('event_category')->map(fn ($group) => $group->count())->toArray(),
             'alert_methods' => [
                 'email' => $preferences->where('email_alerts', TRUE)->count(),
                 'push'  => $preferences->where('push_alerts', TRUE)->count(),
@@ -444,6 +424,8 @@ class UserPricePreference extends Model
      */
     /**
      * ValidatePreferenceData
+     *
+     * @return string[]
      */
     public static function validatePreferenceData(array $data): array
     {
@@ -467,5 +449,24 @@ class UserPricePreference extends Model
         }
 
         return $errors;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'min_price'                => 'decimal:2',
+            'max_price'                => 'decimal:2',
+            'preferred_quantity'       => 'integer',
+            'seat_preferences'         => 'array',
+            'section_preferences'      => 'array',
+            'price_drop_threshold'     => 'decimal:2',
+            'price_increase_threshold' => 'decimal:2',
+            'auto_purchase_enabled'    => 'boolean',
+            'auto_purchase_max_price'  => 'decimal:2',
+            'email_alerts'             => 'boolean',
+            'push_alerts'              => 'boolean',
+            'sms_alerts'               => 'boolean',
+            'is_active'                => 'boolean',
+        ];
     }
 }

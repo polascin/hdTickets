@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Ajax;
 
+use App\Http\Controllers\Ajax\Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
 use App\Models\ScrapingStats;
@@ -24,7 +25,7 @@ class DashboardController extends Controller
     /**
      * LiveTickets
      */
-    public function liveTickets(Request $request): Illuminate\Http\RedirectResponse
+    public function liveTickets(Request $request): RedirectResponse
     {
         try {
             $cacheKey = 'dashboard_live_tickets_' . Auth::id();
@@ -40,27 +41,21 @@ class DashboardController extends Controller
 
                 // Calculate real-time statistics
                 $stats = [
-                    'total_available' => $tickets->count(),
-                    'high_demand'     => $tickets->where('is_high_demand', TRUE)->count(),
-                    'avg_price'       => $tickets->avg(function ($ticket) {
-                        return ($ticket->min_price + $ticket->max_price) / 2;
-                    }),
+                    'total_available'  => $tickets->count(),
+                    'high_demand'      => $tickets->where('is_high_demand', TRUE)->count(),
+                    'avg_price'        => $tickets->avg(fn ($ticket): float|int => ($ticket->min_price + $ticket->max_price) / 2),
                     'platforms_active' => $tickets->pluck('platform')->unique()->count(),
                     'sports_available' => $tickets->pluck('sport')->unique()->filter()->count(),
                     'last_updated'     => now()->toISOString(),
                 ];
 
                 // Group tickets by sport for better display
-                $ticketsBySport = $tickets->groupBy('sport')->map(function ($sportTickets) {
-                    return [
-                        'count'     => $sportTickets->count(),
-                        'avg_price' => $sportTickets->avg(function ($ticket) {
-                            return ($ticket->min_price + $ticket->max_price) / 2;
-                        }),
-                        'platforms'      => $sportTickets->pluck('platform')->unique()->values(),
-                        'latest_tickets' => $sportTickets->take(3)->values(),
-                    ];
-                });
+                $ticketsBySport = $tickets->groupBy('sport')->map(fn ($sportTickets): array => [
+                    'count'          => $sportTickets->count(),
+                    'avg_price'      => $sportTickets->avg(fn ($ticket): float|int => ($ticket->min_price + $ticket->max_price) / 2),
+                    'platforms'      => $sportTickets->pluck('platform')->unique()->values(),
+                    'latest_tickets' => $sportTickets->take(3)->values(),
+                ]);
 
                 return response()->json([
                     'success' => TRUE,
@@ -91,11 +86,11 @@ class DashboardController extends Controller
     /**
      * UserRecommendations
      */
-    public function userRecommendations(Request $request): Illuminate\Http\RedirectResponse
+    public function userRecommendations(Request $request): RedirectResponse
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => FALSE, 'error' => 'User not authenticated'], 401);
             }
 
@@ -116,7 +111,7 @@ class DashboardController extends Controller
                     ->where('scraped_at', '>=', now()->subHours(12));
 
                 // Apply user preferences
-                if (!empty($favoriteTeams)) {
+                if (! empty($favoriteTeams)) {
                     $query->where(function ($q) use ($favoriteTeams): void {
                         foreach ($favoriteTeams as $team) {
                             $q->orWhere('title', 'like', "%{$team}%")
@@ -125,7 +120,7 @@ class DashboardController extends Controller
                     });
                 }
 
-                if (!empty($preferredSports)) {
+                if (! empty($preferredSports)) {
                     $query->whereIn('sport', $preferredSports);
                 }
 
@@ -146,7 +141,7 @@ class DashboardController extends Controller
 
                     // Boost score for favorite teams
                     foreach ($favoriteTeams as $team) {
-                        if (stripos($ticket->title, $team) !== FALSE) {
+                        if (stripos((string) $ticket->title, (string) $team) !== FALSE) {
                             $score += 20;
 
                             break;
@@ -165,7 +160,7 @@ class DashboardController extends Controller
 
                     // Boost score if matches user alert keywords
                     foreach ($userAlerts as $alert) {
-                        if (stripos($ticket->title, $alert->keywords) !== FALSE) {
+                        if (stripos((string) $ticket->title, (string) $alert->keywords) !== FALSE) {
                             $score += 25;
 
                             break;
@@ -209,7 +204,7 @@ class DashboardController extends Controller
     /**
      * PlatformHealth
      */
-    public function platformHealth(Request $request): Illuminate\Http\RedirectResponse
+    public function platformHealth(Request $request): RedirectResponse
     {
         try {
             $cacheKey = 'dashboard_platform_health';
@@ -282,11 +277,11 @@ class DashboardController extends Controller
     /**
      * PriceAlerts
      */
-    public function priceAlerts(Request $request): Illuminate\Http\RedirectResponse
+    public function priceAlerts(Request $request): RedirectResponse
     {
         try {
             $user = Auth::user();
-            if (!$user) {
+            if (! $user) {
                 return response()->json(['success' => FALSE, 'error' => 'User not authenticated'], 401);
             }
 
@@ -322,12 +317,10 @@ class DashboardController extends Controller
 
                     if ($tickets->count() > 0) {
                         $alertResults[] = [
-                            'alert'         => $alert,
-                            'matches_count' => $tickets->count(),
-                            'best_price'    => $tickets->min('min_price'),
-                            'avg_price'     => $tickets->avg(function ($ticket) {
-                                return ($ticket->min_price + $ticket->max_price) / 2;
-                            }),
+                            'alert'               => $alert,
+                            'matches_count'       => $tickets->count(),
+                            'best_price'          => $tickets->min('min_price'),
+                            'avg_price'           => $tickets->avg(fn ($ticket): float|int => ($ticket->min_price + $ticket->max_price) / 2),
                             'tickets'             => $tickets->take(3), // Show top 3 matches
                             'price_drop_detected' => $this->detectPriceDrop($alert, $tickets),
                         ];
@@ -392,7 +385,7 @@ class DashboardController extends Controller
      * @param mixed $alert
      * @param mixed $tickets
      */
-    private function detectPriceDrop($alert, $tickets)
+    private function detectPriceDrop($alert, $tickets): array
     {
         try {
             // This is a simplified version - in production you'd compare with historical data

@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -16,9 +17,10 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -173,23 +175,23 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['event_type'])) {
-            $params['type'] = urlencode($criteria['event_type']);
+        if (! empty($criteria['event_type'])) {
+            $params['type'] = urlencode((string) $criteria['event_type']);
         }
 
-        if (!empty($criteria['competition'])) {
-            $params['competition'] = urlencode($criteria['competition']);
+        if (! empty($criteria['competition'])) {
+            $params['competition'] = urlencode((string) $criteria['competition']);
         }
 
-        if (!empty($criteria['team'])) {
-            $params['team'] = urlencode($criteria['team']);
+        if (! empty($criteria['team'])) {
+            $params['team'] = urlencode((string) $criteria['team']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -200,7 +202,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
 
         $queryString = http_build_query($params);
 
-        return $baseUrl . ($queryString ? '?' . $queryString : '');
+        return $baseUrl . ($queryString !== '' && $queryString !== '0' ? '?' . $queryString : '');
     }
 
     /**
@@ -244,7 +246,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status, .sold-out');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -297,33 +299,33 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
         $lowerComp = strtolower($competition);
 
         // Football events
-        if (strpos($lowerComp, 'fa cup') !== FALSE) {
+        if (str_contains($lowerComp, 'fa cup')) {
             return 'fa_cup';
         }
-        if (strpos($lowerComp, 'efl cup') !== FALSE || strpos($lowerComp, 'league cup') !== FALSE) {
+        if (str_contains($lowerComp, 'efl cup') || str_contains($lowerComp, 'league cup')) {
             return 'efl_cup';
         }
-        if (strpos($lowerComp, 'playoff') !== FALSE) {
+        if (str_contains($lowerComp, 'playoff')) {
             return 'playoff_final';
         }
-        if (strpos($lowerComp, 'community shield') !== FALSE) {
+        if (str_contains($lowerComp, 'community shield')) {
             return 'community_shield';
         }
-        if (strpos($lowerTitle, 'england') !== FALSE || strpos($lowerComp, 'international') !== FALSE) {
+        if (str_contains($lowerTitle, 'england') || str_contains($lowerComp, 'international')) {
             return 'england_national_team';
         }
-        if (strpos($lowerTitle, 'challenge cup') !== FALSE) {
+        if (str_contains($lowerTitle, 'challenge cup')) {
             return 'rugby_league_challenge_cup';
         }
 
         // Non-football events
-        if (strpos($lowerTitle, 'concert') !== FALSE || strpos($lowerTitle, 'tour') !== FALSE) {
+        if (str_contains($lowerTitle, 'concert') || str_contains($lowerTitle, 'tour')) {
             return 'concert';
         }
-        if (strpos($lowerTitle, 'nfl') !== FALSE) {
+        if (str_contains($lowerTitle, 'nfl')) {
             return 'nfl';
         }
-        if (strpos($lowerTitle, 'boxing') !== FALSE || strpos($lowerTitle, 'fight') !== FALSE) {
+        if (str_contains($lowerTitle, 'boxing') || str_contains($lowerTitle, 'fight')) {
             return 'boxing';
         }
 
@@ -361,15 +363,15 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out') || str_contains($lowerStatus, 'unavailable')) {
             return 'sold_out';
         }
 
-        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
+        if (str_contains($lowerStatus, 'limited') || str_contains($lowerStatus, 'few left')) {
             return 'limited';
         }
 
-        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
+        if (str_contains($lowerStatus, 'available') || str_contains($lowerStatus, 'on sale')) {
             return 'available';
         }
 
@@ -381,7 +383,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -403,7 +405,7 @@ class WembleyStadiumPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 

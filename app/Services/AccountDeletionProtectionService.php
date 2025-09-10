@@ -21,11 +21,8 @@ use function is_array;
 
 class AccountDeletionProtectionService
 {
-    protected DataExportService $dataExportService;
-
-    public function __construct(DataExportService $dataExportService)
+    public function __construct(protected DataExportService $dataExportService)
     {
-        $this->dataExportService = $dataExportService;
     }
 
     /**
@@ -109,7 +106,7 @@ class AccountDeletionProtectionService
             ->where('status', AccountDeletionRequest::STATUS_PENDING)
             ->first();
 
-        if (!$deletionRequest) {
+        if (! $deletionRequest) {
             throw new Exception('Invalid or expired confirmation token.');
         }
 
@@ -155,7 +152,7 @@ class AccountDeletionProtectionService
      */
     public function cancelDeletion(AccountDeletionRequest $deletionRequest, ?string $reason = NULL): bool
     {
-        if (!$deletionRequest->isPending() && !$deletionRequest->isConfirmed()) {
+        if (! $deletionRequest->isPending() && ! $deletionRequest->isConfirmed()) {
             throw new Exception('Cannot cancel a deletion request that is not pending or confirmed.');
         }
 
@@ -237,7 +234,7 @@ class AccountDeletionProtectionService
             ->recoverable()
             ->first();
 
-        if (!$deletedUser) {
+        if (! $deletedUser) {
             throw new Exception('Account not found or recovery period has expired.');
         }
 
@@ -312,7 +309,7 @@ class AccountDeletionProtectionService
      */
     public function processDataExport(DataExportRequest $exportRequest): bool
     {
-        if (!$exportRequest->isPending()) {
+        if (! $exportRequest->isPending()) {
             return FALSE;
         }
 
@@ -406,7 +403,7 @@ class AccountDeletionProtectionService
     {
         $user = $deletionRequest->user;
 
-        if (!$user) {
+        if (! $user) {
             throw new Exception('User not found for deletion request.');
         }
 
@@ -531,7 +528,7 @@ class AccountDeletionProtectionService
     protected function arrayToCSV(array $data, string &$output, string $prefix = ''): void
     {
         foreach ($data as $key => $value) {
-            $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
+            $fullKey = $prefix !== '' && $prefix !== '0' ? "{$prefix}.{$key}" : $key;
 
             if (is_array($value)) {
                 $this->arrayToCSV($value, $output, $fullKey);

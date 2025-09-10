@@ -248,14 +248,14 @@ return new class() extends Migration {
                 if (Schema::hasColumn('users', 'timezone') && Schema::hasColumn('users', 'language')) {
                     try {
                         $table->index(['timezone', 'language'], 'users_timezone_language_index');
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         // Index likely already exists, ignore
                     }
                 }
                 if (Schema::hasColumn('users', 'theme_preference') && Schema::hasColumn('users', 'display_density')) {
                     try {
                         $table->index(['theme_preference', 'display_density'], 'users_theme_density_index');
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         // Index likely already exists, ignore
                     }
                 }
@@ -296,7 +296,7 @@ return new class() extends Migration {
 
                 try {
                     $table->dropIndex('users_theme_density_index');
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Index likely doesn't exist, ignore
                 }
             });

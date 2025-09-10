@@ -2,6 +2,9 @@
 
 namespace App\Domain\Event\Entities;
 
+use App\Domain\Event\Events\SportEventMarkedAsHighDemand;
+use App\Domain\Event\Events\SportEventUnmarkedAsHighDemand;
+use App\Domain\Event\Events\SportEventUpdated;
 use App\Domain\Event\ValueObjects\EventDate;
 use App\Domain\Event\ValueObjects\EventId;
 use App\Domain\Event\ValueObjects\SportCategory;
@@ -9,6 +12,7 @@ use App\Domain\Event\ValueObjects\Venue;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
+use function in_array;
 use function sprintf;
 use function strlen;
 
@@ -145,7 +149,7 @@ class SportsEvent
         $this->updatedAt = new DateTimeImmutable();
         $this->validate();
 
-        $this->recordDomainEvent(new \App\Domain\Event\Events\SportEventUpdated($this->id));
+        $this->recordDomainEvent(new SportEventUpdated($this->id));
     }
 
     /**
@@ -153,10 +157,10 @@ class SportsEvent
      */
     public function markAsHighDemand(): void
     {
-        if (!$this->isHighDemand) {
+        if (! $this->isHighDemand) {
             $this->isHighDemand = TRUE;
             $this->updatedAt = new DateTimeImmutable();
-            $this->recordDomainEvent(new \App\Domain\Event\Events\SportEventMarkedAsHighDemand($this->id));
+            $this->recordDomainEvent(new SportEventMarkedAsHighDemand($this->id));
         }
     }
 
@@ -168,7 +172,7 @@ class SportsEvent
         if ($this->isHighDemand) {
             $this->isHighDemand = FALSE;
             $this->updatedAt = new DateTimeImmutable();
-            $this->recordDomainEvent(new \App\Domain\Event\Events\SportEventUnmarkedAsHighDemand($this->id));
+            $this->recordDomainEvent(new SportEventUnmarkedAsHighDemand($this->id));
         }
     }
 
@@ -240,7 +244,7 @@ class SportsEvent
      */
     private function validate(): void
     {
-        if (empty(trim($this->name))) {
+        if (in_array(trim($this->name), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Event name cannot be empty');
         }
 
@@ -248,7 +252,7 @@ class SportsEvent
             throw new InvalidArgumentException('Event name cannot exceed 255 characters');
         }
 
-        if ($this->category->isTeamSport() && (empty($this->homeTeam) || empty($this->awayTeam))) {
+        if ($this->category->isTeamSport() && ($this->homeTeam === NULL || $this->homeTeam === '' || $this->homeTeam === '0' || ($this->awayTeam === NULL || $this->awayTeam === '' || $this->awayTeam === '0'))) {
             throw new InvalidArgumentException('Team sports must have both home and away teams');
         }
 

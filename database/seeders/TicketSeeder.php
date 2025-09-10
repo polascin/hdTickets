@@ -131,14 +131,14 @@ class TicketSeeder extends Seeder
                 'uuid'              => Str::uuid(),
                 'requester_id'      => $customer->id,
                 'assignee_id'       => $agent->id,
-                'due_date'          => Carbon::now()->addDays(rand(1, 30)),
-                'event_date'        => Carbon::now()->addMonths(rand(1, 6)),
+                'due_date'          => Carbon::now()->addDays(random_int(1, 30)),
+                'event_date'        => Carbon::now()->addMonths(random_int(1, 6)),
                 'external_id'       => 'EXT-' . Str::random(8),
                 'ticket_url'        => 'https://example.com/ticket/' . Str::random(10),
                 'scraping_metadata' => json_encode([
                     'last_scraped'     => Carbon::now()->toISOString(),
-                    'scrape_count'     => rand(1, 50),
-                    'last_price_check' => Carbon::now()->subHours(rand(1, 24))->toISOString(),
+                    'scrape_count'     => random_int(1, 50),
+                    'last_price_check' => Carbon::now()->subHours(random_int(1, 24))->toISOString(),
                 ]),
             ]));
         }

@@ -4,6 +4,7 @@ namespace App\Services\Scraping;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -40,7 +41,7 @@ class AdvancedAntiDetectionService
     {
         $cacheKey = "browser_session_{$platform}_" . date('H');
 
-        return Cache::remember($cacheKey, 3600, function () use ($platform) {
+        return Cache::remember($cacheKey, 3600, function () use ($platform): array {
             $browserType = $this->selectBrowserType($platform);
             $fingerprint = $this->browserFingerprints[$browserType];
 
@@ -91,7 +92,7 @@ class AdvancedAntiDetectionService
         }
 
         // Add browser-specific headers
-        if (str_contains($session['browser_type'], 'chrome')) {
+        if (str_contains((string) $session['browser_type'], 'chrome')) {
             $baseHeaders['sec-ch-ua-full-version-list'] = $this->generateFullVersionList();
             $baseHeaders['sec-ch-ua-arch'] = '"x86"';
             $baseHeaders['sec-ch-ua-bitness'] = '"64"';
@@ -160,7 +161,7 @@ class AdvancedAntiDetectionService
      */
     public function createAdvancedHttpClient(string $platform, array $options = []): Client
     {
-        $session = $this->getBrowserSession($platform);
+        $this->getBrowserSession($platform);
         $headers = $this->generateAdvancedHeaders($platform);
 
         $defaultOptions = [
@@ -388,19 +389,19 @@ class AdvancedAntiDetectionService
 
         $this->userAgents = [
             'chrome_windows' => array_map(
-                fn ($v) => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{$v} Safari/537.36",
+                fn (string $v): string => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{$v} Safari/537.36",
                 $chromeVersions,
             ),
             'chrome_mac' => array_map(
-                fn ($v) => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{$v} Safari/537.36",
+                fn (string $v): string => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{$v} Safari/537.36",
                 $chromeVersions,
             ),
             'firefox_windows' => array_map(
-                fn ($v) => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{$v}) Gecko/20100101 Firefox/{$v}",
+                fn (string $v): string => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:{$v}) Gecko/20100101 Firefox/{$v}",
                 $firefoxVersions,
             ),
             'safari_mac' => array_map(
-                fn ($v) => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{$v} Safari/605.1.15",
+                fn (string $v): string => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/{$v} Safari/605.1.15",
                 $safariVersions,
             ),
         ];
@@ -584,7 +585,7 @@ class AdvancedAntiDetectionService
         $jar = new CookieJar();
 
         foreach ($cookies as $cookie) {
-            $jar->setCookie(new \GuzzleHttp\Cookie\SetCookie($cookie));
+            $jar->setCookie(new SetCookie($cookie));
         }
 
         return $jar;

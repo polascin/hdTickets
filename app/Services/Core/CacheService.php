@@ -2,12 +2,12 @@
 
 namespace App\Services\Core;
 
-use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Cache\Repository;
 
 class CacheService
 {
     public function __construct(
-        private CacheManager $cache,
+        private Repository $cache,
     ) {
     }
 

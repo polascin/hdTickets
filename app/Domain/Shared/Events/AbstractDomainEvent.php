@@ -13,20 +13,15 @@ abstract class AbstractDomainEvent implements DomainEventInterface
 
     protected DateTimeImmutable $occurredAt;
 
-    protected string $version;
-
-    /** @var array<string, mixed> */
-    protected array $metadata;
+    protected string $version = '1.0';
 
     /**
      * @param array<string, mixed> $metadata
      */
-    public function __construct(array $metadata = [])
+    public function __construct(protected array $metadata = [])
     {
         $this->domainEventId = Uuid::uuid4()->toString();
         $this->occurredAt = new DateTimeImmutable();
-        $this->version = '1.0';
-        $this->metadata = $metadata;
     }
 
     /**

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
 use PaypalServerSdkLib\Controllers\PaymentsController;
@@ -32,13 +32,13 @@ class RegistrationWithPaymentController extends Controller
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
         $paymentPlans = PaymentPlan::active()->ordered()->get();
 
-        return view('auth.register-with-payment', compact('paymentPlans'));
+        return view('auth.register-with-payment', ['paymentPlans' => $paymentPlans]);
     }
 
     /**
@@ -50,7 +50,7 @@ class RegistrationWithPaymentController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -60,7 +60,7 @@ class RegistrationWithPaymentController extends Controller
             'username'          => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
             'email'             => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'phone'             => ['sometimes', 'string', 'max:20'],
-            'password'          => ['required', 'confirmed', Rules\Password::defaults()],
+            'password'          => ['required', 'confirmed', Password::defaults()],
             'role'              => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
             'is_active'         => ['sometimes', 'boolean'],
             'require_2fa'       => ['sometimes', 'boolean'],
@@ -198,14 +198,14 @@ class RegistrationWithPaymentController extends Controller
      */
     public function selectPlan(User $user): View
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 
         $paymentPlans = PaymentPlan::active()->ordered()->get();
         $currentSubscription = $user->activeSubscription();
 
-        return view('auth.select-payment-plan', compact('user', 'paymentPlans', 'currentSubscription'));
+        return view('auth.select-payment-plan', ['user' => $user, 'paymentPlans' => $paymentPlans, 'currentSubscription' => $currentSubscription]);
     }
 
     /**
@@ -216,7 +216,7 @@ class RegistrationWithPaymentController extends Controller
      */
     public function assignPlan(Request $request, User $user): RedirectResponse
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied.');
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ScrapedTicket;
 use App\Services\Scraping\PluginBasedScraperManager;
 use App\Services\TicketScrapingService;
 use Exception;
@@ -16,7 +17,7 @@ class TestScrapingSystem extends Command
 
     protected $description = 'Test the scraping system functionality';
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('🧪 Starting Scraping System Tests...');
 
@@ -36,7 +37,7 @@ class TestScrapingSystem extends Command
             $this->info('3️⃣ Testing database...');
             $this->testDatabase();
 
-            if (!$quickTest) {
+            if (! $quickTest) {
                 // Test 4: Search functionality
                 $this->info('4️⃣ Testing search functionality...');
                 $this->testSearchFunctionality();
@@ -70,7 +71,7 @@ class TestScrapingSystem extends Command
             $pluginManager = app(PluginBasedScraperManager::class);
             $this->comment('✓ PluginBasedScraperManager loaded');
         } catch (Exception $e) {
-            throw new Exception('Service loading failed: ' . $e->getMessage());
+            throw new Exception('Service loading failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -83,7 +84,7 @@ class TestScrapingSystem extends Command
             $this->comment('✓ Found ' . count($plugins) . ' plugins');
 
             $enabled = 0;
-            foreach ($plugins as $name => $plugin) {
+            foreach ($plugins as $plugin) {
                 if ($plugin->isEnabled()) {
                     $enabled++;
                 }
@@ -91,22 +92,22 @@ class TestScrapingSystem extends Command
 
             $this->comment("✓ {$enabled} plugins enabled");
 
-            if ($pluginName && !isset($plugins[$pluginName])) {
+            if ($pluginName && ! isset($plugins[$pluginName])) {
                 throw new Exception("Plugin '{$pluginName}' not found");
             }
         } catch (Exception $e) {
-            throw new Exception('Plugin manager test failed: ' . $e->getMessage());
+            throw new Exception('Plugin manager test failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
     private function testDatabase(): void
     {
         try {
-            $count = \App\Models\ScrapedTicket::count();
+            $count = ScrapedTicket::count();
             $this->comment("✓ Database connected - {$count} tickets found");
 
             // Test creating a sample ticket
-            $testTicket = \App\Models\ScrapedTicket::firstOrCreate([
+            $testTicket = ScrapedTicket::firstOrCreate([
                 'external_id' => 'test_ticket_' . time(),
                 'platform'    => 'test',
             ], [
@@ -118,13 +119,13 @@ class TestScrapingSystem extends Command
                 'is_available'   => TRUE,
                 'is_high_demand' => FALSE,
                 'scraped_at'     => now(),
-                'status'         => \App\Models\ScrapedTicket::STATUS_ACTIVE,
+                'status'         => ScrapedTicket::STATUS_ACTIVE,
                 'search_keyword' => 'test',
             ]);
 
             $this->comment('✓ Test ticket created/found: ' . $testTicket->title);
         } catch (Exception $e) {
-            throw new Exception('Database test failed: ' . $e->getMessage());
+            throw new Exception('Database test failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -151,11 +152,11 @@ class TestScrapingSystem extends Command
 
             $this->comment("✓ Search completed - {$totalResults} total results");
         } catch (Exception $e) {
-            throw new Exception('Search functionality test failed: ' . $e->getMessage());
+            throw new Exception('Search functionality test failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    private function testSpecificPlugin($pluginName): void
+    private function testSpecificPlugin(string $pluginName): void
     {
         try {
             $manager = app(PluginBasedScraperManager::class);
@@ -173,7 +174,7 @@ class TestScrapingSystem extends Command
                 $this->warn("⚠️ Plugin test failed: {$testResult['message']}");
             }
         } catch (Exception $e) {
-            throw new Exception("Plugin '{$pluginName}' test failed: " . $e->getMessage());
+            throw new Exception("Plugin '{$pluginName}' test failed: " . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -204,7 +205,7 @@ class TestScrapingSystem extends Command
                 }
             }
         } catch (Exception $e) {
-            throw new Exception('Sample plugins test failed: ' . $e->getMessage());
+            throw new Exception('Sample plugins test failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 }

@@ -119,7 +119,7 @@ class TicketmasterClient extends BaseWebScrapingClient
                     }
 
                     $event = $this->extractEventFromNode($node);
-                    if (!empty($event['name'])) {
+                    if (! empty($event['name'])) {
                         $events[] = $event;
                         $count++;
                     }
@@ -178,7 +178,7 @@ class TicketmasterClient extends BaseWebScrapingClient
 
             // Extract prices using enhanced methods
             $priceData = $this->extractPriceWithFallbacks($node);
-            $priceRange = !empty($priceData) ? $this->formatPriceRange($priceData) : '';
+            $priceRange = $priceData === [] ? '' : $this->formatPriceRange($priceData);
 
             $price = $this->trySelectors($node, [
                 '.price-range',
@@ -231,7 +231,7 @@ class TicketmasterClient extends BaseWebScrapingClient
                     ];
                 }
             });
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Ignore price extraction errors
         }
 
@@ -246,7 +246,7 @@ class TicketmasterClient extends BaseWebScrapingClient
      */
     protected function formatPriceRange(array $prices): string
     {
-        if (empty($prices)) {
+        if ($prices === []) {
             return '';
         }
 
@@ -257,13 +257,12 @@ class TicketmasterClient extends BaseWebScrapingClient
             }
         }
 
-        if (empty($numericPrices)) {
+        if ($numericPrices === []) {
             return '';
         }
 
         $min = min($numericPrices);
         $max = max($numericPrices);
-        $currency = $prices[0]['currency'] ?? 'USD';
 
         if ($min === $max) {
             return '$' . number_format($min, 2);
@@ -304,7 +303,7 @@ class TicketmasterClient extends BaseWebScrapingClient
             'sort' => 'date,asc',
         ];
 
-        if (!empty($location)) {
+        if ($location !== '' && $location !== '0') {
             $params['city'] = $location;
         }
 

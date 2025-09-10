@@ -53,11 +53,7 @@ class UserFavoriteTeamController extends Controller
             ]);
         }
 
-        return view('preferences.teams.index', compact(
-            'teams',
-            'stats',
-            'availableSports',
-        ));
+        return view('preferences.teams.index', ['teams' => $teams, 'stats' => $stats, 'availableSports' => $availableSports]);
     }
 
     /**
@@ -71,10 +67,7 @@ class UserFavoriteTeamController extends Controller
         $availableSports = UserFavoriteTeam::getAvailableSports();
         $popularTeams = UserFavoriteTeam::getPopularTeams();
 
-        return view('preferences.teams.create', compact(
-            'availableSports',
-            'popularTeams',
-        ));
+        return view('preferences.teams.create', ['availableSports' => $availableSports, 'popularTeams' => $popularTeams]);
     }
 
     /**
@@ -151,7 +144,7 @@ class UserFavoriteTeamController extends Controller
             return response()->json(['team' => $team]);
         }
 
-        return view('preferences.teams.show', compact('team'));
+        return view('preferences.teams.show', ['team' => $team]);
     }
 
     /**
@@ -167,11 +160,7 @@ class UserFavoriteTeamController extends Controller
         $availableSports = UserFavoriteTeam::getAvailableSports();
         $leagues = UserFavoriteTeam::getLeaguesBySport($team->sport_type);
 
-        return view('preferences.teams.edit', compact(
-            'team',
-            'availableSports',
-            'leagues',
-        ));
+        return view('preferences.teams.edit', ['team' => $team, 'availableSports' => $availableSports, 'leagues' => $leagues]);
     }
 
     /**
@@ -273,18 +262,16 @@ class UserFavoriteTeamController extends Controller
         $term = $request->get('q', '');
         $sport = $request->get('sport');
 
-        if (strlen($term) < 2) {
+        if (strlen((string) $term) < 2) {
             return response()->json([]);
         }
 
         $popularTeams = UserFavoriteTeam::getPopularTeams($sport);
 
         $results = collect($popularTeams)
-            ->filter(function ($team) use ($term) {
-                return str_contains(strtolower($team['full_name']), strtolower($term))
-                       || str_contains(strtolower($team['name']), strtolower($term))
-                       || str_contains(strtolower($team['city'] ?? ''), strtolower($term));
-            })
+            ->filter(fn ($team): bool => str_contains(strtolower((string) $team['full_name']), strtolower((string) $term))
+                   || str_contains(strtolower((string) $team['name']), strtolower((string) $term))
+                   || str_contains(strtolower($team['city'] ?? ''), strtolower((string) $term)))
             ->take(10)
             ->values();
 
@@ -301,7 +288,7 @@ class UserFavoriteTeamController extends Controller
     {
         $sport = $request->get('sport');
 
-        if (!$sport) {
+        if (! $sport) {
             return response()->json(['error' => 'Sport parameter required'], 400);
         }
 
@@ -384,7 +371,7 @@ class UserFavoriteTeamController extends Controller
         $redirectResponse = redirect()->route('preferences.teams.index')
             ->with('success', $message);
 
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $redirectResponse->with('errors', $errors);
         }
 

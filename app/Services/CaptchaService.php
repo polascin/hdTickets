@@ -140,14 +140,11 @@ class CaptchaService
     {
         $service = $this->config['service'] ?? '2captcha';
 
-        switch ($service) {
-            case '2captcha':
-                return $this->get2CaptchaBalance();
-            case 'anticaptcha':
-                return $this->getAntiCaptchaBalance();
-            default:
-                return NULL;
-        }
+        return match ($service) {
+            '2captcha'    => $this->get2CaptchaBalance(),
+            'anticaptcha' => $this->getAntiCaptchaBalance(),
+            default       => NULL,
+        };
     }
 
     /**
@@ -164,14 +161,11 @@ class CaptchaService
     {
         $service = $this->config['service'] ?? '2captcha';
 
-        switch ($service) {
-            case '2captcha':
-                return $this->report2CaptchaBad($captchaId);
-            case 'anticaptcha':
-                return $this->reportAntiCaptchaBad($captchaId);
-            default:
-                return FALSE;
-        }
+        return match ($service) {
+            '2captcha'    => $this->report2CaptchaBad($captchaId),
+            'anticaptcha' => $this->reportAntiCaptchaBad($captchaId),
+            default       => FALSE,
+        };
     }
 
     /**
@@ -183,7 +177,7 @@ class CaptchaService
     public function isEnabled(): bool
     {
         return config('services.captcha.enabled', FALSE)
-               && !empty(config('services.captcha.service'));
+               && ! empty(config('services.captcha.service'));
     }
 
     /**
@@ -198,16 +192,14 @@ class CaptchaService
     {
         $cacheKey = 'captcha_stats_' . date('Y-m-d');
 
-        return Cache::remember($cacheKey, 3600, function () {
-            return [
-                'service'          => $this->config['service'] ?? 'none',
-                'enabled'          => $this->isEnabled(),
-                'balance'          => $this->getBalance(),
-                'solved_today'     => Cache::get('captcha_solved_today', 0),
-                'failed_today'     => Cache::get('captcha_failed_today', 0),
-                'total_cost_today' => Cache::get('captcha_cost_today', 0.0),
-            ];
-        });
+        return Cache::remember($cacheKey, 3600, fn (): array => [
+            'service'          => $this->config['service'] ?? 'none',
+            'enabled'          => $this->isEnabled(),
+            'balance'          => $this->getBalance(),
+            'solved_today'     => Cache::get('captcha_solved_today', 0),
+            'failed_today'     => Cache::get('captcha_failed_today', 0),
+            'total_cost_today' => Cache::get('captcha_cost_today', 0.0),
+        ]);
     }
 
     /**
@@ -221,7 +213,7 @@ class CaptchaService
      */
     public function incrementStats(string $type, float $cost = 0.0): void
     {
-        $today = date('Y-m-d');
+        date('Y-m-d');
         $key = "captcha_{$type}_today";
 
         Cache::increment($key);
@@ -249,7 +241,7 @@ class CaptchaService
     protected function solve2CaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -305,7 +297,7 @@ class CaptchaService
     protected function solve2CaptchaRecaptchaV3(string $siteKey, string $pageUrl, string $action, float $minScore): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -355,7 +347,7 @@ class CaptchaService
     protected function solve2CaptchaImage(string $imageBase64, array $options = []): ?string
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             Log::error('2captcha API key not configured');
 
             return NULL;
@@ -458,7 +450,7 @@ class CaptchaService
     protected function solveAntiCaptchaRecaptchaV2(string $siteKey, string $pageUrl, array $options = []): ?string
     {
         $apiKey = config('services.captcha.anticaptcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             Log::error('Anti-Captcha API key not configured');
 
             return NULL;
@@ -555,7 +547,7 @@ class CaptchaService
     protected function get2CaptchaBalance(): ?float
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             return NULL;
         }
 
@@ -586,7 +578,7 @@ class CaptchaService
     protected function getAntiCaptchaBalance(): ?float
     {
         $apiKey = config('services.captcha.anticaptcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             return NULL;
         }
 
@@ -622,7 +614,7 @@ class CaptchaService
     protected function report2CaptchaBad(string $captchaId): bool
     {
         $apiKey = config('services.captcha.2captcha.api_key');
-        if (!$apiKey) {
+        if (! $apiKey) {
             return FALSE;
         }
 

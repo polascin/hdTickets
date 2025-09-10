@@ -2,39 +2,75 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use function count;
+use function in_array;
 
 /**
  * ScheduledReport Model
  *
  * Represents scheduled analytics reports in the HD Tickets system.
  *
- * @property int            $id
- * @property string         $name
- * @property string         $description
- * @property string         $type
- * @property string         $format
- * @property string         $schedule
- * @property array          $sections
- * @property array          $filters
- * @property array          $recipients
- * @property array          $options
- * @property array          $statistics
- * @property bool           $is_active
- * @property int            $created_by
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon $deleted_at
- *
- * @property-read User $creator
+ * @property int    $id
+ * @property string $name
+ * @property string $description
+ * @property string $type
+ * @property string $format
+ * @property string $schedule
+ * @property array  $sections
+ * @property array  $filters
+ * @property array  $recipients
+ * @property array  $options
+ * @property array  $statistics
+ * @property bool   $is_active
+ * @property int    $created_by
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon $deleted_at
+ * @property User   $creator
  */
 class ScheduledReport extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    /** Available report types */
+    public const TYPE_DAILY = 'daily';
+
+    public const TYPE_WEEKLY = 'weekly';
+
+    public const TYPE_MONTHLY = 'monthly';
+
+    public const TYPE_CUSTOM = 'custom';
+
+    /** Available report formats */
+    public const FORMAT_PDF = 'pdf';
+
+    public const FORMAT_XLSX = 'xlsx';
+
+    public const FORMAT_CSV = 'csv';
+
+    public const FORMAT_JSON = 'json';
+
+    /** Available report sections */
+    public const SECTION_OVERVIEW_METRICS = 'overview_metrics';
+
+    public const SECTION_PLATFORM_PERFORMANCE = 'platform_performance';
+
+    public const SECTION_PRICING_TRENDS = 'pricing_trends';
+
+    public const SECTION_EVENT_POPULARITY = 'event_popularity';
+
+    public const SECTION_MARKET_INTELLIGENCE = 'market_intelligence';
+
+    public const SECTION_PREDICTIVE_INSIGHTS = 'predictive_insights';
+
+    public const SECTION_ANOMALIES = 'anomalies';
 
     /**
      * The attributes that are mass assignable.
@@ -57,62 +93,6 @@ class ScheduledReport extends Model
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'sections'   => 'array',
-        'filters'    => 'array',
-        'recipients' => 'array',
-        'options'    => 'array',
-        'statistics' => 'array',
-        'is_active'  => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-    ];
-
-    /**
-     * Available report types
-     */
-    public const TYPE_DAILY = 'daily';
-
-    public const TYPE_WEEKLY = 'weekly';
-
-    public const TYPE_MONTHLY = 'monthly';
-
-    public const TYPE_CUSTOM = 'custom';
-
-    /**
-     * Available report formats
-     */
-    public const FORMAT_PDF = 'pdf';
-
-    public const FORMAT_XLSX = 'xlsx';
-
-    public const FORMAT_CSV = 'csv';
-
-    public const FORMAT_JSON = 'json';
-
-    /**
-     * Available report sections
-     */
-    public const SECTION_OVERVIEW_METRICS = 'overview_metrics';
-
-    public const SECTION_PLATFORM_PERFORMANCE = 'platform_performance';
-
-    public const SECTION_PRICING_TRENDS = 'pricing_trends';
-
-    public const SECTION_EVENT_POPULARITY = 'event_popularity';
-
-    public const SECTION_MARKET_INTELLIGENCE = 'market_intelligence';
-
-    public const SECTION_PREDICTIVE_INSIGHTS = 'predictive_insights';
-
-    public const SECTION_ANOMALIES = 'anomalies';
-
-    /**
      * Get the user who created this scheduled report
      */
     public function creator(): BelongsTo
@@ -122,6 +102,8 @@ class ScheduledReport extends Model
 
     /**
      * Scope for active reports
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -130,6 +112,8 @@ class ScheduledReport extends Model
 
     /**
      * Scope for reports of a specific type
+     *
+     * @param mixed $query
      */
     public function scopeOfType($query, string $type)
     {
@@ -138,6 +122,8 @@ class ScheduledReport extends Model
 
     /**
      * Scope for reports with specific format
+     *
+     * @param mixed $query
      */
     public function scopeWithFormat($query, string $format)
     {
@@ -191,50 +177,45 @@ class ScheduledReport extends Model
      */
     public function isDue(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return FALSE;
         }
 
         $lastRun = $this->getLastRunTime();
 
-        switch ($this->type) {
-            case self::TYPE_DAILY:
-                return $lastRun === NULL || $lastRun->lt(now()->startOfDay());
-            case self::TYPE_WEEKLY:
-                return $lastRun === NULL || $lastRun->lt(now()->startOfWeek());
-            case self::TYPE_MONTHLY:
-                return $lastRun === NULL || $lastRun->lt(now()->startOfMonth());
-            case self::TYPE_CUSTOM:
-                // For custom schedules, would need to parse the cron expression
-                // This is a simplified implementation
-                return TRUE;
-            default:
-                return FALSE;
-        }
+        return match ($this->type) {
+            self::TYPE_DAILY   => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfDay()),
+            self::TYPE_WEEKLY  => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfWeek()),
+            self::TYPE_MONTHLY => ! $lastRun instanceof Carbon || $lastRun->lt(now()->startOfMonth()),
+            // For custom schedules, would need to parse the cron expression
+            // This is a simplified implementation
+            self::TYPE_CUSTOM => TRUE,
+            default           => FALSE,
+        };
     }
 
     /**
      * Get the last run time from statistics
      */
-    public function getLastRunTime(): ?\Carbon\Carbon
+    public function getLastRunTime(): ?Carbon
     {
-        if (!isset($this->statistics['last_run'])) {
+        if (! isset($this->statistics['last_run'])) {
             return NULL;
         }
 
-        return \Carbon\Carbon::parse($this->statistics['last_run']);
+        return Carbon::parse($this->statistics['last_run']);
     }
 
     /**
      * Get the last successful run time
      */
-    public function getLastSuccessfulRunTime(): ?\Carbon\Carbon
+    public function getLastSuccessfulRunTime(): ?Carbon
     {
-        if (!isset($this->statistics['last_successful_run'])) {
+        if (! isset($this->statistics['last_successful_run'])) {
             return NULL;
         }
 
-        return \Carbon\Carbon::parse($this->statistics['last_successful_run']);
+        return Carbon::parse($this->statistics['last_successful_run']);
     }
 
     /**
@@ -295,26 +276,21 @@ class ScheduledReport extends Model
     /**
      * Get the next scheduled run time
      */
-    public function getNextRunTime(): ?\Carbon\Carbon
+    public function getNextRunTime(): ?Carbon
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return NULL;
         }
 
-        switch ($this->type) {
-            case self::TYPE_DAILY:
-                return now()->addDay()->setTime(6, 0, 0);
-            case self::TYPE_WEEKLY:
-                return now()->next(\Carbon\Carbon::MONDAY)->setTime(8, 0, 0);
-            case self::TYPE_MONTHLY:
-                return now()->addMonth()->startOfMonth()->setTime(9, 0, 0);
-            case self::TYPE_CUSTOM:
-                // For custom schedules, would need to parse the cron expression
-                // This is a simplified implementation
-                return now()->addHour();
-            default:
-                return NULL;
-        }
+        return match ($this->type) {
+            self::TYPE_DAILY   => now()->addDay()->setTime(6, 0, 0),
+            self::TYPE_WEEKLY  => now()->next(Carbon::MONDAY)->setTime(8, 0, 0),
+            self::TYPE_MONTHLY => now()->addMonth()->startOfMonth()->setTime(9, 0, 0),
+            // For custom schedules, would need to parse the cron expression
+            // This is a simplified implementation
+            self::TYPE_CUSTOM => now()->addHour(),
+            default           => NULL,
+        };
     }
 
     /**
@@ -322,18 +298,13 @@ class ScheduledReport extends Model
      */
     public function getScheduleDescription(): string
     {
-        switch ($this->type) {
-            case self::TYPE_DAILY:
-                return 'Daily at 6:00 AM';
-            case self::TYPE_WEEKLY:
-                return 'Weekly on Monday at 8:00 AM';
-            case self::TYPE_MONTHLY:
-                return 'Monthly on the 1st at 9:00 AM';
-            case self::TYPE_CUSTOM:
-                return 'Custom schedule: ' . ($this->schedule ?? 'Not configured');
-            default:
-                return 'Unknown schedule';
-        }
+        return match ($this->type) {
+            self::TYPE_DAILY   => 'Daily at 6:00 AM',
+            self::TYPE_WEEKLY  => 'Weekly on Monday at 8:00 AM',
+            self::TYPE_MONTHLY => 'Monthly on the 1st at 9:00 AM',
+            self::TYPE_CUSTOM  => 'Custom schedule: ' . ($this->schedule ?? 'Not configured'),
+            default            => 'Unknown schedule',
+        };
     }
 
     /**
@@ -364,7 +335,7 @@ class ScheduledReport extends Model
      */
     public function includesSection(string $section): bool
     {
-        return in_array($section, $this->sections);
+        return in_array($section, $this->sections, TRUE);
     }
 
     /**
@@ -372,7 +343,7 @@ class ScheduledReport extends Model
      */
     public function addSection(string $section): void
     {
-        if (!$this->includesSection($section)) {
+        if (! $this->includesSection($section)) {
             $sections = $this->sections;
             $sections[] = $section;
             $this->sections = $sections;
@@ -384,9 +355,7 @@ class ScheduledReport extends Model
      */
     public function removeSection(string $section): void
     {
-        $this->sections = array_filter($this->sections, function ($s) use ($section) {
-            return $s !== $section;
-        });
+        $this->sections = array_filter($this->sections, fn ($s): bool => $s !== $section);
     }
 
     /**
@@ -394,7 +363,7 @@ class ScheduledReport extends Model
      */
     public function addRecipient(string $email): void
     {
-        if (!in_array($email, $this->recipients)) {
+        if (! in_array($email, $this->recipients, TRUE)) {
             $recipients = $this->recipients;
             $recipients[] = $email;
             $this->recipients = $recipients;
@@ -406,9 +375,7 @@ class ScheduledReport extends Model
      */
     public function removeRecipient(string $email): void
     {
-        $this->recipients = array_filter($this->recipients, function ($r) use ($email) {
-            return $r !== $email;
-        });
+        $this->recipients = array_filter($this->recipients, fn ($r): bool => $r !== $email);
     }
 
     /**
@@ -444,6 +411,26 @@ class ScheduledReport extends Model
     }
 
     /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'sections'   => 'array',
+            'filters'    => 'array',
+            'recipients' => 'array',
+            'options'    => 'array',
+            'statistics' => 'array',
+            'is_active'  => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
+        ];
+    }
+
+    /**
      * Format bytes to human readable format
      */
     private function formatBytes(int $size, int $precision = 2): string
@@ -453,7 +440,7 @@ class ScheduledReport extends Model
         }
 
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pow = floor(($size ? log($size) : 0) / log(1024));
+        $pow = floor(($size !== 0 ? log($size) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
 
         $size /= (1 << (10 * $pow));

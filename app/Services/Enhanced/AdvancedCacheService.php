@@ -78,14 +78,14 @@ class AdvancedCacheService extends PerformanceCacheService
     public function intelligentWarmUp(): void
     {
         $popularKeys = [
-            'ticket_stats'        => [$this, 'getTicketStats'],
-            'platform_breakdown'  => [$this, 'getPlatformBreakdown'],
-            'trending_events'     => [$this, 'getTrendingEvents'],
-            'user_activity_stats' => [$this, 'getUserActivityStats'],
+            'ticket_stats'        => $this->getTicketStats(...),
+            'platform_breakdown'  => $this->getPlatformBreakdown(...),
+            'trending_events'     => $this->getTrendingEvents(...),
+            'user_activity_stats' => $this->getUserActivityStats(...),
         ];
 
         foreach ($popularKeys as $key => $callback) {
-            if (!Cache::has($key)) {
+            if (! Cache::has($key)) {
                 $this->getMultiLayered($key, $callback, self::CACHE_TTL_MEDIUM);
                 Log::channel('performance')->info('Cache warmed', ['key' => $key]);
             }
@@ -106,7 +106,7 @@ class AdvancedCacheService extends PerformanceCacheService
      */
     public function getEnhancedTicketStats(): array
     {
-        return $this->getMultiLayered('enhanced_ticket_stats', function () {
+        return $this->getMultiLayered('enhanced_ticket_stats', function (): array {
             // Use single query with aggregation for better performance
             $stats = DB::table('scraped_tickets')
                 ->selectRaw('
@@ -160,16 +160,14 @@ class AdvancedCacheService extends PerformanceCacheService
                 ->orderByDesc('count')
                 ->get();
 
-            return $breakdown->mapWithKeys(function ($item) {
-                return [$item->platform => [
-                    'count'             => $item->count,
-                    'available_count'   => $item->available_count,
-                    'avg_price'         => round($item->avg_price ?? 0, 2),
-                    'high_demand_count' => $item->high_demand_count,
-                    'availability_rate' => $item->count > 0 ? round(($item->available_count / $item->count) * 100, 2) : 0,
-                    'last_update'       => $item->last_update,
-                ]];
-            })->toArray();
+            return $breakdown->mapWithKeys(fn ($item): array => [$item->platform => [
+                'count'             => $item->count,
+                'available_count'   => $item->available_count,
+                'avg_price'         => round($item->avg_price ?? 0, 2),
+                'high_demand_count' => $item->high_demand_count,
+                'availability_rate' => $item->count > 0 ? round(($item->available_count / $item->count) * 100, 2) : 0,
+                'last_update'       => $item->last_update,
+            ]])->toArray();
         }, self::CACHE_TTL_MEDIUM);
     }
 
@@ -181,14 +179,12 @@ class AdvancedCacheService extends PerformanceCacheService
      */
     public function getRealTimeMetrics(): array
     {
-        return $this->getMultiLayered('realtime_metrics', function () {
-            return [
-                'active_scraping_sessions' => $this->getActiveScrapingSessions(),
-                'recent_ticket_updates'    => $this->getRecentTicketUpdates(),
-                'system_load'              => $this->getSystemLoadMetrics(),
-                'cache_performance'        => $this->getCachePerformanceMetrics(),
-            ];
-        }, self::CACHE_TTL_MICRO);
+        return $this->getMultiLayered('realtime_metrics', fn (): array => [
+            'active_scraping_sessions' => $this->getActiveScrapingSessions(),
+            'recent_ticket_updates'    => $this->getRecentTicketUpdates(),
+            'system_load'              => $this->getSystemLoadMetrics(),
+            'cache_performance'        => $this->getCachePerformanceMetrics(),
+        ], self::CACHE_TTL_MICRO);
     }
 
     /**
@@ -229,7 +225,7 @@ class AdvancedCacheService extends PerformanceCacheService
         foreach ($patterns as $pattern) {
             try {
                 $keys = $this->redis->keys($pattern);
-                if (!empty($keys)) {
+                if (! empty($keys)) {
                     $this->redis->del($keys);
                     $invalidated += count($keys);
                 }
@@ -261,20 +257,14 @@ class AdvancedCacheService extends PerformanceCacheService
     public function preloadAnticipatedData(): void
     {
         $preloadTasks = [
-            'upcoming_events' => function () {
-                return ScrapedTicket::where('event_date', '>=', Carbon::now())
-                    ->where('event_date', '<=', Carbon::now()->addWeeks(2))
-                    ->where('is_available', TRUE)
-                    ->orderBy('event_date')
-                    ->limit(100)
-                    ->get();
-            },
-            'trending_platforms' => function () {
-                return $this->getOptimizedPlatformBreakdown();
-            },
-            'price_analytics' => function () {
-                return $this->getPriceAnalytics();
-            },
+            'upcoming_events' => fn () => ScrapedTicket::where('event_date', '>=', Carbon::now())
+                ->where('event_date', '<=', Carbon::now()->addWeeks(2))
+                ->where('is_available', TRUE)
+                ->orderBy('event_date')
+                ->limit(100)
+                ->get(),
+            'trending_platforms' => fn (): array => $this->getOptimizedPlatformBreakdown(),
+            'price_analytics'    => fn (): array => $this->getPriceAnalytics(),
         ];
 
         foreach ($preloadTasks as $key => $callback) {
@@ -316,10 +306,8 @@ class AdvancedCacheService extends PerformanceCacheService
         foreach ($popularSearches as $criteria) {
             $cacheKey = 'popular_search_' . md5(serialize($criteria));
 
-            if (!Cache::has($cacheKey)) {
-                $this->getMultiLayered($cacheKey, function () use ($criteria) {
-                    return ScrapedTicket::where($criteria)->limit(50)->get();
-                }, self::CACHE_TTL_SHORT);
+            if (! Cache::has($cacheKey)) {
+                $this->getMultiLayered($cacheKey, fn () => ScrapedTicket::where($criteria)->limit(50)->get(), self::CACHE_TTL_SHORT);
             }
         }
     }
@@ -338,7 +326,7 @@ class AdvancedCacheService extends PerformanceCacheService
             $keys = $this->redis->keys($pattern);
 
             return count($keys);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -387,7 +375,7 @@ class AdvancedCacheService extends PerformanceCacheService
                     ? round(($info['used_memory'] / $info['maxmemory']) * 100, 2)
                     : 0,
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ['used_memory' => 0, 'used_memory_human' => '0B', 'used_memory_percentage' => 0];
         }
     }
@@ -407,7 +395,7 @@ class AdvancedCacheService extends PerformanceCacheService
             $total = $hits + $misses;
 
             return $total > 0 ? round(($hits / $total) * 100, 2) : 0;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -523,7 +511,7 @@ class AdvancedCacheService extends PerformanceCacheService
                 'connected_clients'        => $this->redis->info('clients')['connected_clients'] ?? 0,
                 'total_commands_processed' => $this->redis->info('stats')['total_commands_processed'] ?? 0,
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -552,7 +540,7 @@ class AdvancedCacheService extends PerformanceCacheService
             }
 
             return $distribution;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -576,7 +564,7 @@ class AdvancedCacheService extends PerformanceCacheService
                 'fragmentation_ratio' => $info['mem_fragmentation_ratio'] ?? 1,
                 'allocator'           => $info['mem_allocator'] ?? 'unknown',
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }

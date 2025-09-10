@@ -25,7 +25,7 @@ class DashboardSeeder extends Seeder
 
             try {
                 $this->call(UserSeeder::class);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->command->warn('⚠️  Some users may already exist - continuing...');
             }
         } else {
@@ -60,22 +60,22 @@ class DashboardSeeder extends Seeder
         }
 
         // 5. Seed sports events if available
-        if (class_exists('Database\\Seeders\\SportsEventsSeeder')) {
+        if (class_exists(SportsEventsSeeder::class)) {
             $this->command->info('⚽ Creating sports events...');
 
             try {
-                $this->call('Database\\Seeders\\SportsEventsSeeder');
+                $this->call(SportsEventsSeeder::class);
             } catch (Exception $e) {
                 $this->command->warn('⚠️  Could not seed sports events: ' . $e->getMessage());
             }
         }
 
         // 6. Seed payment plans if available
-        if (class_exists('Database\\Seeders\\PaymentPlansSeeder')) {
+        if (class_exists(PaymentPlansSeeder::class)) {
             $this->command->info('💳 Creating payment plans...');
 
             try {
-                $this->call('Database\\Seeders\\PaymentPlansSeeder');
+                $this->call(PaymentPlansSeeder::class);
             } catch (Exception $e) {
                 $this->command->warn('⚠️  Could not seed payment plans: ' . $e->getMessage());
             }

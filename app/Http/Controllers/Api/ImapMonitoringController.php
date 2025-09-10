@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
+use function count;
+use function extension_loaded;
+use function ini_get;
+
 /**
  * IMAP Monitoring API Controller
  *
@@ -21,17 +25,10 @@ use Illuminate\Support\Facades\Validator;
  */
 class ImapMonitoringController extends Controller
 {
-    private EmailMonitoringService $monitoringService;
-
-    private ImapConnectionService $connectionService;
-
     public function __construct(
-        EmailMonitoringService $monitoringService,
-        ImapConnectionService $connectionService
+        private EmailMonitoringService $monitoringService,
+        private ImapConnectionService $connectionService,
     ) {
-        $this->monitoringService = $monitoringService;
-        $this->connectionService = $connectionService;
-
         // Require authentication for all endpoints
         $this->middleware('auth:sanctum');
 
@@ -41,8 +38,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get monitoring dashboard data
-     *
-     * @return JsonResponse
      */
     public function dashboard(): JsonResponse
     {
@@ -77,8 +72,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get monitoring statistics
-     *
-     * @return JsonResponse
      */
     public function statistics(): JsonResponse
     {
@@ -106,9 +99,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Test email connection
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function testConnection(Request $request): JsonResponse
     {
@@ -144,9 +134,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Start email monitoring
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function startMonitoring(Request $request): JsonResponse
     {
@@ -201,8 +188,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get connection health status
-     *
-     * @return JsonResponse
      */
     public function connectionHealth(): JsonResponse
     {
@@ -238,8 +223,8 @@ class ImapMonitoringController extends Controller
                     'connections' => $healthData,
                     'summary'     => [
                         'total'     => count($healthData),
-                        'healthy'   => count(array_filter($healthData, fn ($conn) => $conn['status'] === 'healthy')),
-                        'unhealthy' => count(array_filter($healthData, fn ($conn) => $conn['status'] !== 'healthy')),
+                        'healthy'   => count(array_filter($healthData, fn (array $conn): bool => $conn['status'] === 'healthy')),
+                        'unhealthy' => count(array_filter($healthData, fn (array $conn): bool => $conn['status'] !== 'healthy')),
                     ],
                 ],
                 'checked_at' => now()->toISOString(),
@@ -255,9 +240,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Clear processed emails cache
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -295,8 +277,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get platform configuration
-     *
-     * @return JsonResponse
      */
     public function platformConfig(): JsonResponse
     {
@@ -308,11 +288,9 @@ class ImapMonitoringController extends Controller
                 'patterns'  => $config,
                 'summary'   => [
                     'total_platforms' => count($config),
-                    'total_patterns'  => array_sum(array_map(function ($platform) {
-                        return count($platform['from_patterns'] ?? []) +
-                               count($platform['subject_keywords'] ?? []) +
-                               count($platform['body_keywords'] ?? []);
-                    }, $config)),
+                    'total_patterns'  => array_sum(array_map(fn (array $platform): int => count($platform['from_patterns'] ?? []) +
+                           count($platform['subject_keywords'] ?? []) +
+                           count($platform['body_keywords'] ?? []), $config)),
                 ],
             ];
 
@@ -331,8 +309,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get recent activity from logs
-     *
-     * @return array
      */
     private function getRecentActivity(): array
     {
@@ -340,17 +316,15 @@ class ImapMonitoringController extends Controller
             // Get recent activity from cache or logs
             $cacheKey = 'imap_recent_activity';
 
-            return Cache::remember($cacheKey, 300, function () {
-                // In a real implementation, you would parse recent log entries
+            return Cache::remember($cacheKey, 300, fn (): array => // In a real implementation, you would parse recent log entries
                 // For now, return sample data structure
-                return [
-                    'total_emails_processed_today'   => rand(50, 200),
-                    'sports_events_discovered_today' => rand(5, 25),
-                    'tickets_found_today'            => rand(20, 100),
-                    'last_monitoring_run'            => now()->subMinutes(rand(1, 30))->toISOString(),
+                [
+                    'total_emails_processed_today'   => random_int(50, 200),
+                    'sports_events_discovered_today' => random_int(5, 25),
+                    'tickets_found_today'            => random_int(20, 100),
+                    'last_monitoring_run'            => now()->subMinutes(random_int(1, 30))->toISOString(),
                     'recent_platforms'               => ['ticketmaster', 'stubhub', 'seatgeek'],
-                ];
-            });
+                ]);
         } catch (Exception $e) {
             return [
                 'error'   => 'Failed to retrieve recent activity',
@@ -361,8 +335,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get system health metrics
-     *
-     * @return array
      */
     private function getSystemHealth(): array
     {
@@ -388,8 +360,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get platform performance metrics
-     *
-     * @return array
      */
     private function getPlatformPerformance(): array
     {
@@ -398,19 +368,19 @@ class ImapMonitoringController extends Controller
             // For now, return sample data structure
             return [
                 'ticketmaster' => [
-                    'emails_processed'     => rand(20, 50),
-                    'events_discovered'    => rand(3, 10),
-                    'parsing_success_rate' => rand(85, 98) . '%',
+                    'emails_processed'     => random_int(20, 50),
+                    'events_discovered'    => random_int(3, 10),
+                    'parsing_success_rate' => random_int(85, 98) . '%',
                 ],
                 'stubhub' => [
-                    'emails_processed'     => rand(15, 35),
-                    'events_discovered'    => rand(2, 8),
-                    'parsing_success_rate' => rand(80, 95) . '%',
+                    'emails_processed'     => random_int(15, 35),
+                    'events_discovered'    => random_int(2, 8),
+                    'parsing_success_rate' => random_int(80, 95) . '%',
                 ],
                 'seatgeek' => [
-                    'emails_processed'     => rand(10, 25),
-                    'events_discovered'    => rand(1, 6),
-                    'parsing_success_rate' => rand(85, 92) . '%',
+                    'emails_processed'     => random_int(10, 25),
+                    'events_discovered'    => random_int(1, 6),
+                    'parsing_success_rate' => random_int(85, 92) . '%',
                 ],
             ];
         } catch (Exception $e) {
@@ -423,8 +393,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get queue status
-     *
-     * @return array
      */
     private function getQueueStatus(): array
     {
@@ -433,12 +401,12 @@ class ImapMonitoringController extends Controller
             // In production, you'd integrate with Laravel Horizon
             return [
                 'email_processing_queue' => [
-                    'pending'    => rand(0, 10),
-                    'processing' => rand(0, 3),
-                    'failed'     => rand(0, 2),
+                    'pending'    => random_int(0, 10),
+                    'processing' => random_int(0, 3),
+                    'failed'     => random_int(0, 2),
                 ],
-                'total_jobs_today'        => rand(50, 200),
-                'average_processing_time' => rand(5, 30) . 's',
+                'total_jobs_today'        => random_int(50, 200),
+                'average_processing_time' => random_int(5, 30) . 's',
             ];
         } catch (Exception $e) {
             return [
@@ -450,29 +418,27 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get processing statistics
-     *
-     * @return array
      */
     private function getProcessingStatistics(): array
     {
         try {
             return [
                 'today' => [
-                    'emails_processed'      => rand(50, 200),
-                    'sports_events_created' => rand(5, 25),
-                    'tickets_discovered'    => rand(20, 100),
-                    'parsing_errors'        => rand(0, 5),
+                    'emails_processed'      => random_int(50, 200),
+                    'sports_events_created' => random_int(5, 25),
+                    'tickets_discovered'    => random_int(20, 100),
+                    'parsing_errors'        => random_int(0, 5),
                 ],
                 'this_week' => [
-                    'emails_processed'      => rand(300, 1000),
-                    'sports_events_created' => rand(30, 150),
-                    'tickets_discovered'    => rand(150, 600),
-                    'parsing_errors'        => rand(5, 20),
+                    'emails_processed'      => random_int(300, 1000),
+                    'sports_events_created' => random_int(30, 150),
+                    'tickets_discovered'    => random_int(150, 600),
+                    'parsing_errors'        => random_int(5, 20),
                 ],
                 'success_rates' => [
-                    'email_processing' => rand(92, 99) . '%',
-                    'event_extraction' => rand(85, 95) . '%',
-                    'ticket_parsing'   => rand(88, 96) . '%',
+                    'email_processing' => random_int(92, 99) . '%',
+                    'event_extraction' => random_int(85, 95) . '%',
+                    'ticket_parsing'   => random_int(88, 96) . '%',
                 ],
             ];
         } catch (Exception $e) {
@@ -485,16 +451,14 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get performance metrics
-     *
-     * @return array
      */
     private function getPerformanceMetrics(): array
     {
         try {
             return [
-                'average_connection_time'       => rand(1, 5) . 's',
-                'average_email_processing_time' => rand(100, 500) . 'ms',
-                'emails_per_minute'             => rand(10, 30),
+                'average_connection_time'       => random_int(1, 5) . 's',
+                'average_email_processing_time' => random_int(100, 500) . 'ms',
+                'emails_per_minute'             => random_int(10, 30),
                 'memory_usage_trend'            => 'stable',
                 'error_rate_trend'              => 'decreasing',
             ];
@@ -508,8 +472,6 @@ class ImapMonitoringController extends Controller
 
     /**
      * Get queue worker status
-     *
-     * @return string
      */
     private function getQueueWorkerStatus(): string
     {
@@ -517,15 +479,13 @@ class ImapMonitoringController extends Controller
             // Check if Horizon is running or queue workers are active
             // This is a simplified check
             return 'active';
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 'unknown';
         }
     }
 
     /**
      * Get disk space information
-     *
-     * @return array
      */
     private function getDiskSpaceInfo(): array
     {

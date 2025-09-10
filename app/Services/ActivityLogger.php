@@ -28,7 +28,7 @@ class ActivityLogger
 
     public function __construct()
     {
-        if (!self::$requestId) {
+        if (! self::$requestId) {
             self::$requestId = uniqid('req_', TRUE);
         }
     }
@@ -55,7 +55,7 @@ class ActivityLogger
      */
     public function endTiming(string $operation, float $warningThreshold = 1.0): void
     {
-        if (!isset(self::$performanceTimings[$operation])) {
+        if (! isset(self::$performanceTimings[$operation])) {
             return;
         }
 
@@ -399,35 +399,5 @@ class ActivityLogger
                 'timestamp'         => Carbon::now()->toISOString(),
             ]);
         }
-    }
-
-    /**
-     * Get formatted log entry
-     *
-     * @param string               $level       Log level
-     * @param string               $action      Action being logged
-     * @param string               $description Description of the action
-     * @param array<string, mixed> $context     Additional context data
-     *
-     * @return array<string, mixed> Formatted log entry data
-     */
-    /**
-     * FormatLogEntry
-     */
-    private function formatLogEntry(string $level, string $action, string $description, array $context = []): array
-    {
-        $user = Auth::user();
-
-        return [
-            'level'       => $level,
-            'timestamp'   => Carbon::now()->toDateTimeString(),
-            'user_id'     => $user ? $user->id : NULL,
-            'user_email'  => $user ? $user->email : 'system',
-            'action'      => $action,
-            'description' => $description,
-            'ip_address'  => request()->ip(),
-            'user_agent'  => request()->userAgent(),
-            'context'     => $context,
-        ];
     }
 }

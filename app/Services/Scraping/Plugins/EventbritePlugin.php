@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class EventbritePlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -196,19 +198,19 @@ class EventbritePlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['q'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['location'])) {
-            $params['location'] = urlencode($criteria['location']);
+        if (! empty($criteria['location'])) {
+            $params['location'] = urlencode((string) $criteria['location']);
         }
 
-        if (!empty($criteria['category'])) {
-            $params['categories'] = urlencode($criteria['category']);
+        if (! empty($criteria['category'])) {
+            $params['categories'] = urlencode((string) $criteria['category']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -217,15 +219,15 @@ class EventbritePlugin extends BaseScraperPlugin
             }
         }
 
-        if (!empty($criteria['format'])) {
+        if (! empty($criteria['format'])) {
             $params['event_type'] = $criteria['format']; // online, in_person
         }
 
-        if (!empty($criteria['price'])) {
+        if (! empty($criteria['price'])) {
             $params['price'] = $criteria['price']; // free, paid
         }
 
-        if (!empty($criteria['sort_by'])) {
+        if (! empty($criteria['sort_by'])) {
             $params['sort_by'] = $criteria['sort_by']; // date, distance, best
         }
 
@@ -275,7 +277,7 @@ class EventbritePlugin extends BaseScraperPlugin
             $link = $this->extractAttribute($node, 'a', 'href');
             $imageUrl = $this->extractAttribute($node, '[data-testid="event-image"] img, .event-card__image img', 'src');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -326,7 +328,7 @@ class EventbritePlugin extends BaseScraperPlugin
         $lowerPrice = strtolower($priceText);
 
         foreach ($freeIndicators as $indicator) {
-            if (strpos($lowerPrice, $indicator) !== FALSE) {
+            if (str_contains($lowerPrice, $indicator)) {
                 return TRUE;
             }
         }
@@ -339,7 +341,7 @@ class EventbritePlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText) || $this->isFreeEvent($priceText)) {
+        if ($priceText === '' || $priceText === '0' || $this->isFreeEvent($priceText)) {
             return 0.0;
         }
 
@@ -358,7 +360,7 @@ class EventbritePlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 
@@ -377,9 +379,10 @@ class EventbritePlugin extends BaseScraperPlugin
     /**
      * Parse date from various formats
      */
+    #[Override]
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 

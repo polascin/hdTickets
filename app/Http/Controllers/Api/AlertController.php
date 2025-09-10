@@ -15,11 +15,8 @@ use Log;
 
 class AlertController extends Controller
 {
-    protected EnhancedAlertSystem $alertSystem;
-
-    public function __construct(EnhancedAlertSystem $alertSystem)
+    public function __construct(protected EnhancedAlertSystem $alertSystem)
     {
-        $this->alertSystem = $alertSystem;
     }
 
     /**
@@ -148,7 +145,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -173,7 +170,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -236,7 +233,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -263,7 +260,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -296,7 +293,7 @@ class AlertController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$alert) {
+        if (! $alert) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Alert not found',
@@ -320,7 +317,7 @@ class AlertController extends Controller
         }
 
         // Search for keywords in title
-        $keywords = strtolower($alert->keywords);
+        $keywords = strtolower((string) $alert->keywords);
         $query->where('title', 'LIKE', '%' . $keywords . '%');
 
         // Apply additional filters
@@ -361,19 +358,17 @@ class AlertController extends Controller
                     'max_price' => $alert->max_price,
                 ],
                 'matching_tickets' => $matchingTickets->count(),
-                'sample_matches'   => $matchingTickets->map(function ($ticket) {
-                    return [
-                        'uuid'       => $ticket->uuid,
-                        'title'      => $ticket->title,
-                        'platform'   => $ticket->platform,
-                        'venue'      => $ticket->venue,
-                        'min_price'  => $ticket->min_price,
-                        'max_price'  => $ticket->max_price,
-                        'currency'   => $ticket->currency,
-                        'event_date' => $ticket->event_date,
-                        'ticket_url' => $ticket->ticket_url,
-                    ];
-                }),
+                'sample_matches'   => $matchingTickets->map(fn ($ticket): array => [
+                    'uuid'       => $ticket->uuid,
+                    'title'      => $ticket->title,
+                    'platform'   => $ticket->platform,
+                    'venue'      => $ticket->venue,
+                    'min_price'  => $ticket->min_price,
+                    'max_price'  => $ticket->max_price,
+                    'currency'   => $ticket->currency,
+                    'event_date' => $ticket->event_date,
+                    'ticket_url' => $ticket->ticket_url,
+                ]),
                 'tested_at' => now()->toISOString(),
             ],
         ]);
@@ -398,22 +393,18 @@ class AlertController extends Controller
                 ->selectRaw('platform, COUNT(*) as count')
                 ->groupBy('platform')
                 ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item->platform ?? 'all_platforms' => $item->count];
-                }),
+                ->mapWithKeys(fn ($item): array => [$item->platform ?? 'all_platforms' => $item->count]),
             'recent_activity' => TicketAlert::forUser($userId)
                 ->whereNotNull('triggered_at')
                 ->orderBy('triggered_at', 'desc')
                 ->limit(5)
                 ->get(['uuid', 'name', 'triggered_at'])
-                ->map(function ($alert) {
-                    return [
-                        'uuid'           => $alert->uuid,
-                        'name'           => $alert->name,
-                        'triggered'      => $alert->triggered_at ? TRUE : FALSE,
-                        'last_triggered' => $alert->triggered_at?->diffForHumans(),
-                    ];
-                }),
+                ->map(fn ($alert): array => [
+                    'uuid'           => $alert->uuid,
+                    'name'           => $alert->name,
+                    'triggered'      => (bool) $alert->triggered_at,
+                    'last_triggered' => $alert->triggered_at?->diffForHumans(),
+                ]),
         ];
 
         return response()->json([

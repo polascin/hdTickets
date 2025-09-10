@@ -13,15 +13,12 @@ class OptimizeDatabase extends Command
     /** The console command description. */
     protected $description = 'Optimize database performance by analyzing tables and cleaning up old data';
 
-    private PerformanceOptimizationService $performanceService;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(PerformanceOptimizationService $performanceService)
+    public function __construct(private PerformanceOptimizationService $performanceService)
     {
         parent::__construct();
-        $this->performanceService = $performanceService;
     }
 
     /**

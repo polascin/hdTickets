@@ -9,19 +9,10 @@ namespace Tests\Fixtures;
  */
 class TestReportingDashboard
 {
-    private array $testResults;
-
-    private array $coverageResults;
-
-    private array $performanceMetrics;
-
     private string $reportPath = 'storage/quality/dashboard.html';
 
-    public function __construct(array $testResults = [], array $coverageResults = [], array $performanceMetrics = [])
+    public function __construct(private array $testResults = [], private array $coverageResults = [], private array $performanceMetrics = [])
     {
-        $this->testResults = $testResults;
-        $this->coverageResults = $coverageResults;
-        $this->performanceMetrics = $performanceMetrics;
     }
 
     /**
@@ -228,14 +219,12 @@ class TestReportingDashboard
                             </tr>";
         }
 
-        $html .= '
+        return $html . '
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>';
-
-        return $html;
     }
 
     /**
@@ -246,7 +235,7 @@ class TestReportingDashboard
         $base = log($size, 1024);
         $suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        return round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
+        return round(1024 ** ($base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
     }
 
     /**
@@ -474,7 +463,7 @@ class TestQualityGates
             'test_success_percentage'  => $this->calculateTestSuccessRate($testResults),
             'average_response_time'    => $testResults['performance_metrics']['average_response_time'] ?? 0,
             'peak_memory_usage_mb'     => ($testResults['performance_metrics']['memory_peak'] ?? 0) / 1024 / 1024,
-            'error_percentage'         => $this->calculateErrorRate($testResults),
+            'error_percentage'         => $this->calculateErrorRate(),
             default                    => 0,
         };
     }
@@ -488,7 +477,7 @@ class TestQualityGates
         return $total > 0 ? ($passed / $total) * 100 : 0;
     }
 
-    private function calculateErrorRate(array $testResults): float
+    private function calculateErrorRate(): float
     {
         // This would calculate actual error rate from test results
         return 0.0;

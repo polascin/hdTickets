@@ -136,9 +136,7 @@ class AXSPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/uk/search?' . http_build_query($params);
     }
@@ -154,7 +152,7 @@ class AXSPlugin extends BaseScraperPlugin
             Log::info("AXS Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -253,7 +251,7 @@ class AXSPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.event-title, .listing-title, h3 a, .title');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -269,7 +267,7 @@ class AXSPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -301,17 +299,15 @@ class AXSPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

@@ -6,6 +6,7 @@ use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -400,7 +401,7 @@ class TicketPurchaseTest extends TestCase
      */
     public function it_validates_required_fields(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         // Try to create purchase without required fields
         TicketPurchase::create([

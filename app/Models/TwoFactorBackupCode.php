@@ -16,10 +16,6 @@ class TwoFactorBackupCode extends Model
         'used_at',
     ];
 
-    protected $casts = [
-        'used_at' => 'datetime',
-    ];
-
     /**
      * Get the user that owns the backup code
      */
@@ -42,5 +38,12 @@ class TwoFactorBackupCode extends Model
     public function markAsUsed(): bool
     {
         return $this->update(['used_at' => now()]);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'used_at' => 'datetime',
+        ];
     }
 }

@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 class StubHubPlugin extends BaseScraperPlugin
@@ -146,21 +147,21 @@ class StubHubPlugin extends BaseScraperPlugin
         $params = [];
 
         // Add keyword search
-        if (!empty($criteria['keyword'])) {
-            $searchUrl = $this->baseUrl . '/find/s/' . urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $searchUrl = $this->baseUrl . '/find/s/' . urlencode((string) $criteria['keyword']);
         }
 
         // Add price range
-        if (!empty($criteria['price_min'])) {
+        if (! empty($criteria['price_min'])) {
             $params['priceMin'] = $criteria['price_min'];
         }
 
-        if (!empty($criteria['price_max'])) {
+        if (! empty($criteria['price_max'])) {
             $params['priceMax'] = $criteria['price_max'];
         }
 
         // Add sort parameter
-        if (!empty($criteria['sort'])) {
+        if (! empty($criteria['sort'])) {
             $sortMap = [
                 'price_low'  => 'price_asc',
                 'price_high' => 'price_desc',
@@ -170,7 +171,7 @@ class StubHubPlugin extends BaseScraperPlugin
             $params['sort'] = $sortMap[$criteria['sort']] ?? 'event_date_asc';
         }
 
-        if (!empty($params)) {
+        if ($params !== []) {
             $searchUrl .= '?' . http_build_query($params);
         }
 
@@ -216,12 +217,13 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * ParseEventNode
      */
+    #[Override]
     protected function parseEventNode(Crawler $node): ?array
     {
         try {
             // Extract event name
             $eventName = $this->extractText($node, $this->getEventNameSelectors());
-            if (empty($eventName)) {
+            if ($eventName === '' || $eventName === '0') {
                 return NULL;
             }
 
@@ -238,7 +240,7 @@ class StubHubPlugin extends BaseScraperPlugin
 
             // Extract URL
             $url = $this->extractUrl($node);
-            if ($url && !filter_var($url, FILTER_VALIDATE_URL)) {
+            if ($url && ! filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $this->baseUrl . $url;
             }
 
@@ -320,30 +322,31 @@ class StubHubPlugin extends BaseScraperPlugin
     /**
      * FilterResults
      */
+    #[Override]
     protected function filterResults(array $events, array $criteria): array
     {
         $filteredEvents = parent::filterResults($events, $criteria);
 
         // Additional StubHub-specific filtering
-        return array_filter($filteredEvents, function ($event) use ($criteria) {
+        return array_filter($filteredEvents, function (array $event) use ($criteria): bool {
             // Price range filtering
-            if (!empty($criteria['price_min'])
-                && !empty($event['price_min'])
+            if (! empty($criteria['price_min'])
+                && ! empty($event['price_min'])
                 && $event['price_min'] < $criteria['price_min']) {
                 return FALSE;
             }
 
-            if (!empty($criteria['price_max'])
-                && !empty($event['price_max'])
+            if (! empty($criteria['price_max'])
+                && ! empty($event['price_max'])
                 && $event['price_max'] > $criteria['price_max']) {
                 return FALSE;
             }
 
             // Venue filtering
-            if (!empty($criteria['venue'])) {
-                $venueKeyword = strtolower($criteria['venue']);
+            if (! empty($criteria['venue'])) {
+                $venueKeyword = strtolower((string) $criteria['venue']);
                 $eventVenue = strtolower($event['venue'] ?? '');
-                if (strpos($eventVenue, $venueKeyword) === FALSE) {
+                if (! str_contains($eventVenue, $venueKeyword)) {
                     return FALSE;
                 }
             }
@@ -357,7 +360,7 @@ class StubHubPlugin extends BaseScraperPlugin
      */
     private function parseStubHubDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 
@@ -367,11 +370,11 @@ class StubHubPlugin extends BaseScraperPlugin
             $dateText = preg_replace('/\s+/', ' ', $dateText);
 
             // Handle relative dates
-            if (stripos($dateText, 'today') !== FALSE) {
+            if (stripos((string) $dateText, 'today') !== FALSE) {
                 return now()->toISOString();
             }
 
-            if (stripos($dateText, 'tomorrow') !== FALSE) {
+            if (stripos((string) $dateText, 'tomorrow') !== FALSE) {
                 return now()->addDay()->toISOString();
             }
 
@@ -389,15 +392,15 @@ class StubHubPlugin extends BaseScraperPlugin
             foreach ($dateFormats as $format) {
                 try {
                     $parsed = Carbon::createFromFormat($format, $dateText);
-                    if ($parsed) {
+                    if ($parsed instanceof Carbon) {
                         // If year is not specified, assume current year
-                        if (!preg_match('/\d{4}/', $dateText)) {
+                        if (! preg_match('/\d{4}/', (string) $dateText)) {
                             $parsed->year(now()->year);
                         }
 
                         return $parsed->toISOString();
                     }
-                } catch (Exception $e) {
+                } catch (Exception) {
                     continue;
                 }
             }
@@ -421,7 +424,7 @@ class StubHubPlugin extends BaseScraperPlugin
     {
         $priceInfo = ['min' => NULL, 'max' => NULL];
 
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return $priceInfo;
         }
 
@@ -469,23 +472,23 @@ class StubHubPlugin extends BaseScraperPlugin
     {
         $availability = strtolower(trim($availability));
 
-        if (empty($availability)) {
+        if ($availability === '' || $availability === '0') {
             return 'unknown';
         }
 
-        if (strpos($availability, 'sold out') !== FALSE
-            || strpos($availability, 'no tickets') !== FALSE) {
+        if (str_contains($availability, 'sold out')
+            || str_contains($availability, 'no tickets')) {
             return 'sold_out';
         }
 
-        if (strpos($availability, 'low inventory') !== FALSE
-            || strpos($availability, 'few left') !== FALSE
+        if (str_contains($availability, 'low inventory')
+            || str_contains($availability, 'few left')
             || preg_match('/\d+\s*left/i', $availability)) {
             return 'low_inventory';
         }
 
-        if (strpos($availability, 'available') !== FALSE
-            || strpos($availability, 'in stock') !== FALSE
+        if (str_contains($availability, 'available')
+            || str_contains($availability, 'in stock')
             || preg_match('/\d+\s*tickets?/i', $availability)) {
             return 'available';
         }

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Override;
 
 use function in_array;
 
@@ -55,22 +57,13 @@ class PurchaseQueue extends Model
         'metadata', // Add missing metadata field
     ];
 
-    protected $casts = [
-        'purchase_criteria'     => 'array',
-        'scheduled_for'         => 'datetime',
-        'expires_at'            => 'datetime',
-        'started_processing_at' => 'datetime',
-        'completed_at'          => 'datetime',
-        'max_price'             => 'decimal:2',
-        'metadata'              => 'array', // Add metadata casting
-    ];
-
     /**
      * Get the route key for the model
      */
     /**
      * Get  route key name
      */
+    #[Override]
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -96,7 +89,7 @@ class PurchaseQueue extends Model
     /**
      * Get all available priorities
      */
-    public static function getPriorities()
+    public static function getPriorities(): array
     {
         return [
             self::PRIORITY_LOW,
@@ -351,42 +344,6 @@ class PurchaseQueue extends Model
     }
 
     /**
-     * Get status color for UI
-     */
-    /**
-     * Get  status color attribute
-     */
-    public function getStatusColorAttribute(): string
-    {
-        return match ($this->status) {
-            self::STATUS_QUEUED     => 'blue',
-            self::STATUS_PROCESSING => 'yellow',
-            self::STATUS_COMPLETED  => 'green',
-            self::STATUS_FAILED     => 'red',
-            self::STATUS_CANCELLED  => 'gray',
-            default                 => 'gray',
-        };
-    }
-
-    /**
-     * Get priority color for UI
-     */
-    /**
-     * Get  priority color attribute
-     */
-    public function getPriorityColorAttribute(): string
-    {
-        return match ($this->priority) {
-            self::PRIORITY_CRITICAL => 'red',
-            self::PRIORITY_URGENT   => 'orange',
-            self::PRIORITY_HIGH     => 'yellow',
-            self::PRIORITY_MEDIUM   => 'blue',
-            self::PRIORITY_LOW      => 'gray',
-            default                 => 'gray',
-        };
-    }
-
-    /**
      * Get success rate for this queue item
      */
     /**
@@ -420,8 +377,39 @@ class PurchaseQueue extends Model
     }
 
     /**
+     * Get  status color attribute
+     */
+    protected function statusColor(): Attribute
+    {
+        return Attribute::make(get: fn (): string => match ($this->status) {
+            self::STATUS_QUEUED     => 'blue',
+            self::STATUS_PROCESSING => 'yellow',
+            self::STATUS_COMPLETED  => 'green',
+            self::STATUS_FAILED     => 'red',
+            self::STATUS_CANCELLED  => 'gray',
+            default                 => 'gray',
+        });
+    }
+
+    /**
+     * Get  priority color attribute
+     */
+    protected function priorityColor(): Attribute
+    {
+        return Attribute::make(get: fn (): string => match ($this->priority) {
+            self::PRIORITY_CRITICAL => 'red',
+            self::PRIORITY_URGENT   => 'orange',
+            self::PRIORITY_HIGH     => 'yellow',
+            self::PRIORITY_MEDIUM   => 'blue',
+            self::PRIORITY_LOW      => 'gray',
+            default                 => 'gray',
+        });
+    }
+
+    /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -431,5 +419,18 @@ class PurchaseQueue extends Model
                 $queue->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'purchase_criteria'     => 'array',
+            'scheduled_for'         => 'datetime',
+            'expires_at'            => 'datetime',
+            'started_processing_at' => 'datetime',
+            'completed_at'          => 'datetime',
+            'max_price'             => 'decimal:2',
+            'metadata'              => 'array', // Add metadata casting
+        ];
     }
 }

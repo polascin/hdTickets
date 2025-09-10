@@ -2,7 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Domain\Event\Events\SportsEventCreatedFromEmail;
+use App\Domain\Event\Events\SportsEventUpdatedFromEmail;
 use App\Domain\Event\Models\SportsEvent;
+use App\Domain\Ticket\Events\TicketCreatedFromEmail;
 use App\Domain\Ticket\Models\Ticket;
 use App\Services\Email\EmailParsingService;
 use Exception;
@@ -12,6 +15,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
+use function count;
 
 /**
  * Process Sports Event Email Job
@@ -26,24 +32,17 @@ class ProcessSportsEventEmailJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public array $emailData;
-
-    /**
-     * The number of times the job may be attempted.
-     */
+    /** The number of times the job may be attempted. */
     public int $tries = 3;
 
-    /**
-     * The maximum number of seconds the job can run.
-     */
+    /** The maximum number of seconds the job can run. */
     public int $timeout = 120;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(array $emailData)
+    public function __construct(public array $emailData)
     {
-        $this->emailData = $emailData;
     }
 
     /**
@@ -67,14 +66,14 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             $parsedData = $parsingService->parseEmailContent($this->emailData);
 
             // Process extracted sports events
-            if (!empty($parsedData['sports_events'])) {
+            if (! empty($parsedData['sports_events'])) {
                 foreach ($parsedData['sports_events'] as $eventData) {
                     $this->processSportsEvent($eventData, $parsedData);
                 }
             }
 
             // Process extracted tickets
-            if (!empty($parsedData['tickets'])) {
+            if (! empty($parsedData['tickets'])) {
                 foreach ($parsedData['tickets'] as $ticketData) {
                     $this->processTicket($ticketData, $parsedData);
                 }
@@ -102,6 +101,22 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             // Re-throw to trigger retry mechanism
             throw $e;
         }
+    }
+
+    /**
+     * Handle job failure
+     */
+    public function failed(Exception $exception): void
+    {
+        Log::error('Sports event email processing job failed permanently', [
+            'uid'        => $this->emailData['uid'] ?? 'unknown',
+            'connection' => $this->emailData['connection'] ?? 'unknown',
+            'platform'   => $this->emailData['platform'] ?? 'unknown',
+            'error'      => $exception->getMessage(),
+            'attempts'   => $this->attempts(),
+        ]);
+
+        // Could send notification to administrators about failed job
     }
 
     /**
@@ -149,7 +164,7 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             'source_platform' => $eventData['source_platform'],
             'venue'           => $eventData['venue'] ?? NULL,
             'event_date'      => $eventData['event_date'] ?? NULL,
-            'description'     => $this->generateDescription($eventData, $parsedData),
+            'description'     => $this->generateDescription($eventData),
             'metadata'        => [
                 'email_source' => [
                     'uid'          => $parsedData['email_uid'],
@@ -171,7 +186,7 @@ class ProcessSportsEventEmailJob implements ShouldQueue
         ]);
 
         // Trigger event for other parts of the system
-        event(new \App\Domain\Event\Events\SportsEventCreatedFromEmail($sportsEvent, $parsedData));
+        event(new SportsEventCreatedFromEmail($sportsEvent, $parsedData));
     }
 
     /**
@@ -187,20 +202,20 @@ class ProcessSportsEventEmailJob implements ShouldQueue
         $updates = [];
 
         // Update venue if not set or different
-        if (empty($event->venue) && !empty($eventData['venue'])) {
+        if (empty($event->venue) && ! empty($eventData['venue'])) {
             $updates['venue'] = $eventData['venue'];
             $updated = TRUE;
         }
 
         // Update event date if not set or different
-        if (empty($event->event_date) && !empty($eventData['event_date'])) {
+        if (empty($event->event_date) && ! empty($eventData['event_date'])) {
             $updates['event_date'] = $eventData['event_date'];
             $updated = TRUE;
         }
 
         // Update metadata with new email information
         $metadata = $event->metadata ?? [];
-        $metadata['email_sources'] = $metadata['email_sources'] ?? [];
+        $metadata['email_sources'] ??= [];
         $metadata['email_sources'][] = [
             'uid'          => $parsedData['email_uid'],
             'connection'   => $parsedData['connection'],
@@ -208,24 +223,18 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             'processed_at' => $parsedData['processed_at'],
         ];
         $updates['metadata'] = $metadata;
-        $updated = TRUE;
 
         // Update last seen timestamp
         $updates['last_seen_at'] = now();
-
-        if ($updated) {
-            $event->update($updates);
-
-            Log::info('Sports event updated from email', [
-                'event_id'   => $event->id,
-                'event_name' => $event->name,
-                'platform'   => $eventData['source_platform'],
-                'updates'    => array_keys($updates),
-            ]);
-
-            // Trigger event for other parts of the system
-            event(new \App\Domain\Event\Events\SportsEventUpdatedFromEmail($event, $eventData, $parsedData));
-        }
+        $event->update($updates);
+        Log::info('Sports event updated from email', [
+            'event_id'   => $event->id,
+            'event_name' => $event->name,
+            'platform'   => $eventData['source_platform'],
+            'updates'    => array_keys($updates),
+        ]);
+        // Trigger event for other parts of the system
+        event(new SportsEventUpdatedFromEmail($event, $eventData, $parsedData));
     }
 
     /**
@@ -239,7 +248,7 @@ class ProcessSportsEventEmailJob implements ShouldQueue
         try {
             // Find associated sports event if available
             $sportsEvent = NULL;
-            if (!empty($parsedData['sports_events'])) {
+            if (! empty($parsedData['sports_events'])) {
                 $eventName = $parsedData['sports_events'][0]['name'] ?? NULL;
                 if ($eventName) {
                     $sportsEvent = SportsEvent::where('name', $eventName)
@@ -281,7 +290,7 @@ class ProcessSportsEventEmailJob implements ShouldQueue
             ]);
 
             // Trigger event for other parts of the system
-            event(new \App\Domain\Ticket\Events\TicketCreatedFromEmail($ticket, $parsedData));
+            event(new TicketCreatedFromEmail($ticket, $parsedData));
         } catch (Exception $e) {
             Log::error('Failed to process ticket', [
                 'ticket_data' => $ticketData,
@@ -321,75 +330,57 @@ class ProcessSportsEventEmailJob implements ShouldQueue
     /**
      * Generate slug from event name
      *
-     * @param  string $name Event name
+     * @param string $name Event name
+     *
      * @return string Slug
      */
     private function generateSlug(string $name): string
     {
-        return \Illuminate\Support\Str::slug($name) . '-' . uniqid();
+        return Str::slug($name) . '-' . uniqid();
     }
 
     /**
      * Generate description from event data
      *
-     * @param  array  $eventData  Event data
-     * @param  array  $parsedData Parsed data
+     * @param array $eventData Event data
+     *
      * @return string Description
      */
-    private function generateDescription(array $eventData, array $parsedData): string
+    private function generateDescription(array $eventData): string
     {
         $description = 'Sports event automatically detected from email notification.';
 
-        if (!empty($eventData['venue'])) {
+        if (! empty($eventData['venue'])) {
             $description .= ' Taking place at ' . $eventData['venue'] . '.';
         }
 
-        if (!empty($eventData['event_date'])) {
+        if (! empty($eventData['event_date'])) {
             $description .= ' Scheduled for ' . $eventData['event_date'] . '.';
         }
 
-        $description .= ' Source: ' . ucfirst($eventData['source_platform'] ?? 'unknown platform') . '.';
-
-        return $description;
+        return $description . (' Source: ' . ucfirst($eventData['source_platform'] ?? 'unknown platform') . '.');
     }
 
     /**
      * Generate ticket title
      *
-     * @param  array            $ticketData  Ticket data
-     * @param  SportsEvent|null $sportsEvent Associated event
-     * @return string           Ticket title
+     * @param array            $ticketData  Ticket data
+     * @param SportsEvent|null $sportsEvent Associated event
+     *
+     * @return string Ticket title
      */
     private function generateTicketTitle(array $ticketData, ?SportsEvent $sportsEvent = NULL): string
     {
-        $title = $sportsEvent ? $sportsEvent->name : 'Sports Event Ticket';
+        $title = $sportsEvent instanceof SportsEvent ? $sportsEvent->name : 'Sports Event Ticket';
 
-        if (!empty($ticketData['section'])) {
+        if (! empty($ticketData['section'])) {
             $title .= ' - Section ' . $ticketData['section'];
         }
 
-        if (!empty($ticketData['row'])) {
+        if (! empty($ticketData['row'])) {
             $title .= ', Row ' . $ticketData['row'];
         }
 
         return $title;
-    }
-
-    /**
-     * Handle job failure
-     *
-     * @param Exception $exception
-     */
-    public function failed(Exception $exception): void
-    {
-        Log::error('Sports event email processing job failed permanently', [
-            'uid'        => $this->emailData['uid'] ?? 'unknown',
-            'connection' => $this->emailData['connection'] ?? 'unknown',
-            'platform'   => $this->emailData['platform'] ?? 'unknown',
-            'error'      => $exception->getMessage(),
-            'attempts'   => $this->attempts(),
-        ]);
-
-        // Could send notification to administrators about failed job
     }
 }

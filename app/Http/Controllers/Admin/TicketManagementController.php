@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -18,7 +20,7 @@ class TicketManagementController extends Controller
     /**
      * Index
      */
-    public function index(Request $request): \Illuminate\Contracts\View\View
+    public function index(Request $request): View
     {
         $query = Ticket::with(['user', 'category', 'assignedTo'])
             ->latest();
@@ -77,14 +79,7 @@ class TicketManagementController extends Controller
             'closed'      => Ticket::where('status', 'closed')->count(),
         ];
 
-        return view('admin.tickets.index', compact(
-            'tickets',
-            'agents',
-            'categories',
-            'statuses',
-            'priorities',
-            'stats',
-        ));
+        return view('admin.tickets.index', ['tickets' => $tickets, 'agents' => $agents, 'categories' => $categories, 'statuses' => $statuses, 'priorities' => $priorities, 'stats' => $stats]);
     }
 
     /**
@@ -93,7 +88,7 @@ class TicketManagementController extends Controller
     /**
      * Assign
      */
-    public function assign(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
+    public function assign(Request $request, Ticket $ticket): JsonResponse
     {
         $request->validate([
             'assigned_to' => ['nullable', 'exists:users,id'],
@@ -102,7 +97,7 @@ class TicketManagementController extends Controller
         // Verify the user is an agent or admin
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
+            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User must be an agent or admin to be assigned tickets.',
@@ -140,7 +135,7 @@ class TicketManagementController extends Controller
     /**
      * BulkAssign
      */
-    public function bulkAssign(Request $request): \Illuminate\Http\JsonResponse
+    public function bulkAssign(Request $request): JsonResponse
     {
         $request->validate([
             'ticket_ids'   => ['required', 'array'],
@@ -151,7 +146,7 @@ class TicketManagementController extends Controller
         // Verify the user is an agent or admin if assigning
         if ($request->assigned_to) {
             $assignee = User::findOrFail($request->assigned_to);
-            if (!$assignee->isAgent() && !$assignee->isAdmin()) {
+            if (! $assignee->isAgent() && ! $assignee->isAdmin()) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'User must be an agent or admin to be assigned tickets.',
@@ -194,7 +189,7 @@ class TicketManagementController extends Controller
     /**
      * UpdateStatus
      */
-    public function updateStatus(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
+    public function updateStatus(Request $request, Ticket $ticket): JsonResponse
     {
         $request->validate([
             'status'  => ['required', Rule::in(Ticket::getStatuses())],
@@ -248,7 +243,7 @@ class TicketManagementController extends Controller
     /**
      * UpdatePriority
      */
-    public function updatePriority(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
+    public function updatePriority(Request $request, Ticket $ticket): JsonResponse
     {
         $request->validate([
             'priority' => ['required', Rule::in(Ticket::getPriorities())],
@@ -281,7 +276,7 @@ class TicketManagementController extends Controller
     /**
      * BulkUpdateStatus
      */
-    public function bulkUpdateStatus(Request $request): \Illuminate\Http\JsonResponse
+    public function bulkUpdateStatus(Request $request): JsonResponse
     {
         $request->validate([
             'ticket_ids'   => ['required', 'array'],
@@ -336,7 +331,7 @@ class TicketManagementController extends Controller
     /**
      * Set  due date
      */
-    public function setDueDate(Request $request, Ticket $ticket): \Illuminate\Http\JsonResponse
+    public function setDueDate(Request $request, Ticket $ticket): JsonResponse
     {
         $request->validate([
             'due_date' => ['nullable', 'date', 'after:today'],
@@ -406,15 +401,15 @@ class TicketManagementController extends Controller
      */
     private function getAssignmentMessage($oldAssignee, $newAssignee): string
     {
-        if (!$oldAssignee && !$newAssignee) {
+        if (! $oldAssignee && ! $newAssignee) {
             return 'Ticket assignment unchanged';
         }
 
-        if (!$oldAssignee && $newAssignee) {
+        if (! $oldAssignee && $newAssignee) {
             return "Ticket assigned to {$newAssignee->name}";
         }
 
-        if ($oldAssignee && !$newAssignee) {
+        if ($oldAssignee && ! $newAssignee) {
             return "Ticket unassigned from {$oldAssignee->name}";
         }
 

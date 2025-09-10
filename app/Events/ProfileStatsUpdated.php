@@ -15,8 +15,10 @@ class ProfileStatsUpdated implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
+    /** @var User */
     public $user;
 
+    /** @var mixed[] */
     public $stats;
 
     /**

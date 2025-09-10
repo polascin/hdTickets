@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class TickpickPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -182,19 +184,19 @@ class TickpickPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['city'])) {
-            $params['city'] = urlencode($criteria['city']);
+        if (! empty($criteria['city'])) {
+            $params['city'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['category'])) {
-            $params['type'] = urlencode($criteria['category']);
+        if (! empty($criteria['category'])) {
+            $params['type'] = urlencode((string) $criteria['category']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['start_date'] = $criteria['date_range']['start'];
             }
@@ -203,7 +205,7 @@ class TickpickPlugin extends BaseScraperPlugin
             }
         }
 
-        if (!empty($criteria['sort_by'])) {
+        if (! empty($criteria['sort_by'])) {
             $params['sort'] = $criteria['sort_by'];
         }
 
@@ -252,7 +254,7 @@ class TickpickPlugin extends BaseScraperPlugin
             $priceText = $this->extractText($node, '.price, .EventItem-price, .starting-price, .no-fee-price');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -296,7 +298,7 @@ class TickpickPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -313,7 +315,7 @@ class TickpickPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 
@@ -332,9 +334,10 @@ class TickpickPlugin extends BaseScraperPlugin
     /**
      * Parse date from various formats
      */
+    #[Override]
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 

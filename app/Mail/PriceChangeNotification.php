@@ -14,19 +14,9 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $ticket;
-
-    public $oldPrice;
-
-    public $newPrice;
-
     public $priceChange;
 
     public $changePercentage;
-
-    public $user;
-
-    public $platform;
 
     /**
      * Create a new message instance.
@@ -37,16 +27,10 @@ class PriceChangeNotification extends Mailable implements ShouldQueue
      * @param mixed      $user
      * @param mixed|null $platform
      */
-    public function __construct($ticket, $oldPrice, $newPrice, $user, $platform = NULL)
+    public function __construct(public $ticket, public $oldPrice, public $newPrice, public $user, public $platform = NULL)
     {
-        $this->ticket = $ticket;
-        $this->oldPrice = $oldPrice;
-        $this->newPrice = $newPrice;
-        $this->user = $user;
-        $this->platform = $platform;
-
-        $this->priceChange = $newPrice - $oldPrice;
-        $this->changePercentage = $oldPrice > 0 ? (($newPrice - $oldPrice) / $oldPrice) * 100 : 0;
+        $this->priceChange = $this->newPrice - $this->oldPrice;
+        $this->changePercentage = $this->oldPrice > 0 ? (($this->newPrice - $this->oldPrice) / $this->oldPrice) * 100 : 0;
     }
 
     /**

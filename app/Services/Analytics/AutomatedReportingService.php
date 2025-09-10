@@ -4,12 +4,15 @@ namespace App\Services\Analytics;
 
 use App\Models\ScheduledReport;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+
+use function count;
 
 /**
  * Automated Reporting Service
@@ -19,27 +22,22 @@ use Illuminate\Support\Facades\Storage;
  */
 class AutomatedReportingService
 {
-    private AdvancedAnalyticsService $analyticsService;
-
-    private AnalyticsExportService $exportService;
-
     private array $config;
 
     public function __construct(
-        AdvancedAnalyticsService $analyticsService,
-        AnalyticsExportService $exportService
+        private AdvancedAnalyticsService $analyticsService,
+        private AnalyticsExportService $exportService,
     ) {
-        $this->analyticsService = $analyticsService;
-        $this->exportService = $exportService;
         $this->config = config('analytics.export.scheduled_exports', []);
     }
 
     /**
      * Generate and send scheduled reports
      *
-     * @param  string $reportType Type of report (daily, weekly, monthly, custom)
-     * @param  array  $options    Optional configuration overrides
-     * @return array  Results of the report generation
+     * @param string $reportType Type of report (daily, weekly, monthly, custom)
+     * @param array  $options    Optional configuration overrides
+     *
+     * @return array Results of the report generation
      */
     public function generateScheduledReports(string $reportType, array $options = []): array
     {
@@ -54,7 +52,7 @@ class AutomatedReportingService
             $reports = $this->getActiveScheduledReports($reportType);
 
             foreach ($reports as $report) {
-                $result = $this->generateAndDeliverReport($report, $options);
+                $result = $this->generateAndDeliverReport($report);
                 $results[] = $result;
 
                 // Update report statistics
@@ -67,9 +65,9 @@ class AutomatedReportingService
             Log::info('Completed scheduled report generation', [
                 'type'              => $reportType,
                 'reports_generated' => count($results),
-                'successful'        => count(array_filter($results, fn ($r) => $r['success'])),
+                'successful'        => count(array_filter($results, fn (array $r) => $r['success'])),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Scheduled report generation failed', [
                 'type'  => $reportType,
                 'error' => $e->getMessage(),
@@ -89,7 +87,8 @@ class AutomatedReportingService
     /**
      * Create a new scheduled report
      *
-     * @param  array           $reportConfig Report configuration
+     * @param array $reportConfig Report configuration
+     *
      * @return ScheduledReport Created report instance
      */
     public function createScheduledReport(array $reportConfig): ScheduledReport
@@ -122,8 +121,9 @@ class AutomatedReportingService
     /**
      * Generate a custom report on-demand
      *
-     * @param  array $config  Report configuration
-     * @param  bool  $deliver Whether to deliver the report or just generate it
+     * @param array $config  Report configuration
+     * @param bool  $deliver Whether to deliver the report or just generate it
+     *
      * @return array Report generation result
      */
     public function generateCustomReport(array $config, bool $deliver = TRUE): array
@@ -142,11 +142,11 @@ class AutomatedReportingService
                     'filename_prefix' => $reportId,
                     'title'           => $config['title'] ?? 'HD Tickets Analytics Report',
                     'generated_by'    => auth()->user()->name ?? 'System',
-                ])
+                ]),
             );
 
-            if (!$exportResult['success']) {
-                throw new \Exception('Failed to generate report file: ' . $exportResult['error']);
+            if (! $exportResult['success']) {
+                throw new Exception('Failed to generate report file: ' . $exportResult['error']);
             }
 
             $result = [
@@ -161,13 +161,13 @@ class AutomatedReportingService
             ];
 
             // Deliver report if requested
-            if ($deliver && !empty($config['recipients'])) {
+            if ($deliver && ! empty($config['recipients'])) {
                 $deliveryResult = $this->deliverReport($result, $config['recipients'], $config);
                 $result['delivery'] = $deliveryResult;
             }
 
             return $result;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Custom report generation failed', [
                 'report_id' => $reportId,
                 'config'    => $config,
@@ -232,14 +232,15 @@ class AutomatedReportingService
     /**
      * Get report generation statistics
      *
-     * @param  array $filters Optional filters
+     * @param array $filters Optional filters
+     *
      * @return array Report statistics
      */
     public function getReportStatistics(array $filters = []): array
     {
         $dateRange = $this->getDateRange($filters);
 
-        $stats = [
+        return [
             'total_reports'   => ScheduledReport::whereBetween('created_at', $dateRange)->count(),
             'active_reports'  => ScheduledReport::where('is_active', TRUE)->count(),
             'reports_by_type' => ScheduledReport::whereBetween('created_at', $dateRange)
@@ -252,13 +253,11 @@ class AutomatedReportingService
                 ->groupBy('format')
                 ->pluck('count', 'format')
                 ->toArray(),
-            'generation_success_rate' => $this->calculateSuccessRate($dateRange),
-            'avg_generation_time'     => $this->calculateAverageGenerationTime($dateRange),
-            'total_file_size'         => $this->calculateTotalFileSize($dateRange),
-            'most_popular_sections'   => $this->getMostPopularSections($dateRange),
+            'generation_success_rate' => $this->calculateSuccessRate(),
+            'avg_generation_time'     => $this->calculateAverageGenerationTime(),
+            'total_file_size'         => $this->calculateTotalFileSize(),
+            'most_popular_sections'   => $this->getMostPopularSections(),
         ];
-
-        return $stats;
     }
 
     /**
@@ -270,21 +269,21 @@ class AutomatedReportingService
     {
         // Daily reports at 6:00 AM
         if ($this->config['daily_report']['enabled'] ?? FALSE) {
-            $schedule->call(function () {
+            $schedule->call(function (): void {
                 $this->generateScheduledReports('daily');
             })->dailyAt('06:00')->name('daily-analytics-reports');
         }
 
         // Weekly reports on Monday at 8:00 AM
         if ($this->config['weekly_report']['enabled'] ?? FALSE) {
-            $schedule->call(function () {
+            $schedule->call(function (): void {
                 $this->generateScheduledReports('weekly');
             })->weeklyOn(1, '08:00')->name('weekly-analytics-reports');
         }
 
         // Monthly reports on the 1st at 9:00 AM
         if ($this->config['monthly_report']['enabled'] ?? FALSE) {
-            $schedule->call(function () {
+            $schedule->call(function (): void {
                 $this->generateScheduledReports('monthly');
             })->monthlyOn(1, '09:00')->name('monthly-analytics-reports');
         }
@@ -295,13 +294,13 @@ class AutomatedReportingService
             ->get();
 
         foreach ($customReports as $report) {
-            $schedule->call(function () use ($report) {
+            $schedule->call(function () use ($report): void {
                 $this->generateAndDeliverReport($report);
             })->cron($report->schedule)->name("custom-report-{$report->id}");
         }
 
         // Cleanup old reports weekly
-        $schedule->call(function () {
+        $schedule->call(function (): void {
             $this->cleanupOldReports();
         })->weekly()->name('cleanup-old-reports');
     }
@@ -321,7 +320,7 @@ class AutomatedReportingService
     /**
      * Generate and deliver a specific report
      */
-    private function generateAndDeliverReport(ScheduledReport $report, array $options = []): array
+    private function generateAndDeliverReport(ScheduledReport $report): array
     {
         $startTime = microtime(TRUE);
 
@@ -339,11 +338,11 @@ class AutomatedReportingService
                 array_merge($report->options, [
                     'filename_prefix' => "scheduled_{$report->type}_{$report->id}",
                     'title'           => $report->name,
-                ])
+                ]),
             );
 
-            if (!$exportResult['success']) {
-                throw new \Exception('Export failed: ' . $exportResult['error']);
+            if (! $exportResult['success']) {
+                throw new Exception('Export failed: ' . $exportResult['error']);
             }
 
             // Deliver report
@@ -366,7 +365,7 @@ class AutomatedReportingService
                 'delivery'        => $deliveryResult,
                 'generated_at'    => now()->toISOString(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $generationTime = microtime(TRUE) - $startTime;
 
             Log::error('Report generation failed', [
@@ -490,14 +489,14 @@ class AutomatedReportingService
                     'reportData' => $reportData,
                     'context'    => $context,
                     'recipient'  => $recipient,
-                ], function ($message) use ($reportData, $context, $recipient) {
+                ], function ($message) use ($reportData, $context, $recipient): void {
                     $message->to($recipient)
                         ->subject($context['report_name'] ?? 'HD Tickets Analytics Report')
                         ->attach(storage_path('app/' . $reportData['file_path']));
                 });
 
                 $deliveryResults[$recipient] = ['success' => TRUE, 'delivered_at' => now()->toISOString()];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::error('Failed to deliver report', [
                     'recipient'   => $recipient,
                     'report_file' => $reportData['filename'] ?? 'unknown',
@@ -554,7 +553,7 @@ class AutomatedReportingService
                     Storage::delete($file);
                     $deletedCount++;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Failed to delete old report file', [
                     'file'  => $file,
                     'error' => $e->getMessage(),
@@ -583,7 +582,7 @@ class AutomatedReportingService
     /**
      * Calculate success rate for reports
      */
-    private function calculateSuccessRate(array $dateRange): float
+    private function calculateSuccessRate(): float
     {
         // This would calculate from actual report execution logs
         // For now, return a placeholder
@@ -593,17 +592,18 @@ class AutomatedReportingService
     /**
      * Calculate average generation time
      */
-    private function calculateAverageGenerationTime(array $dateRange): float
+    private function calculateAverageGenerationTime(): float
     {
         // This would calculate from actual report execution logs
         // For now, return a placeholder
-        return 12.3; // seconds
+        return 12.3;
+        // seconds
     }
 
     /**
      * Calculate total file size
      */
-    private function calculateTotalFileSize(array $dateRange): string
+    private function calculateTotalFileSize(): string
     {
         // This would calculate from actual report files
         // For now, return a placeholder
@@ -613,7 +613,7 @@ class AutomatedReportingService
     /**
      * Get most popular report sections
      */
-    private function getMostPopularSections(array $dateRange): array
+    private function getMostPopularSections(): array
     {
         return [
             'overview_metrics'     => 85,

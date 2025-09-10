@@ -126,7 +126,7 @@ class QueryLogger
                 $handler->setFormatter($formatter);
 
                 // Add query-specific processors
-                $handler->pushProcessor([$this, 'addQueryContext']);
+                $handler->pushProcessor($this->addQueryContext(...));
             }
         }
     }

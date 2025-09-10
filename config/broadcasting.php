@@ -37,17 +37,17 @@ return [
                 'scheme'    => env('PUSHER_SCHEME', 'https'),
                 'encrypted' => TRUE,
                 'useTLS'    => env('PUSHER_SCHEME', 'https') === 'https',
-                
+
                 // HD Tickets specific configuration
-                'timeout' => 60,
-                'debug' => env('APP_DEBUG', false),
+                'timeout'      => 60,
+                'debug'        => env('APP_DEBUG', FALSE),
                 'curl_options' => [
                     CURLOPT_SSL_VERIFYHOST => 2,
-                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_SSL_VERIFYPEER => TRUE,
                 ],
-                
+
                 // Batch settings for performance
-                'batch_size' => 100,
+                'batch_size'    => 100,
                 'batch_timeout' => 30,
             ],
             'client_options' => [
@@ -63,10 +63,10 @@ return [
         'redis' => [
             'driver'     => 'redis',
             'connection' => 'default',
-            'options' => [
+            'options'    => [
                 // Redis-specific options for HD Tickets
-                'prefix' => env('REDIS_PREFIX', 'hdtickets') . ':broadcast:',
-                'serializer' => 'igbinary', // Better performance than default
+                'prefix'      => env('REDIS_PREFIX', 'hdtickets') . ':broadcast:',
+                'serializer'  => 'igbinary', // Better performance than default
                 'compression' => 'lz4', // Compress broadcast data
             ],
         ],

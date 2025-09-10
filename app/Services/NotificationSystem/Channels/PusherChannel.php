@@ -7,11 +7,9 @@ use Illuminate\Support\Facades\Log;
 use Pusher\Pusher;
 use Throwable;
 
-use function in_array;
-
 class PusherChannel implements NotificationChannelInterface
 {
-    protected $pusher;
+    protected Pusher $pusher;
 
     public function __construct()
     {
@@ -61,7 +59,7 @@ class PusherChannel implements NotificationChannelInterface
             ]);
 
             // Send system-wide notifications if needed
-            if (in_array($notification['type'], ['system_status'], TRUE)) {
+            if ($notification['type'] === 'system_status') {
                 $this->pusher->trigger('system-updates', 'notification', $data);
             }
 
@@ -88,9 +86,9 @@ class PusherChannel implements NotificationChannelInterface
      */
     public function isAvailable(): bool
     {
-        return !empty(config('broadcasting.connections.pusher.key'))
-               && !empty(config('broadcasting.connections.pusher.secret'))
-               && !empty(config('broadcasting.connections.pusher.app_id'));
+        return ! empty(config('broadcasting.connections.pusher.key'))
+               && ! empty(config('broadcasting.connections.pusher.secret'))
+               && ! empty(config('broadcasting.connections.pusher.app_id'));
     }
 
     /**
@@ -100,46 +98,35 @@ class PusherChannel implements NotificationChannelInterface
     {
         $actions = [];
 
-        switch ($notification['type']) {
-            case 'price_drop':
-            case 'ticket_available':
-                $actions = [
-                    [
-                        'label'    => 'View Tickets',
-                        'url'      => $notification['data']['ticket_url'] ?? '#',
-                        'style'    => 'primary',
-                        'external' => TRUE,
-                    ],
-                    [
-                        'label' => 'View Details',
-                        'url'   => route('tickets.scraping.show', $notification['data']['ticket_id']),
-                        'style' => 'secondary',
-                    ],
-                ];
-
-                break;
-            case 'system_status':
-                $actions = [
-                    [
-                        'label' => 'View Status',
-                        'url'   => route('system.status'),
-                        'style' => 'primary',
-                    ],
-                ];
-
-                break;
-            case 'custom_alert':
-                $actions = [
-                    [
-                        'label' => 'View Alert',
-                        'url'   => route('tickets.alerts.show', $notification['data']['rule_id']),
-                        'style' => 'primary',
-                    ],
-                ];
-
-                break;
-        }
-
-        return $actions;
+        return match ($notification['type']) {
+            'price_drop', 'ticket_available' => [
+                [
+                    'label'    => 'View Tickets',
+                    'url'      => $notification['data']['ticket_url'] ?? '#',
+                    'style'    => 'primary',
+                    'external' => TRUE,
+                ],
+                [
+                    'label' => 'View Details',
+                    'url'   => route('tickets.scraping.show', $notification['data']['ticket_id']),
+                    'style' => 'secondary',
+                ],
+            ],
+            'system_status' => [
+                [
+                    'label' => 'View Status',
+                    'url'   => route('system.status'),
+                    'style' => 'primary',
+                ],
+            ],
+            'custom_alert' => [
+                [
+                    'label' => 'View Alert',
+                    'url'   => route('tickets.alerts.show', $notification['data']['rule_id']),
+                    'style' => 'primary',
+                ],
+            ],
+            default => $actions,
+        };
     }
 }

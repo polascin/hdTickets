@@ -6,7 +6,12 @@ use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use IMAP\Connection;
 use RuntimeException;
+
+use function array_slice;
+use function count;
+use function is_resource;
 
 /**
  * IMAP Connection Service
@@ -27,17 +32,27 @@ class ImapConnectionService
     }
 
     /**
+     * Destructor - close all connections
+     */
+    public function __destruct()
+    {
+        $this->closeAllConnections();
+    }
+
+    /**
      * Get IMAP connection for specified provider
      *
-     * @param  string|null      $connection Connection name (gmail, outlook, yahoo, custom)
-     * @return resource         IMAP connection resource
+     * @param string|null $connection Connection name (gmail, outlook, yahoo, custom)
+     *
      * @throws RuntimeException
+     *
+     * @return resource IMAP connection resource
      */
     public function getConnection(?string $connection = NULL)
     {
-        $connection = $connection ?? $this->config['default'];
+        $connection ??= $this->config['default'];
 
-        if (!isset($this->config['connections'][$connection])) {
+        if (! isset($this->config['connections'][$connection])) {
             throw new RuntimeException("IMAP connection '{$connection}' not configured");
         }
 
@@ -53,166 +68,11 @@ class ImapConnectionService
     }
 
     /**
-     * Create new IMAP connection
-     *
-     * @param  string           $connection Connection name
-     * @return resource         IMAP connection resource
-     * @throws RuntimeException
-     */
-    private function createConnection(string $connection)
-    {
-        $config = $this->config['connections'][$connection];
-
-        if (empty($config['username']) || empty($config['password'])) {
-            throw new RuntimeException("IMAP credentials not configured for '{$connection}'");
-        }
-
-        // Build connection string
-        $connectionString = $this->buildConnectionString($config);
-
-        $retryCount = $config['retry_count'] ?? 3;
-        $retryDelay = $config['retry_delay'] ?? 5;
-
-        for ($attempt = 1; $attempt <= $retryCount; $attempt++) {
-            try {
-                // Log connection attempt
-                if ($this->config['logging']['log_connections']) {
-                    Log::channel($this->config['logging']['channel'])
-                        ->info("Attempting IMAP connection to {$connection} (attempt {$attempt}/{$retryCount})", [
-                            'connection' => $connection,
-                            'host'       => $config['host'],
-                            'port'       => $config['port'],
-                            'username'   => $config['username'],
-                        ]);
-                }
-
-                // Attempt connection
-                $imapConnection = @imap_open(
-                    $connectionString,
-                    $config['username'],
-                    $config['password'],
-                    0,
-                    1,
-                    ['DISABLE_AUTHENTICATOR' => 'GSSAPI']
-                );
-
-                if ($imapConnection === FALSE) {
-                    $error = imap_last_error();
-
-                    throw new RuntimeException("IMAP connection failed: {$error}");
-                }
-
-                // Set timeout
-                if (isset($config['timeout'])) {
-                    imap_timeout(IMAP_READTIMEOUT, $config['timeout']);
-                    imap_timeout(IMAP_OPENTIMEOUT, $config['timeout']);
-                    imap_timeout(IMAP_CLOSETIMEOUT, $config['timeout']);
-                }
-
-                // Log successful connection
-                if ($this->config['logging']['log_connections']) {
-                    Log::channel($this->config['logging']['channel'])
-                        ->info('IMAP connection established successfully', [
-                            'connection' => $connection,
-                            'attempt'    => $attempt,
-                        ]);
-                }
-
-                // Cache connection info
-                $this->cacheConnectionInfo($connection, $imapConnection);
-
-                return $imapConnection;
-            } catch (Exception $e) {
-                // Log connection failure
-                Log::channel($this->config['logging']['channel'])
-                    ->error("IMAP connection attempt {$attempt} failed", [
-                        'connection'   => $connection,
-                        'error'        => $e->getMessage(),
-                        'attempt'      => $attempt,
-                        'max_attempts' => $retryCount,
-                    ]);
-
-                // If not the last attempt, wait before retrying
-                if ($attempt < $retryCount) {
-                    sleep($retryDelay);
-                } else {
-                    throw new RuntimeException(
-                        "Failed to establish IMAP connection to '{$connection}' after {$retryCount} attempts: " . $e->getMessage(),
-                        0,
-                        $e
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * Build IMAP connection string
-     *
-     * @param  array  $config Connection configuration
-     * @return string IMAP connection string
-     */
-    private function buildConnectionString(array $config): string
-    {
-        $host = $config['host'];
-        $port = $config['port'];
-        $protocol = $config['protocol'] ?? 'imap';
-        $encryption = $config['encryption'] ?? 'ssl';
-        $validateCert = $config['validate_cert'] ?? TRUE;
-
-        $connectionString = "{{$host}:{$port}/{$protocol}";
-
-        if ($encryption) {
-            $connectionString .= "/{$encryption}";
-        }
-
-        if (!$validateCert) {
-            $connectionString .= '/novalidate-cert';
-        }
-
-        // Security settings
-        $security = $this->config['security'] ?? [];
-
-        if (!($security['verify_peer'] ?? TRUE)) {
-            $connectionString .= '/novalidate-cert';
-        }
-
-        if ($security['allow_self_signed'] ?? FALSE) {
-            $connectionString .= '/self-signed';
-        }
-
-        $connectionString .= '}';
-
-        return $connectionString;
-    }
-
-    /**
-     * Check if IMAP connection is still active
-     *
-     * @param  resource $connection IMAP connection resource
-     * @return bool
-     */
-    private function isConnectionActive($connection): bool
-    {
-        if (!is_resource($connection)) {
-            return FALSE;
-        }
-
-        try {
-            // Try to ping the connection
-            $result = @imap_ping($connection);
-
-            return $result !== FALSE;
-        } catch (Exception $e) {
-            return FALSE;
-        }
-    }
-
-    /**
      * Get list of available mailboxes
      *
-     * @param  string|null $connection Connection name
-     * @return array       List of mailboxes
+     * @param string|null $connection Connection name
+     *
+     * @return array List of mailboxes
      */
     public function getMailboxes(?string $connection = NULL): array
     {
@@ -239,8 +99,8 @@ class ImapConnectionService
             $cleanMailboxes = [];
             foreach ($mailboxes as $mailbox) {
                 // Extract mailbox name from full path
-                $parts = explode('}', $mailbox, 2);
-                $cleanMailboxes[] = isset($parts[1]) ? $parts[1] : $mailbox;
+                $parts = explode('}', (string) $mailbox, 2);
+                $cleanMailboxes[] = $parts[1] ?? $mailbox;
             }
 
             return $cleanMailboxes;
@@ -258,9 +118,10 @@ class ImapConnectionService
     /**
      * Select mailbox for IMAP operations
      *
-     * @param  resource $connection IMAP connection
-     * @param  string   $mailbox    Mailbox name
-     * @return bool     Success status
+     * @param resource $connection IMAP connection
+     * @param string   $mailbox    Mailbox name
+     *
+     * @return bool Success status
      */
     public function selectMailbox($connection, string $mailbox): bool
     {
@@ -291,82 +152,17 @@ class ImapConnectionService
     }
 
     /**
-     * Get full mailbox path for IMAP operations
-     *
-     * @param  resource $connection IMAP connection
-     * @param  string   $mailbox    Mailbox name
-     * @return string   Full mailbox path
-     */
-    private function getMailboxPath($connection, string $mailbox): string
-    {
-        $connectionInfo = $this->getConnectionInfo($connection);
-
-        return $connectionInfo['server'] . $mailbox;
-    }
-
-    /**
-     * Get connection information
-     *
-     * @param  resource $connection IMAP connection
-     * @return array    Connection information
-     */
-    private function getConnectionInfo($connection): array
-    {
-        $cacheKey = 'imap_connection_info_' . spl_object_hash($connection);
-
-        return Cache::remember($cacheKey, $this->config['cache']['connection_ttl'] ?? 30, function () use ($connection) {
-            $check = @imap_check($connection);
-
-            if ($check === FALSE) {
-                return [
-                    'server'   => '',
-                    'mailbox'  => '',
-                    'messages' => 0,
-                ];
-            }
-
-            return [
-                'server'   => isset($check->Mailbox) ? substr($check->Mailbox, 0, strrpos($check->Mailbox, '}') + 1) : '',
-                'mailbox'  => isset($check->Mailbox) ? substr($check->Mailbox, strrpos($check->Mailbox, '}') + 1) : '',
-                'messages' => $check->Nmsgs ?? 0,
-                'recent'   => $check->Recent ?? 0,
-            ];
-        });
-    }
-
-    /**
-     * Cache connection information
-     *
-     * @param string   $connection     Connection name
-     * @param resource $imapConnection IMAP connection
-     */
-    private function cacheConnectionInfo(string $connection, $imapConnection): void
-    {
-        if (!$this->config['cache']['enabled']) {
-            return;
-        }
-
-        $cacheKey = $this->config['cache']['prefix'] . "_connection_{$connection}";
-        $ttl = $this->config['cache']['connection_ttl'] ?? 30;
-
-        Cache::put($cacheKey, [
-            'connection'     => $connection,
-            'established_at' => now(),
-            'resource_id'    => spl_object_hash($imapConnection),
-        ], $ttl * 60);
-    }
-
-    /**
      * Close IMAP connection
      *
-     * @param  string|null $connection Connection name
-     * @return bool        Success status
+     * @param string|null $connection Connection name
+     *
+     * @return bool Success status
      */
     public function closeConnection(?string $connection = NULL): bool
     {
-        $connection = $connection ?? $this->config['default'];
+        $connection ??= $this->config['default'];
 
-        if (!isset($this->connections[$connection])) {
+        if (! isset($this->connections[$connection])) {
             return TRUE;
         }
 
@@ -381,7 +177,7 @@ class ImapConnectionService
                     ]);
             }
 
-            return $result !== FALSE;
+            return $result;
         } catch (Exception $e) {
             Log::channel($this->config['logging']['channel'])
                 ->error('Error closing IMAP connection', [
@@ -403,7 +199,7 @@ class ImapConnectionService
         $success = TRUE;
 
         foreach (array_keys($this->connections) as $connection) {
-            if (!$this->closeConnection($connection)) {
+            if (! $this->closeConnection($connection)) {
                 $success = FALSE;
             }
         }
@@ -414,12 +210,13 @@ class ImapConnectionService
     /**
      * Test IMAP connection
      *
-     * @param  string|null $connection Connection name
-     * @return array       Test result with status and details
+     * @param string|null $connection Connection name
+     *
+     * @return array Test result with status and details
      */
     public function testConnection(?string $connection = NULL): array
     {
-        $connection = $connection ?? $this->config['default'];
+        $connection ??= $this->config['default'];
 
         try {
             $startTime = microtime(TRUE);
@@ -480,7 +277,7 @@ class ImapConnectionService
     public function cleanupConnections(): void
     {
         foreach ($this->connections as $name => $connection) {
-            if (!$this->isConnectionActive($connection)) {
+            if (! $this->isConnectionActive($connection)) {
                 unset($this->connections[$name]);
 
                 Log::channel($this->config['logging']['channel'])
@@ -492,10 +289,226 @@ class ImapConnectionService
     }
 
     /**
-     * Destructor - close all connections
+     * Create new IMAP connection
+     *
+     * @param string $connection Connection name
+     *
+     * @throws RuntimeException
+     *
+     * @return resource IMAP connection resource
      */
-    public function __destruct()
+    private function createConnection(string $connection): ?Connection
     {
-        $this->closeAllConnections();
+        $config = $this->config['connections'][$connection];
+
+        if (empty($config['username']) || empty($config['password'])) {
+            throw new RuntimeException("IMAP credentials not configured for '{$connection}'");
+        }
+
+        // Build connection string
+        $connectionString = $this->buildConnectionString($config);
+
+        $retryCount = $config['retry_count'] ?? 3;
+        $retryDelay = $config['retry_delay'] ?? 5;
+
+        for ($attempt = 1; $attempt <= $retryCount; $attempt++) {
+            try {
+                // Log connection attempt
+                if ($this->config['logging']['log_connections']) {
+                    Log::channel($this->config['logging']['channel'])
+                        ->info("Attempting IMAP connection to {$connection} (attempt {$attempt}/{$retryCount})", [
+                            'connection' => $connection,
+                            'host'       => $config['host'],
+                            'port'       => $config['port'],
+                            'username'   => $config['username'],
+                        ]);
+                }
+
+                // Attempt connection
+                $imapConnection = @imap_open(
+                    $connectionString,
+                    $config['username'],
+                    $config['password'],
+                    0,
+                    1,
+                    ['DISABLE_AUTHENTICATOR' => 'GSSAPI'],
+                );
+
+                if ($imapConnection === FALSE) {
+                    $error = imap_last_error();
+
+                    throw new RuntimeException("IMAP connection failed: {$error}");
+                }
+
+                // Set timeout
+                if (isset($config['timeout'])) {
+                    imap_timeout(IMAP_READTIMEOUT, $config['timeout']);
+                    imap_timeout(IMAP_OPENTIMEOUT, $config['timeout']);
+                    imap_timeout(IMAP_CLOSETIMEOUT, $config['timeout']);
+                }
+
+                // Log successful connection
+                if ($this->config['logging']['log_connections']) {
+                    Log::channel($this->config['logging']['channel'])
+                        ->info('IMAP connection established successfully', [
+                            'connection' => $connection,
+                            'attempt'    => $attempt,
+                        ]);
+                }
+
+                // Cache connection info
+                $this->cacheConnectionInfo($connection, $imapConnection);
+
+                return $imapConnection;
+            } catch (Exception $e) {
+                // Log connection failure
+                Log::channel($this->config['logging']['channel'])
+                    ->error("IMAP connection attempt {$attempt} failed", [
+                        'connection'   => $connection,
+                        'error'        => $e->getMessage(),
+                        'attempt'      => $attempt,
+                        'max_attempts' => $retryCount,
+                    ]);
+
+                // If not the last attempt, wait before retrying
+                if ($attempt < $retryCount) {
+                    sleep($retryDelay);
+                } else {
+                    throw new RuntimeException(
+                        "Failed to establish IMAP connection to '{$connection}' after {$retryCount} attempts: " . $e->getMessage(),
+                        0,
+                        $e,
+                    );
+                }
+            }
+        }
+
+        return NULL;
+    }
+
+    /**
+     * Build IMAP connection string
+     *
+     * @param array $config Connection configuration
+     *
+     * @return string IMAP connection string
+     */
+    private function buildConnectionString(array $config): string
+    {
+        $host = $config['host'];
+        $port = $config['port'];
+        $protocol = $config['protocol'] ?? 'imap';
+        $encryption = $config['encryption'] ?? 'ssl';
+        $validateCert = $config['validate_cert'] ?? TRUE;
+
+        $connectionString = "{{$host}:{$port}/{$protocol}";
+
+        if ($encryption) {
+            $connectionString .= "/{$encryption}";
+        }
+
+        if (! $validateCert) {
+            $connectionString .= '/novalidate-cert';
+        }
+
+        // Security settings
+        $security = $this->config['security'] ?? [];
+
+        if (! ($security['verify_peer'] ?? TRUE)) {
+            $connectionString .= '/novalidate-cert';
+        }
+
+        if ($security['allow_self_signed'] ?? FALSE) {
+            $connectionString .= '/self-signed';
+        }
+
+        return $connectionString . '}';
+    }
+
+    /**
+     * Check if IMAP connection is still active
+     *
+     * @param resource $connection IMAP connection resource
+     */
+    private function isConnectionActive($connection): bool
+    {
+        if (! is_resource($connection)) {
+            return FALSE;
+        }
+
+        try {
+            // Try to ping the connection
+            return @imap_ping($connection);
+        } catch (Exception) {
+            return FALSE;
+        }
+    }
+
+    /**
+     * Get full mailbox path for IMAP operations
+     *
+     * @param resource $connection IMAP connection
+     * @param string   $mailbox    Mailbox name
+     *
+     * @return string Full mailbox path
+     */
+    private function getMailboxPath($connection, string $mailbox): string
+    {
+        $connectionInfo = $this->getConnectionInfo($connection);
+
+        return $connectionInfo['server'] . $mailbox;
+    }
+
+    /**
+     * Get connection information
+     *
+     * @param resource $connection IMAP connection
+     *
+     * @return array Connection information
+     */
+    private function getConnectionInfo($connection): array
+    {
+        $cacheKey = 'imap_connection_info_' . spl_object_hash($connection);
+
+        return Cache::remember($cacheKey, $this->config['cache']['connection_ttl'] ?? 30, function () use ($connection): array {
+            $check = @imap_check($connection);
+
+            if ($check === FALSE) {
+                return [
+                    'server'   => '',
+                    'mailbox'  => '',
+                    'messages' => 0,
+                ];
+            }
+
+            return [
+                'server'   => isset($check->Mailbox) ? substr((string) $check->Mailbox, 0, strrpos((string) $check->Mailbox, '}') + 1) : '',
+                'mailbox'  => isset($check->Mailbox) ? substr((string) $check->Mailbox, strrpos((string) $check->Mailbox, '}') + 1) : '',
+                'messages' => $check->Nmsgs ?? 0,
+                'recent'   => $check->Recent ?? 0,
+            ];
+        });
+    }
+
+    /**
+     * Cache connection information
+     *
+     * @param string   $connection     Connection name
+     * @param resource $imapConnection IMAP connection
+     */
+    private function cacheConnectionInfo(string $connection, Connection $imapConnection): void
+    {
+        if (! $this->config['cache']['enabled']) {
+            return;
+        }
+
+        $cacheKey = $this->config['cache']['prefix'] . "_connection_{$connection}";
+        $ttl = $this->config['cache']['connection_ttl'] ?? 30;
+
+        Cache::put($cacheKey, [
+            'connection'     => $connection,
+            'established_at' => now(),
+            'resource_id'    => spl_object_hash($imapConnection),
+        ], $ttl * 60);
     }
 }

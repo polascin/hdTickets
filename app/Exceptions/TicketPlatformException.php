@@ -9,15 +9,11 @@ use Exception;
  */
 class TicketPlatformException extends Exception
 {
-    protected ?string $platform;
+    // 'api' or 'scraping'
 
-    protected ?string $method; // 'api' or 'scraping'
-
-    public function __construct(string $message = '', int $code = 0, ?Exception $previous = NULL, ?string $platform = NULL, ?string $method = NULL)
+    public function __construct(string $message = '', int $code = 0, ?Exception $previous = NULL, protected ?string $platform = NULL, protected ?string $method = NULL)
     {
         parent::__construct($message, $code, $previous);
-        $this->platform = $platform;
-        $this->method = $method;
     }
 
     /**
@@ -77,12 +73,9 @@ class FunZoneException extends TicketPlatformException
  */
 class RateLimitException extends TicketPlatformException
 {
-    protected ?int $retryAfter;
-
-    public function __construct(string $message = '', ?int $retryAfter = NULL, ?string $platform = NULL)
+    public function __construct(string $message = '', protected ?int $retryAfter = NULL, ?string $platform = NULL)
     {
         parent::__construct($message, 429, NULL, $platform);
-        $this->retryAfter = $retryAfter;
     }
 
     /**

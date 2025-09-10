@@ -39,7 +39,7 @@ class ValidateDatabase extends Command
         // Check relationships
         $issues = array_merge($issues, $this->checkRelationships());
 
-        if (empty($issues)) {
+        if ($issues === []) {
             $this->info('✅ Database validation completed successfully! No issues found.');
 
             return Command::SUCCESS;
@@ -81,14 +81,14 @@ class ValidateDatabase extends Command
         ];
 
         foreach ($requiredTables as $table => $columns) {
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 $issues[] = "Missing table: {$table}";
 
                 continue;
             }
 
             foreach ($columns as $column) {
-                if (!Schema::hasColumn($table, $column)) {
+                if (! Schema::hasColumn($table, $column)) {
                     $issues[] = "Missing column: {$table}.{$column}";
                 }
             }

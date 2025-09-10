@@ -21,10 +21,6 @@ class ImapMonitoringEvent implements ShouldBroadcast
     use InteractsWithSockets;
     use SerializesModels;
 
-    public string $eventType;
-
-    public array $data;
-
     public string $timestamp;
 
     /**
@@ -33,17 +29,15 @@ class ImapMonitoringEvent implements ShouldBroadcast
      * @param string $eventType Type of monitoring event
      * @param array  $data      Event data payload
      */
-    public function __construct(string $eventType, array $data)
+    public function __construct(public string $eventType, public array $data)
     {
-        $this->eventType = $eventType;
-        $this->data = $data;
         $this->timestamp = now()->toISOString();
     }
 
     /**
      * Get the channels the event should broadcast on
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
@@ -55,8 +49,6 @@ class ImapMonitoringEvent implements ShouldBroadcast
 
     /**
      * Get the event name for broadcasting
-     *
-     * @return string
      */
     public function broadcastAs(): string
     {
@@ -65,8 +57,6 @@ class ImapMonitoringEvent implements ShouldBroadcast
 
     /**
      * Get the data to broadcast
-     *
-     * @return array
      */
     public function broadcastWith(): array
     {
@@ -79,8 +69,6 @@ class ImapMonitoringEvent implements ShouldBroadcast
 
     /**
      * Determine if this event should broadcast
-     *
-     * @return bool
      */
     public function broadcastWhen(): bool
     {
@@ -91,10 +79,9 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a connection status update event
      *
-     * @param  string $connection Connection name
-     * @param  bool   $isHealthy  Connection health status
-     * @param  array  $details    Additional connection details
-     * @return static
+     * @param string $connection Connection name
+     * @param bool   $isHealthy  Connection health status
+     * @param array  $details    Additional connection details
      */
     public static function connectionStatusUpdate(string $connection, bool $isHealthy, array $details = []): static
     {
@@ -108,11 +95,10 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create an email processing update event
      *
-     * @param  int    $emailsProcessed   Number of emails processed
-     * @param  int    $sportsEventsFound Number of sports events discovered
-     * @param  int    $ticketsFound      Number of tickets found
-     * @param  string $platform          Platform name
-     * @return static
+     * @param int    $emailsProcessed   Number of emails processed
+     * @param int    $sportsEventsFound Number of sports events discovered
+     * @param int    $ticketsFound      Number of tickets found
+     * @param string $platform          Platform name
      */
     public static function emailProcessingUpdate(int $emailsProcessed, int $sportsEventsFound, int $ticketsFound, string $platform): static
     {
@@ -127,8 +113,7 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a system health update event
      *
-     * @param  array  $healthMetrics System health metrics
-     * @return static
+     * @param array $healthMetrics System health metrics
      */
     public static function systemHealthUpdate(array $healthMetrics): static
     {
@@ -138,9 +123,8 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a monitoring started event
      *
-     * @param  string $connection Connection name
-     * @param  array  $options    Monitoring options
-     * @return static
+     * @param string $connection Connection name
+     * @param array  $options    Monitoring options
      */
     public static function monitoringStarted(string $connection, array $options = []): static
     {
@@ -153,9 +137,8 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a monitoring completed event
      *
-     * @param  string $connection Connection name
-     * @param  array  $results    Monitoring results
-     * @return static
+     * @param string $connection Connection name
+     * @param array  $results    Monitoring results
      */
     public static function monitoringCompleted(string $connection, array $results): static
     {
@@ -168,9 +151,8 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a new sports event discovered event
      *
-     * @param  array  $eventData Sports event data
-     * @param  string $platform  Platform where event was discovered
-     * @return static
+     * @param array  $eventData Sports event data
+     * @param string $platform  Platform where event was discovered
      */
     public static function sportsEventDiscovered(array $eventData, string $platform): static
     {
@@ -183,9 +165,8 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a ticket availability alert event
      *
-     * @param  array  $ticketData Ticket data
-     * @param  string $alertType  Type of alert (price_drop, availability, new_listing)
-     * @return static
+     * @param array  $ticketData Ticket data
+     * @param string $alertType  Type of alert (price_drop, availability, new_listing)
      */
     public static function ticketAvailabilityAlert(array $ticketData, string $alertType): static
     {
@@ -198,10 +179,9 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create an error event
      *
-     * @param  string $errorType Type of error
-     * @param  string $message   Error message
-     * @param  array  $context   Error context
-     * @return static
+     * @param string $errorType Type of error
+     * @param string $message   Error message
+     * @param array  $context   Error context
      */
     public static function error(string $errorType, string $message, array $context = []): static
     {
@@ -215,8 +195,7 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a performance metrics update event
      *
-     * @param  array  $metrics Performance metrics
-     * @return static
+     * @param array $metrics Performance metrics
      */
     public static function performanceMetricsUpdate(array $metrics): static
     {
@@ -226,9 +205,8 @@ class ImapMonitoringEvent implements ShouldBroadcast
     /**
      * Create a cache cleared event
      *
-     * @param  string|null $connection   Connection name (null for all)
-     * @param  int         $itemsCleared Number of items cleared
-     * @return static
+     * @param string|null $connection   Connection name (null for all)
+     * @param int         $itemsCleared Number of items cleared
      */
     public static function cacheCleared(?string $connection, int $itemsCleared): static
     {

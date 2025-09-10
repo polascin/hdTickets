@@ -20,14 +20,11 @@ class ProcessDataExportJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected DataExportRequest $exportRequest;
-
     /**
      * Create a new job instance.
      */
-    public function __construct(DataExportRequest $exportRequest)
+    public function __construct(protected DataExportRequest $exportRequest)
     {
-        $this->exportRequest = $exportRequest;
     }
 
     /**

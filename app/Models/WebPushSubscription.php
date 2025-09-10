@@ -20,11 +20,6 @@ class WebPushSubscription extends Model
         'last_used_at',
     ];
 
-    protected $casts = [
-        'is_active'    => 'boolean',
-        'last_used_at' => 'datetime',
-    ];
-
     /**
      * User
      */
@@ -53,5 +48,13 @@ class WebPushSubscription extends Model
     public function disable(): void
     {
         $this->update(['is_active' => FALSE]);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active'    => 'boolean',
+            'last_used_at' => 'datetime',
+        ];
     }
 }

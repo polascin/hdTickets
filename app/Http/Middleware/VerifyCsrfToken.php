@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
+use Override;
 use Symfony\Component\HttpFoundation\Response;
 
 use function in_array;
@@ -36,6 +37,7 @@ class VerifyCsrfToken extends Middleware
     /**
      * Handle
      */
+    #[Override]
     public function handle($request, Closure $next): Response
     {
         // Enhanced CSRF protection for sports events system
@@ -60,6 +62,7 @@ class VerifyCsrfToken extends Middleware
     /**
      * Check if  reading
      */
+    #[Override]
     protected function isReading($request): bool
     {
         return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS'], TRUE);
@@ -73,17 +76,18 @@ class VerifyCsrfToken extends Middleware
     /**
      * TokensMatch
      */
+    #[Override]
     protected function tokensMatch($request): bool
     {
         $token = $this->getTokenFromRequest($request);
 
         // Check if session token exists
-        if (!$sessionToken = $request->session()->token()) {
+        if (! $sessionToken = $request->session()->token()) {
             return FALSE;
         }
 
         // Standard CSRF token validation
-        if (!hash_equals($sessionToken, $token)) {
+        if (! hash_equals($sessionToken, $token)) {
             return FALSE;
         }
 
@@ -105,12 +109,12 @@ class VerifyCsrfToken extends Middleware
         }
 
         // Verify user session integrity
-        if (!$this->verifySessionIntegrity($request)) {
+        if (! $this->verifySessionIntegrity($request)) {
             return FALSE;
         }
 
         // Check request frequency for automated attacks
-        return !($this->isRequestTooFrequent($request));
+        return ! ($this->isRequestTooFrequent($request));
     }
 
     /**
@@ -125,7 +129,7 @@ class VerifyCsrfToken extends Middleware
             // Rapid automated requests
             'user-agent' => '/bot|crawler|spider|scraper/i',
             // Unusual referrers
-            'referer' => '/\.onion|localhost:[0-9]{4}/',
+            'referer' => '/\.onion|localhost:\d{4}/',
         ];
 
         foreach ($suspiciousPatterns as $header => $pattern) {
@@ -149,7 +153,7 @@ class VerifyCsrfToken extends Middleware
         $session = $request->session();
 
         // Check if session has required security markers
-        if (!$session->has('_token') || !$session->has('login_web_')) {
+        if (! $session->has('_token') || ! $session->has('login_web_')) {
             return TRUE; // Not logged in, standard CSRF is enough
         }
 
@@ -163,7 +167,7 @@ class VerifyCsrfToken extends Middleware
 
         $storedFingerprint = $session->get('security_fingerprint');
 
-        if (!$storedFingerprint) {
+        if (! $storedFingerprint) {
             // Create fingerprint if it doesn't exist
             $session->put('security_fingerprint', $expectedFingerprint);
 

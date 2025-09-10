@@ -22,8 +22,6 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
     use CurrencyHandlingTrait;
     use MultiLanguageTrait;
 
-    protected $proxyService;
-
     protected AdvancedAntiDetectionService $antiDetection;
 
     protected HighDemandTicketScraperService $highDemandScraper;
@@ -59,9 +57,8 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      *
      * @param mixed|null $proxyService
      */
-    public function __construct($proxyService = NULL)
+    public function __construct(protected $proxyService = NULL)
     {
-        $this->proxyService = $proxyService;
         $this->initializePlugin();
         $this->loadConfiguration();
     }
@@ -207,7 +204,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      */
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -306,7 +303,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
             } catch (Exception $e) {
                 $retries++;
                 if ($retries >= $this->maxRetries) {
-                    throw new Exception("Failed to fetch {$this->pluginName} page after {$this->maxRetries} retries: " . $e->getMessage());
+                    throw new Exception("Failed to fetch {$this->pluginName} page after {$this->maxRetries} retries: " . $e->getMessage(), $e->getCode(), $e);
                 }
 
                 $this->randomDelay();
@@ -351,7 +348,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
         try {
             // Extract basic event data
             $eventName = $this->extractText($node, $this->getEventNameSelectors());
-            if (empty($eventName)) {
+            if ($eventName === '' || $eventName === '0') {
                 return NULL;
             }
 
@@ -365,7 +362,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
             $priceInfo = $this->parsePriceInfo($priceText);
 
             // Fix relative URLs
-            if ($url && !filter_var($url, FILTER_VALIDATE_URL)) {
+            if ($url && ! filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $this->baseUrl . $url;
             }
 
@@ -429,7 +426,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
             $element = $node->filter($selectors)->first();
 
             return $element->count() > 0 ? trim($element->text()) : '';
-        } catch (Exception $e) {
+        } catch (Exception) {
             return '';
         }
     }
@@ -446,7 +443,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
             $element = $node->filter($selector)->first();
 
             return $element->count() > 0 ? trim($element->attr('href') ?? '') : '';
-        } catch (Exception $e) {
+        } catch (Exception) {
             return '';
         }
     }
@@ -502,7 +499,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      */
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 
@@ -526,30 +523,22 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
      */
     protected function filterResults(array $events, array $criteria): array
     {
-        return array_filter($events, function ($event) use ($criteria) {
+        return array_filter($events, function (array $event) use ($criteria): bool {
             // Basic keyword filtering
-            if (!empty($criteria['keyword'])) {
-                $keyword = strtolower($criteria['keyword']);
-                $eventName = strtolower($event['event_name']);
-                if (!str_contains($eventName, $keyword)) {
+            if (! empty($criteria['keyword'])) {
+                $keyword = strtolower((string) $criteria['keyword']);
+                $eventName = strtolower((string) $event['event_name']);
+                if (! str_contains($eventName, $keyword)) {
                     return FALSE;
                 }
             }
 
             // Date range filtering
-            if (!empty($criteria['date_from']) && !empty($event['date'])) {
-                if ($event['date'] < $criteria['date_from']) {
-                    return FALSE;
-                }
+            if (! empty($criteria['date_from']) && ! empty($event['date']) && $event['date'] < $criteria['date_from']) {
+                return FALSE;
             }
 
-            if (!empty($criteria['date_to']) && !empty($event['date'])) {
-                if ($event['date'] > $criteria['date_to']) {
-                    return FALSE;
-                }
-            }
-
-            return TRUE;
+            return ! (! empty($criteria['date_to']) && ! empty($event['date']) && $event['date'] > $criteria['date_to']);
         });
     }
 
@@ -564,7 +553,7 @@ abstract class BaseScraperPlugin implements ScraperPluginInterface
         $configKey = strtolower(str_replace(['Plugin', 'FC', 'CF'], ['', '', ''], class_basename($this)));
         $config = config("scraping.plugins.{$configKey}", []);
 
-        if (!empty($config)) {
+        if (! empty($config)) {
             $this->configure($config);
         }
     }

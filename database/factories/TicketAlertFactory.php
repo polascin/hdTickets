@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\TicketAlert;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TicketAlert>
+ * @extends Factory<TicketAlert>
  */
 class TicketAlertFactory extends Factory
 {
@@ -23,17 +24,17 @@ class TicketAlertFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'             => \App\Models\User::factory(),
-            'name'                => $this->faker->sentence,
-            'keywords'            => $this->faker->words(3, TRUE),
-            'platform'            => $this->faker->randomElement(['stubhub', 'ticketmaster', 'viagogo']),
-            'max_price'           => $this->faker->randomFloat(2, 50, 500),
+            'user_id'             => User::factory(),
+            'name'                => fake()->sentence,
+            'keywords'            => fake()->words(3, TRUE),
+            'platform'            => fake()->randomElement(['stubhub', 'ticketmaster', 'viagogo']),
+            'max_price'           => fake()->randomFloat(2, 50, 500),
             'currency'            => 'USD',
             'filters'             => json_encode(['criteria' => 'example']),
             'email_notifications' => TRUE,
             'sms_notifications'   => FALSE,
-            'status'              => $this->faker->randomElement(['active', 'paused', 'triggered', 'expired']),
-            'triggered_at'        => $this->faker->boolean(30) ? now()->subDays($this->faker->numberBetween(0, 30)) : NULL,
+            'status'              => fake()->randomElement(['active', 'paused', 'triggered', 'expired']),
+            'triggered_at'        => fake()->boolean(30) ? now()->subDays(fake()->numberBetween(0, 30)) : NULL,
         ];
     }
 }

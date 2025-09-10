@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateTicketRequest extends FormRequest
 {
@@ -46,6 +47,7 @@ class UpdateTicketRequest extends FormRequest
     /**
      * Messages
      */
+    #[Override]
     public function messages(): array
     {
         return [

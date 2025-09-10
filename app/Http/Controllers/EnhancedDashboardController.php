@@ -19,14 +19,8 @@ use Illuminate\View\View;
 
 class EnhancedDashboardController extends Controller
 {
-    protected AnalyticsService $analytics;
-
-    protected RecommendationService $recommendations;
-
-    public function __construct(AnalyticsService $analytics, RecommendationService $recommendations)
+    public function __construct(protected AnalyticsService $analytics, protected RecommendationService $recommendations)
     {
-        $this->analytics = $analytics;
-        $this->recommendations = $recommendations;
     }
 
     /**
@@ -36,7 +30,7 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Authentication required');
         }
 
@@ -54,34 +48,34 @@ class EnhancedDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
         try {
             $statistics = $this->getEnhancedStatistics($user);
             $recentTickets = $this->getRecentTicketsWithMetadata()->take(6);
-            
+
             $data = [
                 'statistics'       => $statistics,
                 'recent_tickets'   => $recentTickets,
                 'recentTickets'    => $recentTickets, // Backward compatibility
-                'alerts_triggered' => $this->getRecentlyTriggeredAlerts($user),
+                'alerts_triggered' => $this->getRecentlyTriggeredAlerts(),
                 'system_status'    => $this->getSystemStatus(),
                 'user_activity'    => [
-                    'views_today'      => $this->getUserViewsToday($user),
-                    'searches_today'   => $this->getUserSearchesToday($user),
-                    'engagement_score' => $this->getUserEngagementScore($user),
+                    'views_today'      => $this->getUserViewsToday(),
+                    'searches_today'   => $this->getUserSearchesToday(),
+                    'engagement_score' => $this->getUserEngagementScore(),
                 ],
-                'subscription'     => [
-                    'monthly_limit'    => $user->getMonthlyTicketLimit(),
-                    'current_usage'    => $user->getMonthlyTicketUsage(),
-                    'percentage_used'  => min(100, ($user->getMonthlyTicketUsage() / max(1, $user->getMonthlyTicketLimit())) * 100),
-                    'has_active'       => $user->hasActiveSubscription(),
-                    'days_remaining'   => $user->hasActiveSubscription() ? null : $user->getFreeTrialDaysRemaining(),
+                'subscription' => [
+                    'monthly_limit'   => $user->getMonthlyTicketLimit(),
+                    'current_usage'   => $user->getMonthlyTicketUsage(),
+                    'percentage_used' => min(100, ($user->getMonthlyTicketUsage() / max(1, $user->getMonthlyTicketLimit())) * 100),
+                    'has_active'      => $user->hasActiveSubscription(),
+                    'days_remaining'  => $user->hasActiveSubscription() ? NULL : $user->getFreeTrialDaysRemaining(),
                 ],
-                'timestamp'        => Carbon::now()->toISOString(),
-                'last_updated'     => Carbon::now()->toISOString(),
+                'timestamp'    => Carbon::now()->toISOString(),
+                'last_updated' => Carbon::now()->toISOString(),
             ];
 
             return response()->json([
@@ -116,10 +110,10 @@ class EnhancedDashboardController extends Controller
 
         try {
             $analytics = [
-                'user_activity'     => $this->getUserActivityAnalytics($user, $timeframe),
-                'ticket_trends'     => $this->getTicketTrendsAnalytics($timeframe),
-                'alert_performance' => $this->getAlertPerformanceAnalytics($user, $timeframe),
-                'popular_content'   => $this->getPopularContentAnalytics($timeframe),
+                'user_activity'     => $this->getUserActivityAnalytics(),
+                'ticket_trends'     => $this->getTicketTrendsAnalytics(),
+                'alert_performance' => $this->getAlertPerformanceAnalytics(),
+                'popular_content'   => $this->getPopularContentAnalytics(),
             ];
 
             return response()->json([
@@ -148,19 +142,19 @@ class EnhancedDashboardController extends Controller
     {
         $cacheKey = "dashboard_data:user:{$user->id}";
 
-        return Cache::remember($cacheKey, 300, function () use ($user) {
+        return Cache::remember($cacheKey, 300, function () use ($user): array {
             $statistics = $this->getEnhancedStatistics($user);
-            
+
             return [
-                'user'                        => $user,
-                'statistics'                  => $statistics,
-                'stats'                       => [
+                'user'       => $user,
+                'statistics' => $statistics,
+                'stats'      => [
                     'available_tickets' => $statistics['available_tickets']['current'] ?? 0,
-                    'new_today' => $this->getNewTicketsToday(),
-                    'monitored_events' => $this->getMonitoredEventsCount($user),
-                    'active_alerts' => $statistics['active_alerts']['current'] ?? 0,
-                    'price_alerts' => $statistics['active_alerts']['current'] ?? 0,
-                    'triggered_today' => $statistics['active_alerts']['triggered_today'] ?? 0,
+                    'new_today'         => $this->getNewTicketsToday(),
+                    'monitored_events'  => $this->getMonitoredEventsCount($user),
+                    'active_alerts'     => $statistics['active_alerts']['current'] ?? 0,
+                    'price_alerts'      => $statistics['active_alerts']['current'] ?? 0,
+                    'triggered_today'   => $statistics['active_alerts']['triggered_today'] ?? 0,
                 ],
                 'recentTickets'               => $this->getRecentTicketsWithMetadata(),
                 'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
@@ -180,29 +174,29 @@ class EnhancedDashboardController extends Controller
     private function getEnhancedStatistics(User $user): array
     {
         $now = Carbon::now();
-        $yesterday = $now->copy()->subDay();
-        $lastWeek = $now->copy()->subWeek();
+        $now->copy()->subDay();
+        $now->copy()->subWeek();
 
         return [
             'available_tickets' => [
                 'current'    => $this->getAvailableTicketsCount(),
                 'trend'      => $this->getTicketTrend(),
-                'change_24h' => $this->getChange24h('tickets'),
+                'change_24h' => $this->getChange24h(),
             ],
             'high_demand' => [
                 'current'    => $this->getHighDemandCount(),
                 'trend'      => $this->getDemandTrend(),
-                'change_24h' => $this->getChange24h('demand'),
+                'change_24h' => $this->getChange24h(),
             ],
             'active_alerts' => [
                 'current'         => $this->getUserAlertsCount($user),
                 'triggered_today' => $this->getTriggeredAlertsToday($user),
-                'success_rate'    => $this->getAlertSuccessRate($user),
+                'success_rate'    => $this->getAlertSuccessRate(),
             ],
             'user_activity' => [
-                'views_today'      => $this->getUserViewsToday($user),
-                'searches_today'   => $this->getUserSearchesToday($user),
-                'engagement_score' => $this->getUserEngagementScore($user),
+                'views_today'      => $this->getUserViewsToday(),
+                'searches_today'   => $this->getUserSearchesToday(),
+                'engagement_score' => $this->getUserEngagementScore(),
             ],
             'price_insights' => [
                 'avg_price_trend'   => $this->getAvgPriceTrend(),
@@ -223,22 +217,20 @@ class EnhancedDashboardController extends Controller
             ->orderBy('scraped_at', 'desc')
             ->limit(10)
             ->get()
-            ->map(function ($ticket) {
-                return [
-                    'id'                   => $ticket->id,
-                    'title'                => $ticket->title,
-                    'price'                => $ticket->price,
-                    'formatted_price'      => $ticket->formatted_price,
-                    'platform'             => $ticket->platform,
-                    'venue'                => $ticket->venue,
-                    'event_date'           => $ticket->event_date,
-                    'scraped_at'           => $ticket->scraped_at,
-                    'demand_indicator'     => $this->calculateDemandIndicator($ticket),
-                    'price_trend'          => $this->calculatePriceTrend($ticket),
-                    'recommendation_score' => $this->calculateRecommendationScore($ticket),
-                    'urgency_level'        => $this->calculateUrgencyLevel($ticket),
-                ];
-            });
+            ->map(fn ($ticket): array => [
+                'id'                   => $ticket->id,
+                'title'                => $ticket->title,
+                'price'                => $ticket->price,
+                'formatted_price'      => $ticket->formatted_price,
+                'platform'             => $ticket->platform,
+                'venue'                => $ticket->venue,
+                'event_date'           => $ticket->event_date,
+                'scraped_at'           => $ticket->scraped_at,
+                'demand_indicator'     => $this->calculateDemandIndicator($ticket),
+                'price_trend'          => $this->calculatePriceTrend(),
+                'recommendation_score' => $this->calculateRecommendationScore($ticket),
+                'urgency_level'        => $this->calculateUrgencyLevel($ticket),
+            ]);
     }
 
     /**
@@ -255,7 +247,7 @@ class EnhancedDashboardController extends Controller
             ->orderBy('popularity_score', 'desc');
 
         // Apply user preferences
-        if (!empty($favoriteTeams)) {
+        if (! empty($favoriteTeams)) {
             $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
@@ -264,17 +256,15 @@ class EnhancedDashboardController extends Controller
             });
         }
 
-        if (!empty($priceRange) && isset($priceRange['max'])) {
+        if (! empty($priceRange) && isset($priceRange['max'])) {
             $query->where('min_price', '<=', $priceRange['max']);
         }
 
-        return $query->limit(5)->get()->map(function ($ticket) {
-            return [
-                'ticket'           => $ticket,
-                'match_reason'     => $this->getMatchReason($ticket),
-                'confidence_score' => $this->getConfidenceScore($ticket),
-            ];
-        })->toArray();
+        return $query->limit(5)->get()->map(fn ($ticket): array => [
+            'ticket'           => $ticket,
+            'match_reason'     => $this->getMatchReason(),
+            'confidence_score' => $this->getConfidenceScore(),
+        ])->toArray();
     }
 
     /**
@@ -291,11 +281,9 @@ class EnhancedDashboardController extends Controller
         return [
             'total_alerts'    => $alerts->count(),
             'active_alerts'   => $alerts->where('status', 'active')->count(),
-            'triggered_today' => $alerts->sum(function ($alert) {
-                return $alert->matches()->whereDate('created_at', Carbon::today())->count();
-            }),
-            'success_rate'   => $this->calculateAlertSuccessRate($alerts),
-            'top_performing' => $alerts->sortByDesc('matches_count')->take(3),
+            'triggered_today' => $alerts->sum(fn ($alert) => $alert->matches()->whereDate('created_at', Carbon::today())->count()),
+            'success_rate'    => $this->calculateAlertSuccessRate($alerts),
+            'top_performing'  => $alerts->sortByDesc('matches_count')->take(3),
         ];
     }
 
@@ -338,14 +326,14 @@ class EnhancedDashboardController extends Controller
         return ScrapedTicket::available()
             ->where('event_date', '>', Carbon::now())
             ->where('event_date', '<=', Carbon::now()->addMonths(3))
-            ->when(!empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
+            ->when(! empty($favoriteTeams), function ($query) use ($favoriteTeams): void {
                 $query->where(function ($q) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $q->orWhere('title', 'like', "%{$team}%");
                     }
                 });
             })
-            ->when(!empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
+            ->when(! empty($favoriteVenues), function ($query) use ($favoriteVenues): void {
                 $query->whereIn('venue', $favoriteVenues);
             })
             ->orderBy('event_date')
@@ -372,56 +360,56 @@ class EnhancedDashboardController extends Controller
                 ->get(),
         ];
     }
-    
+
     /**
      * Get recently triggered alerts for user
      */
-    private function getRecentlyTriggeredAlerts(User $user): array
+    private function getRecentlyTriggeredAlerts(): array
     {
         return [
-            'count_today' => 0,
+            'count_today'    => 0,
             'recent_matches' => [],
         ];
     }
-    
+
     /**
      * Get system status information
      */
     private function getSystemStatus(): array
     {
         return [
-            'scraping_active' => true,
-            'api_responsive' => true,
-            'database_healthy' => true,
-            'last_check' => Carbon::now()->toISOString(),
+            'scraping_active'  => TRUE,
+            'api_responsive'   => TRUE,
+            'database_healthy' => TRUE,
+            'last_check'       => Carbon::now()->toISOString(),
         ];
     }
-    
+
     /**
      * Get user views today
      */
-    private function getUserViewsToday(User $user): int
+    private function getUserViewsToday(): int
     {
         // This would integrate with actual analytics service
-        return rand(5, 25);
+        return random_int(5, 25);
     }
-    
+
     /**
      * Get user searches today
      */
-    private function getUserSearchesToday(User $user): int
+    private function getUserSearchesToday(): int
     {
         // This would integrate with actual analytics service
-        return rand(0, 10);
+        return random_int(0, 10);
     }
-    
+
     /**
      * Get user engagement score
      */
-    private function getUserEngagementScore(User $user): float
+    private function getUserEngagementScore(): float
     {
         // This would calculate based on user activity patterns
-        return round(rand(65, 95) / 100, 2);
+        return round(random_int(65, 95) / 100, 2);
     }
 
     /**
@@ -479,7 +467,7 @@ class EnhancedDashboardController extends Controller
         return 'stable';
     }
 
-    private function getChange24h(string $metric): float
+    private function getChange24h(): float
     {
         // Implement 24h change calculation
         return 0.0;
@@ -514,12 +502,11 @@ class EnhancedDashboardController extends Controller
             ->count();
     }
 
-    private function getAlertSuccessRate(User $user): float
+    private function getAlertSuccessRate(): float
     {
         // Implement alert success rate calculation
         return 85.0;
     }
-
 
     private function getAvgPriceTrend(): string
     {
@@ -554,7 +541,7 @@ class EnhancedDashboardController extends Controller
         return 'low';
     }
 
-    private function calculatePriceTrend($ticket): string
+    private function calculatePriceTrend(): string
     {
         // Implement price trend calculation
         return 'stable';
@@ -582,12 +569,12 @@ class EnhancedDashboardController extends Controller
         return 'low';
     }
 
-    private function getMatchReason($ticket): string
+    private function getMatchReason(): string
     {
         return 'Matches your preferences';
     }
 
-    private function getConfidenceScore($ticket): float
+    private function getConfidenceScore(): float
     {
         return 85.0;
     }
@@ -599,9 +586,7 @@ class EnhancedDashboardController extends Controller
         }
 
         $totalAlerts = $alerts->count();
-        $successfulAlerts = $alerts->filter(function ($alert) {
-            return $alert->matches_count > 0;
-        })->count();
+        $successfulAlerts = $alerts->filter(fn ($alert): bool => $alert->matches_count > 0)->count();
 
         return ($successfulAlerts / $totalAlerts) * 100;
     }
@@ -703,24 +688,23 @@ class EnhancedDashboardController extends Controller
         // Count unique events from scraped tickets that match user's alert criteria or preferences
         $preferences = $user->preferences ?? [];
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
-        
+
         $query = ScrapedTicket::available()
             ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
-            
-        if (!empty($favoriteTeams)) {
-            $query->where(function ($q) use ($favoriteTeams) {
+
+        if (! empty($favoriteTeams)) {
+            $query->where(function ($q) use ($favoriteTeams): void {
                 foreach ($favoriteTeams as $team) {
                     $q->orWhere('title', 'like', "%{$team}%")
                         ->orWhere('teams', 'like', "%{$team}%");
                 }
             });
         }
-        
+
         return (int) $query->value('unique_events') ?: 0;
     }
 
-
-    private function getUserActivityAnalytics(User $user, string $timeframe): array
+    private function getUserActivityAnalytics(): array
     {
         // Implement user activity analytics
         return [
@@ -731,7 +715,7 @@ class EnhancedDashboardController extends Controller
         ];
     }
 
-    private function getTicketTrendsAnalytics(string $timeframe): array
+    private function getTicketTrendsAnalytics(): array
     {
         // Implement ticket trends analytics
         return [
@@ -742,7 +726,7 @@ class EnhancedDashboardController extends Controller
         ];
     }
 
-    private function getAlertPerformanceAnalytics(User $user, string $timeframe): array
+    private function getAlertPerformanceAnalytics(): array
     {
         // Implement alert performance analytics
         return [
@@ -753,7 +737,7 @@ class EnhancedDashboardController extends Controller
         ];
     }
 
-    private function getPopularContentAnalytics(string $timeframe): array
+    private function getPopularContentAnalytics(): array
     {
         // Implement popular content analytics
         return [

@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -14,9 +15,10 @@ class EnglandCricketPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -137,7 +139,7 @@ class EnglandCricketPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -169,13 +171,13 @@ class EnglandCricketPlugin extends BaseScraperPlugin
         $lowerFormat = strtolower($format);
         $lowerTitle = strtolower($title);
 
-        if (strpos($lowerFormat, 'test') !== FALSE || strpos($lowerTitle, 'test') !== FALSE) {
+        if (str_contains($lowerFormat, 'test') || str_contains($lowerTitle, 'test')) {
             return 'test';
         }
-        if (strpos($lowerFormat, 'odi') !== FALSE || strpos($lowerTitle, 'odi') !== FALSE) {
+        if (str_contains($lowerFormat, 'odi') || str_contains($lowerTitle, 'odi')) {
             return 'odi';
         }
-        if (strpos($lowerFormat, 't20') !== FALSE || strpos($lowerTitle, 't20') !== FALSE) {
+        if (str_contains($lowerFormat, 't20') || str_contains($lowerTitle, 't20')) {
             return 't20i';
         }
 
@@ -186,19 +188,19 @@ class EnglandCricketPlugin extends BaseScraperPlugin
     {
         $lowerVenue = strtolower($venue);
 
-        if (strpos($lowerVenue, 'lords') !== FALSE) {
+        if (str_contains($lowerVenue, 'lords')) {
             return 'London';
         }
-        if (strpos($lowerVenue, 'oval') !== FALSE) {
+        if (str_contains($lowerVenue, 'oval')) {
             return 'London';
         }
-        if (strpos($lowerVenue, 'old trafford') !== FALSE) {
+        if (str_contains($lowerVenue, 'old trafford')) {
             return 'Manchester';
         }
-        if (strpos($lowerVenue, 'headingley') !== FALSE) {
+        if (str_contains($lowerVenue, 'headingley')) {
             return 'Leeds';
         }
-        if (strpos($lowerVenue, 'edgbaston') !== FALSE) {
+        if (str_contains($lowerVenue, 'edgbaston')) {
             return 'Birmingham';
         }
 
@@ -209,10 +211,10 @@ class EnglandCricketPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out')) {
             return 'sold_out';
         }
-        if (strpos($lowerStatus, 'available') !== FALSE) {
+        if (str_contains($lowerStatus, 'available')) {
             return 'available';
         }
 
@@ -221,7 +223,7 @@ class EnglandCricketPlugin extends BaseScraperPlugin
 
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 

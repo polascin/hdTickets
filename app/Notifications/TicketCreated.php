@@ -12,14 +12,11 @@ class TicketCreated extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $ticket;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket)
+    public function __construct(protected Ticket $ticket)
     {
-        $this->ticket = $ticket;
     }
 
     /**
@@ -56,7 +53,7 @@ class TicketCreated extends Notification implements ShouldQueue
             ->line('A new ticket has been created:')
             ->line('**Ticket #' . $this->ticket->id . ':** ' . $this->ticket->title)
             ->line('**Category:** ' . ($this->ticket->category->name ?? 'Not specified'))
-            ->line('**Priority:** ' . ucfirst($this->ticket->priority))
+            ->line('**Priority:** ' . ucfirst((string) $this->ticket->priority))
             ->line('**Created by:** ' . ($this->ticket->user->username ?? 'System'))
             ->action('View Ticket', route('tickets.show', $this->ticket))
             ->line('You are receiving this notification because you are an administrator or agent.');

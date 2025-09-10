@@ -59,7 +59,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function dispatchMany(array $events): void
     {
-        if (empty($events)) {
+        if ($events === []) {
             return;
         }
 
@@ -93,7 +93,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function subscribe(string $eventType, callable $handler): void
     {
-        if (!isset($this->handlers[$eventType])) {
+        if (! isset($this->handlers[$eventType])) {
             $this->handlers[$eventType] = [];
         }
 
@@ -105,13 +105,13 @@ class LaravelEventBus implements EventBusInterface
      */
     public function unsubscribe(string $eventType, callable $handler): void
     {
-        if (!isset($this->handlers[$eventType])) {
+        if (! isset($this->handlers[$eventType])) {
             return;
         }
 
         $this->handlers[$eventType] = array_filter(
             $this->handlers[$eventType],
-            fn ($h) => $h !== $handler,
+            fn ($h): bool => $h !== $handler,
         );
 
         if (empty($this->handlers[$eventType])) {
@@ -132,7 +132,7 @@ class LaravelEventBus implements EventBusInterface
      */
     public function hasHandlers(string $eventType): bool
     {
-        return isset($this->handlers[$eventType]) && !empty($this->handlers[$eventType]);
+        return isset($this->handlers[$eventType]) && ! empty($this->handlers[$eventType]);
     }
 
     /**
@@ -182,7 +182,7 @@ class LaravelEventBus implements EventBusInterface
                 }
 
                 // Exponential backoff
-                usleep(pow(2, $attempt) * 100000); // 0.1s, 0.2s, 0.4s
+                usleep(2 ** $attempt * 100000); // 0.1s, 0.2s, 0.4s
             }
         }
     }

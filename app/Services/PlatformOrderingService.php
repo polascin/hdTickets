@@ -47,17 +47,13 @@ class PlatformOrderingService
             ->sortBy('order');
 
         // Filter platforms if includeOnly is specified
-        if (!empty($includeOnly)) {
-            $platforms = $platforms->filter(function ($platform) use ($includeOnly) {
-                return in_array($platform['key'], $includeOnly, TRUE);
-            });
+        if ($includeOnly !== []) {
+            $platforms = $platforms->filter(fn ($platform): bool => in_array($platform['key'], $includeOnly, TRUE));
         }
 
         // Exclude specific platforms if specified
-        if (!empty($excludePlatforms)) {
-            $platforms = $platforms->filter(function ($platform) use ($excludePlatforms) {
-                return !in_array($platform['key'], $excludePlatforms, TRUE);
-            });
+        if ($excludePlatforms !== []) {
+            $platforms = $platforms->filter(fn ($platform): bool => ! in_array($platform['key'], $excludePlatforms, TRUE));
         }
 
         return $platforms->values()->toArray();
@@ -98,12 +94,8 @@ class PlatformOrderingService
         $orderedKeys = config('platforms.ordered_keys');
 
         return collect($platformKeys)
-            ->filter(function ($key) use ($orderedKeys) {
-                return in_array($key, $orderedKeys, TRUE);
-            })
-            ->sortBy(function ($key) use ($orderedKeys) {
-                return array_search($key, $orderedKeys, TRUE);
-            })
+            ->filter(fn ($key): bool => in_array($key, $orderedKeys, TRUE))
+            ->sortBy(fn ($key): int|string|false => array_search($key, $orderedKeys, TRUE))
             ->values()
             ->toArray();
     }
@@ -120,13 +112,11 @@ class PlatformOrderingService
     {
         $platforms = self::getAllPlatforms();
 
-        $jsArray = collect($platforms)->map(function ($platform) {
-            return [
-                'key'   => $platform['key'],
-                'name'  => $platform['display_name'],
-                'order' => $platform['order'],
-            ];
-        })->values();
+        $jsArray = collect($platforms)->map(fn ($platform): array => [
+            'key'   => $platform['key'],
+            'name'  => $platform['display_name'],
+            'order' => $platform['order'],
+        ])->values();
 
         return json_encode($jsArray);
     }

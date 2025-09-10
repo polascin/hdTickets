@@ -22,9 +22,9 @@ use function is_string;
  */
 class RecommendationService
 {
-    private const CACHE_TTL = 900; // 15 minutes
+    private const int CACHE_TTL = 900; // 15 minutes
 
-    private const MAX_RECOMMENDATIONS = 10;
+    private const int MAX_RECOMMENDATIONS = 10;
 
     /**
      * Get personalized ticket recommendations for a user
@@ -52,13 +52,13 @@ class RecommendationService
                             'ticket'           => $ticket,
                             'confidence_score' => $score * 100,
                             'match_reason'     => $this->getMatchReason($ticket, $preferences, $behaviorData),
-                            'priority'         => $this->calculatePriority($score, $ticket),
+                            'priority'         => $this->calculatePriority($score),
                         ];
                     }
                 }
 
                 // Sort by confidence score and limit
-                usort($recommendations, fn ($a, $b) => $b['confidence_score'] <=> $a['confidence_score']);
+                usort($recommendations, fn (array $a, array $b): int => $b['confidence_score'] <=> $a['confidence_score']);
 
                 return array_slice($recommendations, 0, self::MAX_RECOMMENDATIONS);
             } catch (Exception $e) {
@@ -86,14 +86,12 @@ class RecommendationService
                     ->take($limit)
                     ->get();
 
-                return $tickets->map(function ($ticket) {
-                    return [
-                        'ticket'           => $ticket,
-                        'confidence_score' => 85, // Static high score for trending
-                        'match_reason'     => 'Trending now',
-                        'priority'         => 'high',
-                    ];
-                })->toArray();
+                return $tickets->map(fn ($ticket): array => [
+                    'ticket'           => $ticket,
+                    'confidence_score' => 85, // Static high score for trending
+                    'match_reason'     => 'Trending now',
+                    'priority'         => 'high',
+                ])->toArray();
             } catch (Exception $e) {
                 Log::error('Failed to get trending recommendations: ' . $e->getMessage());
 
@@ -212,7 +210,7 @@ class RecommendationService
         $factors = [];
 
         // Sport preference matching
-        if (!empty($behaviorData['favorite_sports'])) {
+        if (! empty($behaviorData['favorite_sports'])) {
             $ticketSport = $this->extractSportFromTitle($ticket->title);
             if (in_array($ticketSport, $behaviorData['favorite_sports'], TRUE)) {
                 $factors['sport_match'] = 0.4;
@@ -230,17 +228,13 @@ class RecommendationService
         }
 
         // Venue/location matching
-        if (!empty($preferences['venues']) && $ticket->venue) {
-            if (in_array($ticket->venue, $preferences['venues'], TRUE)) {
-                $factors['venue_match'] = 0.2;
-            }
+        if (! empty($preferences['venues']) && $ticket->venue && in_array($ticket->venue, $preferences['venues'], TRUE)) {
+            $factors['venue_match'] = 0.2;
         }
 
         // Platform preference
-        if (!empty($preferences['preferred_platforms'])) {
-            if (in_array($ticket->platform, $preferences['preferred_platforms'], TRUE)) {
-                $factors['platform_match'] = 0.1;
-            }
+        if (! empty($preferences['preferred_platforms']) && in_array($ticket->platform, $preferences['preferred_platforms'], TRUE)) {
+            $factors['platform_match'] = 0.1;
         }
 
         // Recency boost (newer tickets get slight boost)
@@ -340,12 +334,12 @@ class RecommendationService
             $reasons[] = 'High demand event';
         }
 
-        if (!empty($preferences['preferred_platforms'])
+        if (! empty($preferences['preferred_platforms'])
             && in_array($ticket->platform, $preferences['preferred_platforms'], TRUE)) {
             $reasons[] = 'From your preferred platform';
         }
 
-        if (empty($reasons)) {
+        if ($reasons === []) {
             $reasons[] = 'Popular event in your area';
         }
 
@@ -355,7 +349,7 @@ class RecommendationService
     /**
      * Calculate priority level
      */
-    private function calculatePriority(float $score, ScrapedTicket $ticket): string
+    private function calculatePriority(float $score): string
     {
         if ($score > 0.8) {
             return 'high';

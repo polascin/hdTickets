@@ -5,13 +5,13 @@ namespace App\Services;
 use App\Events\SystemNotification;
 use App\Services\Core\BaseService;
 use App\Services\Interfaces\NotificationInterface;
-use App\Services\NotificationChannels\ChannelFactory;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
+use Override;
 
 use function count;
 use function in_array;
@@ -25,33 +25,18 @@ use function is_array;
  */
 class NotificationService extends BaseService implements NotificationInterface
 {
-    private const NOTIFICATIONS_PREFIX = 'notifications:';
+    private const string NOTIFICATIONS_PREFIX = 'notifications:';
 
     /** @var array<int, string> */
-    private const CHANNELS = ['database', 'broadcast', 'push', 'mail', 'sms', 'discord', 'slack', 'telegram', 'webhook'];
+    private const array CHANNELS = ['database', 'broadcast', 'push', 'mail', 'sms', 'discord', 'slack', 'telegram', 'webhook'];
 
-    private const PRIORITY_HIGH = 'high';
+    private const string PRIORITY_HIGH = 'high';
 
-    private const PRIORITY_NORMAL = 'normal';
+    private const string PRIORITY_NORMAL = 'normal';
 
-    private const PRIORITY_LOW = 'low';
+    private const string PRIORITY_LOW = 'low';
 
-    /** Factory for creating notification channels */
-    private ChannelFactory $channelFactory;
-
-    /**
-     * Currently enabled notification channels
-     *
-     * @var array<int, string>
-     */
-    private array $enabledChannels = [];
-
-    /**
-     * Rate limits for different notification channels
-     *
-     * @var array<string, int>
-     */
-    private array $rateLimits = [];
+    public $analytics;
 
     /**
      * Send ticket availability alert
@@ -78,9 +63,9 @@ class NotificationService extends BaseService implements NotificationInterface
                 'expires_at' => Carbon::now()->addHours(24)->toISOString(),
             ];
 
-            if (empty($userIds)) {
+            if ($userIds === []) {
                 // Send to all subscribers interested in this sport/event
-                $userIds = $this->getInterestedUsers($ticketData);
+                $userIds = $this->getInterestedUsers();
             }
 
             $this->dispatchNotification($notification, $userIds);
@@ -115,7 +100,7 @@ class NotificationService extends BaseService implements NotificationInterface
                 'id'      => $this->generateNotificationId(),
                 'type'    => 'price_update',
                 'title'   => $isPriceDrop ? 'Price Drop Alert!' : 'Price Update',
-                'message' => $this->buildPriceUpdateMessage($ticketId, $oldPrice, $newPrice, $percentChange),
+                'message' => $this->buildPriceUpdateMessage($oldPrice, $newPrice, $percentChange),
                 'data'    => [
                     'ticket_id'      => $ticketId,
                     'old_price'      => $oldPrice,
@@ -130,9 +115,9 @@ class NotificationService extends BaseService implements NotificationInterface
                 'expires_at' => Carbon::now()->addHours(6)->toISOString(),
             ];
 
-            if (empty($userIds)) {
+            if ($userIds === []) {
                 // Send to users watching this ticket
-                $userIds = $this->getUsersWatchingTicket($ticketId);
+                $userIds = $this->getUsersWatchingTicket();
             }
 
             $this->dispatchNotification($notification, $userIds);
@@ -181,11 +166,9 @@ class NotificationService extends BaseService implements NotificationInterface
                 'expires_at' => Carbon::now()->addDays(3)->toISOString(),
             ];
 
-            if (empty($userIds)) {
-                // Send to all active users for important system notifications
-                if (in_array($type, ['maintenance', 'security', 'outage'], TRUE)) {
-                    $userIds = $this->getAllActiveUsers();
-                }
+            // Send to all active users for important system notifications
+            if (empty($userIds) && in_array($type, ['maintenance', 'security', 'outage'], TRUE)) {
+                $userIds = $this->getAllActiveUsers();
             }
 
             $this->dispatchNotification($notification, $userIds);
@@ -338,7 +321,7 @@ class NotificationService extends BaseService implements NotificationInterface
                 $notificationKey = self::NOTIFICATIONS_PREFIX . 'data:' . $notificationId;
                 $notificationData = Redis::hgetall($notificationKey);
 
-                if (!empty($notificationData)) {
+                if (! empty($notificationData)) {
                     $notifications[] = [
                         'id'         => $notificationId,
                         'type'       => $notificationData['type'] ?? '',
@@ -469,21 +452,10 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * OnInitialize
      */
+    #[Override]
     protected function onInitialize(): void
     {
         $this->validateDependencies(['analyticsService']);
-
-        $this->channelFactory = new ChannelFactory([
-            'encryptionService' => $this->getDependency('encryptionService'),
-        ]);
-
-        $this->enabledChannels = $this->getConfig('enabled_channels', self::CHANNELS);
-        $this->rateLimits = $this->getConfig('rate_limits', [
-            'email'   => 60, // per hour
-            'sms'     => 10,   // per hour
-            'push'    => 300, // per hour
-            'webhook' => 100, // per hour
-        ]);
     }
 
     /**
@@ -519,7 +491,7 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * BuildPriceUpdateMessage
      */
-    private function buildPriceUpdateMessage(int $ticketId, float $oldPrice, float $newPrice, float $percentChange): string
+    private function buildPriceUpdateMessage(float $oldPrice, float $newPrice, float $percentChange): string
     {
         $direction = $percentChange < 0 ? 'dropped' : 'increased';
         $percentFormatted = number_format(abs($percentChange), 1);
@@ -626,12 +598,12 @@ class NotificationService extends BaseService implements NotificationInterface
 
         // Send push notifications
         if (in_array('push', $notification['channels'], TRUE)) {
-            $this->sendPushNotifications($notification, $userIds);
+            $this->sendPushNotifications();
         }
 
         // Send email notifications
         if (in_array('mail', $notification['channels'], TRUE)) {
-            $this->sendEmailNotifications($notification, $userIds);
+            $this->sendEmailNotifications();
         }
     }
 
@@ -661,14 +633,11 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Send push notifications to users
-     *
-     * @param array<string, mixed> $notification Notification data
-     * @param array<int, int>      $userIds      Target user IDs
      */
     /**
      * SendPushNotifications
      */
-    private function sendPushNotifications(array $notification, array $userIds): void
+    private function sendPushNotifications(): void
     {
         // Implementation for push notifications
         // This would integrate with services like FCM, APNs, etc.
@@ -676,14 +645,11 @@ class NotificationService extends BaseService implements NotificationInterface
 
     /**
      * Send email notifications to users
-     *
-     * @param array<string, mixed> $notification Notification data
-     * @param array<int, int>      $userIds      Target user IDs
      */
     /**
      * SendEmailNotifications
      */
-    private function sendEmailNotifications(array $notification, array $userIds): void
+    private function sendEmailNotifications(): void
     {
         // Implementation for email notifications
         // This would use Laravel's mail system
@@ -699,14 +665,12 @@ class NotificationService extends BaseService implements NotificationInterface
     }
 
     /**
-     * @param array<string, mixed> $ticketData
-     *
      * @return array<int, int>
      */
     /**
      * Get  interested users
      */
-    private function getInterestedUsers(array $ticketData): array
+    private function getInterestedUsers(): array
     {
         // Implementation to get users interested in specific ticket types
         return [];
@@ -718,7 +682,7 @@ class NotificationService extends BaseService implements NotificationInterface
     /**
      * Get  users watching ticket
      */
-    private function getUsersWatchingTicket(int $ticketId): array
+    private function getUsersWatchingTicket(): array
     {
         // Implementation to get users watching specific ticket
         return [];

@@ -2,7 +2,23 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Models\ScrapingStats;
+use App\Models\User;
+use App\Services\ActivityLogger;
+use App\Services\AdvancedAnalyticsDashboard;
+use App\Services\AutomatedPurchaseEngine;
+use App\Services\EncryptionService;
+use App\Services\Enhanced\AdvancedCacheService;
+use App\Services\Enhanced\PerformanceMonitoringService;
+use App\Services\MultiPlatformManager;
+use App\Services\NotificationSystem\NotificationManager;
+use App\Services\RedisRateLimitService;
+use App\Services\Scraping\PluginBasedScraperManager;
+use App\Services\SecurityService;
+use App\Services\TicketScrapingService;
 use DB;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
@@ -11,6 +27,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeServiceProvider;
+use Override;
 
 use function function_exists;
 use function get_class;
@@ -24,10 +42,10 @@ class RefactoredAppServiceProvider extends ServiceProvider
      * @var array
      */
     public $singletons = [
-        'App\Services\TicketScrapingService'                  => 'App\Services\TicketScrapingService',
-        'App\Services\NotificationSystem\NotificationManager' => 'App\Services\NotificationSystem\NotificationManager',
-        'App\Services\Enhanced\PerformanceMonitoringService'  => 'App\Services\Enhanced\PerformanceMonitoringService',
-        'App\Services\Enhanced\AdvancedCacheService'          => 'App\Services\Enhanced\AdvancedCacheService',
+        TicketScrapingService::class        => TicketScrapingService::class,
+        NotificationManager::class          => NotificationManager::class,
+        PerformanceMonitoringService::class => PerformanceMonitoringService::class,
+        AdvancedCacheService::class         => AdvancedCacheService::class,
     ];
 
     /**
@@ -36,6 +54,7 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         $this->registerCoreServices();
@@ -67,6 +86,7 @@ class RefactoredAppServiceProvider extends ServiceProvider
     /**
      * Provides
      */
+    #[Override]
     public function provides(): array
     {
         return [
@@ -92,24 +112,16 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function registerCoreServices(): void
     {
         // Register activity logging service
-        $this->app->singleton('activity.logger', function ($app) {
-            return new \App\Services\ActivityLogger();
-        });
+        $this->app->singleton('activity.logger', fn ($app): \ActivityLogger => new ActivityLogger());
 
         // Register encryption service
-        $this->app->singleton('encryption.service', function ($app) {
-            return new \App\Services\EncryptionService();
-        });
+        $this->app->singleton('encryption.service', fn ($app): \EncryptionService => new EncryptionService());
 
         // Register security service
-        $this->app->singleton('security.service', function ($app) {
-            return new \App\Services\SecurityService();
-        });
+        $this->app->singleton('security.service', fn ($app): \SecurityService => new SecurityService());
 
         // Register API rate limiter
-        $this->app->singleton('api.rate_limiter', function ($app) {
-            return new \App\Services\RedisRateLimitService();
-        });
+        $this->app->singleton('api.rate_limiter', fn ($app): \RedisRateLimitService => new RedisRateLimitService());
     }
 
     /**
@@ -121,24 +133,16 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function registerCustomServices(): void
     {
         // Register scraping services
-        $this->app->bind('scraping.manager', function ($app) {
-            return new \App\Services\Scraping\PluginBasedScraperManager();
-        });
+        $this->app->bind('scraping.manager', fn ($app): \PluginBasedScraperManager => new PluginBasedScraperManager());
 
         // Register analytics services
-        $this->app->singleton('analytics.dashboard', function ($app) {
-            return new \App\Services\AdvancedAnalyticsDashboard();
-        });
+        $this->app->singleton('analytics.dashboard', fn ($app): \AdvancedAnalyticsDashboard => new AdvancedAnalyticsDashboard());
 
         // Register purchase automation
-        $this->app->singleton('purchase.automation', function ($app) {
-            return new \App\Services\AutomatedPurchaseEngine();
-        });
+        $this->app->singleton('purchase.automation', fn ($app): \AutomatedPurchaseEngine => new AutomatedPurchaseEngine());
 
         // Register multi-platform manager
-        $this->app->singleton('platform.manager', function ($app) {
-            return new \App\Services\MultiPlatformManager();
-        });
+        $this->app->singleton('platform.manager', fn ($app): \MultiPlatformManager => new MultiPlatformManager());
     }
 
     /**
@@ -151,22 +155,20 @@ class RefactoredAppServiceProvider extends ServiceProvider
     {
         if ($this->app->environment('local', 'testing')) {
             // Register development tools
-            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
 
             // Register debug services
-            $this->app->singleton('debug.profiler', function ($app) {
-                return new class() {
-                    public function profile()
-                    {
-                        $start = microtime(TRUE);
-                        $result = $callback();
-                        $end = microtime(TRUE);
+            $this->app->singleton('debug.profiler', fn ($app): object => new class() {
+                public function profile()
+                {
+                    $start = microtime(TRUE);
+                    $result = $callback();
+                    $end = microtime(TRUE);
 
-                        logger("Profile [{$name}]: " . round(($end - $start) * 1000, 2) . 'ms');
+                    logger("Profile [{$name}]: " . round(($end - $start) * 1000, 2) . 'ms');
 
-                        return $result;
-                    }
-                };
+                    return $result;
+                }
             });
         }
     }
@@ -180,13 +182,13 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureEloquent(): void
     {
         // Prevent lazy loading in non-production environments
-        Model::preventLazyLoading(!$this->app->isProduction());
+        Model::preventLazyLoading(! $this->app->isProduction());
 
         // Prevent silently discarding attributes
-        Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
+        Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
 
         // Prevent accessing missing attributes
-        Model::preventAccessingMissingAttributes(!$this->app->isProduction());
+        Model::preventAccessingMissingAttributes(! $this->app->isProduction());
 
         // Configure model event logging
         if (config('app.log_model_events', FALSE)) {
@@ -221,21 +223,17 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureValidation(): void
     {
         // Custom validation rule for ticket prices
-        Validator::extend('ticket_price', function ($attribute, $value, $parameters, $validator) {
-            return is_numeric($value) && $value >= 0 && $value <= 10000;
-        });
+        Validator::extend('ticket_price', fn ($attribute, $value, $parameters, $validator): bool => is_numeric($value) && $value >= 0 && $value <= 10000);
 
         // Custom validation rule for platform names
-        Validator::extend('platform_name', function ($attribute, $value, $parameters, $validator) {
+        Validator::extend('platform_name', function ($attribute, $value, $parameters, $validator): bool {
             $allowedPlatforms = ['ticketmaster', 'stubhub', 'viagogo', 'tickpick', 'seatgeek'];
 
             return in_array(strtolower($value), $allowedPlatforms, TRUE);
         });
 
         // Custom validation rule for event dates
-        Validator::extend('future_event_date', function ($attribute, $value, $parameters, $validator) {
-            return strtotime($value) > time();
-        });
+        Validator::extend('future_event_date', fn ($attribute, $value, $parameters, $validator): bool => strtotime((string) $value) > time());
     }
 
     /**
@@ -255,13 +253,11 @@ class RefactoredAppServiceProvider extends ServiceProvider
             $view->with([
                 'currentUser'         => auth()->user(),
                 'unreadNotifications' => auth()->check() ? auth()->user()->unreadNotifications()->count() : 0,
-                'systemStatus'        => cache()->remember('system_status', 300, function () {
-                    return [
-                        'scrapers_active' => random_int(5, 15),
-                        'alerts_today'    => random_int(100, 500),
-                        'uptime'          => '99.9%',
-                    ];
-                }),
+                'systemStatus'        => cache()->remember('system_status', 300, fn (): array => [
+                    'scrapers_active' => random_int(5, 15),
+                    'alerts_today'    => random_int(100, 500),
+                    'uptime'          => '99.9%',
+                ]),
             ]);
         });
 
@@ -282,13 +278,11 @@ class RefactoredAppServiceProvider extends ServiceProvider
         View::composer('admin.*', function ($view): void {
             if (auth()->check() && auth()->user()->isAdmin()) {
                 $view->with([
-                    'adminStats' => cache()->remember('admin_stats', 300, function () {
-                        return [
-                            'total_users'     => \App\Models\User::count(),
-                            'active_scrapers' => \App\Models\ScrapingStats::active()->count(),
-                            'system_health'   => 'excellent',
-                        ];
-                    }),
+                    'adminStats' => cache()->remember('admin_stats', 300, fn (): array => [
+                        'total_users'     => User::count(),
+                        'active_scrapers' => ScrapingStats::active()->count(),
+                        'system_health'   => 'excellent',
+                    ]),
                 ]);
             }
         });
@@ -303,49 +297,33 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureBladeDirectives(): void
     {
         // Directive for formatting prices
-        Blade::directive('price', function ($expression) {
-            return "<?php echo number_format({$expression}, 2); ?>";
-        });
+        Blade::directive('price', fn ($expression): string => "<?php echo number_format({$expression}, 2); ?>");
 
         // Directive for user roles
-        Blade::directive('role', function ($expression) {
+        Blade::directive('role', function ($expression): string {
             // Parse the role and use appropriate method
             $role = trim($expression, "'\"");
-            switch ($role) {
-                case 'admin':
-                    return '<?php if(auth()->check() && auth()->user()->isAdmin()): ?>';
-                case 'agent':
-                    return '<?php if(auth()->check() && auth()->user()->isAgent()): ?>';
-                case 'customer':
-                    return '<?php if(auth()->check() && auth()->user()->isCustomer()): ?>';
-                case 'scraper':
-                    return '<?php if(auth()->check() && auth()->user()->isScraper()): ?>';
-                default:
-                    return "<?php if(auth()->check() && auth()->user()->hasRole({$expression})): ?>";
-            }
+
+            return match ($role) {
+                'admin'    => '<?php if(auth()->check() && auth()->user()->isAdmin()): ?>',
+                'agent'    => '<?php if(auth()->check() && auth()->user()->isAgent()): ?>',
+                'customer' => '<?php if(auth()->check() && auth()->user()->isCustomer()): ?>',
+                'scraper'  => '<?php if(auth()->check() && auth()->user()->isScraper()): ?>',
+                default    => "<?php if(auth()->check() && auth()->user()->hasRole({$expression})): ?>",
+            };
         });
 
-        Blade::directive('endrole', function () {
-            return '<?php endif; ?>';
-        });
+        Blade::directive('endrole', fn (): string => '<?php endif; ?>');
 
         // Directive for feature flags
-        Blade::directive('feature', function ($expression) {
-            return "<?php if(config('features.' . {$expression}, false)): ?>";
-        });
+        Blade::directive('feature', fn ($expression): string => "<?php if(config('features.' . {$expression}, false)): ?>");
 
-        Blade::directive('endfeature', function () {
-            return '<?php endif; ?>';
-        });
+        Blade::directive('endfeature', fn (): string => '<?php endif; ?>');
 
         // Directive for performance timing
-        Blade::directive('startTimer', function ($expression) {
-            return "<?php \$timer_{$expression} = microtime(true); ?>";
-        });
+        Blade::directive('startTimer', fn ($expression): string => "<?php \$timer_{$expression} = microtime(true); ?>");
 
-        Blade::directive('endTimer', function ($expression) {
-            return "<?php logger('Timer {$expression}: ' . round((microtime(true) - \$timer_{$expression}) * 1000, 2) . 'ms'); ?>";
-        });
+        Blade::directive('endTimer', fn ($expression): string => "<?php logger('Timer {$expression}: ' . round((microtime(true) - \$timer_{$expression}) * 1000, 2) . 'ms'); ?>");
     }
 
     /**
@@ -357,29 +335,19 @@ class RefactoredAppServiceProvider extends ServiceProvider
     private function configureGates(): void
     {
         // Gate for admin access
-        Gate::define('admin-access', function ($user) {
-            return $user->isAdmin();
-        });
+        Gate::define('admin-access', fn ($user) => $user->isAdmin());
 
         // Gate for agent access
-        Gate::define('agent-access', function ($user) {
-            return $user->isAgent() || $user->isAdmin();
-        });
+        Gate::define('agent-access', fn ($user): bool => $user->isAgent() || $user->isAdmin());
 
         // Gate for scraping access
-        Gate::define('scraping-access', function ($user) {
-            return $user->hasPermission('scraping') || $user->isAdmin();
-        });
+        Gate::define('scraping-access', fn ($user): bool => $user->hasPermission('scraping') || $user->isAdmin());
 
         // Gate for advanced features
-        Gate::define('advanced-features', function ($user) {
-            return $user->subscription && $user->subscription->hasFeature('advanced');
-        });
+        Gate::define('advanced-features', fn ($user): bool => $user->subscription && $user->subscription->hasFeature('advanced'));
 
         // Gate for API access
-        Gate::define('api-access', function ($user) {
-            return $user->api_access_enabled && $user->isVerified();
-        });
+        Gate::define('api-access', fn ($user): bool => $user->api_access_enabled && $user->isVerified());
     }
 
     /**
@@ -395,13 +363,11 @@ class RefactoredAppServiceProvider extends ServiceProvider
 
         // Configure security headers in production
         if ($this->app->isProduction()) {
-            $this->app->make('App\Http\Middleware\SecurityHeadersMiddleware');
+            $this->app->make(SecurityHeadersMiddleware::class);
         }
 
         // Configure rate limiting
-        $this->app->singleton('rate_limiter', function ($app) {
-            return new \Illuminate\Cache\RateLimiter($app['cache']);
-        });
+        $this->app->singleton('rate_limiter', fn ($app): \RateLimiter => new RateLimiter($app['cache']));
 
         // Configure database query listening
         DB::listen(function ($query): void {
@@ -421,9 +387,7 @@ class RefactoredAppServiceProvider extends ServiceProvider
         }
 
         // Configure cache optimization
-        $this->app->singleton('cache.optimizer', function ($app) {
-            return new \App\Services\Enhanced\AdvancedCacheService();
-        });
+        $this->app->singleton('cache.optimizer', fn ($app): \AdvancedCacheService => new AdvancedCacheService());
     }
 
     /**

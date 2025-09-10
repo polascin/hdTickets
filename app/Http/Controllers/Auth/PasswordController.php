@@ -17,16 +17,8 @@ use Log;
 
 class PasswordController extends Controller
 {
-    protected PasswordHistoryService $passwordHistoryService;
-
-    protected PasswordCompromiseCheckService $compromiseCheckService;
-
-    public function __construct(
-        PasswordHistoryService $passwordHistoryService,
-        PasswordCompromiseCheckService $compromiseCheckService,
-    ) {
-        $this->passwordHistoryService = $passwordHistoryService;
-        $this->compromiseCheckService = $compromiseCheckService;
+    public function __construct(protected PasswordHistoryService $passwordHistoryService, protected PasswordCompromiseCheckService $compromiseCheckService)
+    {
     }
 
     /**
@@ -169,7 +161,7 @@ class PasswordController extends Controller
         $isValid = TRUE;
 
         // Check strength
-        if (!$strengthResult['is_valid']) {
+        if (! $strengthResult['is_valid']) {
             $errors = array_merge($errors, $strengthResult['errors']);
             $isValid = FALSE;
         }

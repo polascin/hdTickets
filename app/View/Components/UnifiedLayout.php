@@ -8,41 +8,13 @@ use Illuminate\View\Component;
 
 class UnifiedLayout extends Component
 {
-    public string $title;
-
-    public string $subtitle;
-
-    public bool $showSidebar;
-
-    public bool $sidebarCollapsed;
-
-    public array $breadcrumbs;
-
-    public array $meta;
-
-    public $headerActions;
-
     /**
      * Create a new component instance.
      *
      * @param mixed|null $headerActions
      */
-    public function __construct(
-        string $title = 'HD Tickets',
-        string $subtitle = '',
-        bool $showSidebar = TRUE,
-        bool $sidebarCollapsed = FALSE,
-        array $breadcrumbs = [],
-        array $meta = [],
-        $headerActions = NULL,
-    ) {
-        $this->title = $title;
-        $this->subtitle = $subtitle;
-        $this->showSidebar = $showSidebar;
-        $this->sidebarCollapsed = $sidebarCollapsed;
-        $this->breadcrumbs = $breadcrumbs;
-        $this->meta = $meta;
-        $this->headerActions = $headerActions;
+    public function __construct(public string $title = 'HD Tickets', public string $subtitle = '', public bool $showSidebar = TRUE, public bool $sidebarCollapsed = FALSE, public array $breadcrumbs = [], public array $meta = [], public $headerActions = NULL)
+    {
     }
 
     /**

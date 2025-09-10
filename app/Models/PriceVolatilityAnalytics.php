@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,17 +24,6 @@ class PriceVolatilityAnalytics extends Model
         'max_single_change',
         'trend_direction',
         'hourly_data',
-    ];
-
-    protected $casts = [
-        'analysis_date'       => 'date',
-        'avg_price'           => 'decimal:2',
-        'min_price'           => 'decimal:2',
-        'max_price'           => 'decimal:2',
-        'volatility_score'    => 'decimal:4',
-        'price_changes_count' => 'integer',
-        'max_single_change'   => 'decimal:2',
-        'hourly_data'         => 'array',
     ];
 
     /**
@@ -81,52 +71,6 @@ class PriceVolatilityAnalytics extends Model
     }
 
     /**
-     * Get price range
-     */
-    /**
-     * Get  price range attribute
-     */
-    public function getPriceRangeAttribute(): float
-    {
-        return $this->max_price - $this->min_price;
-    }
-
-    /**
-     * Get volatility classification
-     */
-    /**
-     * Get  volatility classification attribute
-     */
-    public function getVolatilityClassificationAttribute(): string
-    {
-        if ($this->volatility_score >= 0.25) {
-            return 'very_high';
-        }
-        if ($this->volatility_score >= 0.15) {
-            return 'high';
-        }
-        if ($this->volatility_score >= 0.08) {
-            return 'medium';
-        }
-        if ($this->volatility_score >= 0.03) {
-            return 'low';
-        }
-
-        return 'very_low';
-    }
-
-    /**
-     * Get formatted volatility score as percentage
-     */
-    /**
-     * Get  formatted volatility attribute
-     */
-    public function getFormattedVolatilityAttribute(): string
-    {
-        return number_format($this->volatility_score * 100, 2) . '%';
-    }
-
-    /**
      * Calculate analytics data for a specific ticket and date
      *
      * @param mixed|null $date
@@ -155,9 +99,7 @@ class PriceVolatilityAnalytics extends Model
         $maxPrice = $prices->max();
 
         // Calculate volatility (coefficient of variation)
-        $standardDeviation = sqrt($prices->map(function ($price) use ($avgPrice) {
-            return pow($price - $avgPrice, 2);
-        })->avg());
+        $standardDeviation = sqrt($prices->map(fn ($price): int|float => ($price - $avgPrice) ** 2)->avg());
 
         $volatilityScore = $avgPrice > 0 ? $standardDeviation / $avgPrice : 0;
 
@@ -171,7 +113,7 @@ class PriceVolatilityAnalytics extends Model
             }
         }
 
-        $maxSingleChange = !empty($priceChanges) ? max($priceChanges) : 0;
+        $maxSingleChange = $priceChanges === [] ? 0 : max($priceChanges);
 
         // Determine trend direction
         $firstPrice = $priceHistory->first()->price;
@@ -199,9 +141,62 @@ class PriceVolatilityAnalytics extends Model
                 'price_changes_count' => count($priceChanges),
                 'max_single_change'   => $maxSingleChange,
                 'trend_direction'     => $trendDirection,
-                'hourly_data'         => static::generateHourlyData($priceHistory),
+                'hourly_data'         => self::generateHourlyData($priceHistory),
             ],
         );
+    }
+
+    /**
+     * Get  price range attribute
+     */
+    protected function priceRange(): Attribute
+    {
+        return Attribute::make(get: fn (): int|float => $this->max_price - $this->min_price);
+    }
+
+    /**
+     * Get  volatility classification attribute
+     */
+    protected function volatilityClassification(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            if ($this->volatility_score >= 0.25) {
+                return 'very_high';
+            }
+            if ($this->volatility_score >= 0.15) {
+                return 'high';
+            }
+            if ($this->volatility_score >= 0.08) {
+                return 'medium';
+            }
+            if ($this->volatility_score >= 0.03) {
+                return 'low';
+            }
+
+            return 'very_low';
+        });
+    }
+
+    /**
+     * Get  formatted volatility attribute
+     */
+    protected function formattedVolatility(): Attribute
+    {
+        return Attribute::make(get: fn (): string => number_format($this->volatility_score * 100, 2) . '%');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'analysis_date'       => 'date',
+            'avg_price'           => 'decimal:2',
+            'min_price'           => 'decimal:2',
+            'max_price'           => 'decimal:2',
+            'volatility_score'    => 'decimal:4',
+            'price_changes_count' => 'integer',
+            'max_single_change'   => 'decimal:2',
+            'hourly_data'         => 'array',
+        ];
     }
 
     /**
@@ -216,9 +211,7 @@ class PriceVolatilityAnalytics extends Model
      */
     private static function generateHourlyData($priceHistory): array
     {
-        return $priceHistory->groupBy(function ($record) {
-            return $record->recorded_at->format('H');
-        })->map(function ($hourData) {
+        return $priceHistory->groupBy(fn ($record) => $record->recorded_at->format('H'))->map(function ($hourData): array {
             $prices = $hourData->pluck('price');
 
             return [

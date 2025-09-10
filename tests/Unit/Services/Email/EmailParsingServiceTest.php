@@ -1,13 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Tests\Unit\Services\Email;
 
 use App\Services\Email\EmailParsingService;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+
+use function function_exists;
 
 /**
  * Email Parsing Service Tests
- * 
+ *
  * Unit tests for the EmailParsingService class in the HD Tickets
  * sports events monitoring system.
  */
@@ -15,37 +18,22 @@ class EmailParsingServiceTest extends TestCase
 {
     private EmailParsingService $service;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        
-        // Mock config function
-        if (!function_exists('config')) {
-            function config($key = null) {
-                return [
-                    'logging' => [
-                        'channel' => 'imap',
-                    ],
-                ];
-            }
-        }
-
-        $this->service = new EmailParsingService();
-    }
-
-    /** @test */
+    /**
+     * @test
+     */
     public function it_can_be_instantiated(): void
     {
         $this->assertInstanceOf(EmailParsingService::class, $this->service);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_detects_sport_categories_correctly(): void
     {
         // Use reflection to access private method
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('detectSportCategory');
-        $method->setAccessible(true);
 
         // Test various sport categories
         $this->assertEquals('football', $method->invoke($this->service, 'NFL Cowboys vs Patriots'));
@@ -57,30 +45,31 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('unknown', $method->invoke($this->service, 'Random Event Name'));
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_parses_ticketmaster_emails(): void
     {
         $headers = [
             'subject' => 'Cowboys vs Patriots Tickets Available',
-            'from' => (object)['mailbox' => 'noreply', 'host' => 'ticketmaster.com'],
+            'from'    => (object) ['mailbox' => 'noreply', 'host' => 'ticketmaster.com'],
         ];
 
         $body = "Event: Dallas Cowboys vs New England Patriots\n" .
                 "Venue: AT&T Stadium\n" .
                 "Date: December 15, 2024\n" .
                 "Price: Starting at $89.50\n" .
-                "100 tickets available";
+                '100 tickets available';
 
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('parseTicketmasterEmail');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->service, $headers, $body);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('sports_events', $result);
         $this->assertArrayHasKey('tickets', $result);
-        
+
         // Should extract the event
         $this->assertNotEmpty($result['sports_events']);
         $this->assertEquals('Dallas Cowboys vs New England Patriots', $result['sports_events'][0]['name']);
@@ -88,69 +77,72 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('football', $result['sports_events'][0]['category']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_parses_stubhub_emails(): void
     {
         $headers = [
             'subject' => 'Price Drop for Lakers vs Warriors',
-            'from' => (object)['mailbox' => 'noreply', 'host' => 'stubhub.com'],
+            'from'    => (object) ['mailbox' => 'noreply', 'host' => 'stubhub.com'],
         ];
 
         $body = "Great news regarding Lakers vs Warriors at Staples Center on January 20, 2024\n" .
-                "Section 100, Row A tickets dropped to $250 each";
+                'Section 100, Row A tickets dropped to $250 each';
 
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('parseStubhubEmail');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->service, $headers, $body);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('sports_events', $result);
         $this->assertArrayHasKey('tickets', $result);
-        
+
         // Should extract tickets with pricing
         $this->assertNotEmpty($result['tickets']);
         $this->assertEquals(250.0, $result['tickets'][0]['price']);
         $this->assertEquals('stubhub', $result['tickets'][0]['source_platform']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_parses_generic_sports_emails(): void
     {
         $headers = [
             'subject' => 'Yankees vs Red Sox Game Tonight',
-            'from' => (object)['mailbox' => 'info', 'host' => 'sportstickets.com'],
+            'from'    => (object) ['mailbox' => 'info', 'host' => 'sportstickets.com'],
         ];
 
         $body = "Don't miss Yankees vs Red Sox tonight!\n" .
                 "Tickets starting at $45.00\n" .
-                "Premium seats available for $125.50";
+                'Premium seats available for $125.50';
 
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('parseGenericEmail');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->service, $headers, $body);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('sports_events', $result);
         $this->assertArrayHasKey('tickets', $result);
-        
+
         // Should detect baseball event
         $this->assertNotEmpty($result['sports_events']);
         $this->assertEquals('baseball', $result['sports_events'][0]['category']);
-        
+
         // Should extract multiple ticket prices
         $this->assertCount(2, $result['tickets']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_validates_parsed_data(): void
     {
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('validateParsedData');
-        $method->setAccessible(true);
 
         $parsedData = [
             'sports_events' => [
@@ -177,24 +169,25 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals(50.0, $result['tickets'][0]['price']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_extracts_email_metadata(): void
     {
         $headers = [
-            'subject' => 'Test Sports Event',
-            'from' => (object)['mailbox' => 'test', 'host' => 'example.com'],
+            'subject'    => 'Test Sports Event',
+            'from'       => (object) ['mailbox' => 'test', 'host' => 'example.com'],
             'message_id' => '<test123@example.com>',
-            'size' => 1024,
-            'date' => '2024-01-15 10:30:00',
+            'size'       => 1024,
+            'date'       => '2024-01-15 10:30:00',
         ];
 
         $body = "This email contains ticket information for a sports event.\n" .
                 "Visit https://example.com/tickets for more details.\n" .
-                "The game is at the stadium tonight.";
+                'The game is at the stadium tonight.';
 
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('extractMetadata');
-        $method->setAccessible(true);
 
         $result = $method->invoke($this->service, $headers, $body);
 
@@ -203,11 +196,11 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('test@example.com', $result['from_email']);
         $this->assertEquals('<test123@example.com>', $result['message_id']);
         $this->assertEquals(1024, $result['size']);
-        
+
         // Should extract URLs
         $this->assertArrayHasKey('urls', $result);
         $this->assertContains('https://example.com/tickets', $result['urls']);
-        
+
         // Should count keywords
         $this->assertArrayHasKey('keyword_frequency', $result);
         $this->assertEquals(2, $result['keyword_frequency']['ticket']); // "ticket" and "tickets"
@@ -215,22 +208,25 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals(1, $result['keyword_frequency']['stadium']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_parses_event_dates(): void
     {
-        $reflection = new \ReflectionClass($this->service);
+        $reflection = new ReflectionClass($this->service);
         $method = $reflection->getMethod('parseEventDate');
-        $method->setAccessible(true);
 
         // Test various date formats
         $this->assertEquals('2024-01-15', $method->invoke($this->service, 'Jan 15, 2024'));
         $this->assertEquals('2024-01-15', $method->invoke($this->service, 'January 15, 2024'));
         $this->assertEquals('2024-01-15', $method->invoke($this->service, '2024-01-15'));
         $this->assertNull($method->invoke($this->service, 'invalid date'));
-        $this->assertNull($method->invoke($this->service, null));
+        $this->assertNull($method->invoke($this->service, NULL));
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_gets_parsing_statistics(): void
     {
         $stats = $this->service->getParsingStats();
@@ -238,27 +234,29 @@ class EmailParsingServiceTest extends TestCase
         $this->assertIsArray($stats);
         $this->assertArrayHasKey('supported_platforms', $stats);
         $this->assertArrayHasKey('sport_categories', $stats);
-        
+
         $this->assertContains('ticketmaster', $stats['supported_platforms']);
         $this->assertContains('stubhub', $stats['supported_platforms']);
         $this->assertContains('football', $stats['sport_categories']);
         $this->assertContains('basketball', $stats['sport_categories']);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function it_parses_complete_email_data(): void
     {
         $emailData = [
-            'uid' => 123,
+            'uid'        => 123,
             'connection' => 'gmail',
-            'platform' => 'ticketmaster',
-            'headers' => [
+            'platform'   => 'ticketmaster',
+            'headers'    => [
                 'subject' => 'Cowboys vs Patriots - Tickets Available',
-                'from' => (object)['mailbox' => 'noreply', 'host' => 'ticketmaster.com'],
+                'from'    => (object) ['mailbox' => 'noreply', 'host' => 'ticketmaster.com'],
             ],
             'body' => "Event: Dallas Cowboys vs New England Patriots\n" .
                      "Venue: AT&T Stadium\n" .
-                     "Price: $75.00 each",
+                     'Price: $75.00 each',
         ];
 
         $result = $this->service->parseEmailContent($emailData);
@@ -270,9 +268,28 @@ class EmailParsingServiceTest extends TestCase
         $this->assertArrayHasKey('sports_events', $result);
         $this->assertArrayHasKey('tickets', $result);
         $this->assertArrayHasKey('metadata', $result);
-        
+
         // Should have processed sports events and tickets
         $this->assertNotEmpty($result['sports_events']);
         $this->assertNotEmpty($result['tickets']);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Mock config function
+        if (! function_exists('config')) {
+            function config($key = NULL): array
+            {
+                return [
+                    'logging' => [
+                        'channel' => 'imap',
+                    ],
+                ];
+            }
+        }
+
+        $this->service = new EmailParsingService();
     }
 }

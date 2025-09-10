@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use App\Services\TicketApis\TickPickClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 use function count;
@@ -185,7 +187,7 @@ class TickPickController extends Controller
     private function importEventAsTicket(array $eventData): bool
     {
         try {
-            $existingTicket = \App\Models\Ticket::where('platform', 'tickpick')
+            $existingTicket = Ticket::where('platform', 'tickpick')
                 ->where('external_id', $eventData['id'] ?? NULL)
                 ->first();
 
@@ -193,7 +195,7 @@ class TickPickController extends Controller
                 return FALSE;
             }
 
-            $ticket = new \App\Models\Ticket([
+            $ticket = new Ticket([
                 'platform'    => 'tickpick',
                 'external_id' => $eventData['id'] ?? NULL,
                 'title'       => $eventData['name'] ?? 'Unknown Event',
@@ -213,7 +215,7 @@ class TickPickController extends Controller
 
             return TRUE;
         } catch (Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to import tickpick event as ticket', [
+            Log::error('Failed to import tickpick event as ticket', [
                 'event_data' => $eventData,
                 'error'      => $e->getMessage(),
             ]);

@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -14,9 +15,10 @@ class LordsCricketPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -138,7 +140,7 @@ class LordsCricketPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -168,10 +170,10 @@ class LordsCricketPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out')) {
             return 'sold_out';
         }
-        if (strpos($lowerStatus, 'available') !== FALSE) {
+        if (str_contains($lowerStatus, 'available')) {
             return 'available';
         }
 
@@ -180,7 +182,7 @@ class LordsCricketPlugin extends BaseScraperPlugin
 
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 

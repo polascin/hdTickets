@@ -7,7 +7,7 @@ use App\Models\ScrapedTicket;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ScrapedTicket>
+ * @extends Factory<ScrapedTicket>
  */
 class ScrapedTicketFactory extends Factory
 {
@@ -22,7 +22,6 @@ class ScrapedTicketFactory extends Factory
     {
         $platforms = ['stubhub', 'ticketmaster', 'viagogo', 'funzone', 'seatgeek', 'vivid_seats'];
         $currencies = ['USD', 'GBP', 'EUR', 'CZK', 'SKK'];
-        $sports = ['football', 'basketball', 'tennis', 'hockey', 'baseball'];
         $availability = ['high', 'medium', 'low', 'sold_out'];
 
         // Generate realistic team names
@@ -66,7 +65,7 @@ class ScrapedTicketFactory extends Factory
             'popularity_score' => fake()->randomFloat(2, 20, 95), // Random popularity score
             'status'           => fake()->randomElement(['active', 'sold_out', 'cancelled']),
             'ticket_url'       => fake()->url(),
-            'search_keyword'   => strtolower($team1),
+            'search_keyword'   => strtolower((string) $team1),
             'metadata'         => [
                 'section'        => fake()->randomElement(['Lower Tier', 'Upper Tier', 'VIP', 'General Admission']),
                 'row'            => fake()->numberBetween(1, 40),
@@ -85,7 +84,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function highDemand(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'is_high_demand' => TRUE,
             'availability'   => 'low',
             'min_price'      => fake()->randomFloat(2, 200, 500),
@@ -98,7 +97,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function soldOut(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'is_available' => FALSE,
             'availability' => 'sold_out',
             'status'       => 'sold_out',
@@ -110,7 +109,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function fromPlatform(string $platform): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'platform' => $platform,
         ]);
     }
@@ -120,7 +119,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function forEvent(string $title, ?string $venue = NULL): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'title'          => $title,
             'venue'          => $venue ?? fake()->randomElement(['Old Trafford', 'Anfield', 'Emirates Stadium']),
             'search_keyword' => strtolower(explode(' vs ', $title)[0] ?? explode(' ', $title)[0] ?? $title),
@@ -132,7 +131,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function priceRange(float $min, float $max): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'min_price' => $min,
             'max_price' => $max,
         ]);
@@ -143,7 +142,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function recent(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'scraped_at' => fake()->dateTimeBetween('-24 hours', 'now'),
         ]);
     }
@@ -153,7 +152,7 @@ class ScrapedTicketFactory extends Factory
      */
     public function withCategory(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'category_id' => Category::factory(),
         ]);
     }

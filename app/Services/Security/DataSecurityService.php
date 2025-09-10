@@ -102,15 +102,12 @@ class DataSecurityService
         ],
     ];
 
-    protected $securityService;
-
     protected $fieldEncrypter;
 
     protected $keyManager;
 
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
         $this->initializeEncryption();
     }
 
@@ -137,16 +134,12 @@ class DataSecurityService
             $this->auditFieldAccess($fieldName, 'encrypt', $options);
         }
 
-        switch ($config['encryption_method']) {
-            case 'aes256':
-                return $this->encryptWithAES256($fieldName, $value, $config);
-            case 'ephemeral':
-                return $this->encryptEphemeral($value);
-            case 'tokenization':
-                return $this->tokenizeData($fieldName, $value);
-            default:
-                throw new InvalidArgumentException("Unsupported encryption method: {$config['encryption_method']}");
-        }
+        return match ($config['encryption_method']) {
+            'aes256'       => $this->encryptWithAES256($fieldName, $value, $config),
+            'ephemeral'    => $this->encryptEphemeral($value),
+            'tokenization' => $this->tokenizeData($fieldName, $value),
+            default        => throw new InvalidArgumentException("Unsupported encryption method: {$config['encryption_method']}"),
+        };
     }
 
     /**
@@ -157,7 +150,7 @@ class DataSecurityService
      */
     public function decryptField(string $fieldName, string $encryptedValue, array $options = []): string
     {
-        if (empty($encryptedValue)) {
+        if ($encryptedValue === '' || $encryptedValue === '0') {
             return $encryptedValue;
         }
 
@@ -169,16 +162,12 @@ class DataSecurityService
         }
 
         try {
-            switch ($config['encryption_method']) {
-                case 'aes256':
-                    return $this->decryptWithAES256($fieldName, $encryptedValue, $config);
-                case 'ephemeral':
-                    return $this->decryptEphemeral($encryptedValue);
-                case 'tokenization':
-                    return $this->detokenizeData($fieldName, $encryptedValue);
-                default:
-                    throw new InvalidArgumentException("Unsupported decryption method: {$config['encryption_method']}");
-            }
+            return match ($config['encryption_method']) {
+                'aes256'       => $this->decryptWithAES256($fieldName, $encryptedValue, $config),
+                'ephemeral'    => $this->decryptEphemeral($encryptedValue),
+                'tokenization' => $this->detokenizeData($fieldName, $encryptedValue),
+                default        => throw new InvalidArgumentException("Unsupported decryption method: {$config['encryption_method']}"),
+            };
         } catch (DecryptException $e) {
             $this->handleDecryptionError($fieldName, $e, $options);
 
@@ -205,18 +194,13 @@ class DataSecurityService
         $config = $this->getFieldConfig($fieldName);
         $classification = $config['classification'];
 
-        switch ($classification) {
-            case 'secret':
-                return '[REDACTED]';
-            case 'restricted':
-                return $this->partialMask($value, 0.8);
-            case 'confidential':
-                return $this->partialMask($value, 0.6);
-            case 'internal':
-                return $this->partialMask($value, 0.3);
-            default:
-                return $value;
-        }
+        return match ($classification) {
+            'secret'       => '[REDACTED]',
+            'restricted'   => $this->partialMask($value, 0.8),
+            'confidential' => $this->partialMask($value, 0.6),
+            'internal'     => $this->partialMask($value, 0.3),
+            default        => $value,
+        };
     }
 
     /**
@@ -244,7 +228,7 @@ class DataSecurityService
         // Log key rotation activity
         $this->securityService->logSecurityActivity('Encryption keys rotated', [
             'fields_processed'     => count($results),
-            'successful_rotations' => count(array_filter($results, fn ($r) => $r['success'] ?? FALSE)),
+            'successful_rotations' => count(array_filter($results, fn (array $r) => $r['success'] ?? FALSE)),
         ]);
 
         return $results;
@@ -296,7 +280,7 @@ class DataSecurityService
         $backupPath = storage_path("backups/secure_backup_{$timestamp}_{$backupId}");
 
         // Create backup directory
-        if (!is_dir(dirname($backupPath))) {
+        if (! is_dir(dirname($backupPath))) {
             mkdir(dirname($backupPath), 0o755, TRUE);
         }
 
@@ -332,7 +316,7 @@ class DataSecurityService
         $this->securityService->logSecurityActivity('Secure backup created', [
             'backup_id'     => $backupId,
             'tables_count'  => count($tables),
-            'success_count' => count(array_filter($results['tables'], fn ($r) => $r['success'])),
+            'success_count' => count(array_filter($results['tables'], fn (array $r): bool => $r['success'])),
         ]);
 
         return $results;
@@ -355,7 +339,7 @@ class DataSecurityService
         ];
 
         $query = DB::table($table);
-        if (!empty($columns)) {
+        if ($columns !== []) {
             $query->select(array_merge(['id'], $columns));
         }
 
@@ -364,13 +348,13 @@ class DataSecurityService
 
         foreach ($rows as $row) {
             foreach ($columns as $column) {
-                if (!empty($row->$column)) {
+                if (! empty($row->$column)) {
                     try {
                         $decrypted = $this->decryptField("{$table}.{$column}", $row->$column);
                         if ($decrypted === '[DECRYPTION_ERROR]') {
                             $results['decryption_errors']++;
                         }
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         $results['corrupted_rows']++;
                     }
                 }
@@ -536,7 +520,7 @@ class DataSecurityService
     protected function detokenizeData(string $fieldName, string $token): string
     {
         $encryptedValue = Cache::get("token:{$token}");
-        if (!$encryptedValue) {
+        if (! $encryptedValue) {
             throw new DecryptException('Token not found or expired');
         }
 
@@ -575,12 +559,12 @@ class DataSecurityService
     {
         $key = Cache::get('field_encryption_key');
 
-        if (!$key) {
+        if (! $key) {
             $key = base64_encode(random_bytes(32)); // 256-bit key
             Cache::put('field_encryption_key', $key, now()->addYears(1));
         }
 
-        return base64_decode($key, TRUE);
+        return base64_decode((string) $key, TRUE);
     }
 
     /**
@@ -594,12 +578,12 @@ class DataSecurityService
         $keyName = $version ? "field_key:{$fieldName}:v{$version}" : "field_key:{$fieldName}";
 
         $key = Cache::get($keyName);
-        if (!$key) {
+        if (! $key) {
             $key = base64_encode(random_bytes(32));
             Cache::put($keyName, $key, now()->addYears(1));
         }
 
-        return base64_decode($key, TRUE);
+        return base64_decode((string) $key, TRUE);
     }
 
     /**

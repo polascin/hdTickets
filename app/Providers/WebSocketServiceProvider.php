@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use BeyondCode\LaravelWebSockets\WebSocketsServiceProvider;
 use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 class WebSocketServiceProvider extends ServiceProvider
 {
@@ -25,10 +27,9 @@ class WebSocketServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
-        $this->app->singleton('WebSocketServer', function ($app) {
-            return new \BeyondCode\LaravelWebSockets\WebSocketsServiceProvider($app);
-        });
+        $this->app->singleton('WebSocketServer', fn ($app): \WebSocketsServiceProvider => new WebSocketsServiceProvider($app));
     }
 }

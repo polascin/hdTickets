@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\ScrapedTicket;
 use App\Models\TicketPriceHistory;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCharts;
@@ -24,21 +25,11 @@ use function count;
 
 class PriceFluctuationExport implements WithMultipleSheets
 {
-    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
-    protected \Illuminate\Support\Collection $trends;
-
-    protected string $startDate;
-
-    protected string $endDate;
-
     /**
-     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
+     * @param Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
+    public function __construct(protected Collection $trends, protected string $startDate, protected string $endDate)
     {
-        $this->trends = $trends;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
@@ -61,30 +52,20 @@ class PriceFluctuationExport implements WithMultipleSheets
  */
 class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithCharts
 {
-    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
-    protected \Illuminate\Support\Collection $trends;
-
-    protected string $startDate;
-
-    protected string $endDate;
-
     /**
-     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
+     * @param Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
+    public function __construct(protected Collection $trends, protected string $startDate, protected string $endDate)
     {
-        $this->trends = $trends;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, object{ticket_id: int, title: string, platform: string, avg_price: float, min_price: float, max_price: float, volatility: float, trend_direction: string, data_points: int}>
+     * @return Collection<int, object{ticket_id: int, title: string, platform: string, avg_price: float, min_price: float, max_price: float, volatility: float, trend_direction: string, data_points: int}>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return collect($this->trends)->map(function ($trend) {
             $ticket = ScrapedTicket::find($trend->ticket_id);
@@ -148,7 +129,7 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
         return [
             $item->ticket_id,
             $item->title,
-            ucfirst($item->platform),
+            ucfirst((string) $item->platform),
             $item->avg_price,
             $item->min_price,
             $item->max_price,
@@ -234,14 +215,14 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int, object{price: float}> $priceHistory
+     * @param Collection<int, object{price: float}> $priceHistory
      *
      * @return float Price volatility calculation
      */
     /**
      * CalculateVolatility
      */
-    private function calculateVolatility(\Illuminate\Support\Collection $priceHistory): float
+    private function calculateVolatility(Collection $priceHistory): float
     {
         if ($priceHistory->count() < 2) {
             return 0;
@@ -249,22 +230,20 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
 
         $prices = $priceHistory->pluck('price')->toArray();
         $mean = array_sum($prices) / count($prices);
-        $variance = array_sum(array_map(function ($price) use ($mean) {
-            return pow($price - $mean, 2);
-        }, $prices)) / count($prices);
+        $variance = array_sum(array_map(fn ($price): float|int => ($price - $mean) ** 2, $prices)) / count($prices);
 
         return sqrt($variance);
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int, object{price: float}> $priceHistory
+     * @param Collection<int, object{price: float}> $priceHistory
      *
      * @return string Trend direction (Increasing|Decreasing|Stable)
      */
     /**
      * CalculateTrendDirection
      */
-    private function calculateTrendDirection(\Illuminate\Support\Collection $priceHistory): string
+    private function calculateTrendDirection(Collection $priceHistory): string
     {
         if ($priceHistory->count() < 2) {
             return 'Stable';
@@ -287,30 +266,20 @@ class PriceFluctuationSummarySheet implements FromCollection, WithHeadings, With
 
 class PriceFluctuationDetailSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    /** @var \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> */
-    protected \Illuminate\Support\Collection $trends;
-
-    protected string $startDate;
-
-    protected string $endDate;
-
     /**
-     * @param \Illuminate\Support\Collection<int, object{ticket_id: int, avg_price: float}> $trends
+     * @param Collection<int, object{ticket_id: int, avg_price: float}> $trends
      */
-    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
+    public function __construct(protected Collection $trends, protected string $startDate, protected string $endDate)
     {
-        $this->trends = $trends;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array{ticket_id: int, recorded_at: string, price: float, quantity: int, source: string, price_change: float}>
+     * @return Collection<int, array{ticket_id: int, recorded_at: string, price: float, quantity: int, source: string, price_change: float}>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         $detailData = collect();
 

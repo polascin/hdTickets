@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\ScrapedTicket;
+use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -19,58 +20,54 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping
     /** @var array<int, string> */
     protected array $fields;
 
-    /** @var array<string, mixed> */
-    protected array $filters;
-
     /**
      * @param array<int, string>   $fields
      * @param array<string, mixed> $filters
      */
-    public function __construct(array $fields = [], array $filters = [])
+    public function __construct(array $fields = [], protected array $filters = [])
     {
         $this->fields = $fields ?: [
             'id', 'event_name', 'venue', 'event_date', 'price', 'section',
             'row', 'quantity', 'platform', 'status', 'scraped_at',
         ];
-        $this->filters = $filters;
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, ScrapedTicket>
+     * @return Collection<int, ScrapedTicket>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Database\Eloquent\Collection
+    public function collection(): Collection
     {
         $query = ScrapedTicket::with(['category']);
 
         // Apply filters
-        if (!empty($this->filters['platform'])) {
+        if (! empty($this->filters['platform'])) {
             $query->where('platform', $this->filters['platform']);
         }
 
-        if (!empty($this->filters['status'])) {
+        if (! empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
-        if (!empty($this->filters['date_from'])) {
+        if (! empty($this->filters['date_from'])) {
             $query->where('event_date', '>=', $this->filters['date_from']);
         }
 
-        if (!empty($this->filters['date_to'])) {
+        if (! empty($this->filters['date_to'])) {
             $query->where('event_date', '<=', $this->filters['date_to']);
         }
 
-        if (!empty($this->filters['min_price'])) {
+        if (! empty($this->filters['min_price'])) {
             $query->where('price', '>=', $this->filters['min_price']);
         }
 
-        if (!empty($this->filters['max_price'])) {
+        if (! empty($this->filters['max_price'])) {
             $query->where('price', '<=', $this->filters['max_price']);
         }
 
-        if (!empty($this->filters['category_id'])) {
+        if (! empty($this->filters['category_id'])) {
             $query->where('category_id', $this->filters['category_id']);
         }
 
@@ -128,8 +125,8 @@ class ScrapedTicketsExport implements FromCollection, WithHeadings, WithMapping
             $data[] = match ($field) {
                 'event_date' => $ticket->event_date ? $ticket->event_date->format('Y-m-d H:i:s') : '',
                 'price'      => '$' . number_format((float) $ticket->price, 2),
-                'platform'   => ucfirst($ticket->platform),
-                'status'     => ucfirst($ticket->status),
+                'platform'   => ucfirst((string) $ticket->platform),
+                'status'     => ucfirst((string) $ticket->status),
                 'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->format('Y-m-d H:i:s') : '',
                 'category'   => $ticket->category ? $ticket->category->name : 'Uncategorized',
                 'seats'      => is_array($ticket->seats) ? implode(', ', $ticket->seats) : $ticket->seats,

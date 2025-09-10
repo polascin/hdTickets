@@ -19,7 +19,7 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next, ?string $permission = NULL): Response
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
             abort(403);
         }
 

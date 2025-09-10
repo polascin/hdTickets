@@ -12,17 +12,11 @@ class TicketStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $ticket;
-
-    protected $oldStatus;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket, string $oldStatus)
+    public function __construct(protected Ticket $ticket, protected string $oldStatus)
     {
-        $this->ticket = $ticket;
-        $this->oldStatus = $oldStatus;
     }
 
     /**

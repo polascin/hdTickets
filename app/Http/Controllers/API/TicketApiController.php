@@ -4,12 +4,16 @@ namespace App\Http\Controllers\API;
 
 use App\Events\TicketPriceChanged;
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Log;
+
+use function strlen;
 
 /**
  * Ticket API Controller
@@ -58,9 +62,7 @@ class TicketApiController extends Controller
             $cacheKey = 'ticket_filter_' . md5(serialize($filters));
 
             // Try to get from cache first (5 minute cache)
-            $result = Cache::remember($cacheKey, 300, function () use ($filters, $perPage, $page) {
-                return $this->executeTicketFilter($filters, $perPage, $page);
-            });
+            $result = Cache::remember($cacheKey, 300, fn (): array => $this->executeTicketFilter($filters, $perPage, $page));
 
             return response()->json([
                 'success'         => TRUE,
@@ -71,8 +73,8 @@ class TicketApiController extends Controller
                 'cache_key'       => $cacheKey,
                 'timestamp'       => now()->toISOString(),
             ]);
-        } catch (\Exception $e) {
-            \Log::error('AJAX Filter Error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('AJAX Filter Error: ' . $e->getMessage(), [
                 'request' => $request->all(),
                 'trace'   => $e->getTraceAsString(),
             ]);
@@ -93,14 +95,14 @@ class TicketApiController extends Controller
         try {
             $term = $request->get('term', '');
 
-            if (strlen($term) < 2) {
+            if (strlen((string) $term) < 2) {
                 return response()->json([
                     'success'     => TRUE,
                     'suggestions' => [],
                 ]);
             }
 
-            $cacheKey = 'search_suggestions_' . md5($term);
+            $cacheKey = 'search_suggestions_' . md5((string) $term);
 
             $suggestions = Cache::remember($cacheKey, 3600, function () use ($term) {
                 $suggestions = [];
@@ -160,8 +162,8 @@ class TicketApiController extends Controller
                 'suggestions' => $suggestions,
                 'term'        => $term,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Search Suggestions Error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Search Suggestions Error: ' . $e->getMessage());
 
             return response()->json([
                 'success'     => FALSE,
@@ -177,7 +179,7 @@ class TicketApiController extends Controller
     public function bookmarkToggle(Request $request): JsonResponse
     {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json([
                     'success'  => FALSE,
                     'message'  => 'Authentication required',
@@ -246,8 +248,8 @@ class TicketApiController extends Controller
                 'message'       => $message,
                 'ticket_id'     => $ticketId,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Bookmark Toggle Error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Bookmark Toggle Error: ' . $e->getMessage(), [
                 'user_id'   => Auth::id(),
                 'ticket_id' => $request->get('ticket_id'),
             ]);
@@ -270,7 +272,7 @@ class TicketApiController extends Controller
                 ->where('status', 'active')
                 ->first();
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Ticket not found or inactive',
@@ -316,10 +318,10 @@ class TicketApiController extends Controller
                     'last_updated'        => $ticket->updated_at,
                 ],
                 'price_history' => $priceHistory,
-                'is_bookmarked' => Auth::check() ? $this->isTicketBookmarked(Auth::id(), $ticketId) : FALSE,
+                'is_bookmarked' => Auth::check() && $this->isTicketBookmarked(Auth::id(), $ticketId),
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Ticket Details Error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Ticket Details Error: ' . $e->getMessage(), [
                 'ticket_id' => $ticketId,
             ]);
 
@@ -335,7 +337,7 @@ class TicketApiController extends Controller
      */
     public function testPriceChange(Request $request, int $ticketId): JsonResponse
     {
-        if (!app()->environment(['local', 'staging'])) {
+        if (! app()->environment(['local', 'staging'])) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Test endpoints only available in development',
@@ -345,7 +347,7 @@ class TicketApiController extends Controller
         try {
             $ticket = DB::table('scraped_tickets')->where('id', $ticketId)->first();
 
-            if (!$ticket) {
+            if (! $ticket) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Ticket not found',
@@ -353,7 +355,7 @@ class TicketApiController extends Controller
             }
 
             $oldPrice = $ticket->price;
-            $newPrice = $oldPrice + (rand(-20, 50) / 10); // Random price change
+            $newPrice = $oldPrice + (random_int(-20, 50) / 10); // Random price change
             $newPrice = max($newPrice, 10); // Minimum price of $10
 
             // Update ticket price
@@ -376,11 +378,11 @@ class TicketApiController extends Controller
             // Broadcast price change event
             event(new TicketPriceChanged(
                 ticketId: $ticketId,
+                platform: $ticket->platform_name,
                 oldPrice: $oldPrice,
                 newPrice: $newPrice,
                 currency: $ticket->currency ?? 'USD',
-                platform: $ticket->platform_name,
-                eventTitle: $ticket->event_name
+                eventTitle: $ticket->event_name,
             ));
 
             return response()->json([
@@ -392,8 +394,8 @@ class TicketApiController extends Controller
                 'change_amount'     => $newPrice - $oldPrice,
                 'percentage_change' => $oldPrice > 0 ? (($newPrice - $oldPrice) / $oldPrice) * 100 : 0,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Test Price Change Error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error('Test Price Change Error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => FALSE,
@@ -411,75 +413,60 @@ class TicketApiController extends Controller
             ->where('status', 'active');
 
         // Apply filters
-        if (!empty($filters['keywords'])) {
+        if (! empty($filters['keywords'])) {
             $keywords = $filters['keywords'];
-            $query->where(function ($q) use ($keywords) {
+            $query->where(function ($q) use ($keywords): void {
                 $q->where('event_name', 'LIKE', "%{$keywords}%")
-                  ->orWhere('venue', 'LIKE', "%{$keywords}%")
-                  ->orWhere('city', 'LIKE', "%{$keywords}%")
-                  ->orWhere('description', 'LIKE', "%{$keywords}%");
+                    ->orWhere('venue', 'LIKE', "%{$keywords}%")
+                    ->orWhere('city', 'LIKE', "%{$keywords}%")
+                    ->orWhere('description', 'LIKE', "%{$keywords}%");
             });
         }
 
-        if (!empty($filters['sport_type'])) {
+        if (! empty($filters['sport_type'])) {
             $query->where('sport_type', $filters['sport_type']);
         }
 
-        if (!empty($filters['venue'])) {
+        if (! empty($filters['venue'])) {
             $query->where('venue', 'LIKE', "%{$filters['venue']}%");
         }
 
-        if (!empty($filters['city'])) {
+        if (! empty($filters['city'])) {
             $query->where('city', 'LIKE', "%{$filters['city']}%");
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('event_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('event_date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('price', '<=', $filters['price_max']);
         }
 
-        if (!empty($filters['availability_only'])) {
+        if (! empty($filters['availability_only'])) {
             $query->where('availability_status', 'available');
         }
 
-        if (!empty($filters['platform'])) {
+        if (! empty($filters['platform'])) {
             $query->where('platform_name', $filters['platform']);
         }
 
         // Apply sorting
-        switch ($filters['sort_by'] ?? 'date_desc') {
-            case 'price_asc':
-                $query->orderBy('price', 'asc');
-
-                break;
-            case 'price_desc':
-                $query->orderBy('price', 'desc');
-
-                break;
-            case 'date_asc':
-                $query->orderBy('event_date', 'asc');
-
-                break;
-            case 'popularity':
-                $query->orderBy('view_count', 'desc');
-
-                break;
-            default:
-                $query->orderBy('event_date', 'desc');
-
-                break;
-        }
+        match ($filters['sort_by'] ?? 'date_desc') {
+            'price_asc'  => $query->orderBy('price', 'asc'),
+            'price_desc' => $query->orderBy('price', 'desc'),
+            'date_asc'   => $query->orderBy('event_date', 'asc'),
+            'popularity' => $query->orderBy('view_count', 'desc'),
+            default      => $query->orderBy('event_date', 'desc'),
+        };
 
         // Get total count for stats
         $totalCount = $query->count();
@@ -504,7 +491,7 @@ class TicketApiController extends Controller
         ];
 
         // Generate HTML (you would create a partial view for this)
-        $html = view('tickets.partials.ticket-grid', compact('tickets'))->render();
+        $html = view('tickets.partials.ticket-grid', ['tickets' => $tickets])->render();
 
         return [
             'html'            => $html,

@@ -167,9 +167,7 @@ class GiganticPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -183,7 +181,7 @@ class GiganticPlugin extends BaseScraperPlugin
             Log::info("Gigantic Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -282,7 +280,7 @@ class GiganticPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -298,7 +296,7 @@ class GiganticPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -329,13 +327,13 @@ class GiganticPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
         // Handle "from £X" format common on Gigantic
         $cleanPrice = preg_replace('/from\s*£?/i', '', $priceText);
-        $cleanPrice = preg_replace('/[^0-9.,£]/', '', $cleanPrice);
+        $cleanPrice = preg_replace('/[^0-9.,£]/', '', (string) $cleanPrice);
         $cleanPrice = str_replace(',', '', $cleanPrice);
 
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -16,7 +19,7 @@ class CategoryManagementController extends Controller
     /**
      * Index
      */
-    public function index(Request $request): \Illuminate\Contracts\View\View
+    public function index(Request $request): View
     {
         $query = Category::with('parent')
             ->withCount(['scrapedTickets', 'ticketSources', 'children']);
@@ -49,7 +52,7 @@ class CategoryManagementController extends Controller
         // Get parent categories for filter dropdown
         $parentCategories = Category::root()->active()->ordered()->get();
 
-        return view('admin.categories.index', compact('categories', 'parentCategories'));
+        return view('admin.categories.index', ['categories' => $categories, 'parentCategories' => $parentCategories]);
     }
 
     /**
@@ -58,11 +61,11 @@ class CategoryManagementController extends Controller
     /**
      * Create
      */
-    public function create(): \Illuminate\Contracts\View\View
+    public function create(): View
     {
         $parentCategories = Category::root()->active()->ordered()->get();
 
-        return view('admin.categories.create', compact('parentCategories'));
+        return view('admin.categories.create', ['parentCategories' => $parentCategories]);
     }
 
     /**
@@ -71,7 +74,7 @@ class CategoryManagementController extends Controller
     /**
      * Store
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
@@ -100,7 +103,7 @@ class CategoryManagementController extends Controller
         }
 
         // Set default sort order
-        if (!isset($data['sort_order'])) {
+        if (! isset($data['sort_order'])) {
             $maxOrder = Category::where('parent_id', $data['parent_id'])->max('sort_order') ?? 0;
             $data['sort_order'] = $maxOrder + 1;
         }
@@ -120,7 +123,7 @@ class CategoryManagementController extends Controller
     /**
      * Show
      */
-    public function show(Category $category): \Illuminate\Contracts\View\View
+    public function show(Category $category): View
     {
         $category->load(['parent', 'children', 'scrapedTickets' => function ($query): void {
             $query->latest()->limit(10);
@@ -128,7 +131,7 @@ class CategoryManagementController extends Controller
             $query->latest()->limit(10);
         }]);
 
-        return view('admin.categories.show', compact('category'));
+        return view('admin.categories.show', ['category' => $category]);
     }
 
     /**
@@ -137,7 +140,7 @@ class CategoryManagementController extends Controller
     /**
      * Edit
      */
-    public function edit(Category $category): \Illuminate\Contracts\View\View
+    public function edit(Category $category): View
     {
         $parentCategories = Category::root()
             ->active()
@@ -145,7 +148,7 @@ class CategoryManagementController extends Controller
             ->ordered()
             ->get();
 
-        return view('admin.categories.edit', compact('category', 'parentCategories'));
+        return view('admin.categories.edit', ['category' => $category, 'parentCategories' => $parentCategories]);
     }
 
     /**
@@ -154,7 +157,7 @@ class CategoryManagementController extends Controller
     /**
      * Update
      */
-    public function update(Request $request, Category $category): \Illuminate\Http\RedirectResponse
+    public function update(Request $request, Category $category): RedirectResponse
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
@@ -201,7 +204,7 @@ class CategoryManagementController extends Controller
     /**
      * Destroy
      */
-    public function destroy(Category $category): \Illuminate\Http\RedirectResponse
+    public function destroy(Category $category): RedirectResponse
     {
         // Check if category has scraped tickets
         if ($category->scrapedTickets()->count() > 0) {
@@ -233,9 +236,9 @@ class CategoryManagementController extends Controller
     /**
      * ToggleStatus
      */
-    public function toggleStatus(Category $category): \Illuminate\Http\RedirectResponse
+    public function toggleStatus(Category $category): RedirectResponse
     {
-        $category->update(['is_active' => !$category->is_active]);
+        $category->update(['is_active' => ! $category->is_active]);
 
         $status = $category->is_active ? 'activated' : 'deactivated';
 
@@ -249,7 +252,7 @@ class CategoryManagementController extends Controller
     /**
      * Reorder
      */
-    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    public function reorder(Request $request): JsonResponse
     {
         $request->validate([
             'categories'              => ['required', 'array'],
@@ -273,7 +276,7 @@ class CategoryManagementController extends Controller
     /**
      * ApiIndex
      */
-    public function apiIndex(Request $request): \Illuminate\Http\JsonResponse
+    public function apiIndex(Request $request): JsonResponse
     {
         $query = Category::active();
 

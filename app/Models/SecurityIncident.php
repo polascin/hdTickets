@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
+use function count;
+use function in_array;
 
 /**
  * SecurityIncident Model
@@ -31,15 +35,6 @@ class SecurityIncident extends Model
         'resolved_at',
         'resolution_notes',
         'false_positive',
-    ];
-
-    protected $casts = [
-        'incident_data'  => 'array',
-        'detected_at'    => 'datetime',
-        'resolved_at'    => 'datetime',
-        'false_positive' => 'boolean',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
     ];
 
     /**
@@ -68,18 +63,14 @@ class SecurityIncident extends Model
 
     /**
      * Check if incident is open/active
-     *
-     * @return bool
      */
     public function isOpen(): bool
     {
-        return in_array($this->status, ['open', 'investigating', 'in_progress']);
+        return in_array($this->status, ['open', 'investigating', 'in_progress'], TRUE);
     }
 
     /**
      * Check if incident is resolved
-     *
-     * @return bool
      */
     public function isResolved(): bool
     {
@@ -88,8 +79,6 @@ class SecurityIncident extends Model
 
     /**
      * Check if incident is critical
-     *
-     * @return bool
      */
     public function isCritical(): bool
     {
@@ -98,10 +87,6 @@ class SecurityIncident extends Model
 
     /**
      * Resolve incident with notes
-     *
-     * @param  string $notes
-     * @param  bool   $falsePositive
-     * @return bool
      */
     public function resolve(string $notes, bool $falsePositive = FALSE): bool
     {
@@ -115,9 +100,6 @@ class SecurityIncident extends Model
 
     /**
      * Assign incident to user
-     *
-     * @param  User $user
-     * @return bool
      */
     public function assignTo(User $user): bool
     {
@@ -129,13 +111,11 @@ class SecurityIncident extends Model
 
     /**
      * Escalate incident priority
-     *
-     * @return bool
      */
     public function escalate(): bool
     {
         $priorities = ['low', 'medium', 'high', 'critical'];
-        $currentIndex = array_search($this->priority, $priorities);
+        $currentIndex = array_search($this->priority, $priorities, TRUE);
 
         if ($currentIndex !== FALSE && $currentIndex < count($priorities) - 1) {
             return $this->update(['priority' => $priorities[$currentIndex + 1]]);
@@ -146,22 +126,18 @@ class SecurityIncident extends Model
 
     /**
      * Get time since detection
-     *
-     * @return \Carbon\CarbonInterval
      */
-    public function getTimeSinceDetection(): \Carbon\CarbonInterval
+    public function getTimeSinceDetection(): CarbonInterval
     {
         return $this->detected_at->diffAsCarbonInterval(now());
     }
 
     /**
      * Get resolution time (if resolved)
-     *
-     * @return \Carbon\CarbonInterval|null
      */
-    public function getResolutionTime(): ?\Carbon\CarbonInterval
+    public function getResolutionTime(): ?CarbonInterval
     {
-        if (!$this->resolved_at) {
+        if (! $this->resolved_at) {
             return NULL;
         }
 
@@ -170,6 +146,8 @@ class SecurityIncident extends Model
 
     /**
      * Scope for open incidents
+     *
+     * @param mixed $query
      */
     public function scopeOpen($query)
     {
@@ -178,16 +156,20 @@ class SecurityIncident extends Model
 
     /**
      * Scope for critical incidents
+     *
+     * @param mixed $query
      */
     public function scopeCritical($query)
     {
-        return $query->where(function ($q) {
+        return $query->where(function ($q): void {
             $q->where('severity', 'critical')->orWhere('priority', 'critical');
         });
     }
 
     /**
      * Scope for unassigned incidents
+     *
+     * @param mixed $query
      */
     public function scopeUnassigned($query)
     {
@@ -196,9 +178,23 @@ class SecurityIncident extends Model
 
     /**
      * Scope for recent incidents
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $hours = 24)
     {
         return $query->where('detected_at', '>=', now()->subHours($hours));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'incident_data'  => 'array',
+            'detected_at'    => 'datetime',
+            'resolved_at'    => 'datetime',
+            'false_positive' => 'boolean',
+            'created_at'     => 'datetime',
+            'updated_at'     => 'datetime',
+        ];
     }
 }

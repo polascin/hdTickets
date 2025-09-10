@@ -170,9 +170,7 @@ class SkiddlePlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/whats-on/search/?' . http_build_query($params);
     }
@@ -186,7 +184,7 @@ class SkiddlePlugin extends BaseScraperPlugin
             Log::info("Skiddle Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -285,7 +283,7 @@ class SkiddlePlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.event-title, .title, h2 a, h3 a, .name, .event-name');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -301,7 +299,7 @@ class SkiddlePlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -332,7 +330,7 @@ class SkiddlePlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 

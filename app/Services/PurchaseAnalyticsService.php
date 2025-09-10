@@ -21,7 +21,7 @@ class PurchaseAnalyticsService
     {
         $cacheKey = "purchase_analytics_{$period}_" . ($platform ?? 'all');
 
-        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($period, $platform) {
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($period, $platform): array {
             $dateRange = $this->getDateRange($period);
 
             return [
@@ -74,14 +74,12 @@ class PurchaseAnalyticsService
             ->orderBy('date')
             ->get();
 
-        return $query->map(function ($item) {
-            return [
-                'date'                => $item->date,
-                'total_attempts'      => $item->total_attempts,
-                'successful_attempts' => $item->successful_attempts,
-                'success_rate'        => $item->success_rate ?? 0,
-            ];
-        })->toArray();
+        return $query->map(fn ($item): array => [
+            'date'                => $item->date,
+            'total_attempts'      => $item->total_attempts,
+            'successful_attempts' => $item->successful_attempts,
+            'success_rate'        => $item->success_rate ?? 0,
+        ])->toArray();
     }
 
     /**
@@ -337,16 +335,14 @@ class PurchaseAnalyticsService
         return $query->groupBy('hour')
             ->orderBy('hour')
             ->get()
-            ->map(function ($item) {
-                return [
-                    'timestamp'           => $item->hour,
-                    'total_attempts'      => $item->total_attempts,
-                    'successful_attempts' => $item->successful_attempts,
-                    'success_rate'        => $item->total_attempts > 0
-                        ? round(($item->successful_attempts / $item->total_attempts) * 100, 2)
-                        : 0,
-                ];
-            })
+            ->map(fn ($item): array => [
+                'timestamp'           => $item->hour,
+                'total_attempts'      => $item->total_attempts,
+                'successful_attempts' => $item->successful_attempts,
+                'success_rate'        => $item->total_attempts > 0
+                    ? round(($item->successful_attempts / $item->total_attempts) * 100, 2)
+                    : 0,
+            ])
             ->toArray();
     }
 
@@ -414,20 +410,18 @@ class PurchaseAnalyticsService
             ->orderByDesc('created_at')
             ->limit($limit)
             ->get()
-            ->map(function ($attempt) {
-                return [
-                    'id'              => $attempt->id,
-                    'uuid'            => $attempt->uuid,
-                    'platform'        => $attempt->platform,
-                    'status'          => $attempt->status,
-                    'attempted_price' => $attempt->attempted_price,
-                    'total_paid'      => $attempt->total_paid,
-                    'created_at'      => $attempt->created_at->toISOString(),
-                    'processing_time' => $attempt->completed_at && $attempt->started_at
-                        ? $attempt->started_at->diffInSeconds($attempt->completed_at)
-                        : NULL,
-                ];
-            })
+            ->map(fn ($attempt): array => [
+                'id'              => $attempt->id,
+                'uuid'            => $attempt->uuid,
+                'platform'        => $attempt->platform,
+                'status'          => $attempt->status,
+                'attempted_price' => $attempt->attempted_price,
+                'total_paid'      => $attempt->total_paid,
+                'created_at'      => $attempt->created_at->toISOString(),
+                'processing_time' => $attempt->completed_at && $attempt->started_at
+                    ? $attempt->started_at->diffInSeconds($attempt->completed_at)
+                    : NULL,
+            ])
             ->toArray();
     }
 
@@ -571,7 +565,7 @@ class PurchaseAnalyticsService
             DB::connection()->getPdo();
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }

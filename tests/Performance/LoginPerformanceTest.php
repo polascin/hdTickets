@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Override;
 use Tests\TestCase;
 
 use function count;
@@ -20,6 +21,7 @@ class LoginPerformanceTest extends TestCase
 
     private string $testPassword = 'TestP@ssw0rd123!';
 
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -136,7 +138,7 @@ class LoginPerformanceTest extends TestCase
         $this->assertLessThan(10, count($queries), 'Login process executed ' . count($queries) . ' queries, which may be excessive');
 
         // Check for N+1 queries or slow queries
-        $slowQueries = array_filter($queries, function ($query) {
+        $slowQueries = array_filter($queries, function (array $query): bool {
             return $query['time'] > 100; // 100ms threshold
         });
 
@@ -430,6 +432,7 @@ class LoginPerformanceTest extends TestCase
         echo 'Simulated FID: ' . round($fid, 2) . "ms\n";
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         // Clean up any performance test artifacts

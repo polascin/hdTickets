@@ -39,7 +39,7 @@ class TicketApiManager
     public function searchEvents(array $criteria, array $platforms = []): array
     {
         $results = [];
-        $clientsToUse = empty($platforms) ? $this->clients : array_intersect_key($this->clients, array_flip($platforms));
+        $clientsToUse = $platforms === [] ? $this->clients : array_intersect_key($this->clients, array_flip($platforms));
 
         foreach ($clientsToUse as $platform => $client) {
             try {
@@ -68,7 +68,7 @@ class TicketApiManager
      */
     public function getEvent(string $platform, string $eventId): ?array
     {
-        if (!isset($this->clients[$platform])) {
+        if (! isset($this->clients[$platform])) {
             throw new Exception("API client for platform '{$platform}' not available");
         }
 
@@ -124,7 +124,7 @@ class TicketApiManager
                 $apiResults = $client->searchEvents($criteria);
                 $processedResults = $this->processApiResults($apiResults, $platform, $client);
 
-                if (!empty($processedResults)) {
+                if ($processedResults !== []) {
                     $results = array_merge($results, $processedResults);
 
                     break; // Use first successful result
@@ -236,36 +236,25 @@ class TicketApiManager
                 // SeatGeek returns events directly in events array
                 return $response['events'] ?? [];
             case 'stubhub':
-                // StubHub may have different response structures
-                if (isset($response['events'])) {
-                    return $response['events'];
-                }
-
                 // If it's a direct array of events or single event
-                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                return $response['events'] ?? is_array($response) && (isset($response[0]) || $response === []) ? $response : [$response];
             case 'viagogo':
                 // Viagogo may return results or items array
                 if (isset($response['results'])) {
                     return $response['results'];
                 }
-                if (isset($response['items'])) {
-                    return $response['items'];
-                }
 
-                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                return $response['items'] ?? is_array($response) && (isset($response[0]) || $response === []) ? $response : [$response];
             case 'tickpick':
                 // TickPick may return data array or direct events
                 if (isset($response['data'])) {
                     return $response['data'];
                 }
-                if (isset($response['events'])) {
-                    return $response['events'];
-                }
 
-                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                return $response['events'] ?? is_array($response) && (isset($response[0]) || $response === []) ? $response : [$response];
             case 'manchester_united':
                 // Manchester United returns direct array of fixtures/events
-                return is_array($response) && (isset($response[0]) || empty($response)) ? $response : [$response];
+                return is_array($response) && (isset($response[0]) || $response === []) ? $response : [$response];
             default:
                 // Generic fallback for unknown platforms
                 return $response['events'] ?? $response['data'] ?? $response['results'] ?? $response ?? [];
@@ -371,10 +360,8 @@ class TicketApiManager
         ];
 
         // Use platform-specific mapping if platform is provided
-        if ($platform && isset($platformMappings[$platform])) {
-            if (isset($platformMappings[$platform][$normalizedStatus])) {
-                return $platformMappings[$platform][$normalizedStatus];
-            }
+        if ($platform && isset($platformMappings[$platform], $platformMappings[$platform][$normalizedStatus])) {
+            return $platformMappings[$platform][$normalizedStatus];
         }
 
         // Fallback to generic mapping

@@ -10,6 +10,7 @@ use App\Services\ComponentRegistry;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
 use function count;
 use function in_array;
@@ -30,22 +31,17 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         // Register component registry as singleton
-        $this->app->singleton(ComponentRegistry::class, function ($app) {
-            return new ComponentRegistry();
-        });
+        $this->app->singleton(ComponentRegistry::class, fn ($app): ComponentRegistry => new ComponentRegistry());
 
         // Register component communication service as singleton
-        $this->app->singleton(ComponentCommunication::class, function ($app) {
-            return new ComponentCommunication();
-        });
+        $this->app->singleton(ComponentCommunication::class, fn ($app): ComponentCommunication => new ComponentCommunication());
 
         // Register component lifecycle manager as singleton
-        $this->app->singleton(ComponentLifecycleManager::class, function ($app) {
-            return new ComponentLifecycleManager();
-        });
+        $this->app->singleton(ComponentLifecycleManager::class, fn ($app): ComponentLifecycleManager => new ComponentLifecycleManager());
 
         // Create aliases for easier access
         $this->app->alias(ComponentRegistry::class, 'component.registry');
@@ -81,6 +77,7 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     /**
      * Provides
      */
+    #[Override]
     public function provides(): array
     {
         return [
@@ -102,22 +99,22 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     private function registerBladeComponents(): void
     {
         // Register common UI components
-        Blade::component('components.tickets.ticket-card', 'ticket-card');
+        Blade::aliasComponent('components.tickets.ticket-card', 'ticket_card');
 
         // Register form components
-        Blade::component('components.forms.event-filter', 'event-filter');
+        Blade::aliasComponent('components.forms.event-filter', 'event_filter');
 
         // Register layout components
-        Blade::component('components.ui.modal', 'modal');
-        Blade::component('components.ui.alert', 'alert');
-        Blade::component('components.ui.button', 'button');
-        Blade::component('components.ui.card', 'card');
-        Blade::component('components.ui.table', 'table');
+        Blade::aliasComponent('components.ui.modal', 'modal');
+        Blade::aliasComponent('components.ui.alert', 'alert');
+        Blade::aliasComponent('components.ui.button', 'button');
+        Blade::aliasComponent('components.ui.card', 'card');
+        Blade::aliasComponent('components.ui.table', 'table');
 
         // Register dashboard components
-        Blade::component('components.dashboard.stat-card', 'stat-card');
-        Blade::component('components.dashboard.live-ticker', 'live-ticker');
-        Blade::component('components.dashboard.quick-actions', 'quick-actions');
+        Blade::aliasComponent('components.dashboard.stat-card', 'stat_card');
+        Blade::aliasComponent('components.dashboard.live-ticker', 'live_ticker');
+        Blade::aliasComponent('components.dashboard.quick-actions', 'quick_actions');
     }
 
     /**
@@ -129,14 +126,14 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
     private function registerBladeDirectives(): void
     {
         // Directive for Alpine.js data binding
-        Blade::directive('alpine', function ($expression) {
+        Blade::directive('alpine', function ($expression): string {
             $communication = app(ComponentCommunication::class);
 
             return "<?php echo {$communication->createBladeToAlpineBinding($expression)}; ?>";
         });
 
         // Directive for Vue.js prop binding
-        Blade::directive('vueProps', function ($expression) {
+        Blade::directive('vueProps', function ($expression): string {
             $communication = app(ComponentCommunication::class);
             $props = eval("return {$expression};");
 
@@ -144,51 +141,37 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
         });
 
         // Directive for component registration
-        Blade::directive('registerComponent', function ($expression) {
-            return "<?php app('component.registry')->register({$expression}); ?>";
-        });
+        Blade::directive('registerComponent', fn ($expression): string => "<?php app('component.registry')->register({$expression}); ?>");
 
         // Directive for component lifecycle initialization
-        Blade::directive('initComponent', function ($expression) {
-            return "<?php app('component.lifecycle')->initialize({$expression}); ?>";
-        });
+        Blade::directive('initComponent', fn ($expression): string => "<?php app('component.lifecycle')->initialize({$expression}); ?>");
 
         // Directive for component mounting
-        Blade::directive('mountComponent', function ($expression) {
-            return "<?php app('component.lifecycle')->mount({$expression}); ?>";
-        });
+        Blade::directive('mountComponent', fn ($expression): string => "<?php app('component.lifecycle')->mount({$expression}); ?>");
 
         // Directive for lazy-loading Vue components
-        Blade::directive('lazyVue', function ($expression) {
-            return "<?php echo json_encode(app('component.registry')->lazyLoad({$expression})); ?>";
-        });
+        Blade::directive('lazyVue', fn ($expression): string => "<?php echo json_encode(app('component.registry')->lazyLoad({$expression})); ?>");
 
         // Directive for component validation
-        Blade::directive('validateComponent', function ($expression) {
-            return "<?php 
+        Blade::directive('validateComponent', fn ($expression): string => "<?php 
                 \$validation = app('component.registry')->validate({$expression});
                 if (!\$validation['valid']) {
                     throw new \\Exception('Component validation failed: ' . implode(', ', \$validation['errors']));
                 }
-            ?>";
-        });
+            ?>");
 
         // Directive for sport events specific data
-        Blade::directive('sportsData', function ($expression) {
-            return "<?php 
+        Blade::directive('sportsData', fn ($expression): string => "<?php 
                 \$sportsData = [
                     'categories' => ['football', 'rugby', 'cricket', 'tennis', 'other'],
                     'platforms' => ['ticketmaster', 'stubhub', 'seatgeek', 'official'],
                     'availability' => ['available', 'limited', 'sold_out', 'on_hold']
                 ];
                 echo 'x-data=\"' . htmlspecialchars(json_encode(\$sportsData)) . '\"';
-            ?>";
-        });
+            ?>");
 
         // Directive for CSRF token in Alpine/Vue components
-        Blade::directive('componentToken', function () {
-            return "<?php echo 'data-csrf-token=\"' . csrf_token() . '\"'; ?>";
-        });
+        Blade::directive('componentToken', fn (): string => "<?php echo 'data-csrf-token=\"' . csrf_token() . '\"'; ?>");
     }
 
     /**
@@ -212,7 +195,7 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
                 $componentType = $this->determineComponentType($viewName);
 
                 // Register component if not already registered
-                if (!$registry->get($componentName)) {
+                if (! $registry->get($componentName)) {
                     $config = [
                         'auto_discovered' => TRUE,
                         'view_name'       => $viewName,
@@ -293,37 +276,21 @@ class ComponentArchitectureServiceProvider extends ServiceProvider
         $communication = app(ComponentCommunication::class);
 
         // Register prop validators for sports events platform
-        $communication->registerPropValidator('ticket_id', function ($value) {
-            return is_string($value) && preg_match('/^TKT-[A-Z0-9]{6}$/', $value);
-        });
+        $communication->registerPropValidator('ticket_id', fn ($value): bool => is_string($value) && preg_match('/^TKT-[A-Z0-9]{6}$/', $value));
 
-        $communication->registerPropValidator('event_id', function ($value) {
-            return is_string($value) && preg_match('/^EVT-[0-9]{6}$/', $value);
-        });
+        $communication->registerPropValidator('event_id', fn ($value): bool => is_string($value) && preg_match('/^EVT-\d{6}$/', $value));
 
-        $communication->registerPropValidator('price', function ($value) {
-            return is_numeric($value) && $value >= 0;
-        });
+        $communication->registerPropValidator('price', fn ($value): bool => is_numeric($value) && $value >= 0);
 
-        $communication->registerPropValidator('venue', function ($value) {
-            return is_string($value) && strlen($value) >= 2 && strlen($value) <= 100;
-        });
+        $communication->registerPropValidator('venue', fn ($value): bool => is_string($value) && strlen($value) >= 2 && strlen($value) <= 100);
 
-        $communication->registerPropValidator('sport_category', function ($value) {
-            return in_array($value, ['football', 'rugby', 'cricket', 'tennis', 'other'], TRUE);
-        });
+        $communication->registerPropValidator('sport_category', fn ($value): bool => in_array($value, ['football', 'rugby', 'cricket', 'tennis', 'other'], TRUE));
 
-        $communication->registerPropValidator('availability_status', function ($value) {
-            return in_array($value, ['available', 'limited', 'sold_out', 'on_hold'], TRUE);
-        });
+        $communication->registerPropValidator('availability_status', fn ($value): bool => in_array($value, ['available', 'limited', 'sold_out', 'on_hold'], TRUE));
 
-        $communication->registerPropValidator('platform_source', function ($value) {
-            return in_array($value, ['ticketmaster', 'stubhub', 'seatgeek', 'official'], TRUE);
-        });
+        $communication->registerPropValidator('platform_source', fn ($value): bool => in_array($value, ['ticketmaster', 'stubhub', 'seatgeek', 'official'], TRUE));
 
-        $communication->registerPropValidator('date', function ($value) {
-            return is_string($value) && strtotime($value) !== FALSE;
-        });
+        $communication->registerPropValidator('date', fn ($value): bool => is_string($value) && strtotime($value) !== FALSE);
     }
 
     /**

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Override;
 
 class TicketAlert extends Model
 {
@@ -36,30 +39,7 @@ class TicketAlert extends Model
         'matches_found',
     ];
 
-    protected $casts = [
-        'max_price'           => 'decimal:2',
-        'min_price'           => 'decimal:2',
-        'min_quantity'        => 'integer',
-        'preferred_sections'  => 'array',
-        'platforms'           => 'array',
-        'priority_score'      => 'integer',
-        'ml_prediction_data'  => 'array',
-        'escalation_level'    => 'integer',
-        'success_rate'        => 'decimal:4',
-        'channel_preferences' => 'array',
-        'email_notifications' => 'boolean',
-        'sms_notifications'   => 'boolean',
-        'auto_purchase'       => 'boolean',
-        'last_escalated_at'   => 'datetime',
-        'last_checked_at'     => 'datetime',
-        'triggered_at'        => 'datetime',
-    ];
-
-    protected $dates = [
-        'last_escalated_at',
-        'last_checked_at',
-        'triggered_at',
-    ];
+    protected $casts = ['last_escalated_at' => 'datetime', 'last_checked_at' => 'datetime', 'triggered_at' => 'datetime'];
 
     // Relationships
     /**
@@ -73,7 +53,7 @@ class TicketAlert extends Model
     /**
      * Alert matches/triggers - tracks when this alert has been triggered
      */
-    public function matches(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function matches(): HasMany
     {
         return $this->hasMany(AlertTrigger::class, 'ticket_alert_id');
     }
@@ -118,7 +98,7 @@ class TicketAlert extends Model
         $keywords = strtolower($this->keywords);
         $eventTitle = strtolower($ticket->event_title);
 
-        if (!str_contains($eventTitle, $keywords)) {
+        if (! str_contains($eventTitle, $keywords)) {
             return FALSE;
         }
 
@@ -137,7 +117,7 @@ class TicketAlert extends Model
             foreach ($this->filters as $key => $value) {
                 switch ($key) {
                     case 'venue':
-                        if (!str_contains(strtolower($ticket->venue), strtolower($value))) {
+                        if (! str_contains(strtolower((string) $ticket->venue), strtolower($value))) {
                             return FALSE;
                         }
 
@@ -149,7 +129,7 @@ class TicketAlert extends Model
 
                         break;
                     case 'section':
-                        if ($ticket->section && !str_contains(strtolower($ticket->section), strtolower($value))) {
+                        if ($ticket->section && ! str_contains(strtolower($ticket->section), strtolower($value))) {
                             return FALSE;
                         }
 
@@ -174,39 +154,42 @@ class TicketAlert extends Model
     /**
      * Get  formatted max price attribute
      */
-    public function getFormattedMaxPriceAttribute(): ?string
+    protected function formattedMaxPrice(): Attribute
     {
-        return $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : NULL;
+        return Attribute::make(get: fn () => $this->max_price ? $this->currency . ' ' . number_format($this->max_price, 2) : NULL);
     }
 
     /**
      * Get  last checked attribute
      */
-    public function getLastCheckedAttribute(): ?string
+    protected function lastChecked(): Attribute
     {
-        return $this->last_checked_at ? $this->last_checked_at->diffForHumans() : 'Never';
+        return Attribute::make(get: fn () => $this->last_checked_at ? $this->last_checked_at->diffForHumans() : 'Never');
     }
 
     /**
      * Get  platform display name attribute
      */
-    public function getPlatformDisplayNameAttribute(): string
+    protected function platformDisplayName(): Attribute
     {
-        if (!$this->platform) {
-            return 'All Platforms';
-        }
+        return Attribute::make(get: function (): string {
+            if (! $this->platform) {
+                return 'All Platforms';
+            }
 
-        return match ($this->platform) {
-            'stubhub'      => 'StubHub',
-            'ticketmaster' => 'Ticketmaster',
-            'viagogo'      => 'Viagogo',
-            default        => ucfirst($this->platform),
-        };
+            return match ($this->platform) {
+                'stubhub'      => 'StubHub',
+                'ticketmaster' => 'Ticketmaster',
+                'viagogo'      => 'Viagogo',
+                default        => ucfirst($this->platform),
+            };
+        });
     }
 
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -216,5 +199,27 @@ class TicketAlert extends Model
         //         $alert->uuid = (string) Str::uuid();
         //     }
         // });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'max_price'           => 'decimal:2',
+            'min_price'           => 'decimal:2',
+            'min_quantity'        => 'integer',
+            'preferred_sections'  => 'array',
+            'platforms'           => 'array',
+            'priority_score'      => 'integer',
+            'ml_prediction_data'  => 'array',
+            'escalation_level'    => 'integer',
+            'success_rate'        => 'decimal:4',
+            'channel_preferences' => 'array',
+            'email_notifications' => 'boolean',
+            'sms_notifications'   => 'boolean',
+            'auto_purchase'       => 'boolean',
+            'last_escalated_at'   => 'datetime',
+            'last_checked_at'     => 'datetime',
+            'triggered_at'        => 'datetime',
+        ];
     }
 }

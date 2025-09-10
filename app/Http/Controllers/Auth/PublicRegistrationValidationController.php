@@ -5,14 +5,19 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\PublicRegistrationRequest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
+
+use function count;
+use function strlen;
 
 /**
  * Public Registration Validation Controller
- * 
+ *
  * Provides real-time validation feedback for registration fields
  * without performing any side effects (no user creation).
  */
@@ -20,7 +25,7 @@ class PublicRegistrationValidationController extends Controller
 {
     /**
      * Validate registration fields in real-time
-     * 
+     *
      * This endpoint mirrors the validation rules from PublicRegistrationRequest
      * to provide immediate feedback without creating users or side effects.
      */
@@ -35,7 +40,7 @@ class PublicRegistrationValidationController extends Controller
 
             // Only validate fields that were actually sent
             $fieldsToValidate = array_intersect_key($rules, $request->all());
-            
+
             // Create validator instance
             $validator = Validator::make($request->all(), $fieldsToValidate, $messages, $attributes);
 
@@ -47,28 +52,26 @@ class PublicRegistrationValidationController extends Controller
 
             // If validation passes, return success with field-specific feedback
             return response()->json([
-                'success' => true,
-                'message' => 'Validation passed',
-                'fields' => $this->getFieldValidationFeedback($request, $fieldsToValidate),
+                'success'   => TRUE,
+                'message'   => 'Validation passed',
+                'fields'    => $this->getFieldValidationFeedback($request, $fieldsToValidate),
                 'timestamp' => now()->toISOString(),
             ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Return validation errors in a structured format
             return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors(),
-                'fields' => $this->getFieldValidationFeedback($request, $fieldsToValidate ?? [], $e->errors()),
+                'success'   => FALSE,
+                'message'   => 'Validation failed',
+                'errors'    => $e->errors(),
+                'fields'    => $this->getFieldValidationFeedback($request, $fieldsToValidate ?? [], $e->errors()),
                 'timestamp' => now()->toISOString(),
             ], 422);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Handle unexpected errors gracefully
             return response()->json([
-                'success' => false,
-                'message' => 'Validation service temporarily unavailable',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal error',
+                'success'   => FALSE,
+                'message'   => 'Validation service temporarily unavailable',
+                'error'     => config('app.debug') ? $e->getMessage() : 'Internal error',
                 'timestamp' => now()->toISOString(),
             ], 500);
         }
@@ -83,15 +86,15 @@ class PublicRegistrationValidationController extends Controller
             'email' => 'required|email',
         ]);
 
-        $email = strtolower(trim($request->input('email')));
+        $email = strtolower(trim((string) $request->input('email')));
         $exists = User::where('email', $email)->exists();
 
         return response()->json([
-            'success' => true,
-            'available' => !$exists,
-            'email' => $email,
-            'message' => $exists 
-                ? 'This email address is already registered' 
+            'success'   => TRUE,
+            'available' => ! $exists,
+            'email'     => $email,
+            'message'   => $exists
+                ? 'This email address is already registered'
                 : 'Email address is available',
             'timestamp' => now()->toISOString(),
         ]);
@@ -103,45 +106,41 @@ class PublicRegistrationValidationController extends Controller
     public function checkPasswordStrength(Request $request): JsonResponse
     {
         $password = $request->input('password', '');
-        
+
         $assessment = $this->assessPasswordStrength($password);
-        
+
         return response()->json([
-            'success' => true,
-            'password_length' => strlen($password),
-            'strength_score' => $assessment['score'],
-            'strength_label' => $assessment['label'],
-            'requirements_met' => $assessment['requirements_met'],
+            'success'              => TRUE,
+            'password_length'      => strlen((string) $password),
+            'strength_score'       => $assessment['score'],
+            'strength_label'       => $assessment['label'],
+            'requirements_met'     => $assessment['requirements_met'],
             'requirements_missing' => $assessment['requirements_missing'],
-            'suggestions' => $assessment['suggestions'],
-            'timestamp' => now()->toISOString(),
+            'suggestions'          => $assessment['suggestions'],
+            'timestamp'            => now()->toISOString(),
         ]);
     }
 
     /**
      * Add custom validations beyond basic rules
      */
-    private function addCustomValidations(\Illuminate\Validation\Validator $validator, Request $request): void
+    private function addCustomValidations(\Illuminate\Contracts\Validation\Validator $validator, Request $request): void
     {
         // Add email uniqueness check if email is being validated
         if ($request->has('email')) {
-            $validator->sometimes('email', 'unique:users,email', function ($input) use ($request) {
-                return $request->has('email') && !empty($request->input('email'));
-            });
+            $validator->sometimes('email', 'unique:users,email', fn ($input): bool => $request->has('email') && ! empty($request->input('email')));
         }
 
         // Add password confirmation check if both password fields are present
         if ($request->has('password') && $request->has('password_confirmation')) {
-            $validator->sometimes('password_confirmation', 'same:password', function ($input) use ($request) {
-                return $request->has('password') && $request->has('password_confirmation');
-            });
+            $validator->sometimes('password_confirmation', 'same:password', fn ($input): true => $request->has('password') && $request->has('password_confirmation'));
         }
 
         // Phone format validation enhancement
-        if ($request->has('phone') && !empty($request->input('phone'))) {
-            $validator->sometimes('phone', function ($attribute, $value, $fail) {
+        if ($request->has('phone') && ! empty($request->input('phone'))) {
+            $validator->sometimes('phone', function ($attribute, $value, $fail): void {
                 // More detailed E.164 format validation
-                if (!preg_match('/^\+?[1-9]\d{1,14}$/', $value)) {
+                if (! preg_match('/^\+?[1-9]\d{1,14}$/', $value)) {
                     $fail('Please enter a valid phone number with country code (e.g., +1234567890).');
                 }
             });
@@ -160,32 +159,33 @@ class PublicRegistrationValidationController extends Controller
             $hasError = isset($errors[$field]);
 
             $feedback[$field] = [
-                'value' => $value,
-                'valid' => !$hasError,
-                'error' => $hasError ? $errors[$field][0] : null,
-                'touched' => !empty($value),
+                'value'   => $value,
+                'valid'   => ! $hasError,
+                'error'   => $hasError ? $errors[$field][0] : NULL,
+                'touched' => ! empty($value),
             ];
 
             // Add field-specific enhancements
             switch ($field) {
                 case 'email':
                     $feedback[$field]['normalized'] = strtolower(trim($value ?? ''));
-                    $feedback[$field]['format_valid'] = filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
-                    break;
+                    $feedback[$field]['format_valid'] = filter_var($value, FILTER_VALIDATE_EMAIL) !== FALSE;
 
+                    break;
                 case 'phone':
-                    if (!empty($value)) {
-                        $cleaned = preg_replace('/[^\d+]/', '', $value);
+                    if (! empty($value)) {
+                        $cleaned = preg_replace('/[^\d+]/', '', (string) $value);
                         $feedback[$field]['cleaned'] = $cleaned;
                         $feedback[$field]['format_valid'] = preg_match('/^\+?[1-9]\d{1,14}$/', $cleaned);
                     }
-                    break;
 
+                    break;
                 case 'password':
-                    if (!empty($value)) {
+                    if (! empty($value)) {
                         $assessment = $this->assessPasswordStrength($value);
                         $feedback[$field]['strength'] = $assessment;
                     }
+
                     break;
             }
         }
@@ -199,11 +199,11 @@ class PublicRegistrationValidationController extends Controller
     private function assessPasswordStrength(string $password): array
     {
         $requirements = [
-            'min_length' => strlen($password) >= 8,
+            'min_length'    => strlen($password) >= 8,
             'has_lowercase' => preg_match('/[a-z]/', $password),
             'has_uppercase' => preg_match('/[A-Z]/', $password),
-            'has_numbers' => preg_match('/[0-9]/', $password),
-            'has_special' => preg_match('/[^A-Za-z0-9]/', $password),
+            'has_numbers'   => preg_match('/\d/', $password),
+            'has_special'   => preg_match('/[^A-Za-z0-9]/', $password),
         ];
 
         $metCount = array_sum($requirements);
@@ -225,34 +225,34 @@ class PublicRegistrationValidationController extends Controller
         $missing = [];
         $suggestions = [];
 
-        if (!$requirements['min_length']) {
+        if (! $requirements['min_length']) {
             $missing[] = 'At least 8 characters';
             $suggestions[] = 'Use at least 8 characters';
         }
-        if (!$requirements['has_lowercase']) {
+        if (! $requirements['has_lowercase']) {
             $missing[] = 'One lowercase letter';
             $suggestions[] = 'Include lowercase letters (a-z)';
         }
-        if (!$requirements['has_uppercase']) {
+        if (! $requirements['has_uppercase']) {
             $missing[] = 'One uppercase letter';
             $suggestions[] = 'Include uppercase letters (A-Z)';
         }
-        if (!$requirements['has_numbers']) {
+        if (! $requirements['has_numbers']) {
             $missing[] = 'One number';
             $suggestions[] = 'Include numbers (0-9)';
         }
-        if (!$requirements['has_special']) {
+        if (! $requirements['has_special']) {
             $missing[] = 'One special character';
             $suggestions[] = 'Include special characters (!@#$%^&*)';
         }
 
         return [
-            'score' => (int) round($score),
-            'label' => $label,
-            'requirements_met' => array_keys(array_filter($requirements)),
+            'score'                => (int) round($score),
+            'label'                => $label,
+            'requirements_met'     => array_keys(array_filter($requirements)),
             'requirements_missing' => $missing,
-            'suggestions' => $suggestions,
-            'requirements_detail' => $requirements,
+            'suggestions'          => $suggestions,
+            'requirements_detail'  => $requirements,
         ];
     }
 }

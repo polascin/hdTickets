@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Override;
 
 use function in_array;
 
@@ -83,23 +84,12 @@ class TicketPurchase extends Model
         'external_error_code',
     ];
 
-    protected $casts = [
-        'quantity'         => 'integer',
-        'unit_price'       => 'decimal:2',
-        'total_amount'     => 'decimal:2',
-        'purchase_options' => 'array',
-        'initiated_at'     => 'datetime',
-        'completed_at'     => 'datetime',
-        'failed_at'        => 'datetime',
-    ];
-
-    protected $dates = [
-        'deleted_at',
-    ];
+    protected $casts = ['deleted_at' => 'datetime'];
 
     /**
      * Get the route key for the model
      */
+    #[Override]
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -280,7 +270,7 @@ class TicketPurchase extends Model
     public function canBeRetried(): bool
     {
         return $this->hasFailed()
-               && !in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE);
+               && ! in_array($this->external_error_code, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE);
     }
 
     /**
@@ -406,6 +396,7 @@ class TicketPurchase extends Model
     /**
      * Boot the model
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -419,5 +410,18 @@ class TicketPurchase extends Model
                 $purchase->initiated_at = now();
             }
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'quantity'         => 'integer',
+            'unit_price'       => 'decimal:2',
+            'total_amount'     => 'decimal:2',
+            'purchase_options' => 'array',
+            'initiated_at'     => 'datetime',
+            'completed_at'     => 'datetime',
+            'failed_at'        => 'datetime',
+        ];
     }
 }

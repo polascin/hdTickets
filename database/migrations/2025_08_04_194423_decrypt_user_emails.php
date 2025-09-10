@@ -38,7 +38,7 @@ return new class() extends Migration {
                     // Otherwise, try to decrypt again (nested encryption)
                     $currentEmail = $decrypted;
                     $attempts++;
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // If decryption fails, check if current email is already valid
                     if (filter_var($currentEmail, FILTER_VALIDATE_EMAIL)) {
                         $decryptedEmail = $currentEmail;

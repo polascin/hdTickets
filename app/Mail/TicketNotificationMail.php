@@ -12,8 +12,10 @@ class TicketNotificationMail extends Mailable
     use Queueable;
     use SerializesModels;
 
+    /** @var User */
     public $user;
 
+    /** @var mixed[] */
     public $notification;
 
     public function __construct(User $user, array $notification)

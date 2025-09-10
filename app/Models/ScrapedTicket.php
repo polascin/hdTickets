@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Override;
 
 /**
  * Scraped Sports Event Ticket Model
@@ -86,27 +88,7 @@ class ScrapedTicket extends Model
         'popularity_score',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'event_date'       => 'datetime',
-        'min_price'        => 'decimal:2',
-        'max_price'        => 'decimal:2',
-        'availability'     => 'integer',
-        'is_available'     => 'boolean',
-        'is_high_demand'   => 'boolean',
-        'scraped_at'       => 'datetime',
-        'metadata'         => 'array',
-        'popularity_score' => 'decimal:2',
-    ];
-
-    protected $dates = [
-        'event_date',
-        'scraped_at',
-    ];
+    protected $casts = ['event_date' => 'datetime', 'scraped_at' => 'datetime'];
 
     public function user(): BelongsTo
     {
@@ -202,12 +184,12 @@ class ScrapedTicket extends Model
         return $query->where('sport', $sport);
     }
 
-    public function scopeByTeam($query, $team)
+    public function scopeByTeam($query, string $team)
     {
         return $query->where('team', 'LIKE', '%' . $team . '%');
     }
 
-    public function scopeByLocation($query, $location)
+    public function scopeByLocation($query, string $location)
     {
         return $query->where('location', 'LIKE', '%' . $location . '%');
     }
@@ -238,54 +220,56 @@ class ScrapedTicket extends Model
         ]);
     }
 
-    // Helpers
     /**
      * Get price attribute (defaults to min_price for compatibility)
      */
-    public function getPriceAttribute(): float
+    protected function price(): Attribute
     {
-        return (float) ($this->min_price ?? 0);
+        return Attribute::make(get: fn (): float => (float) ($this->min_price ?? 0));
     }
 
     /**
      * Get  formatted price attribute
      */
-    public function getFormattedPriceAttribute(): string
+    protected function formattedPrice(): Attribute
     {
-        $price = (float) ($this->max_price ?? $this->min_price ?? 0);
+        return Attribute::make(get: function (): string {
+            $price = (float) ($this->max_price ?? $this->min_price ?? 0);
 
-        return ($this->currency ?? 'USD') . ' ' . number_format($price, 2);
+            return ($this->currency ?? 'USD') . ' ' . number_format($price, 2);
+        });
     }
 
     /**
      * Get  total price attribute
      */
-    public function getTotalPriceAttribute(): float
+    protected function totalPrice(): Attribute
     {
-        return (float) ($this->max_price ?? $this->min_price ?? 0);
+        return Attribute::make(get: fn (): float => (float) ($this->max_price ?? $this->min_price ?? 0));
     }
 
-    public function getIsRecentAttribute()
+    protected function isRecent(): Attribute
     {
-        return $this->scraped_at->diffInHours(now()) <= 24;
+        return Attribute::make(get: fn (): bool => $this->scraped_at->diffInHours(now()) <= 24);
     }
 
     /**
      * Get  platform display name attribute
      */
-    public function getPlatformDisplayNameAttribute(): string
+    protected function platformDisplayName(): Attribute
     {
-        return match ($this->platform) {
+        return Attribute::make(get: fn (): string => match ($this->platform) {
             'stubhub'      => 'StubHub',
             'ticketmaster' => 'Ticketmaster',
             'viagogo'      => 'Viagogo',
             default        => ucfirst($this->platform),
-        };
+        });
     }
 
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -298,5 +282,25 @@ class ScrapedTicket extends Model
                 $ticket->scraped_at = now();
             }
         });
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'event_date'       => 'datetime',
+            'min_price'        => 'decimal:2',
+            'max_price'        => 'decimal:2',
+            'availability'     => 'integer',
+            'is_available'     => 'boolean',
+            'is_high_demand'   => 'boolean',
+            'scraped_at'       => 'datetime',
+            'metadata'         => 'array',
+            'popularity_score' => 'decimal:2',
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Application\EventHandlers\Ticket;
 
+use App\Domain\Monitoring\Events\AlertTriggered;
 use App\Domain\Ticket\Events\TicketDiscovered;
 use App\Infrastructure\EventBus\EventBusInterface;
 use Exception;
@@ -143,7 +144,7 @@ class TicketDiscoveredHandler
 
         foreach ($matchingAlerts as $alert) {
             // Dispatch alert triggered event
-            $alertEvent = new \App\Domain\Monitoring\Events\AlertTriggered(
+            $alertEvent = new AlertTriggered(
                 alertId: 'alert-' . $alert->id . '-' . time(),
                 monitorId: 'ticket-alert-' . $alert->id,
                 userId: $alert->user_id,

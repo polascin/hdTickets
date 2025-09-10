@@ -8,6 +8,9 @@ use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Log;
 use Schema;
@@ -22,7 +25,7 @@ class DashboardController extends Controller
     /**
      * Index
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
         // Sports Events Tickets statistics with safe defaults
         $totalSportsTickets = 0;
@@ -46,20 +49,20 @@ class DashboardController extends Controller
 
             // If tables don't exist, use simulated data for sports events
             if ($totalSportsTickets === 0) {
-                $totalSportsTickets = rand(1200, 2500);
-                $activeSportsEvents = rand(300, 800);
-                $completedPurchases = rand(150, 400);
-                $highDemandEvents = rand(25, 60);
-                $pendingPurchases = rand(10, 35);
+                $totalSportsTickets = random_int(1200, 2500);
+                $activeSportsEvents = random_int(300, 800);
+                $completedPurchases = random_int(150, 400);
+                $highDemandEvents = random_int(25, 60);
+                $pendingPurchases = random_int(10, 35);
             }
         } catch (Exception $e) {
             // Use simulated values for sports events if queries fail
             Log::warning('Could not fetch sports ticket statistics: ' . $e->getMessage());
-            $totalSportsTickets = rand(1200, 2500);
-            $activeSportsEvents = rand(300, 800);
-            $completedPurchases = rand(150, 400);
-            $highDemandEvents = rand(25, 60);
-            $pendingPurchases = rand(10, 35);
+            $totalSportsTickets = random_int(1200, 2500);
+            $activeSportsEvents = random_int(300, 800);
+            $completedPurchases = random_int(150, 400);
+            $highDemandEvents = random_int(25, 60);
+            $pendingPurchases = random_int(10, 35);
         }
 
         // User statistics with safe defaults
@@ -145,19 +148,17 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(function ($user) {
-                    return [
-                        'type'        => 'user_registered',
-                        'title'       => 'New User Registered',
-                        'description' => "{$user->name} joined as {$user->role}",
-                        'user'        => $user->name,
-                        'timestamp'   => $user->created_at,
-                        'status'      => $user->is_active ? 'active' : 'inactive',
-                        'priority'    => 'normal',
-                        'icon'        => 'user',
-                        'color'       => 'green',
-                    ];
-                });
+                ->map(fn ($user): array => [
+                    'type'        => 'user_registered',
+                    'title'       => 'New User Registered',
+                    'description' => "{$user->name} joined as {$user->role}",
+                    'user'        => $user->name,
+                    'timestamp'   => $user->created_at,
+                    'status'      => $user->is_active ? 'active' : 'inactive',
+                    'priority'    => 'normal',
+                    'icon'        => 'user',
+                    'color'       => 'green',
+                ]);
 
             $recentActivity = $recentUserActivity->take(10);
         } catch (Exception $e) {
@@ -182,10 +183,10 @@ class DashboardController extends Controller
         // System performance metrics
         $systemMetrics = [
             'database_health' => $this->checkDatabaseHealth(),
-            'cache_hit_rate'  => rand(85, 98), // Simulated cache hit rate
-            'response_time'   => rand(120, 350), // Simulated response time in ms
+            'cache_hit_rate'  => random_int(85, 98), // Simulated cache hit rate
+            'response_time'   => random_int(120, 350), // Simulated response time in ms
             'uptime'          => '99.9%',
-            'active_sessions' => rand(15, 45),
+            'active_sessions' => random_int(15, 45),
         ];
 
         // Quick actions for admin
@@ -245,33 +246,7 @@ class DashboardController extends Controller
         $activeMonitors = $totalAgents;
         $premiumTickets = $highDemandEvents;
 
-        return view('dashboard.admin', compact(
-            'totalSportsTickets',
-            'activeSportsEvents',
-            'completedPurchases',
-            'highDemandEvents',
-            'pendingPurchases',
-            'totalUsers',
-            'totalAgents',
-            'totalCustomers',
-            'totalScrapers',
-            'totalCategories',
-            'recentTickets',
-            'recentActivity',
-            'ticketsByStatus',
-            'ticketsByPriority',
-            'roleDistribution',
-            'monthlyTicketTrend',
-            'averageResponseTime',
-            'averageResolutionTime',
-            'topAgents',
-            'userStats',
-            'systemMetrics',
-            'quickActions',
-            'scrapedTickets',
-            'activeMonitors',
-            'premiumTickets',
-        ));
+        return view('dashboard.admin', ['totalSportsTickets' => $totalSportsTickets, 'activeSportsEvents' => $activeSportsEvents, 'completedPurchases' => $completedPurchases, 'highDemandEvents' => $highDemandEvents, 'pendingPurchases' => $pendingPurchases, 'totalUsers' => $totalUsers, 'totalAgents' => $totalAgents, 'totalCustomers' => $totalCustomers, 'totalScrapers' => $totalScrapers, 'totalCategories' => $totalCategories, 'recentTickets' => $recentTickets, 'recentActivity' => $recentActivity, 'ticketsByStatus' => $ticketsByStatus, 'ticketsByPriority' => $ticketsByPriority, 'roleDistribution' => $roleDistribution, 'monthlyTicketTrend' => $monthlyTicketTrend, 'averageResponseTime' => $averageResponseTime, 'averageResolutionTime' => $averageResolutionTime, 'topAgents' => $topAgents, 'userStats' => $userStats, 'systemMetrics' => $systemMetrics, 'quickActions' => $quickActions, 'scrapedTickets' => $scrapedTickets, 'activeMonitors' => $activeMonitors, 'premiumTickets' => $premiumTickets]);
     }
 
     /**
@@ -280,7 +255,7 @@ class DashboardController extends Controller
     /**
      * Get  scraping stats
      */
-    public function getScrapingStats(): \Illuminate\Http\JsonResponse
+    public function getScrapingStats(): JsonResponse
     {
         try {
             $stats = [
@@ -307,7 +282,7 @@ class DashboardController extends Controller
     /**
      * Get  user activity heatmap
      */
-    public function getUserActivityHeatmap(): \Illuminate\Http\JsonResponse
+    public function getUserActivityHeatmap(): JsonResponse
     {
         try {
             $heatmapData = [];
@@ -320,8 +295,8 @@ class DashboardController extends Controller
                     'day_name'       => $date->format('l'),
                     'logins'         => $this->getDayLogins($date),
                     'ticket_views'   => $this->getDayTicketViews($date),
-                    'purchases'      => $this->getDayPurchases($date),
-                    'alerts_created' => $this->getDayAlertsCreated($date),
+                    'purchases'      => $this->getDayPurchases(),
+                    'alerts_created' => $this->getDayAlertsCreated(),
                     'intensity'      => 0, // Will be calculated based on total activity
                 ];
 
@@ -347,7 +322,7 @@ class DashboardController extends Controller
     /**
      * Get  revenue analytics
      */
-    public function getRevenueAnalytics(): \Illuminate\Http\JsonResponse
+    public function getRevenueAnalytics(): JsonResponse
     {
         try {
             $analytics = [
@@ -374,7 +349,7 @@ class DashboardController extends Controller
     /**
      * Get  stats
      */
-    public function getStats(): \Illuminate\Http\JsonResponse
+    public function getStats(): JsonResponse
     {
         $today = Carbon::today();
         $yesterday = Carbon::yesterday();
@@ -412,7 +387,7 @@ class DashboardController extends Controller
 
         // System health simulation
         $systemHealth = $this->calculateSystemHealth();
-        $healthChange = rand(-5, 5); // Simulated change
+        $healthChange = random_int(-5, 5); // Simulated change
 
         $stats = [
             'tickets' => [
@@ -463,24 +438,22 @@ class DashboardController extends Controller
     /**
      * Get  ticket status chart
      */
-    public function getTicketStatusChart(): \Illuminate\Http\JsonResponse
+    public function getTicketStatusChart(): JsonResponse
     {
         $data = collect();
 
         try {
             if (Schema::hasTable('tickets')) {
-                /** @var \Illuminate\Support\Collection<int, object{status: string, count: int}> $rawData */
+                /** @var Collection<int, object{status: string, count: int}> $rawData */
                 $rawData = Ticket::select('status', DB::raw('count(*) as count'))
                     ->groupBy('status')
                     ->get();
 
-                $data = $rawData->map(function ($item): array {
-                    return [
-                        'label' => ucfirst(str_replace('_', ' ', $item->status)),
-                        'value' => $item->count,
-                        'color' => $this->getStatusColor($item->status),
-                    ];
-                });
+                $data = $rawData->map(fn ($item): array => [
+                    'label' => ucfirst(str_replace('_', ' ', $item->status)),
+                    'value' => $item->count,
+                    'color' => $this->getStatusColor($item->status),
+                ]);
             }
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket status chart data: ' . $e->getMessage());
@@ -495,24 +468,22 @@ class DashboardController extends Controller
     /**
      * Get  ticket priority chart
      */
-    public function getTicketPriorityChart(): \Illuminate\Http\JsonResponse
+    public function getTicketPriorityChart(): JsonResponse
     {
         $data = collect();
 
         try {
             if (Schema::hasTable('tickets')) {
-                /** @var \Illuminate\Support\Collection<int, object{priority: string, count: int}> $rawData */
+                /** @var Collection<int, object{priority: string, count: int}> $rawData */
                 $rawData = Ticket::select('priority', DB::raw('count(*) as count'))
                     ->groupBy('priority')
                     ->get();
 
-                $data = $rawData->map(function ($item): array {
-                    return [
-                        'label' => ucfirst($item->priority),
-                        'value' => $item->count,
-                        'color' => $this->getPriorityColor($item->priority),
-                    ];
-                });
+                $data = $rawData->map(fn ($item): array => [
+                    'label' => ucfirst((string) $item->priority),
+                    'value' => $item->count,
+                    'color' => $this->getPriorityColor($item->priority),
+                ]);
             }
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket priority chart data: ' . $e->getMessage());
@@ -527,7 +498,7 @@ class DashboardController extends Controller
     /**
      * Get  monthly trend
      */
-    public function getMonthlyTrend(): \Illuminate\Http\JsonResponse
+    public function getMonthlyTrend(): JsonResponse
     {
         $data = [];
 
@@ -574,20 +545,18 @@ class DashboardController extends Controller
     /**
      * Get  role distribution chart
      */
-    public function getRoleDistributionChart(): \Illuminate\Http\JsonResponse
+    public function getRoleDistributionChart(): JsonResponse
     {
-        /** @var \Illuminate\Support\Collection<int, object{role: string, count: int}> $rawData */
+        /** @var Collection<int, object{role: string, count: int}> $rawData */
         $rawData = User::select('role', DB::raw('count(*) as count'))
             ->groupBy('role')
             ->get();
 
-        $data = $rawData->map(function ($item): array {
-            return [
-                'label' => ucfirst($item->role),
-                'value' => $item->count,
-                'color' => $this->getRoleColor($item->role),
-            ];
-        });
+        $data = $rawData->map(fn ($item): array => [
+            'label' => ucfirst((string) $item->role),
+            'value' => $item->count,
+            'color' => $this->getRoleColor($item->role),
+        ]);
 
         return response()->json($data);
     }
@@ -611,18 +580,16 @@ class DashboardController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get()
-                ->map(function ($ticket) {
-                    return [
-                        'type'        => 'ticket',
-                        'title'       => 'New Ticket Created',
-                        'description' => "#{$ticket->id}: {$ticket->title}",
-                        'user'        => $ticket->user ? $ticket->user->name : 'Unknown User',
-                        'timestamp'   => $ticket->created_at,
-                        'status'      => $ticket->status,
-                        'icon'        => 'ticket',
-                        'color'       => 'blue',
-                    ];
-                });
+                ->map(fn ($ticket): array => [
+                    'type'        => 'ticket',
+                    'title'       => 'New Ticket Created',
+                    'description' => "#{$ticket->id}: {$ticket->title}",
+                    'user'        => $ticket->user ? $ticket->user->name : 'Unknown User',
+                    'timestamp'   => $ticket->created_at,
+                    'status'      => $ticket->status,
+                    'icon'        => 'ticket',
+                    'color'       => 'blue',
+                ]);
         } catch (Exception $e) {
             Log::warning('Could not fetch ticket activities: ' . $e->getMessage());
             $ticketActivities = collect();
@@ -633,18 +600,16 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
-            ->map(function ($user) {
-                return [
-                    'type'        => 'user',
-                    'title'       => 'New User Registered',
-                    'description' => "{$user->name} joined as {$user->role}",
-                    'user'        => $user->name,
-                    'timestamp'   => $user->created_at,
-                    'status'      => $user->is_active ? 'active' : 'inactive',
-                    'icon'        => 'user',
-                    'color'       => 'green',
-                ];
-            });
+            ->map(fn ($user): array => [
+                'type'        => 'user',
+                'title'       => 'New User Registered',
+                'description' => "{$user->name} joined as {$user->role}",
+                'user'        => $user->name,
+                'timestamp'   => $user->created_at,
+                'status'      => $user->is_active ? 'active' : 'inactive',
+                'icon'        => 'user',
+                'color'       => 'green',
+            ]);
 
         $activities = $ticketActivities->merge($userActivities)
             ->sortByDesc('timestamp')
@@ -726,7 +691,7 @@ class DashboardController extends Controller
         try {
             $ticketCount = Ticket::count();
             $healthChecks[] = 100;
-        } catch (Exception $e) {
+        } catch (Exception) {
             $healthChecks[] = 70;
         }
 
@@ -755,11 +720,11 @@ class DashboardController extends Controller
                 DB::table($table)->limit(1)->get();
             }
 
-            return rand(95, 100); // Healthy database with slight variation
+            return random_int(95, 100); // Healthy database with slight variation
         } catch (Exception $e) {
             Log::error('Database health check failed: ' . $e->getMessage());
 
-            return rand(60, 80); // Degraded performance
+            return random_int(60, 80); // Degraded performance
         }
     }
 
@@ -796,8 +761,8 @@ class DashboardController extends Controller
     {
         try {
             return Ticket::whereDate('created_at', Carbon::today())->count();
-        } catch (Exception $e) {
-            return rand(150, 300); // Simulated data
+        } catch (Exception) {
+            return random_int(150, 300); // Simulated data
         }
     }
 
@@ -814,8 +779,8 @@ class DashboardController extends Controller
                 ->where('is_active', TRUE)
                 ->where('last_activity_at', '>=', Carbon::now()->subHours(2))
                 ->count();
-        } catch (Exception $e) {
-            return rand(3, 8); // Simulated data
+        } catch (Exception) {
+            return random_int(3, 8); // Simulated data
         }
     }
 
@@ -829,11 +794,11 @@ class DashboardController extends Controller
     {
         // Simulated success rate based on platform performance
         return [
-            'overall'      => rand(85, 98),
-            'ticketmaster' => rand(90, 98),
-            'stubhub'      => rand(85, 95),
-            'vivid_seats'  => rand(80, 90),
-            'viagogo'      => rand(75, 88),
+            'overall'      => random_int(85, 98),
+            'ticketmaster' => random_int(90, 98),
+            'stubhub'      => random_int(85, 95),
+            'vivid_seats'  => random_int(80, 90),
+            'viagogo'      => random_int(75, 88),
         ];
     }
 
@@ -848,27 +813,27 @@ class DashboardController extends Controller
         return [
             'ticketmaster' => [
                 'status'        => 'online',
-                'response_time' => rand(150, 300),
-                'success_rate'  => rand(90, 98),
-                'last_check'    => Carbon::now()->subMinutes(rand(1, 5)),
+                'response_time' => random_int(150, 300),
+                'success_rate'  => random_int(90, 98),
+                'last_check'    => Carbon::now()->subMinutes(random_int(1, 5)),
             ],
             'stubhub' => [
                 'status'        => 'online',
-                'response_time' => rand(200, 400),
-                'success_rate'  => rand(85, 95),
-                'last_check'    => Carbon::now()->subMinutes(rand(1, 5)),
+                'response_time' => random_int(200, 400),
+                'success_rate'  => random_int(85, 95),
+                'last_check'    => Carbon::now()->subMinutes(random_int(1, 5)),
             ],
             'vivid_seats' => [
                 'status'        => 'online',
-                'response_time' => rand(250, 450),
-                'success_rate'  => rand(80, 90),
-                'last_check'    => Carbon::now()->subMinutes(rand(1, 5)),
+                'response_time' => random_int(250, 450),
+                'success_rate'  => random_int(80, 90),
+                'last_check'    => Carbon::now()->subMinutes(random_int(1, 5)),
             ],
             'viagogo' => [
-                'status'        => rand(0, 10) > 8 ? 'slow' : 'online',
-                'response_time' => rand(300, 600),
-                'success_rate'  => rand(75, 88),
-                'last_check'    => Carbon::now()->subMinutes(rand(1, 5)),
+                'status'        => random_int(0, 10) > 8 ? 'slow' : 'online',
+                'response_time' => random_int(300, 600),
+                'success_rate'  => random_int(75, 88),
+                'last_check'    => Carbon::now()->subMinutes(random_int(1, 5)),
             ],
         ];
     }
@@ -889,9 +854,9 @@ class DashboardController extends Controller
             $activities[] = [
                 'platform'      => $platforms[array_rand($platforms)],
                 'event'         => $events[array_rand($events)],
-                'action'        => rand(0, 1) ? 'scraped' : 'price_updated',
-                'tickets_found' => rand(5, 50),
-                'timestamp'     => Carbon::now()->subMinutes(rand(1, 120)),
+                'action'        => random_int(0, 1) !== 0 ? 'scraped' : 'price_updated',
+                'tickets_found' => random_int(5, 50),
+                'timestamp'     => Carbon::now()->subMinutes(random_int(1, 120)),
             ];
         }
 
@@ -911,10 +876,10 @@ class DashboardController extends Controller
             $date = Carbon::now()->subDays($i);
             $trends[] = [
                 'date'      => $date->format('Y-m-d'),
-                'avg_price' => rand(80, 250),
-                'min_price' => rand(45, 90),
-                'max_price' => rand(300, 800),
-                'volume'    => rand(100, 500),
+                'avg_price' => random_int(80, 250),
+                'min_price' => random_int(45, 90),
+                'max_price' => random_int(300, 800),
+                'volume'    => random_int(100, 500),
             ];
         }
 
@@ -930,11 +895,11 @@ class DashboardController extends Controller
     private function getAlertTriggers(): array
     {
         return [
-            'today'            => rand(15, 40),
-            'this_week'        => rand(80, 150),
-            'price_drops'      => rand(5, 15),
-            'new_availability' => rand(10, 25),
-            'high_demand'      => rand(3, 8),
+            'today'            => random_int(15, 40),
+            'this_week'        => random_int(80, 150),
+            'price_drops'      => random_int(5, 15),
+            'new_availability' => random_int(10, 25),
+            'high_demand'      => random_int(3, 8),
         ];
     }
 
@@ -952,8 +917,8 @@ class DashboardController extends Controller
     {
         try {
             return User::whereDate('last_activity_at', $date)->count();
-        } catch (Exception $e) {
-            return rand(5, 25);
+        } catch (Exception) {
+            return random_int(5, 25);
         }
     }
 
@@ -972,39 +937,31 @@ class DashboardController extends Controller
         // Simulated ticket views data
         $dayOfWeek = $date->dayOfWeek;
 
-        return $dayOfWeek >= 1 && $dayOfWeek <= 5 ? rand(50, 150) : rand(80, 200);
+        return $dayOfWeek >= 1 && $dayOfWeek <= 5 ? random_int(50, 150) : random_int(80, 200);
     }
 
     /**
      * Get day purchases for heatmap
-     *
-     * @param mixed $date
      */
     /**
      * Get  day purchases
-     *
-     * @param mixed $date
      */
-    private function getDayPurchases($date): int
+    private function getDayPurchases(): int
     {
         // Simulated purchase data
-        return rand(2, 15);
+        return random_int(2, 15);
     }
 
     /**
      * Get day alerts created for heatmap
-     *
-     * @param mixed $date
      */
     /**
      * Get  day alerts created
-     *
-     * @param mixed $date
      */
-    private function getDayAlertsCreated($date): int
+    private function getDayAlertsCreated(): int
     {
         // Simulated alerts data
-        return rand(1, 8);
+        return random_int(1, 8);
     }
 
     /**
@@ -1020,8 +977,8 @@ class DashboardController extends Controller
             $date = Carbon::now()->subDays($i);
             $revenue[] = [
                 'date'         => $date->format('Y-m-d'),
-                'revenue'      => rand(1000, 5000),
-                'transactions' => rand(10, 50),
+                'revenue'      => random_int(1000, 5000),
+                'transactions' => random_int(10, 50),
             ];
         }
 
@@ -1041,8 +998,8 @@ class DashboardController extends Controller
             $date = Carbon::now()->subMonths($i);
             $revenue[] = [
                 'month'        => $date->format('M Y'),
-                'revenue'      => rand(25000, 80000),
-                'transactions' => rand(200, 800),
+                'revenue'      => random_int(25000, 80000),
+                'transactions' => random_int(200, 800),
             ];
         }
 
@@ -1058,9 +1015,9 @@ class DashboardController extends Controller
     private function getAverageTicketPrice(): float
     {
         return [
-            'current'        => rand(120, 180),
-            'last_month'     => rand(110, 170),
-            'change_percent' => rand(-10, 15),
+            'current'        => random_int(120, 180),
+            'last_month'     => random_int(110, 170),
+            'change_percent' => random_int(-10, 15),
         ];
     }
 
@@ -1073,11 +1030,11 @@ class DashboardController extends Controller
     private function getPriceRangeDistribution(): array
     {
         return [
-            ['range' => '$0-50', 'count' => rand(50, 150), 'percentage' => rand(10, 20)],
-            ['range' => '$51-100', 'count' => rand(200, 400), 'percentage' => rand(25, 35)],
-            ['range' => '$101-200', 'count' => rand(300, 500), 'percentage' => rand(30, 40)],
-            ['range' => '$201-500', 'count' => rand(100, 250), 'percentage' => rand(15, 25)],
-            ['range' => '$500+', 'count' => rand(20, 80), 'percentage' => rand(3, 10)],
+            ['range' => '$0-50', 'count' => random_int(50, 150), 'percentage' => random_int(10, 20)],
+            ['range' => '$51-100', 'count' => random_int(200, 400), 'percentage' => random_int(25, 35)],
+            ['range' => '$101-200', 'count' => random_int(300, 500), 'percentage' => random_int(30, 40)],
+            ['range' => '$201-500', 'count' => random_int(100, 250), 'percentage' => random_int(15, 25)],
+            ['range' => '$500+', 'count' => random_int(20, 80), 'percentage' => random_int(3, 10)],
         ];
     }
 
@@ -1090,11 +1047,11 @@ class DashboardController extends Controller
     private function getTopSellingEvents(): array
     {
         return [
-            ['event' => 'Taylor Swift - Eras Tour', 'tickets_sold' => rand(200, 500), 'revenue' => rand(50000, 150000)],
-            ['event' => 'Lakers vs Warriors', 'tickets_sold' => rand(150, 300), 'revenue' => rand(30000, 80000)],
-            ['event' => 'Chiefs vs Patriots', 'tickets_sold' => rand(100, 250), 'revenue' => rand(25000, 70000)],
-            ['event' => 'Manchester United vs Liverpool', 'tickets_sold' => rand(120, 280), 'revenue' => rand(20000, 60000)],
-            ['event' => 'Coldplay World Tour', 'tickets_sold' => rand(80, 200), 'revenue' => rand(15000, 45000)],
+            ['event' => 'Taylor Swift - Eras Tour', 'tickets_sold' => random_int(200, 500), 'revenue' => random_int(50000, 150000)],
+            ['event' => 'Lakers vs Warriors', 'tickets_sold' => random_int(150, 300), 'revenue' => random_int(30000, 80000)],
+            ['event' => 'Chiefs vs Patriots', 'tickets_sold' => random_int(100, 250), 'revenue' => random_int(25000, 70000)],
+            ['event' => 'Manchester United vs Liverpool', 'tickets_sold' => random_int(120, 280), 'revenue' => random_int(20000, 60000)],
+            ['event' => 'Coldplay World Tour', 'tickets_sold' => random_int(80, 200), 'revenue' => random_int(15000, 45000)],
         ];
     }
 
@@ -1107,10 +1064,10 @@ class DashboardController extends Controller
     private function getRevenueByPlatform(): array
     {
         return [
-            'ticketmaster' => ['revenue' => rand(20000, 40000), 'percentage' => rand(35, 45)],
-            'stubhub'      => ['revenue' => rand(15000, 30000), 'percentage' => rand(25, 35)],
-            'vivid_seats'  => ['revenue' => rand(8000, 18000), 'percentage' => rand(15, 25)],
-            'viagogo'      => ['revenue' => rand(5000, 12000), 'percentage' => rand(10, 20)],
+            'ticketmaster' => ['revenue' => random_int(20000, 40000), 'percentage' => random_int(35, 45)],
+            'stubhub'      => ['revenue' => random_int(15000, 30000), 'percentage' => random_int(25, 35)],
+            'vivid_seats'  => ['revenue' => random_int(8000, 18000), 'percentage' => random_int(15, 25)],
+            'viagogo'      => ['revenue' => random_int(5000, 12000), 'percentage' => random_int(10, 20)],
         ];
     }
 
@@ -1123,10 +1080,10 @@ class DashboardController extends Controller
     private function getProfitMargins(): array
     {
         return [
-            'gross_margin'      => rand(15, 25),
-            'net_margin'        => rand(8, 15),
-            'platform_fees'     => rand(5, 10),
-            'operational_costs' => rand(3, 7),
+            'gross_margin'      => random_int(15, 25),
+            'net_margin'        => random_int(8, 15),
+            'platform_fees'     => random_int(5, 10),
+            'operational_costs' => random_int(3, 7),
         ];
     }
 }

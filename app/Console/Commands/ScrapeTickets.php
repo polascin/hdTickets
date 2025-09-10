@@ -77,7 +77,7 @@ class ScrapeTickets extends Command
     {
         $plugins = $this->scraperManager->getPlugins();
 
-        if (empty($plugins)) {
+        if ($plugins === []) {
             $this->warn('No plugins found. Make sure plugins are properly configured.');
 
             return Command::FAILURE;
@@ -96,7 +96,7 @@ class ScrapeTickets extends Command
             $this->line("   Platform: {$info['platform']}");
             $this->line("   Description: {$info['description']}");
 
-            if (!empty($info['capabilities'])) {
+            if (! empty($info['capabilities'])) {
                 $this->line('   Capabilities: ' . implode(', ', $info['capabilities']));
             }
 
@@ -137,7 +137,7 @@ class ScrapeTickets extends Command
         $this->info('Plugin Statistics');
         $this->line('=================');
 
-        foreach ($stats as $name => $stat) {
+        foreach ($stats as $stat) {
             $status = $stat['enabled'] ? '✅' : '❌';
             $this->line("{$status} <comment>{$stat['info']['name']}</comment>");
             $this->line('   Last Run: ' . ($stat['last_run'] ?? 'Never'));
@@ -171,7 +171,7 @@ class ScrapeTickets extends Command
         $totalTests = 0;
         $passedTests = 0;
 
-        foreach ($plugins as $name => $plugin) {
+        foreach (array_keys($plugins) as $name) {
             $totalTests++;
             $this->line("Testing {$name}...");
 
@@ -316,7 +316,7 @@ class ScrapeTickets extends Command
         $this->info("Results from {$pluginName}:");
         $this->line('========================');
 
-        if (empty($results)) {
+        if ($results === []) {
             $this->warn('No results found');
 
             return;
@@ -330,26 +330,26 @@ class ScrapeTickets extends Command
             $this->line("#{$lineNumber}:");
             $this->line('  Event: ' . ($result['event_name'] ?? $result['name'] ?? 'Unknown'));
 
-            if (!empty($result['venue'])) {
+            if (! empty($result['venue'])) {
                 $this->line("  Venue: {$result['venue']}");
             }
 
-            if (!empty($result['date'])) {
+            if (! empty($result['date'])) {
                 $this->line("  Date: {$result['date']}");
             }
 
-            if (!empty($result['price_min']) || !empty($result['price_max'])) {
+            if (! empty($result['price_min']) || ! empty($result['price_max'])) {
                 $priceInfo = '';
-                if (!empty($result['price_min'])) {
+                if (! empty($result['price_min'])) {
                     $priceInfo .= "from £{$result['price_min']}";
                 }
-                if (!empty($result['price_max'])) {
+                if (! empty($result['price_max'])) {
                     $priceInfo .= " to £{$result['price_max']}";
                 }
                 $this->line("  Price: {$priceInfo}");
             }
 
-            if (!empty($result['url'])) {
+            if (! empty($result['url'])) {
                 $this->line("  URL: {$result['url']}");
             }
 
@@ -377,7 +377,7 @@ class ScrapeTickets extends Command
         $this->line("Total Results: {$summary['total_results']}");
         $this->line('');
 
-        if (!empty($results['errors'])) {
+        if (! empty($results['errors'])) {
             $this->warn('Errors encountered:');
             foreach ($results['errors'] as $error) {
                 $this->line("  {$error['plugin']}: {$error['error']}");
@@ -386,7 +386,7 @@ class ScrapeTickets extends Command
         }
 
         foreach ($results['results'] as $pluginName => $pluginResult) {
-            if ($pluginResult['status'] === 'success' && !empty($pluginResult['results'])) {
+            if ($pluginResult['status'] === 'success' && ! empty($pluginResult['results'])) {
                 $this->info("Results from {$pluginName} ({$pluginResult['count']} found):");
                 $this->displaySinglePluginResults($pluginName, array_slice($pluginResult['results'], 0, 3));
             }

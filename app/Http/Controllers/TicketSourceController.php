@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Illuminate\Contracts\View\View;
+use App\Http\Controllers\Illuminate\Http\RedirectResponse;
 use App\Models\TicketSource;
 use Illuminate\Http\Request;
 
@@ -15,7 +17,7 @@ class TicketSourceController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $query = TicketSource::query()->with('category');
 
@@ -67,7 +69,7 @@ class TicketSourceController extends Controller
         }
 
         // Filter by active status
-        if (!$request->has('show_inactive')) {
+        if (! $request->has('show_inactive')) {
             $query->where('is_active', TRUE);
         }
 
@@ -112,14 +114,7 @@ class TicketSourceController extends Controller
         $countries = TicketSource::getCountries();
         $currencies = TicketSource::getCurrencies();
 
-        return view('ticket-sources.index', compact(
-            'ticketSources',
-            'platforms',
-            'statuses',
-            'countries',
-            'currencies',
-            'stats',
-        ));
+        return view('ticket-sources.index', ['ticketSources' => $ticketSources, 'platforms' => $platforms, 'statuses' => $statuses, 'countries' => $countries, 'currencies' => $currencies, 'stats' => $stats]);
     }
 
     /**
@@ -128,12 +123,12 @@ class TicketSourceController extends Controller
     /**
      * Create
      */
-    public function create(): Illuminate\Contracts\View\View
+    public function create(): View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
 
-        return view('ticket-sources.create', compact('platforms', 'statuses'));
+        return view('ticket-sources.create', ['platforms' => $platforms, 'statuses' => $statuses]);
     }
 
     /**
@@ -142,7 +137,7 @@ class TicketSourceController extends Controller
     /**
      * Store
      */
-    public function store(Request $request): Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name'                => 'required|string|max:255',
@@ -189,9 +184,9 @@ class TicketSourceController extends Controller
     /**
      * Show
      */
-    public function show(): Illuminate\Contracts\View\View
+    public function show(): View
     {
-        return view('ticket-sources.show', compact('ticketSource'));
+        return view('ticket-sources.show', ['ticketSource' => $ticketSource]);
     }
 
     /**
@@ -200,12 +195,12 @@ class TicketSourceController extends Controller
     /**
      * Edit
      */
-    public function edit(): Illuminate\Contracts\View\View
+    public function edit(): View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
 
-        return view('ticket-sources.edit', compact('ticketSource', 'platforms', 'statuses'));
+        return view('ticket-sources.edit', ['ticketSource' => $ticketSource, 'platforms' => $platforms, 'statuses' => $statuses]);
     }
 
     /**
@@ -214,7 +209,7 @@ class TicketSourceController extends Controller
     /**
      * Update
      */
-    public function update(Request $request): Illuminate\Http\RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
         $request->validate([
             'name'                => 'required|string|max:255',
@@ -255,7 +250,7 @@ class TicketSourceController extends Controller
     /**
      * Destroy
      */
-    public function destroy($ticketSource): Illuminate\Http\RedirectResponse
+    public function destroy($ticketSource): RedirectResponse
     {
         $ticketSource->delete();
 
@@ -268,7 +263,7 @@ class TicketSourceController extends Controller
      */
     public function toggle(TicketSource $ticketSource)
     {
-        $ticketSource->update(['is_active' => !$ticketSource->is_active]);
+        $ticketSource->update(['is_active' => ! $ticketSource->is_active]);
 
         $status = $ticketSource->is_active ? 'activated' : 'deactivated';
 
@@ -282,7 +277,7 @@ class TicketSourceController extends Controller
     /**
      * BulkAction
      */
-    public function bulkAction(Request $request): Illuminate\Http\RedirectResponse
+    public function bulkAction(Request $request): RedirectResponse
     {
         $request->validate([
             'action' => 'required|in:activate,deactivate,delete',
@@ -337,7 +332,7 @@ class TicketSourceController extends Controller
     /**
      * Export
      */
-    public function export(Request $request): Illuminate\Http\RedirectResponse
+    public function export(Request $request): RedirectResponse
     {
         $query = TicketSource::query();
 
@@ -429,7 +424,7 @@ class TicketSourceController extends Controller
     /**
      * ApiIndex
      */
-    public function apiIndex(Request $request): Illuminate\Http\RedirectResponse
+    public function apiIndex(Request $request): RedirectResponse
     {
         $query = TicketSource::active()->available();
 

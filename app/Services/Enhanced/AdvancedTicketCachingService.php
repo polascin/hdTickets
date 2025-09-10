@@ -4,6 +4,7 @@ namespace App\Services\Enhanced;
 
 use App\Models\ScrapedTicket;
 use App\Models\User;
+use App\Services\Enhanced\App\Models\Ticket;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Cache;
@@ -95,7 +96,7 @@ class AdvancedTicketCachingService
                 ->get();
 
             // Track cache generation
-            $this->trackCacheGeneration('ticket_data', $cacheKey);
+            $this->trackCacheGeneration('ticket_data');
 
             return $tickets->toArray();
         });
@@ -184,13 +185,13 @@ class AdvancedTicketCachingService
     /**
      * CacheIndividualTicket
      */
-    public function cacheIndividualTicket(App\Models\Ticket $ticket, int $ttl = self::TTL_MEDIUM): void
+    public function cacheIndividualTicket(Ticket $ticket, int $ttl = self::TTL_MEDIUM): void
     {
         if (is_numeric($ticket)) {
             $ticket = ScrapedTicket::find($ticket);
         }
 
-        if (!$ticket) {
+        if (! $ticket) {
             return;
         }
 
@@ -218,7 +219,7 @@ class AdvancedTicketCachingService
 
         $cached = Cache::get($cacheKey);
         if ($cached) {
-            $this->trackCacheHit('ticket_detail', $cacheKey);
+            $this->trackCacheHit('ticket_detail');
 
             return $cached;
         }
@@ -227,7 +228,7 @@ class AdvancedTicketCachingService
         $ticket = ScrapedTicket::find($ticketId);
         if ($ticket) {
             $this->cacheIndividualTicket($ticket);
-            $this->trackCacheMiss('ticket_detail', $cacheKey);
+            $this->trackCacheMiss('ticket_detail');
 
             return $ticket->toArray();
         }
@@ -245,30 +246,28 @@ class AdvancedTicketCachingService
     {
         $cacheKey = self::PREFIX_PLATFORMS . "stats:{$platform}";
 
-        return Cache::remember($cacheKey, $ttl, function () use ($platform) {
-            return [
-                'total_tickets'     => ScrapedTicket::where('platform', $platform)->count(),
-                'available_tickets' => ScrapedTicket::where('platform', $platform)
-                    ->where('is_available', TRUE)->count(),
-                'high_demand_tickets' => ScrapedTicket::where('platform', $platform)
-                    ->where('is_high_demand', TRUE)->count(),
-                'avg_price' => ScrapedTicket::where('platform', $platform)
-                    ->whereNotNull('min_price')->avg('min_price'),
-                'price_range' => [
-                    'min' => ScrapedTicket::where('platform', $platform)
-                        ->whereNotNull('min_price')->min('min_price'),
-                    'max' => ScrapedTicket::where('platform', $platform)
-                        ->whereNotNull('max_price')->max('max_price'),
-                ],
-                'last_updated' => ScrapedTicket::where('platform', $platform)
-                    ->max('updated_at'),
-                'categories' => ScrapedTicket::where('platform', $platform)
-                    ->groupBy('category')
-                    ->selectRaw('category, count(*) as count')
-                    ->pluck('count', 'category')
-                    ->toArray(),
-            ];
-        });
+        return Cache::remember($cacheKey, $ttl, fn (): array => [
+            'total_tickets'     => ScrapedTicket::where('platform', $platform)->count(),
+            'available_tickets' => ScrapedTicket::where('platform', $platform)
+                ->where('is_available', TRUE)->count(),
+            'high_demand_tickets' => ScrapedTicket::where('platform', $platform)
+                ->where('is_high_demand', TRUE)->count(),
+            'avg_price' => ScrapedTicket::where('platform', $platform)
+                ->whereNotNull('min_price')->avg('min_price'),
+            'price_range' => [
+                'min' => ScrapedTicket::where('platform', $platform)
+                    ->whereNotNull('min_price')->min('min_price'),
+                'max' => ScrapedTicket::where('platform', $platform)
+                    ->whereNotNull('max_price')->max('max_price'),
+            ],
+            'last_updated' => ScrapedTicket::where('platform', $platform)
+                ->max('updated_at'),
+            'categories' => ScrapedTicket::where('platform', $platform)
+                ->groupBy('category')
+                ->selectRaw('category, count(*) as count')
+                ->pluck('count', 'category')
+                ->toArray(),
+        ]);
     }
 
     /**
@@ -281,9 +280,9 @@ class AdvancedTicketCachingService
     {
         $cacheKey = self::PREFIX_USERS . "tickets:{$userId}";
 
-        return Cache::remember($cacheKey, $ttl, function () use ($userId) {
+        return Cache::remember($cacheKey, $ttl, function () use ($userId): array {
             $user = User::find($userId);
-            if (!$user) {
+            if (! $user) {
                 return [];
             }
 
@@ -346,7 +345,7 @@ class AdvancedTicketCachingService
     {
         $cacheKey = self::PREFIX_EVENTS . md5($eventTitle . $venue);
 
-        return Cache::remember($cacheKey, $ttl, function () use ($eventTitle, $venue) {
+        return Cache::remember($cacheKey, $ttl, function () use ($eventTitle, $venue): array {
             $tickets = ScrapedTicket::where('title', $eventTitle)
                 ->where('venue', $venue)
                 ->orderBy('min_price', 'asc')
@@ -354,14 +353,12 @@ class AdvancedTicketCachingService
 
             return [
                 'tickets'            => $tickets->toArray(),
-                'platform_breakdown' => $tickets->groupBy('platform')->map(function ($platformTickets) {
-                    return [
-                        'count'           => $platformTickets->count(),
-                        'min_price'       => $platformTickets->whereNotNull('min_price')->min('min_price'),
-                        'max_price'       => $platformTickets->whereNotNull('max_price')->max('max_price'),
-                        'available_count' => $platformTickets->where('is_available', TRUE)->count(),
-                    ];
-                })->toArray(),
+                'platform_breakdown' => $tickets->groupBy('platform')->map(fn ($platformTickets): array => [
+                    'count'           => $platformTickets->count(),
+                    'min_price'       => $platformTickets->whereNotNull('min_price')->min('min_price'),
+                    'max_price'       => $platformTickets->whereNotNull('max_price')->max('max_price'),
+                    'available_count' => $platformTickets->where('is_available', TRUE)->count(),
+                ])->toArray(),
                 'price_analysis' => [
                     'cheapest'       => $tickets->whereNotNull('min_price')->sortBy('min_price')->first()?->toArray(),
                     'most_expensive' => $tickets->whereNotNull('max_price')->sortByDesc('max_price')->first()?->toArray(),
@@ -381,19 +378,12 @@ class AdvancedTicketCachingService
     {
         $cacheKey = self::PREFIX_ANALYTICS . "{$type}:" . md5(serialize($params));
 
-        return Cache::remember($cacheKey, $ttl, function () use ($type, $params) {
-            switch ($type) {
-                case 'ticket_trends':
-                    return $this->generateTicketTrendsData($params);
-                case 'platform_performance':
-                    return $this->generatePlatformPerformanceData($params);
-                case 'price_analysis':
-                    return $this->generatePriceAnalysisData($params);
-                case 'user_engagement':
-                    return $this->generateUserEngagementData($params);
-                default:
-                    return [];
-            }
+        return Cache::remember($cacheKey, $ttl, fn (): array => match ($type) {
+            'ticket_trends'        => $this->generateTicketTrendsData($params),
+            'platform_performance' => $this->generatePlatformPerformanceData(),
+            'price_analysis'       => $this->generatePriceAnalysisData(),
+            'user_engagement'      => $this->generateUserEngagementData(),
+            default                => [],
         });
     }
 
@@ -406,14 +396,14 @@ class AdvancedTicketCachingService
     public function invalidateCache(string $pattern): void
     {
         try {
-            if (strpos($pattern, ':') !== FALSE) {
+            if (str_contains($pattern, ':')) {
                 // Specific key
                 Cache::forget($pattern);
                 $this->redis->del($pattern);
             } else {
                 // Pattern-based invalidation
                 $keys = $this->redis->keys("*{$pattern}*");
-                if (!empty($keys)) {
+                if (! empty($keys)) {
                     foreach ($keys as $key) {
                         Cache::forget($key);
                         $this->redis->del($key);
@@ -585,7 +575,7 @@ class AdvancedTicketCachingService
     /**
      * GeneratePlatformPerformanceData
      */
-    private function generatePlatformPerformanceData(array $params): array
+    private function generatePlatformPerformanceData(): array
     {
         return ScrapedTicket::selectRaw('platform, count(*) as total_tickets, 
                                         sum(case when is_available = 1 then 1 else 0 end) as available_tickets,
@@ -600,7 +590,7 @@ class AdvancedTicketCachingService
     /**
      * GeneratePriceAnalysisData
      */
-    private function generatePriceAnalysisData(array $params): array
+    private function generatePriceAnalysisData(): array
     {
         return [
             'price_distribution' => ScrapedTicket::selectRaw('
@@ -629,7 +619,7 @@ class AdvancedTicketCachingService
     /**
      * GenerateUserEngagementData
      */
-    private function generateUserEngagementData(array $params): array
+    private function generateUserEngagementData(): array
     {
         return [
             'total_users'      => User::count(),
@@ -659,7 +649,7 @@ class AdvancedTicketCachingService
     /**
      * TrackCacheGeneration
      */
-    private function trackCacheGeneration(string $type, string $key): void
+    private function trackCacheGeneration(string $type): void
     {
         $metricsKey = "cache_metrics:generation:{$type}";
         $this->redis->incr($metricsKey);
@@ -669,7 +659,7 @@ class AdvancedTicketCachingService
     /**
      * TrackCacheHit
      */
-    private function trackCacheHit(string $type, string $key): void
+    private function trackCacheHit(string $type): void
     {
         $metricsKey = "cache_metrics:hits:{$type}";
         $this->redis->incr($metricsKey);
@@ -679,7 +669,7 @@ class AdvancedTicketCachingService
     /**
      * TrackCacheMiss
      */
-    private function trackCacheMiss(string $type, string $key): void
+    private function trackCacheMiss(string $type): void
     {
         $metricsKey = "cache_metrics:misses:{$type}";
         $this->redis->incr($metricsKey);

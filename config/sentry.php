@@ -1,5 +1,21 @@
 <?php declare(strict_types=1);
 
+use App\Exceptions\TicketPlatformException;
+use GuzzleHttp\Exception\RequestException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Sentry\Integration\EnvironmentIntegration;
+use Sentry\Integration\FrameContextifierIntegration;
+use Sentry\Integration\RequestIntegration;
+use Sentry\Integration\TransactionIntegration;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -70,10 +86,10 @@ return [
     */
 
     'integrations' => [
-        Sentry\Integration\RequestIntegration::class,
-        Sentry\Integration\TransactionIntegration::class,
-        Sentry\Integration\FrameContextifierIntegration::class,
-        Sentry\Integration\EnvironmentIntegration::class,
+        RequestIntegration::class,
+        TransactionIntegration::class,
+        FrameContextifierIntegration::class,
+        EnvironmentIntegration::class,
     ],
 
     /*
@@ -83,15 +99,15 @@ return [
     */
 
     'ignore_exceptions' => [
-        'Illuminate\Auth\AuthenticationException',
-        'Illuminate\Auth\Access\AuthorizationException',
-        'Illuminate\Database\Eloquent\ModelNotFoundException',
+        AuthenticationException::class,
+        AuthorizationException::class,
+        ModelNotFoundException::class,
         'Illuminate\Http\Exception\NotFoundHttpException',
         'Illuminate\Http\Exception\HttpResponseException',
-        'Illuminate\Session\TokenMismatchException',
-        'Illuminate\Validation\ValidationException',
-        'Symfony\Component\HttpKernel\Exception\NotFoundHttpException',
-        'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException',
+        TokenMismatchException::class,
+        ValidationException::class,
+        NotFoundHttpException::class,
+        MethodNotAllowedHttpException::class,
     ],
 
     /*
@@ -197,19 +213,19 @@ return [
     'fingerprinting_rules' => [
         // Group database connection errors
         '{{ error.type }}' => [
-            'Illuminate\Database\QueryException',
+            QueryException::class,
             'PDOException',
         ],
 
         // Group scraping-related errors
         '{{ error.type }}:{{ tags.platform }}' => [
-            'App\Exceptions\TicketPlatformException',
-            'GuzzleHttp\Exception\RequestException',
+            TicketPlatformException::class,
+            RequestException::class,
         ],
 
         // Group rate limiting errors
         '{{ error.type }}:rate_limit' => [
-            'Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException',
+            TooManyRequestsHttpException::class,
         ],
     ],
 

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
+
+use function is_string;
 
 /**
  * Role Model for Advanced RBAC
@@ -22,12 +25,6 @@ class Role extends Model
         'description',
         'is_system_role',
         'created_by',
-    ];
-
-    protected $casts = [
-        'is_system_role' => 'boolean',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
     ];
 
     /**
@@ -60,9 +57,6 @@ class Role extends Model
 
     /**
      * Check if role has specific permission
-     *
-     * @param  string $permission
-     * @return bool
      */
     public function hasPermission(string $permission): bool
     {
@@ -72,8 +66,7 @@ class Role extends Model
     /**
      * Grant permission to role
      *
-     * @param  Permission|string $permission
-     * @return bool
+     * @param Permission|string $permission
      */
     public function grantPermission($permission): bool
     {
@@ -81,7 +74,7 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (!$permission) {
+        if (! $permission) {
             return FALSE;
         }
 
@@ -100,8 +93,7 @@ class Role extends Model
     /**
      * Revoke permission from role
      *
-     * @param  Permission|string $permission
-     * @return bool
+     * @param Permission|string $permission
      */
     public function revokePermission($permission): bool
     {
@@ -109,7 +101,7 @@ class Role extends Model
             $permission = Permission::where('name', $permission)->first();
         }
 
-        if (!$permission) {
+        if (! $permission) {
             return FALSE;
         }
 
@@ -118,10 +110,8 @@ class Role extends Model
 
     /**
      * Get all permissions including inherited ones
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function getAllPermissions(): \Illuminate\Support\Collection
+    public function getAllPermissions(): Collection
     {
         $permissions = $this->permissions->pluck('name');
 
@@ -141,6 +131,8 @@ class Role extends Model
 
     /**
      * Scope for system roles
+     *
+     * @param mixed $query
      */
     public function scopeSystemRoles($query)
     {
@@ -149,9 +141,20 @@ class Role extends Model
 
     /**
      * Scope for custom roles
+     *
+     * @param mixed $query
      */
     public function scopeCustomRoles($query)
     {
         return $query->where('is_system_role', FALSE);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_system_role' => 'boolean',
+            'created_at'     => 'datetime',
+            'updated_at'     => 'datetime',
+        ];
     }
 }

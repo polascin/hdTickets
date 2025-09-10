@@ -14,8 +14,10 @@ class PasswordChangedNotification extends Mailable
     use Queueable;
     use SerializesModels;
 
+    /** @var User */
     public $user;
 
+    /** @var array{changed_at: mixed, ip_address: mixed, user_agent: mixed, location: string} */
     public $changeDetails;
 
     /**

@@ -17,11 +17,6 @@ class TwoFactorRecovery extends Model
         'used_at',
     ];
 
-    protected $casts = [
-        'expires_at' => 'datetime',
-        'used_at'    => 'datetime',
-    ];
-
     /**
      * Get the user that owns the recovery code
      */
@@ -51,7 +46,7 @@ class TwoFactorRecovery extends Model
      */
     public function isValid(): bool
     {
-        return !$this->isUsed() && !$this->isExpired();
+        return ! $this->isUsed() && ! $this->isExpired();
     }
 
     /**
@@ -60,5 +55,13 @@ class TwoFactorRecovery extends Model
     public function markAsUsed(): bool
     {
         return $this->update(['used_at' => now()]);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+            'used_at'    => 'datetime',
+        ];
     }
 }

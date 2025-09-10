@@ -8,6 +8,8 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+use function count;
+
 /**
  * Monitor Sports Event Emails Command
  *
@@ -16,9 +18,7 @@ use Illuminate\Support\Facades\Log;
  */
 class MonitorSportsEventEmails extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'hdtickets:monitor-emails
                             {--connection= : Specific email connection to monitor}
                             {--mailbox= : Specific mailbox to monitor}
@@ -28,22 +28,14 @@ class MonitorSportsEventEmails extends Command
                             {--clear-cache : Clear processed emails cache}
                             {--verbose : Show detailed output}';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Monitor email inboxes for sports event ticket notifications and process them for HD Tickets system';
 
-    private EmailMonitoringService $monitoringService;
-
-    private ImapConnectionService $connectionService;
-
     public function __construct(
-        EmailMonitoringService $monitoringService,
-        ImapConnectionService $connectionService
+        private EmailMonitoringService $monitoringService,
+        private ImapConnectionService $connectionService,
     ) {
         parent::__construct();
-        $this->monitoringService = $monitoringService;
-        $this->connectionService = $connectionService;
     }
 
     /**
@@ -116,7 +108,7 @@ class MonitorSportsEventEmails extends Command
         $this->displayResults($results, $duration);
 
         // Return success/failure based on results
-        if (!empty($results['errors'])) {
+        if (! empty($results['errors'])) {
             $this->warn('⚠️  Completed with ' . count($results['errors']) . ' errors');
 
             return Command::FAILURE;
@@ -173,7 +165,7 @@ class MonitorSportsEventEmails extends Command
         $this->line('🎟️  Sports events identified: ' . ($results['total_sports_events_identified'] ?? 0));
 
         // Connection details
-        if (!empty($results['connections'])) {
+        if (! empty($results['connections'])) {
             $this->newLine();
             $this->info('📧 Connection Details:');
 
@@ -183,7 +175,7 @@ class MonitorSportsEventEmails extends Command
                 } else {
                     $this->line("  ✅ {$name}: {$data['emails_found']} found, {$data['emails_processed']} processed, {$data['sports_events_identified']} sports events");
 
-                    if ($this->option('verbose') && !empty($data['mailboxes_checked'])) {
+                    if ($this->option('verbose') && ! empty($data['mailboxes_checked'])) {
                         foreach ($data['mailboxes_checked'] as $mailbox => $mailboxData) {
                             if (isset($mailboxData['error'])) {
                                 $this->line("      📫 {$mailbox}: ❌ " . $mailboxData['error']['error']);
@@ -197,7 +189,7 @@ class MonitorSportsEventEmails extends Command
         }
 
         // Errors
-        if (!empty($results['errors'])) {
+        if (! empty($results['errors'])) {
             $this->newLine();
             $this->warn('⚠️  Errors:');
 
@@ -228,7 +220,7 @@ class MonitorSportsEventEmails extends Command
             $this->newLine();
             $this->info('🎯 Supported Platforms:');
             foreach ($stats['platforms'] as $platform) {
-                $this->line('  • ' . ucfirst($platform));
+                $this->line('  • ' . ucfirst((string) $platform));
             }
 
             $this->newLine();
@@ -265,7 +257,7 @@ class MonitorSportsEventEmails extends Command
         $success = TRUE;
 
         foreach (array_keys($connections) as $connName) {
-            if (!$this->testSpecificConnection($connName, FALSE)) {
+            if (! $this->testSpecificConnection($connName)) {
                 $success = FALSE;
             }
         }
@@ -276,7 +268,7 @@ class MonitorSportsEventEmails extends Command
     /**
      * Test specific connection
      */
-    private function testSpecificConnection(string $connection, bool $exit = TRUE): bool
+    private function testSpecificConnection(string $connection): bool
     {
         $this->line("🔗 Testing connection: {$connection}");
 
@@ -290,7 +282,7 @@ class MonitorSportsEventEmails extends Command
                 $this->line("  📧 Messages: {$result['messages_count']}");
                 $this->line("  🆕 Recent: {$result['recent_count']}");
 
-                if ($this->option('verbose') && !empty($result['mailboxes'])) {
+                if ($this->option('verbose') && ! empty($result['mailboxes'])) {
                     $this->line('  📋 Available mailboxes:');
                     foreach ($result['mailboxes'] as $mailbox) {
                         $this->line("    • {$mailbox}");
@@ -298,11 +290,10 @@ class MonitorSportsEventEmails extends Command
                 }
 
                 return TRUE;
-            } else {
-                $this->error('  ❌ Connection failed: ' . $result['error']);
-
-                return FALSE;
             }
+            $this->error('  ❌ Connection failed: ' . $result['error']);
+
+            return FALSE;
         } catch (Exception $e) {
             $this->error('  ❌ Test failed: ' . $e->getMessage());
 

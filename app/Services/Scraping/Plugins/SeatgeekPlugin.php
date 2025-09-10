@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class SeatgeekPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -148,19 +150,19 @@ class SeatgeekPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['q'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['city'])) {
-            $params['metro'] = urlencode($criteria['city']);
+        if (! empty($criteria['city'])) {
+            $params['metro'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['category'])) {
-            $params['taxonomies.name'] = urlencode($criteria['category']);
+        if (! empty($criteria['category'])) {
+            $params['taxonomies.name'] = urlencode((string) $criteria['category']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['datetime_local.gte'] = $criteria['date_range']['start'];
             }
@@ -212,7 +214,7 @@ class SeatgeekPlugin extends BaseScraperPlugin
             $priceText = $this->extractText($node, '.price, .EventTile-price, .lowest-price');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -252,7 +254,7 @@ class SeatgeekPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -267,9 +269,10 @@ class SeatgeekPlugin extends BaseScraperPlugin
     /**
      * Parse date from various formats
      */
+    #[Override]
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 

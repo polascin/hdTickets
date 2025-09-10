@@ -132,7 +132,7 @@ class NotificationManager
 
         $success = TRUE;
         foreach ($users as $user) {
-            if (!$this->sendNotification($user, $notification)) {
+            if (! $this->sendNotification($user, $notification)) {
                 $success = FALSE;
             }
         }
@@ -239,7 +239,7 @@ class NotificationManager
 
         // Send through each channel
         foreach ($channels as $channelName) {
-            if (!isset($this->channels[$channelName])) {
+            if (! isset($this->channels[$channelName])) {
                 Log::warning("Unknown notification channel: {$channelName}");
 
                 continue;
@@ -248,7 +248,7 @@ class NotificationManager
             try {
                 $channel = $this->channels[$channelName];
 
-                if (!$channel->send($user, $notification)) {
+                if (! $channel->send($user, $notification)) {
                     $success = FALSE;
                     Log::error("Failed to send notification via {$channelName}", [
                         'user_id' => $user->id,
@@ -323,7 +323,7 @@ class NotificationManager
             if ($daysUntil <= 1) {
                 $basePriority = min(5, $basePriority + 1);
             } elseif ($daysUntil <= 7) {
-                $basePriority = min(5, $basePriority + 0);
+                $basePriority = min(5, $basePriority);
             }
         }
 
@@ -339,14 +339,12 @@ class NotificationManager
     protected function getUserPreferredChannels(User $user, string $type): array
     {
         // Get user preferences from cache or database
-        $preferences = Cache::remember("user_notification_prefs_{$user->id}", 3600, function () use ($user) {
-            return $user->notification_preferences ?? [
-                'price_drop'       => ['pusher', 'email'],
-                'ticket_available' => ['pusher', 'email', 'web_push'],
-                'system_status'    => ['pusher'],
-                'custom_alert'     => ['pusher', 'email'],
-            ];
-        });
+        $preferences = Cache::remember("user_notification_prefs_{$user->id}", 3600, fn () => $user->notification_preferences ?? [
+            'price_drop'       => ['pusher', 'email'],
+            'ticket_available' => ['pusher', 'email', 'web_push'],
+            'system_status'    => ['pusher'],
+            'custom_alert'     => ['pusher', 'email'],
+        ]);
 
         return $preferences[$type] ?? ['pusher'];
     }
@@ -366,7 +364,7 @@ class NotificationManager
             'custom_alert'     => ['count' => 15, 'period' => 3600], // 15 per hour
         ];
 
-        if (!isset($limits[$type])) {
+        if (! isset($limits[$type])) {
             return FALSE;
         }
 
@@ -392,7 +390,7 @@ class NotificationManager
             'custom_alert'     => 3600,
         ];
 
-        if (!isset($limits[$type])) {
+        if (! isset($limits[$type])) {
             return;
         }
 

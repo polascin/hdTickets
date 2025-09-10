@@ -54,9 +54,7 @@ class EventPredictionService
             ->whereYear('event_date', '<', $currentYear)
             ->where('is_active', TRUE)
             ->get()
-            ->groupBy(function ($event) {
-                return $event->event_date->year;
-            });
+            ->groupBy(fn ($event) => $event->event_date->year);
 
         $patterns = [];
         foreach ($historicalData as $year => $events) {
@@ -87,7 +85,7 @@ class EventPredictionService
             ->where('event_date', '>', now()->subYear())
             ->get()
             ->groupBy('venue')
-            ->map(function ($events) {
+            ->map(function ($events): array {
                 $avgInterval = $this->calculateAverageEventInterval($events);
                 $lastEvent = $events->sortByDesc('event_date')->first();
 
@@ -128,7 +126,7 @@ class EventPredictionService
         foreach ($events as $event) {
             $artistName = $this->extractArtistName($event->event_name);
 
-            if (!isset($artistPatterns[$artistName])) {
+            if (! isset($artistPatterns[$artistName])) {
                 $artistPatterns[$artistName] = [
                     'events'       => [],
                     'venues'       => [],
@@ -208,7 +206,7 @@ class EventPredictionService
             $avgChange = collect($recentTrends)->avg('price_change');
             $lastTrend = end($trends);
 
-            $predictions = [
+            return [
                 'next_month_prediction' => [
                     'month'                   => now()->addMonth()->format('Y-m'),
                     'predicted_avg_min_price' => round($lastTrend['avg_min_price'] * (1 + $avgChange / 100), 2),
@@ -217,11 +215,9 @@ class EventPredictionService
                 ],
                 'trends' => $trends,
             ];
-        } else {
-            $predictions = ['trends' => $trends];
         }
 
-        return $predictions;
+        return ['trends' => $trends];
     }
 
     /**
@@ -244,7 +240,7 @@ class EventPredictionService
             $intervals[] = $diff;
         }
 
-        return empty($intervals) ? 365 : round(array_sum($intervals) / count($intervals));
+        return $intervals === [] ? 365 : round(array_sum($intervals) / count($intervals));
     }
 
     /**
@@ -257,10 +253,10 @@ class EventPredictionService
     {
         // Remove common words and extract likely artist name
         $cleanName = preg_replace('/\b(concert|live|tour|show|presents|featuring)\b/i', '', $eventName);
-        $cleanName = preg_replace('/\s+/', ' ', trim($cleanName));
+        $cleanName = preg_replace('/\s+/', ' ', trim((string) $cleanName));
 
         // Take first part as artist name (simplified approach)
-        $parts = explode(' - ', $cleanName);
+        $parts = explode(' - ', (string) $cleanName);
 
         return trim($parts[0]);
     }
@@ -329,7 +325,7 @@ class EventPredictionService
      */
     protected function generateSeasonalPredictions(array $patterns): array
     {
-        if (empty($patterns)) {
+        if ($patterns === []) {
             return [];
         }
 

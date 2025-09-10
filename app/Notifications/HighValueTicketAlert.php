@@ -10,28 +10,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Override;
 
 class HighValueTicketAlert extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $ticket;
-
-    protected $alert;
-
-    protected $matchScore;
-
     /**
      * Create a new notification instance.
      */
-    public function __construct(ScrapedTicket $ticket, TicketAlert $alert, int $matchScore = 100)
+    public function __construct(protected ScrapedTicket $ticket, protected TicketAlert $alert, protected int $matchScore = 100)
     {
-        $this->ticket = $ticket;
-        $this->alert = $alert;
-        $this->matchScore = $matchScore;
-
         // Set queue priority - high-value tickets get higher priority
-        $this->onQueue($ticket->is_high_demand ? 'high-priority' : 'notifications');
+        $this->onQueue($this->ticket->is_high_demand ? 'high-priority' : 'notifications');
     }
 
     /**
@@ -231,6 +222,7 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
     /**
      * Get the notification's channels.
      */
+    #[Override]
     public function broadcastOn()
     {
         return ['ticket-alerts.' . $this->alert->user_id];
@@ -239,7 +231,7 @@ class HighValueTicketAlert extends Notification implements ShouldQueue
     /**
      * Get the data to broadcast.
      */
-    public function broadcastWith()
+    public function broadcastWith(): array
     {
         return $this->toArray($this->alert->user);
     }

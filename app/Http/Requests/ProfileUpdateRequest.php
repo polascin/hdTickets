@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Override;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -65,6 +66,7 @@ class ProfileUpdateRequest extends FormRequest
     /**
      * Messages
      */
+    #[Override]
     public function messages(): array
     {
         return [

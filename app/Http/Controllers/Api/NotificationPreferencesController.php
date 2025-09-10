@@ -28,9 +28,7 @@ class NotificationPreferencesController extends Controller
 
             $channels = UserNotificationSettings::where('user_id', $user->id)
                 ->get()
-                ->mapWithKeys(function ($setting) {
-                    return [$setting->channel => $setting->getChannelSettings()];
-                });
+                ->mapWithKeys(fn ($setting): array => [$setting->channel => $setting->getChannelSettings()]);
 
             return response()->json([
                 'success' => TRUE,
@@ -83,7 +81,7 @@ class NotificationPreferencesController extends Controller
 
             $result = UserPreference::updateMultiple($user->id, $preferences);
 
-            if (!empty($result['errors'])) {
+            if (! empty($result['errors'])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Some preferences could not be updated',
@@ -187,7 +185,7 @@ class NotificationPreferencesController extends Controller
             $preferences = $request->input('preferences');
             $result = UserPreference::importPreferences($user->id, $preferences);
 
-            if (!empty($result['errors'])) {
+            if (! empty($result['errors'])) {
                 return response()->json([
                     'success'  => FALSE,
                     'message'  => 'Some preferences could not be imported',
@@ -270,7 +268,7 @@ class NotificationPreferencesController extends Controller
 
             $value = $request->input('value');
 
-            if (!UserPreference::validatePreference($key, $value)) {
+            if (! UserPreference::validatePreference($key, $value)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid preference value for key: ' . $key,
@@ -302,7 +300,7 @@ class NotificationPreferencesController extends Controller
     /**
      * ValidatePreferences
      */
-    protected function validatePreferences(array $data): \Illuminate\Validation\Validator
+    protected function validatePreferences(array $data): \Illuminate\Contracts\Validation\Validator
     {
         return Validator::make($data, [
             'notification_channels'          => 'sometimes|array',

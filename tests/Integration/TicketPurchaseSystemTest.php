@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Tests\Integration;
 
@@ -18,20 +18,20 @@ class TicketPurchaseSystemTest extends TestCase
     {
         // Create a customer with active subscription
         $customer = User::factory()->create(['role' => 'customer']);
-        
+
         UserSubscription::create([
-            'user_id' => $customer->id,
-            'status' => 'active',
-            'starts_at' => now()->subDay(),
-            'ends_at' => now()->addMonth(),
-            'ticket_limit' => 100
+            'user_id'      => $customer->id,
+            'status'       => 'active',
+            'starts_at'    => now()->subDay(),
+            'ends_at'      => now()->addMonth(),
+            'ticket_limit' => 100,
         ]);
 
         // Create a test ticket
         $ticket = Ticket::factory()->create([
-            'price' => 100.00,
+            'price'              => 100.00,
             'available_quantity' => 10,
-            'is_available' => true
+            'is_available'       => TRUE,
         ]);
 
         // Get the purchase service
@@ -45,10 +45,10 @@ class TicketPurchaseSystemTest extends TestCase
 
         // Create purchase
         $purchase = $purchaseService->createPurchase($customer, $ticket, [
-            'quantity' => 2,
+            'quantity'         => 2,
             'seat_preferences' => [
-                'section' => 'VIP'
-            ]
+                'section' => 'VIP',
+            ],
         ]);
 
         $this->assertInstanceOf(TicketPurchase::class, $purchase);
@@ -63,12 +63,12 @@ class TicketPurchaseSystemTest extends TestCase
     {
         // Create an agent
         $agent = User::factory()->create(['role' => 'agent']);
-        
+
         // Create a test ticket
         $ticket = Ticket::factory()->create([
-            'price' => 100.00,
+            'price'              => 100.00,
             'available_quantity' => 10,
-            'is_available' => true
+            'is_available'       => TRUE,
         ]);
 
         // Get the purchase service
@@ -85,12 +85,12 @@ class TicketPurchaseSystemTest extends TestCase
     {
         // Create a customer without subscription
         $customer = User::factory()->create(['role' => 'customer', 'created_at' => now()->subDays(10)]);
-        
+
         // Create a test ticket
         $ticket = Ticket::factory()->create([
-            'price' => 100.00,
+            'price'              => 100.00,
             'available_quantity' => 10,
-            'is_available' => true
+            'is_available'       => TRUE,
         ]);
 
         // Get the purchase service

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -24,12 +26,12 @@ class HomeController extends Controller
     /**
      * Index
      */
-    public function index(): \Illuminate\Http\RedirectResponse
+    public function index(): RedirectResponse
     {
         // Ensure user is authenticated before proceeding with role-based routing
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             Log::info('Unauthenticated user attempted to access dashboard, redirecting to login');
 
             return redirect()->route('login');
@@ -71,7 +73,7 @@ class HomeController extends Controller
     /**
      * Welcome
      */
-    public function welcome(): \Illuminate\Contracts\View\View
+    public function welcome(): View
     {
         Log::info('Welcome page accessed by unauthenticated user');
 

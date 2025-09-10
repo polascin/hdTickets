@@ -28,23 +28,21 @@ class PerformanceCacheService
      */
     public function getTicketStats(): array
     {
-        return Cache::remember('ticket_stats', self::CACHE_TTL_MEDIUM, function () {
-            return [
-                'total_tickets'       => ScrapedTicket::count(),
-                'available_tickets'   => ScrapedTicket::where('is_available', TRUE)->count(),
-                'high_demand_tickets' => ScrapedTicket::where('is_high_demand', TRUE)->count(),
-                'platforms_monitored' => ScrapedTicket::distinct('platform')->count('platform'),
-                'today_tickets'       => ScrapedTicket::whereDate('created_at', today())->count(),
-                'this_week_tickets'   => ScrapedTicket::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek(),
-                ])->count(),
-                'avg_price'  => ScrapedTicket::whereNotNull('min_price')->avg('min_price'),
-                'min_price'  => ScrapedTicket::whereNotNull('min_price')->min('min_price'),
-                'max_price'  => ScrapedTicket::whereNotNull('max_price')->max('max_price'),
-                'updated_at' => now(),
-            ];
-        });
+        return Cache::remember('ticket_stats', self::CACHE_TTL_MEDIUM, fn (): array => [
+            'total_tickets'       => ScrapedTicket::count(),
+            'available_tickets'   => ScrapedTicket::where('is_available', TRUE)->count(),
+            'high_demand_tickets' => ScrapedTicket::where('is_high_demand', TRUE)->count(),
+            'platforms_monitored' => ScrapedTicket::distinct('platform')->count('platform'),
+            'today_tickets'       => ScrapedTicket::whereDate('created_at', today())->count(),
+            'this_week_tickets'   => ScrapedTicket::whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek(),
+            ])->count(),
+            'avg_price'  => ScrapedTicket::whereNotNull('min_price')->avg('min_price'),
+            'min_price'  => ScrapedTicket::whereNotNull('min_price')->min('min_price'),
+            'max_price'  => ScrapedTicket::whereNotNull('max_price')->max('max_price'),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -55,16 +53,14 @@ class PerformanceCacheService
      */
     public function getPlatformBreakdown(): array
     {
-        return Cache::remember('platform_breakdown', self::CACHE_TTL_MEDIUM, function () {
-            return ScrapedTicket::select('platform')
-                ->selectRaw('count(*) as count')
-                ->selectRaw('sum(case when is_available = 1 then 1 else 0 end) as available_count')
-                ->selectRaw('avg(min_price) as avg_price')
-                ->groupBy('platform')
-                ->get()
-                ->keyBy('platform')
-                ->toArray();
-        });
+        return Cache::remember('platform_breakdown', self::CACHE_TTL_MEDIUM, fn () => ScrapedTicket::select('platform')
+            ->selectRaw('count(*) as count')
+            ->selectRaw('sum(case when is_available = 1 then 1 else 0 end) as available_count')
+            ->selectRaw('avg(min_price) as avg_price')
+            ->groupBy('platform')
+            ->get()
+            ->keyBy('platform')
+            ->toArray());
     }
 
     /**
@@ -75,15 +71,13 @@ class PerformanceCacheService
      */
     public function getPriceRanges(): array
     {
-        return Cache::remember('price_ranges', self::CACHE_TTL_LONG, function () {
-            return [
-                'under_50'   => ScrapedTicket::where('min_price', '<', 50)->count(),
-                '50_to_100'  => ScrapedTicket::whereBetween('min_price', [50, 100])->count(),
-                '100_to_200' => ScrapedTicket::whereBetween('min_price', [100, 200])->count(),
-                '200_to_500' => ScrapedTicket::whereBetween('min_price', [200, 500])->count(),
-                'above_500'  => ScrapedTicket::where('min_price', '>', 500)->count(),
-            ];
-        });
+        return Cache::remember('price_ranges', self::CACHE_TTL_LONG, fn (): array => [
+            'under_50'   => ScrapedTicket::where('min_price', '<', 50)->count(),
+            '50_to_100'  => ScrapedTicket::whereBetween('min_price', [50, 100])->count(),
+            '100_to_200' => ScrapedTicket::whereBetween('min_price', [100, 200])->count(),
+            '200_to_500' => ScrapedTicket::whereBetween('min_price', [200, 500])->count(),
+            'above_500'  => ScrapedTicket::where('min_price', '>', 500)->count(),
+        ]);
     }
 
     /**
@@ -94,18 +88,16 @@ class PerformanceCacheService
      */
     public function getTrendingEvents(): array
     {
-        return Cache::remember('trending_events', self::CACHE_TTL_MEDIUM, function () {
-            return ScrapedTicket::select('title', 'venue')
-                ->selectRaw('count(*) as ticket_count')
-                ->selectRaw('min(min_price) as min_price')
-                ->selectRaw('max(max_price) as max_price')
-                ->selectRaw('sum(case when is_available = 1 then 1 else 0 end) as available_count')
-                ->groupBy('title', 'venue')
-                ->orderByDesc('ticket_count')
-                ->limit(10)
-                ->get()
-                ->toArray();
-        });
+        return Cache::remember('trending_events', self::CACHE_TTL_MEDIUM, fn () => ScrapedTicket::select('title', 'venue')
+            ->selectRaw('count(*) as ticket_count')
+            ->selectRaw('min(min_price) as min_price')
+            ->selectRaw('max(max_price) as max_price')
+            ->selectRaw('sum(case when is_available = 1 then 1 else 0 end) as available_count')
+            ->groupBy('title', 'venue')
+            ->orderByDesc('ticket_count')
+            ->limit(10)
+            ->get()
+            ->toArray());
     }
 
     /**
@@ -116,20 +108,18 @@ class PerformanceCacheService
      */
     public function getUserActivityStats(): array
     {
-        return Cache::remember('user_activity_stats', self::CACHE_TTL_LONG, function () {
-            return [
-                'total_users'        => User::count(),
-                'active_users_today' => User::whereDate('last_login_at', today())->count(),
-                'active_users_week'  => User::where('last_login_at', '>=', Carbon::now()->subWeek())->count(),
-                'new_users_today'    => User::whereDate('created_at', today())->count(),
-                'new_users_week'     => User::where('created_at', '>=', Carbon::now()->subWeek())->count(),
-                'users_by_role'      => User::select('role')
-                    ->selectRaw('count(*) as count')
-                    ->groupBy('role')
-                    ->pluck('count', 'role')
-                    ->toArray(),
-            ];
-        });
+        return Cache::remember('user_activity_stats', self::CACHE_TTL_LONG, fn (): array => [
+            'total_users'        => User::count(),
+            'active_users_today' => User::whereDate('last_login_at', today())->count(),
+            'active_users_week'  => User::where('last_login_at', '>=', Carbon::now()->subWeek())->count(),
+            'new_users_today'    => User::whereDate('created_at', today())->count(),
+            'new_users_week'     => User::where('created_at', '>=', Carbon::now()->subWeek())->count(),
+            'users_by_role'      => User::select('role')
+                ->selectRaw('count(*) as count')
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray(),
+        ]);
     }
 
     /**
@@ -140,7 +130,7 @@ class PerformanceCacheService
      */
     public function getAvailabilityTimeline(): array
     {
-        return Cache::remember('availability_timeline', self::CACHE_TTL_MEDIUM, function () {
+        return Cache::remember('availability_timeline', self::CACHE_TTL_MEDIUM, function (): array {
             $timeline = [];
 
             for ($i = 23; $i >= 0; $i--) {
@@ -176,18 +166,16 @@ class PerformanceCacheService
      */
     public function getTopEventsByPrice(): array
     {
-        return Cache::remember('top_events_by_price', self::CACHE_TTL_LONG, function () {
-            return ScrapedTicket::select('title', 'venue', 'event_date')
-                ->selectRaw('max(max_price) as highest_price')
-                ->selectRaw('min(min_price) as lowest_price')
-                ->selectRaw('count(*) as ticket_count')
-                ->whereNotNull('max_price')
-                ->groupBy('title', 'venue', 'event_date')
-                ->orderByDesc('highest_price')
-                ->limit(20)
-                ->get()
-                ->toArray();
-        });
+        return Cache::remember('top_events_by_price', self::CACHE_TTL_LONG, fn () => ScrapedTicket::select('title', 'venue', 'event_date')
+            ->selectRaw('max(max_price) as highest_price')
+            ->selectRaw('min(min_price) as lowest_price')
+            ->selectRaw('count(*) as ticket_count')
+            ->whereNotNull('max_price')
+            ->groupBy('title', 'venue', 'event_date')
+            ->orderByDesc('highest_price')
+            ->limit(20)
+            ->get()
+            ->toArray());
     }
 
     /**
@@ -200,16 +188,14 @@ class PerformanceCacheService
     {
         $cacheKey = 'search_suggestions_' . md5($query);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_SHORT, function () use ($query, $limit) {
-            return ScrapedTicket::where('title', 'like', '%' . $query . '%')
-                ->orWhere('venue', 'like', '%' . $query . '%')
-                ->orWhere('description', 'like', '%' . $query . '%')
-                ->select('title', 'venue', 'platform')
-                ->distinct()
-                ->limit($limit)
-                ->get()
-                ->toArray();
-        });
+        return Cache::remember($cacheKey, self::CACHE_TTL_SHORT, fn () => ScrapedTicket::where('title', 'like', '%' . $query . '%')
+            ->orWhere('venue', 'like', '%' . $query . '%')
+            ->orWhere('description', 'like', '%' . $query . '%')
+            ->select('title', 'venue', 'platform')
+            ->distinct()
+            ->limit($limit)
+            ->get()
+            ->toArray());
     }
 
     /**
@@ -293,7 +279,7 @@ class PerformanceCacheService
      */
     public function getDatabaseMetrics(): array
     {
-        return Cache::remember('db_metrics', self::CACHE_TTL_SHORT, function () {
+        return Cache::remember('db_metrics', self::CACHE_TTL_SHORT, function (): array {
             $start = microtime(TRUE);
 
             // Simple query to test response time
@@ -314,6 +300,8 @@ class PerformanceCacheService
      */
     /**
      * OptimizeCacheUsage
+     *
+     * @return string[]
      */
     public function optimizeCacheUsage(): array
     {
@@ -327,7 +315,7 @@ class PerformanceCacheService
 
         // Check cache hit ratios (this would need Redis or Memcached for real metrics)
         $cacheStatus = $this->getCacheStatus();
-        $cachedItems = array_filter($cacheStatus, fn ($item) => $item['exists']);
+        $cachedItems = array_filter($cacheStatus, fn (array $item) => $item['exists']);
 
         if (count($cachedItems) < count($cacheStatus) * 0.7) {
             $optimizations[] = 'Cache hit ratio is low, consider warming up caches more frequently';

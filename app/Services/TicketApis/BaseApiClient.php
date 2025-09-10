@@ -19,8 +19,6 @@ use function is_array;
 
 abstract class BaseApiClient
 {
-    protected $config;
-
     protected $baseUrl;
 
     protected $timeout;
@@ -29,13 +27,12 @@ abstract class BaseApiClient
 
     protected $retryDelay;
 
-    public function __construct(array $config)
+    public function __construct(protected array $config)
     {
-        $this->config = $config;
-        $this->baseUrl = $config['base_url'] ?? '';
-        $this->timeout = $config['timeout'] ?? 30;
-        $this->retryAttempts = $config['retry_attempts'] ?? 3;
-        $this->retryDelay = $config['retry_delay'] ?? 1;
+        $this->baseUrl = $this->config['base_url'] ?? '';
+        $this->timeout = $this->config['timeout'] ?? 30;
+        $this->retryAttempts = $this->config['retry_attempts'] ?? 3;
+        $this->retryDelay = $this->config['retry_delay'] ?? 1;
     }
 
     /**
@@ -235,20 +232,15 @@ abstract class BaseApiClient
         $http = Http::timeout($this->timeout)
             ->withHeaders($this->getHeaders());
 
-        $url = rtrim($this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
+        $url = rtrim((string) $this->baseUrl, '/') . '/' . ltrim($endpoint, '/');
 
-        switch (strtoupper($method)) {
-            case 'GET':
-                return $http->get($url, $params);
-            case 'POST':
-                return $http->post($url, $params);
-            case 'PUT':
-                return $http->put($url, $params);
-            case 'DELETE':
-                return $http->delete($url, $params);
-            default:
-                throw new Exception("Unsupported HTTP method: {$method}");
-        }
+        return match (strtoupper($method)) {
+            'GET'    => $http->get($url, $params),
+            'POST'   => $http->post($url, $params),
+            'PUT'    => $http->put($url, $params),
+            'DELETE' => $http->delete($url, $params),
+            default  => throw new Exception("Unsupported HTTP method: {$method}"),
+        };
     }
 
     /**

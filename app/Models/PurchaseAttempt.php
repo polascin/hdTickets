@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Services\EncryptionService;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Override;
 
 class PurchaseAttempt extends Model
 {
@@ -49,20 +51,6 @@ class PurchaseAttempt extends Model
         'completed_at',
         'retry_count',
         'next_retry_at',
-    ];
-
-    protected $casts = [
-        'purchase_details' => 'encrypted:array',
-        'response_data'    => 'encrypted:array',
-        'metadata'         => 'array',
-        'started_at'       => 'datetime',
-        'completed_at'     => 'datetime',
-        'next_retry_at'    => 'datetime',
-        'attempted_price'  => 'decimal:2',
-        'final_price'      => 'decimal:2',
-        'total_paid'       => 'decimal:2',
-        'fees'             => 'decimal:2',
-        'platform_fee'     => 'decimal:2',
     ];
 
     public function __construct(array $attributes = [])
@@ -261,85 +249,37 @@ class PurchaseAttempt extends Model
     }
 
     /**
-     * Encrypt sensitive financial fields
-     *
-     * @param mixed $value
-     */
-    /**
-     * Set  transaction id attribute
-     *
-     * @param mixed $value
-     */
-    public function setTransactionIdAttribute($value): void
-    {
-        $this->attributes['transaction_id'] = $this->encryptionService->encrypt($value);
-    }
-
-    /**
      * Get  transaction id attribute
-     *
-     * @param mixed $value
      */
-    public function getTransactionIdAttribute($value): int
+    protected function transactionId(): Attribute
     {
-        return $this->encryptionService->decrypt($value);
+        return Attribute::make(get: fn ($value) => $this->encryptionService->decrypt($value), set: fn ($value): array => ['transaction_id' => $this->encryptionService->encrypt($value)]);
     }
 
-    /**
-     * Set  confirmation number attribute
-     *
-     * @param mixed $value
-     */
-    public function setConfirmationNumberAttribute($value): void
+    protected function confirmationNumber(): Attribute
     {
-        $this->attributes['confirmation_number'] = $this->encryptionService->encrypt($value);
+        return Attribute::make(get: fn ($value) => $this->encryptionService->decrypt($value), set: fn ($value): array => ['confirmation_number' => $this->encryptionService->encrypt($value)]);
     }
 
-    public function getConfirmationNumberAttribute($value)
+    protected function purchaseDetails(): Attribute
     {
-        return $this->encryptionService->decrypt($value);
-    }
-
-    /**
-     * Set  purchase details attribute
-     *
-     * @param mixed $value
-     */
-    public function setPurchaseDetailsAttribute($value): void
-    {
-        $this->attributes['purchase_details'] = $this->encryptionService->encryptJsonData($value);
-    }
-
-    public function getPurchaseDetailsAttribute($value)
-    {
-        return $this->encryptionService->decryptJsonData($value);
-    }
-
-    /**
-     * Set  response data attribute
-     *
-     * @param mixed $value
-     */
-    public function setResponseDataAttribute($value): void
-    {
-        $this->attributes['response_data'] = $this->encryptionService->encryptJsonData($value);
+        return Attribute::make(get: fn ($value) => $this->encryptionService->decryptJsonData($value), set: fn ($value): array => ['purchase_details' => $this->encryptionService->encryptJsonData($value)]);
     }
 
     /**
      * Get  response data attribute
      *
-     * @param mixed $value
-     *
      * @return array<string, mixed>
      */
-    public function getResponseDataAttribute($value): array
+    protected function responseData(): Attribute
     {
-        return $this->encryptionService->decryptJsonData($value);
+        return Attribute::make(get: fn ($value) => $this->encryptionService->decryptJsonData($value), set: fn ($value): array => ['response_data' => $this->encryptionService->encryptJsonData($value)]);
     }
 
     /**
      * Boot
      */
+    #[Override]
     protected static function boot(): void
     {
         parent::boot();
@@ -349,5 +289,22 @@ class PurchaseAttempt extends Model
                 $attempt->uuid = (string) Str::uuid();
             }
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'purchase_details' => 'encrypted:array',
+            'response_data'    => 'encrypted:array',
+            'metadata'         => 'array',
+            'started_at'       => 'datetime',
+            'completed_at'     => 'datetime',
+            'next_retry_at'    => 'datetime',
+            'attempted_price'  => 'decimal:2',
+            'final_price'      => 'decimal:2',
+            'total_paid'       => 'decimal:2',
+            'fees'             => 'decimal:2',
+            'platform_fee'     => 'decimal:2',
+        ];
     }
 }

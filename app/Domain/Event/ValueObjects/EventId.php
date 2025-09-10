@@ -3,10 +3,12 @@
 namespace App\Domain\Event\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
+use function in_array;
 use function strlen;
 
-final readonly class EventId
+final readonly class EventId implements Stringable
 {
     public function __construct(
         private string $value,
@@ -51,7 +53,7 @@ final readonly class EventId
      */
     private function validate(string $value): void
     {
-        if (empty(trim($value))) {
+        if (in_array(trim($value), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Event ID cannot be empty');
         }
 
@@ -59,7 +61,7 @@ final readonly class EventId
             throw new InvalidArgumentException('Event ID must be a valid string with max 255 characters');
         }
 
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
+        if (! preg_match('/^[a-zA-Z0-9_-]+$/', $value)) {
             throw new InvalidArgumentException('Event ID must contain only alphanumeric characters, underscores, and hyphens');
         }
     }

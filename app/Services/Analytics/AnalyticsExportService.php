@@ -2,14 +2,26 @@
 
 namespace App\Services\Analytics;
 
+use App\Models\ScrapedTicket;
+use App\Models\TicketSource;
+use App\Services\AdvancedAnalyticsService;
+use App\Services\CompetitiveIntelligenceService;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+use function array_slice;
+use function count;
+use function dirname;
+use function in_array;
+use function is_array;
 
 /**
  * Analytics Export Service
@@ -21,7 +33,7 @@ class AnalyticsExportService
 {
     private array $config;
 
-    private array $supportedFormats;
+    private array $supportedFormats = ['csv', 'pdf', 'json', 'xlsx'];
 
     public function __construct()
     {
@@ -32,22 +44,21 @@ class AnalyticsExportService
             'max_rows_per_export' => 50000,
             'chunk_size'          => 1000,
         ]);
-
-        $this->supportedFormats = ['csv', 'pdf', 'json', 'xlsx'];
     }
 
     /**
      * Export analytics data in the specified format
      *
-     * @param  string $format  Export format (csv, pdf, json, xlsx)
-     * @param  array  $data    Analytics data to export
-     * @param  array  $options Export options
-     * @return array  Export result with file path and metadata
+     * @param string $format  Export format (csv, pdf, json, xlsx)
+     * @param array  $data    Analytics data to export
+     * @param array  $options Export options
+     *
+     * @return array Export result with file path and metadata
      */
     public function export(string $format, array $data, array $options = []): array
     {
-        if (!in_array(strtolower($format), $this->supportedFormats)) {
-            throw new \InvalidArgumentException("Unsupported export format: {$format}");
+        if (! in_array(strtolower($format), $this->supportedFormats, TRUE)) {
+            throw new InvalidArgumentException("Unsupported export format: {$format}");
         }
 
         $format = strtolower($format);
@@ -75,7 +86,7 @@ class AnalyticsExportService
                 'download_url'  => $this->generateDownloadUrl($filePath),
                 'expires_at'    => now()->addDays($this->config['retention_days'])->toISOString(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Analytics export failed', [
                 'format'   => $format,
                 'filename' => $filename,
@@ -93,24 +104,74 @@ class AnalyticsExportService
     }
 
     /**
+     * Export data specifically for API consumption
+     * Used by Business Intelligence API endpoints
+     */
+    public function exportForApi(string $dataset, string $format, array $params): array
+    {
+        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+        $exportId = uniqid('api_export_');
+        $filename = "api_export_{$dataset}_{$format}_{$timestamp}.{$format}";
+        $filePath = storage_path("app/analytics/exports/api/{$filename}");
+
+        // Ensure directory exists
+        $directory = dirname($filePath);
+        if (! is_dir($directory)) {
+            mkdir($directory, 0o755, TRUE);
+        }
+
+        // Generate data based on dataset type
+        $data = $this->generateApiDataset($dataset, $params);
+
+        // Export in requested format
+        $recordCount = 0;
+        switch ($format) {
+            case 'json':
+                file_put_contents($filePath, json_encode($data, JSON_PRETTY_PRINT));
+                $recordCount = is_array($data) ? count($data) : 1;
+
+                break;
+            case 'csv':
+                $recordCount = $this->exportApiToCsv($data, $filePath);
+
+                break;
+            case 'parquet':
+                // For parquet, we'll export as JSON for now (requires additional library for true parquet)
+                file_put_contents($filePath, json_encode($data));
+                $recordCount = is_array($data) ? count($data) : 1;
+
+                break;
+            default:
+                throw new InvalidArgumentException("Unsupported export format: {$format}");
+        }
+
+        $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
+
+        return [
+            'export_id'    => $exportId,
+            'download_url' => $this->generateApiDownloadUrl($filename),
+            'file_size'    => $fileSize,
+            'record_count' => $recordCount,
+            'filename'     => $filename,
+        ];
+    }
+
+    /**
      * Export data to CSV format
      *
-     * @param  array  $data
-     * @param  string $filename
-     * @param  array  $options
      * @return string File path
      */
     private function exportToCsv(array $data, string $filename, array $options): string
     {
         $filePath = $this->config['export_path'] . '/' . $filename;
-        $csvData = $this->prepareCsvData($data, $options);
+        $csvData = $this->prepareCsvData($data);
 
         $content = '';
         $delimiter = $options['delimiter'] ?? ',';
         $enclosure = $options['enclosure'] ?? '"';
 
         // Add headers
-        if (!empty($csvData) && isset($csvData[0])) {
+        if ($csvData !== [] && isset($csvData[0])) {
             $headers = array_keys($csvData[0]);
             $content .= $this->formatCsvRow($headers, $delimiter, $enclosure) . "\n";
         }
@@ -128,9 +189,6 @@ class AnalyticsExportService
     /**
      * Export data to PDF format
      *
-     * @param  array  $data
-     * @param  string $filename
-     * @param  array  $options
      * @return string File path
      */
     private function exportToPdf(array $data, string $filename, array $options): string
@@ -160,9 +218,6 @@ class AnalyticsExportService
     /**
      * Export data to JSON format
      *
-     * @param  array  $data
-     * @param  string $filename
-     * @param  array  $options
      * @return string File path
      */
     private function exportToJson(array $data, string $filename, array $options): string
@@ -194,9 +249,6 @@ class AnalyticsExportService
     /**
      * Export data to Excel (XLSX) format
      *
-     * @param  array  $data
-     * @param  string $filename
-     * @param  array  $options
      * @return string File path
      */
     private function exportToXlsx(array $data, string $filename, array $options): string
@@ -204,7 +256,7 @@ class AnalyticsExportService
         $filePath = $this->config['export_path'] . '/' . $filename;
 
         $spreadsheet = new Spreadsheet();
-        $this->buildExcelWorkbook($spreadsheet, $data, $options);
+        $this->buildExcelWorkbook($spreadsheet, $data);
 
         $writer = new Xlsx($spreadsheet);
         $tempFile = tempnam(sys_get_temp_dir(), 'analytics_export_');
@@ -221,12 +273,8 @@ class AnalyticsExportService
 
     /**
      * Build Excel workbook with multiple sheets
-     *
-     * @param Spreadsheet $spreadsheet
-     * @param array       $data
-     * @param array       $options
      */
-    private function buildExcelWorkbook(Spreadsheet $spreadsheet, array $data, array $options): void
+    private function buildExcelWorkbook(Spreadsheet $spreadsheet, array $data): void
     {
         $spreadsheet->removeSheetByIndex(0); // Remove default sheet
 
@@ -374,7 +422,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Sport-based pricing analysis
-        if (isset($pricingData['sport_analysis']) && !empty($pricingData['sport_analysis'])) {
+        if (isset($pricingData['sport_analysis']) && ! empty($pricingData['sport_analysis'])) {
             $sheet->setCellValue("A{$row}", 'Sport Category Pricing Analysis');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -399,7 +447,7 @@ class AnalyticsExportService
         }
 
         // Price distribution
-        if (isset($pricingData['price_distribution']) && !empty($pricingData['price_distribution'])) {
+        if (isset($pricingData['price_distribution']) && ! empty($pricingData['price_distribution'])) {
             $row += 2;
             $sheet->setCellValue("A{$row}", 'Price Distribution');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
@@ -435,7 +483,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Trending events
-        if (isset($eventData['trending_events']) && !empty($eventData['trending_events'])) {
+        if (isset($eventData['trending_events']) && ! empty($eventData['trending_events'])) {
             $sheet->setCellValue("A{$row}", 'Trending Events');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -477,7 +525,7 @@ class AnalyticsExportService
         $row = 1;
 
         // Price anomalies
-        if (isset($anomaliesData['price_anomalies']['anomalies']) && !empty($anomaliesData['price_anomalies']['anomalies'])) {
+        if (isset($anomaliesData['price_anomalies']['anomalies']) && ! empty($anomaliesData['price_anomalies']['anomalies'])) {
             $sheet->setCellValue("A{$row}", 'Price Anomalies');
             $sheet->getStyle("A{$row}")->getFont()->setBold(TRUE);
             $row += 2;
@@ -496,7 +544,7 @@ class AnalyticsExportService
                 $sheet->setCellValue("B{$row}", '$' . number_format($anomaly['price'] ?? 0, 2));
                 $sheet->setCellValue("C{$row}", $anomaly['platform']);
                 $sheet->setCellValue("D{$row}", number_format($anomaly['z_score'] ?? 0, 2));
-                $sheet->setCellValue("E{$row}", ucfirst($anomaly['severity']));
+                $sheet->setCellValue("E{$row}", ucfirst((string) $anomaly['severity']));
                 $sheet->setCellValue("F{$row}", $anomaly['detected_at']);
                 $row++;
             }
@@ -511,7 +559,7 @@ class AnalyticsExportService
     /**
      * Prepare data for CSV export
      */
-    private function prepareCsvData(array $data, array $options): array
+    private function prepareCsvData(array $data): array
     {
         $flatData = [];
 
@@ -636,15 +684,13 @@ class AnalyticsExportService
             ';
         }
 
-        $html .= "
+        return $html . "
             <div class='footer'>
                 <p>HD Tickets Analytics - Sports Event Ticket Monitoring System</p>
             </div>
         </body>
         </html>
         ";
-
-        return $html;
     }
 
     /**
@@ -663,13 +709,13 @@ class AnalyticsExportService
      */
     private function formatCsvRow(array $fields, string $delimiter, string $enclosure): string
     {
-        $formatted = array_map(function ($field) use ($enclosure) {
+        $formatted = array_map(function ($field) use ($enclosure): string|array {
             // Escape enclosure characters
             $field = str_replace($enclosure, $enclosure . $enclosure, $field);
             // Wrap in enclosures if contains delimiter, enclosure, or newline
-            if (strpos($field, $enclosure) !== FALSE ||
-                strpos($field, "\n") !== FALSE ||
-                strpos($field, "\r") !== FALSE) {
+            if (str_contains($field, $enclosure)
+                || str_contains($field, "\n")
+                || str_contains($field, "\r")) {
                 return $enclosure . $field . $enclosure;
             }
 
@@ -686,7 +732,7 @@ class AnalyticsExportService
     {
         $count = 0;
 
-        foreach ($data as $section => $sectionData) {
+        foreach ($data as $sectionData) {
             if (is_array($sectionData)) {
                 $count += count($sectionData);
             }
@@ -705,59 +751,6 @@ class AnalyticsExportService
     }
 
     /**
-     * Export data specifically for API consumption
-     * Used by Business Intelligence API endpoints
-     */
-    public function exportForApi(string $dataset, string $format, array $params): array
-    {
-        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
-        $exportId = uniqid('api_export_');
-        $filename = "api_export_{$dataset}_{$format}_{$timestamp}.{$format}";
-        $filePath = storage_path("app/analytics/exports/api/{$filename}");
-
-        // Ensure directory exists
-        $directory = dirname($filePath);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, TRUE);
-        }
-
-        // Generate data based on dataset type
-        $data = $this->generateApiDataset($dataset, $params);
-
-        // Export in requested format
-        $recordCount = 0;
-        switch ($format) {
-            case 'json':
-                file_put_contents($filePath, json_encode($data, JSON_PRETTY_PRINT));
-                $recordCount = is_array($data) ? count($data) : 1;
-
-                break;
-            case 'csv':
-                $recordCount = $this->exportApiToCsv($data, $filePath);
-
-                break;
-            case 'parquet':
-                // For parquet, we'll export as JSON for now (requires additional library for true parquet)
-                file_put_contents($filePath, json_encode($data));
-                $recordCount = is_array($data) ? count($data) : 1;
-
-                break;
-            default:
-                throw new \InvalidArgumentException("Unsupported export format: {$format}");
-        }
-
-        $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
-
-        return [
-            'export_id'    => $exportId,
-            'download_url' => $this->generateApiDownloadUrl($filename),
-            'file_size'    => $fileSize,
-            'record_count' => $recordCount,
-            'filename'     => $filename,
-        ];
-    }
-
-    /**
      * Generate dataset for API export
      */
     private function generateApiDataset(string $dataset, array $params): array
@@ -765,18 +758,13 @@ class AnalyticsExportService
         $dateFrom = $params['date_from'] ?? Carbon::now()->subDays(30)->toDateString();
         $dateTo = $params['date_to'] ?? Carbon::now()->toDateString();
 
-        switch ($dataset) {
-            case 'tickets':
-                return $this->generateTicketsDataset($dateFrom, $dateTo, $params);
-            case 'platforms':
-                return $this->generatePlatformsDataset($dateFrom, $dateTo, $params);
-            case 'analytics':
-                return $this->generateAnalyticsDataset($dateFrom, $dateTo, $params);
-            case 'competitive':
-                return $this->generateCompetitiveDataset($dateFrom, $dateTo, $params);
-            default:
-                throw new \InvalidArgumentException("Unsupported dataset: {$dataset}");
-        }
+        return match ($dataset) {
+            'tickets'     => $this->generateTicketsDataset($dateFrom, $dateTo, $params),
+            'platforms'   => $this->generatePlatformsDataset($dateFrom, $dateTo),
+            'analytics'   => $this->generateAnalyticsDataset($dateFrom, $dateTo, $params),
+            'competitive' => $this->generateCompetitiveDataset($dateFrom, $dateTo, $params),
+            default       => throw new InvalidArgumentException("Unsupported dataset: {$dataset}"),
+        };
     }
 
     /**
@@ -784,11 +772,11 @@ class AnalyticsExportService
      */
     private function generateTicketsDataset(string $dateFrom, string $dateTo, array $params): array
     {
-        $query = \App\Models\ScrapedTicket::query()
+        $query = ScrapedTicket::query()
             ->with('source')
             ->whereBetween('created_at', [$dateFrom, $dateTo]);
 
-        if (!empty($params['sport'])) {
+        if (! empty($params['sport'])) {
             $query->where('sport', $params['sport']);
         }
 
@@ -796,17 +784,13 @@ class AnalyticsExportService
             'id', 'event_name', 'sport', 'price', 'venue', 'event_date', 'source_name', 'created_at',
         ];
 
-        return $query->get()->map(function ($ticket) use ($fields) {
+        return $query->get()->map(function ($ticket) use ($fields): array {
             $data = [];
             foreach ($fields as $field) {
-                switch ($field) {
-                    case 'source_name':
-                        $data[$field] = $ticket->source->name ?? NULL;
-
-                        break;
-                    default:
-                        $data[$field] = $ticket->{$field} ?? NULL;
-                }
+                $data[$field] = match ($field) {
+                    'source_name' => $ticket->source->name ?? NULL,
+                    default       => $ticket->{$field} ?? NULL,
+                };
             }
 
             return $data;
@@ -816,24 +800,22 @@ class AnalyticsExportService
     /**
      * Generate platforms dataset for API
      */
-    private function generatePlatformsDataset(string $dateFrom, string $dateTo, array $params): array
+    private function generatePlatformsDataset(string $dateFrom, string $dateTo): array
     {
-        return \App\Models\TicketSource::with(['scrapedTickets' => function ($query) use ($dateFrom, $dateTo) {
+        return TicketSource::with(['scrapedTickets' => function ($query) use ($dateFrom, $dateTo): void {
             $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-        }])->get()->map(function ($platform) {
-            return [
-                'platform_id'    => $platform->id,
-                'platform_name'  => $platform->name,
-                'platform_url'   => $platform->url,
-                'is_active'      => $platform->is_active,
-                'total_tickets'  => $platform->scrapedTickets->count(),
-                'avg_price'      => round($platform->scrapedTickets->avg('price') ?: 0, 2),
-                'min_price'      => round($platform->scrapedTickets->min('price') ?: 0, 2),
-                'max_price'      => round($platform->scrapedTickets->max('price') ?: 0, 2),
-                'sports_covered' => $platform->scrapedTickets->pluck('sport')->unique()->count(),
-                'last_update'    => $platform->scrapedTickets->max('created_at'),
-            ];
-        })->toArray();
+        }])->get()->map(fn ($platform): array => [
+            'platform_id'    => $platform->id,
+            'platform_name'  => $platform->name,
+            'platform_url'   => $platform->url,
+            'is_active'      => $platform->is_active,
+            'total_tickets'  => $platform->scrapedTickets->count(),
+            'avg_price'      => round($platform->scrapedTickets->avg('price') ?: 0, 2),
+            'min_price'      => round($platform->scrapedTickets->min('price') ?: 0, 2),
+            'max_price'      => round($platform->scrapedTickets->max('price') ?: 0, 2),
+            'sports_covered' => $platform->scrapedTickets->pluck('sport')->unique()->count(),
+            'last_update'    => $platform->scrapedTickets->max('created_at'),
+        ])->toArray();
     }
 
     /**
@@ -841,7 +823,7 @@ class AnalyticsExportService
      */
     private function generateAnalyticsDataset(string $dateFrom, string $dateTo, array $params): array
     {
-        $analyticsService = app(\App\Services\AdvancedAnalyticsService::class);
+        $analyticsService = app(AdvancedAnalyticsService::class);
 
         return $analyticsService->getDashboardData([
             'date_from' => $dateFrom,
@@ -855,7 +837,7 @@ class AnalyticsExportService
      */
     private function generateCompetitiveDataset(string $dateFrom, string $dateTo, array $params): array
     {
-        $competitiveService = app(\App\Services\CompetitiveIntelligenceService::class);
+        $competitiveService = app(CompetitiveIntelligenceService::class);
 
         return $competitiveService->getCompetitiveDashboard([
             'date_from' => $dateFrom,
@@ -869,7 +851,7 @@ class AnalyticsExportService
      */
     private function exportApiToCsv(array $data, string $filePath): int
     {
-        if (empty($data)) {
+        if ($data === []) {
             file_put_contents($filePath, '');
 
             return 0;
@@ -920,7 +902,7 @@ class AnalyticsExportService
                     $disk->delete($file);
                     Log::info('Deleted old analytics export file', ['file' => $file]);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Failed to delete old export file', [
                     'file'  => $file,
                     'error' => $e->getMessage(),

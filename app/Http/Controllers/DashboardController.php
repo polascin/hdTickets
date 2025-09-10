@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserPreference;
 use App\Services\PlatformCachingService;
 use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -25,9 +26,9 @@ class DashboardController extends Controller
      * Display the main customer dashboard for Sports Tickets Monitoring System
      * Simplified and optimized for better performance
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             abort(401);
         }
 
@@ -53,7 +54,7 @@ class DashboardController extends Controller
     {
         $cacheKey = 'realtime_tickets:' . md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, 120, function () use ($request) {
+        return Cache::remember($cacheKey, 120, function () use ($request): array {
             try {
                 $query = ScrapedTicket::with('category')
                     ->available()
@@ -123,7 +124,7 @@ class DashboardController extends Controller
     {
         $cacheKey = 'trending_events:' . md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, 300, function () use ($request) {
+        return Cache::remember($cacheKey, 300, function () use ($request): array {
             try {
                 // Get high demand events with optimized eager loading
                 $trendingQuery = ScrapedTicket::with(['category'])
@@ -152,14 +153,12 @@ class DashboardController extends Controller
                 $events = $trendingQuery->limit(20)->get();
 
                 // Enhance with additional metrics
-                $enhancedEvents = $events->map(function ($event) {
-                    return array_merge($event->toArray(), [
-                        'trend_score'        => $this->calculateTrendScore($event),
-                        'demand_level'       => $this->getDemandLevel($event->high_demand_count, $event->ticket_count),
-                        'price_volatility'   => $this->calculatePriceVolatility($event),
-                        'availability_trend' => $this->getAvailabilityTrend($event),
-                    ]);
-                });
+                $enhancedEvents = $events->map(fn ($event): array => array_merge($event->toArray(), [
+                    'trend_score'        => $this->calculateTrendScore($event),
+                    'demand_level'       => $this->getDemandLevel($event->high_demand_count, $event->ticket_count),
+                    'price_volatility'   => $this->calculatePriceVolatility($event),
+                    'availability_trend' => $this->getAvailabilityTrend($event),
+                ]));
 
                 return [
                     'success' => TRUE,
@@ -167,10 +166,8 @@ class DashboardController extends Controller
                         'events'              => $enhancedEvents,
                         'count'               => $enhancedEvents->count(),
                         'sports_distribution' => $enhancedEvents->groupBy('sport')->map->count(),
-                        'avg_prices_by_sport' => $enhancedEvents->groupBy('sport')->map(function ($group) {
-                            return round($group->avg('avg_price'), 2);
-                        }),
-                        'last_updated' => now()->toISOString(),
+                        'avg_prices_by_sport' => $enhancedEvents->groupBy('sport')->map(fn ($group): float => round($group->avg('avg_price'), 2)),
+                        'last_updated'        => now()->toISOString(),
                     ],
                     'cache_info' => [
                         'cached_at'          => now()->toISOString(),
@@ -198,10 +195,10 @@ class DashboardController extends Controller
      */
     public function getUserMetrics(Request $request): array
     {
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             abort(401);
         }
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => FALSE,
                 'error'   => 'User not authenticated',
@@ -211,7 +208,7 @@ class DashboardController extends Controller
 
         $cacheKey = "user_metrics:{$user->id}:" . md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, 600, function () use ($user) {
+        return Cache::remember($cacheKey, 600, function () use ($user): array {
             try {
                 // Get user preferences with eager loading
                 $preferences = UserPreference::getAlertPreferences($user->id);
@@ -232,7 +229,7 @@ class DashboardController extends Controller
                     ->recent(12); // Last 12 hours
 
                 // Apply user preference filters
-                if (!empty($favoriteTeams)) {
+                if (! empty($favoriteTeams)) {
                     $recommendationsQuery->where(function ($q) use ($favoriteTeams): void {
                         foreach ($favoriteTeams as $team) {
                             $q->orWhere('title', 'like', "%{$team}%")
@@ -241,11 +238,11 @@ class DashboardController extends Controller
                     });
                 }
 
-                if (!empty($preferredVenues)) {
+                if (! empty($preferredVenues)) {
                     $recommendationsQuery->whereIn('venue', $preferredVenues);
                 }
 
-                if (!empty($priceThresholds) && isset($priceThresholds['max_budget'])) {
+                if (! empty($priceThresholds) && isset($priceThresholds['max_budget'])) {
                     $recommendationsQuery->priceRange(NULL, $priceThresholds['max_budget']);
                 }
 
@@ -253,7 +250,7 @@ class DashboardController extends Controller
 
                 // Calculate user engagement metrics
                 $alertsTriggered = $activeAlerts->sum('matches_found');
-                $avgResponseTime = $this->calculateUserResponseTime($user->id);
+                $avgResponseTime = $this->calculateUserResponseTime();
 
                 // Get user activity score
                 $activityScore = $this->calculateUserActivityScore($user, $activeAlerts);
@@ -266,13 +263,13 @@ class DashboardController extends Controller
                         'active_alerts_count'       => $activeAlerts->count(),
                         'alerts_triggered_today'    => $alertsTriggered,
                         'activity_score'            => $activityScore,
-                        'preferences_configured'    => !empty($favoriteTeams) || !empty($preferredVenues),
+                        'preferences_configured'    => ! empty($favoriteTeams) || ! empty($preferredVenues),
                         'avg_response_time_minutes' => $avgResponseTime,
                         'user_insights'             => [
                             'favorite_sports'        => $this->getUserFavoriteSports($user->id),
                             'price_preference_range' => $this->getUserPricePreferences($user->id),
                             'most_active_platforms'  => $this->getUserPreferredPlatforms($user->id),
-                            'peak_activity_hours'    => $this->getUserPeakHours($user->id),
+                            'peak_activity_hours'    => $this->getUserPeakHours(),
                         ],
                         'last_updated' => now()->toISOString(),
                     ],
@@ -302,7 +299,7 @@ class DashboardController extends Controller
      */
     public function getRecentTicketsHtml(Request $request): JsonResponse
     {
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             abort(403, 'Only AJAX requests are allowed');
         }
 
@@ -326,11 +323,11 @@ class DashboardController extends Controller
      */
     public function getDashboardStats(Request $request): JsonResponse
     {
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             abort(403, 'Only AJAX requests are allowed');
         }
 
-        if (!$user = Auth::user()) {
+        if (! $user = Auth::user()) {
             return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
@@ -347,7 +344,7 @@ class DashboardController extends Controller
      * Cache warming command for frequently accessed data
      * This method can be called by scheduled jobs to pre-warm caches
      */
-    public function warmDashboardCaches()
+    public function warmDashboardCaches(): array
     {
         try {
             // Warm real-time tickets cache for common searches
@@ -400,7 +397,7 @@ class DashboardController extends Controller
     {
         $cacheKey = 'platform_status:' . ($request->get('detailed', FALSE) ? 'detailed' : 'summary');
 
-        return Cache::remember($cacheKey, 60, function () use ($request) {
+        return Cache::remember($cacheKey, 60, function () use ($request): array {
             try {
                 $platforms = ['stubhub', 'ticketmaster', 'viagogo', 'tickpick', 'seatgeek', 'vivid_seats'];
                 $platformStats = [];
@@ -463,7 +460,7 @@ class DashboardController extends Controller
                 ];
 
                 // Return summary or detailed based on request
-                if (!$request->get('detailed', FALSE)) {
+                if (! $request->get('detailed', FALSE)) {
                     return [
                         'success' => TRUE,
                         'data'    => [
@@ -504,9 +501,8 @@ class DashboardController extends Controller
         $cacheKey = 'dashboard_stats_' . $user->id . '_' . now()->format('YmdH');
 
         // Cache for 15 minutes to balance freshness with performance
-        return Cache::remember($cacheKey, 900, function () use ($user) {
-            // Build optimized queries with indexing hints
-            return [
+        return Cache::remember($cacheKey, 900, fn (): array => // Build optimized queries with indexing hints
+            [
                 // Available tickets count - using index hint for performance
                 'available-tickets' => DB::table('scraped_tickets')
                     ->where('is_available', TRUE)
@@ -529,8 +525,7 @@ class DashboardController extends Controller
                     ->where('selected_by_user_id', $user->id)
                     ->where('status', 'queued')
                     ->count(),
-            ];
-        });
+            ]);
     }
 
     /**
@@ -565,16 +560,12 @@ class DashboardController extends Controller
 
             foreach ($popularSports as $sport) {
                 $cacheKey = "popular_sport:{$sport}:" . now()->format('H');
-                Cache::remember($cacheKey, 300, function () use ($sport) {
-                    return ScrapedTicket::bySport($sport)->available()->recent(6)->count();
-                });
+                Cache::remember($cacheKey, 300, fn () => ScrapedTicket::bySport($sport)->available()->recent(6)->count());
             }
 
             foreach ($popularPlatforms as $platform) {
                 $cacheKey = "platform_availability:{$platform}:" . now()->format('H');
-                Cache::remember($cacheKey, 300, function () use ($platform) {
-                    return ScrapingStats::getSuccessRate($platform, 1);
-                });
+                Cache::remember($cacheKey, 300, fn (): float => ScrapingStats::getSuccessRate($platform, 1));
             }
         } catch (Exception $e) {
             Log::debug('Cache warming failed', ['error' => $e->getMessage()]);
@@ -586,7 +577,7 @@ class DashboardController extends Controller
      *
      * @param mixed $event
      */
-    private function calculateTrendScore($event)
+    private function calculateTrendScore($event): float
     {
         $demandWeight = ($event->high_demand_count / max($event->ticket_count, 1)) * 40;
         $platformWeight = min($event->platform_count * 10, 30);
@@ -601,7 +592,7 @@ class DashboardController extends Controller
      * @param mixed $highDemandCount
      * @param mixed $totalCount
      */
-    private function getDemandLevel($highDemandCount, $totalCount)
+    private function getDemandLevel($highDemandCount, $totalCount): string
     {
         $ratio = $totalCount > 0 ? ($highDemandCount / $totalCount) : 0;
 
@@ -623,7 +614,7 @@ class DashboardController extends Controller
      *
      * @param mixed $event
      */
-    private function calculatePriceVolatility($event)
+    private function calculatePriceVolatility($event): float
     {
         $priceRange = $event->highest_price - $event->lowest_price;
         $avgPrice = $event->avg_price > 0 ? $event->avg_price : 1;
@@ -636,7 +627,7 @@ class DashboardController extends Controller
      *
      * @param mixed $event
      */
-    private function getAvailabilityTrend($event)
+    private function getAvailabilityTrend($event): string
     {
         // This would typically compare current vs historical availability
         // For now, we'll simulate based on ticket count and demand
@@ -652,16 +643,14 @@ class DashboardController extends Controller
 
     /**
      * Calculate user response time to alerts
-     *
-     * @param mixed $userId
      */
-    private function calculateUserResponseTime($userId)
+    private function calculateUserResponseTime(): int
     {
         try {
             // This would analyze user's historical response to alerts
             // For now, return a simulated average
-            return rand(5, 45); // 5-45 minutes average response time
-        } catch (Exception $e) {
+            return random_int(5, 45); // 5-45 minutes average response time
+        } catch (Exception) {
             return 30; // Default 30 minutes
         }
     }
@@ -672,7 +661,7 @@ class DashboardController extends Controller
      * @param mixed $user
      * @param mixed $activeAlerts
      */
-    private function calculateUserActivityScore($user, $activeAlerts)
+    private function calculateUserActivityScore($user, $activeAlerts): float|int
     {
         $alertsWeight = min($activeAlerts->count() * 10, 40);
         $recentActivityWeight = $user->last_activity_at && $user->last_activity_at->diffInDays(now()) < 7 ? 30 : 0;
@@ -701,7 +690,7 @@ class DashboardController extends Controller
                 ->limit(3)
                 ->pluck('sport')
                 ->toArray();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ['Football', 'Basketball', 'Baseball'];
         }
     }
@@ -711,7 +700,7 @@ class DashboardController extends Controller
      *
      * @param mixed $userId
      */
-    private function getUserPricePreferences($userId)
+    private function getUserPricePreferences($userId): array
     {
         try {
             $alerts = TicketAlert::forUser($userId)->active()->get();
@@ -721,7 +710,7 @@ class DashboardController extends Controller
                 'average_max_budget' => round($avgMaxPrice ?? 150, 2),
                 'price_alerts_count' => $alerts->where('max_price', '>', 0)->count(),
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [
                 'average_max_budget' => 150.00,
                 'price_alerts_count' => 0,
@@ -746,23 +735,21 @@ class DashboardController extends Controller
                 ->limit(3)
                 ->pluck('platform')
                 ->toArray();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ['stubhub', 'ticketmaster'];
         }
     }
 
     /**
      * Get user's peak activity hours
-     *
-     * @param mixed $userId
      */
-    private function getUserPeakHours($userId)
+    private function getUserPeakHours(): array
     {
         try {
             // This would analyze when user is most active
             // For now, return common peak hours
             return ['18:00-20:00', '21:00-23:00'];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ['18:00-20:00'];
         }
     }
@@ -772,7 +759,7 @@ class DashboardController extends Controller
      *
      * @param mixed $platform
      */
-    private function getPlatformHealthMetrics($platform)
+    private function getPlatformHealthMetrics(string $platform): array
     {
         try {
             $successRate = ScrapingStats::getSuccessRate($platform, 1);
@@ -781,7 +768,7 @@ class DashboardController extends Controller
 
             // Determine status based on metrics
             $status = 'healthy';
-            if (!$isAvailable || $successRate < 50) {
+            if (! $isAvailable || $successRate < 50) {
                 $status = 'down';
             } elseif ($successRate < 80 || $avgResponseTime > 5000) {
                 $status = 'degraded';
@@ -813,7 +800,7 @@ class DashboardController extends Controller
      *
      * @param mixed $platformStats
      */
-    private function calculateOverallSystemHealth($platformStats)
+    private function calculateOverallSystemHealth(array $platformStats): array
     {
         $healthyPlatforms = collect($platformStats)->where('status', 'healthy')->count();
         $totalPlatforms = count($platformStats);
@@ -833,7 +820,7 @@ class DashboardController extends Controller
     /**
      * Get system load metrics
      */
-    private function getSystemLoad()
+    private function getSystemLoad(): array
     {
         try {
             // This would get actual system metrics
@@ -842,12 +829,12 @@ class DashboardController extends Controller
             $loadPercentage = min(($activeConnections / 100) * 100, 100);
 
             return [
-                'cpu_usage'          => rand(20, 80),
-                'memory_usage'       => rand(40, 85),
+                'cpu_usage'          => random_int(20, 80),
+                'memory_usage'       => random_int(40, 85),
                 'active_connections' => $activeConnections,
                 'load_percentage'    => round($loadPercentage),
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [
                 'cpu_usage'          => 0,
                 'memory_usage'       => 0,
@@ -860,7 +847,7 @@ class DashboardController extends Controller
     /**
      * Get cache health status
      */
-    private function getCacheHealth()
+    private function getCacheHealth(): array
     {
         try {
             $cachingService = app(PlatformCachingService::class);
@@ -878,7 +865,7 @@ class DashboardController extends Controller
                 'memory_usage' => $memoryStats['used_memory_human'] ?? 'N/A',
                 'memory_limit' => $memoryStats['max_memory_human'] ?? 'N/A',
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [
                 'status'       => 'unknown',
                 'score'        => 0,
@@ -892,8 +879,10 @@ class DashboardController extends Controller
      * Get platform-specific alerts
      *
      * @param mixed $platformStats
+     *
+     * @return list<array{type: ('critical' | 'warning'), platform: (int | string), message: non-falsy-string, timestamp: mixed}>
      */
-    private function getPlatformAlerts($platformStats)
+    private function getPlatformAlerts(array $platformStats): array
     {
         $alerts = [];
 

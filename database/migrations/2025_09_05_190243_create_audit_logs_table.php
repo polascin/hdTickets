@@ -1,17 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
+        Schema::create('audit_logs', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('action', 100);
@@ -23,7 +22,7 @@ return new class extends Migration
             $table->string('session_id')->nullable();
             $table->timestamp('performed_at');
             $table->timestamps();
-            
+
             $table->index(['user_id']);
             $table->index(['action']);
             $table->index(['resource_type']);
@@ -32,7 +31,7 @@ return new class extends Migration
             $table->index(['ip_address']);
             $table->index(['session_id']);
             $table->index(['user_id', 'action', 'performed_at']);
-            
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
     }

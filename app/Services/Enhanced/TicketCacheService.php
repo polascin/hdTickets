@@ -3,9 +3,12 @@
 namespace App\Services\Enhanced;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+
+use function count;
 
 /**
  * Enhanced Ticket Cache Service for Sports Ticket Scraping
@@ -62,7 +65,7 @@ class TicketCacheService
 
             return Cache::tags($this->cacheConfig['tickets']['tags'])
                 ->put($key, $ticketData, $ttl);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cache ticket', [
                 'ticket_id' => $ticketId,
                 'error'     => $e->getMessage(),
@@ -81,7 +84,7 @@ class TicketCacheService
             $key = $this->buildKey('tickets', (string) $ticketId);
 
             return Cache::tags($this->cacheConfig['tickets']['tags'])->get($key);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to retrieve cached ticket', [
                 'ticket_id' => $ticketId,
                 'error'     => $e->getMessage(),
@@ -110,7 +113,7 @@ class TicketCacheService
 
             return Cache::tags($this->cacheConfig['search_results']['tags'])
                 ->put($key, $data, $this->cacheConfig['search_results']['ttl']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cache search results', [
                 'filters' => $filters,
                 'error'   => $e->getMessage(),
@@ -130,7 +133,7 @@ class TicketCacheService
             $key = $this->buildKey('search_results', $filtersHash);
 
             return Cache::tags($this->cacheConfig['search_results']['tags'])->get($key);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to retrieve cached search results', [
                 'filters' => $filters,
                 'error'   => $e->getMessage(),
@@ -150,7 +153,7 @@ class TicketCacheService
 
             return Cache::tags($this->cacheConfig['price_history']['tags'])
                 ->put($key, $priceHistory, $this->cacheConfig['price_history']['ttl']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cache price history', [
                 'ticket_id' => $ticketId,
                 'error'     => $e->getMessage(),
@@ -170,7 +173,7 @@ class TicketCacheService
 
             return Cache::tags($this->cacheConfig['popular_tickets']['tags'])
                 ->put($key, $tickets, $this->cacheConfig['popular_tickets']['ttl']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to cache popular tickets', [
                 'category' => $category,
                 'error'    => $e->getMessage(),
@@ -189,7 +192,7 @@ class TicketCacheService
             $key = $this->buildKey('popular_tickets', $category);
 
             return Cache::tags($this->cacheConfig['popular_tickets']['tags'])->get($key);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to retrieve cached popular tickets', [
                 'category' => $category,
                 'error'    => $e->getMessage(),
@@ -220,7 +223,7 @@ class TicketCacheService
                 Cache::tags(['popular', 'trending'])->flush();
             }
 
-            if (!empty($changes)) {
+            if ($changes !== []) {
                 Cache::tags(['stats', 'analytics'])->flush();
             }
 
@@ -228,7 +231,7 @@ class TicketCacheService
                 'ticket_id' => $ticketId,
                 'changes'   => array_keys($changes),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to invalidate ticket cache', [
                 'ticket_id' => $ticketId,
                 'error'     => $e->getMessage(),
@@ -262,7 +265,7 @@ class TicketCacheService
             $this->warmupTrendingTickets();
 
             Log::info('Ticket cache warmup completed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Ticket cache warmup failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -282,7 +285,7 @@ class TicketCacheService
                 'performance_metrics' => $this->getPerformanceMetrics(),
                 'hit_ratio'           => $this->calculateHitRatio(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get cache statistics', [
                 'error' => $e->getMessage(),
             ]);
@@ -307,7 +310,7 @@ class TicketCacheService
     protected function calculateTicketTTL(array $ticketData): int
     {
         try {
-            if (!isset($ticketData['event_date'])) {
+            if (! isset($ticketData['event_date'])) {
                 return self::DEFAULT_TTL;
             }
 
@@ -317,12 +320,13 @@ class TicketCacheService
             // Events happening soon get shorter cache times for real-time updates
             if ($daysUntilEvent <= 1) {
                 return self::SHORT_TTL; // 15 minutes
-            } elseif ($daysUntilEvent <= 7) {
-                return self::DEFAULT_TTL; // 1 hour
-            } else {
-                return self::LONG_TTL; // 24 hours
             }
-        } catch (\Exception $e) {
+            if ($daysUntilEvent <= 7) {
+                return self::DEFAULT_TTL; // 1 hour
+            }
+
+            return self::LONG_TTL; // 24 hours
+        } catch (Exception $e) {
             Log::warning('Failed to calculate ticket TTL', [
                 'ticket_data' => $ticketData,
                 'error'       => $e->getMessage(),
@@ -342,7 +346,7 @@ class TicketCacheService
             // In real implementation, this would fetch from database
             $tickets = [];
             $this->cachePopularTickets($key, $tickets);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to warm up sport tickets', [
                 'sport' => $sport,
                 'error' => $e->getMessage(),
@@ -359,7 +363,7 @@ class TicketCacheService
             $key = 'venue_' . md5($venue);
             $tickets = []; // Database query would go here
             $this->cachePopularTickets($key, $tickets);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to warm up venue tickets', [
                 'venue' => $venue,
                 'error' => $e->getMessage(),
@@ -375,7 +379,7 @@ class TicketCacheService
         try {
             $trendingTickets = []; // Database query for trending tickets
             $this->cachePopularTickets('trending_global', $trendingTickets);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to warm up trending tickets', [
                 'error' => $e->getMessage(),
             ]);
@@ -400,7 +404,7 @@ class TicketCacheService
             }
 
             return $stats;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get cache key statistics', [
                 'error' => $e->getMessage(),
             ]);
@@ -425,7 +429,7 @@ class TicketCacheService
                 ],
                 'key_count' => $this->getTotalKeyCount(),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get performance metrics', [
                 'error' => $e->getMessage(),
             ]);
@@ -449,7 +453,7 @@ class TicketCacheService
             }
 
             return round(($hits / ($hits + $misses)) * 100, 2);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return 0.0;
         }
     }
@@ -468,7 +472,7 @@ class TicketCacheService
             }
 
             return 0;
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }

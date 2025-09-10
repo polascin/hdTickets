@@ -83,7 +83,7 @@ class PerformanceLogger
     private function getLoadAverage(): array
     {
         if (function_exists('sys_getloadavg')) {
-            return sys_getloadavg() ?: [0.0, 0.0, 0.0] ?: [0.0, 0.0, 0.0];
+            return (sys_getloadavg() ?: [0.0, 0.0, 0.0]) ?: [0.0, 0.0, 0.0];
         }
 
         return [0, 0, 0];
@@ -96,7 +96,7 @@ class PerformanceLogger
     {
         try {
             return DB::connection()->getPdo()->query('SHOW STATUS LIKE "Threads_connected"')->fetchColumn(1) ?? 0;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return 0;
         }
     }
@@ -111,7 +111,7 @@ class PerformanceLogger
                 // Add performance-specific processors
                 $handler->pushProcessor(new MemoryUsageProcessor());
                 $handler->pushProcessor(new ProcessIdProcessor());
-                $handler->pushProcessor([$this, 'addPerformanceContext']);
+                $handler->pushProcessor($this->addPerformanceContext(...));
 
                 // Custom formatter for performance logs
                 $formatter = new LineFormatter(

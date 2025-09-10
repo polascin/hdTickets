@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,16 +34,6 @@ class AccountDeletionRequest extends Model
         'deleted_at',
         'cancelled_at',
         'metadata',
-    ];
-
-    protected $casts = [
-        'user_data_snapshot'      => 'array',
-        'metadata'                => 'array',
-        'initiated_at'            => 'datetime',
-        'email_confirmed_at'      => 'datetime',
-        'grace_period_expires_at' => 'datetime',
-        'deleted_at'              => 'datetime',
-        'cancelled_at'            => 'datetime',
     ];
 
     /**
@@ -145,26 +136,11 @@ class AccountDeletionRequest extends Model
      */
     public function getRemainingGraceTime(): ?Carbon
     {
-        if (!$this->isInGracePeriod()) {
+        if (! $this->isInGracePeriod()) {
             return NULL;
         }
 
         return $this->grace_period_expires_at;
-    }
-
-    /**
-     * Get human readable time remaining
-     */
-    /**
-     * Get  time remaining attribute
-     */
-    public function getTimeRemainingAttribute(): ?string
-    {
-        if (!$this->isInGracePeriod()) {
-            return NULL;
-        }
-
-        return $this->grace_period_expires_at->diffForHumans();
     }
 
     /**
@@ -175,7 +151,7 @@ class AccountDeletionRequest extends Model
      */
     public function cancel(?string $reason = NULL): bool
     {
-        if (!$this->isPending() && !$this->isConfirmed()) {
+        if (! $this->isPending() && ! $this->isConfirmed()) {
             return FALSE;
         }
 
@@ -200,7 +176,7 @@ class AccountDeletionRequest extends Model
      */
     public function confirm(): bool
     {
-        if (!$this->isPending()) {
+        if (! $this->isPending()) {
             return FALSE;
         }
 
@@ -227,7 +203,7 @@ class AccountDeletionRequest extends Model
      */
     public function markCompleted(): bool
     {
-        if (!$this->isConfirmed()) {
+        if (! $this->isConfirmed()) {
             return FALSE;
         }
 
@@ -305,6 +281,33 @@ class AccountDeletionRequest extends Model
             self::STATUS_CANCELLED,
             self::STATUS_EXPIRED,
             self::STATUS_COMPLETED,
+        ];
+    }
+
+    /**
+     * Get  time remaining attribute
+     */
+    protected function timeRemaining(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->isInGracePeriod()) {
+                return;
+            }
+
+            return $this->grace_period_expires_at->diffForHumans();
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'user_data_snapshot'      => 'array',
+            'metadata'                => 'array',
+            'initiated_at'            => 'datetime',
+            'email_confirmed_at'      => 'datetime',
+            'grace_period_expires_at' => 'datetime',
+            'deleted_at'              => 'datetime',
+            'cancelled_at'            => 'datetime',
         ];
     }
 }

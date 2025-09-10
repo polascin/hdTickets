@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,15 +33,6 @@ class LoginHistory extends Model
         'suspicious_flags',
         'session_id',
         'attempted_at',
-    ];
-
-    protected $casts = [
-        'success'          => 'boolean',
-        'is_suspicious'    => 'boolean',
-        'suspicious_flags' => 'array',
-        'attempted_at'     => 'datetime',
-        'latitude'         => 'decimal:8',
-        'longitude'        => 'decimal:8',
     ];
 
     /**
@@ -96,79 +88,81 @@ class LoginHistory extends Model
     }
 
     /**
-     * Get formatted location string.
-     */
-    /**
      * Get  location string attribute
      */
-    public function getLocationStringAttribute(): string
+    protected function locationString(): Attribute
     {
-        if ($this->city && $this->country) {
-            return "{$this->city}, {$this->country}";
-        }
+        return Attribute::make(get: function () {
+            if ($this->city && $this->country) {
+                return "{$this->city}, {$this->country}";
+            }
+            if ($this->country) {
+                return $this->country;
+            }
 
-        if ($this->country) {
-            return $this->country;
-        }
-
-        return 'Unknown Location';
+            return 'Unknown Location';
+        });
     }
 
-    /**
-     * Get formatted device information.
-     */
     /**
      * Get  device info attribute
      */
-    public function getDeviceInfoAttribute(): string
+    protected function deviceInfo(): Attribute
     {
-        $parts = array_filter([
-            $this->browser,
-            $this->operating_system,
-            $this->device_type ? "({$this->device_type})" : NULL,
-        ]);
+        return Attribute::make(get: function (): string {
+            $parts = array_filter([
+                $this->browser,
+                $this->operating_system,
+                $this->device_type ? "({$this->device_type})" : NULL,
+            ]);
 
-        return implode(' on ', $parts) ?: 'Unknown Device';
+            return implode(' on ', $parts) ?: 'Unknown Device';
+        });
     }
 
-    /**
-     * Get risk level based on suspicious flags.
-     */
     /**
      * Get  risk level attribute
      */
-    public function getRiskLevelAttribute(): string
+    protected function riskLevel(): Attribute
     {
-        if (!$this->is_suspicious) {
+        return Attribute::make(get: function (): string {
+            if (! $this->is_suspicious) {
+                return 'low';
+            }
+            $flagCount = is_array($this->suspicious_flags) ? count($this->suspicious_flags) : 0;
+            if ($flagCount >= 3) {
+                return 'high';
+            }
+            if ($flagCount >= 1) {
+                return 'medium';
+            }
+
             return 'low';
-        }
-
-        $flagCount = is_array($this->suspicious_flags) ? count($this->suspicious_flags) : 0;
-
-        if ($flagCount >= 3) {
-            return 'high';
-        }
-
-        if ($flagCount >= 1) {
-            return 'medium';
-        }
-
-        return 'low';
+        });
     }
 
     /**
-     * Get risk level color for UI display.
-     */
-    /**
      * Get  risk color attribute
      */
-    public function getRiskColorAttribute(): string
+    protected function riskColor(): Attribute
     {
-        return match ($this->risk_level) {
+        return Attribute::make(get: fn (): string => match ($this->risk_level) {
             'high'   => 'red',
             'medium' => 'yellow',
             'low'    => 'green',
             default  => 'gray',
-        };
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'success'          => 'boolean',
+            'is_suspicious'    => 'boolean',
+            'suspicious_flags' => 'array',
+            'attempted_at'     => 'datetime',
+            'latitude'         => 'decimal:8',
+            'longitude'        => 'decimal:8',
+        ];
     }
 }

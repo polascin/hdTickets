@@ -4,23 +4,22 @@ namespace App\Services\Scraping;
 
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
 
 class HighDemandTicketScraperService
 {
-    protected AdvancedAntiDetectionService $antiDetection;
-
     protected array $priorityEvents = [];
 
     protected array $queueStrategies = [];
 
-    public function __construct(AdvancedAntiDetectionService $antiDetection)
+    public function __construct(protected AdvancedAntiDetectionService $antiDetection)
     {
-        $this->antiDetection = $antiDetection;
         $this->initializePriorityEvents();
         $this->initializeQueueStrategies();
     }
@@ -157,7 +156,7 @@ class HighDemandTicketScraperService
 
         foreach ($this->priorityEvents as $eventType => $config) {
             foreach ($config['keywords'] as $eventKeyword) {
-                if (str_contains($keyword, strtolower($eventKeyword))) {
+                if (str_contains($keyword, strtolower((string) $eventKeyword))) {
                     return $eventType;
                 }
             }
@@ -218,7 +217,7 @@ class HighDemandTicketScraperService
         $attempt = 0;
         $maxAttempts = $strategyConfig['retry_attempts'];
 
-        while ($attempt < $maxAttempts && empty($results)) {
+        while ($attempt < $maxAttempts && $results === []) {
             $attempt++;
 
             Log::info('High-demand scraping attempt', [
@@ -234,7 +233,7 @@ class HighDemandTicketScraperService
                 try {
                     $sessionResult = $this->scrapeWithSession($client, $platform, $criteria, $sessionIndex);
 
-                    if (!empty($sessionResult)) {
+                    if ($sessionResult !== []) {
                         $sessionResults[] = $sessionResult;
                     }
 
@@ -262,14 +261,14 @@ class HighDemandTicketScraperService
             }
 
             // Merge results from all sessions
-            if (!empty($sessionResults)) {
+            if ($sessionResults !== []) {
                 $results = $this->mergeSessionResults($sessionResults);
             }
 
             // Apply retry delay with exponential backoff
-            if (empty($results) && $attempt < $maxAttempts) {
+            if ($results === [] && $attempt < $maxAttempts) {
                 $delay = $strategyConfig['retry_delay_base'] *
-                        pow($strategyConfig['retry_delay_multiplier'], $attempt - 1);
+                        $strategyConfig['retry_delay_multiplier'] ** ($attempt - 1);
 
                 Log::info('Applying retry delay', [
                     'platform' => $platform,
@@ -290,7 +289,7 @@ class HighDemandTicketScraperService
     /**
      * CreateHighDemandSession
      */
-    protected function createHighDemandSession(string $platform, int $sessionIndex): \GuzzleHttp\Client
+    protected function createHighDemandSession(string $platform, int $sessionIndex): Client
     {
         $client = $this->antiDetection->createAdvancedHttpClient($platform, [
             'curl' => [
@@ -322,7 +321,7 @@ class HighDemandTicketScraperService
     /**
      * PreWarmSession
      */
-    protected function preWarmSession(\GuzzleHttp\Client $client, string $platform): void
+    protected function preWarmSession(Client $client, string $platform): void
     {
         $baseUrls = [
             'real_madrid'     => 'https://www.realmadrid.com',
@@ -336,14 +335,14 @@ class HighDemandTicketScraperService
         $baseUrl = $baseUrls[$platform] ?? 'https://www.example.com';
 
         // Visit homepage first
-        $response = $client->get($baseUrl);
+        $client->get($baseUrl);
 
         // Brief delay to mimic human behavior
         $this->antiDetection->humanLikeDelay($platform, 'navigation');
 
         // Visit tickets page to establish session
         $ticketsPath = $this->getTicketsPath($platform);
-        if ($ticketsPath) {
+        if ($ticketsPath !== '' && $ticketsPath !== '0') {
             $client->get($baseUrl . $ticketsPath);
         }
     }
@@ -374,7 +373,7 @@ class HighDemandTicketScraperService
     /**
      * ScrapeWithSession
      */
-    protected function scrapeWithSession(\GuzzleHttp\Client $client, string $platform, array $criteria, int $sessionIndex): array
+    protected function scrapeWithSession(Client $client, string $platform, array $criteria, int $sessionIndex): array
     {
         $searchUrl = $this->buildHighDemandSearchUrl($platform, $criteria);
 
@@ -426,12 +425,12 @@ class HighDemandTicketScraperService
         $params = [];
 
         // Add high-demand specific parameters
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['q'] = $criteria['keyword'];
             $params['search'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
@@ -439,7 +438,7 @@ class HighDemandTicketScraperService
         $params['availability'] = 'available';
         $params['sort'] = 'date_asc';
 
-        return $baseUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseUrl . ($params === [] ? '' : '?' . http_build_query($params));
     }
 
     /**
@@ -451,7 +450,7 @@ class HighDemandTicketScraperService
     protected function parseHighDemandTickets(string $html, string $platform): array
     {
         $tickets = [];
-        $crawler = new \Symfony\Component\DomCrawler\Crawler($html);
+        $crawler = new Crawler($html);
 
         // Platform-specific selectors for high-demand events
         $selectors = $this->getHighDemandSelectors($platform);
@@ -519,7 +518,7 @@ class HighDemandTicketScraperService
     {
         try {
             $title = $this->extractText($node, $selectors['title']);
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -527,7 +526,7 @@ class HighDemandTicketScraperService
             $availabilityStatus = $this->normalizeAvailabilityStatus($availability);
 
             // Skip sold out tickets unless specifically monitoring
-            if ($availabilityStatus === 'sold_out' && !$this->isMonitoringMode()) {
+            if ($availabilityStatus === 'sold_out' && ! $this->isMonitoringMode()) {
                 return NULL;
             }
 
@@ -541,7 +540,7 @@ class HighDemandTicketScraperService
                 'demand_level' => $this->calculateDemandLevel($title, $availability),
                 'scraped_at'   => Carbon::now()->toISOString(),
             ];
-        } catch (Exception $e) {
+        } catch (Exception) {
             return NULL;
         }
     }
@@ -561,8 +560,8 @@ class HighDemandTicketScraperService
         try {
             $element = $node->filter($selector)->first();
 
-            return $element->count() > 0 ? trim($element->text()) : '';
-        } catch (Exception $e) {
+            return $element->count() > 0 ? trim((string) $element->text()) : '';
+        } catch (Exception) {
             return '';
         }
     }
@@ -615,7 +614,7 @@ class HighDemandTicketScraperService
             'real madrid', 'barcelona', 'bayern', 'manchester', 'psg',
         ];
 
-        $title = strtolower($ticket['title']);
+        $title = strtolower((string) $ticket['title']);
         foreach ($highDemandKeywords as $keyword) {
             if (str_contains($title, $keyword)) {
                 return TRUE;
@@ -666,7 +665,7 @@ class HighDemandTicketScraperService
      */
     protected function prioritizeTickets(array $tickets): array
     {
-        usort($tickets, function ($a, $b) {
+        usort($tickets, function (array $a, array $b): int {
             // Available tickets first
             if ($a['availability'] === 'available' && $b['availability'] !== 'available') {
                 return -1;
@@ -704,7 +703,7 @@ class HighDemandTicketScraperService
 
         foreach ($allTickets as $ticket) {
             $key = $ticket['title'] . '|' . $ticket['date'];
-            if (!isset($seen[$key])) {
+            if (! isset($seen[$key])) {
                 $uniqueTickets[] = $ticket;
                 $seen[$key] = TRUE;
             }
@@ -756,7 +755,7 @@ class HighDemandTicketScraperService
         $strategyConfig = $this->queueStrategies[$strategy];
         if ($strategyConfig['bypass_queue_attempts']) {
             $bypassResults = $this->attemptQueueBypass($platform, $criteria);
-            if (!empty($bypassResults)) {
+            if ($bypassResults !== []) {
                 return $bypassResults;
             }
         }

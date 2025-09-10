@@ -5,6 +5,7 @@ namespace App\Domain\Ticket\Events;
 use App\Domain\Shared\Events\AbstractDomainEvent;
 use App\Domain\Ticket\ValueObjects\Price;
 use App\Domain\Ticket\ValueObjects\TicketId;
+use Override;
 
 final class TicketPriceChanged extends AbstractDomainEvent
 {
@@ -89,6 +90,7 @@ final class TicketPriceChanged extends AbstractDomainEvent
     /**
      * PopulateFromPayload
      */
+    #[Override]
     protected function populateFromPayload(array $payload): void
     {
         $this->ticketId = new TicketId($payload['ticket_id']);

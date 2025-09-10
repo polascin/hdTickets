@@ -21,20 +21,14 @@ class RunSecurityScan extends Command
     /** The console command description. */
     protected $description = 'Run comprehensive security scans and generate compliance reports';
 
-    protected SecurityMonitoringService $securityMonitoring;
-
-    protected DataSecurityService $dataSecurity;
-
     /**
      * Create a new command instance.
      */
     public function __construct(
-        SecurityMonitoringService $securityMonitoring,
-        DataSecurityService $dataSecurity,
+        protected SecurityMonitoringService $securityMonitoring,
+        protected DataSecurityService $dataSecurity,
     ) {
         parent::__construct();
-        $this->securityMonitoring = $securityMonitoring;
-        $this->dataSecurity = $dataSecurity;
     }
 
     /**
@@ -231,7 +225,7 @@ class RunSecurityScan extends Command
             $this->info("Checking data integrity for {$table}...");
 
             $encryptedColumns = $this->getEncryptedColumns($table);
-            if (!empty($encryptedColumns)) {
+            if ($encryptedColumns !== []) {
                 $tableResults = $this->dataSecurity->validateDataIntegrity($table, $encryptedColumns);
                 $integrityResults[$table] = $tableResults;
 
@@ -310,7 +304,7 @@ class RunSecurityScan extends Command
         $filename = 'security-report-' . now()->format('Y-m-d-H-i-s') . '.json';
         $filepath = storage_path("app/security-reports/{$filename}");
 
-        if (!is_dir(dirname($filepath))) {
+        if (! is_dir(dirname($filepath))) {
             mkdir(dirname($filepath), 0o755, TRUE);
         }
 
@@ -397,7 +391,7 @@ class RunSecurityScan extends Command
      */
     protected function countSeverity(array $vulnerabilities, string $severity): int
     {
-        return count(array_filter($vulnerabilities, fn ($v) => $v['severity'] === $severity));
+        return count(array_filter($vulnerabilities, fn (array $v): bool => $v['severity'] === $severity));
     }
 
     /**

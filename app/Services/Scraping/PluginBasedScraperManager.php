@@ -14,13 +14,10 @@ class PluginBasedScraperManager
 {
     protected $plugins = [];
 
-    protected $proxyService;
-
     protected $enabledPlugins = [];
 
-    public function __construct(ProxyRotationService $proxyService)
+    public function __construct(protected ProxyRotationService $proxyService)
     {
-        $this->proxyService = $proxyService;
         $this->loadPlugins();
     }
 
@@ -71,7 +68,7 @@ class PluginBasedScraperManager
         $errors = [];
 
         foreach ($this->plugins as $name => $plugin) {
-            if (!$plugin->isEnabled()) {
+            if (! $plugin->isEnabled()) {
                 continue;
             }
 
@@ -135,11 +132,11 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($pluginName);
 
-        if (!$plugin) {
+        if (! $plugin instanceof ScraperPluginInterface) {
             throw new Exception("Plugin '{$pluginName}' not found");
         }
 
-        if (!$plugin->isEnabled()) {
+        if (! $plugin->isEnabled()) {
             throw new Exception("Plugin '{$pluginName}' is disabled");
         }
 
@@ -229,12 +226,10 @@ class PluginBasedScraperManager
      */
     public function configurePlugin(string $name, array $config): void
     {
-        if (isset($this->plugins[$name])) {
-            if (method_exists($this->plugins[$name], 'configure')) {
-                $this->plugins[$name]->configure($config);
-                Cache::put("plugin_config_{$name}", $config, 3600 * 24);
-                Log::info("Plugin {$name} configuration updated");
-            }
+        if (isset($this->plugins[$name]) && method_exists($this->plugins[$name], 'configure')) {
+            $this->plugins[$name]->configure($config);
+            Cache::put("plugin_config_{$name}", $config, 3600 * 24);
+            Log::info("Plugin {$name} configuration updated");
         }
     }
 
@@ -248,7 +243,7 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($name);
 
-        if (!$plugin) {
+        if (! $plugin instanceof ScraperPluginInterface) {
             return [
                 'status'  => 'error',
                 'message' => "Plugin '{$name}' not found",
@@ -292,7 +287,7 @@ class PluginBasedScraperManager
     {
         $plugin = $this->getPlugin($name);
 
-        if (!$plugin) {
+        if (! $plugin instanceof ScraperPluginInterface) {
             return [];
         }
 
@@ -416,7 +411,7 @@ class PluginBasedScraperManager
     {
         $pluginPath = app_path('Services/Scraping/Plugins');
 
-        if (!is_dir($pluginPath)) {
+        if (! is_dir($pluginPath)) {
             return;
         }
 
@@ -451,7 +446,7 @@ class PluginBasedScraperManager
         foreach ($this->plugins as $name => $plugin) {
             try {
                 $config = Cache::get("plugin_config_{$name}", config("scraping.plugins.{$name}", []));
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // Fallback to config if cache is not available (e.g., during migration)
                 $config = config("scraping.plugins.{$name}", []);
             }

@@ -54,20 +54,14 @@ class UserActivityController extends Controller
         $dateRange = $request->get('date_range', '30');
         $startDate = Carbon::now()->subDays((int) $dateRange);
 
-        switch ($widget) {
-            case 'alerts':
-                return response()->json($this->getAlertsData($userId, $startDate));
-            case 'purchases':
-                return response()->json($this->getPurchaseData($userId, $startDate));
-            case 'searches':
-                return response()->json($this->getSavedSearchesData($userId));
-            case 'watchlist':
-                return response()->json($this->getWatchlistData($userId, $startDate));
-            case 'charts':
-                return response()->json($this->getChartData($userId, $startDate));
-            default:
-                return response()->json(['error' => 'Invalid widget'], 400);
-        }
+        return match ($widget) {
+            'alerts'    => response()->json($this->getAlertsData($userId, $startDate)),
+            'purchases' => response()->json($this->getPurchaseData($userId, $startDate)),
+            'searches'  => response()->json($this->getSavedSearchesData($userId)),
+            'watchlist' => response()->json($this->getWatchlistData($userId, $startDate)),
+            'charts'    => response()->json($this->getChartData($userId, $startDate)),
+            default     => response()->json(['error' => 'Invalid widget'], 400),
+        };
     }
 
     /**
@@ -166,23 +160,17 @@ class UserActivityController extends Controller
 
         // Calculate monthly spending
         $monthlySpending = $successfulPurchases
-            ->groupBy(function ($purchase) {
-                return $purchase->created_at->format('Y-m');
-            })
-            ->map(function ($monthPurchases) {
-                return $monthPurchases->sum('total_paid');
-            });
+            ->groupBy(fn ($purchase) => $purchase->created_at->format('Y-m'))
+            ->map(fn ($monthPurchases) => $monthPurchases->sum('total_paid'));
 
         // Get platform breakdown
         $platformSpending = $successfulPurchases
             ->groupBy('platform')
-            ->map(function ($platformPurchases) {
-                return [
-                    'count' => $platformPurchases->count(),
-                    'total' => $platformPurchases->sum('total_paid'),
-                    'avg'   => $platformPurchases->avg('total_paid'),
-                ];
-            });
+            ->map(fn ($platformPurchases): array => [
+                'count' => $platformPurchases->count(),
+                'total' => $platformPurchases->sum('total_paid'),
+                'avg'   => $platformPurchases->avg('total_paid'),
+            ]);
 
         // Calculate success rate
         $successRate = $purchases->count() > 0 ?
@@ -297,9 +285,7 @@ class UserActivityController extends Controller
     {
         $trends = [];
 
-        $groupedTickets = $tickets->groupBy(function ($ticket) {
-            return $ticket->event_title . ' - ' . $ticket->venue;
-        });
+        $groupedTickets = $tickets->groupBy(fn ($ticket): string => $ticket->event_title . ' - ' . $ticket->venue);
 
         foreach ($groupedTickets as $eventName => $eventTickets) {
             $sortedTickets = $eventTickets->sortBy('scraped_at');
@@ -339,12 +325,10 @@ class UserActivityController extends Controller
             ->get();
 
         return [
-            'total_logins'      => $loginHistory->count(),
-            'successful_logins' => $loginHistory->where('successful', TRUE)->count(),
-            'failed_logins'     => $loginHistory->where('successful', FALSE)->count(),
-            'unique_login_days' => $loginHistory->groupBy(function ($login) {
-                return $login->created_at->format('Y-m-d');
-            })->count(),
+            'total_logins'             => $loginHistory->count(),
+            'successful_logins'        => $loginHistory->where('successful', TRUE)->count(),
+            'failed_logins'            => $loginHistory->where('successful', FALSE)->count(),
+            'unique_login_days'        => $loginHistory->groupBy(fn ($login) => $login->created_at->format('Y-m-d'))->count(),
             'total_sessions'           => $sessions->count(),
             'average_session_duration' => $this->calculateAverageSessionDuration($sessions),
             'most_active_day'          => $this->getMostActiveDay($loginHistory),
@@ -426,15 +410,9 @@ class UserActivityController extends Controller
     {
         $dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-        $dayCount = $loginHistory->groupBy(function ($login) {
-            return $login->created_at->dayOfWeek;
-        })->map(function ($dayLogins) {
-            return $dayLogins->count();
-        });
+        $dayCount = $loginHistory->groupBy(fn ($login) => $login->created_at->dayOfWeek)->map(fn ($dayLogins) => $dayLogins->count());
 
-        $mostActiveDay = $dayCount->keys()->sortByDesc(function ($day) use ($dayCount) {
-            return $dayCount[$day];
-        })->first();
+        $mostActiveDay = $dayCount->keys()->sortByDesc(fn ($day) => $dayCount[$day])->first();
 
         return $mostActiveDay !== NULL ? $dayNames[$mostActiveDay] : 'No data';
     }

@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -11,29 +12,25 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class GenericArrayExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    /** @var \Illuminate\Support\Collection<int, mixed> */
-    protected \Illuminate\Support\Collection $data;
-
-    /** @var array<int, string> */
-    protected array $headings;
+    /** @var Collection<int, mixed> */
+    protected Collection $data;
 
     /**
-     * @param array<int, mixed>|\Illuminate\Support\Collection<int, mixed> $data
-     * @param array<int, string>                                           $headings
+     * @param array<int, mixed>|Collection<int, mixed> $data
+     * @param array<int, string>                       $headings
      */
-    public function __construct(array $data, array $headings = [])
+    public function __construct(array $data, protected array $headings = [])
     {
-        $this->data = $data instanceof \Illuminate\Support\Collection ? $data : collect($data);
-        $this->headings = $headings;
+        $this->data = $data instanceof Collection ? $data : collect($data);
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, mixed>
+     * @return Collection<int, mixed>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return $this->data;
     }

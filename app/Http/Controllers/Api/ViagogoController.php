@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use App\Services\TicketApis\ViagogoClient;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 use function count;
@@ -225,7 +227,7 @@ class ViagogoController extends Controller
                 try {
                     $eventDetails = $client->scrapeEventDetails($url);
 
-                    if (!empty($eventDetails)) {
+                    if (! empty($eventDetails)) {
                         if ($this->importEventAsTicket($eventDetails)) {
                             $imported++;
                         }
@@ -269,12 +271,12 @@ class ViagogoController extends Controller
         try {
             $stats = [
                 'platform'      => 'viagogo',
-                'total_scraped' => \App\Models\Ticket::where('platform', 'viagogo')->count(),
-                'last_scrape'   => \App\Models\Ticket::where('platform', 'viagogo')
+                'total_scraped' => Ticket::where('platform', 'viagogo')->count(),
+                'last_scrape'   => Ticket::where('platform', 'viagogo')
                     ->latest('created_at')
                     ->value('created_at'),
-                'success_rate'      => $this->calculateSuccessRate('viagogo'),
-                'avg_response_time' => $this->getAverageResponseTime('viagogo'),
+                'success_rate'      => $this->calculateSuccessRate(),
+                'avg_response_time' => $this->getAverageResponseTime(),
             ];
 
             return response()->json([
@@ -295,7 +297,7 @@ class ViagogoController extends Controller
     private function importEventAsTicket(array $eventData): bool
     {
         try {
-            $existingTicket = \App\Models\Ticket::where('platform', 'viagogo')
+            $existingTicket = Ticket::where('platform', 'viagogo')
                 ->where('external_id', $eventData['id'] ?? NULL)
                 ->first();
 
@@ -303,7 +305,7 @@ class ViagogoController extends Controller
                 return FALSE; // Already exists
             }
 
-            $ticket = new \App\Models\Ticket([
+            $ticket = new Ticket([
                 'platform'    => 'viagogo',
                 'external_id' => $eventData['id'] ?? NULL,
                 'title'       => $eventData['name'] ?? 'Unknown Event',
@@ -323,7 +325,7 @@ class ViagogoController extends Controller
 
             return TRUE;
         } catch (Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to import Viagogo event as ticket', [
+            Log::error('Failed to import Viagogo event as ticket', [
                 'event_data' => $eventData,
                 'error'      => $e->getMessage(),
             ]);
@@ -335,16 +337,18 @@ class ViagogoController extends Controller
     /**
      * Calculate success rate for platform
      */
-    private function calculateSuccessRate(string $platform): float
+    private function calculateSuccessRate(): float
     {
-        return 82.3; // Placeholder
+        return 82.3;
+        // Placeholder
     }
 
     /**
      * Get average response time for platform
      */
-    private function getAverageResponseTime(string $platform): float
+    private function getAverageResponseTime(): float
     {
-        return 1450.0; // Placeholder in milliseconds
+        return 1450.0;
+        // Placeholder in milliseconds
     }
 }

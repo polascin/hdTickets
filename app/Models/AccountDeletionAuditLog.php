@@ -37,11 +37,6 @@ class AccountDeletionAuditLog extends Model
         'occurred_at',
     ];
 
-    protected $casts = [
-        'context'     => 'array',
-        'occurred_at' => 'datetime',
-    ];
-
     /**
      * Create a new audit log entry
      */
@@ -118,6 +113,14 @@ class AccountDeletionAuditLog extends Model
             self::ACTION_RECOVERED,
             self::ACTION_DATA_EXPORTED,
             self::ACTION_GRACE_PERIOD_EXPIRED,
+        ];
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'context'     => 'array',
+            'occurred_at' => 'datetime',
         ];
     }
 }

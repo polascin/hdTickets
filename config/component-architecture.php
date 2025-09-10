@@ -264,7 +264,7 @@ return [
             ],
             'event_id' => [
                 'required' => TRUE,
-                'pattern'  => '/^EVT-[0-9]{6}$/',
+                'pattern'  => '/^EVT-\d{6}$/',
                 'example'  => 'EVT-123456',
             ],
             'price' => [

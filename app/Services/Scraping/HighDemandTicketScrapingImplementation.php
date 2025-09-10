@@ -20,16 +20,8 @@ use function in_array;
  */
 class HighDemandTicketScrapingImplementation
 {
-    protected HighDemandTicketScraperService $scraper;
-
-    protected AdvancedAntiDetectionService $antiDetection;
-
-    public function __construct(
-        HighDemandTicketScraperService $scraper,
-        AdvancedAntiDetectionService $antiDetection,
-    ) {
-        $this->scraper = $scraper;
-        $this->antiDetection = $antiDetection;
+    public function __construct(protected HighDemandTicketScraperService $scraper, protected AdvancedAntiDetectionService $antiDetection)
+    {
     }
 
     /**
@@ -67,7 +59,7 @@ class HighDemandTicketScrapingImplementation
                 $results[$platform] = $this->processResults($platformResults, $platform);
 
                 // If tickets found, trigger immediate alerts
-                if (!empty($results[$platform]['tickets'])) {
+                if (! empty($results[$platform]['tickets'])) {
                     $this->triggerHighDemandAlert($results[$platform]['tickets'], 'el_clasico');
                 }
             } catch (Exception $e) {
@@ -200,7 +192,7 @@ class HighDemandTicketScrapingImplementation
         Log::info("Handling queue scraping for {$platform}");
 
         $queueKey = "queue_position_{$platform}";
-        $queueData = Cache::get($queueKey, []);
+        Cache::get($queueKey, []);
 
         // Monitor queue position
         $currentPosition = $this->scraper->monitorQueuePosition($platform);
@@ -219,7 +211,7 @@ class HighDemandTicketScrapingImplementation
         // Try queue bypass techniques
         $bypassResults = $this->attemptQueueBypass($platform, $criteria);
 
-        if (!empty($bypassResults)) {
+        if ($bypassResults !== []) {
             Log::info("Queue bypass successful for {$platform}");
 
             return $bypassResults;
@@ -289,7 +281,7 @@ class HighDemandTicketScrapingImplementation
         );
 
         // If auto-purchase is enabled and tickets found
-        if (!empty($purchaseConfig['enabled']) && !empty($results['tickets'])) {
+        if (! empty($purchaseConfig['enabled']) && ! empty($results['tickets'])) {
             foreach ($results['tickets'] as $ticket) {
                 if ($this->shouldAutoPurchase($ticket, $purchaseConfig)) {
                     $purchaseResult = $this->attemptAutoPurchase($ticket, $purchaseConfig);
@@ -309,19 +301,17 @@ class HighDemandTicketScrapingImplementation
      */
     public function getHighDemandStats(): array
     {
-        return Cache::remember('high_demand_stats', 300, function () {
-            return [
-                'total_high_demand'     => ScrapedTicket::where('is_high_demand', TRUE)->count(),
-                'available_high_demand' => ScrapedTicket::where('is_high_demand', TRUE)
-                    ->where('availability_status', 'available')
-                    ->count(),
-                'extreme_demand'       => ScrapedTicket::where('demand_level', 'extreme')->count(),
-                'active_monitoring'    => Cache::get('active_monitoring_sessions', 0),
-                'queue_sessions'       => $this->getActiveQueueSessions(),
-                'recent_finds'         => $this->getRecentHighDemandFinds(),
-                'platform_performance' => $this->getPlatformPerformanceStats(),
-            ];
-        });
+        return Cache::remember('high_demand_stats', 300, fn (): array => [
+            'total_high_demand'     => ScrapedTicket::where('is_high_demand', TRUE)->count(),
+            'available_high_demand' => ScrapedTicket::where('is_high_demand', TRUE)
+                ->where('availability_status', 'available')
+                ->count(),
+            'extreme_demand'       => ScrapedTicket::where('demand_level', 'extreme')->count(),
+            'active_monitoring'    => Cache::get('active_monitoring_sessions', 0),
+            'queue_sessions'       => $this->getActiveQueueSessions(),
+            'recent_finds'         => $this->getRecentHighDemandFinds(),
+            'platform_performance' => $this->getPlatformPerformanceStats(),
+        ]);
     }
 
     // Protected helper methods
@@ -386,7 +376,7 @@ class HighDemandTicketScrapingImplementation
      */
     protected function processResults(array $results, string $platform): array
     {
-        if (empty($results)) {
+        if ($results === []) {
             return ['tickets' => [], 'platform' => $platform];
         }
 
@@ -394,7 +384,7 @@ class HighDemandTicketScrapingImplementation
         $savedTickets = [];
         foreach ($results as $ticketData) {
             $ticket = $this->saveTicketToDatabase($ticketData, $platform);
-            if ($ticket) {
+            if ($ticket instanceof ScrapedTicket) {
                 $savedTickets[] = $ticket;
             }
         }
@@ -467,7 +457,7 @@ class HighDemandTicketScrapingImplementation
         }
 
         // Sort by demand level and availability
-        usort($allTickets, function ($a, $b) {
+        usort($allTickets, function (array $a, array $b): int {
             $demandOrder = ['extreme' => 0, 'very_high' => 1, 'high' => 2, 'medium' => 3];
 
             // Available tickets first
@@ -548,12 +538,12 @@ class HighDemandTicketScrapingImplementation
         }
 
         // Check price limits
-        if (!empty($config['max_price']) && $ticket['min_price'] > $config['max_price']) {
+        if (! empty($config['max_price']) && $ticket['min_price'] > $config['max_price']) {
             return FALSE;
         }
 
         // Check demand level requirements
-        if (!empty($config['min_demand_level'])) {
+        if (! empty($config['min_demand_level'])) {
             $demandLevels = ['medium' => 1, 'high' => 2, 'very_high' => 3, 'extreme' => 4];
             $ticketLevel = $demandLevels[$ticket['demand_level']] ?? 0;
             $requiredLevel = $demandLevels[$config['min_demand_level']] ?? 0;
@@ -611,18 +601,16 @@ class HighDemandTicketScrapingImplementation
     protected function getPlatformPerformanceStats(): array
     {
         // Get performance statistics for each platform
-        return Cache::remember('platform_performance', 600, function () {
-            return ScrapedTicket::selectRaw('
+        return Cache::remember('platform_performance', 600, fn () => ScrapedTicket::selectRaw('
                 platform,
                 COUNT(*) as total_tickets,
                 COUNT(CASE WHEN is_high_demand = 1 THEN 1 END) as high_demand_tickets,
                 AVG(CASE WHEN scraped_at >= NOW() - INTERVAL 24 HOUR THEN 1 ELSE 0 END) as success_rate_24h
             ')
-                ->groupBy('platform')
-                ->get()
-                ->keyBy('platform')
-                ->toArray();
-        });
+            ->groupBy('platform')
+            ->get()
+            ->keyBy('platform')
+            ->toArray());
     }
 
     /**

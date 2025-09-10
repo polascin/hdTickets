@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class TwickenhamPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -158,23 +160,23 @@ class TwickenhamPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['event_type'])) {
-            $params['type'] = urlencode($criteria['event_type']);
+        if (! empty($criteria['event_type'])) {
+            $params['type'] = urlencode((string) $criteria['event_type']);
         }
 
-        if (!empty($criteria['competition'])) {
-            $params['competition'] = urlencode($criteria['competition']);
+        if (! empty($criteria['competition'])) {
+            $params['competition'] = urlencode((string) $criteria['competition']);
         }
 
-        if (!empty($criteria['opponent'])) {
-            $params['opponent'] = urlencode($criteria['opponent']);
+        if (! empty($criteria['opponent'])) {
+            $params['opponent'] = urlencode((string) $criteria['opponent']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -185,7 +187,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
 
         $queryString = http_build_query($params);
 
-        return $baseUrl . ($queryString ? '?' . $queryString : '');
+        return $baseUrl . ($queryString !== '' && $queryString !== '0' ? '?' . $queryString : '');
     }
 
     /**
@@ -229,7 +231,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status, .sold-out');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -281,28 +283,28 @@ class TwickenhamPlugin extends BaseScraperPlugin
         $lowerTitle = strtolower($title);
         $lowerComp = strtolower($competition);
 
-        if (strpos($lowerComp, 'six nations') !== FALSE) {
+        if (str_contains($lowerComp, 'six nations')) {
             return 'six_nations';
         }
-        if (strpos($lowerComp, 'autumn') !== FALSE || strpos($lowerTitle, 'autumn') !== FALSE) {
+        if (str_contains($lowerComp, 'autumn') || str_contains($lowerTitle, 'autumn')) {
             return 'autumn_internationals';
         }
-        if (strpos($lowerComp, 'world cup') !== FALSE) {
+        if (str_contains($lowerComp, 'world cup')) {
             return 'rugby_world_cup';
         }
-        if (strpos($lowerComp, 'premiership') !== FALSE && strpos($lowerComp, 'final') !== FALSE) {
+        if (str_contains($lowerComp, 'premiership') && str_contains($lowerComp, 'final')) {
             return 'premiership_final';
         }
-        if (strpos($lowerComp, 'challenge cup') !== FALSE) {
+        if (str_contains($lowerComp, 'challenge cup')) {
             return 'challenge_cup_final';
         }
-        if (strpos($lowerComp, 'championship') !== FALSE && strpos($lowerComp, 'final') !== FALSE) {
+        if (str_contains($lowerComp, 'championship') && str_contains($lowerComp, 'final')) {
             return 'championship_final';
         }
-        if (strpos($lowerTitle, 'england') !== FALSE) {
+        if (str_contains($lowerTitle, 'england')) {
             return 'england_rugby';
         }
-        if (strpos($lowerTitle, 'concert') !== FALSE || strpos($lowerTitle, 'tour') !== FALSE) {
+        if (str_contains($lowerTitle, 'concert') || str_contains($lowerTitle, 'tour')) {
             return 'concert';
         }
 
@@ -328,15 +330,15 @@ class TwickenhamPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out') || str_contains($lowerStatus, 'unavailable')) {
             return 'sold_out';
         }
 
-        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
+        if (str_contains($lowerStatus, 'limited') || str_contains($lowerStatus, 'few left')) {
             return 'limited';
         }
 
-        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
+        if (str_contains($lowerStatus, 'available') || str_contains($lowerStatus, 'on sale')) {
             return 'available';
         }
 
@@ -348,7 +350,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -370,7 +372,7 @@ class TwickenhamPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 

@@ -76,7 +76,7 @@ class TicketPolicy
 
         // Customers can update their own tickets if they're not closed
         if ($user->id === $ticket->user_id) {
-            return !$ticket->isClosed();
+            return ! $ticket->isClosed();
         }
 
         return FALSE;
@@ -134,7 +134,11 @@ class TicketPolicy
     public function assign(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can assign tickets
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 
     /**
@@ -170,7 +174,11 @@ class TicketPolicy
     public function updatePriority(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can update priority
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 
     /**
@@ -194,7 +202,11 @@ class TicketPolicy
     public function addInternalNote(User $user, Ticket $ticket): bool
     {
         // Only admins and agents can add internal notes
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 
     /**
@@ -206,7 +218,11 @@ class TicketPolicy
     public function viewInternalComments(User $user): bool
     {
         // Only admins and agents can view internal comments
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 
     /**
@@ -218,6 +234,10 @@ class TicketPolicy
     public function bulkUpdate(User $user): bool
     {
         // Only admins and agents can perform bulk updates
-        return $user->isAdmin() || $user->isAgent();
+        if ($user->isAdmin()) {
+            return TRUE;
+        }
+
+        return $user->isAgent();
     }
 }

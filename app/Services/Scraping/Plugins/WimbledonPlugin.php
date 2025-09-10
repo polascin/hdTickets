@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -31,9 +32,10 @@ class WimbledonPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -170,23 +172,23 @@ class WimbledonPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['search'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['search'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['court'])) {
-            $params['court'] = urlencode($criteria['court']);
+        if (! empty($criteria['court'])) {
+            $params['court'] = urlencode((string) $criteria['court']);
         }
 
-        if (!empty($criteria['ticket_type'])) {
-            $params['type'] = urlencode($criteria['ticket_type']);
+        if (! empty($criteria['ticket_type'])) {
+            $params['type'] = urlencode((string) $criteria['ticket_type']);
         }
 
-        if (!empty($criteria['session'])) {
-            $params['session'] = urlencode($criteria['session']);
+        if (! empty($criteria['session'])) {
+            $params['session'] = urlencode((string) $criteria['session']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['date_from'] = $criteria['date_range']['start'];
             }
@@ -197,7 +199,7 @@ class WimbledonPlugin extends BaseScraperPlugin
 
         $queryString = http_build_query($params);
 
-        return $baseUrl . ($queryString ? '?' . $queryString : '');
+        return $baseUrl . ($queryString !== '' && $queryString !== '0' ? '?' . $queryString : '');
     }
 
     /**
@@ -241,7 +243,7 @@ class WimbledonPlugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status, .sold-out');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -292,23 +294,23 @@ class WimbledonPlugin extends BaseScraperPlugin
         $lowerTitle = strtolower($title);
         $lowerCourt = strtolower($court);
 
-        if (strpos($lowerTitle, 'hospitality') !== FALSE || strpos($lowerTitle, 'vip') !== FALSE) {
+        if (str_contains($lowerTitle, 'hospitality') || str_contains($lowerTitle, 'vip')) {
             return 'hospitality';
         }
 
-        if (strpos($lowerTitle, 'debenture') !== FALSE) {
+        if (str_contains($lowerTitle, 'debenture')) {
             return 'debenture';
         }
 
-        if (strpos($lowerCourt, 'centre court') !== FALSE) {
+        if (str_contains($lowerCourt, 'centre court')) {
             return 'centre_court';
         }
 
-        if (strpos($lowerCourt, 'court no. 1') !== FALSE || strpos($lowerCourt, 'court 1') !== FALSE) {
+        if (str_contains($lowerCourt, 'court no. 1') || str_contains($lowerCourt, 'court 1')) {
             return 'court_1';
         }
 
-        if (strpos($lowerTitle, 'ground pass') !== FALSE || strpos($lowerTitle, 'grounds') !== FALSE) {
+        if (str_contains($lowerTitle, 'ground pass') || str_contains($lowerTitle, 'grounds')) {
             return 'ground_pass';
         }
 
@@ -322,15 +324,15 @@ class WimbledonPlugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE || strpos($lowerStatus, 'unavailable') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out') || str_contains($lowerStatus, 'unavailable')) {
             return 'sold_out';
         }
 
-        if (strpos($lowerStatus, 'limited') !== FALSE || strpos($lowerStatus, 'few left') !== FALSE) {
+        if (str_contains($lowerStatus, 'limited') || str_contains($lowerStatus, 'few left')) {
             return 'limited';
         }
 
-        if (strpos($lowerStatus, 'available') !== FALSE || strpos($lowerStatus, 'on sale') !== FALSE) {
+        if (str_contains($lowerStatus, 'available') || str_contains($lowerStatus, 'on sale')) {
             return 'available';
         }
 
@@ -342,7 +344,7 @@ class WimbledonPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -364,7 +366,7 @@ class WimbledonPlugin extends BaseScraperPlugin
      */
     protected function parseTime(string $timeText): ?string
     {
-        if (empty($timeText)) {
+        if ($timeText === '' || $timeText === '0') {
             return NULL;
         }
 

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
@@ -29,19 +31,14 @@ class SystemController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $systemHealth = $this->getSystemHealth();
         $systemConfig = $this->getSystemConfig();
         $logs = $this->getRecentLogs();
         $services = $this->getServiceStatus();
 
-        return view('admin.system.index', compact(
-            'systemHealth',
-            'systemConfig',
-            'logs',
-            'services',
-        ));
+        return view('admin.system.index', ['systemHealth' => $systemHealth, 'systemConfig' => $systemConfig, 'logs' => $logs, 'services' => $services]);
     }
 
     /**
@@ -66,7 +63,7 @@ class SystemController extends Controller
     /**
      * UpdateConfiguration
      */
-    public function updateConfiguration(Request $request): \Illuminate\Http\JsonResponse
+    public function updateConfiguration(Request $request): JsonResponse
     {
         $request->validate([
             'app_timezone'         => 'required|string|max:50',
@@ -95,7 +92,7 @@ class SystemController extends Controller
         // Update environment variables if needed
         if ($request->has('maintenance_mode') && $request->maintenance_mode) {
             Artisan::call('down', ['--secret' => 'hdtickets-admin']);
-        } elseif ($request->has('maintenance_mode') && !$request->maintenance_mode) {
+        } elseif ($request->has('maintenance_mode') && ! $request->maintenance_mode) {
             Artisan::call('up');
         }
 
@@ -112,7 +109,7 @@ class SystemController extends Controller
     /**
      * Get  logs
      */
-    public function getLogs(Request $request): \Illuminate\Http\JsonResponse
+    public function getLogs(Request $request): JsonResponse
     {
         $request->validate([
             'level' => 'nullable|string|in:emergency,alert,critical,error,warning,notice,info,debug',
@@ -121,8 +118,6 @@ class SystemController extends Controller
         ]);
 
         $logs = $this->getRecentLogs(
-            $request->get('level'),
-            $request->get('date'),
             $request->get('limit', 100),
         );
 
@@ -135,7 +130,7 @@ class SystemController extends Controller
     /**
      * ClearCache
      */
-    public function clearCache(Request $request): \Illuminate\Http\JsonResponse
+    public function clearCache(Request $request): JsonResponse
     {
         $request->validate([
             'types'   => 'required|array',
@@ -192,7 +187,7 @@ class SystemController extends Controller
     /**
      * RunMaintenance
      */
-    public function runMaintenance(Request $request): \Illuminate\Http\JsonResponse
+    public function runMaintenance(Request $request): JsonResponse
     {
         $request->validate([
             'tasks'   => 'required|array',
@@ -412,11 +407,9 @@ class SystemController extends Controller
     /**
      * Get  recent logs
      *
-     * @param mixed $level
-     * @param mixed $date
      * @param mixed $limit
      */
-    private function getRecentLogs($level = NULL, $date = NULL, $limit = 100): array
+    private function getRecentLogs($limit = 100): array
     {
         // This is a simplified implementation
         // In a real application, you'd parse actual log files
@@ -482,7 +475,7 @@ class SystemController extends Controller
      * @param mixed $bytes
      * @param mixed $precision
      */
-    private function formatBytes($bytes, $precision = 2): string
+    private function formatBytes(float|bool|int|array $bytes, $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -503,7 +496,7 @@ class SystemController extends Controller
         $levels = ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
 
         foreach ($levels as $level) {
-            if (stripos($logLine, $level) !== FALSE) {
+            if (stripos((string) $logLine, $level) !== FALSE) {
                 return $level;
             }
         }

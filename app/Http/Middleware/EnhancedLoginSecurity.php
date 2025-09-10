@@ -23,7 +23,7 @@ class EnhancedLoginSecurity
     public function handle(Request $request, Closure $next): Response
     {
         // Skip for non-login requests
-        if (!$this->isLoginRequest($request)) {
+        if (! $this->isLoginRequest($request)) {
             return $next($request);
         }
 
@@ -54,7 +54,7 @@ class EnhancedLoginSecurity
     {
         $fingerprint = $request->input('device_fingerprint');
 
-        if (!$fingerprint) {
+        if (! $fingerprint) {
             Log::warning('Login attempt without device fingerprint', [
                 'ip'         => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -65,12 +65,12 @@ class EnhancedLoginSecurity
 
         // Decode and validate fingerprint
         try {
-            $decoded = json_decode(base64_decode($fingerprint, TRUE), TRUE);
+            $decoded = json_decode(base64_decode((string) $fingerprint, TRUE), TRUE);
 
             // Validate fingerprint structure
             $requiredFields = ['userAgent', 'language', 'platform', 'timezone', 'screen', 'canvas'];
             foreach ($requiredFields as $field) {
-                if (!isset($decoded[$field])) {
+                if (! isset($decoded[$field])) {
                     throw new InvalidArgumentException("Missing fingerprint field: {$field}");
                 }
             }
@@ -81,7 +81,7 @@ class EnhancedLoginSecurity
                 $cacheKey = "user_fingerprint:{$email}";
                 $storedFingerprints = Cache::get($cacheKey, []);
 
-                if (!in_array($fingerprint, $storedFingerprints, TRUE)) {
+                if (! in_array($fingerprint, $storedFingerprints, TRUE)) {
                     $storedFingerprints[] = $fingerprint;
                     Cache::put($cacheKey, array_slice($storedFingerprints, -5), now()->addMonths(3));
 
@@ -136,7 +136,7 @@ class EnhancedLoginSecurity
         $ip = $request->ip();
         $email = $request->input('email');
 
-        if (!$email) {
+        if (! $email) {
             return;
         }
 
@@ -146,7 +146,7 @@ class EnhancedLoginSecurity
 
         $currentLocation = $this->getLocationFromIP($ip);
 
-        if (!empty($knownLocations) && $currentLocation) {
+        if (! empty($knownLocations) && $currentLocation) {
             $isKnownLocation = FALSE;
 
             foreach ($knownLocations as $location) {
@@ -157,7 +157,7 @@ class EnhancedLoginSecurity
                 }
             }
 
-            if (!$isKnownLocation) {
+            if (! $isKnownLocation) {
                 Log::warning('Login from unusual location', [
                     'email'           => $email,
                     'ip'              => $ip,
@@ -187,7 +187,7 @@ class EnhancedLoginSecurity
         ];
 
         foreach ($suspiciousUA as $pattern) {
-            if (stripos($userAgent, $pattern) !== FALSE) {
+            if (stripos((string) $userAgent, $pattern) !== FALSE) {
                 Log::warning('Potential automated login attempt detected', [
                     'user_agent' => $userAgent,
                     'ip'         => $request->ip(),
@@ -210,7 +210,7 @@ class EnhancedLoginSecurity
     private function monitorSuspiciousActivity(Request $request): void
     {
         $ip = $request->ip();
-        $email = $request->input('email');
+        $request->input('email');
 
         // Monitor rapid-fire attempts
         $rapidKey = "rapid_attempts:{$ip}";
@@ -218,7 +218,7 @@ class EnhancedLoginSecurity
         $attempts[] = time();
 
         // Keep only attempts from last 60 seconds
-        $attempts = array_filter($attempts, fn ($timestamp) => $timestamp > time() - 60);
+        $attempts = array_filter($attempts, fn ($timestamp): bool => $timestamp > time() - 60);
 
         if (count($attempts) > 5) {
             Log::warning('Rapid-fire login attempts detected', [
@@ -238,53 +238,55 @@ class EnhancedLoginSecurity
         }
     }
 
-    private function getCountryFromIP(string $ip): ?string
+    private function getCountryFromIP(string $ip): string
     {
         // Skip for local/private IPs
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return 'Local';
         }
-        
+
         // Check cache first
         $cacheKey = "ip_country:{$ip}";
         $country = Cache::get($cacheKey);
-        
-        if ($country !== null) {
+
+        if ($country !== NULL) {
             return $country;
         }
-        
+
         // Skip API call in testing/development environments
         if (app()->environment(['testing', 'local'])) {
             return 'Unknown';
         }
-        
+
         // Async API call with timeout and fallback
         try {
             $context = stream_context_create([
                 'http' => [
-                    'timeout' => 2, // 2 second timeout
-                    'ignore_errors' => true,
+                    'timeout'       => 2, // 2 second timeout
+                    'ignore_errors' => TRUE,
                 ],
             ]);
-            
-            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=country", false, $context);
-            
-            if ($response === false) {
+
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=country", FALSE, $context);
+
+            if ($response === FALSE) {
                 Log::debug('Geolocation API unavailable for IP: ' . $ip);
                 Cache::put($cacheKey, 'Unknown', now()->addHours(1));
+
                 return 'Unknown';
             }
-            
-            $data = json_decode($response, true);
+
+            $data = json_decode($response, TRUE);
             $country = $data['country'] ?? 'Unknown';
-            
+
             // Cache for 24 hours
             Cache::put($cacheKey, $country, now()->addDay());
-            
+
             return $country;
         } catch (Exception $e) {
             Log::debug('Geolocation lookup failed', ['ip' => $ip, 'error' => $e->getMessage()]);
             Cache::put($cacheKey, 'Unknown', now()->addHour());
+
             return 'Unknown';
         }
     }
@@ -292,41 +294,42 @@ class EnhancedLoginSecurity
     private function getLocationFromIP(string $ip): ?array
     {
         // Skip for local/private IPs
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return null;
+        if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return NULL;
         }
-        
+
         // Check cache first
         $cacheKey = "ip_location:{$ip}";
         $location = Cache::get($cacheKey);
-        
-        if ($location !== null) {
+
+        if ($location !== NULL) {
             return $location;
         }
-        
+
         // Skip API call in testing/development environments
         if (app()->environment(['testing', 'local'])) {
-            return null;
+            return NULL;
         }
-        
+
         // Async API call with timeout and fallback
         try {
             $context = stream_context_create([
                 'http' => [
-                    'timeout' => 2, // 2 second timeout
-                    'ignore_errors' => true,
+                    'timeout'       => 2, // 2 second timeout
+                    'ignore_errors' => TRUE,
                 ],
             ]);
-            
-            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=lat,lon,city,country", false, $context);
-            
-            if ($response === false) {
+
+            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=lat,lon,city,country", FALSE, $context);
+
+            if ($response === FALSE) {
                 Log::debug('Geolocation API unavailable for IP: ' . $ip);
-                Cache::put($cacheKey, null, now()->addHours(1));
-                return null;
+                Cache::put($cacheKey, NULL, now()->addHours(1));
+
+                return NULL;
             }
-            
-            $data = json_decode($response, true);
+
+            $data = json_decode($response, TRUE);
 
             if (isset($data['lat'], $data['lon'])) {
                 $location = [
@@ -335,10 +338,10 @@ class EnhancedLoginSecurity
                     'city'    => $data['city'] ?? '',
                     'country' => $data['country'] ?? '',
                 ];
-                
+
                 // Cache for 24 hours
                 Cache::put($cacheKey, $location, now()->addDay());
-                
+
                 return $location;
             }
         } catch (Exception $e) {
@@ -346,8 +349,9 @@ class EnhancedLoginSecurity
         }
 
         // Cache null result for 1 hour to prevent repeated API calls
-        Cache::put($cacheKey, null, now()->addHour());
-        return null;
+        Cache::put($cacheKey, NULL, now()->addHour());
+
+        return NULL;
     }
 
     private function calculateDistance(array $point1, array $point2): float
@@ -362,8 +366,8 @@ class EnhancedLoginSecurity
         $latDelta = $latTo - $latFrom;
         $lonDelta = $lonTo - $lonFrom;
 
-        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
-            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+        $angle = 2 * asin(sqrt(sin($latDelta / 2) ** 2 +
+            cos($latFrom) * cos($latTo) * sin($lonDelta / 2) ** 2));
 
         return $angle * $earthRadius;
     }

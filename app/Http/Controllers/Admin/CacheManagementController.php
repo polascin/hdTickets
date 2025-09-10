@@ -5,11 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\DatabaseOptimizationService;
 use App\Services\RedisCacheService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+use function count;
+use function in_array;
 
 /**
  * Cache Management Controller
@@ -23,22 +29,14 @@ use Illuminate\Support\Facades\Redis;
  */
 class CacheManagementController extends Controller
 {
-    protected DatabaseOptimizationService $dbOptimizer;
-
-    protected RedisCacheService $cacheService;
-
-    public function __construct(
-        DatabaseOptimizationService $dbOptimizer,
-        RedisCacheService $cacheService
-    ) {
-        $this->dbOptimizer = $dbOptimizer;
-        $this->cacheService = $cacheService;
+    public function __construct(protected DatabaseOptimizationService $dbOptimizer, protected RedisCacheService $cacheService)
+    {
     }
 
     /**
      * Show cache management dashboard
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index()
     {
@@ -49,19 +47,11 @@ class CacheManagementController extends Controller
         $slowRequests = Cache::get('slow_requests', []);
         $nPlusOneDetections = Cache::get('n_plus_one_detections', []);
 
-        return view('admin.cache-management', compact(
-            'cacheStats',
-            'dbStats',
-            'slowQueries',
-            'slowRequests',
-            'nPlusOneDetections'
-        ));
+        return view('admin.cache-management', ['cacheStats' => $cacheStats, 'dbStats' => $dbStats, 'slowQueries' => $slowQueries, 'slowRequests' => $slowRequests, 'nPlusOneDetections' => $nPlusOneDetections]);
     }
 
     /**
      * Get real-time cache statistics
-     *
-     * @return JsonResponse
      */
     public function getCacheStats(): JsonResponse
     {
@@ -77,7 +67,7 @@ class CacheManagementController extends Controller
                     'timestamp' => now(),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Cache stats retrieval failed', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -89,9 +79,6 @@ class CacheManagementController extends Controller
 
     /**
      * Clear cache by layer or specific keys
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function clearCache(Request $request): JsonResponse
     {
@@ -143,7 +130,7 @@ class CacheManagementController extends Controller
                 'message' => 'Cache cleared successfully',
                 'data'    => $results,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Cache clear failed', [
                 'error' => $e->getMessage(),
                 'layer' => $request->input('layer'),
@@ -159,9 +146,6 @@ class CacheManagementController extends Controller
 
     /**
      * Warm up cache layers
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function warmupCache(Request $request): JsonResponse
     {
@@ -178,25 +162,21 @@ class CacheManagementController extends Controller
             $warmupConfig = [];
 
             // Build warmup configuration based on selected layers
-            if (empty($layers) || in_array('events', $layers)) {
+            if (empty($layers) || in_array('events', $layers, TRUE)) {
                 $warmupConfig[RedisCacheService::LAYER_EVENTS] = $this->getEventWarmupQueries();
             }
 
-            if (empty($layers) || in_array('tickets', $layers)) {
+            if (empty($layers) || in_array('tickets', $layers, TRUE)) {
                 $warmupConfig[RedisCacheService::LAYER_TICKETS] = $this->getTicketWarmupQueries();
             }
 
-            if (empty($layers) || in_array('system', $layers)) {
+            if (empty($layers) || in_array('system', $layers, TRUE)) {
                 $warmupConfig[RedisCacheService::LAYER_SYSTEM] = $this->getSystemWarmupQueries();
             }
 
             // Add custom queries if provided
             foreach ($customQueries as $layer => $queries) {
-                if (isset($warmupConfig[$layer])) {
-                    $warmupConfig[$layer] = array_merge($warmupConfig[$layer], $queries);
-                } else {
-                    $warmupConfig[$layer] = $queries;
-                }
+                $warmupConfig[$layer] = isset($warmupConfig[$layer]) ? array_merge($warmupConfig[$layer], $queries) : $queries;
             }
 
             $results = $this->cacheService->warmupLayers($warmupConfig);
@@ -211,7 +191,7 @@ class CacheManagementController extends Controller
                 'message' => 'Cache warmup completed',
                 'data'    => $results,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Cache warmup failed', [
                 'error'  => $e->getMessage(),
                 'layers' => $request->input('layers'),
@@ -226,8 +206,6 @@ class CacheManagementController extends Controller
 
     /**
      * Get cache health check
-     *
-     * @return JsonResponse
      */
     public function healthCheck(): JsonResponse
     {
@@ -255,7 +233,7 @@ class CacheManagementController extends Controller
                 'success' => TRUE,
                 'data'    => $overallHealth,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Cache health check failed', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -272,9 +250,6 @@ class CacheManagementController extends Controller
 
     /**
      * Get query performance analysis
-     *
-     * @param  Request      $request
-     * @return JsonResponse
      */
     public function getQueryAnalysis(Request $request): JsonResponse
     {
@@ -288,23 +263,17 @@ class CacheManagementController extends Controller
             // Filter by timeframe
             $cutoffTime = $this->getCutoffTime($timeframe);
 
-            $filteredSlowQueries = array_filter($slowQueries, function ($query) use ($cutoffTime) {
-                return ($query['timestamp'] ?? 0) > $cutoffTime;
-            });
+            $filteredSlowQueries = array_filter($slowQueries, fn (array $query): bool => ($query['timestamp'] ?? 0) > $cutoffTime);
 
-            $filteredSlowRequests = array_filter($slowRequests, function ($request) use ($cutoffTime) {
-                return isset($request['timestamp']) && $request['timestamp']->timestamp > $cutoffTime;
-            });
+            $filteredSlowRequests = array_filter($slowRequests, fn (array $request): bool => isset($request['timestamp']) && $request['timestamp']->timestamp > $cutoffTime);
 
-            $filteredNPlusOne = array_filter($nPlusOneDetections, function ($detection) use ($cutoffTime) {
-                return isset($detection['detected_at']) && $detection['detected_at']->timestamp > $cutoffTime;
-            });
+            $filteredNPlusOne = array_filter($nPlusOneDetections, fn (array $detection): bool => isset($detection['detected_at']) && $detection['detected_at']->timestamp > $cutoffTime);
 
             // Generate optimization suggestions
             $suggestions = $this->generateOptimizationSuggestions(
                 $filteredSlowQueries,
                 $filteredSlowRequests,
-                $filteredNPlusOne
+                $filteredNPlusOne,
             );
 
             return response()->json([
@@ -322,7 +291,7 @@ class CacheManagementController extends Controller
                     ],
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Query analysis failed', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -335,8 +304,7 @@ class CacheManagementController extends Controller
     /**
      * Export cache and performance metrics
      *
-     * @param  Request                                                         $request
-     * @return JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return JsonResponse|StreamedResponse
      */
     public function exportMetrics(Request $request)
     {
@@ -352,15 +320,12 @@ class CacheManagementController extends Controller
                 'exported_at'           => now(),
             ];
 
-            switch ($format) {
-                case 'csv':
-                    return $this->exportToCsv($data);
-                case 'xlsx':
-                    return $this->exportToXlsx($data);
-                default:
-                    return response()->json($data);
-            }
-        } catch (\Exception $e) {
+            return match ($format) {
+                'csv'   => $this->exportToCsv($data),
+                'xlsx'  => $this->exportToXlsx($data),
+                default => response()->json($data),
+            };
+        } catch (Exception $e) {
             Log::error('Metrics export failed', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -372,8 +337,6 @@ class CacheManagementController extends Controller
 
     /**
      * Optimize cache configuration
-     *
-     * @return JsonResponse
      */
     public function optimizeCache(): JsonResponse
     {
@@ -430,7 +393,7 @@ class CacheManagementController extends Controller
                     'recommendations'           => $this->generateRecommendations($optimizations),
                 ],
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Cache optimization analysis failed', ['error' => $e->getMessage()]);
 
             return response()->json([
@@ -446,16 +409,10 @@ class CacheManagementController extends Controller
     protected function getEventWarmupQueries(): array
     {
         return [
-            'upcoming_events' => function () {
-                // This would be replaced with actual event query
-                return ['upcoming' => 'events_data'];
-            },
-            'popular_events' => function () {
-                return ['popular' => 'events_data'];
-            },
-            'featured_events' => function () {
-                return ['featured' => 'events_data'];
-            },
+            'upcoming_events' => fn (): array => // This would be replaced with actual event query
+                ['upcoming' => 'events_data'],
+            'popular_events'  => fn (): array => ['popular' => 'events_data'],
+            'featured_events' => fn (): array => ['featured' => 'events_data'],
         ];
     }
 
@@ -465,12 +422,8 @@ class CacheManagementController extends Controller
     protected function getTicketWarmupQueries(): array
     {
         return [
-            'available_tickets' => function () {
-                return ['available' => 'tickets_data'];
-            },
-            'price_ranges' => function () {
-                return ['price_ranges' => 'pricing_data'];
-            },
+            'available_tickets' => fn (): array => ['available' => 'tickets_data'],
+            'price_ranges'      => fn (): array => ['price_ranges' => 'pricing_data'],
         ];
     }
 
@@ -480,12 +433,8 @@ class CacheManagementController extends Controller
     protected function getSystemWarmupQueries(): array
     {
         return [
-            'app_config' => function () {
-                return config('app');
-            },
-            'feature_flags' => function () {
-                return ['features' => 'enabled'];
-            },
+            'app_config'    => fn () => config('app'),
+            'feature_flags' => fn (): array => ['features' => 'enabled'],
         ];
     }
 
@@ -503,7 +452,7 @@ class CacheManagementController extends Controller
                 'message'       => 'Redis connection is active',
                 'response_time' => 0, // Would measure actual response time
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Redis connection failed: ' . $e->getMessage(),
@@ -537,7 +486,7 @@ class CacheManagementController extends Controller
                 'usage_bytes'     => $memoryBytes,
                 'threshold_bytes' => $threshold,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Memory check failed: ' . $e->getMessage(),
@@ -566,7 +515,7 @@ class CacheManagementController extends Controller
                 'message'   => "Cache hit ratio: {$hitRatio}%",
                 'hit_ratio' => $hitRatio,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Hit ratio check failed: ' . $e->getMessage(),
@@ -581,7 +530,7 @@ class CacheManagementController extends Controller
     {
         try {
             $slowQueries = Cache::get('slow_queries', []);
-            $recentCount = count(array_filter($slowQueries, function ($query) {
+            $recentCount = count(array_filter($slowQueries, function (array $query): bool {
                 return ($query['timestamp'] ?? 0) > (time() - 3600); // Last hour
             }));
 
@@ -598,7 +547,7 @@ class CacheManagementController extends Controller
                 'recent_count' => $recentCount,
                 'total_count'  => count($slowQueries),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Slow query check failed: ' . $e->getMessage(),
@@ -621,7 +570,7 @@ class CacheManagementController extends Controller
                 'message'    => "Error rate: {$errorRate}%",
                 'error_rate' => $errorRate,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Error rate check failed: ' . $e->getMessage(),
@@ -634,18 +583,13 @@ class CacheManagementController extends Controller
      */
     protected function getCutoffTime(string $timeframe): int
     {
-        switch ($timeframe) {
-            case '1h':
-                return time() - 3600;
-            case '6h':
-                return time() - (6 * 3600);
-            case '24h':
-                return time() - (24 * 3600);
-            case '7d':
-                return time() - (7 * 24 * 3600);
-            default:
-                return time() - 3600;
-        }
+        return match ($timeframe) {
+            '1h'    => time() - 3600,
+            '6h'    => time() - (6 * 3600),
+            '24h'   => time() - (24 * 3600),
+            '7d'    => time() - (7 * 24 * 3600),
+            default => time() - 3600,
+        };
     }
 
     /**
@@ -745,7 +689,7 @@ class CacheManagementController extends Controller
     {
         preg_match('/([0-9.]+)([KMGT]?)/', $memory, $matches);
 
-        if (empty($matches)) {
+        if ($matches === []) {
             return 0;
         }
 

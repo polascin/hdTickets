@@ -14,7 +14,7 @@ use function count;
 
 class AdvancedAnalyticsDashboard
 {
-    private const CACHE_TTL = 3600; // 1 hour
+    private const int CACHE_TTL = 3600; // 1 hour
 
     public function __construct()
     {
@@ -31,7 +31,7 @@ class AdvancedAnalyticsDashboard
     {
         $cacheKey = 'analytics:price_trends:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $query = TicketPriceHistory::query()
                 ->with(['ticket'])
                 ->whereBetween('recorded_at', [
@@ -39,13 +39,13 @@ class AdvancedAnalyticsDashboard
                     $filters['end_date'] ?? Carbon::now(),
                 ]);
 
-            if (!empty($filters['platforms'])) {
+            if (! empty($filters['platforms'])) {
                 $query->whereHas('ticket', function ($q) use ($filters): void {
                     $q->whereIn('platform', $filters['platforms']);
                 });
             }
 
-            if (!empty($filters['categories'])) {
+            if (! empty($filters['categories'])) {
                 $query->whereHas('ticket', function ($q) use ($filters): void {
                     $q->whereIn('category', $filters['categories']);
                 });
@@ -74,7 +74,7 @@ class AdvancedAnalyticsDashboard
     {
         $cacheKey = 'analytics:demand_patterns:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             // Aggregate ticket viewing, alert creation, and purchase data
             $demandData = $this->aggregateDemandMetrics($filters);
 
@@ -103,7 +103,7 @@ class AdvancedAnalyticsDashboard
     {
         $cacheKey = 'analytics:success_optimization:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $alertData = $this->gatherAlertSuccessData($filters);
             $userEngagementData = $this->gatherUserEngagementData($filters);
             $channelPerformanceData = $this->gatherChannelPerformanceData($filters);
@@ -131,7 +131,7 @@ class AdvancedAnalyticsDashboard
     {
         $cacheKey = 'analytics:platform_performance:' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters): array {
             $platforms = $this->getAllActivePlatforms();
             $performanceData = [];
 
@@ -162,13 +162,13 @@ class AdvancedAnalyticsDashboard
     {
         $analytics = PriceVolatilityAnalytics::calculateForTicket($ticketId, $date);
 
-        return $analytics ? $analytics->toArray() : NULL;
+        return $analytics instanceof PriceVolatilityAnalytics ? $analytics->toArray() : NULL;
     }
 
     /**
      * Real-time dashboard metrics
      */
-    public function getRealTimeDashboardMetrics()
+    public function getRealTimeDashboardMetrics(): array
     {
         return [
             'live_metrics'           => $this->getLiveMetrics(),
@@ -186,25 +186,20 @@ class AdvancedAnalyticsDashboard
      * @param mixed $type
      * @param mixed $filters
      */
-    public function exportAnalyticsData(string $type, $filters = [])
+    public function exportAnalyticsData(string $type, array $filters = [])
     {
-        switch ($type) {
-            case 'price_trends':
-                return $this->exportPriceTrendData($filters);
-            case 'demand_patterns':
-                return $this->exportDemandPatternData($filters);
-            case 'success_metrics':
-                return $this->exportSuccessMetricsData($filters);
-            case 'platform_comparison':
-                return $this->exportPlatformComparisonData($filters);
-            default:
-                throw new InvalidArgumentException("Invalid export type: {$type}");
-        }
+        return match ($type) {
+            'price_trends'        => $this->exportPriceTrendData(),
+            'demand_patterns'     => $this->exportDemandPatternData($filters),
+            'success_metrics'     => $this->exportSuccessMetricsData($filters),
+            'platform_comparison' => $this->exportPlatformComparisonData($filters),
+            default               => throw new InvalidArgumentException("Invalid export type: {$type}"),
+        };
     }
 
     // Private helper methods for price trend analysis
 
-    private function calculatePriceTrendOverview($priceData)
+    private function calculatePriceTrendOverview($priceData): array
     {
         $totalRecords = $priceData->count();
         if ($totalRecords === 0) {
@@ -216,7 +211,7 @@ class AdvancedAnalyticsDashboard
         $medianPrice = $prices->median();
         $priceStdDev = $this->calculateStandardDeviation($prices->toArray());
 
-        $priceChanges = $priceData->groupBy('ticket_id')->map(function ($ticketPrices) {
+        $priceChanges = $priceData->groupBy('ticket_id')->map(function ($ticketPrices): int|float {
             $sorted = $ticketPrices->sortBy('recorded_at');
             if ($sorted->count() < 2) {
                 return 0;
@@ -234,17 +229,15 @@ class AdvancedAnalyticsDashboard
             'median_price'             => round($medianPrice, 2),
             'price_volatility'         => round($priceStdDev / $avgPrice * 100, 2),
             'average_price_change'     => round($priceChanges->avg(), 2),
-            'price_increase_frequency' => round($priceChanges->filter(fn ($change) => $change > 0)->count() / $priceChanges->count() * 100, 2),
-            'significant_drops'        => $priceChanges->filter(fn ($change) => $change < -20)->count(),
-            'significant_increases'    => $priceChanges->filter(fn ($change) => $change > 20)->count(),
+            'price_increase_frequency' => round($priceChanges->filter(fn ($change): bool => $change > 0)->count() / $priceChanges->count() * 100, 2),
+            'significant_drops'        => $priceChanges->filter(fn ($change): bool => $change < -20)->count(),
+            'significant_increases'    => $priceChanges->filter(fn ($change): bool => $change > 20)->count(),
         ];
     }
 
     private function calculateDailyPriceTrends($priceData)
     {
-        return $priceData->groupBy(function ($record) {
-            return $record->recorded_at->format('Y-m-d');
-        })->map(function ($dayData, $date) {
+        return $priceData->groupBy(fn ($record) => $record->recorded_at->format('Y-m-d'))->map(function ($dayData, $date): array {
             $prices = $dayData->pluck('price');
 
             return [
@@ -261,7 +254,7 @@ class AdvancedAnalyticsDashboard
 
     private function calculatePlatformPriceComparison($priceData)
     {
-        return $priceData->groupBy('ticket.platform')->map(function ($platformData, $platform) {
+        return $priceData->groupBy('ticket.platform')->map(function ($platformData, $platform): array {
             $prices = $platformData->pluck('price');
             $priceChanges = $this->calculatePriceChangesForPlatform($platformData);
 
@@ -299,18 +292,14 @@ class AdvancedAnalyticsDashboard
         })->filter()->values();
     }
 
-    private function generatePricePredictionInsights($priceData)
+    private function generatePricePredictionInsights($priceData): array
     {
         $insights = [];
 
         // Trending patterns
-        $trendingUp = $priceData->filter(function ($record) {
-            return $this->isPriceTrendingUp($record->ticket_id);
-        })->count();
+        $trendingUp = $priceData->filter(fn ($record) => $this->isPriceTrendingUp($record->ticket_id))->count();
 
-        $trendingDown = $priceData->filter(function ($record) {
-            return $this->isPriceTrendingDown($record->ticket_id);
-        })->count();
+        $trendingDown = $priceData->filter(fn ($record) => $this->isPriceTrendingDown($record->ticket_id))->count();
 
         $insights['trending_patterns'] = [
             'trending_up'   => $trendingUp,
@@ -359,7 +348,12 @@ class AdvancedAnalyticsDashboard
         return collect($anomalies)->sortByDesc('z_score')->take(20)->values();
     }
 
-    private function generatePriceTrendRecommendations($priceData)
+    /**
+     * @param mixed $priceData
+     *
+     * @return list<(array{type: 'monitoring', priority: 'high', title: 'Monitor High Volatility Tickets', description: non-falsy-string, action: 'Increase monitoring frequency for these tickets', expected_impact: 'Better alert timing and user satisfaction'} | array{type: 'platform_optimization', priority: 'medium', title: 'Improve Platform Reliability', description: 'Some platforms show inconsistent price updates', action: 'Implement additional validation for price data', expected_impact: 'More accurate price alerts'})>
+     */
+    private function generatePriceTrendRecommendations($priceData): array
     {
         $recommendations = [];
 
@@ -378,9 +372,7 @@ class AdvancedAnalyticsDashboard
 
         // Platform-specific recommendations
         $platformAnalysis = $this->calculatePlatformPriceComparison($priceData);
-        $unreliablePlatforms = $platformAnalysis->filter(function ($platform) {
-            return $platform['reliability_score'] < 0.8;
-        });
+        $unreliablePlatforms = $platformAnalysis->filter(fn ($platform): bool => $platform['reliability_score'] < 0.8);
 
         if ($unreliablePlatforms->count() > 0) {
             $recommendations[] = [
@@ -398,7 +390,7 @@ class AdvancedAnalyticsDashboard
 
     // Helper methods for demand pattern analysis
 
-    private function aggregateDemandMetrics(array $filters)
+    private function aggregateDemandMetrics(array $filters): array
     {
         $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
         $endDate = $filters['end_date'] ?? Carbon::now();
@@ -411,7 +403,7 @@ class AdvancedAnalyticsDashboard
         ];
     }
 
-    private function calculateDemandOverview($demandData)
+    private function calculateDemandOverview($demandData): array
     {
         return [
             'total_demand_score'  => $this->calculateOverallDemandScore($demandData),
@@ -421,7 +413,7 @@ class AdvancedAnalyticsDashboard
         ];
     }
 
-    private function analyzTemporalDemandPatterns($demandData)
+    private function analyzTemporalDemandPatterns($demandData): array
     {
         return [
             'hourly_patterns'  => $this->analyzeHourlyDemandPatterns($demandData),
@@ -433,7 +425,7 @@ class AdvancedAnalyticsDashboard
 
     // Success Rate Optimization Methods
 
-    private function calculateCurrentSuccessRates($alertData)
+    private function calculateCurrentSuccessRates($alertData): array
     {
         $totalAlerts = $alertData->count();
         if ($totalAlerts === 0) {
@@ -455,28 +447,22 @@ class AdvancedAnalyticsDashboard
 
     private function analyzeChannelOptimization($channelData)
     {
-        return $channelData->map(function ($channel, $channelName) {
-            return [
-                'channel'                => $channelName,
-                'performance_score'      => $this->calculateChannelPerformanceScore($channel),
-                'optimization_potential' => $this->identifyChannelOptimizationPotential($channel),
-                'recommended_actions'    => $this->generateChannelRecommendations($channel),
-            ];
-        });
+        return $channelData->map(fn ($channel, $channelName): array => [
+            'channel'                => $channelName,
+            'performance_score'      => $this->calculateChannelPerformanceScore($channel),
+            'optimization_potential' => $this->identifyChannelOptimizationPotential($channel),
+            'recommended_actions'    => $this->generateChannelRecommendations($channel),
+        ]);
     }
 
-    private function analyzeOptimalTiming($alertData)
+    private function analyzeOptimalTiming($alertData): array
     {
-        $timingAnalysis = $alertData->groupBy(function ($alert) {
-            return $alert->created_at->hour;
-        })->map(function ($hourData, $hour) {
-            return [
-                'hour'            => $hour,
-                'total_alerts'    => $hourData->count(),
-                'success_rate'    => $this->calculateHourlySuccessRate($hourData),
-                'engagement_rate' => $this->calculateHourlyEngagementRate($hourData),
-            ];
-        });
+        $timingAnalysis = $alertData->groupBy(fn ($alert) => $alert->created_at->hour)->map(fn ($hourData, $hour): array => [
+            'hour'            => $hour,
+            'total_alerts'    => $hourData->count(),
+            'success_rate'    => $this->calculateHourlySuccessRate($hourData),
+            'engagement_rate' => $this->calculateHourlyEngagementRate($hourData),
+        ]);
 
         $optimalHours = $timingAnalysis->sortByDesc('success_rate')->take(3);
 
@@ -494,7 +480,7 @@ class AdvancedAnalyticsDashboard
         return ScrapedTicket::distinct()->pluck('platform')->filter()->values();
     }
 
-    private function analyzePlatformPerformance($platform, $filters)
+    private function analyzePlatformPerformance($platform, array $filters): array
     {
         $startDate = $filters['start_date'] ?? Carbon::now()->subDays(30);
         $endDate = $filters['end_date'] ?? Carbon::now();
@@ -520,23 +506,19 @@ class AdvancedAnalyticsDashboard
         ];
     }
 
-    private function calculatePlatformRankings($performanceData)
+    private function calculatePlatformRankings(array $performanceData)
     {
-        $rankings = collect($performanceData)->map(function ($data, $platform) {
-            return [
-                'platform'      => $platform,
-                'overall_score' => $this->calculateOverallPlatformScore($data),
-                'strengths'     => $this->identifyPlatformStrengths($data),
-                'weaknesses'    => $this->identifyPlatformWeaknesses($data),
-            ];
-        })->sortByDesc('overall_score')->values();
-
-        return $rankings;
+        return collect($performanceData)->map(fn ($data, $platform): array => [
+            'platform'      => $platform,
+            'overall_score' => $this->calculateOverallPlatformScore($data),
+            'strengths'     => $this->identifyPlatformStrengths($data),
+            'weaknesses'    => $this->identifyPlatformWeaknesses($data),
+        ])->sortByDesc('overall_score')->values();
     }
 
     // Real-time metrics methods
 
-    private function getLiveMetrics()
+    private function getLiveMetrics(): array
     {
         return [
             'active_users'       => $this->getActiveUsersCount(),
@@ -546,7 +528,7 @@ class AdvancedAnalyticsDashboard
         ];
     }
 
-    private function getSystemHealthMetrics()
+    private function getSystemHealthMetrics(): array
     {
         return [
             'api_response_time'    => $this->getAverageApiResponseTime(),
@@ -558,23 +540,21 @@ class AdvancedAnalyticsDashboard
 
     // Utility helper methods
 
-    private function calculateStandardDeviation($values)
+    private function calculateStandardDeviation($values): int|float
     {
         if (count($values) < 2) {
             return 0;
         }
 
         $mean = array_sum($values) / count($values);
-        $squaredDifferences = array_map(function ($value) use ($mean) {
-            return pow($value - $mean, 2);
-        }, $values);
+        $squaredDifferences = array_map(fn ($value): float|int => ($value - $mean) ** 2, $values);
 
         $variance = array_sum($squaredDifferences) / count($values);
 
         return sqrt($variance);
     }
 
-    private function calculateEngagementScore($alertData)
+    private function calculateEngagementScore($alertData): int|float
     {
         if ($alertData->count() === 0) {
             return 0;
@@ -598,10 +578,10 @@ class AdvancedAnalyticsDashboard
         );
     }
 
-    private function exportPriceTrendData(array $filters)
+    private function exportPriceTrendData(): float
     {
         // Implementation for exporting price trend data
-        return $this->getPriceTrendAnalysis($filters);
+        return $this->getPriceTrendAnalysis();
     }
 
     private function exportDemandPatternData(array $filters)

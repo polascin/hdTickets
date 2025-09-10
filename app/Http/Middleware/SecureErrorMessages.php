@@ -28,7 +28,7 @@ class SecureErrorMessages
         $response = $next($request);
 
         // Only process authentication-related routes
-        if (!$this->isAuthRoute($request)) {
+        if (! $this->isAuthRoute($request)) {
             return $response;
         }
 
@@ -68,7 +68,7 @@ class SecureErrorMessages
     {
         $content = json_decode((string) $response->getContent(), TRUE);
 
-        if (!isset($content['errors'])) {
+        if (! isset($content['errors'])) {
             return $response;
         }
 
@@ -96,8 +96,8 @@ class SecureErrorMessages
         $sanitizedMessages = [];
 
         foreach ($messages as $message) {
-            $sanitizedMessage = $this->getSanitizedMessage($field, $message, $request);
-            if ($sanitizedMessage) {
+            $sanitizedMessage = $this->getSanitizedMessage($field, $message);
+            if ($sanitizedMessage !== '' && $sanitizedMessage !== '0') {
                 $sanitizedMessages[] = $sanitizedMessage;
             }
         }
@@ -108,7 +108,7 @@ class SecureErrorMessages
     /**
      * Get a sanitized version of the error message
      */
-    private function getSanitizedMessage(string $field, string $message, Request $request): string
+    private function getSanitizedMessage(string $field, string $message): string
     {
         // Map of potentially revealing messages to generic ones
         $messageMap = [
@@ -198,7 +198,7 @@ class SecureErrorMessages
         foreach ($originalErrors as $messages) {
             foreach ($messages as $message) {
                 foreach ($securityRelevantMessages as $keyword) {
-                    if (str_contains(strtolower($message), $keyword)) {
+                    if (str_contains(strtolower((string) $message), $keyword)) {
                         $hasSecurityRelevantError = TRUE;
 
                         break 3;

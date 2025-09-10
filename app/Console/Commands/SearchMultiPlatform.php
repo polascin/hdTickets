@@ -82,7 +82,7 @@ class SearchMultiPlatform extends Command
             $this->displaySearchResults($results);
 
             // Handle deduplication if requested
-            if ($deduplicate && !empty($results['normalized_events'])) {
+            if ($deduplicate && ! empty($results['normalized_events'])) {
                 $this->info("\nPerforming deduplication...");
                 $dedupResults = $multiPlatformManager->deduplicateEvents($results['normalized_events']);
                 $this->displayDeduplicationResults($dedupResults);
@@ -106,18 +106,18 @@ class SearchMultiPlatform extends Command
      */
     private function displayHealthCheck(array $healthStatus): void
     {
-        $this->info('Overall Status: ' . strtoupper($healthStatus['overall_status']));
+        $this->info('Overall Status: ' . strtoupper((string) $healthStatus['overall_status']));
         $this->info("Healthy Platforms: {$healthStatus['healthy_count']}/{$healthStatus['total_count']}");
 
         $headers = ['Platform', 'Status', 'Response Time (ms)', 'Errors'];
         $rows = [];
 
-        foreach ($healthStatus['platforms'] as $platform => $health) {
+        foreach ($healthStatus['platforms'] as $health) {
             $rows[] = [
                 $health['name'],
                 $health['status'],
                 $health['response_time'] ?? 'N/A',
-                !empty($health['errors']) ? implode(', ', $health['errors']) : 'None',
+                empty($health['errors']) ? 'None' : implode(', ', $health['errors']),
             ];
         }
 
@@ -142,7 +142,7 @@ class SearchMultiPlatform extends Command
 
         foreach ($results['platforms'] as $platformName => $platformData) {
             $platformRows[] = [
-                ucfirst($platformName),
+                ucfirst((string) $platformName),
                 $platformData['count'],
                 isset($platformData['error']) ? 'Error: ' . substr($platformData['error'], 0, 50) : 'Success',
             ];
@@ -151,7 +151,7 @@ class SearchMultiPlatform extends Command
         $this->table($platformHeaders, $platformRows);
 
         // Display sample events
-        if (!empty($results['normalized_events'])) {
+        if (! empty($results['normalized_events'])) {
             $this->info("\nSample Events (showing first 5):");
 
             $eventHeaders = ['Name', 'Date', 'Venue', 'City', 'Platform', 'Price Range'];
@@ -168,10 +168,10 @@ class SearchMultiPlatform extends Command
                 }
 
                 $eventRows[] = [
-                    substr($event['name'], 0, 30),
+                    substr((string) $event['name'], 0, 30),
                     $event['date'] ?? 'N/A',
-                    substr($event['venue'], 0, 20),
-                    substr($event['city'], 0, 15),
+                    substr((string) $event['venue'], 0, 20),
+                    substr((string) $event['city'], 0, 15),
                     $event['platform'],
                     $priceRange,
                 ];
@@ -196,7 +196,7 @@ class SearchMultiPlatform extends Command
         $this->info("After deduplication: {$dedupResults['deduplicated_count']}");
         $this->info("Duplicates removed: {$dedupResults['duplicates_removed']}");
 
-        if (!empty($dedupResults['duplicate_groups'])) {
+        if (! empty($dedupResults['duplicate_groups'])) {
             $this->info('Found ' . count($dedupResults['duplicate_groups']) . ' duplicate groups:');
 
             foreach ($dedupResults['duplicate_groups'] as $groupIndex => $group) {

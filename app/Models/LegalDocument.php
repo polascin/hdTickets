@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,12 +55,6 @@ class LegalDocument extends Model
         'effective_date',
     ];
 
-    protected $casts = [
-        'is_active'           => 'boolean',
-        'requires_acceptance' => 'boolean',
-        'effective_date'      => 'datetime',
-    ];
-
     /**
      * Get all available legal document types
      */
@@ -109,7 +104,7 @@ class LegalDocument extends Model
     {
         $documents = [];
         foreach (self::getRequiredForRegistration() as $type) {
-            if ($doc = self::getActive($type)) {
+            if (($doc = self::getActive($type)) instanceof self) {
                 $documents[$type] = $doc;
             }
         }
@@ -123,14 +118,6 @@ class LegalDocument extends Model
     public function userAcceptances(): HasMany
     {
         return $this->hasMany(UserLegalAcceptance::class);
-    }
-
-    /**
-     * Get human-readable type name
-     */
-    public function getTypeNameAttribute(): string
-    {
-        return self::getTypes()[$this->type] ?? ucfirst(str_replace('_', ' ', $this->type));
     }
 
     /**
@@ -160,5 +147,22 @@ class LegalDocument extends Model
         }
 
         return $slug;
+    }
+
+    /**
+     * Get human-readable type name
+     */
+    protected function typeName(): Attribute
+    {
+        return Attribute::make(get: fn () => self::getTypes()[$this->type] ?? ucfirst(str_replace('_', ' ', $this->type)));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_active'           => 'boolean',
+            'requires_acceptance' => 'boolean',
+            'effective_date'      => 'datetime',
+        ];
     }
 }

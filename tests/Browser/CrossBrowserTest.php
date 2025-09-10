@@ -18,8 +18,6 @@ class CrossBrowserTest extends DuskTestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->testUser = User::factory()->create([
             'email'     => 'crossbrowser@test.com',
             'password'  => Hash::make($this->testPassword),

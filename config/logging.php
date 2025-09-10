@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+use App\Logging\ErrorTrackingLogger;
+use App\Logging\PerformanceLogger;
+use App\Logging\QueryLogger;
+use App\Logging\TicketApiFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -52,7 +56,7 @@ return [
     'channels' => [
         'stack' => [
             'driver'            => 'stack',
-            'channels'          => explode(',', env('LOG_STACK_CHANNELS', 'single,performance')),
+            'channels'          => explode(',', (string) env('LOG_STACK_CHANNELS', 'single,performance')),
             'ignore_exceptions' => FALSE,
         ],
 
@@ -120,11 +124,11 @@ return [
         ],
 
         'imap' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/imap.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
-            'replace_placeholders' => true,
+            'driver'               => 'daily',
+            'path'                 => storage_path('logs/imap.log'),
+            'level'                => env('LOG_LEVEL', 'debug'),
+            'days'                 => 14,
+            'replace_placeholders' => TRUE,
         ],
 
         /*
@@ -141,7 +145,7 @@ return [
             'path'   => storage_path('logs/ticket_apis.log'),
             'level'  => env('LOG_LEVEL', 'debug'),
             'days'   => 30, // Keep logs for 30 days
-            'tap'    => [App\Logging\TicketApiFormatter::class],
+            'tap'    => [TicketApiFormatter::class],
         ],
 
         /*
@@ -172,7 +176,7 @@ return [
             'path'   => storage_path('logs/performance.log'),
             'level'  => env('LOG_LEVEL', 'info'),
             'days'   => 14,
-            'tap'    => [App\Logging\PerformanceLogger::class],
+            'tap'    => [PerformanceLogger::class],
         ],
 
         /*
@@ -250,7 +254,7 @@ return [
             'path'   => storage_path('logs/queries.log'),
             'level'  => env('LOG_LEVEL', 'debug'),
             'days'   => 7,
-            'tap'    => [App\Logging\QueryLogger::class],
+            'tap'    => [QueryLogger::class],
         ],
 
         /*
@@ -266,7 +270,7 @@ return [
             'path'   => storage_path('logs/error_tracking.log'),
             'level'  => 'error',
             'days'   => 30,
-            'tap'    => [App\Logging\ErrorTrackingLogger::class],
+            'tap'    => [ErrorTrackingLogger::class],
         ],
 
         /*

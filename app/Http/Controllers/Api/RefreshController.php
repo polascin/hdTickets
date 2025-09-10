@@ -14,9 +14,9 @@ class RefreshController extends Controller
     public function getTicketPrices(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Ticket prices refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Ticket prices refresh endpoint - to be implemented',
         ]);
     }
 
@@ -26,9 +26,9 @@ class RefreshController extends Controller
     public function getTicketAlerts(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Ticket alerts refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Ticket alerts refresh endpoint - to be implemented',
         ]);
     }
 
@@ -38,9 +38,9 @@ class RefreshController extends Controller
     public function getWatchlist(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Watchlist refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Watchlist refresh endpoint - to be implemented',
         ]);
     }
 
@@ -50,9 +50,9 @@ class RefreshController extends Controller
     public function getDashboard(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Dashboard refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Dashboard refresh endpoint - to be implemented',
         ]);
     }
 
@@ -62,9 +62,9 @@ class RefreshController extends Controller
     public function getAnalytics(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Analytics refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Analytics refresh endpoint - to be implemented',
         ]);
     }
 
@@ -74,9 +74,9 @@ class RefreshController extends Controller
     public function getNotifications(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Notifications refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Notifications refresh endpoint - to be implemented',
         ]);
     }
 
@@ -86,9 +86,9 @@ class RefreshController extends Controller
     public function getTicketPricesConditional(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Conditional ticket prices refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Conditional ticket prices refresh endpoint - to be implemented',
         ]);
     }
 
@@ -98,9 +98,9 @@ class RefreshController extends Controller
     public function getAlertsConditional(Request $request): JsonResponse
     {
         return response()->json([
-            'success' => true,
-            'data' => [],
-            'message' => 'Conditional alerts refresh endpoint - to be implemented'
+            'success' => TRUE,
+            'data'    => [],
+            'message' => 'Conditional alerts refresh endpoint - to be implemented',
         ]);
     }
 }

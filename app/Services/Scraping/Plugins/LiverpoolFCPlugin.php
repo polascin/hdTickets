@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -14,9 +15,10 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -107,8 +109,8 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
         // Liverpool FC specific URL structure
         $baseSearchUrl = $this->baseUrl . '/tickets';
 
-        if (!empty($criteria['keyword'])) {
-            $baseSearchUrl .= '?search=' . urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $baseSearchUrl .= '?search=' . urlencode((string) $criteria['keyword']);
         }
 
         return $baseSearchUrl;
@@ -154,12 +156,12 @@ class LiverpoolFCPlugin extends BaseScraperPlugin
             $competition = $this->extractText($node, '.competition, .league');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title) && empty($opponent)) {
+            if (($title === '' || $title === '0') && ($opponent === '' || $opponent === '0')) {
                 return NULL;
             }
 
             // Build title if not available
-            if (empty($title) && !empty($opponent)) {
+            if (($title === '' || $title === '0') && ($opponent !== '' && $opponent !== '0')) {
                 $title = 'Liverpool vs ' . $opponent;
             }
 

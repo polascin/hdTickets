@@ -45,7 +45,7 @@ class DataExportService
         $platforms = $filters['platforms'] ?? [];
 
         $data = ScrapedTicket::whereBetween('created_at', [$startDate, $endDate])
-            ->when(!empty($platforms), function ($query) use ($platforms): void {
+            ->when(! empty($platforms), function ($query) use ($platforms): void {
                 $query->whereIn('platform', $platforms);
             })
             ->select([
@@ -64,22 +64,20 @@ class DataExportService
             ])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($ticket) {
-                return [
-                    'ID'            => $ticket->id,
-                    'Event Title'   => $ticket->title,
-                    'Platform'      => ucfirst($ticket->platform),
-                    'Status'        => ucfirst($ticket->status),
-                    'Min Price ($)' => $ticket->min_price,
-                    'Max Price ($)' => $ticket->max_price,
-                    'Available'     => $ticket->is_available ? 'Yes' : 'No',
-                    'High Demand'   => $ticket->is_high_demand ? 'Yes' : 'No',
-                    'Venue'         => $ticket->venue,
-                    'Event Date'    => $ticket->event_date ? $ticket->event_date->format('Y-m-d H:i') : 'TBD',
-                    'Scraped At'    => $ticket->created_at->format('Y-m-d H:i:s'),
-                    'Last Updated'  => $ticket->updated_at->format('Y-m-d H:i:s'),
-                ];
-            });
+            ->map(fn ($ticket): array => [
+                'ID'            => $ticket->id,
+                'Event Title'   => $ticket->title,
+                'Platform'      => ucfirst((string) $ticket->platform),
+                'Status'        => ucfirst((string) $ticket->status),
+                'Min Price ($)' => $ticket->min_price,
+                'Max Price ($)' => $ticket->max_price,
+                'Available'     => $ticket->is_available ? 'Yes' : 'No',
+                'High Demand'   => $ticket->is_high_demand ? 'Yes' : 'No',
+                'Venue'         => $ticket->venue,
+                'Event Date'    => $ticket->event_date ? $ticket->event_date->format('Y-m-d H:i') : 'TBD',
+                'Scraped At'    => $ticket->created_at->format('Y-m-d H:i:s'),
+                'Last Updated'  => $ticket->updated_at->format('Y-m-d H:i:s'),
+            ]);
 
         $metadata = [
             'title'  => 'Ticket Trends Report',
@@ -121,20 +119,18 @@ class DataExportService
             ])
             ->orderBy('recorded_at', 'desc')
             ->get()
-            ->map(function ($record) {
-                return [
-                    'Ticket ID'        => $record->ticket_id,
-                    'Event Title'      => $record->ticket->title ?? 'Unknown',
-                    'Platform'         => ucfirst($record->ticket->platform ?? 'Unknown'),
-                    'Venue'            => $record->ticket->venue ?? 'Unknown',
-                    'Price ($)'        => number_format($record->price, 2),
-                    'Quantity'         => $record->quantity,
-                    'Source'           => $record->source,
-                    'Price Change ($)' => $record->price_change ? number_format($record->price_change, 2) : '0.00',
-                    'Recorded At'      => $record->recorded_at->format('Y-m-d H:i:s'),
-                    'Created At'       => $record->created_at->format('Y-m-d H:i:s'),
-                ];
-            });
+            ->map(fn ($record): array => [
+                'Ticket ID'        => $record->ticket_id,
+                'Event Title'      => $record->ticket->title ?? 'Unknown',
+                'Platform'         => ucfirst($record->ticket->platform ?? 'Unknown'),
+                'Venue'            => $record->ticket->venue ?? 'Unknown',
+                'Price ($)'        => number_format($record->price, 2),
+                'Quantity'         => $record->quantity,
+                'Source'           => $record->source,
+                'Price Change ($)' => $record->price_change ? number_format($record->price_change, 2) : '0.00',
+                'Recorded At'      => $record->recorded_at->format('Y-m-d H:i:s'),
+                'Created At'       => $record->created_at->format('Y-m-d H:i:s'),
+            ]);
 
         // Add statistical analysis
         $statistics = $this->calculatePriceStatistics($priceData);
@@ -183,7 +179,7 @@ class DataExportService
             ->groupBy('platform')
             ->orderBy('total_tickets', 'desc')
             ->get()
-            ->map(function ($platform) {
+            ->map(function ($platform): array {
                 $availabilityRate = $platform->total_tickets > 0
                     ? round(($platform->available_tickets / $platform->total_tickets) * 100, 2)
                     : 0;
@@ -261,7 +257,7 @@ class DataExportService
                 },
             ])
             ->get()
-            ->map(function ($user) {
+            ->map(function ($user): array {
                 $engagementScore = 0;
                 if ($user->total_alerts > 0) {
                     $engagementScore = (($user->active_alerts / $user->total_alerts) * 50) +
@@ -272,7 +268,7 @@ class DataExportService
                     'User ID'                  => $user->id,
                     'Name'                     => $user->name,
                     'Email'                    => $user->email,
-                    'Role'                     => ucfirst($user->role),
+                    'Role'                     => ucfirst((string) $user->role),
                     'Total Alerts'             => $user->total_alerts,
                     'Active Alerts'            => $user->active_alerts,
                     'Triggered Alerts'         => $user->triggered_alerts,
@@ -344,18 +340,13 @@ class DataExportService
         $timestamp = now()->format('Y-m-d_H-i-s');
         $fullFilename = "{$filename}_{$timestamp}";
 
-        switch ($format) {
-            case 'csv':
-                return $this->exportToCsv($data, $metadata, $fullFilename);
-            case 'xlsx':
-                return $this->exportToExcel($data, $metadata, $fullFilename);
-            case 'pdf':
-                return $this->exportToPdf($data, $metadata, $fullFilename);
-            case 'json':
-                return $this->exportToJson($data, $metadata, $fullFilename);
-            default:
-                throw new InvalidArgumentException("Unsupported export format: {$format}");
-        }
+        return match ($format) {
+            'csv'   => $this->exportToCsv($data, $metadata, $fullFilename),
+            'xlsx'  => $this->exportToExcel($data, $metadata, $fullFilename),
+            'pdf'   => $this->exportToPdf($data, $metadata, $fullFilename),
+            'json'  => $this->exportToJson($data, $metadata, $fullFilename),
+            default => throw new InvalidArgumentException("Unsupported export format: {$format}"),
+        };
     }
 
     /**
@@ -367,16 +358,10 @@ class DataExportService
     protected function exportToCsv(Collection $data, array $metadata, string $filename): array
     {
         $headers = $data->isNotEmpty() ? array_keys($data->first()) : [];
-        $csvData = collect([$headers])->merge($data->map(function ($row) {
-            return array_values($row);
-        }));
+        $csvData = collect([$headers])->merge($data->map(fn ($row) => array_values($row)));
 
         $path = "exports/csv/{$filename}.csv";
-        $csvContent = $csvData->map(function ($row) {
-            return implode(',', array_map(function ($cell) {
-                return '"' . str_replace('"', '""', $cell) . '"';
-            }, $row));
-        })->implode("\n");
+        $csvContent = $csvData->map(fn ($row): string => implode(',', array_map(fn ($cell): string => '"' . str_replace('"', '""', $cell) . '"', $row)))->implode("\n");
 
         // Add metadata as comments at the top
         $metadataComments = '# ' . $metadata['title'] . "\n";
@@ -479,7 +464,7 @@ class DataExportService
      */
     protected function validateFormat(string $format): void
     {
-        if (!in_array($format, $this->supportedFormats, TRUE)) {
+        if (! in_array($format, $this->supportedFormats, TRUE)) {
             throw new InvalidArgumentException(
                 "Unsupported format '{$format}'. Supported formats: " . implode(', ', $this->supportedFormats),
             );

@@ -32,7 +32,7 @@ class WebPushChannel implements NotificationChannelInterface
     public function send(User $user, array $notification): bool
     {
         try {
-            if (!$this->webPush) {
+            if (! $this->webPush) {
                 Log::warning('WebPush not configured, skipping push notification');
 
                 return FALSE;
@@ -65,7 +65,7 @@ class WebPushChannel implements NotificationChannelInterface
 
                     $result = $this->webPush->sendOneNotification($sub, json_encode($payload));
 
-                    if (!$result->isSuccess()) {
+                    if (! $result->isSuccess()) {
                         $success = FALSE;
                         Log::error('Push notification failed', [
                             'user_id'         => $user->id,
@@ -113,8 +113,8 @@ class WebPushChannel implements NotificationChannelInterface
      */
     public function isAvailable(): bool
     {
-        return !empty(config('services.webpush.public_key'))
-               && !empty(config('services.webpush.private_key'));
+        return ! empty(config('services.webpush.public_key'))
+               && ! empty(config('services.webpush.private_key'));
     }
 
     /**
@@ -174,36 +174,28 @@ class WebPushChannel implements NotificationChannelInterface
     {
         $actions = [];
 
-        switch ($notification['type']) {
-            case 'price_drop':
-            case 'ticket_available':
-                $actions = [
-                    [
-                        'action' => 'view',
-                        'title'  => 'View Tickets',
-                        'icon'   => '/images/icons/view-icon.png',
-                    ],
-                    [
-                        'action' => 'dismiss',
-                        'title'  => 'Dismiss',
-                        'icon'   => '/images/icons/dismiss-icon.png',
-                    ],
-                ];
-
-                break;
-            case 'system_status':
-                $actions = [
-                    [
-                        'action' => 'status',
-                        'title'  => 'View Status',
-                        'icon'   => '/images/icons/status-icon.png',
-                    ],
-                ];
-
-                break;
-        }
-
-        return $actions;
+        return match ($notification['type']) {
+            'price_drop', 'ticket_available' => [
+                [
+                    'action' => 'view',
+                    'title'  => 'View Tickets',
+                    'icon'   => '/images/icons/view-icon.png',
+                ],
+                [
+                    'action' => 'dismiss',
+                    'title'  => 'Dismiss',
+                    'icon'   => '/images/icons/dismiss-icon.png',
+                ],
+            ],
+            'system_status' => [
+                [
+                    'action' => 'status',
+                    'title'  => 'View Status',
+                    'icon'   => '/images/icons/status-icon.png',
+                ],
+            ],
+            default => $actions,
+        };
     }
 
     /**
@@ -214,7 +206,7 @@ class WebPushChannel implements NotificationChannelInterface
         switch ($notification['type']) {
             case 'price_drop':
             case 'ticket_available':
-                if (!empty($notification['data']['ticket_id'])) {
+                if (! empty($notification['data']['ticket_id'])) {
                     return route('tickets.scraping.show', $notification['data']['ticket_id']);
                 }
 
@@ -222,7 +214,7 @@ class WebPushChannel implements NotificationChannelInterface
             case 'system_status':
                 return route('system.status');
             case 'custom_alert':
-                if (!empty($notification['data']['rule_id'])) {
+                if (! empty($notification['data']['rule_id'])) {
                     return route('tickets.alerts.show', $notification['data']['rule_id']);
                 }
 

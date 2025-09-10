@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -87,7 +88,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      */
     public function fallbackToScraping(array $criteria): array
     {
-        if (!$this->hasScrapingFallback()) {
+        if (! $this->hasScrapingFallback()) {
             throw new TicketPlatformException(
                 "Scraping fallback not enabled for {$this->getPlatformName()}",
                 500,
@@ -132,6 +133,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
     /**
      * Get  base url
      */
+    #[Override]
     public function getBaseUrl(): ?string
     {
         return $this->baseUrl;
@@ -224,7 +226,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         $now = microtime(TRUE);
         if ($this->lastRequestTime > 0) {
             $timeSinceLastRequest = $now - $this->lastRequestTime;
-            $requiredDelay = rand($this->minDelay * 1000, $this->maxDelay * 1000) / 1000;
+            $requiredDelay = random_int($this->minDelay * 1000, $this->maxDelay * 1000) / 1000;
 
             if ($timeSinceLastRequest < $requiredDelay) {
                 $sleepTime = $requiredDelay - $timeSinceLastRequest;
@@ -265,7 +267,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
 
         // Merge with any custom headers
         if (isset($options['headers'])) {
-            $headers = array_merge($headers, $options['headers']);
+            return array_merge($headers, $options['headers']);
         }
 
         return $headers;
@@ -297,7 +299,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         ];
 
         // Add cookies for session management
-        if (!empty($this->sessionCookies)) {
+        if (! empty($this->sessionCookies)) {
             $options['cookies'] = $this->sessionCookies;
         }
 
@@ -355,7 +357,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                 if ($node->count() > 0) {
                     return $attribute ? $node->attr($attribute) : $node->text();
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
@@ -381,13 +383,13 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                     $json = json_decode($node->text(), TRUE);
                     if (json_last_error() === JSON_ERROR_NONE) {
                         // Handle array of structured data
-                        if (is_array($json) && !isset($json['@type'])) {
+                        if (is_array($json) && ! isset($json['@type'])) {
                             foreach ($json as $item) {
-                                if (isset($item['@type']) && (!$type || $item['@type'] === $type)) {
+                                if (isset($item['@type']) && (! $type || $item['@type'] === $type)) {
                                     $data[] = $item;
                                 }
                             }
-                        } elseif (isset($json['@type']) && (!$type || $json['@type'] === $type)) {
+                        } elseif (isset($json['@type']) && (! $type || $json['@type'] === $type)) {
                             $data[] = $json;
                         }
                     }
@@ -487,7 +489,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
             $elements = $crawler->filter("*:contains('{$indicator}')");
             $elements->each(function (Crawler $node) use (&$selectors): void {
                 $class = $node->attr('class');
-                if ($class && !in_array($class, $selectors, TRUE)) {
+                if ($class && ! in_array($class, $selectors, TRUE)) {
                     $selectors[] = '.' . str_replace(' ', '.', $class);
                 }
             });
@@ -585,14 +587,14 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         }
 
         // Strategy 2: Dynamic selector detection
-        if (empty($prices)) {
+        if ($prices === []) {
             $priceSelectors = $this->detectPriceSelectors($crawler);
             foreach ($priceSelectors as $selector) {
                 try {
                     $priceNodes = $crawler->filter($selector);
                     $priceNodes->each(function (Crawler $node) use (&$prices): void {
                         $text = $node->text();
-                        if (preg_match('/([€$£¥])\s*([0-9,]+(?:\.[0-9]{2})?)/', $text, $matches)) {
+                        if (preg_match('/([€$£¥])\s*([0-9,]+(?:\.\d{2})?)/', $text, $matches)) {
                             $prices[] = [
                                 'price'    => (float) (str_replace(',', '', $matches[2])),
                                 'currency' => $this->mapCurrencySymbol($matches[1]),
@@ -600,14 +602,14 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                             ];
                         }
                     });
-                } catch (Exception $e) {
+                } catch (Exception) {
                     continue;
                 }
             }
         }
 
         // Strategy 3: Fallback to extractPrices method
-        if (empty($prices)) {
+        if ($prices === []) {
             $prices = $this->extractPrices($crawler);
         }
 
@@ -640,17 +642,17 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      */
     protected function parseEventDate(string $dateString): ?DateTime
     {
-        if (empty($dateString)) {
+        if ($dateString === '' || $dateString === '0') {
             return NULL;
         }
 
         // Clean up the date string
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
+        $dateString = trim((string) preg_replace('/\s+/', ' ', $dateString));
 
         // Remove common prefixes
         $prefixes = ['/^(Date:?|Event Date:?|When:?)\s*/i', '/^(on\s+)/i'];
         foreach ($prefixes as $prefix) {
-            $dateString = preg_replace($prefix, '', $dateString);
+            $dateString = preg_replace($prefix, '', (string) $dateString);
         }
 
         // Try multiple date formats
@@ -684,7 +686,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                 if ($date && $date->format($format) === $dateString) {
                     return $date;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
@@ -692,7 +694,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         // Fallback to PHP's date parser
         try {
             return new DateTime($dateString);
-        } catch (Exception $e) {
+        } catch (Exception) {
             Log::debug('Failed to parse date', ['date_string' => $dateString]);
 
             return NULL;
@@ -707,19 +709,19 @@ abstract class BaseWebScrapingClient extends BaseApiClient
      */
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
-        if (strpos($url, 'http') === 0) {
+        if (str_starts_with($url, 'http')) {
             return $url;
         }
 
-        if (!$baseUrl) {
+        if (! $baseUrl) {
             $baseUrl = $this->baseUrl;
         }
 
-        if (strpos($url, '/') === 0) {
-            return rtrim($baseUrl, '/') . $url;
+        if (str_starts_with($url, '/')) {
+            return rtrim((string) $baseUrl, '/') . $url;
         }
 
-        return rtrim($baseUrl, '/') . '/' . ltrim($url, '/');
+        return rtrim((string) $baseUrl, '/') . '/' . ltrim($url, '/');
     }
 
     /**
@@ -767,9 +769,7 @@ abstract class BaseWebScrapingClient extends BaseApiClient
                 $now = time();
 
                 // Remove old requests outside the window
-                $requests = array_filter($requests, function ($timestamp) use ($now, $limit) {
-                    return ($now - $timestamp) < $limit['window'];
-                });
+                $requests = array_filter($requests, fn ($timestamp): bool => ($now - $timestamp) < $limit['window']);
 
                 // Check if we've exceeded the limit
                 if (count($requests) >= $limit['requests']) {
@@ -810,9 +810,9 @@ abstract class BaseWebScrapingClient extends BaseApiClient
         switch ($statusCode) {
             case 403:
                 // Could be bot detection
-                if (str_contains(strtolower($body), 'captcha')
-                    || str_contains(strtolower($body), 'cloudflare')
-                    || str_contains(strtolower($body), 'blocked')) {
+                if (str_contains(strtolower((string) $body), 'captcha')
+                    || str_contains(strtolower((string) $body), 'cloudflare')
+                    || str_contains(strtolower((string) $body), 'blocked')) {
                     throw new ScrapingDetectedException(
                         "Bot detection triggered for {$platform}: CAPTCHA or similar challenge detected",
                         $platform,

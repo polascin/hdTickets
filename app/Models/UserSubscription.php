@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,21 +49,6 @@ class UserSubscription extends Model
         'amount_paid',
         'payment_method',
         'metadata',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'starts_at'       => 'datetime',
-        'ends_at'         => 'datetime',
-        'trial_ends_at'   => 'datetime',
-        'amount_paid'     => 'decimal:2',
-        'user_id'         => 'integer',
-        'payment_plan_id' => 'integer',
-        'metadata'        => 'array',
     ];
 
     /**
@@ -146,7 +132,7 @@ class UserSubscription extends Model
             return FALSE;
         }
 
-        return !($this->ends_at && $this->ends_at->isPast());
+        return ! ($this->ends_at && $this->ends_at->isPast());
     }
 
     /**
@@ -187,40 +173,6 @@ class UserSubscription extends Model
     }
 
     /**
-     * Get days remaining in subscription
-     */
-    /**
-     * Get  days remaining attribute
-     */
-    public function getDaysRemainingAttribute(): ?int
-    {
-        if (!$this->ends_at) {
-            return NULL; // Unlimited
-        }
-
-        $days = now()->diffInDays($this->ends_at, FALSE);
-
-        return $days > 0 ? $days : 0;
-    }
-
-    /**
-     * Get trial days remaining
-     */
-    /**
-     * Get  trial days remaining attribute
-     */
-    public function getTrialDaysRemainingAttribute(): ?int
-    {
-        if (!$this->trial_ends_at) {
-            return NULL;
-        }
-
-        $days = now()->diffInDays($this->trial_ends_at, FALSE);
-
-        return $days > 0 ? $days : 0;
-    }
-
-    /**
      * Cancel the subscription
      */
     /**
@@ -258,12 +210,12 @@ class UserSubscription extends Model
         $this->status = 'active';
 
         // Set start date if not already set
-        if (!$this->starts_at) {
+        if (! $this->starts_at) {
             $this->starts_at = now();
         }
 
         // Calculate end date based on billing cycle
-        if ($this->paymentPlan && !$this->ends_at) {
+        if ($this->paymentPlan && ! $this->ends_at) {
             switch ($this->paymentPlan->billing_cycle) {
                 case 'monthly':
                     $this->ends_at = $this->starts_at->copy()->addMonth();
@@ -299,37 +251,81 @@ class UserSubscription extends Model
     }
 
     /**
-     * Get subscription status badge color
+     * Get  days remaining attribute
      */
+    protected function daysRemaining(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->ends_at) {
+                return; // Unlimited
+            }
+            $days = now()->diffInDays($this->ends_at, FALSE);
+
+            return $days > 0 ? $days : 0;
+        });
+    }
+
+    /**
+     * Get  trial days remaining attribute
+     */
+    protected function trialDaysRemaining(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->trial_ends_at) {
+                return;
+            }
+            $days = now()->diffInDays($this->trial_ends_at, FALSE);
+
+            return $days > 0 ? $days : 0;
+        });
+    }
+
     /**
      * Get  status color attribute
      */
-    public function getStatusColorAttribute(): string
+    protected function statusColor(): Attribute
     {
-        return match ($this->status) {
+        return Attribute::make(get: fn (): string => match ($this->status) {
             'active'    => 'green',
             'trial'     => 'blue',
             'cancelled' => 'red',
             'expired'   => 'red',
             'inactive'  => 'gray',
             default     => 'gray',
-        };
+        });
     }
 
     /**
-     * Get formatted status for display
-     */
-    /**
      * Get  formatted status attribute
      */
-    public function getFormattedStatusAttribute(): string
+    protected function formattedStatus(): Attribute
     {
-        if ($this->isOnTrial()) {
-            $days = $this->trial_days_remaining;
+        return Attribute::make(get: function (): string {
+            if ($this->isOnTrial()) {
+                $days = $this->trial_days_remaining;
 
-            return "Trial ({$days} days left)";
-        }
+                return "Trial ({$days} days left)";
+            }
 
-        return ucfirst($this->status);
+            return ucfirst($this->status);
+        });
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'starts_at'       => 'datetime',
+            'ends_at'         => 'datetime',
+            'trial_ends_at'   => 'datetime',
+            'amount_paid'     => 'decimal:2',
+            'user_id'         => 'integer',
+            'payment_plan_id' => 'integer',
+            'metadata'        => 'array',
+        ];
     }
 }

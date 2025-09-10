@@ -29,15 +29,12 @@ class ImportFootballClubTickets extends Command
     /** The console command description. */
     protected $description = 'Import football match tickets from European club official stores';
 
-    protected FootballClubStoresService $service;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(FootballClubStoresService $service)
+    public function __construct(protected FootballClubStoresService $service)
     {
         parent::__construct();
-        $this->service = $service;
     }
 
     /**
@@ -55,7 +52,7 @@ class ImportFootballClubTickets extends Command
             // Determine which clubs to process
             $clubsToProcess = $this->determineClubsToProcess();
 
-            if (empty($clubsToProcess)) {
+            if ($clubsToProcess === []) {
                 $this->error('❌ No clubs selected for processing.');
 
                 return Command::FAILURE;
@@ -66,7 +63,7 @@ class ImportFootballClubTickets extends Command
 
             $this->info('📋 Processing ' . count($clubsToProcess) . ' club(s): ' . implode(', ', $clubsToProcess));
 
-            if (!empty($filters)) {
+            if ($filters !== []) {
                 $this->info('🔍 Filters applied: ' . json_encode($filters, JSON_PRETTY_PRINT));
             }
             $this->newLine();
@@ -80,7 +77,7 @@ class ImportFootballClubTickets extends Command
             $this->info('🔎 Searching for tickets...');
             $searchResults = $this->service->searchTickets($clubsToProcess, $filters);
 
-            if (!$searchResults['success']) {
+            if (! $searchResults['success']) {
                 $this->error('❌ Search failed:');
                 foreach ($searchResults['errors'] as $error) {
                     $this->line("  • {$error}");
@@ -93,7 +90,7 @@ class ImportFootballClubTickets extends Command
             $this->displaySearchResults($searchResults);
 
             // Import tickets (unless dry-run)
-            if (!$this->option('dry-run')) {
+            if (! $this->option('dry-run')) {
                 if ($this->confirm('Proceed with importing tickets to database?', TRUE)) {
                     $this->info('💾 Importing tickets to database...');
                     $importResults = $this->service->importTickets($clubsToProcess, $filters);
@@ -140,17 +137,17 @@ class ImportFootballClubTickets extends Command
 
         // If specific clubs requested
         $clubs = $this->option('clubs');
-        if (!empty($clubs)) {
+        if (! empty($clubs)) {
             $validClubs = array_intersect($clubs, $clubKeys);
 
-            if (empty($validClubs)) {
+            if ($validClubs === []) {
                 $this->error('❌ None of the requested clubs are supported.');
                 $this->line('Available clubs: ' . implode(', ', $clubKeys));
 
                 return [];
             }
 
-            return array_values(array_filter($validClubs, fn ($club) => is_string($club)));
+            return array_values(array_filter($validClubs, fn ($club): bool => is_string($club)));
         }
 
         // If all clubs requested
@@ -161,17 +158,13 @@ class ImportFootballClubTickets extends Command
         // Filter by league
         $league = $this->option('league');
         if ($league) {
-            return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $league) {
-                return strcasecmp($supportedClubs[$key]['league'], $league) === 0;
-            }));
+            return array_values(array_filter($clubKeys, fn (int|string $key): bool => strcasecmp((string) $supportedClubs[$key]['league'], $league) === 0));
         }
 
         // Filter by country
         $country = $this->option('country');
         if ($country) {
-            return array_values(array_filter($clubKeys, function ($key) use ($supportedClubs, $country) {
-                return strcasecmp($supportedClubs[$key]['country'], $country) === 0;
-            }));
+            return array_values(array_filter($clubKeys, fn (int|string $key): bool => strcasecmp((string) $supportedClubs[$key]['country'], $country) === 0));
         }
 
         // Interactive selection
@@ -207,7 +200,7 @@ class ImportFootballClubTickets extends Command
 
         $choice = $this->choice(
             'Select clubs to process (comma-separated numbers or "all")',
-            array_merge(['all'], array_map(fn ($i) => (string) ($i + 1), array_keys($clubKeys))),
+            array_merge(['all'], array_map(fn (int|string $i): string => (string) ($i + 1), array_keys($clubKeys))),
             'all',
         );
 
@@ -272,7 +265,7 @@ class ImportFootballClubTickets extends Command
         $this->newLine();
 
         $clubsByLeague = [];
-        foreach ($supportedClubs as $key => $club) {
+        foreach ($supportedClubs as $club) {
             $clubsByLeague[$club['league']][] = $club;
         }
 
@@ -300,11 +293,11 @@ class ImportFootballClubTickets extends Command
         $this->line("  • Successful searches: {$results['successful_searches']}");
         $this->newLine();
 
-        if (!empty($results['results'])) {
+        if (! empty($results['results'])) {
             $totalFixtures = 0;
             $totalTickets = 0;
 
-            foreach ($results['results'] as $clubkey => $clubData) {
+            foreach ($results['results'] as $clubData) {
                 $fixtureCount = count($clubData['fixtures']);
                 $ticketCount = 0;
 
@@ -322,7 +315,7 @@ class ImportFootballClubTickets extends Command
                 if ($this->option('verbose') && $fixtureCount > 0) {
                     foreach (array_slice($clubData['fixtures'], 0, 3) as $fixture) {
                         $this->line("       - {$clubData['club']} vs {$fixture['opponent']} (" .
-                                   ($fixture['date'] ? date('M j, Y', strtotime($fixture['date'])) : 'TBD') . ')');
+                                   ($fixture['date'] ? date('M j, Y', strtotime((string) $fixture['date'])) : 'TBD') . ')');
                     }
                     if ($fixtureCount > 3) {
                         $this->line('       ... and ' . ($fixtureCount - 3) . ' more fixtures');
@@ -336,7 +329,7 @@ class ImportFootballClubTickets extends Command
             $this->line("  • Total ticket categories: {$totalTickets}");
         }
 
-        if (!empty($results['errors'])) {
+        if (! empty($results['errors'])) {
             $this->warn('⚠️ Errors encountered:');
             foreach ($results['errors'] as $error) {
                 $this->line("  • {$error}");
@@ -363,7 +356,7 @@ class ImportFootballClubTickets extends Command
             $this->error('❌ Import failed.');
         }
 
-        if (!empty($results['errors'])) {
+        if (! empty($results['errors'])) {
             $this->warn('⚠️ Import errors:');
             foreach ($results['errors'] as $error) {
                 $this->line("  • {$error}");
@@ -389,7 +382,7 @@ class ImportFootballClubTickets extends Command
         $this->line("  • Availability rate: {$stats['availability_rate']}%");
         $this->line("  • Supported clubs: {$stats['supported_clubs']}");
 
-        if (!empty($stats['leagues'])) {
+        if (! empty($stats['leagues'])) {
             $this->line('  • Leagues covered:');
             foreach ($stats['leagues'] as $league => $count) {
                 $this->line("    - {$league}: {$count} tickets");

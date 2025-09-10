@@ -2,11 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ticket>
+ * @extends Factory<Ticket>
  */
 class TicketFactory extends Factory
 {
@@ -19,28 +22,28 @@ class TicketFactory extends Factory
     {
         return [
             'uuid'              => Str::uuid(),
-            'requester_id'      => \App\Models\User::factory(),
-            'assignee_id'       => \App\Models\User::factory(),
-            'category_id'       => \App\Models\Category::factory(),
-            'title'             => $this->faker->sentence,
-            'description'       => $this->faker->paragraph,
-            'status'            => $this->faker->randomElement(['open', 'in_progress', 'pending', 'resolved', 'closed']),
-            'priority'          => $this->faker->randomElement(['low', 'medium', 'high', 'urgent']),
-            'due_date'          => $this->faker->dateTimeBetween('+1 week', '+1 month'),
+            'requester_id'      => User::factory(),
+            'assignee_id'       => User::factory(),
+            'category_id'       => Category::factory(),
+            'title'             => fake()->sentence,
+            'description'       => fake()->paragraph,
+            'status'            => fake()->randomElement(['open', 'in_progress', 'pending', 'resolved', 'closed']),
+            'priority'          => fake()->randomElement(['low', 'medium', 'high', 'urgent']),
+            'due_date'          => fake()->dateTimeBetween('+1 week', '+1 month'),
             'last_activity_at'  => now(),
-            'platform'          => $this->faker->word,
-            'external_id'       => $this->faker->unique()->numerify('EXT#####'),
-            'price'             => $this->faker->randomFloat(2, 20, 300),
-            'currency'          => $this->faker->currencyCode,
-            'location'          => $this->faker->city,
-            'venue'             => $this->faker->company,
-            'event_date'        => $this->faker->dateTimeBetween('now', '+1 year'),
-            'event_type'        => $this->faker->word,
-            'performer_artist'  => $this->faker->name,
-            'seat_details'      => $this->faker->sentence,
-            'is_available'      => $this->faker->boolean,
-            'ticket_url'        => $this->faker->url,
-            'scraping_metadata' => json_encode(['source' => $this->faker->word, 'type' => $this->faker->word]),
+            'platform'          => fake()->word,
+            'external_id'       => fake()->unique()->numerify('EXT#####'),
+            'price'             => fake()->randomFloat(2, 20, 300),
+            'currency'          => fake()->currencyCode,
+            'location'          => fake()->city,
+            'venue'             => fake()->company,
+            'event_date'        => fake()->dateTimeBetween('now', '+1 year'),
+            'event_type'        => fake()->word,
+            'performer_artist'  => fake()->name,
+            'seat_details'      => fake()->sentence,
+            'is_available'      => fake()->boolean,
+            'ticket_url'        => fake()->url,
+            'scraping_metadata' => json_encode(['source' => fake()->word, 'type' => fake()->word]),
         ];
     }
 }

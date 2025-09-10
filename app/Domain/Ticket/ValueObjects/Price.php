@@ -3,10 +3,11 @@
 namespace App\Domain\Ticket\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
 use function in_array;
 
-final readonly class Price
+final readonly class Price implements Stringable
 {
     public function __construct(
         private float $amount,
@@ -178,12 +179,12 @@ final readonly class Price
             throw new InvalidArgumentException('Price amount must be a valid number');
         }
 
-        if (empty(trim($currency))) {
+        if (in_array(trim($currency), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Currency cannot be empty');
         }
 
         $validCurrencies = ['GBP', 'USD', 'EUR'];
-        if (!in_array(strtoupper($currency), $validCurrencies, TRUE)) {
+        if (! in_array(strtoupper($currency), $validCurrencies, TRUE)) {
             throw new InvalidArgumentException('Invalid currency. Supported: ' . implode(', ', $validCurrencies));
         }
     }

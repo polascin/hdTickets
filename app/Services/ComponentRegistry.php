@@ -23,8 +23,6 @@ class ComponentRegistry
 
     private Collection $loadedComponents;
 
-    private array $componentPaths;
-
     private array $componentTypes = [
         'blade' => [
             'extension' => '.blade.php',
@@ -47,7 +45,6 @@ class ComponentRegistry
     {
         $this->components = new Collection();
         $this->loadedComponents = new Collection();
-        $this->componentPaths = [];
         $this->initializeRegistry();
     }
 
@@ -59,7 +56,7 @@ class ComponentRegistry
      */
     public function register(string $name, string $type, array $config = []): void
     {
-        if (!in_array($type, array_keys($this->componentTypes), TRUE)) {
+        if (! in_array($type, array_keys($this->componentTypes), TRUE)) {
             throw new InvalidArgumentException("Invalid component type: {$type}");
         }
 
@@ -105,7 +102,7 @@ class ComponentRegistry
      */
     public function getByType(string $type): Collection
     {
-        return $this->components->filter(fn ($component) => $component['type'] === $type);
+        return $this->components->filter(fn ($component): bool => $component['type'] === $type);
     }
 
     /**
@@ -116,7 +113,7 @@ class ComponentRegistry
      */
     public function getByCategory(string $category): Collection
     {
-        return $this->components->filter(fn ($component) => $component['category'] === $category);
+        return $this->components->filter(fn ($component): bool => $component['category'] === $category);
     }
 
     /**
@@ -129,7 +126,7 @@ class ComponentRegistry
     {
         $component = $this->get($name);
 
-        if (!$component) {
+        if (! $component) {
             throw new InvalidArgumentException("Component not found: {$name}");
         }
 
@@ -162,7 +159,7 @@ class ComponentRegistry
     {
         $component = $this->get($name);
 
-        if (!$component || $component['type'] !== 'vue') {
+        if (! $component || $component['type'] !== 'vue') {
             throw new InvalidArgumentException("Vue component not found or not lazy loadable: {$name}");
         }
 
@@ -231,26 +228,26 @@ class ComponentRegistry
     {
         $component = $this->get($name);
 
-        if (!$component) {
+        if (! $component) {
             return ['valid' => FALSE, 'errors' => ['Component not found']];
         }
 
         $errors = [];
 
         // Check file existence
-        if (!File::exists(base_path($component['path']))) {
+        if (! File::exists(base_path($component['path']))) {
             $errors[] = 'Component file not found';
         }
 
         // Check dependencies
         foreach ($component['dependencies'] as $dependency) {
-            if (!$this->components->has($dependency)) {
+            if (! $this->components->has($dependency)) {
                 $errors[] = "Dependency not found: {$dependency}";
             }
         }
 
         return [
-            'valid'  => empty($errors),
+            'valid'  => $errors === [],
             'errors' => $errors,
         ];
     }
@@ -328,17 +325,17 @@ class ComponentRegistry
         foreach ($this->componentTypes as $type => $config) {
             $basePath = base_path($config['basePath']);
 
-            if (!File::exists($basePath)) {
+            if (! File::exists($basePath)) {
                 continue;
             }
 
             $files = File::allFiles($basePath);
 
             foreach ($files as $file) {
-                if ($file->getExtension() === ltrim($config['extension'], '.')) {
+                if ($file->getExtension() === ltrim((string) $config['extension'], '.')) {
                     $name = $this->extractComponentName($file->getPathname(), $basePath, $config['extension']);
 
-                    if (!$this->components->has($name)) {
+                    if (! $this->components->has($name)) {
                         $this->autoRegisterComponent($name, $type, $file->getPathname());
                     }
                 }
@@ -442,7 +439,7 @@ class ComponentRegistry
     {
         $path = base_path($component['path']);
 
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             throw new InvalidArgumentException("Component file not found: {$component['path']}");
         }
 
@@ -529,17 +526,17 @@ class ComponentRegistry
     private function setupLifecycleHooks(): void
     {
         // Component creation hooks
-        $this->onComponentCreated(function ($component): void {
+        $this->onComponentCreated(function (array $component): void {
             Log::info("Component created: {$component['name']}");
         });
 
         // Component loading hooks
-        $this->onComponentLoaded(function ($component): void {
+        $this->onComponentLoaded(function (array $component): void {
             Log::info("Component loaded: {$component['name']}");
         });
 
         // Component error hooks
-        $this->onComponentError(function ($component, $error): void {
+        $this->onComponentError(function (array $component, $error): void {
             Log::error("Component error in {$component['name']}: {$error->getMessage()}");
         });
     }
@@ -552,15 +549,11 @@ class ComponentRegistry
      */
     private function generateUsageExample(array $component): string
     {
-        switch ($component['type']) {
-            case 'blade':
-                return "<x-{$component['name']} />";
-            case 'alpine':
-                return "x-data=\"{$component['name']}()\"";
-            case 'vue':
-                return "<{$component['name']}></{$component['name']}>";
-            default:
-                return '';
-        }
+        return match ($component['type']) {
+            'blade'  => "<x-{$component['name']} />",
+            'alpine' => "x-data=\"{$component['name']}()\"",
+            'vue'    => "<{$component['name']}></{$component['name']}>",
+            default  => '',
+        };
     }
 }

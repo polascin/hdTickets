@@ -14,7 +14,7 @@ class SeoService
      */
     public function generateSitemapData(): array
     {
-        return Cache::remember('seo_sitemap_data', 3600, function () {
+        return Cache::remember('seo_sitemap_data', 3600, function (): array {
             $sitemapData = [];
 
             // Homepage - highest priority
@@ -80,29 +80,27 @@ class SeoService
 
         foreach ($sitemapData as $urlData) {
             $xml .= "    <url>\n";
-            $xml .= '        <loc>' . htmlspecialchars($urlData['url']) . "</loc>\n";
+            $xml .= '        <loc>' . htmlspecialchars((string) $urlData['url']) . "</loc>\n";
             $xml .= '        <lastmod>' . $urlData['lastmod'] . "</lastmod>\n";
             $xml .= '        <changefreq>' . $urlData['changefreq'] . "</changefreq>\n";
             $xml .= '        <priority>' . $urlData['priority'] . "</priority>\n";
 
-            if (isset($urlData['images']) && !empty($urlData['images'])) {
+            if (isset($urlData['images']) && ! empty($urlData['images'])) {
                 foreach ($urlData['images'] as $image) {
                     $xml .= "        <image:image>\n";
-                    $xml .= '            <image:loc>' . htmlspecialchars($image['loc']) . "</image:loc>\n";
-                    $xml .= '            <image:title>' . htmlspecialchars($image['title']) . "</image:title>\n";
-                    $xml .= '            <image:caption>' . htmlspecialchars($image['caption']) . "</image:caption>\n";
+                    $xml .= '            <image:loc>' . htmlspecialchars((string) $image['loc']) . "</image:loc>\n";
+                    $xml .= '            <image:title>' . htmlspecialchars((string) $image['title']) . "</image:title>\n";
+                    $xml .= '            <image:caption>' . htmlspecialchars((string) $image['caption']) . "</image:caption>\n";
                     $xml .= "        </image:image>\n";
                 }
             }
 
-            $xml .= '        <xhtml:link rel="alternate" hreflang="en" href="' . htmlspecialchars($urlData['url']) . "\" />\n";
-            $xml .= '        <xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars($urlData['url']) . "\" />\n";
+            $xml .= '        <xhtml:link rel="alternate" hreflang="en" href="' . htmlspecialchars((string) $urlData['url']) . "\" />\n";
+            $xml .= '        <xhtml:link rel="alternate" hreflang="x-default" href="' . htmlspecialchars((string) $urlData['url']) . "\" />\n";
             $xml .= "    </url>\n";
         }
 
-        $xml .= "</urlset>\n";
-
-        return $xml;
+        return $xml . "</urlset>\n";
     }
 
     /**
@@ -110,37 +108,35 @@ class SeoService
      */
     public function getPageSeoData(string $page, array $params = []): array
     {
-        $seoData = Cache::remember("seo_page_{$page}", 1800, function () use ($page) {
-            return match ($page) {
-                'homepage' => [
-                    'title'       => 'HD Tickets - Professional Sports Ticket Monitoring Platform',
-                    'description' => 'Professional sports event ticket monitoring with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.',
-                    'keywords'    => 'sports tickets monitoring, ticket price tracking, automated ticket purchasing, sports events, subscription ticket service, role-based access, GDPR compliant ticketing, 2FA security, professional ticket monitoring, real-time alerts',
-                    'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('home'),
-                ],
-                'legal' => [
-                    'title'       => 'Legal Documents - HD Tickets',
-                    'description' => 'Complete legal documentation for HD Tickets professional sports ticket monitoring platform. Terms of service, privacy policy, GDPR compliance, disclaimers, and data protection agreements.',
-                    'keywords'    => 'HD Tickets legal documents, terms of service, privacy policy, GDPR compliance, sports ticket monitoring legal, data protection, legal policies',
-                    'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('legal.index'),
-                ],
-                'registration' => [
-                    'title'       => 'Register - HD Tickets Professional Sports Monitoring',
-                    'description' => 'Register for HD Tickets professional sports ticket monitoring platform. 7-day free trial, subscription-based access, role-based permissions, and enterprise security.',
-                    'keywords'    => 'HD Tickets registration, sports ticket monitoring signup, professional sports platform, subscription registration, ticket monitoring account',
-                    'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('register.public'),
-                ],
-                default => [
-                    'title'       => 'HD Tickets - Professional Sports Monitoring',
-                    'description' => 'Professional sports ticket monitoring platform with comprehensive features.',
-                    'keywords'    => 'HD Tickets, sports monitoring, professional platform',
-                    'og_image'    => asset('assets/images/hdTicketsLogo.png'),
-                    'canonical'   => route('home'),
-                ],
-            };
+        $seoData = Cache::remember("seo_page_{$page}", 1800, fn (): array => match ($page) {
+            'homepage' => [
+                'title'       => 'HD Tickets - Professional Sports Ticket Monitoring Platform',
+                'description' => 'Professional sports event ticket monitoring with subscription-based access, role-based permissions, automated purchasing, and GDPR compliance. Track prices across 50+ platforms with enterprise-grade security.',
+                'keywords'    => 'sports tickets monitoring, ticket price tracking, automated ticket purchasing, sports events, subscription ticket service, role-based access, GDPR compliant ticketing, 2FA security, professional ticket monitoring, real-time alerts',
+                'og_image'    => asset('assets/images/hdTicketsLogo.png'),
+                'canonical'   => route('home'),
+            ],
+            'legal' => [
+                'title'       => 'Legal Documents - HD Tickets',
+                'description' => 'Complete legal documentation for HD Tickets professional sports ticket monitoring platform. Terms of service, privacy policy, GDPR compliance, disclaimers, and data protection agreements.',
+                'keywords'    => 'HD Tickets legal documents, terms of service, privacy policy, GDPR compliance, sports ticket monitoring legal, data protection, legal policies',
+                'og_image'    => asset('assets/images/hdTicketsLogo.png'),
+                'canonical'   => route('legal.index'),
+            ],
+            'registration' => [
+                'title'       => 'Register - HD Tickets Professional Sports Monitoring',
+                'description' => 'Register for HD Tickets professional sports ticket monitoring platform. 7-day free trial, subscription-based access, role-based permissions, and enterprise security.',
+                'keywords'    => 'HD Tickets registration, sports ticket monitoring signup, professional sports platform, subscription registration, ticket monitoring account',
+                'og_image'    => asset('assets/images/hdTicketsLogo.png'),
+                'canonical'   => route('register.public'),
+            ],
+            default => [
+                'title'       => 'HD Tickets - Professional Sports Monitoring',
+                'description' => 'Professional sports ticket monitoring platform with comprehensive features.',
+                'keywords'    => 'HD Tickets, sports monitoring, professional platform',
+                'og_image'    => asset('assets/images/hdTicketsLogo.png'),
+                'canonical'   => route('home'),
+            ],
         });
 
         // Override with any provided params
@@ -210,13 +206,13 @@ class SeoService
     public function isValidSitemapUrl(string $url): bool
     {
         // Check if URL is valid
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return FALSE;
         }
 
         // Check if URL is from our domain
         $parsedUrl = parse_url($url);
-        $currentDomain = parse_url(config('app.url'), PHP_URL_HOST);
+        $currentDomain = parse_url((string) config('app.url'), PHP_URL_HOST);
 
         if ($parsedUrl['host'] !== $currentDomain) {
             return FALSE;
@@ -236,7 +232,7 @@ class SeoService
         ];
 
         foreach ($excludedPaths as $excludedPath) {
-            if (strpos($parsedUrl['path'], $excludedPath) === 0) {
+            if (str_starts_with($parsedUrl['path'], $excludedPath)) {
                 return FALSE;
             }
         }
@@ -289,9 +285,8 @@ class SeoService
 
         $robots .= "# Note: HD Tickets is a professional sports event ticket monitoring platform\n";
         $robots .= "# This is NOT a helpdesk ticket system\n";
-        $robots .= "# Service provided \"as is\" with no warranty - see Terms of Service\n";
 
-        return $robots;
+        return $robots . "# Service provided \"as is\" with no warranty - see Terms of Service\n";
     }
 
     /**
@@ -321,7 +316,7 @@ class SeoService
                     if ($document && $document->effective_date) {
                         $lastmod = $document->effective_date->toISOString();
                     }
-                } catch (Exception $e) {
+                } catch (Exception) {
                     // Use default date if document not found
                 }
 

@@ -3,13 +3,14 @@
 namespace App\Domain\Event\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
 use function in_array;
 use function sprintf;
 
-final readonly class SportCategory
+final readonly class SportCategory implements Stringable
 {
-    private const VALID_CATEGORIES = [
+    private const array VALID_CATEGORIES = [
         'FOOTBALL',
         'BASKETBALL',
         'TENNIS',
@@ -91,7 +92,7 @@ final readonly class SportCategory
         return array_combine(
             self::VALID_CATEGORIES,
             array_map(
-                fn (string $category) => match ($category) {
+                fn (string $category): string => match ($category) {
                     'AMERICAN_FOOTBALL' => 'American Football',
                     'ICE_HOCKEY'        => 'Ice Hockey',
                     'MMA'               => 'Mixed Martial Arts',
@@ -139,12 +140,12 @@ final readonly class SportCategory
      */
     private function validate(string $category): void
     {
-        if (empty(trim($category))) {
+        if (in_array(trim($category), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Sport category cannot be empty');
         }
 
         $normalizedCategory = strtoupper(trim($category));
-        if (!in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
+        if (! in_array($normalizedCategory, self::VALID_CATEGORIES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid sport category: %s. Valid categories: %s',

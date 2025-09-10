@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Services\RecommendationEngineService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,27 +14,26 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
+use function array_slice;
+use function count;
+
 /**
  * HD Tickets Recommendation API Controller
- * 
+ *
  * Handles HTTP requests for the AI-powered recommendation system,
  * providing personalized sports event suggestions, pricing strategies,
  * and alert optimizations.
- * 
+ *
  * @version 1.0.0
  */
 class RecommendationController extends Controller
 {
-    private RecommendationEngineService $recommendationEngine;
-
-    public function __construct(RecommendationEngineService $recommendationEngine)
+    public function __construct(private RecommendationEngineService $recommendationEngine)
     {
         $this->middleware('auth');
         $this->middleware('verified');
         $this->middleware('throttle:30,1')->only(['generateRecommendations', 'refreshRecommendations']);
         $this->middleware('throttle:10,1')->only(['getPerformanceMetrics']);
-        
-        $this->recommendationEngine = $recommendationEngine;
     }
 
     /**
@@ -51,28 +51,28 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             // Validate request parameters
             $validator = Validator::make($request->all(), [
-                'limit' => 'integer|min:1|max:50',
-                'filters' => 'array',
-                'filters.sports' => 'array|max:10',
-                'filters.location' => 'string|max:100',
+                'limit'             => 'integer|min:1|max:50',
+                'filters'           => 'array',
+                'filters.sports'    => 'array|max:10',
+                'filters.location'  => 'string|max:100',
                 'filters.max_price' => 'numeric|min:0',
-                'refresh' => 'boolean'
+                'refresh'           => 'boolean',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
+                    'success' => FALSE,
                     'message' => 'Invalid request parameters',
-                    'errors' => $validator->errors()
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             $options = [
-                'limit' => $request->input('limit', 20),
-                'filters' => $request->input('filters', [])
+                'limit'   => $request->input('limit', 20),
+                'filters' => $request->input('filters', []),
             ];
 
             // Clear cache if refresh is requested
@@ -84,26 +84,25 @@ class RecommendationController extends Controller
 
             // Log recommendation generation for analytics
             Log::info('Recommendations generated', [
-                'user_id' => $user->id,
-                'options' => $options,
-                'event_count' => count($recommendations['events']['recommendations'] ?? []),
-                'confidence_score' => $recommendations['events']['confidence_score'] ?? null,
-                'generation_time' => $recommendations['meta']['generation_time_ms'] ?? null
+                'user_id'          => $user->id,
+                'options'          => $options,
+                'event_count'      => count($recommendations['events']['recommendations'] ?? []),
+                'confidence_score' => $recommendations['events']['confidence_score'] ?? NULL,
+                'generation_time'  => $recommendations['meta']['generation_time_ms'] ?? NULL,
             ]);
 
             return response()->json($recommendations);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to generate recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Unable to generate recommendations at this time',
-                'error' => app()->isProduction() ? 'Internal server error' : $e->getMessage()
+                'error'   => app()->isProduction() ? 'Internal server error' : $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -115,40 +114,39 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             // Clear user recommendation cache
             $this->recommendationEngine->clearUserCache($user);
 
             // Validate and extract options
             $options = [
-                'limit' => $request->input('limit', 20),
-                'filters' => $request->input('filters', [])
+                'limit'   => $request->input('limit', 20),
+                'filters' => $request->input('filters', []),
             ];
 
             // Generate fresh recommendations
             $recommendations = $this->recommendationEngine->generateRecommendations($user, $options);
 
             Log::info('Recommendations refreshed', [
-                'user_id' => $user->id,
-                'generation_time' => $recommendations['meta']['generation_time_ms'] ?? null
+                'user_id'         => $user->id,
+                'generation_time' => $recommendations['meta']['generation_time_ms'] ?? NULL,
             ]);
 
             return response()->json([
-                'success' => true,
+                'success' => TRUE,
                 'message' => 'Recommendations refreshed successfully',
-                'data' => $recommendations
+                'data'    => $recommendations,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to refresh recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
+                'success' => FALSE,
                 'message' => 'Unable to refresh recommendations',
-                'error' => app()->isProduction() ? 'Service temporarily unavailable' : $e->getMessage()
+                'error'   => app()->isProduction() ? 'Service temporarily unavailable' : $e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -160,50 +158,49 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $validator = Validator::make($request->all(), [
-                'sport' => 'string|max:50',
-                'location' => 'string|max:100',
+                'sport'     => 'string|max:50',
+                'location'  => 'string|max:100',
                 'min_price' => 'numeric|min:0',
                 'max_price' => 'numeric|min:0',
-                'limit' => 'integer|min:1|max:50'
+                'limit'     => 'integer|min:1|max:50',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             $filters = array_filter([
-                'sports' => $request->input('sport') ? [$request->input('sport')] : null,
-                'location' => $request->input('location'),
+                'sports'    => $request->input('sport') ? [$request->input('sport')] : NULL,
+                'location'  => $request->input('location'),
                 'min_price' => $request->input('min_price'),
-                'max_price' => $request->input('max_price')
+                'max_price' => $request->input('max_price'),
             ]);
 
             $options = [
-                'limit' => $request->input('limit', 20),
-                'filters' => $filters
+                'limit'   => $request->input('limit', 20),
+                'filters' => $filters,
             ];
 
             $recommendations = $this->recommendationEngine->generateRecommendations($user, $options);
 
             return response()->json([
-                'success' => true,
-                'events' => $recommendations['events']
+                'success' => TRUE,
+                'events'  => $recommendations['events'],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get event recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load event recommendations'
+                'success' => FALSE,
+                'message' => 'Unable to load event recommendations',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -218,20 +215,19 @@ class RecommendationController extends Controller
             $recommendations = $this->recommendationEngine->generateRecommendations($user);
 
             return response()->json([
-                'success' => true,
-                'pricing' => $recommendations['pricing'],
-                'user_price_sensitivity' => $recommendations['pricing']['current_price_sensitivity'] ?? null
+                'success'                => TRUE,
+                'pricing'                => $recommendations['pricing'],
+                'user_price_sensitivity' => $recommendations['pricing']['current_price_sensitivity'] ?? NULL,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get pricing strategies', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load pricing strategies'
+                'success' => FALSE,
+                'message' => 'Unable to load pricing strategies',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -246,19 +242,18 @@ class RecommendationController extends Controller
             $recommendations = $this->recommendationEngine->generateRecommendations($user);
 
             return response()->json([
-                'success' => true,
-                'alerts' => $recommendations['alerts']
+                'success' => TRUE,
+                'alerts'  => $recommendations['alerts'],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get alert recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load alert recommendations'
+                'success' => FALSE,
+                'message' => 'Unable to load alert recommendations',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -270,39 +265,39 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $validator = Validator::make($request->all(), [
-                'apply_timing' => 'boolean',
-                'apply_frequency' => 'boolean', 
-                'apply_filters' => 'boolean'
+                'apply_timing'    => 'boolean',
+                'apply_frequency' => 'boolean',
+                'apply_filters'   => 'boolean',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             // Get current recommendations
             $recommendations = $this->recommendationEngine->generateRecommendations($user);
-            $alertRecommendations = $recommendations['alerts'] ?? null;
+            $alertRecommendations = $recommendations['alerts'] ?? NULL;
 
-            if (!$alertRecommendations) {
+            if (! $alertRecommendations) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No alert recommendations available'
+                    'success' => FALSE,
+                    'message' => 'No alert recommendations available',
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             // Build updated preferences based on AI recommendations
             $updatedPreferences = [];
 
-            if ($request->boolean('apply_timing', true) && isset($alertRecommendations['optimal_timing'])) {
+            if ($request->boolean('apply_timing', TRUE) && isset($alertRecommendations['optimal_timing'])) {
                 $timing = $alertRecommendations['optimal_timing'];
-                
+
                 if (isset($timing['quiet_hours_suggestion'])) {
-                    $updatedPreferences['quiet_hours'] = true;
+                    $updatedPreferences['quiet_hours'] = TRUE;
                     // Parse quiet hours suggestion (e.g., "22:00-08:00")
                     if (preg_match('/(\d{2}:\d{2})-(\d{2}:\d{2})/', $timing['quiet_hours_suggestion'], $matches)) {
                         $updatedPreferences['quiet_hours_start'] = $matches[1];
@@ -311,19 +306,19 @@ class RecommendationController extends Controller
                 }
             }
 
-            if ($request->boolean('apply_frequency', true) && isset($alertRecommendations['frequency'])) {
+            if ($request->boolean('apply_frequency', TRUE) && isset($alertRecommendations['frequency'])) {
                 foreach ($alertRecommendations['frequency'] as $type => $frequency) {
                     $updatedPreferences["alert_frequency_{$type}"] = $frequency;
                 }
             }
 
-            if ($request->boolean('apply_filters', true) && isset($alertRecommendations['smart_filters'])) {
+            if ($request->boolean('apply_filters', TRUE) && isset($alertRecommendations['smart_filters'])) {
                 $filters = $alertRecommendations['smart_filters'];
-                
+
                 if (isset($filters['minimum_savings_threshold'])) {
                     $updatedPreferences['min_savings_threshold'] = $filters['minimum_savings_threshold'];
                 }
-                
+
                 if (isset($filters['location_radius_km'])) {
                     $updatedPreferences['location_radius'] = $filters['location_radius_km'];
                 }
@@ -332,31 +327,30 @@ class RecommendationController extends Controller
             // Update user preferences (this would typically go through a UserPreferencesService)
             // For now, we'll store in user's preferences JSON field or related table
             $user->preferences = array_merge($user->preferences ?? [], [
-                'ai_alert_settings' => $updatedPreferences,
-                'ai_recommendations_applied_at' => now()->toISOString()
+                'ai_alert_settings'             => $updatedPreferences,
+                'ai_recommendations_applied_at' => now()->toISOString(),
             ]);
             $user->save();
 
             Log::info('AI alert recommendations applied', [
-                'user_id' => $user->id,
-                'applied_settings' => $updatedPreferences
+                'user_id'          => $user->id,
+                'applied_settings' => $updatedPreferences,
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Alert recommendations applied successfully',
-                'applied_settings' => $updatedPreferences
+                'success'          => TRUE,
+                'message'          => 'Alert recommendations applied successfully',
+                'applied_settings' => $updatedPreferences,
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to apply alert recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to apply alert recommendations'
+                'success' => FALSE,
+                'message' => 'Unable to apply alert recommendations',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -371,20 +365,19 @@ class RecommendationController extends Controller
             $recommendations = $this->recommendationEngine->generateRecommendations($user);
 
             return response()->json([
-                'success' => true,
-                'teams' => $recommendations['teams'],
-                'venues' => $recommendations['venues']
+                'success' => TRUE,
+                'teams'   => $recommendations['teams'],
+                'venues'  => $recommendations['venues'],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get follow recommendations', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load follow recommendations'
+                'success' => FALSE,
+                'message' => 'Unable to load follow recommendations',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -396,31 +389,31 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $validator = Validator::make($request->all(), [
-                'recommendation_id' => 'required|string|max:100',
+                'recommendation_id'   => 'required|string|max:100',
                 'recommendation_type' => 'required|in:event,pricing,alert,team,venue',
-                'action' => 'required|in:clicked,dismissed,purchased,followed',
-                'rating' => 'integer|min:1|max:5',
-                'feedback_text' => 'string|max:500'
+                'action'              => 'required|in:clicked,dismissed,purchased,followed',
+                'rating'              => 'integer|min:1|max:5',
+                'feedback_text'       => 'string|max:500',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
             // Store feedback for ML model improvement
             $feedbackData = [
-                'user_id' => $user->id,
-                'recommendation_id' => $request->input('recommendation_id'),
+                'user_id'             => $user->id,
+                'recommendation_id'   => $request->input('recommendation_id'),
                 'recommendation_type' => $request->input('recommendation_type'),
-                'action' => $request->input('action'),
-                'rating' => $request->input('rating'),
-                'feedback_text' => $request->input('feedback_text'),
-                'created_at' => now()
+                'action'              => $request->input('action'),
+                'rating'              => $request->input('rating'),
+                'feedback_text'       => $request->input('feedback_text'),
+                'created_at'          => now(),
             ];
 
             // Store in cache for batch processing
@@ -432,19 +425,18 @@ class RecommendationController extends Controller
             Log::info('Recommendation feedback received', $feedbackData);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Thank you for your feedback!'
+                'success' => TRUE,
+                'message' => 'Thank you for your feedback!',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to submit recommendation feedback', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to submit feedback'
+                'success' => FALSE,
+                'message' => 'Unable to submit feedback',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -456,30 +448,29 @@ class RecommendationController extends Controller
     {
         try {
             // Check admin access
-            if (!Auth::user()->hasRole('admin')) {
+            if (! Auth::user()->hasRole('admin')) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access'
+                    'success' => FALSE,
+                    'message' => 'Unauthorized access',
                 ], Response::HTTP_FORBIDDEN);
             }
 
             $metrics = $this->recommendationEngine->getPerformanceMetrics();
 
             return response()->json([
-                'success' => true,
-                'metrics' => $metrics,
-                'generated_at' => now()->toISOString()
+                'success'      => TRUE,
+                'metrics'      => $metrics,
+                'generated_at' => now()->toISOString(),
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get recommendation metrics', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load performance metrics'
+                'success' => FALSE,
+                'message' => 'Unable to load performance metrics',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -496,19 +487,18 @@ class RecommendationController extends Controller
             Log::info('User recommendation cache cleared', ['user_id' => $user->id]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Recommendation cache cleared successfully'
+                'success' => TRUE,
+                'message' => 'Recommendation cache cleared successfully',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to clear recommendation cache', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to clear cache'
+                'success' => FALSE,
+                'message' => 'Unable to clear cache',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -520,16 +510,16 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $validator = Validator::make($request->all(), [
-                'limit' => 'integer|min:1|max:100',
-                'offset' => 'integer|min:0'
+                'limit'  => 'integer|min:1|max:100',
+                'offset' => 'integer|min:0',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -544,24 +534,23 @@ class RecommendationController extends Controller
             $paginatedHistory = array_slice($history, $offset, $limit);
 
             return response()->json([
-                'success' => true,
-                'history' => $paginatedHistory,
+                'success'    => TRUE,
+                'history'    => $paginatedHistory,
                 'pagination' => [
-                    'limit' => $limit,
+                    'limit'  => $limit,
                     'offset' => $offset,
-                    'total' => count($history)
-                ]
+                    'total'  => count($history),
+                ],
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to get recommendation history', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to load recommendation history'
+                'success' => FALSE,
+                'message' => 'Unable to load recommendation history',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -573,22 +562,22 @@ class RecommendationController extends Controller
     {
         try {
             $user = Auth::user();
-            
+
             $validator = Validator::make($request->all(), [
-                'favorite_sports' => 'array|max:10',
-                'favorite_sports.*' => 'string|max:50',
-                'preferred_price_range' => 'array',
-                'preferred_price_range.min' => 'numeric|min:0',
-                'preferred_price_range.max' => 'numeric|min:0',
-                'location_preferences' => 'array',
+                'favorite_sports'             => 'array|max:10',
+                'favorite_sports.*'           => 'string|max:50',
+                'preferred_price_range'       => 'array',
+                'preferred_price_range.min'   => 'numeric|min:0',
+                'preferred_price_range.max'   => 'numeric|min:0',
+                'location_preferences'        => 'array',
                 'location_preferences.cities' => 'array|max:5',
-                'location_preferences.radius' => 'integer|min:1|max:500'
+                'location_preferences.radius' => 'integer|min:1|max:500',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'success' => false,
-                    'errors' => $validator->errors()
+                    'success' => FALSE,
+                    'errors'  => $validator->errors(),
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -596,7 +585,7 @@ class RecommendationController extends Controller
             $currentPreferences = $user->preferences ?? [];
             $newPreferences = array_merge($currentPreferences, [
                 'recommendation_preferences' => $request->all(),
-                'preferences_updated_at' => now()->toISOString()
+                'preferences_updated_at'     => now()->toISOString(),
             ]);
 
             $user->preferences = $newPreferences;
@@ -606,24 +595,23 @@ class RecommendationController extends Controller
             $this->recommendationEngine->clearUserCache($user);
 
             Log::info('User recommendation preferences updated', [
-                'user_id' => $user->id,
-                'new_preferences' => $request->all()
+                'user_id'         => $user->id,
+                'new_preferences' => $request->all(),
             ]);
 
             return response()->json([
-                'success' => true,
-                'message' => 'Preferences updated successfully. Your recommendations will be refreshed.'
+                'success' => TRUE,
+                'message' => 'Preferences updated successfully. Your recommendations will be refreshed.',
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to update user preferences', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Unable to update preferences'
+                'success' => FALSE,
+                'message' => 'Unable to update preferences',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

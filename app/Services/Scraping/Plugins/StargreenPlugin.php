@@ -170,9 +170,7 @@ class StargreenPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/suche?' . http_build_query($params);
     }
@@ -186,7 +184,7 @@ class StargreenPlugin extends BaseScraperPlugin
             Log::info("Stargreen Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -285,7 +283,7 @@ class StargreenPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.title, .event-title, .name, h2 a, h3 a, .veranstaltung-title');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -301,7 +299,7 @@ class StargreenPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -332,13 +330,13 @@ class StargreenPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
         // Handle German price formats
         $cleanPrice = preg_replace('/ab\s*€?|von\s*€?/i', '', $priceText);
-        $cleanPrice = preg_replace('/[^0-9.,€]/', '', $cleanPrice);
+        $cleanPrice = preg_replace('/[^0-9.,€]/', '', (string) $cleanPrice);
         $cleanPrice = str_replace(',', '.', $cleanPrice); // German decimal format
 
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {

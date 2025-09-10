@@ -3,9 +3,12 @@
 namespace Tests\Integration\Api;
 
 use App\Models\Ticket;
+use App\Models\TicketAlert;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Override;
 use Tests\TestCase;
 
 class TicketApiTest extends TestCase
@@ -151,8 +154,8 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 200);
 
         $data = $response->json('data');
-        $firstEventDate = \Carbon\Carbon::parse($data[0]['event_date']);
-        $lastEventDate = \Carbon\Carbon::parse($data[2]['event_date']);
+        $firstEventDate = Carbon::parse($data[0]['event_date']);
+        $lastEventDate = Carbon::parse($data[2]['event_date']);
 
         $this->assertTrue($firstEventDate->lessThan($lastEventDate));
     }
@@ -540,12 +543,12 @@ class TicketApiTest extends TestCase
     public function it_can_get_trending_tickets(): void
     {
         // Create tickets with different view counts or interest levels
-        $popularTicket = $this->createTestTicket([
+        $this->createTestTicket([
             'title'    => 'Popular Event',
             'metadata' => ['view_count' => 1000],
         ]);
 
-        $regularTicket = $this->createTestTicket([
+        $this->createTestTicket([
             'title'    => 'Regular Event',
             'metadata' => ['view_count' => 100],
         ]);
@@ -616,6 +619,7 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 200);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -624,7 +628,7 @@ class TicketApiTest extends TestCase
         $this->admin = $this->createTestUser(['role' => 'admin']);
     }
 
-    private function createTicketAlert(array $attributes = []): \App\Models\TicketAlert
+    private function createTicketAlert(array $attributes = []): TicketAlert
     {
         return $this->testDataFactory->createTicketAlert($attributes);
     }

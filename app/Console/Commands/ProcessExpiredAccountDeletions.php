@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AccountDeletionRequest;
 use App\Services\AccountDeletionProtectionService;
 use Exception;
 use Illuminate\Console\Command;
@@ -15,15 +16,12 @@ class ProcessExpiredAccountDeletions extends Command
     /** The console command description. */
     protected $description = 'Process expired account deletion requests after grace period';
 
-    protected AccountDeletionProtectionService $deletionService;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(AccountDeletionProtectionService $deletionService)
+    public function __construct(protected AccountDeletionProtectionService $deletionService)
     {
         parent::__construct();
-        $this->deletionService = $deletionService;
     }
 
     /**
@@ -43,7 +41,7 @@ class ProcessExpiredAccountDeletions extends Command
         try {
             if ($this->option('dry-run')) {
                 // Get expired requests without processing them
-                $expiredRequests = \App\Models\AccountDeletionRequest::gracePeriodExpired()->get();
+                $expiredRequests = AccountDeletionRequest::gracePeriodExpired()->get();
 
                 $this->info("Found {$expiredRequests->count()} expired deletion requests:");
 

@@ -46,10 +46,6 @@ class UserLegalAcceptance extends Model
         'accepted_at',
     ];
 
-    protected $casts = [
-        'accepted_at' => 'datetime',
-    ];
-
     /**
      * User who accepted the document
      */
@@ -131,5 +127,12 @@ class UserLegalAcceptance extends Model
         }
 
         return $acceptances;
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'accepted_at' => 'datetime',
+        ];
     }
 }

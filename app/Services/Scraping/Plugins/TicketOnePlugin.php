@@ -174,9 +174,7 @@ class TicketOnePlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/ricerca?' . http_build_query($params);
     }
@@ -190,7 +188,7 @@ class TicketOnePlugin extends BaseScraperPlugin
             Log::info("TicketOne Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -289,7 +287,7 @@ class TicketOnePlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.titolo, .title, .nome, h2 a, h3 a, .event-name');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -305,7 +303,7 @@ class TicketOnePlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -336,13 +334,13 @@ class TicketOnePlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
         // Handle Italian price formats
         $cleanPrice = preg_replace('/da\s*€?|a partire da\s*€?/i', '', $priceText);
-        $cleanPrice = preg_replace('/[^0-9.,€]/', '', $cleanPrice);
+        $cleanPrice = preg_replace('/[^0-9.,€]/', '', (string) $cleanPrice);
         $cleanPrice = str_replace(',', '.', $cleanPrice); // Italian decimal format
 
         if (preg_match('/(\d+(?:\.\d{2})?)/', $cleanPrice, $matches)) {

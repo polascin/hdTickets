@@ -27,14 +27,6 @@ class AlertEscalation extends Model
         'cancellation_reason',
     ];
 
-    protected $casts = [
-        'scheduled_at'      => 'datetime',
-        'last_attempted_at' => 'datetime',
-        'next_retry_at'     => 'datetime',
-        'alert_data'        => 'array',
-        'escalation_config' => 'array',
-    ];
-
     /**
      * Get the alert that owns this escalation
      */
@@ -127,5 +119,16 @@ class AlertEscalation extends Model
         }
 
         return min(100, (int) (($this->attempts / $this->max_attempts) * 100));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'scheduled_at'      => 'datetime',
+            'last_attempted_at' => 'datetime',
+            'next_retry_at'     => 'datetime',
+            'alert_data'        => 'array',
+            'escalation_config' => 'array',
+        ];
     }
 }

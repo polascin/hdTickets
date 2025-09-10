@@ -175,36 +175,34 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['search'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competition'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['team'])) {
+        if (! empty($criteria['team'])) {
             $params['team'] = $criteria['team'];
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['from'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['to'] = $criteria['date_to'];
         }
 
-        if (!empty($criteria['ticket_type'])) {
+        if (! empty($criteria['ticket_type'])) {
             $params['type'] = $criteria['ticket_type'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
-        if (!empty($params)) {
+        if ($params !== []) {
             return $baseSearchUrl . '?' . http_build_query($params);
         }
 
@@ -222,7 +220,7 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
             Log::info("Manchester United Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -349,17 +347,17 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
 
             // Create match title - Manchester United is always home at Old Trafford
             $title = 'Manchester United';
-            if (!empty($awayTeam)) {
+            if ($awayTeam !== '' && $awayTeam !== '0') {
                 $title .= ' vs ' . $awayTeam;
             } else {
                 // Fallback to extract from general title
                 $generalTitle = $this->extractText($node, '.match-title, .fixture-title, h3, h2');
-                if (!empty($generalTitle)) {
+                if ($generalTitle !== '' && $generalTitle !== '0') {
                     $title = $generalTitle;
                 }
             }
 
-            if (empty($title) || $title === 'Manchester United') {
+            if ($title === 'Manchester United') {
                 return NULL;
             }
 
@@ -370,7 +368,7 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -404,7 +402,7 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
     {
         $eventDate = $this->parseDate($date);
 
-        if ($eventDate && !empty($time)) {
+        if ($eventDate && ($time !== '' && $time !== '0')) {
             $timeFormatted = $this->parseTime($time);
             if ($timeFormatted) {
                 return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
@@ -456,7 +454,7 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
@@ -465,11 +463,9 @@ class Manchester_unitedPlugin extends BaseScraperPlugin
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +23,7 @@ class AuthenticatedSessionController extends Controller
         // Check if enhanced login is enabled
         $useEnhancedLogin = config('auth.enhanced_login', TRUE);
 
-        return view($useEnhancedLogin ? 'auth.login-enhanced' : 'auth.login');
+        return view($useEnhancedLogin ? 'auth.login-enhanced' : Login::class);
     }
 
     /**

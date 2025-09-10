@@ -24,10 +24,6 @@ class UserPreference extends Model
         'type',
     ];
 
-    protected $casts = [
-        'value' => 'array',
-    ];
-
     /**
      * Get the user that owns this preference
      */
@@ -71,12 +67,12 @@ class UserPreference extends Model
             ->where('key', $key)
             ->first();
 
-        if (!$preference) {
+        if (! $preference) {
             return $default;
         }
 
         // Cast value based on data type
-        return static::castValue($preference->value, $preference->type);
+        return self::castValue($preference->value, $preference->type);
     }
 
     /**
@@ -98,7 +94,7 @@ class UserPreference extends Model
                 'key'      => $key,
             ],
             [
-                'value' => static::processValue($value, $dataType),
+                'value' => self::processValue($value, $dataType),
                 'type'  => $dataType,
             ],
         );
@@ -115,9 +111,7 @@ class UserPreference extends Model
         return static::where('user_id', $userId)
             ->where('category', $category)
             ->get()
-            ->mapWithKeys(function ($pref) {
-                return [$pref->key => static::castValue($pref->value, $pref->type)];
-            })
+            ->mapWithKeys(fn ($pref): array => [$pref->key => self::castValue($pref->value, $pref->type)])
             ->toArray();
     }
 
@@ -196,43 +190,26 @@ class UserPreference extends Model
      */
     public static function validatePreference(string $key, $value): bool
     {
-        switch ($key) {
-            case 'notification_channels':
-                return is_array($value)
-                       && isset($value['critical'], $value['high'], $value['medium'], $value['normal']);
-
-            case 'favorite_teams':
-            case 'preferred_venues':
-                return is_array($value);
-            case 'event_types':
-                return is_array($value)
-                       && collect($value)->every(function ($priority) {
-                           return is_int($priority) && $priority >= 1 && $priority <= 5;
-                       });
-
-            case 'alert_timing':
-                return is_array($value)
-                       && isset($value['quiet_hours_start'], $value['quiet_hours_end'], $value['timezone']);
-
-            case 'price_thresholds':
-                return is_array($value)
-                       && isset($value['max_budget'])
-                       && is_numeric($value['max_budget'])
-                       && $value['max_budget'] > 0;
-
-            case 'ml_settings':
-                return is_array($value)
-                       && isset($value['enable_predictions'])
-                       && is_bool($value['enable_predictions']);
-
-            case 'escalation_settings':
-                return is_array($value)
-                       && isset($value['enable_escalation'])
-                       && is_bool($value['enable_escalation']);
-
-            default:
-                return TRUE;
-        }
+        return match ($key) {
+            'notification_channels' => is_array($value)
+                   && isset($value['critical'], $value['high'], $value['medium'], $value['normal']),
+            'favorite_teams', 'preferred_venues' => is_array($value),
+            'event_types' => is_array($value)
+                   && collect($value)->every(fn ($priority): bool => is_int($priority) && $priority >= 1 && $priority <= 5),
+            'alert_timing' => is_array($value)
+                   && isset($value['quiet_hours_start'], $value['quiet_hours_end'], $value['timezone']),
+            'price_thresholds' => is_array($value)
+                   && isset($value['max_budget'])
+                   && is_numeric($value['max_budget'])
+                   && $value['max_budget'] > 0,
+            'ml_settings' => is_array($value)
+                   && isset($value['enable_predictions'])
+                   && is_bool($value['enable_predictions']),
+            'escalation_settings' => is_array($value)
+                   && isset($value['enable_escalation'])
+                   && is_bool($value['enable_escalation']),
+            default => TRUE,
+        };
     }
 
     /**
@@ -321,14 +298,12 @@ class UserPreference extends Model
     {
         return static::where('user_id', $userId)
             ->get()
-            ->mapWithKeys(function ($preference) {
-                return [$preference->key => [
-                    'value'      => $preference->value,
-                    'type'       => $preference->type,
-                    'category'   => $preference->category,
-                    'updated_at' => $preference->updated_at,
-                ]];
-            })
+            ->mapWithKeys(fn ($preference): array => [$preference->key => [
+                'value'      => $preference->value,
+                'type'       => $preference->type,
+                'category'   => $preference->category,
+                'updated_at' => $preference->updated_at,
+            ]])
             ->toArray();
     }
 
@@ -394,6 +369,13 @@ class UserPreference extends Model
         return $categoryMap[$key] ?? 'general';
     }
 
+    protected function casts(): array
+    {
+        return [
+            'value' => 'array',
+        ];
+    }
+
     /**
      * Process value for storage based on data type
      *
@@ -403,9 +385,7 @@ class UserPreference extends Model
     {
         switch ($dataType) {
             case 'boolean':
-                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL
-                    ? (bool) $value : FALSE;
-
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== NULL && (bool) $value;
             case 'integer':
                 return is_numeric($value) ? (int) $value : 0;
             case 'array':
@@ -430,17 +410,11 @@ class UserPreference extends Model
      */
     private static function castValue($value, string $dataType)
     {
-        switch ($dataType) {
-            case 'boolean':
-                return (bool) $value;
-            case 'integer':
-                return (int) $value;
-            case 'array':
-            case 'json':
-                return json_decode($value, TRUE);
-            case 'string':
-            default:
-                return (string) $value;
-        }
+        return match ($dataType) {
+            'boolean' => (bool) $value,
+            'integer' => (int) $value,
+            'array', 'json' => json_decode((string) $value, TRUE),
+            default => (string) $value,
+        };
     }
 }

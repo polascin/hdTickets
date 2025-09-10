@@ -7,29 +7,22 @@ use App\Models\User;
 use App\Models\UserLegalAcceptance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Hash;
+use Override;
 use Tests\TestCase;
 
 class UserRegistrationTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        
-        // Create required legal documents for testing
-        $this->createRequiredLegalDocuments();
-    }
+    use RefreshDatabase;
+    use WithFaker;
 
     public function test_public_registration_form_displays_legal_documents(): void
     {
         $response = $this->get('/register/public');
-        
+
         $response->assertStatus(200);
         $response->assertViewIs('auth.public-register');
         $response->assertViewHas('legalDocuments');
-        
+
         // Check that required documents are present
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
@@ -40,19 +33,19 @@ class UserRegistrationTest extends TestCase
     public function test_successful_customer_registration(): void
     {
         $userData = [
-            'name' => $this->faker->firstName,
-            'surname' => $this->faker->lastName,
-            'email' => $this->faker->unique()->safeEmail,
-            'phone' => '+1234567890',
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'surname'               => $this->faker->lastName,
+            'email'                 => $this->faker->unique()->safeEmail,
+            'phone'                 => '+1234567890',
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
-            'enable_2fa' => false,
+            'enable_2fa'            => FALSE,
         ];
 
         // Add legal document acceptances
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
-            $userData["accept_{$type}"] = true;
+            $userData["accept_{$type}"] = TRUE;
         }
 
         $response = $this->post('/register/public', $userData);
@@ -62,9 +55,9 @@ class UserRegistrationTest extends TestCase
 
         // Check user was created
         $this->assertDatabaseHas('users', [
-            'email' => $userData['email'],
-            'role' => User::ROLE_CUSTOMER,
-            'is_active' => true,
+            'email'               => $userData['email'],
+            'role'                => User::ROLE_CUSTOMER,
+            'is_active'           => TRUE,
             'registration_source' => 'public_web',
         ]);
 
@@ -80,9 +73,9 @@ class UserRegistrationTest extends TestCase
     public function test_registration_requires_legal_document_acceptance(): void
     {
         $userData = [
-            'name' => $this->faker->firstName,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'email'                 => $this->faker->unique()->safeEmail,
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
             // Missing legal document acceptances
         ];
@@ -90,7 +83,7 @@ class UserRegistrationTest extends TestCase
         $response = $this->post('/register/public', $userData);
 
         $response->assertSessionHasErrors();
-        
+
         // Check that each required document acceptance is required
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
@@ -109,16 +102,16 @@ class UserRegistrationTest extends TestCase
         $existingUser = User::factory()->create();
 
         $userData = [
-            'name' => $this->faker->firstName,
-            'email' => $existingUser->email, // Duplicate email
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'email'                 => $existingUser->email, // Duplicate email
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
         ];
 
         // Add legal document acceptances
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
-            $userData["accept_{$type}"] = true;
+            $userData["accept_{$type}"] = TRUE;
         }
 
         $response = $this->post('/register/public', $userData);
@@ -129,17 +122,17 @@ class UserRegistrationTest extends TestCase
     public function test_registration_with_2fa_enabled(): void
     {
         $userData = [
-            'name' => $this->faker->firstName,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'email'                 => $this->faker->unique()->safeEmail,
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
-            'enable_2fa' => true,
+            'enable_2fa'            => TRUE,
         ];
 
         // Add legal document acceptances
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
-            $userData["accept_{$type}"] = true;
+            $userData["accept_{$type}"] = TRUE;
         }
 
         $response = $this->post('/register/public', $userData);
@@ -157,17 +150,17 @@ class UserRegistrationTest extends TestCase
     public function test_registration_validates_phone_format(): void
     {
         $userData = [
-            'name' => $this->faker->firstName,
-            'email' => $this->faker->unique()->safeEmail,
-            'phone' => 'invalid-phone', // Invalid format
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'email'                 => $this->faker->unique()->safeEmail,
+            'phone'                 => 'invalid-phone', // Invalid format
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
         ];
 
         // Add legal document acceptances
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
-            $userData["accept_{$type}"] = true;
+            $userData["accept_{$type}"] = TRUE;
         }
 
         $response = $this->post('/register/public', $userData);
@@ -189,9 +182,9 @@ class UserRegistrationTest extends TestCase
     {
         $user = User::factory()->create();
         $document = LegalDocument::factory()->create([
-            'type' => LegalDocument::TYPE_TERMS_OF_SERVICE,
-            'version' => '1.0',
-            'is_active' => true,
+            'type'      => LegalDocument::TYPE_TERMS_OF_SERVICE,
+            'version'   => '1.0',
+            'is_active' => TRUE,
         ]);
 
         // Record acceptance
@@ -201,7 +194,7 @@ class UserRegistrationTest extends TestCase
             $document->version,
             UserLegalAcceptance::METHOD_REGISTRATION,
             '127.0.0.1',
-            'TestUserAgent'
+            'TestUserAgent',
         );
 
         $this->assertNotNull($acceptance);
@@ -214,19 +207,19 @@ class UserRegistrationTest extends TestCase
     public function test_customer_role_assignment(): void
     {
         $userData = [
-            'name' => $this->faker->firstName,
-            'email' => $this->faker->unique()->safeEmail,
-            'password' => 'SecurePassword123!',
+            'name'                  => $this->faker->firstName,
+            'email'                 => $this->faker->unique()->safeEmail,
+            'password'              => 'SecurePassword123!',
             'password_confirmation' => 'SecurePassword123!',
         ];
 
         // Add legal document acceptances
         $requiredTypes = LegalDocument::getRequiredForRegistration();
         foreach ($requiredTypes as $type) {
-            $userData["accept_{$type}"] = true;
+            $userData["accept_{$type}"] = TRUE;
         }
 
-        $response = $this->post('/register/public', $userData);
+        $this->post('/register/public', $userData);
 
         $user = User::where('email', $userData['email'])->first();
         $this->assertNotNull($user);
@@ -237,16 +230,25 @@ class UserRegistrationTest extends TestCase
         $this->assertFalse($user->isScraper());
     }
 
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create required legal documents for testing
+        $this->createRequiredLegalDocuments();
+    }
+
     private function createRequiredLegalDocuments(): void
     {
         $requiredTypes = LegalDocument::getRequiredForRegistration();
-        
+
         foreach ($requiredTypes as $type) {
             LegalDocument::factory()->create([
-                'type' => $type,
-                'is_active' => true,
-                'requires_acceptance' => true,
-                'effective_date' => now()->subDay(),
+                'type'                => $type,
+                'is_active'           => TRUE,
+                'requires_acceptance' => TRUE,
+                'effective_date'      => now()->subDay(),
             ]);
         }
     }

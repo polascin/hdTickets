@@ -16,7 +16,7 @@ class EnhanceScrapingSystem extends Command
 
     protected $description = 'Enhance scraping system with improvements and fixes';
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('🚀 Enhancing Scraping System...');
 

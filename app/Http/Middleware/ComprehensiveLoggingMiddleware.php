@@ -18,15 +18,12 @@ use function strlen;
 
 class ComprehensiveLoggingMiddleware
 {
-    protected $activityLogger;
-
     protected $startTime;
 
     protected $queries = [];
 
-    public function __construct(ActivityLogger $activityLogger)
+    public function __construct(protected ActivityLogger $activityLogger)
     {
-        $this->activityLogger = $activityLogger;
     }
 
     /**
@@ -196,7 +193,7 @@ class ComprehensiveLoggingMiddleware
 
         $headers = [];
         foreach ($request->headers->all() as $key => $values) {
-            if (!in_array(strtolower($key), $excludeHeaders, TRUE)) {
+            if (! in_array(strtolower($key), $excludeHeaders, TRUE)) {
                 $headers[$key] = is_array($values) ? implode(', ', $values) : $values;
             }
         }

@@ -1,5 +1,13 @@
 <?php declare(strict_types=1);
 
+use App\Exceptions\ApiErrorHandler;
+use App\Exceptions\DatabaseErrorHandler;
+use App\Exceptions\PaymentErrorHandler;
+use App\Exceptions\ScrapingErrorHandler;
+use Spatie\Ignition\Solutions\SolutionProviders\BadMethodCallSolutionProvider;
+use Spatie\Ignition\Solutions\SolutionProviders\MergeConflictSolutionProvider;
+use Spatie\Ignition\Solutions\SolutionProviders\UndefinedPropertySolutionProvider;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -28,9 +36,9 @@ return [
         'share_button_enabled'       => FALSE,
         'register_commands'          => FALSE,
         'ignored_solution_providers' => [
-            Spatie\Ignition\Solutions\SolutionProviders\BadMethodCallSolutionProvider::class,
-            Spatie\Ignition\Solutions\SolutionProviders\MergeConflictSolutionProvider::class,
-            Spatie\Ignition\Solutions\SolutionProviders\UndefinedPropertySolutionProvider::class,
+            BadMethodCallSolutionProvider::class,
+            MergeConflictSolutionProvider::class,
+            UndefinedPropertySolutionProvider::class,
         ],
     ],
 
@@ -125,10 +133,10 @@ return [
     */
 
     'handlers' => [
-        'database_errors' => App\Exceptions\DatabaseErrorHandler::class,
-        'api_errors'      => App\Exceptions\ApiErrorHandler::class,
-        'scraping_errors' => App\Exceptions\ScrapingErrorHandler::class,
-        'payment_errors'  => App\Exceptions\PaymentErrorHandler::class,
+        'database_errors' => DatabaseErrorHandler::class,
+        'api_errors'      => ApiErrorHandler::class,
+        'scraping_errors' => ScrapingErrorHandler::class,
+        'payment_errors'  => PaymentErrorHandler::class,
     ],
 
     /*

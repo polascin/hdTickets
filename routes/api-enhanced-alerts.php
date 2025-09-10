@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\AlertAnalyticsController;
 use App\Http\Controllers\Api\EnhancedAlertsController;
 use App\Http\Controllers\Api\NotificationChannelsController;
 use App\Http\Controllers\Api\NotificationPreferencesController;
+use App\Http\Middleware\TrackUserActivity;
+use App\Notifications\SmartTicketAlert;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -112,15 +116,13 @@ Route::middleware(['auth:sanctum', 'track.user.activity'])->group(function (): v
     |--------------------------------------------------------------------------
     */
     Route::prefix('activity')->name('api.activity.')->group(function (): void {
-        Route::get('/status', function () {
-            return response()->json([
-                'success' => TRUE,
-                'data'    => App\Http\Middleware\TrackUserActivity::getUserActivityStatus(auth()->id()),
-            ]);
-        })->name('status');
+        Route::get('/status', fn () => response()->json([
+            'success' => TRUE,
+            'data'    => TrackUserActivity::getUserActivityStatus(auth()->id()),
+        ]))->name('status');
 
         Route::post('/heartbeat', function () {
-            App\Http\Middleware\TrackUserActivity::markUserActive(auth()->id());
+            TrackUserActivity::markUserActive(auth()->id());
 
             return response()->json(['success' => TRUE, 'timestamp' => now()->toISOString()]);
         })->name('heartbeat');
@@ -155,39 +157,35 @@ Route::prefix('webhooks')->name('api.webhooks.')->group(function (): void {
 */
 
 Route::prefix('system')->name('api.system.')->middleware(['throttle:60,1'])->group(function (): void {
-    Route::get('/health', function () {
-        return response()->json([
-            'status'    => 'healthy',
-            'timestamp' => now()->toISOString(),
-            'services'  => [
-                'enhanced_alerts' => config('notifications.enhanced_alerts.enabled', FALSE),
-                'ml_predictions'  => config('notifications.ml.enabled', FALSE),
-                'escalation'      => config('notifications.escalation.enabled', FALSE),
-                'channels'        => [
-                    'slack'    => config('notifications.channels.slack.enabled', FALSE),
-                    'discord'  => config('notifications.channels.discord.enabled', FALSE),
-                    'telegram' => config('notifications.channels.telegram.enabled', FALSE),
-                    'webhook'  => config('notifications.channels.webhook.enabled', FALSE),
-                ],
+    Route::get('/health', fn () => response()->json([
+        'status'    => 'healthy',
+        'timestamp' => now()->toISOString(),
+        'services'  => [
+            'enhanced_alerts' => config('notifications.enhanced_alerts.enabled', FALSE),
+            'ml_predictions'  => config('notifications.ml.enabled', FALSE),
+            'escalation'      => config('notifications.escalation.enabled', FALSE),
+            'channels'        => [
+                'slack'    => config('notifications.channels.slack.enabled', FALSE),
+                'discord'  => config('notifications.channels.discord.enabled', FALSE),
+                'telegram' => config('notifications.channels.telegram.enabled', FALSE),
+                'webhook'  => config('notifications.channels.webhook.enabled', FALSE),
             ],
-        ]);
-    })->name('health');
+        ],
+    ]))->name('health');
 
-    Route::get('/metrics', function () {
-        return response()->json([
-            'queue_sizes' => [
-                'critical' => Illuminate\Support\Facades\Queue::size(config('notifications.queues.alerts.critical')),
-                'high'     => Illuminate\Support\Facades\Queue::size(config('notifications.queues.alerts.high')),
-                'medium'   => Illuminate\Support\Facades\Queue::size(config('notifications.queues.alerts.medium')),
-                'default'  => Illuminate\Support\Facades\Queue::size(config('notifications.queues.alerts.default')),
-            ],
-            'cache_stats' => [
-                'hit_ratio'    => '95%', // Mock data - implement actual cache statistics
-                'memory_usage' => '45MB',
-            ],
-            'timestamp' => now()->toISOString(),
-        ]);
-    })->name('metrics');
+    Route::get('/metrics', fn () => response()->json([
+        'queue_sizes' => [
+            'critical' => Queue::size(config('notifications.queues.alerts.critical')),
+            'high'     => Queue::size(config('notifications.queues.alerts.high')),
+            'medium'   => Queue::size(config('notifications.queues.alerts.medium')),
+            'default'  => Queue::size(config('notifications.queues.alerts.default')),
+        ],
+        'cache_stats' => [
+            'hit_ratio'    => '95%', // Mock data - implement actual cache statistics
+            'memory_usage' => '45MB',
+        ],
+        'timestamp' => now()->toISOString(),
+    ]))->name('metrics');
 });
 
 /*
@@ -232,7 +230,7 @@ if (! app()->environment('production')) {
             ];
 
             // Send test notification
-            $user->notify(new App\Notifications\SmartTicketAlert($testAlertData));
+            $user->notify(new SmartTicketAlert($testAlertData));
 
             return response()->json([
                 'success' => TRUE,
@@ -244,33 +242,31 @@ if (! app()->environment('production')) {
         // Clear user activity cache
         Route::post('/clear-activity', function () {
             $userId = auth()->id();
-            Illuminate\Support\Facades\Cache::forget("user_activity:{$userId}");
-            Illuminate\Support\Facades\Cache::forget("user_last_activity:{$userId}");
+            Cache::forget("user_activity:{$userId}");
+            Cache::forget("user_last_activity:{$userId}");
 
             return response()->json(['success' => TRUE, 'message' => 'Activity cache cleared']);
         })->name('clear-activity');
 
         // Generate sample ML predictions
-        Route::get('/sample-predictions', function () {
-            return response()->json([
-                'success' => TRUE,
-                'data'    => [
-                    'availability_trend'  => 'decreasing',
-                    'availability_change' => -25,
-                    'price_trend'         => 'increasing',
-                    'price_change'        => 15,
-                    'demand_level'        => 'high',
-                    'demand_score'        => 0.85,
-                    'confidence'          => 0.92,
-                    'recommendations'     => [
-                        [
-                            'type'     => 'urgency',
-                            'message'  => 'Tickets are selling fast. Purchase immediately to secure your spot.',
-                            'priority' => 'high',
-                        ],
+        Route::get('/sample-predictions', fn () => response()->json([
+            'success' => TRUE,
+            'data'    => [
+                'availability_trend'  => 'decreasing',
+                'availability_change' => -25,
+                'price_trend'         => 'increasing',
+                'price_change'        => 15,
+                'demand_level'        => 'high',
+                'demand_score'        => 0.85,
+                'confidence'          => 0.92,
+                'recommendations'     => [
+                    [
+                        'type'     => 'urgency',
+                        'message'  => 'Tickets are selling fast. Purchase immediately to secure your spot.',
+                        'priority' => 'high',
                     ],
                 ],
-            ]);
-        })->name('sample-predictions');
+            ],
+        ]))->name('sample-predictions');
     });
 }

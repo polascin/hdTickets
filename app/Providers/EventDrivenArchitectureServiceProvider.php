@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Application\EventHandlers\Ticket\TicketDiscoveredHandler;
+use App\Domain\Ticket\Events\TicketAvailabilityChanged;
+use App\Domain\Ticket\Events\TicketDiscovered;
+use App\Domain\Ticket\Events\TicketPriceChanged;
+use App\Domain\Ticket\Events\TicketSoldOut;
 use App\Infrastructure\EventBus\EventBusInterface;
 use App\Infrastructure\EventBus\LaravelEventBus;
 use App\Infrastructure\EventStore\EventStoreInterface;
@@ -10,35 +14,33 @@ use App\Infrastructure\EventStore\PostgreSqlEventStore;
 use App\Infrastructure\Projections\ProjectionManager;
 use App\Infrastructure\Projections\ProjectionManagerInterface;
 use App\Infrastructure\Projections\TicketReadModelProjection;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
+use Override;
 
-class EventDrivenArchitectureServiceProvider extends ServiceProvider
+class EventDrivenArchitectureServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    /** Indicates if loading of the provider is deferred. */
-    protected $defer = TRUE;
-
     /**
      * Register any application services.
      */
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         // Bind Event Store
         $this->app->singleton(EventStoreInterface::class, PostgreSqlEventStore::class);
 
         // Bind Event Bus
-        $this->app->singleton(EventBusInterface::class, function ($app) {
-            return new LaravelEventBus(
-                $app->make(Dispatcher::class),
-                $app->make(EventStoreInterface::class),
-            );
-        });
+        $this->app->singleton(EventBusInterface::class, fn ($app): LaravelEventBus => new LaravelEventBus(
+            $app->make(Dispatcher::class),
+            $app->make(EventStoreInterface::class),
+        ));
 
         // Bind Projection Manager
-        $this->app->singleton(ProjectionManagerInterface::class, function ($app) {
+        $this->app->singleton(ProjectionManagerInterface::class, function ($app): ProjectionManager {
             $manager = new ProjectionManager(
                 $app->make(EventStoreInterface::class),
             );
@@ -50,11 +52,9 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
         });
 
         // Register Event Handlers
-        $this->app->singleton(TicketDiscoveredHandler::class, function ($app) {
-            return new TicketDiscoveredHandler(
-                $app->make(EventBusInterface::class),
-            );
-        });
+        $this->app->singleton(TicketDiscoveredHandler::class, fn ($app): TicketDiscoveredHandler => new TicketDiscoveredHandler(
+            $app->make(EventBusInterface::class),
+        ));
     }
 
     /**
@@ -78,6 +78,7 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
     /**
      * Provides
      */
+    #[Override]
     public function provides(): array
     {
         return [
@@ -97,7 +98,7 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
 
         // Register domain event listeners
         $dispatcher->listen(
-            'App\Domain\Ticket\Events\TicketDiscovered',
+            TicketDiscovered::class,
             [TicketDiscoveredHandler::class, 'handle'],
         );
 
@@ -115,28 +116,28 @@ class EventDrivenArchitectureServiceProvider extends ServiceProvider
 
         // Subscribe to domain events for projection updates
         $eventBus->subscribe(
-            'App\Domain\Ticket\Events\TicketDiscovered',
+            TicketDiscovered::class,
             function ($event): void {
                 $this->app->make(ProjectionManagerInterface::class)->project($event);
             },
         );
 
         $eventBus->subscribe(
-            'App\Domain\Ticket\Events\TicketPriceChanged',
+            TicketPriceChanged::class,
             function ($event): void {
                 $this->app->make(ProjectionManagerInterface::class)->project($event);
             },
         );
 
         $eventBus->subscribe(
-            'App\Domain\Ticket\Events\TicketAvailabilityChanged',
+            TicketAvailabilityChanged::class,
             function ($event): void {
                 $this->app->make(ProjectionManagerInterface::class)->project($event);
             },
         );
 
         $eventBus->subscribe(
-            'App\Domain\Ticket\Events\TicketSoldOut',
+            TicketSoldOut::class,
             function ($event): void {
                 $this->app->make(ProjectionManagerInterface::class)->project($event);
             },

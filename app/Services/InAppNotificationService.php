@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use stdClass;
 
 use function count;
 
@@ -109,7 +110,7 @@ class InAppNotificationService
         foreach ($userIds as $userId) {
             try {
                 $user = User::find($userId);
-                if (!$user) {
+                if (! $user) {
                     $failed++;
 
                     continue;
@@ -154,7 +155,7 @@ class InAppNotificationService
     ): array {
         $cacheKey = "user_notifications_{$userId}_" . md5(json_encode($filters) . "_{$page}_{$perPage}");
 
-        return Cache::remember($cacheKey, 300, function () use ($userId, $filters, $page, $perPage) {
+        return Cache::remember($cacheKey, 300, function () use ($userId, $filters, $page, $perPage): array {
             $query = DB::table('in_app_notifications')
                 ->where('user_id', $userId)
                 ->where('expires_at', '>', now())
@@ -182,8 +183,8 @@ class InAppNotificationService
                 ->offset(($page - 1) * $perPage)
                 ->limit($perPage)
                 ->get()
-                ->map(function ($notification) {
-                    $notification->data = json_decode($notification->data, TRUE);
+                ->map(function ($notification): stdClass {
+                    $notification->data = json_decode((string) $notification->data, TRUE);
 
                     return $notification;
                 });
@@ -329,7 +330,7 @@ class InAppNotificationService
     {
         $cacheKey = "user_notification_stats_{$userId}";
 
-        return Cache::remember($cacheKey, 300, function () use ($userId) {
+        return Cache::remember($cacheKey, 300, function () use ($userId): array {
             $stats = DB::table('in_app_notifications')
                 ->select(
                     DB::raw('COUNT(*) as total'),
@@ -419,10 +420,8 @@ class InAppNotificationService
      */
     public function getUserPreferences(int $userId): array
     {
-        return Cache::remember("user_notification_preferences_{$userId}", 3600 * 24, function () use ($userId) {
-            // In a real implementation, this would fetch from database
-            return $this->createUserPreferences($userId);
-        });
+        return Cache::remember("user_notification_preferences_{$userId}", 3600 * 24, fn (): array => // In a real implementation, this would fetch from database
+            $this->createUserPreferences($userId));
     }
 
     /**
@@ -455,7 +454,7 @@ class InAppNotificationService
         $preferences = $this->getUserPreferences($userId);
 
         // Check if notification type is enabled
-        if (!($preferences[$type] ?? TRUE)) {
+        if (! ($preferences[$type] ?? TRUE)) {
             return FALSE;
         }
 
@@ -546,7 +545,7 @@ class InAppNotificationService
             User::where('id', $userId)->update([
                 'unread_notifications_count' => $stats['unread'],
             ]);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Ignore if column doesn't exist
         }
     }
@@ -559,8 +558,6 @@ class InAppNotificationService
      */
     protected function clearUserNotificationCache(int $userId): void
     {
-        $pattern = "user_notifications_{$userId}_*";
-
         // This is a simplified version - in production you'd want to use Redis SCAN
         Cache::forget("user_notification_stats_{$userId}");
         Cache::forget("user_notification_counters_{$userId}");
@@ -605,12 +602,10 @@ class InAppNotificationService
         $today = now()->format('Y-m-d');
         $cacheKey = "daily_notification_count_{$userId}_{$today}";
 
-        return Cache::remember($cacheKey, 3600, function () use ($userId) {
-            return DB::table('in_app_notifications')
-                ->where('user_id', $userId)
-                ->whereDate('created_at', now())
-                ->count();
-        });
+        return Cache::remember($cacheKey, 3600, fn () => DB::table('in_app_notifications')
+            ->where('user_id', $userId)
+            ->whereDate('created_at', now())
+            ->count());
     }
 
     /**

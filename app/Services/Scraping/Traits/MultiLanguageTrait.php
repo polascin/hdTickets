@@ -2,6 +2,7 @@
 
 namespace App\Services\Scraping\Traits;
 
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +36,7 @@ trait MultiLanguageTrait
      */
     protected function parseDate(string $dateString): ?string
     {
-        if (empty($dateString)) {
+        if ($dateString === '' || $dateString === '0') {
             return NULL;
         }
 
@@ -71,7 +72,7 @@ trait MultiLanguageTrait
             }
 
             // Try to parse with Carbon (handles many formats automatically)
-            $parsed = \Carbon\Carbon::parse($dateString);
+            $parsed = Carbon::parse($dateString);
 
             return $parsed->format('Y-m-d H:i:s');
         } catch (Exception $e) {

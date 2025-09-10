@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\AlertTrigger;
+use App\Models\ScrapedTicket;
+use App\Models\TicketAlert;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\AlertTrigger>
+ * @extends Factory<AlertTrigger>
  */
 class AlertTriggerFactory extends Factory
 {
@@ -17,8 +20,8 @@ class AlertTriggerFactory extends Factory
     public function definition(): array
     {
         return [
-            'ticket_alert_id'   => \App\Models\TicketAlert::factory(),
-            'scraped_ticket_id' => \App\Models\ScrapedTicket::factory(),
+            'ticket_alert_id'   => TicketAlert::factory(),
+            'scraped_ticket_id' => ScrapedTicket::factory(),
             'triggered_at'      => fake()->dateTimeBetween('-30 days', 'now'),
             'match_score'       => fake()->randomFloat(2, 0, 100),
             'trigger_reason'    => fake()->randomElement([

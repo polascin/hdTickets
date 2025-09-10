@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\RateLimitException;
+use App\Exceptions\ScrapingDetectedException;
 use App\Models\ScrapingStats;
 use Exception;
 use Illuminate\Support\Collection;
@@ -13,13 +15,11 @@ use function is_array;
 
 class PlatformMonitoringService
 {
-    private const CRITICAL_SUCCESS_RATE_THRESHOLD = 50.0; // Below 50% is critical
+    private const float CRITICAL_SUCCESS_RATE_THRESHOLD = 50.0; // Below 50% is critical
 
-    private const WARNING_SUCCESS_RATE_THRESHOLD = 80.0;  // Below 80% is warning
+    private const float WARNING_SUCCESS_RATE_THRESHOLD = 80.0;  // Below 80% is warning
 
-    private const HIGH_RESPONSE_TIME_THRESHOLD = 5000;    // Above 5 seconds is high
-
-    private const MONITORING_INTERVAL_HOURS = 1;          // Check every hour
+    private const int HIGH_RESPONSE_TIME_THRESHOLD = 5000;          // Check every hour
 
     /**
      * Monitor all platforms and generate alerts if needed
@@ -36,7 +36,7 @@ class PlatformMonitoringService
             $alerts = array_merge($alerts, $this->monitorPlatform($platform));
         }
 
-        if (!empty($alerts)) {
+        if ($alerts !== []) {
             $this->processAlerts($alerts);
         }
 
@@ -97,22 +97,20 @@ class PlatformMonitoringService
     {
         $cacheKey = "platform_stats_{$platform}_{$hours}";
 
-        return Cache::remember($cacheKey, 600, function () use ($platform, $hours) {
-            return [
-                'platform'            => $platform,
-                'time_period_hours'   => $hours,
-                'success_rate'        => ScrapingStats::getSuccessRate($platform, $hours),
-                'avg_response_time'   => ScrapingStats::getAverageResponseTime($platform, $hours),
-                'availability'        => ScrapingStats::getPlatformAvailability($platform, 1),
-                'error_stats'         => ScrapingStats::getErrorStats($platform, $hours),
-                'selector_stats'      => ScrapingStats::getSelectorStats($platform, $hours),
-                'total_requests'      => ScrapingStats::platform($platform)->recent($hours)->count(),
-                'successful_requests' => ScrapingStats::platform($platform)->recent($hours)->successful()->count(),
-                'failed_requests'     => ScrapingStats::platform($platform)->recent($hours)->failed()->count(),
-                'last_success'        => ScrapingStats::platform($platform)->successful()->latest('created_at')->value('created_at'),
-                'last_failure'        => ScrapingStats::platform($platform)->failed()->latest('created_at')->value('created_at'),
-            ];
-        });
+        return Cache::remember($cacheKey, 600, fn (): array => [
+            'platform'            => $platform,
+            'time_period_hours'   => $hours,
+            'success_rate'        => ScrapingStats::getSuccessRate($platform, $hours),
+            'avg_response_time'   => ScrapingStats::getAverageResponseTime($platform, $hours),
+            'availability'        => ScrapingStats::getPlatformAvailability($platform, 1),
+            'error_stats'         => ScrapingStats::getErrorStats($platform, $hours),
+            'selector_stats'      => ScrapingStats::getSelectorStats($platform, $hours),
+            'total_requests'      => ScrapingStats::platform($platform)->recent($hours)->count(),
+            'successful_requests' => ScrapingStats::platform($platform)->recent($hours)->successful()->count(),
+            'failed_requests'     => ScrapingStats::platform($platform)->recent($hours)->failed()->count(),
+            'last_success'        => ScrapingStats::platform($platform)->successful()->latest('created_at')->value('created_at'),
+            'last_failure'        => ScrapingStats::platform($platform)->failed()->latest('created_at')->value('created_at'),
+        ]);
     }
 
     /**
@@ -125,9 +123,7 @@ class PlatformMonitoringService
     {
         $platforms = $this->getActivePlatforms();
 
-        return collect($platforms)->map(function ($platform) use ($hours) {
-            return $this->getPlatformStats($platform, $hours);
-        });
+        return collect($platforms)->map(fn ($platform): array => $this->getPlatformStats($platform, $hours));
     }
 
     /**
@@ -268,7 +264,7 @@ class PlatformMonitoringService
     private function checkBotDetection(string $platform, array $errorStats): ?array
     {
         $botDetectionErrors = [
-            'App\Exceptions\ScrapingDetectedException',
+            ScrapingDetectedException::class,
             'bot_detected',
         ];
 
@@ -301,7 +297,7 @@ class PlatformMonitoringService
     private function checkRateLimit(string $platform, array $errorStats): ?array
     {
         $rateLimitErrors = [
-            'App\Exceptions\RateLimitException',
+            RateLimitException::class,
             'rate_limited',
         ];
 
@@ -341,7 +337,7 @@ class PlatformMonitoringService
             }
         }
 
-        if (!empty($lowEffectivenessSelectors)) {
+        if ($lowEffectivenessSelectors !== []) {
             $selectorList = implode(', ', array_keys($lowEffectivenessSelectors));
 
             return [

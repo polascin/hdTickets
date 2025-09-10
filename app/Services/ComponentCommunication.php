@@ -63,7 +63,7 @@ class ComponentCommunication
         foreach ($props as $propName => $propValue) {
             $validator = $this->propValidators->get($propName);
 
-            if ($validator && !$validator($propValue)) {
+            if ($validator && ! $validator($propValue)) {
                 $errors[] = "Invalid prop '{$propName}' for component '{$componentName}'";
             }
         }
@@ -140,15 +140,13 @@ class ComponentCommunication
      */
     public function createBladeToVueBinding(array $props): string
     {
-        $propsString = collect($props)->map(function ($value, $key) {
+        return collect($props)->map(function ($value, $key): string {
             if (is_string($value)) {
                 return ":{$key}=\"'{$value}'\"";
             }
 
             return ":{$key}=\"@json({$value})\"";
         })->implode(' ');
-
-        return $propsString;
     }
 
     /**
@@ -210,7 +208,7 @@ class ComponentCommunication
         $channelKey = "{$sourceType}-to-{$targetType}";
         $channel = $this->communicationChannels[$channelKey] ?? NULL;
 
-        if (!$channel) {
+        if (! $channel) {
             throw new InvalidArgumentException("Communication channel not supported: {$channelKey}");
         }
 
@@ -235,7 +233,7 @@ class ComponentCommunication
             json_encode($data);
 
             return TRUE;
-        } catch (Exception $e) {
+        } catch (Exception) {
             return FALSE;
         }
     }
@@ -249,7 +247,7 @@ class ComponentCommunication
     public function validateBladeToVue(array $data): bool
     {
         // Check for Vue-compatible data types
-        foreach ($data as $key => $value) {
+        foreach ($data as $value) {
             if (is_resource($value) || is_callable($value)) {
                 return FALSE;
             }
@@ -303,7 +301,7 @@ class ComponentCommunication
     public function validateVueToAlpine(array $eventData): bool
     {
         // Check for DOM event compatibility
-        return is_array($eventData) && !empty($eventData);
+        return is_array($eventData) && $eventData !== [];
     }
 
     /**
@@ -404,32 +402,32 @@ class ComponentCommunication
             'blade-to-alpine' => [
                 'method'    => 'data-attributes',
                 'pattern'   => 'server-to-client',
-                'validator' => [$this, 'validateBladeToAlpine'],
+                'validator' => $this->validateBladeToAlpine(...),
             ],
             'blade-to-vue' => [
                 'method'    => 'data-props',
                 'pattern'   => 'server-to-client',
-                'validator' => [$this, 'validateBladeToVue'],
+                'validator' => $this->validateBladeToVue(...),
             ],
             'alpine-to-alpine' => [
                 'method'    => 'alpine-events',
                 'pattern'   => 'client-to-client',
-                'validator' => [$this, 'validateAlpineToAlpine'],
+                'validator' => $this->validateAlpineToAlpine(...),
             ],
             'alpine-to-vue' => [
                 'method'    => 'custom-events',
                 'pattern'   => 'client-to-client',
-                'validator' => [$this, 'validateAlpineToVue'],
+                'validator' => $this->validateAlpineToVue(...),
             ],
             'vue-to-vue' => [
                 'method'    => 'vue-events',
                 'pattern'   => 'client-to-client',
-                'validator' => [$this, 'validateVueToVue'],
+                'validator' => $this->validateVueToVue(...),
             ],
             'vue-to-alpine' => [
                 'method'    => 'dom-events',
                 'pattern'   => 'client-to-client',
-                'validator' => [$this, 'validateVueToAlpine'],
+                'validator' => $this->validateVueToAlpine(...),
             ],
         ];
     }
@@ -448,19 +446,19 @@ class ComponentCommunication
     {
         // Common sport events platform prop types
         $typeValidations = [
-            'ticket_id'           => fn ($v) => is_string($v) && preg_match('/^[A-Z0-9\-]{8,20}$/', $v),
-            'event_id'            => fn ($v) => is_string($v) && preg_match('/^EVT-[0-9]{6}$/', $v),
-            'price'               => fn ($v) => is_numeric($v) && $v >= 0,
-            'venue'               => fn ($v) => is_string($v) && strlen($v) >= 2,
-            'date'                => fn ($v) => is_string($v) && strtotime($v) !== FALSE,
-            'sport_category'      => fn ($v) => in_array($v, ['football', 'rugby', 'cricket', 'tennis', 'other'], TRUE),
-            'availability_status' => fn ($v) => in_array($v, ['available', 'limited', 'sold_out', 'on_hold'], TRUE),
-            'platform_source'     => fn ($v) => in_array($v, ['ticketmaster', 'stubhub', 'seatgeek', 'official'], TRUE),
+            'ticket_id'           => fn ($v): bool => is_string($v) && preg_match('/^[A-Z0-9\-]{8,20}$/', $v),
+            'event_id'            => fn ($v): bool => is_string($v) && preg_match('/^EVT-\d{6}$/', $v),
+            'price'               => fn ($v): bool => is_numeric($v) && $v >= 0,
+            'venue'               => fn ($v): bool => is_string($v) && strlen($v) >= 2,
+            'date'                => fn ($v): bool => is_string($v) && strtotime($v) !== FALSE,
+            'sport_category'      => fn ($v): bool => in_array($v, ['football', 'rugby', 'cricket', 'tennis', 'other'], TRUE),
+            'availability_status' => fn ($v): bool => in_array($v, ['available', 'limited', 'sold_out', 'on_hold'], TRUE),
+            'platform_source'     => fn ($v): bool => in_array($v, ['ticketmaster', 'stubhub', 'seatgeek', 'official'], TRUE),
         ];
 
         if (isset($typeValidations[$propName])) {
             $validator = $typeValidations[$propName];
-            if (!$validator($propValue)) {
+            if (! $validator($propValue)) {
                 return "Prop '{$propName}' has invalid type or format";
             }
         }
@@ -478,41 +476,28 @@ class ComponentCommunication
     {
         $examples = [];
 
-        switch ("{$sourceType}-to-{$targetType}") {
-            case 'blade-to-alpine':
-                $examples = [
-                    'data_binding' => '<div x-data="{ ticketData: @json($ticket) }">',
-                    'prop_passing' => '<div x-data="ticketCard()" data-ticket-id="{{ $ticket->id }}">',
-                    'event_setup'  => '<div @ticket-selected="handleTicketSelection">',
-                ];
-
-                break;
-            case 'blade-to-vue':
-                $examples = [
-                    'prop_binding'   => '<ticket-dashboard :initial-tickets="@json($tickets)" :user-role="{{ auth()->user()->role }}">',
-                    'data_injection' => '<div id="vue-app" data-initial-state="@json($initialState)">',
-                    'config_passing' => '<dashboard-component :config="@json($dashboardConfig)">',
-                ];
-
-                break;
-            case 'alpine-to-vue':
-                $examples = [
-                    'custom_event' => 'this.$dispatch("ticket-updated", { ticketId: this.ticketId });',
-                    'dom_event'    => 'document.dispatchEvent(new CustomEvent("alpine-data-changed"));',
-                    'shared_state' => 'Alpine.store("tickets").update(newTickets);',
-                ];
-
-                break;
-            case 'vue-to-alpine':
-                $examples = [
-                    'dom_event'      => 'document.dispatchEvent(new CustomEvent("vue-state-changed"));',
-                    'element_method' => 'this.$refs.alpineComponent.refreshData();',
-                    'global_state'   => 'window.sharedState.tickets = this.tickets;',
-                ];
-
-                break;
-        }
-
-        return $examples;
+        return match ("{$sourceType}-to-{$targetType}") {
+            'blade-to-alpine' => [
+                'data_binding' => '<div x-data="{ ticketData: @json($ticket) }">',
+                'prop_passing' => '<div x-data="ticketCard()" data-ticket-id="{{ $ticket->id }}">',
+                'event_setup'  => '<div @ticket-selected="handleTicketSelection">',
+            ],
+            'blade-to-vue' => [
+                'prop_binding'   => '<ticket-dashboard :initial-tickets="@json($tickets)" :user-role="{{ auth()->user()->role }}">',
+                'data_injection' => '<div id="vue-app" data-initial-state="@json($initialState)">',
+                'config_passing' => '<dashboard-component :config="@json($dashboardConfig)">',
+            ],
+            'alpine-to-vue' => [
+                'custom_event' => 'this.$dispatch("ticket-updated", { ticketId: this.ticketId });',
+                'dom_event'    => 'document.dispatchEvent(new CustomEvent("alpine-data-changed"));',
+                'shared_state' => 'Alpine.store("tickets").update(newTickets);',
+            ],
+            'vue-to-alpine' => [
+                'dom_event'      => 'document.dispatchEvent(new CustomEvent("vue-state-changed"));',
+                'element_method' => 'this.$refs.alpineComponent.refreshData();',
+                'global_state'   => 'window.sharedState.tickets = this.tickets;',
+            ],
+            default => $examples,
+        };
     }
 }

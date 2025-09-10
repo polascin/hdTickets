@@ -32,7 +32,7 @@ class TicketPurchaseService
         try {
             // Validate purchase prerequisites
             $validation = $this->validatePurchase($user, $ticket, $quantity);
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return [
                     'success' => FALSE,
                     'error'   => 'validation_failed',
@@ -42,9 +42,7 @@ class TicketPurchaseService
             }
 
             // Begin transaction for atomic purchase
-            return DB::transaction(function () use ($user, $ticket, $quantity, $purchaseOptions) {
-                return $this->executePurchase($user, $ticket, $quantity, $purchaseOptions);
-            });
+            return DB::transaction(fn (): array => $this->executePurchase($user, $ticket, $quantity, $purchaseOptions));
         } catch (Exception $e) {
             Log::error('Ticket purchase failed', [
                 'user_id'   => $user->id,
@@ -117,7 +115,7 @@ class TicketPurchaseService
     private function validatePurchase(User $user, Ticket $ticket, int $quantity): array
     {
         // Check if user can purchase tickets
-        if (!$this->canUserPurchaseTickets($user)) {
+        if (! $this->canUserPurchaseTickets($user)) {
             return [
                 'valid'   => FALSE,
                 'message' => 'User role does not allow ticket purchases',
@@ -126,7 +124,7 @@ class TicketPurchaseService
         }
 
         // Check ticket availability
-        if (!$ticket->is_available || $ticket->available_quantity < $quantity) {
+        if (! $ticket->is_available || $ticket->available_quantity < $quantity) {
             return [
                 'valid'   => FALSE,
                 'message' => 'Insufficient tickets available',
@@ -141,7 +139,7 @@ class TicketPurchaseService
         // Check subscription limits for customers
         if ($user->isCustomer()) {
             $limitCheck = $this->checkTicketLimits($user, $quantity);
-            if (!$limitCheck['valid']) {
+            if (! $limitCheck['valid']) {
                 return $limitCheck;
             }
         }
@@ -180,7 +178,7 @@ class TicketPurchaseService
     {
         $subscription = $user->subscription;
 
-        if (!$subscription) {
+        if (! $subscription) {
             return [
                 'valid'   => FALSE,
                 'message' => 'Active subscription required for ticket purchases',
@@ -192,7 +190,7 @@ class TicketPurchaseService
         }
 
         // Check if subscription is active
-        if (!$subscription->isActive() && !$subscription->isInFreeTrial()) {
+        if (! $subscription->isActive() && ! $subscription->isInFreeTrial()) {
             return [
                 'valid'   => FALSE,
                 'message' => 'Subscription is not active',
@@ -270,7 +268,7 @@ class TicketPurchaseService
         $user->incrementMonthlyTicketUsage($quantity);
 
         // Simulate purchase processing (in real implementation, this would integrate with external APIs)
-        $purchaseResult = $this->processPurchase($purchase, $options);
+        $purchaseResult = $this->processPurchase($options);
 
         if ($purchaseResult['success']) {
             $purchase->update([
@@ -361,7 +359,7 @@ class TicketPurchaseService
     /**
      * Process the purchase with external systems (mock implementation)
      */
-    private function processPurchase(TicketPurchase $purchase, array $options): array
+    private function processPurchase(array $options): array
     {
         // In real implementation, this would integrate with:
         // - Ticket platform APIs (Ticketmaster, etc.)
@@ -394,7 +392,7 @@ class TicketPurchaseService
             'success'       => FALSE,
             'error_code'    => $errorCode,
             'error_message' => $errors[$errorCode],
-            'retry_allowed' => !in_array($errorCode, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE),
+            'retry_allowed' => ! in_array($errorCode, ['PAYMENT_DECLINED', 'TICKET_NO_LONGER_AVAILABLE'], TRUE),
         ];
     }
 

@@ -6,9 +6,16 @@ namespace App\Services\Security;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use UnauthorizedActionException;
+
+use function array_key_exists;
+use function count;
+use function in_array;
 
 /**
  * Role-Based Access Control (RBAC) Service
@@ -18,10 +25,8 @@ use Illuminate\Support\Facades\DB;
  */
 class RoleBasedAccessControlService
 {
-    private SecurityMonitoringService $securityMonitoring;
-
     // Role hierarchy (lower values have higher privileges)
-    private const ROLE_HIERARCHY = [
+    private const array ROLE_HIERARCHY = [
         'admin'    => 1,
         'agent'    => 2,
         'customer' => 3,
@@ -29,7 +34,7 @@ class RoleBasedAccessControlService
     ];
 
     // Core permissions for each role
-    private const ROLE_PERMISSIONS = [
+    private const array ROLE_PERMISSIONS = [
         'admin' => [
             'system.*',
             'security.*',
@@ -64,7 +69,7 @@ class RoleBasedAccessControlService
     ];
 
     // Restricted actions that require special handling
-    private const RESTRICTED_ACTIONS = [
+    private const array RESTRICTED_ACTIONS = [
         'security.config.modify',
         'users.role.change',
         'system.maintenance',
@@ -72,9 +77,8 @@ class RoleBasedAccessControlService
         'purchases.unlimited',
     ];
 
-    public function __construct(SecurityMonitoringService $securityMonitoring)
+    public function __construct(private SecurityMonitoringService $securityMonitoring)
     {
-        $this->securityMonitoring = $securityMonitoring;
     }
 
     /**
@@ -85,19 +89,17 @@ class RoleBasedAccessControlService
         // Cache key for user permissions
         $cacheKey = "user_permissions_{$user->id}";
 
-        $userPermissions = Cache::remember($cacheKey, 300, function () use ($user) {
-            return $this->getUserPermissions($user);
-        });
+        $userPermissions = Cache::remember($cacheKey, 300, fn (): array => $this->getUserPermissions($user));
 
         // Check direct permission match
-        if (in_array($permission, $userPermissions)) {
+        if (in_array($permission, $userPermissions, TRUE)) {
             return TRUE;
         }
 
         // Check wildcard permissions
         foreach ($userPermissions as $userPermission) {
-            if (str_ends_with($userPermission, '*')) {
-                $prefix = substr($userPermission, 0, -1);
+            if (str_ends_with((string) $userPermission, '*')) {
+                $prefix = substr((string) $userPermission, 0, -1);
                 if (str_starts_with($permission, $prefix)) {
                     return TRUE;
                 }
@@ -108,14 +110,6 @@ class RoleBasedAccessControlService
         $this->securityMonitoring->logSecurityEvent(
             'permission_denied',
             'Permission denied for user',
-            [
-                'user_id'              => $user->id,
-                'user_role'            => $user->role,
-                'requested_permission' => $permission,
-                'user_permissions'     => $userPermissions,
-            ],
-            'warning',
-            $user->id
         );
 
         return FALSE;
@@ -128,7 +122,7 @@ class RoleBasedAccessControlService
     {
         // Special handling for system resources
         if (str_starts_with($resource, 'system.')) {
-            return $this->canAccessSystemResource($user, $resource, $context);
+            return $this->canAccessSystemResource($user, $resource);
         }
 
         // Special handling for security resources
@@ -138,7 +132,7 @@ class RoleBasedAccessControlService
 
         // Special handling for ticket purchases
         if (str_starts_with($resource, 'tickets.purchase')) {
-            return $this->canAccessTicketPurchase($user, $resource, $context);
+            return $this->canAccessTicketPurchase($user, $context);
         }
 
         // Default permission check
@@ -171,7 +165,7 @@ class RoleBasedAccessControlService
      */
     public function isAgent(User $user): bool
     {
-        return in_array($user->role, ['admin', 'agent']);
+        return in_array($user->role, ['admin', 'agent'], TRUE);
     }
 
     /**
@@ -206,8 +200,8 @@ class RoleBasedAccessControlService
      */
     public function getUsersByRole(string $role, int $perPage = 15): Collection
     {
-        if (!array_key_exists($role, self::ROLE_PERMISSIONS)) {
-            throw new \InvalidArgumentException("Invalid role: {$role}");
+        if (! array_key_exists($role, self::ROLE_PERMISSIONS)) {
+            throw new InvalidArgumentException("Invalid role: {$role}");
         }
 
         return User::where('role', $role)
@@ -221,26 +215,18 @@ class RoleBasedAccessControlService
     public function changeUserRole(User $adminUser, User $targetUser, string $newRole): bool
     {
         // Only admins can change roles
-        if (!$this->isAdmin($adminUser)) {
+        if (! $this->isAdmin($adminUser)) {
             $this->securityMonitoring->logSecurityEvent(
                 'unauthorized_role_change',
                 'Unauthorized attempt to change user role',
-                [
-                    'admin_user_id'  => $adminUser->id,
-                    'target_user_id' => $targetUser->id,
-                    'new_role'       => $newRole,
-                    'admin_role'     => $adminUser->role,
-                ],
-                'high',
-                $adminUser->id
             );
 
             return FALSE;
         }
 
         // Validate new role
-        if (!array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
-            throw new \InvalidArgumentException("Invalid role: {$newRole}");
+        if (! array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
+            throw new InvalidArgumentException("Invalid role: {$newRole}");
         }
 
         // Admins cannot demote themselves
@@ -250,7 +236,7 @@ class RoleBasedAccessControlService
 
         $oldRole = $targetUser->role;
 
-        DB::transaction(function () use ($targetUser, $newRole, $adminUser, $oldRole) {
+        DB::transaction(function () use ($targetUser, $newRole): void {
             // Update user role
             $targetUser->update(['role' => $newRole]);
 
@@ -261,14 +247,6 @@ class RoleBasedAccessControlService
             $this->securityMonitoring->logSecurityEvent(
                 'role_changed',
                 'User role changed by admin',
-                [
-                    'admin_user_id'  => $adminUser->id,
-                    'target_user_id' => $targetUser->id,
-                    'old_role'       => $oldRole,
-                    'new_role'       => $newRole,
-                ],
-                'medium',
-                $adminUser->id
             );
         });
 
@@ -352,12 +330,12 @@ class RoleBasedAccessControlService
      */
     public function bulkRoleAssignment(User $adminUser, array $userIds, string $newRole): array
     {
-        if (!$this->isAdmin($adminUser)) {
-            throw new \UnauthorizedActionException('Only admins can perform bulk role assignments');
+        if (! $this->isAdmin($adminUser)) {
+            throw new UnauthorizedActionException('Only admins can perform bulk role assignments');
         }
 
-        if (!array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
-            throw new \InvalidArgumentException("Invalid role: {$newRole}");
+        if (! array_key_exists($newRole, self::ROLE_PERMISSIONS)) {
+            throw new InvalidArgumentException("Invalid role: {$newRole}");
         }
 
         $results = [
@@ -388,7 +366,7 @@ class RoleBasedAccessControlService
                         'reason'  => 'Role change failed',
                     ];
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results['failed'][] = [
                     'user_id' => $user->id,
                     'reason'  => $e->getMessage(),
@@ -400,13 +378,6 @@ class RoleBasedAccessControlService
         $this->securityMonitoring->logSecurityEvent(
             'bulk_role_assignment',
             'Bulk role assignment performed',
-            [
-                'admin_user_id' => $adminUser->id,
-                'target_role'   => $newRole,
-                'results'       => $results,
-            ],
-            'medium',
-            $adminUser->id
         );
 
         return $results;
@@ -415,10 +386,10 @@ class RoleBasedAccessControlService
     /**
      * Check system resource access
      */
-    private function canAccessSystemResource(User $user, string $resource, array $context): bool
+    private function canAccessSystemResource(User $user, string $resource): bool
     {
         // Only admins can access most system resources
-        if (!$this->isAdmin($user) && !str_contains($resource, 'scrape')) {
+        if (! $this->isAdmin($user) && ! str_contains($resource, 'scrape')) {
             return FALSE;
         }
 
@@ -436,12 +407,12 @@ class RoleBasedAccessControlService
     private function canAccessSecurityResource(User $user, string $resource, array $context): bool
     {
         // Only admins can access security resources
-        if (!$this->isAdmin($user)) {
+        if (! $this->isAdmin($user)) {
             return FALSE;
         }
 
         // Additional validation for critical security actions
-        if (in_array($resource, self::RESTRICTED_ACTIONS)) {
+        if (in_array($resource, self::RESTRICTED_ACTIONS, TRUE)) {
             return $this->validateCriticalAction($user, $resource, $context);
         }
 
@@ -451,7 +422,7 @@ class RoleBasedAccessControlService
     /**
      * Check ticket purchase access
      */
-    private function canAccessTicketPurchase(User $user, string $resource, array $context): bool
+    private function canAccessTicketPurchase(User $user, array $context): bool
     {
         $validation = $this->validateTicketPurchaseAccess($user, $context);
 
@@ -460,6 +431,8 @@ class RoleBasedAccessControlService
 
     /**
      * Get dynamic permissions based on user state
+     *
+     * @return string[]
      */
     private function getDynamicPermissions(User $user): array
     {
@@ -467,11 +440,7 @@ class RoleBasedAccessControlService
 
         // Add subscription-based permissions for customers
         if ($this->isCustomer($user)) {
-            if ($user->hasActiveSubscription()) {
-                $permissions[] = 'tickets.purchase.full';
-            } else {
-                $permissions[] = 'tickets.purchase.trial';
-            }
+            $permissions[] = $user->hasActiveSubscription() ? 'tickets.purchase.full' : 'tickets.purchase.trial';
         }
 
         // Add MFA-based permissions
@@ -496,7 +465,7 @@ class RoleBasedAccessControlService
         // Check if within free access period
         $withinFreeAccess = $user->created_at->diffInDays(now()) <= config('subscription.free_access_days', 7);
 
-        if (!$withinFreeAccess && !$user->hasActiveSubscription()) {
+        if (! $withinFreeAccess && ! $user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
 
             return $validation;
@@ -529,7 +498,7 @@ class RoleBasedAccessControlService
         $restricted = [];
 
         foreach (self::RESTRICTED_ACTIONS as $action) {
-            if (!$this->hasPermission($user, $action)) {
+            if (! $this->hasPermission($user, $action)) {
                 $restricted[] = $action;
             }
         }
@@ -583,20 +552,16 @@ class RoleBasedAccessControlService
     private function validateCriticalAction(User $user, string $action, array $context): bool
     {
         // Require MFA for critical actions
-        if (!$user->mfa_enabled) {
+        if (! $user->mfa_enabled) {
             return FALSE;
         }
 
         // Additional validation based on action type
-        switch ($action) {
-            case 'security.config.modify':
-                return $this->isAdmin($user);
-            case 'users.role.change':
-                return $this->isAdmin($user) && isset($context['target_user']);
-            case 'system.maintenance':
-                return $this->isAdmin($user);
-            default:
-                return $this->hasPermission($user, $action);
-        }
+        return match ($action) {
+            'security.config.modify' => $this->isAdmin($user),
+            'users.role.change'      => $this->isAdmin($user) && isset($context['target_user']),
+            'system.maintenance'     => $this->isAdmin($user),
+            default                  => $this->hasPermission($user, $action),
+        };
     }
 }

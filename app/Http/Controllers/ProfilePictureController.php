@@ -21,25 +21,22 @@ use function in_array;
 class ProfilePictureController extends Controller
 {
     /** Maximum file size in bytes (5MB) */
-    private const MAX_FILE_SIZE = 5242880; // 5MB
+    private const int MAX_FILE_SIZE = 5242880; // 5MB
 
     /** Allowed image formats */
-    private const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
+    private const array ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 
     /** Profile picture dimensions */
-    private const PROFILE_DIMENSIONS = [
+    private const array PROFILE_DIMENSIONS = [
         'thumbnail' => 150,   // 150x150 for thumbnails
         'medium'    => 300,      // 300x300 for profile views
         'large'     => 500,        // 500x500 for full size
     ];
 
-    private ActivityLogger $activityLogger;
-
     private ImageManager $imageManager;
 
-    public function __construct(ActivityLogger $activityLogger)
+    public function __construct(private ActivityLogger $activityLogger)
     {
-        $this->activityLogger = $activityLogger;
         $this->imageManager = new ImageManager(new Driver());
     }
 
@@ -77,7 +74,7 @@ class ProfilePictureController extends Controller
             }
 
             $file = $request->file('profile_picture');
-            $cropData = $request->input('crop_data') ? json_decode($request->input('crop_data'), TRUE) : NULL;
+            $cropData = $request->input('crop_data') ? json_decode((string) $request->input('crop_data'), TRUE) : NULL;
 
             // Generate unique filename
             $timestamp = now()->format('YmdHis');
@@ -90,7 +87,7 @@ class ProfilePictureController extends Controller
             $this->deleteOldProfilePictures($userId);
 
             // Process and save different sizes
-            $savedPictures = $this->processAndSaveImage($file, $baseFilename, $extension, $cropData);
+            $savedPictures = $this->processAndSaveImage($file, $baseFilename, $cropData);
 
             // Update user profile picture in database
             $user = Auth::user();
@@ -106,7 +103,7 @@ class ProfilePictureController extends Controller
                     'original_filename' => $file->getClientOriginalName(),
                     'file_size'         => $file->getSize(),
                     'saved_sizes'       => array_keys($savedPictures),
-                    'cropped'           => !empty($cropData),
+                    'cropped'           => ! empty($cropData),
                 ],
                 $user,
             );
@@ -150,17 +147,17 @@ class ProfilePictureController extends Controller
             }
 
             $user = Auth::user();
-            if (!$user->profile_picture) {
+            if (! $user->profile_picture) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No profile picture found to crop.',
                 ], 400);
             }
 
-            $cropData = json_decode($request->input('crop_data'), TRUE);
+            $cropData = json_decode((string) $request->input('crop_data'), TRUE);
 
             // Validate crop data structure
-            if (!$this->isValidCropData($cropData)) {
+            if (! $this->isValidCropData($cropData)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid crop data format.',
@@ -171,7 +168,7 @@ class ProfilePictureController extends Controller
             $currentPicturePath = str_replace('storage/', '', $user->profile_picture);
             $fullPath = storage_path('app/public/' . $currentPicturePath);
 
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Profile picture file not found.',
@@ -189,7 +186,7 @@ class ProfilePictureController extends Controller
             $this->deleteOldProfilePictures($user->id);
 
             // Process cropped image
-            $savedPictures = $this->processAndSaveImage($fullPath, $baseFilename, $extension, $cropData, TRUE);
+            $savedPictures = $this->processAndSaveImage($fullPath, $baseFilename, $cropData, TRUE);
 
             // Update user profile picture
             $user->profile_picture = $savedPictures['medium'];
@@ -234,7 +231,7 @@ class ProfilePictureController extends Controller
     {
         try {
             $user = Auth::user();
-            if (!$user->profile_picture) {
+            if (! $user->profile_picture) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'No profile picture found to delete.',
@@ -365,16 +362,12 @@ class ProfilePictureController extends Controller
      *
      * @param mixed $source
      */
-    private function processAndSaveImage($source, string $baseFilename, string $extension, ?array $cropData = NULL, bool $isFilePath = FALSE): array
+    private function processAndSaveImage($source, string $baseFilename, ?array $cropData = NULL, bool $isFilePath = FALSE): array
     {
         $savedPictures = [];
 
         // Load image
-        if ($isFilePath) {
-            $image = $this->imageManager->read($source);
-        } else {
-            $image = $this->imageManager->read($source->getPathname());
-        }
+        $image = $isFilePath ? $this->imageManager->read($source) : $this->imageManager->read($source->getPathname());
 
         // Apply cropping if specified
         if ($cropData && $this->isValidCropData($cropData)) {
@@ -432,7 +425,7 @@ class ProfilePictureController extends Controller
             $files = Storage::disk('public')->files('profile-pictures');
 
             foreach ($files as $file) {
-                $filename = basename($file);
+                $filename = basename((string) $file);
                 // Match pattern: profile_{userId}_*
                 if (preg_match("/^profile_{$userId}_/", $filename)) {
                     Storage::disk('public')->delete($file);
@@ -455,7 +448,7 @@ class ProfilePictureController extends Controller
         $requiredFields = ['x', 'y', 'width', 'height'];
 
         foreach ($requiredFields as $field) {
-            if (!isset($cropData[$field]) || !is_numeric($cropData[$field])) {
+            if (! isset($cropData[$field]) || ! is_numeric($cropData[$field])) {
                 return FALSE;
             }
         }
@@ -495,7 +488,7 @@ class ProfilePictureController extends Controller
         $files = Storage::disk('public')->files('profile-pictures');
 
         foreach ($files as $file) {
-            $filename = basename($file);
+            $filename = basename((string) $file);
             if (preg_match("/^profile_{$userId}_.*_(\w+)\.webp$/", $filename, $matches)) {
                 $sizeName = $matches[1];
                 if (in_array($sizeName, array_keys(self::PROFILE_DIMENSIONS), TRUE)) {

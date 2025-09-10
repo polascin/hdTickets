@@ -24,9 +24,9 @@ use function strlen;
 
 class EnhancedAlertSystem
 {
-    protected $mlPredictor;
+    protected TicketAvailabilityPredictor $mlPredictor;
 
-    protected $escalationService;
+    protected AlertEscalationService $escalationService;
 
     protected $customChannels;
 
@@ -278,7 +278,7 @@ class EnhancedAlertSystem
             ->where('key', 'notification_channels')
             ->first();
 
-        $userChannels = $preferences ? json_decode($preferences->value, TRUE) : [];
+        $userChannels = $preferences ? json_decode((string) $preferences->value, TRUE) : [];
 
         // Add channels based on priority level
         switch ($priority) {
@@ -328,7 +328,7 @@ class EnhancedAlertSystem
 
         // Use Laravel's notification system for standard channels
         $standardChannels = array_intersect($channels, ['mail', 'database', 'sms', 'push']);
-        if (!empty($standardChannels)) {
+        if ($standardChannels !== []) {
             $user->notify($notification);
         }
 
@@ -358,9 +358,7 @@ class EnhancedAlertSystem
     protected function getTotalTicketAvailability(string $eventName, ?string $eventDate): int
     {
         return ScrapedTicket::where('event_name', 'LIKE', "%{$eventName}%")
-            ->when($eventDate, function ($query) use ($eventDate) {
-                return $query->whereDate('event_date', $eventDate);
-            })
+            ->when($eventDate, fn ($query) => $query->whereDate('event_date', $eventDate))
             ->where('is_available', TRUE)
             ->sum('quantity');
     }
@@ -373,15 +371,11 @@ class EnhancedAlertSystem
      */
     protected function getUserEventPreferences(int $userId, ScrapedTicket $ticket): array
     {
-        $preferences = Cache::remember("user_preferences:{$userId}", 3600, function () use ($userId) {
-            return UserPreference::where('user_id', $userId)
-                ->whereIn('key', ['favorite_teams', 'preferred_venues', 'event_types'])
-                ->pluck('value', 'key')
-                ->map(function ($value) {
-                    return json_decode($value, TRUE);
-                })
-                ->toArray();
-        });
+        $preferences = Cache::remember("user_preferences:{$userId}", 3600, fn () => UserPreference::where('user_id', $userId)
+            ->whereIn('key', ['favorite_teams', 'preferred_venues', 'event_types'])
+            ->pluck('value', 'key')
+            ->map(fn ($value): mixed => json_decode((string) $value, TRUE))
+            ->toArray());
 
         $favoriteTeams = $preferences['favorite_teams'] ?? [];
         $preferredVenues = $preferences['preferred_venues'] ?? [];
@@ -402,7 +396,7 @@ class EnhancedAlertSystem
     protected function isEventForFavoriteTeam(ScrapedTicket $ticket, array $favoriteTeams): bool
     {
         foreach ($favoriteTeams as $team) {
-            if (stripos($ticket->event_name, $team) !== FALSE) {
+            if (stripos($ticket->event_name, (string) $team) !== FALSE) {
                 return TRUE;
             }
         }
@@ -438,10 +432,10 @@ class EnhancedAlertSystem
      */
     protected function getPlatformReliability(string $platform): float
     {
-        return Cache::remember("platform_reliability:{$platform}", 1800, function () {
+        return Cache::remember("platform_reliability:{$platform}", 1800, function (): int|float {
             // Calculate based on successful scraping attempts, response times, error rates
             $totalAttempts = 100; // Mock data - would come from actual metrics
-            $successfulAttempts = rand(75, 95);
+            $successfulAttempts = random_int(75, 95);
 
             return $successfulAttempts / $totalAttempts;
         });
@@ -475,9 +469,9 @@ class EnhancedAlertSystem
             $recommendations[] = 'Event is within a week. Last chance to secure tickets!';
         }
 
-        return !empty($recommendations)
-            ? implode(' ', $recommendations)
-            : 'Good opportunity based on your preferences.';
+        return $recommendations === []
+            ? 'Good opportunity based on your preferences.'
+            : implode(' ', $recommendations);
     }
 
     /**
@@ -524,8 +518,8 @@ class EnhancedAlertSystem
         return [
             'trend'             => 'decreasing',
             'change_percentage' => -15,
-            'total_available'   => rand(50, 200),
-            'platforms_count'   => rand(3, 8),
+            'total_available'   => random_int(50, 200),
+            'platforms_count'   => random_int(3, 8),
         ];
     }
 
@@ -566,14 +560,12 @@ class EnhancedAlertSystem
             ->limit(5)
             ->get(['event_name', 'price', 'platform', 'event_date']);
 
-        return $similarEvents->map(function ($event) {
-            return [
-                'event_name' => $event->event_name,
-                'price'      => $event->price,
-                'platform'   => $event->platform,
-                'event_date' => $event->event_date,
-            ];
-        })->toArray();
+        return $similarEvents->map(fn ($event): array => [
+            'event_name' => $event->event_name,
+            'price'      => $event->price,
+            'platform'   => $event->platform,
+            'event_date' => $event->event_date,
+        ])->toArray();
     }
 
     /**
@@ -588,9 +580,7 @@ class EnhancedAlertSystem
         $commonWords = ['vs', 'v', 'at', 'the', 'and', 'or', 'in', 'on', 'game', 'match', 'event'];
         $terms = explode(' ', strtolower($eventName));
 
-        return array_filter($terms, function ($term) use ($commonWords) {
-            return strlen($term) > 2 && !in_array($term, $commonWords, TRUE);
-        });
+        return array_filter($terms, fn ($term): bool => strlen((string) $term) > 2 && ! in_array($term, $commonWords, TRUE));
     }
 
     /**
@@ -602,7 +592,7 @@ class EnhancedAlertSystem
     protected function getEventTypePriority(ScrapedTicket $ticket, array $eventTypes): int
     {
         foreach ($eventTypes as $type => $priority) {
-            if (stripos($ticket->event_name, $type) !== FALSE) {
+            if (stripos($ticket->event_name, (string) $type) !== FALSE) {
                 return $priority;
             }
         }

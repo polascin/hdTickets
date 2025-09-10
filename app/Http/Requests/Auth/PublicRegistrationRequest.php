@@ -4,8 +4,11 @@ namespace App\Http\Requests\Auth;
 
 use App\Models\LegalDocument;
 use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
+use Override;
 
 class PublicRegistrationRequest extends FormRequest
 {
@@ -20,7 +23,7 @@ class PublicRegistrationRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, array<mixed>|\Illuminate\Contracts\Validation\ValidationRule|string>
+     * @return array<string, array<mixed>|string|ValidationRule>
      */
     public function rules(): array
     {
@@ -29,7 +32,7 @@ class PublicRegistrationRequest extends FormRequest
             'surname'    => ['nullable', 'string', 'max:255'],
             'email'      => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'phone'      => ['nullable', 'string', 'regex:/^\+?[1-9]\d{1,14}$/'], // E.164 format
-            'password'   => ['required', 'confirmed', Rules\Password::defaults()],
+            'password'   => ['required', 'confirmed', Password::defaults()],
             'enable_2fa' => ['nullable', 'boolean'],
         ];
 
@@ -45,6 +48,7 @@ class PublicRegistrationRequest extends FormRequest
     /**
      * Get custom messages for validator errors.
      */
+    #[Override]
     public function messages(): array
     {
         $messages = [
@@ -69,6 +73,7 @@ class PublicRegistrationRequest extends FormRequest
     /**
      * Get custom attributes for validator errors.
      */
+    #[Override]
     public function attributes(): array
     {
         $attributes = [

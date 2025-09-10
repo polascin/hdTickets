@@ -8,12 +8,15 @@ use DOMXPath;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
 
 class SeatGeekClient extends BaseWebScrapingClient
 {
+    public $scrapingHeaders;
+
     public function __construct(array $config)
     {
         parent::__construct($config);
@@ -27,7 +30,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function searchEvents(array $criteria): array
     {
         // Try API first
-        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
+        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
             try {
                 $params = $this->buildSearchParams($criteria);
 
@@ -68,7 +71,7 @@ class SeatGeekClient extends BaseWebScrapingClient
     public function getEventTickets(string $eventId, array $filters = []): array
     {
         // Try API first
-        if (!empty($this->config['client_id']) && !empty($this->config['client_secret'])) {
+        if (! empty($this->config['client_id']) && ! empty($this->config['client_secret'])) {
             try {
                 $params = array_merge(['event_id' => $eventId], $filters);
 
@@ -239,7 +242,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $params['date'] = $criteria['date_start'];
         }
 
-        return $baseUrl . (!empty($params) ? '?' . http_build_query($params) : '');
+        return $baseUrl . ($params === [] ? '' : '?' . http_build_query($params));
     }
 
     /**
@@ -270,7 +273,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                         }
 
                         $event = $this->extractEventFromNode($node);
-                        if (!empty($event['name'])) {
+                        if (! empty($event['name'])) {
                             $events[] = $event;
                             $count++;
                         }
@@ -326,7 +329,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $url = $this->trySelectors($node, [
                 'a',
             ], 'href');
-            if ($url) {
+            if ($url !== '' && $url !== '0') {
                 $event['url'] = $this->normalizeUrl($url);
                 $event['id'] = $this->extractEventIdFromUrl($event['url']);
             }
@@ -337,7 +340,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                 'time',
                 '.event-date',
             ]);
-            if ($date) {
+            if ($date !== '' && $date !== '0') {
                 $event['date'] = $date;
                 $event['parsed_date'] = $this->parseEventDate($date);
             }
@@ -354,7 +357,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             $prices = $this->extractPriceWithFallbacks($node);
             $event['prices'] = $prices;
 
-            if (!empty($prices)) {
+            if ($prices !== []) {
                 $numericPrices = array_column($prices, 'price');
                 $event['price_min'] = min($numericPrices);
                 $event['price_max'] = max($numericPrices);
@@ -383,15 +386,15 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Event name
             $nameNode = $xpath->query('.//h3 | .//h4 | .//span[contains(@class, "title")] | .//a[contains(@class, "event-title")]', $eventNode)->item(0);
-            if (!$nameNode) {
+            if (! $nameNode) {
                 // If this is a link node, get text content
                 $nameNode = $eventNode->nodeName === 'a' ? $eventNode : NULL;
             }
-            $event['name'] = $nameNode ? trim($nameNode->textContent) : '';
+            $event['name'] = $nameNode ? trim((string) $nameNode->textContent) : '';
 
             // Event URL
             $linkNode = $xpath->query('.//a[contains(@href, "/")]', $eventNode)->item(0);
-            if (!$linkNode && $eventNode->nodeName === 'a') {
+            if (! $linkNode && $eventNode->nodeName === 'a') {
                 $linkNode = $eventNode;
             }
             if ($linkNode && $linkNode->hasAttribute('href')) {
@@ -447,7 +450,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                 ->timeout($this->timeout)
                 ->get($eventUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to fetch event details from SeatGeek');
             }
 
@@ -495,14 +498,14 @@ class SeatGeekClient extends BaseWebScrapingClient
             }
 
             $priceRange = [];
-            if (!empty($prices)) {
+            if ($prices !== []) {
                 $numericPrices = [];
                 foreach ($prices as $price) {
                     if (preg_match('/\$([,\d]+)/', $price, $matches)) {
                         $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
                     }
                 }
-                if (!empty($numericPrices)) {
+                if ($numericPrices !== []) {
                     $priceRange = [
                         'min' => min($numericPrices),
                         'max' => max($numericPrices),
@@ -530,9 +533,10 @@ class SeatGeekClient extends BaseWebScrapingClient
     /**
      * NormalizeUrl
      */
+    #[Override]
     protected function normalizeUrl(string $url, ?string $baseUrl = NULL): string
     {
-        if (strpos($url, 'http') !== 0) {
+        if (! str_starts_with($url, 'http')) {
             return ($baseUrl ?: 'https://seatgeek.com') . $url;
         }
 
@@ -558,18 +562,18 @@ class SeatGeekClient extends BaseWebScrapingClient
      */
     protected function extractPriceRange(array &$event, array $prices): void
     {
-        if (empty($prices)) {
+        if ($prices === []) {
             return;
         }
 
         $numericPrices = [];
         foreach ($prices as $price) {
-            if (preg_match('/\$([,\d]+)/', $price, $matches)) {
+            if (preg_match('/\$([,\d]+)/', (string) $price, $matches)) {
                 $numericPrices[] = (float) (str_replace(',', '', $matches[1]));
             }
         }
 
-        if (!empty($numericPrices)) {
+        if ($numericPrices !== []) {
             $event['price_min'] = min($numericPrices);
             $event['price_max'] = max($numericPrices);
         }
@@ -578,13 +582,14 @@ class SeatGeekClient extends BaseWebScrapingClient
     /**
      * ParseEventDate
      */
+    #[Override]
     protected function parseEventDate(string $dateString): ?DateTime
     {
-        if (empty($dateString)) {
+        if ($dateString === '' || $dateString === '0') {
             return NULL;
         }
 
-        $dateString = trim(preg_replace('/\s+/', ' ', $dateString));
+        $dateString = trim((string) preg_replace('/\s+/', ' ', $dateString));
 
         $formats = [
             'M j, Y g:i A',
@@ -602,14 +607,14 @@ class SeatGeekClient extends BaseWebScrapingClient
                 if ($date) {
                     return $date;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
 
         try {
             return new DateTime($dateString);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -631,7 +636,7 @@ class SeatGeekClient extends BaseWebScrapingClient
         try {
             // Extract using JSON-LD first
             $jsonLdData = $this->extractJsonLdData($crawler, 'Event');
-            if (!empty($jsonLdData)) {
+            if ($jsonLdData !== []) {
                 $eventData = $jsonLdData[0];
                 $event['name'] = $eventData['name'] ?? '';
                 $event['description'] = $eventData['description'] ?? '';
@@ -696,7 +701,7 @@ class SeatGeekClient extends BaseWebScrapingClient
             foreach ($priceSelectors as $selector) {
                 $crawler->filter($selector)->each(function (Crawler $node) use (&$prices): void {
                     $text = $node->text();
-                    if (preg_match('/\$([0-9,]+(?:\.[0-9]{2})?)/', $text, $matches)) {
+                    if (preg_match('/\$([0-9,]+(?:\.\d{2})?)/', $text, $matches)) {
                         $prices[] = [
                             'price'    => (float) (str_replace(',', '', $matches[1])),
                             'currency' => 'USD',
@@ -705,7 +710,7 @@ class SeatGeekClient extends BaseWebScrapingClient
                     }
                 });
 
-                if (!empty($prices)) {
+                if ($prices !== []) {
                     break;
                 }
             }

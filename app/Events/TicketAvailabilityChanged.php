@@ -14,42 +14,6 @@ class TicketAvailabilityChanged implements ShouldBroadcastNow
     use InteractsWithSockets;
     use SerializesModels;
 
-    /**
-     * The unique identifier for the ticket
-     * Can be string UUID or integer ID depending on platform
-     */
-    public string|int $ticketId;
-
-    /** The name of the sports event */
-    public string $eventName;
-
-    /**
-     * The platform where this ticket is available
-     * Examples: 'ticketmaster', 'stubhub', 'seatgeek', 'vivid_seats'
-     */
-    public string $platform;
-
-    /**
-     * The previous availability status
-     * Values: 'available', 'sold_out', 'limited', 'unavailable'
-     */
-    public string $oldStatus;
-
-    /**
-     * The new availability status
-     * Values: 'available', 'sold_out', 'limited', 'unavailable'
-     */
-    public string $newStatus;
-
-    /** The previous quantity of available tickets (if known) */
-    public ?int $oldQuantity;
-
-    /** The new quantity of available tickets (if known) */
-    public ?int $newQuantity;
-
-    /** The URL to the ticket on the platform */
-    public ?string $url;
-
     /** ISO timestamp when the availability change was detected */
     public string $timestamp;
 
@@ -66,23 +30,15 @@ class TicketAvailabilityChanged implements ShouldBroadcastNow
      * @param string|null $url         The URL to the ticket on the platform
      */
     public function __construct(
-        string|int $ticketId,
-        string $eventName,
-        string $platform,
-        string $oldStatus,
-        string $newStatus,
-        ?int $oldQuantity = NULL,
-        ?int $newQuantity = NULL,
-        ?string $url = NULL,
+        public string|int $ticketId,
+        public string $eventName,
+        public string $platform,
+        public string $oldStatus,
+        public string $newStatus,
+        public ?int $oldQuantity = NULL,
+        public ?int $newQuantity = NULL,
+        public ?string $url = NULL,
     ) {
-        $this->ticketId = $ticketId;
-        $this->eventName = $eventName;
-        $this->platform = $platform;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
-        $this->oldQuantity = $oldQuantity;
-        $this->newQuantity = $newQuantity;
-        $this->url = $url;
         $this->timestamp = now()->toISOString() ?? now()->toDateTimeString();
     }
 

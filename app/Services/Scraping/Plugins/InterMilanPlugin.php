@@ -132,32 +132,30 @@ class InterMilanPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['cerca'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competizione'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['team'])) {
+        if (! empty($criteria['team'])) {
             $params['squadra'] = $criteria['team'];
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['data_da'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['data_a'] = $criteria['date_to'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
-        if (!empty($params)) {
+        if ($params !== []) {
             return $baseSearchUrl . '?' . http_build_query($params);
         }
 
@@ -175,7 +173,7 @@ class InterMilanPlugin extends BaseScraperPlugin
             Log::info("Inter Milan Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -300,11 +298,11 @@ class InterMilanPlugin extends BaseScraperPlugin
 
             // Create match title
             $title = trim($homeTeam . ' vs ' . $awayTeam);
-            if (empty($title) || $title === 'vs') {
+            if ($title === '' || $title === '0' || $title === 'vs') {
                 $title = $this->extractText($node, '.titolo-partita, .match-title, h3');
             }
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -315,7 +313,7 @@ class InterMilanPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDateTime($date, $time);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -349,7 +347,7 @@ class InterMilanPlugin extends BaseScraperPlugin
     {
         $eventDate = $this->parseDate($date);
 
-        if ($eventDate && !empty($time)) {
+        if ($eventDate && ($time !== '' && $time !== '0')) {
             $timeFormatted = $this->parseTime($time);
             if ($timeFormatted) {
                 return date('Y-m-d H:i:s', strtotime($eventDate . ' ' . $timeFormatted));
@@ -377,7 +375,7 @@ class InterMilanPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
@@ -386,11 +384,9 @@ class InterMilanPlugin extends BaseScraperPlugin
 
         // Extract numeric values from price text
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '.', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '.', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

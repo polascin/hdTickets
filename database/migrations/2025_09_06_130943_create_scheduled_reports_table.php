@@ -1,17 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        Schema::create('scheduled_reports', function (Blueprint $table) {
+        Schema::create('scheduled_reports', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
@@ -23,11 +22,11 @@ return new class extends Migration
             $table->json('recipients'); // Array of email addresses
             $table->json('options')->nullable(); // Additional options
             $table->json('statistics')->nullable(); // Execution statistics
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(TRUE);
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index(['type', 'is_active']);
             $table->index(['created_by']);
             $table->index(['is_active', 'created_at']);

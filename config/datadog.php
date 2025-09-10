@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -133,8 +136,8 @@ return [
         'enabled'           => TRUE,
         'ignore_exceptions' => [
             'Illuminate\Http\Exception\NotFoundHttpException',
-            'Illuminate\Auth\AuthenticationException',
-            'Illuminate\Validation\ValidationException',
+            AuthenticationException::class,
+            ValidationException::class,
         ],
         'ignore_status_codes' => [401, 403, 404, 422],
     ],

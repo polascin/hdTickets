@@ -2,7 +2,10 @@
 
 namespace App\Services\Core;
 
+use App\Services\AnalyticsService;
+use App\Services\EncryptionService;
 use App\Services\Interfaces\ServiceInterface;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Cache;
@@ -79,11 +82,11 @@ class ServiceOrchestrator
      */
     public function getService(string $serviceName): ServiceInterface
     {
-        if (!$this->initialized) {
+        if (! $this->initialized) {
             $this->initialize();
         }
 
-        if (!isset($this->services[$serviceName])) {
+        if (! isset($this->services[$serviceName])) {
             throw new InvalidArgumentException("Service '{$serviceName}' not found");
         }
 
@@ -171,7 +174,7 @@ class ServiceOrchestrator
     public function restartService(string $serviceName): bool
     {
         try {
-            if (!isset($this->services[$serviceName])) {
+            if (! isset($this->services[$serviceName])) {
                 throw new InvalidArgumentException("Service '{$serviceName}' not found");
             }
 
@@ -252,7 +255,7 @@ class ServiceOrchestrator
         $this->serviceDefinitions = [
             // Core infrastructure services (no dependencies)
             'encryptionService' => [
-                'class'        => \App\Services\EncryptionService::class,
+                'class'        => EncryptionService::class,
                 'dependencies' => [],
             ],
 
@@ -268,13 +271,13 @@ class ServiceOrchestrator
 
             // Analytics service (depends on cache)
             'analyticsService' => [
-                'class'        => \App\Services\AnalyticsService::class,
+                'class'        => AnalyticsService::class,
                 'dependencies' => ['cacheService'],
             ],
 
             // Notification service (depends on analytics)
             'notificationService' => [
-                'class'        => \App\Services\NotificationService::class,
+                'class'        => NotificationService::class,
                 'dependencies' => ['analyticsService', 'encryptionService'],
             ],
 
@@ -354,7 +357,7 @@ class ServiceOrchestrator
             }
 
             $resolved[] = $serviceName;
-            $resolving = array_filter($resolving, fn ($s) => $s !== $serviceName);
+            $resolving = array_filter($resolving, fn ($s): bool => $s !== $serviceName);
         };
 
         foreach (array_keys($this->serviceDefinitions) as $serviceName) {
@@ -372,7 +375,7 @@ class ServiceOrchestrator
      */
     private function initializeService(string $serviceName): void
     {
-        if (!isset($this->serviceDefinitions[$serviceName])) {
+        if (! isset($this->serviceDefinitions[$serviceName])) {
             throw new InvalidArgumentException("Service definition not found: {$serviceName}");
         }
 
@@ -380,20 +383,20 @@ class ServiceOrchestrator
 
         // Create service instance
         $serviceClass = $definition['class'];
-        if (!class_exists($serviceClass)) {
+        if (! class_exists($serviceClass)) {
             throw new RuntimeException("Service class not found: {$serviceClass}");
         }
 
         $service = new $serviceClass();
 
-        if (!$service instanceof ServiceInterface) {
+        if (! $service instanceof ServiceInterface) {
             throw new RuntimeException("Service must implement ServiceInterface: {$serviceClass}");
         }
 
         // Prepare dependencies
         $dependencies = [];
         foreach ($definition['dependencies'] as $dependencyName) {
-            if (!isset($this->services[$dependencyName])) {
+            if (! isset($this->services[$dependencyName])) {
                 throw new RuntimeException("Dependency not available: {$dependencyName} for service: {$serviceName}");
             }
             $dependencies[$dependencyName] = $this->services[$dependencyName];
@@ -420,16 +423,5 @@ class ServiceOrchestrator
     private function getInitializationTime(): int
     {
         return Cache::get('service_orchestrator_init_time', time());
-    }
-
-    /**
-     * Store initialization time
-     */
-    /**
-     * StoreInitializationTime
-     */
-    private function storeInitializationTime(): void
-    {
-        Cache::put('service_orchestrator_init_time', time(), 86400);
     }
 }

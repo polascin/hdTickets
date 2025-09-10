@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -13,14 +14,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ResponseTimeExport implements WithMultipleSheets
 {
-    /** @var \Illuminate\Support\Collection<int, object> */
-    protected \Illuminate\Support\Collection $responseTimeData;
+    /** @var Collection<int, object> */
+    protected Collection $responseTimeData;
 
     /** @var array<string, mixed> */
     protected array $statistics;
 
     /**
-     * @param array{data?: \Illuminate\Support\Collection<int, object>, statistics?: array<string, mixed>} $data
+     * @param array{data?: Collection<int, object>, statistics?: array<string, mixed>} $data
      */
     public function __construct(array $data)
     {
@@ -48,24 +49,20 @@ class ResponseTimeExport implements WithMultipleSheets
  */
 class ResponseTimeDataSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
 {
-    /** @var \Illuminate\Support\Collection<int, object> */
-    protected \Illuminate\Support\Collection $responseTimeData;
-
     /**
-     * @param \Illuminate\Support\Collection<int, object> $responseTimeData
+     * @param Collection<int, object> $responseTimeData
      */
-    public function __construct(\Illuminate\Support\Collection $responseTimeData)
+    public function __construct(protected Collection $responseTimeData)
     {
-        $this->responseTimeData = $responseTimeData;
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, object>
+     * @return Collection<int, object>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return collect($this->responseTimeData);
     }
@@ -131,27 +128,23 @@ class ResponseTimeDataSheet implements FromCollection, WithHeadings, WithMapping
 
 class ResponseTimeStatsSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
-    /** @var array<string, mixed> */
-    protected array $statistics;
-
     /**
      * @param array<string, mixed> $statistics
      */
-    public function __construct(array $statistics)
+    public function __construct(protected array $statistics)
     {
-        $this->statistics = $statistics;
     }
 
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return collect([
-            ['Average Response Time', (string) (round($this->statistics['avg_response_time'] ?? 0, 2) . ' minutes')],
-            ['Median Response Time', (string) (round($this->statistics['median_response_time'] ?? 0, 2) . ' minutes')],
-            ['Fastest Response', (string) (($this->statistics['fastest_response'] ?? 0) . ' minutes')],
-            ['Slowest Response', (string) (($this->statistics['slowest_response'] ?? 0) . ' minutes')],
+            ['Average Response Time', round($this->statistics['avg_response_time'] ?? 0, 2) . ' minutes'],
+            ['Median Response Time', round($this->statistics['median_response_time'] ?? 0, 2) . ' minutes'],
+            ['Fastest Response', ($this->statistics['fastest_response'] ?? 0) . ' minutes'],
+            ['Slowest Response', ($this->statistics['slowest_response'] ?? 0) . ' minutes'],
             ['Within 1 Hour', (string) ($this->statistics['within_1_hour'] ?? 0)],
             ['Within 4 Hours', (string) ($this->statistics['within_4_hours'] ?? 0)],
             ['Within 24 Hours', (string) ($this->statistics['within_24_hours'] ?? 0)],

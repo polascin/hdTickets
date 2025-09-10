@@ -193,9 +193,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
         ];
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
         return $this->baseUrl . '/search?' . http_build_query($params);
     }
@@ -209,7 +207,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
             Log::info("TicketSwap Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -308,7 +306,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
         try {
             // Extract basic information
             $title = $this->extractText($node, '.event-title, .title, .listing-title, h2 a, h3 a, .name');
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -324,7 +322,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -346,7 +344,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
                 'category'     => $category,
                 'availability' => 'resale',
                 'ticket_count' => $this->parseTicketCount($ticketCount),
-                'verified'     => !empty($verified),
+                'verified'     => $verified !== '' && $verified !== '0',
                 'scraped_at'   => now(),
             ];
         } catch (Exception $e) {
@@ -361,7 +359,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -381,7 +379,7 @@ class TicketSwapPlugin extends BaseScraperPlugin
      */
     private function parseTicketCount(string $countText): ?int
     {
-        if (empty($countText)) {
+        if ($countText === '' || $countText === '0') {
             return NULL;
         }
 

@@ -15,17 +15,11 @@ class AccountDeletionCompletedMail extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public User $user;
-
-    public AccountDeletionRequest $deletionRequest;
-
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, AccountDeletionRequest $deletionRequest)
+    public function __construct(public User $user, public AccountDeletionRequest $deletionRequest)
     {
-        $this->user = $user;
-        $this->deletionRequest = $deletionRequest;
     }
 
     /**

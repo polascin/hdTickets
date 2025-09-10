@@ -23,7 +23,7 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
-        $guards = empty($guards) ? [NULL] : $guards;
+        $guards = $guards === [] ? [NULL] : $guards;
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {

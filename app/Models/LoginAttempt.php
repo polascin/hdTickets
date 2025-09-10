@@ -23,12 +23,6 @@ class LoginAttempt extends Model
         'attempted_at',
     ];
 
-    protected $casts = [
-        'success'      => 'boolean',
-        'used_2fa'     => 'boolean',
-        'attempted_at' => 'datetime',
-    ];
-
     /**
      * Get the user that made the login attempt
      */
@@ -50,7 +44,7 @@ class LoginAttempt extends Model
      */
     public function wasFailed(): bool
     {
-        return !$this->success;
+        return ! $this->success;
     }
 
     /**
@@ -60,13 +54,17 @@ class LoginAttempt extends Model
     {
         if (str_contains($this->user_agent, 'Mobile')) {
             return 'Mobile Device';
-        } elseif (str_contains($this->user_agent, 'Chrome')) {
+        }
+        if (str_contains($this->user_agent, 'Chrome')) {
             return 'Chrome Browser';
-        } elseif (str_contains($this->user_agent, 'Firefox')) {
+        }
+        if (str_contains($this->user_agent, 'Firefox')) {
             return 'Firefox Browser';
-        } elseif (str_contains($this->user_agent, 'Safari')) {
+        }
+        if (str_contains($this->user_agent, 'Safari')) {
             return 'Safari Browser';
-        } elseif (str_contains($this->user_agent, 'Edge')) {
+        }
+        if (str_contains($this->user_agent, 'Edge')) {
             return 'Edge Browser';
         }
 
@@ -80,7 +78,8 @@ class LoginAttempt extends Model
     {
         if ($this->city && $this->country_code) {
             return "{$this->city}, {$this->country_code}";
-        } elseif ($this->country_code) {
+        }
+        if ($this->country_code) {
             return $this->country_code;
         }
 
@@ -89,6 +88,8 @@ class LoginAttempt extends Model
 
     /**
      * Scope for successful attempts
+     *
+     * @param mixed $query
      */
     public function scopeSuccessful($query)
     {
@@ -97,6 +98,8 @@ class LoginAttempt extends Model
 
     /**
      * Scope for failed attempts
+     *
+     * @param mixed $query
      */
     public function scopeFailed($query)
     {
@@ -105,6 +108,8 @@ class LoginAttempt extends Model
 
     /**
      * Scope for recent attempts
+     *
+     * @param mixed $query
      */
     public function scopeRecent($query, int $minutes = 15)
     {
@@ -113,6 +118,8 @@ class LoginAttempt extends Model
 
     /**
      * Scope for attempts by IP
+     *
+     * @param mixed $query
      */
     public function scopeByIP($query, string $ipAddress)
     {
@@ -121,9 +128,20 @@ class LoginAttempt extends Model
 
     /**
      * Scope for attempts from specific country
+     *
+     * @param mixed $query
      */
     public function scopeFromCountry($query, string $countryCode)
     {
         return $query->where('country_code', $countryCode);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'success'      => 'boolean',
+            'used_2fa'     => 'boolean',
+            'attempted_at' => 'datetime',
+        ];
     }
 }

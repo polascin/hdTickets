@@ -1,5 +1,14 @@
 <?php declare(strict_types=1);
 
+use App\Services\MultiPlatformManager;
+use App\Services\PerformanceCacheService;
+use App\Services\PlatformCachingService;
+use App\Services\RealTimeMonitoringService;
+use App\Services\TicketmasterScraper;
+use App\Services\TicketScrapingService;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -48,8 +57,8 @@ return [
         'ignore_errors'          => [
             'Illuminate\Http\Exception\HttpResponseException',
             'Illuminate\Http\Exception\NotFoundHttpException',
-            'Illuminate\Auth\AuthenticationException',
-            'Illuminate\Validation\ValidationException',
+            AuthenticationException::class,
+            ValidationException::class,
         ],
         'ignore_status_codes' => [
             '401', '403', '404', '405', '422',
@@ -162,9 +171,9 @@ return [
     'custom_instrumentation' => [
         'ticket_scraping' => [
             'classes' => [
-                'App\Services\TicketScrapingService',
-                'App\Services\TicketmasterScraper',
-                'App\Services\MultiPlatformManager',
+                TicketScrapingService::class,
+                TicketmasterScraper::class,
+                MultiPlatformManager::class,
             ],
             'methods' => [
                 'scrapeTickets',
@@ -185,9 +194,9 @@ return [
         ],
         'performance_critical' => [
             'classes' => [
-                'App\Services\PerformanceCacheService',
-                'App\Services\PlatformCachingService',
-                'App\Services\RealTimeMonitoringService',
+                PerformanceCacheService::class,
+                PlatformCachingService::class,
+                RealTimeMonitoringService::class,
             ],
         ],
     ],

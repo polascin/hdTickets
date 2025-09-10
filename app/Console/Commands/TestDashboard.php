@@ -2,7 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\EnhancedDashboardController;
+use App\Models\User;
+use App\Services\AnalyticsService;
+use App\Services\RecommendationService;
+use Auth;
+use Exception;
+use Hash;
 use Illuminate\Console\Command;
+use ReflectionClass;
+
+use function get_class;
 
 class TestDashboard extends Command
 {
@@ -23,37 +33,37 @@ class TestDashboard extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Testing HD Tickets Customer Dashboard...');
 
         // Create or get test admin user
-        $user = \App\Models\User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => 'admin@hdtickets.local'],
             [
                 'name'                => 'Admin',
                 'surname'             => 'User',
-                'password'            => \Hash::make('password123'),
-                'role'                => \App\Models\User::ROLE_ADMIN,
+                'password'            => Hash::make('password123'),
+                'role'                => User::ROLE_ADMIN,
                 'is_active'           => TRUE,
                 'email_verified_at'   => now(),
                 'registration_source' => 'console',
                 'password_changed_at' => now(),
                 'require_2fa'         => FALSE,
-            ]
+            ],
         );
 
         $this->info("Created/found admin user: {$user->email} (ID: {$user->id})");
 
         // Test the dashboard controller directly
         try {
-            $analytics = app(\App\Services\AnalyticsService::class);
-            $recommendations = app(\App\Services\RecommendationService::class);
+            $analytics = app(AnalyticsService::class);
+            $recommendations = app(RecommendationService::class);
 
-            $controller = new \App\Http\Controllers\EnhancedDashboardController($analytics, $recommendations);
+            $controller = new EnhancedDashboardController($analytics, $recommendations);
 
             // Simulate authentication
-            \Auth::login($user);
+            Auth::login($user);
 
             $this->info('Testing dashboard data generation...');
 
@@ -64,7 +74,7 @@ class TestDashboard extends Command
             $this->info('Statistics: ' . json_encode($dashboardData['statistics'] ?? [], JSON_PRETTY_PRINT));
 
             return 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Dashboard test failed: ' . $e->getMessage());
             $this->error('Stack trace: ' . $e->getTraceAsString());
 
@@ -72,11 +82,10 @@ class TestDashboard extends Command
         }
     }
 
-    private function callPrivateMethod($object, $method, $parameters = [])
+    private function callPrivateMethod(EnhancedDashboardController $object, string $method, array $parameters = []): mixed
     {
-        $reflection = new \ReflectionClass(get_class($object));
+        $reflection = new ReflectionClass(get_class($object));
         $method = $reflection->getMethod($method);
-        $method->setAccessible(TRUE);
 
         return $method->invokeArgs($object, $parameters);
     }

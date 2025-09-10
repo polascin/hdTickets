@@ -8,6 +8,8 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
+use function in_array;
+
 /**
  * Ticket Status Changed Event
  *
@@ -20,18 +22,24 @@ class TicketStatusChanged implements ShouldBroadcastNow
     use InteractsWithSockets;
     use SerializesModels;
 
+    /** @var int */
     public $ticket_id;
 
+    /** @var string */
     public $old_status;
 
+    /** @var string */
     public $new_status;
 
+    /** @var string|null */
     public $reason;
 
     public $timestamp;
 
+    /** @var string|null */
     public $platform;
 
+    /** @var string|null */
     public $event_title;
 
     /**
@@ -43,7 +51,7 @@ class TicketStatusChanged implements ShouldBroadcastNow
         string $new_status,
         ?string $reason = NULL,
         ?string $platform = NULL,
-        ?string $event_title = NULL
+        ?string $event_title = NULL,
     ) {
         $this->ticket_id = $ticket_id;
         $this->old_status = $old_status;
@@ -57,7 +65,7 @@ class TicketStatusChanged implements ShouldBroadcastNow
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return array<int, Channel>
      */
     public function broadcastOn(): array
     {
@@ -87,7 +95,7 @@ class TicketStatusChanged implements ShouldBroadcastNow
             'event_title'  => $this->event_title,
             'timestamp'    => $this->timestamp,
             'status_color' => $this->getStatusColor($this->new_status),
-            'is_critical'  => in_array($this->new_status, ['inactive', 'removed', 'sold_out']),
+            'is_critical'  => in_array($this->new_status, ['inactive', 'removed', 'sold_out'], TRUE),
         ];
     }
 
@@ -118,7 +126,7 @@ class TicketStatusChanged implements ShouldBroadcastNow
             'inactive' => 'yellow',
             'removed'  => 'red',
             'sold_out' => 'gray',
-            default    => 'gray'
+            default    => 'gray',
         };
     }
 }

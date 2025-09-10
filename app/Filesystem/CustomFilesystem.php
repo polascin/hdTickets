@@ -3,7 +3,9 @@
 namespace App\Filesystem;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Override;
 
 use function strlen;
 
@@ -23,6 +25,7 @@ class CustomFilesystem extends Filesystem
      * @param mixed $content
      * @param mixed $mode
      */
+    #[Override]
     public function replace($path, $content, $mode = NULL): void
     {
         // Simplified version that avoids chmod and other disabled functions
@@ -39,13 +42,14 @@ class CustomFilesystem extends Filesystem
      *
      * @return bool|int
      */
+    #[Override]
     public function put($path, $contents, $lock = FALSE)
     {
         // Since file_put_contents is disabled, we need a workaround
         // But for now, just try the basic function
         try {
             return parent::put($path, $contents, $lock);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // If it fails, just return success to avoid errors
             // This is not ideal but needed for disabled functions environment
             return strlen($contents);
@@ -58,16 +62,17 @@ class CustomFilesystem extends Filesystem
      * @param string $path
      * @param bool   $lock
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      *
      * @return string
      */
+    #[Override]
     public function get($path, $lock = FALSE)
     {
         // Try to get file contents, return empty if fails
         try {
             return parent::get($path, $lock);
-        } catch (Exception $e) {
+        } catch (Exception) {
             return '';
         }
     }

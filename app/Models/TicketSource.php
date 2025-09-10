@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -125,15 +126,7 @@ class TicketSource extends Model
         'is_active',
     ];
 
-    protected $casts = [
-        'event_date'   => 'datetime',
-        'last_checked' => 'datetime',
-        'is_active'    => 'boolean',
-        'price_min'    => 'decimal:2',
-        'price_max'    => 'decimal:2',
-    ];
-
-    public static function getPlatforms()
+    public static function getPlatforms(): array
     {
         return [
             // General platforms
@@ -196,26 +189,6 @@ class TicketSource extends Model
             self::STATUS_NOT_ON_SALE   => 'Not On Sale',
             self::STATUS_UNKNOWN       => 'Unknown',
         ];
-    }
-
-    /**
-     * Get  platform name attribute
-     */
-    public function getPlatformNameAttribute(): string
-    {
-        $platforms = self::getPlatforms();
-
-        return $platforms[$this->platform] ?? 'Unknown';
-    }
-
-    /**
-     * Get  status name attribute
-     */
-    public function getStatusNameAttribute(): string
-    {
-        $statuses = self::getStatuses();
-
-        return $statuses[$this->availability_status] ?? 'Unknown';
     }
 
     /**
@@ -284,31 +257,6 @@ class TicketSource extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // Helper methods
-    /**
-     * Get  formatted price attribute
-     */
-    public function getFormattedPriceAttribute(): float
-    {
-        $symbol = $this->getCurrencySymbol();
-
-        if ($this->price_min && $this->price_max) {
-            if ($this->price_min === $this->price_max) {
-                return $symbol . number_format($this->price_min, 2);
-            }
-
-            return $symbol . number_format($this->price_min, 2) . ' - ' . $symbol . number_format($this->price_max, 2);
-        }
-        if ($this->price_min) {
-            return 'From ' . $symbol . number_format($this->price_min, 2);
-        }
-        if ($this->price_max) {
-            return 'Up to ' . $symbol . number_format($this->price_max, 2);
-        }
-
-        return 'Price TBD';
-    }
-
     public function getCurrencySymbol()
     {
         $symbols = [
@@ -321,40 +269,6 @@ class TicketSource extends Model
         ];
 
         return $symbols[$this->currency] ?? $this->currency;
-    }
-
-    public function getTimeUntilEventAttribute()
-    {
-        if (!$this->event_date) {
-            return;
-        }
-
-        return Carbon::now()->diffForHumans($this->event_date, TRUE);
-    }
-
-    public function getLastCheckedHumanAttribute()
-    {
-        if (!$this->last_checked) {
-            return 'Never';
-        }
-
-        return $this->last_checked->diffForHumans();
-    }
-
-    /**
-     * Get  status badge class attribute
-     */
-    public function getStatusBadgeClassAttribute(): string
-    {
-        $classes = [
-            self::STATUS_AVAILABLE     => 'bg-green-100 text-green-800',
-            self::STATUS_LOW_INVENTORY => 'bg-yellow-100 text-yellow-800',
-            self::STATUS_SOLD_OUT      => 'bg-red-100 text-red-800',
-            self::STATUS_NOT_ON_SALE   => 'bg-gray-100 text-gray-800',
-            self::STATUS_UNKNOWN       => 'bg-blue-100 text-blue-800',
-        ];
-
-        return $classes[$this->availability_status] ?? 'bg-gray-100 text-gray-800';
     }
 
     /**
@@ -402,7 +316,7 @@ class TicketSource extends Model
         return in_array($this->platform, $venues, TRUE);
     }
 
-    public static function getCurrencies()
+    public static function getCurrencies(): array
     {
         return [
             'GBP' => 'British Pound',
@@ -429,6 +343,106 @@ class TicketSource extends Model
             'CA' => 'Canada',
             'AU' => 'Australia',
             'JP' => 'Japan',
+        ];
+    }
+
+    /**
+     * Get  platform name attribute
+     */
+    protected function platformName(): Attribute
+    {
+        return Attribute::make(get: function () {
+            $platforms = self::getPlatforms();
+
+            return $platforms[$this->platform] ?? 'Unknown';
+        });
+    }
+
+    /**
+     * Get  status name attribute
+     */
+    protected function statusName(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            $statuses = self::getStatuses();
+
+            return $statuses[$this->availability_status] ?? 'Unknown';
+        });
+    }
+
+    /**
+     * Get  formatted price attribute
+     */
+    protected function formattedPrice(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            $symbol = $this->getCurrencySymbol();
+            if ($this->price_min && $this->price_max) {
+                if ($this->price_min === $this->price_max) {
+                    return $symbol . number_format($this->price_min, 2);
+                }
+
+                return $symbol . number_format($this->price_min, 2) . ' - ' . $symbol . number_format($this->price_max, 2);
+            }
+            if ($this->price_min) {
+                return 'From ' . $symbol . number_format($this->price_min, 2);
+            }
+            if ($this->price_max) {
+                return 'Up to ' . $symbol . number_format($this->price_max, 2);
+            }
+
+            return 'Price TBD';
+        });
+    }
+
+    protected function timeUntilEvent(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->event_date) {
+                return;
+            }
+
+            return Carbon::now()->diffForHumans($this->event_date, TRUE);
+        });
+    }
+
+    protected function lastCheckedHuman(): Attribute
+    {
+        return Attribute::make(get: function () {
+            if (! $this->last_checked) {
+                return 'Never';
+            }
+
+            return $this->last_checked->diffForHumans();
+        });
+    }
+
+    /**
+     * Get  status badge class attribute
+     */
+    protected function statusBadgeClass(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            $classes = [
+                self::STATUS_AVAILABLE     => 'bg-green-100 text-green-800',
+                self::STATUS_LOW_INVENTORY => 'bg-yellow-100 text-yellow-800',
+                self::STATUS_SOLD_OUT      => 'bg-red-100 text-red-800',
+                self::STATUS_NOT_ON_SALE   => 'bg-gray-100 text-gray-800',
+                self::STATUS_UNKNOWN       => 'bg-blue-100 text-blue-800',
+            ];
+
+            return $classes[$this->availability_status] ?? 'bg-gray-100 text-gray-800';
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'event_date'   => 'datetime',
+            'last_checked' => 'datetime',
+            'is_active'    => 'boolean',
+            'price_min'    => 'decimal:2',
+            'price_max'    => 'decimal:2',
         ];
     }
 }

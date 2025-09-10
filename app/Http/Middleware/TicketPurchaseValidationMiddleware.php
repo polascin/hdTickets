@@ -8,8 +8,13 @@ use App\Models\User;
 use App\Services\AdvancedRBACService;
 use App\Services\SecurityMonitoringService;
 use Closure;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Log;
+
+use function count;
 
 /**
  * TicketPurchaseValidationMiddleware
@@ -24,24 +29,16 @@ use Illuminate\Http\Response;
  */
 class TicketPurchaseValidationMiddleware
 {
-    protected SecurityMonitoringService $securityMonitoring;
-
-    protected AdvancedRBACService $rbacService;
-
-    public function __construct(
-        SecurityMonitoringService $securityMonitoring,
-        AdvancedRBACService $rbacService
-    ) {
-        $this->securityMonitoring = $securityMonitoring;
-        $this->rbacService = $rbacService;
+    public function __construct(protected SecurityMonitoringService $securityMonitoring, protected AdvancedRBACService $rbacService)
+    {
     }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request                                                                          $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse) $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param Closure(Request):((RedirectResponse|Response)) $next
+     *
+     * @return RedirectResponse|Response
      */
     public function handle(Request $request, Closure $next)
     {
@@ -50,26 +47,26 @@ class TicketPurchaseValidationMiddleware
             $user = $request->user();
 
             // Validate user authentication
-            if (!$user) {
+            if (! $user) {
                 return $this->denyAccess($request, 'Authentication required', 'unauthenticated');
             }
 
             // Get ticket being purchased
             $ticket = $this->getTicketFromRequest($request);
-            if (!$ticket) {
+            if (! $ticket instanceof Ticket) {
                 return $this->denyAccess($request, 'Invalid ticket', 'invalid_ticket', $user);
             }
 
             // Perform comprehensive purchase validation
             $validation = $this->validatePurchaseEligibility($user, $ticket, $request);
 
-            if (!$validation['can_purchase']) {
+            if (! $validation['can_purchase']) {
                 return $this->denyAccess(
                     $request,
                     $validation['message'],
                     'purchase_validation_failed',
                     $user,
-                    $validation
+                    $validation,
                 );
             }
 
@@ -82,15 +79,15 @@ class TicketPurchaseValidationMiddleware
                     'ticket_id'         => $ticket->id,
                     'ticket_title'      => $ticket->title,
                     'validation_passed' => TRUE,
-                ]
+                ],
             );
 
             // Add validation data to request for controller use
             $request->merge(['purchase_validation' => $validation]);
 
             return $next($request);
-        } catch (\Exception $e) {
-            \Log::error('Ticket purchase validation middleware error', [
+        } catch (Exception $e) {
+            Log::error('Ticket purchase validation middleware error', [
                 'error'       => $e->getMessage(),
                 'trace'       => $e->getTraceAsString(),
                 'request_uri' => $request->getRequestUri(),
@@ -107,11 +104,6 @@ class TicketPurchaseValidationMiddleware
 
     /**
      * Validate if user is eligible to purchase tickets
-     *
-     * @param  User    $user
-     * @param  Ticket  $ticket
-     * @param  Request $request
-     * @return array
      */
     protected function validatePurchaseEligibility(User $user, Ticket $ticket, Request $request): array
     {
@@ -125,37 +117,37 @@ class TicketPurchaseValidationMiddleware
         ];
 
         // 1. Check user status
-        if (!$this->validateUserStatus($user, $validation)) {
+        if (! $this->validateUserStatus($user, $validation)) {
             return $validation;
         }
 
         // 2. Check subscription requirements
-        if (!$this->validateSubscription($user, $validation)) {
+        if (! $this->validateSubscription($user, $validation)) {
             return $validation;
         }
 
         // 3. Check role-based permissions
-        if (!$this->validateRolePermissions($user, $validation)) {
+        if (! $this->validateRolePermissions($user, $validation)) {
             return $validation;
         }
 
         // 4. Check ticket availability
-        if (!$this->validateTicketAvailability($ticket, $request, $validation)) {
+        if (! $this->validateTicketAvailability($ticket, $request, $validation)) {
             return $validation;
         }
 
         // 5. Check purchase limits
-        if (!$this->validatePurchaseLimits($user, $ticket, $request, $validation)) {
+        if (! $this->validatePurchaseLimits($user, $ticket, $request, $validation)) {
             return $validation;
         }
 
         // 6. Security checks
-        if (!$this->validateSecurity($user, $request, $validation)) {
+        if (! $this->validateSecurity($user, $request, $validation)) {
             return $validation;
         }
 
         // 7. Rate limiting
-        if (!$this->validateRateLimit($user, $request, $validation)) {
+        if (! $this->validateRateLimit($user, $request, $validation)) {
             return $validation;
         }
 
@@ -172,7 +164,7 @@ class TicketPurchaseValidationMiddleware
     protected function validateUserStatus(User $user, array &$validation): bool
     {
         // Check if account is active
-        if (!$user->active) {
+        if (! $user->active) {
             $validation['reasons'][] = 'Account is inactive';
             $validation['message'] = 'Your account is inactive. Please contact support.';
 
@@ -188,7 +180,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // Check email verification
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             $validation['reasons'][] = 'Email not verified';
             $validation['message'] = 'Please verify your email address before making purchases.';
 
@@ -232,7 +224,7 @@ class TicketPurchaseValidationMiddleware
         }
 
         // Check active subscription
-        if (!$user->hasActiveSubscription()) {
+        if (! $user->hasActiveSubscription()) {
             $validation['reasons'][] = 'Active subscription required';
             $validation['message'] = 'An active subscription is required to purchase tickets.';
 
@@ -262,7 +254,7 @@ class TicketPurchaseValidationMiddleware
      */
     protected function validateRolePermissions(User $user, array &$validation): bool
     {
-        if (!$this->rbacService->hasPermission($user, 'tickets.purchase')) {
+        if (! $this->rbacService->hasPermission($user, 'tickets.purchase')) {
             $validation['reasons'][] = 'Insufficient permissions';
             $validation['message'] = 'You do not have permission to purchase tickets.';
 
@@ -282,7 +274,7 @@ class TicketPurchaseValidationMiddleware
         $quantity = (int) $request->input('quantity', 1);
 
         // Check if ticket is available for purchase
-        if (!$ticket->available) {
+        if (! $ticket->available) {
             $validation['reasons'][] = 'Ticket is not available';
             $validation['message'] = 'This ticket is no longer available for purchase.';
 
@@ -391,7 +383,7 @@ class TicketPurchaseValidationMiddleware
                 [
                     'security_score' => $securityScore,
                     'risk_factors'   => $this->getSecurityRiskFactors($user, $request),
-                ]
+                ],
             );
 
             return FALSE;
@@ -431,7 +423,7 @@ class TicketPurchaseValidationMiddleware
     {
         $ticketId = $request->route('ticket')?->id ?? $request->route('id') ?? $request->input('ticket_id');
 
-        if (!$ticketId) {
+        if (! $ticketId) {
             return NULL;
         }
 
@@ -481,7 +473,7 @@ class TicketPurchaseValidationMiddleware
         $score += $patternScore;
 
         // Check device trust
-        if (!$this->isTrustedDevice($user, $request)) {
+        if (! $this->isTrustedDevice($user, $request)) {
             $score += 10;
         }
 
@@ -536,7 +528,7 @@ class TicketPurchaseValidationMiddleware
         string $message,
         string $reason,
         ?User $user = NULL,
-        array $additionalData = []
+        array $additionalData = [],
     ) {
         // Log the denial
         $this->securityMonitoring->logSecurityEvent(
@@ -547,7 +539,7 @@ class TicketPurchaseValidationMiddleware
                 'reason'        => $reason,
                 'message'       => $message,
                 'requested_uri' => $request->getRequestUri(),
-            ], $additionalData)
+            ], $additionalData),
         );
 
         // Return appropriate response based on request type

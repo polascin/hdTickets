@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Mockery;
+use Override;
 use Tests\TestCase;
 
 class ScrapingServiceTest extends TestCase
@@ -261,6 +262,7 @@ class ScrapingServiceTest extends TestCase
         $this->assertEquals('not_initialized', $this->scrapingService->getHealthStatus()['status']);
     }
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -274,6 +276,7 @@ class ScrapingServiceTest extends TestCase
         $this->scrapingService = new ScrapingService();
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         Mockery::close();

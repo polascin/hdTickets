@@ -16,16 +16,8 @@ use Illuminate\Support\Facades\Cache;
 
 class MonitoringController extends Controller
 {
-    protected $monitoringService;
-
-    protected $platformService;
-
-    public function __construct(
-        RealTimeMonitoringService $monitoringService,
-        PlatformMonitoringService $platformService,
-    ) {
-        $this->monitoringService = $monitoringService;
-        $this->platformService = $platformService;
+    public function __construct(protected RealTimeMonitoringService $monitoringService, protected PlatformMonitoringService $platformService)
+    {
     }
 
     /**
@@ -39,7 +31,7 @@ class MonitoringController extends Controller
         try {
             $cacheKey = 'monitoring.realtime_stats.' . auth()->id();
 
-            $stats = Cache::remember($cacheKey, 60, function () {
+            $stats = Cache::remember($cacheKey, 60, function (): array {
                 $today = Carbon::today();
                 $yesterday = Carbon::yesterday();
 
@@ -61,8 +53,8 @@ class MonitoringController extends Controller
                     ->count();
 
                 // Alerts sent today (mock data - would come from notifications table)
-                $alertsToday = rand(15, 50);
-                $alertsYesterday = rand(10, 45);
+                $alertsToday = random_int(15, 50);
+                $alertsYesterday = random_int(10, 45);
 
                 // System performance metrics
                 $successRate = $this->calculateSuccessRate();
@@ -77,11 +69,11 @@ class MonitoringController extends Controller
                     'alerts_sent_today'    => $alertsToday,
                     'alerts_change'        => $alertsToday - $alertsYesterday,
                     'success_rate'         => $successRate,
-                    'success_rate_change'  => rand(-5, 5),
+                    'success_rate_change'  => random_int(-5, 5),
                     'avg_response_time'    => $avgResponseTime,
-                    'response_time_change' => rand(-100, 100),
+                    'response_time_change' => random_int(-100, 100),
                     'platform_health'      => $platformHealth,
-                    'health_change'        => rand(-5, 5),
+                    'health_change'        => random_int(-5, 5),
                     'timestamp'            => now()->toISOString(),
                 ];
             });
@@ -108,31 +100,27 @@ class MonitoringController extends Controller
     public function getPlatformHealth(Request $request): JsonResponse
     {
         try {
-            $platformHealth = Cache::remember('monitoring.platform_health', 300, function () {
-                return TicketSource::select([
-                    'name as platform',
-                    'status',
-                    'success_rate',
-                    'avg_response_time',
-                    'last_success_at',
-                    'error_count',
-                    'total_requests',
-                ])
-                    ->where('status', 'active')
-                    ->get()
-                    ->map(function ($platform) {
-                        return [
-                            'platform'          => $platform->platform,
-                            'status'            => $platform->status ?? 'active',
-                            'success_rate'      => $platform->success_rate ?? rand(85, 99),
-                            'avg_response_time' => $platform->avg_response_time ?? rand(200, 800),
-                            'last_success'      => $platform->last_success_at ?? now(),
-                            'error_count'       => $platform->error_count ?? rand(0, 5),
-                            'total_requests'    => $platform->total_requests ?? rand(100, 1000),
-                            'health_score'      => $this->calculatePlatformHealthScore($platform),
-                        ];
-                    });
-            });
+            $platformHealth = Cache::remember('monitoring.platform_health', 300, fn () => TicketSource::select([
+                'name as platform',
+                'status',
+                'success_rate',
+                'avg_response_time',
+                'last_success_at',
+                'error_count',
+                'total_requests',
+            ])
+                ->where('status', 'active')
+                ->get()
+                ->map(fn ($platform): array => [
+                    'platform'          => $platform->platform,
+                    'status'            => $platform->status ?? 'active',
+                    'success_rate'      => $platform->success_rate ?? random_int(85, 99),
+                    'avg_response_time' => $platform->avg_response_time ?? random_int(200, 800),
+                    'last_success'      => $platform->last_success_at ?? now(),
+                    'error_count'       => $platform->error_count ?? random_int(0, 5),
+                    'total_requests'    => $platform->total_requests ?? random_int(100, 1000),
+                    'health_score'      => $this->calculatePlatformHealthScore($platform),
+                ]));
 
             return response()->json([
                 'success' => TRUE,
@@ -161,24 +149,22 @@ class MonitoringController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->limit(20)
                 ->get()
-                ->map(function ($alert) {
-                    return [
-                        'id'         => $alert->id,
-                        'title'      => $alert->title ?? $alert->ticket->title ?? 'Unnamed Monitor',
-                        'event_name' => $alert->ticket->event_name ?? 'Unknown Event',
-                        'platform'   => $alert->ticket->platform ?? 'Unknown Platform',
-                        'status'     => $alert->is_active ? 'active' : 'paused',
-                        'criteria'   => [
-                            'max_price'          => $alert->max_price,
-                            'min_quantity'       => $alert->min_quantity,
-                            'section_preference' => $alert->section_preference,
-                        ],
-                        'last_check'  => $alert->last_triggered_at ?? $alert->created_at,
-                        'alerts_sent' => rand(0, 25),
-                        'created_at'  => $alert->created_at,
-                        'next_check'  => now()->addMinutes(rand(5, 30)),
-                    ];
-                });
+                ->map(fn ($alert): array => [
+                    'id'         => $alert->id,
+                    'title'      => $alert->title ?? $alert->ticket->title ?? 'Unnamed Monitor',
+                    'event_name' => $alert->ticket->event_name ?? 'Unknown Event',
+                    'platform'   => $alert->ticket->platform ?? 'Unknown Platform',
+                    'status'     => $alert->is_active ? 'active' : 'paused',
+                    'criteria'   => [
+                        'max_price'          => $alert->max_price,
+                        'min_quantity'       => $alert->min_quantity,
+                        'section_preference' => $alert->section_preference,
+                    ],
+                    'last_check'  => $alert->last_triggered_at ?? $alert->created_at,
+                    'alerts_sent' => random_int(0, 25),
+                    'created_at'  => $alert->created_at,
+                    'next_check'  => now()->addMinutes(random_int(5, 30)),
+                ]);
 
             return response()->json([
                 'success' => TRUE,
@@ -347,7 +333,7 @@ class MonitoringController extends Controller
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
 
-            $monitor->is_active = !$monitor->is_active;
+            $monitor->is_active = ! $monitor->is_active;
             $monitor->save();
 
             if ($monitor->is_active) {
@@ -382,21 +368,19 @@ class MonitoringController extends Controller
     public function getSystemMetrics(Request $request): JsonResponse
     {
         try {
-            $metrics = Cache::remember('monitoring.system_metrics', 120, function () {
-                return [
-                    'cpu_usage'            => rand(15, 85),
-                    'memory_usage'         => rand(40, 75),
-                    'disk_usage'           => rand(25, 65),
-                    'network_io'           => rand(10, 50),
-                    'database_connections' => rand(5, 25),
-                    'redis_connections'    => rand(2, 15),
-                    'queue_size'           => rand(0, 100),
-                    'active_scrapers'      => rand(5, 15),
-                    'scraping_rate'        => rand(50, 150) . '/min',
-                    'uptime'               => '99.8%',
-                    'last_updated'         => now()->toISOString(),
-                ];
-            });
+            $metrics = Cache::remember('monitoring.system_metrics', 120, fn (): array => [
+                'cpu_usage'            => random_int(15, 85),
+                'memory_usage'         => random_int(40, 75),
+                'disk_usage'           => random_int(25, 65),
+                'network_io'           => random_int(10, 50),
+                'database_connections' => random_int(5, 25),
+                'redis_connections'    => random_int(2, 15),
+                'queue_size'           => random_int(0, 100),
+                'active_scrapers'      => random_int(5, 15),
+                'scraping_rate'        => random_int(50, 150) . '/min',
+                'uptime'               => '99.8%',
+                'last_updated'         => now()->toISOString(),
+            ]);
 
             return response()->json([
                 'success' => TRUE,
@@ -420,7 +404,7 @@ class MonitoringController extends Controller
     private function calculateSuccessRate(): float
     {
         // Mock calculation - in real implementation, track actual success/failure rates
-        return round(rand(9500, 9900) / 100, 2);
+        return round(random_int(9500, 9900) / 100, 2);
     }
 
     /**
@@ -432,7 +416,7 @@ class MonitoringController extends Controller
     private function calculateAverageResponseTime(): int
     {
         // Mock calculation - in real implementation, track actual response times
-        return rand(200, 800);
+        return random_int(200, 800);
     }
 
     /**
@@ -444,7 +428,7 @@ class MonitoringController extends Controller
     private function calculatePlatformHealth(): float
     {
         // Mock calculation - in real implementation, aggregate platform health scores
-        return round(rand(8500, 9800) / 100, 2);
+        return round(random_int(8500, 9800) / 100, 2);
     }
 
     /**
@@ -459,9 +443,9 @@ class MonitoringController extends Controller
      */
     private function calculatePlatformHealthScore($platform): float
     {
-        $successRate = $platform->success_rate ?? rand(85, 99);
-        $responseTime = $platform->avg_response_time ?? rand(200, 800);
-        $errorCount = $platform->error_count ?? rand(0, 5);
+        $successRate = $platform->success_rate ?? random_int(85, 99);
+        $responseTime = $platform->avg_response_time ?? random_int(200, 800);
+        $errorCount = $platform->error_count ?? random_int(0, 5);
 
         // Simple health score calculation
         $healthScore = $successRate;

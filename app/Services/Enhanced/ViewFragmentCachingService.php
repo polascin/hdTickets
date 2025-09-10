@@ -2,6 +2,7 @@
 
 namespace App\Services\Enhanced;
 
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -71,12 +72,10 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             "navigation.{$userRole}.{$currentRoute}",
-            function () use ($userRole, $currentRoute) {
-                return View::make('layouts.navigation', [
-                    'user_role'     => $userRole,
-                    'current_route' => $currentRoute,
-                ])->render();
-            },
+            fn () => View::make('layouts.navigation', [
+                'user_role'     => $userRole,
+                'current_route' => $currentRoute,
+            ])->render(),
             self::TTL_SEMI_STATIC,
             ['navigation', 'user_role:' . $userRole],
         );
@@ -92,9 +91,7 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             "dashboard.stats.{$userRole}",
-            function () use ($stats) {
-                return View::make('components.dashboard.stat-card', compact('stats'))->render();
-            },
+            fn () => View::make('components.dashboard.stat-card', ['stats' => $stats])->render(),
             self::TTL_DYNAMIC,
             ['dashboard', 'stats'],
         );
@@ -112,13 +109,11 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "tickets.table.{$userRole}.{$filterHash}",
-            function () use ($tickets, $filters) {
-                return View::make('components.enhanced-table', [
-                    'tickets' => $tickets,
-                    'filters' => $filters,
-                    'columns' => $this->getTicketTableColumns(),
-                ])->render();
-            },
+            fn () => View::make('components.enhanced-table', [
+                'tickets' => $tickets,
+                'filters' => $filters,
+                'columns' => $this->getTicketTableColumns(),
+            ])->render(),
             self::TTL_REAL_TIME,
             ['tickets', 'table'],
         );
@@ -134,11 +129,9 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             'dashboard.platform_status',
-            function () use ($platformStats) {
-                return View::make('components.dashboard.platform-status', [
-                    'platforms' => $platformStats,
-                ])->render();
-            },
+            fn () => View::make('components.dashboard.platform-status', [
+                'platforms' => $platformStats,
+            ])->render(),
             self::TTL_DYNAMIC,
             ['platform', 'status'],
         );
@@ -156,13 +149,11 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "charts.{$chartType}.{$dataHash}",
-            function () use ($chartType, $data, $options) {
-                return View::make('components.charts.' . $chartType, [
-                    'data'     => $data,
-                    'options'  => $options,
-                    'chart_id' => 'chart_' . Str::random(8),
-                ])->render();
-            },
+            fn () => View::make('components.charts.' . $chartType, [
+                'data'     => $data,
+                'options'  => $options,
+                'chart_id' => 'chart_' . Str::random(8),
+            ])->render(),
             self::TTL_DYNAMIC,
             ['charts', $chartType],
         );
@@ -178,12 +169,10 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             'footer',
-            function () {
-                return View::make('components.footer', [
-                    'version' => config('app.version'),
-                    'year'    => date('Y'),
-                ])->render();
-            },
+            fn () => View::make('components.footer', [
+                'version' => config('app.version'),
+                'year'    => date('Y'),
+            ])->render(),
             self::TTL_STATIC,
             ['footer', 'static'],
         );
@@ -201,11 +190,9 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "breadcrumb.{$breadcrumbHash}",
-            function () use ($breadcrumbs) {
-                return View::make('components.breadcrumb', [
-                    'breadcrumbs' => $breadcrumbs,
-                ])->render();
-            },
+            fn () => View::make('components.breadcrumb', [
+                'breadcrumbs' => $breadcrumbs,
+            ])->render(),
             self::TTL_SEMI_STATIC,
             ['breadcrumb'],
         );
@@ -221,12 +208,10 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             "mobile_nav.{$userRole}",
-            function () use ($userRole) {
-                return View::make('components.mobile.bottom-navigation', [
-                    'user_role'     => $userRole,
-                    'current_route' => request()->route()->getName(),
-                ])->render();
-            },
+            fn () => View::make('components.mobile.bottom-navigation', [
+                'user_role'     => $userRole,
+                'current_route' => request()->route()->getName(),
+            ])->render(),
             self::TTL_SEMI_STATIC,
             ['mobile', 'navigation'],
         );
@@ -244,11 +229,9 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "alerts.panel.{$userRole}.{$alertsHash}",
-            function () use ($alerts) {
-                return View::make('components.alert-panel', [
-                    'alerts' => $alerts,
-                ])->render();
-            },
+            fn () => View::make('components.alert-panel', [
+                'alerts' => $alerts,
+            ])->render(),
             self::TTL_REAL_TIME,
             ['alerts', 'notifications'],
         );
@@ -265,7 +248,7 @@ class ViewFragmentCachingService
         return $this->cacheFragment(
             "user.profile.{$userId}",
             function () use ($userId) {
-                $user = \App\Models\User::find($userId);
+                $user = User::find($userId);
 
                 return View::make('components.user-profile-sidebar', [
                     'user'  => $user,
@@ -289,9 +272,7 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "admin.widget.{$widgetType}.{$dataHash}",
-            function () use ($widgetType, $data) {
-                return View::make("admin.widgets.{$widgetType}", $data)->render();
-            },
+            fn () => View::make("admin.widgets.{$widgetType}", $data)->render(),
             self::TTL_DYNAMIC,
             ['admin', 'widget', $widgetType],
         );
@@ -309,12 +290,10 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "search.filters.{$filtersHash}",
-            function () use ($filters, $options) {
-                return View::make('components.search-filters', [
-                    'filters' => $filters,
-                    'options' => $options,
-                ])->render();
-            },
+            fn () => View::make('components.search-filters', [
+                'filters' => $filters,
+                'options' => $options,
+            ])->render(),
             self::TTL_SEMI_STATIC,
             ['search', 'filters'],
         );
@@ -332,12 +311,10 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "availability.map.{$dataHash}",
-            function () use ($venues, $events) {
-                return View::make('components.dashboard.availability-map', [
-                    'venues' => $venues,
-                    'events' => $events,
-                ])->render();
-            },
+            fn () => View::make('components.dashboard.availability-map', [
+                'venues' => $venues,
+                'events' => $events,
+            ])->render(),
             self::TTL_REAL_TIME,
             ['availability', 'map'],
         );
@@ -355,13 +332,11 @@ class ViewFragmentCachingService
 
         return $this->cacheFragment(
             "price_trends.{$period}.{$dataHash}",
-            function () use ($priceData, $period) {
-                return View::make('components.charts.price-trends', [
-                    'data'     => $priceData,
-                    'period'   => $period,
-                    'chart_id' => 'price_trend_' . Str::random(6),
-                ])->render();
-            },
+            fn () => View::make('components.charts.price-trends', [
+                'data'     => $priceData,
+                'period'   => $period,
+                'chart_id' => 'price_trend_' . Str::random(6),
+            ])->render(),
             self::TTL_DYNAMIC,
             ['charts', 'price_trends'],
         );
@@ -377,11 +352,9 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             'events.spotlight',
-            function () use ($featuredEvents) {
-                return View::make('components.dashboard.event-spotlight', [
-                    'events' => $featuredEvents,
-                ])->render();
-            },
+            fn () => View::make('components.dashboard.event-spotlight', [
+                'events' => $featuredEvents,
+            ])->render(),
             self::TTL_DYNAMIC,
             ['events', 'spotlight'],
         );
@@ -397,11 +370,9 @@ class ViewFragmentCachingService
     {
         return $this->cacheFragment(
             'live.ticker',
-            function () use ($liveUpdates) {
-                return View::make('components.dashboard.live-ticker', [
-                    'updates' => $liveUpdates,
-                ])->render();
-            },
+            fn () => View::make('components.dashboard.live-ticker', [
+                'updates' => $liveUpdates,
+            ])->render(),
             self::TTL_REAL_TIME,
             ['live', 'ticker'],
         );
@@ -536,7 +507,7 @@ class ViewFragmentCachingService
         }
 
         // Add tags to key for better organization
-        if (!empty($tags)) {
+        if ($tags !== []) {
             $key .= '.' . implode('.', $tags);
         }
 

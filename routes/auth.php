@@ -4,24 +4,26 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\LoginEnhancementController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\TwoFactorController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PublicRegistrationController;
 use App\Http\Controllers\Auth\PublicRegistrationValidationController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Middleware\EnhancedLoginSecurity;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->group(function (): void {
+Route::middleware(['guest', EnhancedLoginSecurity::class])->group(function (): void {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    
+
     // Login enhancement endpoints
-    Route::post('login/check-email', [App\Http\Controllers\Auth\LoginEnhancementController::class, 'checkEmail'])
+    Route::post('login/check-email', [LoginEnhancementController::class, 'checkEmail'])
         ->name('login.check-email')
         ->middleware('throttle:30,1');
 
@@ -40,24 +42,24 @@ Route::middleware(['guest', App\Http\Middleware\EnhancedLoginSecurity::class])->
     // Registration routes
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
-    
+
     Route::post('register', [RegisteredUserController::class, 'store']);
-    
+
     // Public registration routes (alternative path)
     Route::get('register/public', [PublicRegistrationController::class, 'create'])
         ->name('register.public');
-    
+
     Route::post('register/public', [PublicRegistrationController::class, 'store']);
-    
+
     // Progressive enhancement validation endpoints
     Route::post('register/public/validate', [PublicRegistrationValidationController::class, 'validate'])
         ->name('register.public.validate')
         ->middleware('throttle:60,1');
-    
+
     Route::post('register/public/check-email', [PublicRegistrationValidationController::class, 'checkEmailAvailability'])
         ->name('register.public.check-email')
         ->middleware('throttle:30,1');
-    
+
     Route::post('register/public/check-password', [PublicRegistrationValidationController::class, 'checkPasswordStrength'])
         ->name('register.public.check-password')
         ->middleware('throttle:60,1');

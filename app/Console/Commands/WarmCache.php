@@ -13,15 +13,12 @@ class WarmCache extends Command
     /** The console command description. */
     protected $description = 'Warm application cache for improved performance';
 
-    private PerformanceOptimizationService $performanceService;
-
     /**
      * Create a new command instance.
      */
-    public function __construct(PerformanceOptimizationService $performanceService)
+    public function __construct(private PerformanceOptimizationService $performanceService)
     {
         parent::__construct();
-        $this->performanceService = $performanceService;
     }
 
     /**

@@ -120,10 +120,10 @@ class PasswordHistoryService
             'history_count'     => count($passwordHistory),
             'max_history_count' => self::PASSWORD_HISTORY_COUNT,
             'reuse_days'        => self::PASSWORD_REUSE_DAYS,
-            'oldest_entry'      => !empty($passwordHistory) ?
-                Carbon::parse(end($passwordHistory)['created_at'])->format('M j, Y') : NULL,
-            'newest_entry' => !empty($passwordHistory) ?
-                Carbon::parse($passwordHistory[0]['created_at'])->format('M j, Y') : NULL,
+            'oldest_entry'      => empty($passwordHistory) ?
+                NULL : Carbon::parse(end($passwordHistory)['created_at'])->format('M j, Y'),
+            'newest_entry' => empty($passwordHistory) ?
+                NULL : Carbon::parse($passwordHistory[0]['created_at'])->format('M j, Y'),
         ];
     }
 
@@ -138,7 +138,7 @@ class PasswordHistoryService
         $passwordHistory = $user->password_history ?? [];
         $cutoffDate = now()->subDays(self::PASSWORD_REUSE_DAYS * 2); // Keep extra time for safety
 
-        $cleanedHistory = array_filter($passwordHistory, function ($entry) use ($cutoffDate) {
+        $cleanedHistory = array_filter($passwordHistory, function (array $entry) use ($cutoffDate): bool {
             $entryDate = Carbon::parse($entry['created_at']);
 
             return $entryDate->isAfter($cutoffDate);
@@ -207,25 +207,25 @@ class PasswordHistoryService
         }
 
         // Character type checks
-        if (!preg_match('/[a-z]/', $password)) {
+        if (! preg_match('/[a-z]/', $password)) {
             $errors[] = 'Password must contain at least one lowercase letter';
         } else {
             $score++;
         }
 
-        if (!preg_match('/[A-Z]/', $password)) {
+        if (! preg_match('/[A-Z]/', $password)) {
             $errors[] = 'Password must contain at least one uppercase letter';
         } else {
             $score++;
         }
 
-        if (!preg_match('/\d/', $password)) {
+        if (! preg_match('/\d/', $password)) {
             $errors[] = 'Password must contain at least one number';
         } else {
             $score++;
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $errors[] = 'Password must contain at least one special character';
         } else {
             $score++;
@@ -235,7 +235,7 @@ class PasswordHistoryService
         $strengthLabel = $this->getStrengthLabel($strengthPercentage);
 
         return [
-            'is_valid'            => empty($errors),
+            'is_valid'            => $errors === [],
             'errors'              => $errors,
             'score'               => $score,
             'max_score'           => $maxScore,
@@ -274,6 +274,8 @@ class PasswordHistoryService
      */
     /**
      * Get  password recommendations
+     *
+     * @return string[]
      */
     private function getPasswordRecommendations(string $password, int $currentScore): array
     {
@@ -287,7 +289,7 @@ class PasswordHistoryService
             $recommendations[] = 'Add a mix of uppercase, lowercase, numbers, and special characters';
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $recommendations[] = 'Include special characters like !@#$%^&*';
         }
 

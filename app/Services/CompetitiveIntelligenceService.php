@@ -9,6 +9,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function count;
+use function is_array;
+
 /**
  * Competitive Intelligence Service
  *
@@ -17,9 +20,9 @@ use Illuminate\Support\Facades\DB;
  */
 class CompetitiveIntelligenceService
 {
-    private const CACHE_TTL = 3600; // 1 hour
+    private const int CACHE_TTL = 3600; // 1 hour
 
-    private const CACHE_PREFIX = 'competitive_intelligence';
+    private const string CACHE_PREFIX = 'competitive_intelligence';
 
     /**
      * Get comprehensive competitive analysis dashboard data
@@ -28,18 +31,16 @@ class CompetitiveIntelligenceService
     {
         $cacheKey = self::CACHE_PREFIX . '_dashboard_' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
-            return [
-                'market_overview'      => $this->getMarketOverview($filters),
-                'price_comparison'     => $this->getPriceComparison($filters),
-                'platform_positioning' => $this->getPlatformPositioning($filters),
-                'competitive_gaps'     => $this->getCompetitiveGaps($filters),
-                'market_share'         => $this->getMarketShare($filters),
-                'pricing_strategies'   => $this->getPricingStrategies($filters),
-                'opportunity_analysis' => $this->getOpportunityAnalysis($filters),
-                'threat_assessment'    => $this->getThreatAssessment($filters),
-            ];
-        });
+        return Cache::remember($cacheKey, self::CACHE_TTL, fn (): array => [
+            'market_overview'      => $this->getMarketOverview($filters),
+            'price_comparison'     => $this->getPriceComparison($filters),
+            'platform_positioning' => $this->getPlatformPositioning($filters),
+            'competitive_gaps'     => $this->getCompetitiveGaps($filters),
+            'market_share'         => $this->getMarketShare($filters),
+            'pricing_strategies'   => $this->getPricingStrategies($filters),
+            'opportunity_analysis' => $this->getOpportunityAnalysis($filters),
+            'threat_assessment'    => $this->getThreatAssessment($filters),
+        ]);
     }
 
     /**
@@ -80,15 +81,13 @@ class CompetitiveIntelligenceService
                 'platform_count' => $platformCount,
                 'last_updated'   => Carbon::now()->toISOString(),
             ],
-            'price_segments' => $priceRanges->mapWithKeys(function ($segment) {
-                return [$segment->price_segment => [
-                    'count'     => $segment->total,
-                    'avg_price' => round($segment->avg_price, 2),
-                    'min_price' => round($segment->min_price, 2),
-                    'max_price' => round($segment->max_price, 2),
-                ]];
-            }),
-            'market_trends' => $this->getMarketTrends($filters),
+            'price_segments' => $priceRanges->mapWithKeys(fn ($segment): array => [$segment->price_segment => [
+                'count'     => $segment->total,
+                'avg_price' => round($segment->avg_price, 2),
+                'min_price' => round($segment->min_price, 2),
+                'max_price' => round($segment->max_price, 2),
+            ]]),
+            'market_trends' => $this->getMarketTrends(),
         ];
     }
 
@@ -99,13 +98,13 @@ class CompetitiveIntelligenceService
     {
         $cacheKey = self::CACHE_PREFIX . '_price_comparison_' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function (): array {
             // Similar events across platforms
             $eventComparisons = DB::table('scraped_tickets as st1')
                 ->join('ticket_sources as ts1', 'st1.source_id', '=', 'ts1.id')
-                ->join('scraped_tickets as st2', function ($join) {
+                ->join('scraped_tickets as st2', function ($join): void {
                     $join->on('st1.event_name', '=', 'st2.event_name')
-                         ->on('st1.source_id', '!=', 'st2.source_id');
+                        ->on('st1.source_id', '!=', 'st2.source_id');
                 })
                 ->join('ticket_sources as ts2', 'st2.source_id', '=', 'ts2.id')
                 ->select([
@@ -153,12 +152,12 @@ class CompetitiveIntelligenceService
      */
     public function getPlatformPositioning(array $filters = []): array
     {
-        $platforms = TicketSource::with(['scrapedTickets' => function ($query) use ($filters) {
+        $platforms = TicketSource::with(['scrapedTickets' => function ($query) use ($filters): void {
             $query->where('created_at', '>=', Carbon::now()->subDays(30));
             $this->applyTicketFilters($query, $filters);
         }])->get();
 
-        $positioning = $platforms->map(function ($platform) {
+        $positioning = $platforms->map(function ($platform): ?array {
             $tickets = $platform->scrapedTickets;
 
             if ($tickets->isEmpty()) {
@@ -170,7 +169,7 @@ class CompetitiveIntelligenceService
             $priceRange = $tickets->max('price') - $tickets->min('price');
 
             // Calculate market position
-            $position = $this->calculateMarketPosition($avgPrice, $totalTickets, $priceRange);
+            $position = $this->calculateMarketPosition($avgPrice, $totalTickets);
 
             return [
                 'platform'              => $platform->name,
@@ -179,7 +178,7 @@ class CompetitiveIntelligenceService
                 'ticket_volume'         => $totalTickets,
                 'price_range'           => round($priceRange, 2),
                 'specialization'        => $this->identifySpecialization($tickets),
-                'competitive_strengths' => $this->identifyStrengths($platform, $tickets),
+                'competitive_strengths' => $this->identifyStrengths($tickets),
                 'market_share_estimate' => $this->estimateMarketShare($totalTickets, $platforms->sum(fn ($p) => $p->scrapedTickets->count())),
             ];
         })->filter();
@@ -199,18 +198,18 @@ class CompetitiveIntelligenceService
     {
         $cacheKey = self::CACHE_PREFIX . '_gaps_' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($filters) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function (): array {
             // Price gaps analysis
             $priceGaps = $this->identifyPriceGaps();
 
             // Geographic gaps
-            $geographicGaps = $this->identifyGeographicGaps($filters);
+            $geographicGaps = $this->identifyGeographicGaps();
 
             // Sport category gaps
-            $categoryGaps = $this->identifyCategoryGaps($filters);
+            $categoryGaps = $this->identifyCategoryGaps();
 
             // Timing gaps
-            $timingGaps = $this->identifyTimingGaps($filters);
+            $timingGaps = $this->identifyTimingGaps();
 
             return [
                 'price_opportunities'      => $priceGaps,
@@ -244,21 +243,19 @@ class CompetitiveIntelligenceService
         $totalTickets = $marketData->sum('ticket_count');
         $totalValue = $marketData->sum('total_value');
 
-        $marketShare = $marketData->map(function ($platform) use ($totalTickets, $totalValue) {
-            return [
-                'platform'      => $platform->platform,
-                'ticket_share'  => round(($platform->ticket_count / $totalTickets) * 100, 2),
-                'value_share'   => round(($platform->total_value / $totalValue) * 100, 2),
-                'avg_price'     => round($platform->avg_price, 2),
-                'total_tickets' => $platform->ticket_count,
-                'total_value'   => round($platform->total_value, 2),
-            ];
-        })->sortByDesc('value_share');
+        $marketShare = $marketData->map(fn ($platform): array => [
+            'platform'      => $platform->platform,
+            'ticket_share'  => round(($platform->ticket_count / $totalTickets) * 100, 2),
+            'value_share'   => round(($platform->total_value / $totalValue) * 100, 2),
+            'avg_price'     => round($platform->avg_price, 2),
+            'total_tickets' => $platform->ticket_count,
+            'total_value'   => round($platform->total_value, 2),
+        ])->sortByDesc('value_share');
 
         return [
             'market_share_data'     => $marketShare,
             'market_concentration'  => $this->calculateMarketConcentration($marketShare),
-            'growth_trends'         => $this->getMarketShareTrends($filters),
+            'growth_trends'         => $this->getMarketShareTrends(),
             'competitive_intensity' => $this->calculateCompetitiveIntensity($marketShare),
         ];
     }
@@ -270,7 +267,7 @@ class CompetitiveIntelligenceService
     {
         $platforms = TicketSource::all();
 
-        $strategies = $platforms->map(function ($platform) use ($filters) {
+        $strategies = $platforms->map(function ($platform): ?array {
             $tickets = ScrapedTicket::where('source_id', $platform->id)
                 ->where('created_at', '>=', Carbon::now()->subDays(30))
                 ->get();
@@ -284,16 +281,16 @@ class CompetitiveIntelligenceService
                 'strategy_type'        => $this->identifyPricingStrategy($tickets),
                 'price_consistency'    => $this->calculatePriceConsistency($tickets),
                 'premium_positioning'  => $this->calculatePremiumPositioning($tickets),
-                'discount_frequency'   => $this->calculateDiscountFrequency($tickets),
+                'discount_frequency'   => $this->calculateDiscountFrequency(),
                 'dynamic_pricing'      => $this->detectDynamicPricing($tickets),
-                'competitive_response' => $this->analyzeCompetitiveResponse($platform, $tickets),
+                'competitive_response' => $this->analyzeCompetitiveResponse(),
             ];
         })->filter();
 
         return [
             'platform_strategies'    => $strategies,
-            'strategy_effectiveness' => $this->evaluateStrategyEffectiveness($strategies),
-            'market_recommendations' => $this->generatePricingRecommendations($strategies),
+            'strategy_effectiveness' => $this->evaluateStrategyEffectiveness(),
+            'market_recommendations' => $this->generatePricingRecommendations(),
         ];
     }
 
@@ -303,11 +300,11 @@ class CompetitiveIntelligenceService
     public function getOpportunityAnalysis(array $filters = []): array
     {
         return [
-            'underserved_segments'      => $this->identifyUnderservedSegments($filters),
-            'price_optimization'        => $this->identifyPriceOptimization($filters),
-            'geographic_expansion'      => $this->identifyGeographicOpportunities($filters),
-            'partnership_opportunities' => $this->identifyPartnershipOpportunities($filters),
-            'technology_gaps'           => $this->identifyTechnologyGaps($filters),
+            'underserved_segments'      => $this->identifyUnderservedSegments(),
+            'price_optimization'        => $this->identifyPriceOptimization(),
+            'geographic_expansion'      => $this->identifyGeographicOpportunities(),
+            'partnership_opportunities' => $this->identifyPartnershipOpportunities(),
+            'technology_gaps'           => $this->identifyTechnologyGaps(),
         ];
     }
 
@@ -317,11 +314,11 @@ class CompetitiveIntelligenceService
     public function getThreatAssessment(array $filters = []): array
     {
         return [
-            'competitive_threats'    => $this->identifyCompetitiveThreats($filters),
-            'market_disruption_risk' => $this->assessDisruptionRisk($filters),
-            'price_war_indicators'   => $this->detectPriceWarIndicators($filters),
-            'market_saturation'      => $this->assessMarketSaturation($filters),
-            'regulatory_risks'       => $this->assessRegulatoryRisks($filters),
+            'competitive_threats'    => $this->identifyCompetitiveThreats(),
+            'market_disruption_risk' => $this->assessDisruptionRisk(),
+            'price_war_indicators'   => $this->detectPriceWarIndicators(),
+            'market_saturation'      => $this->assessMarketSaturation(),
+            'regulatory_risks'       => $this->assessRegulatoryRisks(),
         ];
     }
 
@@ -329,46 +326,45 @@ class CompetitiveIntelligenceService
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('scraped_tickets.sport', $filters['sport']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('scraped_tickets.event_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('scraped_tickets.event_date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('scraped_tickets.price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('scraped_tickets.price', '<=', $filters['price_max']);
         }
     }
 
     private function applyTicketFilters($query, array $filters): void
     {
-        if (!empty($filters['sport'])) {
+        if (! empty($filters['sport'])) {
             $query->where('sport', $filters['sport']);
         }
 
-        if (!empty($filters['price_min'])) {
+        if (! empty($filters['price_min'])) {
             $query->where('price', '>=', $filters['price_min']);
         }
 
-        if (!empty($filters['price_max'])) {
+        if (! empty($filters['price_max'])) {
             $query->where('price', '<=', $filters['price_max']);
         }
     }
 
-    private function getMarketTrends(array $filters): array
+    private function getMarketTrends(): array
     {
         $trends = [];
-
         // Weekly price trends
         $weeklyTrends = ScrapedTicket::query()
             ->selectRaw('
@@ -380,15 +376,14 @@ class CompetitiveIntelligenceService
             ->groupBy('week')
             ->orderBy('week')
             ->get();
-
         $trends['weekly_price'] = $weeklyTrends;
 
         return $trends;
     }
 
-    private function identifyPriceGaps(Collection $comparisons = NULL): array
+    private function identifyPriceGaps(?Collection $comparisons = NULL): array
     {
-        if (!$comparisons) {
+        if (! $comparisons instanceof Collection) {
             $comparisons = collect();
         }
 
@@ -406,17 +401,17 @@ class CompetitiveIntelligenceService
         $advantages = [];
 
         $lowestAvg = $platformStats->min('avg_price');
-        $highestAvg = $platformStats->max('avg_price');
+        $platformStats->max('avg_price');
         $mostTickets = $platformStats->max('ticket_count');
 
         foreach ($platformStats as $platform) {
             $platformAdvantages = [];
 
-            if ($platform->avg_price == $lowestAvg) {
+            if ($platform->avg_price === $lowestAvg) {
                 $platformAdvantages[] = 'lowest_prices';
             }
 
-            if ($platform->ticket_count == $mostTickets) {
+            if ($platform->ticket_count === $mostTickets) {
                 $platformAdvantages[] = 'highest_volume';
             }
 
@@ -430,7 +425,7 @@ class CompetitiveIntelligenceService
         return $advantages;
     }
 
-    private function calculateMarketPosition($avgPrice, $ticketCount, $priceRange): string
+    private function calculateMarketPosition($avgPrice, $ticketCount): string
     {
         $priceScore = $avgPrice > 200 ? 'premium' : ($avgPrice > 100 ? 'mid_market' : 'budget');
         $volumeScore = $ticketCount > 1000 ? 'high_volume' : ($ticketCount > 100 ? 'medium_volume' : 'low_volume');
@@ -442,7 +437,7 @@ class CompetitiveIntelligenceService
     {
         $sports = $tickets->groupBy('sport');
 
-        if ($sports->count() == 1) {
+        if ($sports->count() === 1) {
             return $sports->keys()->first() . '_specialist';
         }
 
@@ -452,7 +447,10 @@ class CompetitiveIntelligenceService
         return $dominantPercentage > 70 ? $dominantSport . '_focused' : 'general';
     }
 
-    private function identifyStrengths($platform, Collection $tickets): array
+    /**
+     * @return string[]
+     */
+    private function identifyStrengths(Collection $tickets): array
     {
         $strengths = [];
 
@@ -477,7 +475,7 @@ class CompetitiveIntelligenceService
 
     private function estimateMarketShare($platformTickets, $totalTickets): float
     {
-        if ($totalTickets == 0) {
+        if ($totalTickets === 0) {
             return 0;
         }
 
@@ -486,15 +484,13 @@ class CompetitiveIntelligenceService
 
     private function createPositioningMatrix(Collection $positioning): array
     {
-        return $positioning->map(function ($platform) {
-            return [
-                'platform' => $platform['platform'],
-                'x'        => $platform['avg_price'], // Price axis
-                'y'        => $platform['ticket_volume'], // Volume axis
-                'size'     => $platform['market_share_estimate'], // Bubble size
-                'quadrant' => $this->determineQuadrant($platform['avg_price'], $platform['ticket_volume']),
-            ];
-        })->toArray();
+        return $positioning->map(fn ($platform): array => [
+            'platform' => $platform['platform'],
+            'x'        => $platform['avg_price'], // Price axis
+            'y'        => $platform['ticket_volume'], // Volume axis
+            'size'     => $platform['market_share_estimate'], // Bubble size
+            'quadrant' => $this->determineQuadrant($platform['avg_price'], $platform['ticket_volume']),
+        ])->toArray();
     }
 
     private function determineQuadrant($price, $volume): string
@@ -505,17 +501,17 @@ class CompetitiveIntelligenceService
         if ($highPrice && $highVolume) {
             return 'premium_leader';
         }
-        if ($highPrice && !$highVolume) {
+        if ($highPrice && ! $highVolume) {
             return 'niche_premium';
         }
-        if (!$highPrice && $highVolume) {
+        if (! $highPrice && $highVolume) {
             return 'volume_leader';
         }
 
         return 'budget_focused';
     }
 
-    private function identifyGeographicGaps(array $filters): array
+    private function identifyGeographicGaps(): array
     {
         // Placeholder for geographic analysis
         return [
@@ -524,7 +520,7 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function identifyCategoryGaps(array $filters): array
+    private function identifyCategoryGaps(): array
     {
         $categories = ScrapedTicket::selectRaw('sport, COUNT(*) as count')
             ->where('created_at', '>=', Carbon::now()->subDays(30))
@@ -538,7 +534,7 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function identifyTimingGaps(array $filters): array
+    private function identifyTimingGaps(): array
     {
         // Analyze timing patterns for opportunities
         return [
@@ -547,21 +543,17 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function calculateOpportunityScore(...$gaps): int
+    private function calculateOpportunityScore(array ...$gaps): int
     {
         // Simple scoring algorithm
-        $totalOpportunities = array_sum(array_map(function ($gap) {
-            return is_array($gap) ? count($gap) : 0;
-        }, $gaps));
+        $totalOpportunities = array_sum(array_map(fn (array $gap): int => is_array($gap) ? count($gap) : 0, $gaps));
 
         return min(100, $totalOpportunities * 10);
     }
 
     private function calculateMarketConcentration(Collection $marketShare): array
     {
-        $hhi = $marketShare->sum(function ($platform) {
-            return pow($platform['value_share'], 2);
-        });
+        $hhi = $marketShare->sum(fn ($platform): float|int => $platform['value_share'] ** 2);
 
         $concentration = 'low';
         if ($hhi > 2500) {
@@ -577,7 +569,7 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function getMarketShareTrends(array $filters): array
+    private function getMarketShareTrends(): array
     {
         // Placeholder for trend analysis
         return [
@@ -635,10 +627,11 @@ class CompetitiveIntelligenceService
         return round(($premiumTickets / $tickets->count()) * 100, 2);
     }
 
-    private function calculateDiscountFrequency(Collection $tickets): float
+    private function calculateDiscountFrequency(): float
     {
         // Placeholder - would need historical pricing data
-        return 15.5; // Percentage
+        return 15.5;
+        // Percentage
     }
 
     private function detectDynamicPricing(Collection $tickets): bool
@@ -651,7 +644,7 @@ class CompetitiveIntelligenceService
         return ($stdDev / $mean) > 0.2;
     }
 
-    private function analyzeCompetitiveResponse($platform, Collection $tickets): array
+    private function analyzeCompetitiveResponse(): array
     {
         // Placeholder for competitive response analysis
         return [
@@ -661,7 +654,7 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function evaluateStrategyEffectiveness(Collection $strategies): array
+    private function evaluateStrategyEffectiveness(): array
     {
         // Placeholder for strategy effectiveness evaluation
         return [
@@ -671,7 +664,7 @@ class CompetitiveIntelligenceService
         ];
     }
 
-    private function generatePricingRecommendations(Collection $strategies): array
+    private function generatePricingRecommendations(): array
     {
         return [
             'optimize_dynamic_pricing'     => 'Implement more sophisticated dynamic pricing algorithms',
@@ -683,60 +676,60 @@ class CompetitiveIntelligenceService
     private function calculateStandardDeviation(Collection $values): float
     {
         $mean = $values->avg();
-        $variance = $values->map(function ($value) use ($mean) {
-            return pow($value - $mean, 2);
-        })->avg();
+        $variance = $values->map(fn ($value): int|float => ($value - $mean) ** 2)->avg();
 
         return sqrt($variance);
     }
 
     // Additional helper methods for opportunity and threat analysis
-    private function identifyUnderservedSegments(array $filters): array
+    private function identifyUnderservedSegments(): array
     {
         return ['budget_family_packages', 'premium_corporate_boxes', 'student_discounts'];
     }
 
-    private function identifyPriceOptimization(array $filters): array
+    private function identifyPriceOptimization(): array
     {
         return ['dynamic_surge_pricing', 'early_bird_discounts', 'last_minute_deals'];
     }
 
-    private function identifyGeographicOpportunities(array $filters): array
+    private function identifyGeographicOpportunities(): array
     {
         return ['international_markets', 'underserved_cities', 'mobile_markets'];
     }
 
-    private function identifyPartnershipOpportunities(array $filters): array
+    private function identifyPartnershipOpportunities(): array
     {
         return ['venue_partnerships', 'team_collaborations', 'media_partnerships'];
     }
 
-    private function identifyTechnologyGaps(array $filters): array
+    private function identifyTechnologyGaps(): array
     {
         return ['ai_pricing', 'mobile_optimization', 'real_time_inventory'];
     }
 
-    private function identifyCompetitiveThreats(array $filters): array
+    private function identifyCompetitiveThreats(): array
     {
         return ['new_market_entrants', 'platform_consolidation', 'direct_venue_sales'];
     }
 
-    private function assessDisruptionRisk(array $filters): string
+    private function assessDisruptionRisk(): string
     {
-        return 'moderate'; // low, moderate, high
+        return 'moderate';
+        // low, moderate, high
     }
 
-    private function detectPriceWarIndicators(array $filters): array
+    private function detectPriceWarIndicators(): array
     {
         return ['rapid_price_drops', 'below_cost_pricing', 'aggressive_promotions'];
     }
 
-    private function assessMarketSaturation(array $filters): string
+    private function assessMarketSaturation(): string
     {
-        return 'growing'; // growing, mature, saturated
+        return 'growing';
+        // growing, mature, saturated
     }
 
-    private function assessRegulatoryRisks(array $filters): array
+    private function assessRegulatoryRisks(): array
     {
         return ['ticket_resale_laws', 'consumer_protection', 'antitrust_concerns'];
     }

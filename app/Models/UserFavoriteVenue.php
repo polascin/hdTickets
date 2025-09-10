@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,18 +28,6 @@ class UserFavoriteVenue extends Model
         'push_alerts',
         'sms_alerts',
         'priority',
-    ];
-
-    protected $casts = [
-        'venue_types'  => 'array',
-        'aliases'      => 'array',
-        'email_alerts' => 'boolean',
-        'push_alerts'  => 'boolean',
-        'sms_alerts'   => 'boolean',
-        'priority'     => 'integer',
-        'capacity'     => 'integer',
-        'latitude'     => 'decimal:7',
-        'longitude'    => 'decimal:7',
     ];
 
     /**
@@ -144,27 +133,12 @@ class UserFavoriteVenue extends Model
      */
     public function scopeWithinRadius($query, float $latitude, float $longitude, int $radiusMiles)
     {
-        $radiusDegrees = $radiusMiles / 69; // Approximate conversion
+        // Approximate conversion
 
         return $query->whereRaw(
             'SQRT(POW(69.1 * (latitude - ?), 2) + POW(69.1 * (? - longitude) * COS(latitude / 57.3), 2)) <= ?',
             [$latitude, $longitude, $radiusMiles],
         );
-    }
-
-    /**
-     * Get the full venue display name
-     */
-    /**
-     * Get  full name attribute
-     */
-    public function getFullNameAttribute(): string
-    {
-        $location = collect([$this->city, $this->state_province, $this->country])
-            ->filter()
-            ->join(', ');
-
-        return $this->venue_name . ($location ? " ({$location})" : '');
     }
 
     /**
@@ -178,21 +152,6 @@ class UserFavoriteVenue extends Model
         $name = $this->venue_name . ' ' . $this->city;
 
         return strtolower(str_replace([' ', '&', '.'], ['-', 'and', ''], $name));
-    }
-
-    /**
-     * Set venue slug automatically
-     *
-     * @param mixed $value
-     */
-    /**
-     * Set  venue slug attribute
-     *
-     * @param mixed $value
-     */
-    public function setVenueSlugAttribute($value): void
-    {
-        $this->attributes['venue_slug'] = $value ?: $this->generateSlug();
     }
 
     /**
@@ -237,17 +196,15 @@ class UserFavoriteVenue extends Model
         return $query->orderByDesc('popularity')
             ->limit(50)
             ->get()
-            ->map(function ($venue) {
-                return [
-                    'name'           => $venue->venue_name,
-                    'city'           => $venue->city,
-                    'state_province' => $venue->state_province,
-                    'country'        => $venue->country,
-                    'full_name'      => $venue->venue_name . " ({$venue->city})",
-                    'venue_types'    => $venue->venue_types,
-                    'popularity'     => $venue->popularity,
-                ];
-            })
+            ->map(fn ($venue): array => [
+                'name'           => $venue->venue_name,
+                'city'           => $venue->city,
+                'state_province' => $venue->state_province,
+                'country'        => $venue->country,
+                'full_name'      => $venue->venue_name . " ({$venue->city})",
+                'venue_types'    => $venue->venue_types,
+                'popularity'     => $venue->popularity,
+            ])
             ->toArray();
     }
 
@@ -264,9 +221,7 @@ class UserFavoriteVenue extends Model
         return str_contains(strtolower($this->venue_name), $term)
                || str_contains(strtolower($this->city), $term)
                || str_contains(strtolower($this->state_province ?? ''), $term)
-               || collect($this->aliases ?? [])->contains(function ($alias) use ($term) {
-                   return str_contains(strtolower($alias), $term);
-               });
+               || collect($this->aliases ?? [])->contains(fn ($alias): bool => str_contains(strtolower((string) $alias), $term));
     }
 
     /**
@@ -307,7 +262,7 @@ class UserFavoriteVenue extends Model
      */
     public function distanceFrom(float $latitude, float $longitude): ?float
     {
-        if (!$this->latitude || !$this->longitude) {
+        if (! $this->latitude || ! $this->longitude) {
             return NULL;
         }
 
@@ -326,31 +281,6 @@ class UserFavoriteVenue extends Model
     }
 
     /**
-     * Get venue capacity tier
-     */
-    /**
-     * Get  capacity tier attribute
-     */
-    public function getCapacityTierAttribute(): string
-    {
-        if (!$this->capacity) {
-            return 'unknown';
-        }
-
-        if ($this->capacity >= 50000) {
-            return 'large';
-        }
-        if ($this->capacity >= 20000) {
-            return 'medium';
-        }
-        if ($this->capacity >= 5000) {
-            return 'small';
-        }
-
-        return 'intimate';
-    }
-
-    /**
      * Check if venue is outdoors
      */
     /**
@@ -360,7 +290,7 @@ class UserFavoriteVenue extends Model
     {
         $outdoorTypes = ['stadium', 'amphitheater', 'outdoor_venue', 'racetrack', 'golf_course'];
 
-        return !empty(array_intersect($this->venue_types ?? [], $outdoorTypes));
+        return array_intersect($this->venue_types ?? [], $outdoorTypes) !== [];
     }
 
     /**
@@ -373,13 +303,9 @@ class UserFavoriteVenue extends Model
     {
         $venues = self::where('user_id', $userId)->get();
 
-        $byCity = $venues->groupBy('city')->map(function ($group) {
-            return $group->count();
-        })->sortDesc();
+        $byCity = $venues->groupBy('city')->map(fn ($group) => $group->count())->sortDesc();
 
-        $byVenueType = $venues->flatMap(function ($venue) {
-            return $venue->venue_types ?? [];
-        })->countBy()->sortDesc();
+        $byVenueType = $venues->flatMap(fn ($venue) => $venue->venue_types ?? [])->countBy()->sortDesc();
 
         return [
             'total_venues'        => $venues->count(),
@@ -390,9 +316,7 @@ class UserFavoriteVenue extends Model
             'most_popular_city'   => $byCity->keys()->first(),
             'by_city'             => $byCity->take(10)->toArray(),
             'by_venue_type'       => $byVenueType->take(5)->toArray(),
-            'outdoor_venues'      => $venues->filter(function ($venue) {
-                return $venue->isOutdoor();
-            })->count(),
+            'outdoor_venues'      => $venues->filter(fn ($venue) => $venue->isOutdoor())->count(),
         ];
     }
 
@@ -417,5 +341,65 @@ class UserFavoriteVenue extends Model
             ->limit($limit)
             ->get()
             ->toArray();
+    }
+
+    /**
+     * Get  full name attribute
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            $location = collect([$this->city, $this->state_province, $this->country])
+                ->filter()
+                ->join(', ');
+
+            return $this->venue_name . ($location ? " ({$location})" : '');
+        });
+    }
+
+    /**
+     * Set  venue slug attribute
+     */
+    protected function venueSlug(): Attribute
+    {
+        return Attribute::make(set: fn ($value): array => ['venue_slug' => $value ?: $this->generateSlug()]);
+    }
+
+    /**
+     * Get  capacity tier attribute
+     */
+    protected function capacityTier(): Attribute
+    {
+        return Attribute::make(get: function (): string {
+            if (! $this->capacity) {
+                return 'unknown';
+            }
+            if ($this->capacity >= 50000) {
+                return 'large';
+            }
+            if ($this->capacity >= 20000) {
+                return 'medium';
+            }
+            if ($this->capacity >= 5000) {
+                return 'small';
+            }
+
+            return 'intimate';
+        });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'venue_types'  => 'array',
+            'aliases'      => 'array',
+            'email_alerts' => 'boolean',
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
+            'priority'     => 'integer',
+            'capacity'     => 'integer',
+            'latitude'     => 'decimal:7',
+            'longitude'    => 'decimal:7',
+        ];
     }
 }

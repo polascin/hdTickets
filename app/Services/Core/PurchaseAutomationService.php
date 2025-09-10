@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Redis;
 use InvalidArgumentException;
+use Override;
 
 use function count;
 use function in_array;
@@ -21,11 +22,11 @@ use function in_array;
  */
 class PurchaseAutomationService extends BaseService implements PurchaseAutomationInterface
 {
-    private const QUEUE_PREFIX = 'purchase_queue:';
+    private const string QUEUE_PREFIX = 'purchase_queue:';
 
-    private const DECISION_PREFIX = 'purchase_decisions:';
+    private const string DECISION_PREFIX = 'purchase_decisions:';
 
-    private const AUTOMATION_PREFIX = 'purchase_automation:';
+    private const string AUTOMATION_PREFIX = 'purchase_automation:';
 
     private PurchaseDecisionChain $decisionChain;
 
@@ -219,7 +220,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
         $this->getDependency('analyticsService')->trackEvent('purchase_queue_processed', [
             'total_processed' => count($results),
-            'successful'      => count(array_filter($results, fn ($r) => $r['status'] === 'success')),
+            'successful'      => count(array_filter($results, fn (array $r): bool => $r['status'] === 'success')),
         ]);
 
         return $results;
@@ -312,7 +313,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
             $ruleKey = self::AUTOMATION_PREFIX . 'rule:' . $ruleId;
             $ruleData = Redis::hgetall($ruleKey);
 
-            if (!empty($ruleData)) {
+            if (! empty($ruleData)) {
                 $rules[] = $this->decryptRuleData($ruleData);
             }
         }
@@ -337,7 +338,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
                 continue;
             }
 
-            if ($this->evaluateRuleConditions($rule, $ticketId, $availabilityData)) {
+            if ($this->evaluateRuleConditions($rule, $availabilityData)) {
                 $result = $this->triggerAutomationRule($ruleId, $ticketId, $availabilityData);
                 $triggeredRules[] = $result;
             }
@@ -349,6 +350,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * OnInitialize
      */
+    #[Override]
     protected function onInitialize(): void
     {
         $this->validateDependencies([
@@ -389,7 +391,6 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
             // Select purchase strategy based on preferences
             $strategy = $this->strategyFactory->create(
                 $decryptedData['user_preferences']['strategy'] ?? 'default',
-                $decryptedData['user_preferences'],
             );
 
             // Execute purchase through strategy
@@ -424,7 +425,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
     /**
      * EvaluateRuleConditions
      */
-    private function evaluateRuleConditions(array $rule, int $ticketId, array $availabilityData): bool
+    private function evaluateRuleConditions(array $rule, array $availabilityData): bool
     {
         foreach ($rule['conditions'] as $condition => $value) {
             switch ($condition) {
@@ -449,7 +450,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
                             break;
                         }
                     }
-                    if (!$hasPreferredPlatform) {
+                    if (! $hasPreferredPlatform) {
                         return FALSE;
                     }
 
@@ -543,7 +544,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
 
         foreach ($keys as $key) {
             $ruleData = Redis::hgetall($key);
-            if (!empty($ruleData)) {
+            if (! empty($ruleData)) {
                 $decryptedRule = $this->decryptRuleData($ruleData);
                 if ($decryptedRule['status'] === 'active') {
                     $this->automationRules[$decryptedRule['rule_id']] = $decryptedRule;
@@ -650,7 +651,7 @@ class PurchaseAutomationService extends BaseService implements PurchaseAutomatio
         return [
             'user_id'              => $userId,
             'total_rules'          => count($rules),
-            'active_rules'         => count(array_filter($rules, fn ($r) => $r['status'] === 'active')),
+            'active_rules'         => count(array_filter($rules, fn (array $r): bool => $r['status'] === 'active')),
             'total_triggered'      => array_sum(array_column($rules, 'triggered_count')),
             'successful_purchases' => array_sum(array_column($rules, 'successful_purchases')),
             'total_spent'          => array_sum(array_column($rules, 'total_spent')),

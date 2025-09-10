@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
@@ -10,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
+use Override;
 use Tests\TestCase;
 
 class LoginValidationTest extends TestCase
@@ -25,6 +28,7 @@ class LoginValidationTest extends TestCase
 
     private string $validPassword = 'ValidP@ssw0rd123!';
 
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -64,7 +68,7 @@ class LoginValidationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(Response::HTTP_OK);
-        $response->assertViewIs('auth.login');
+        $response->assertViewIs(Login::class);
         $response->assertSee('Email Address');
         $response->assertSee('Password');
         $response->assertSee('Remember me');
@@ -256,7 +260,7 @@ class LoginValidationTest extends TestCase
      */
     public function test_csrf_protection_is_enforced(): void
     {
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->post('/login', [
                 'email'    => $this->validUser->email,
                 'password' => $this->validPassword,
@@ -264,7 +268,7 @@ class LoginValidationTest extends TestCase
             ]);
 
         // Without CSRF token, request should fail
-        $this->withMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+        $this->withMiddleware(VerifyCsrfToken::class);
 
         $response = $this->post('/login', [
             'email'    => $this->validUser->email,
@@ -452,6 +456,7 @@ class LoginValidationTest extends TestCase
         );
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         // Clear rate limiter

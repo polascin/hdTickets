@@ -52,7 +52,7 @@ class HealthController extends Controller
         $checks['ticket_scraping'] = $this->checkTicketScrapingHealth();
 
         // Determine overall status
-        foreach ($checks as $service => $status) {
+        foreach ($checks as $status) {
             if ($status['status'] !== 'healthy') {
                 $overallStatus = 'unhealthy';
 
@@ -468,7 +468,7 @@ class HealthController extends Controller
             $message = 'Ticket scraping system is operational';
 
             // Check if we haven't had successful scrapes recently
-            if (!$lastSuccessfulScrape || now()->diffInHours($lastSuccessfulScrape->created_at) > 2) {
+            if (! $lastSuccessfulScrape || now()->diffInHours($lastSuccessfulScrape->created_at) > 2) {
                 $status = 'warning';
                 $message = 'No recent successful scrapes detected';
             }
@@ -521,7 +521,7 @@ class HealthController extends Controller
         return [
             'status'     => 'healthy',
             'message'    => 'Sentry error tracking configured',
-            'configured' => !empty(config('sentry.dsn')),
+            'configured' => ! empty(config('sentry.dsn')),
         ];
     }
 
@@ -536,7 +536,7 @@ class HealthController extends Controller
         try {
             // We can't easily test S3 without making actual requests
             // So we just verify configuration
-            $configured = !empty(config('filesystems.disks.s3.key'));
+            $configured = ! empty(config('filesystems.disks.s3.key'));
 
             return [
                 'status'     => $configured ? 'healthy' : 'warning',
@@ -564,13 +564,13 @@ class HealthController extends Controller
             // Check if WebSocket server is configured
             $wsEnabled = config('broadcasting.default') !== 'null';
 
-            if (!$wsEnabled) {
+            if (! $wsEnabled) {
                 return [
                     'status'  => 'disabled',
                     'message' => 'WebSocket broadcasting is disabled',
                     'details' => [
                         'driver'            => config('broadcasting.default'),
-                        'pusher_configured' => !empty(config('broadcasting.connections.pusher.key')),
+                        'pusher_configured' => ! empty(config('broadcasting.connections.pusher.key')),
                     ],
                 ];
             }
@@ -583,18 +583,18 @@ class HealthController extends Controller
                 // Try to get WebSocket stats from Redis if available
                 if (config('broadcasting.default') === 'pusher') {
                     // For Pusher, check configuration
-                    $pusherConfigured = !empty(config('broadcasting.connections.pusher.key'))
-                                       && !empty(config('broadcasting.connections.pusher.secret'))
-                                       && !empty(config('broadcasting.connections.pusher.app_id'));
+                    $pusherConfigured = ! empty(config('broadcasting.connections.pusher.key'))
+                                       && ! empty(config('broadcasting.connections.pusher.secret'))
+                                       && ! empty(config('broadcasting.connections.pusher.app_id'));
 
                     return [
                         'status'  => $pusherConfigured ? 'healthy' : 'warning',
                         'message' => $pusherConfigured ? 'Pusher WebSocket configured' : 'Pusher WebSocket not properly configured',
                         'details' => [
                             'driver'            => 'pusher',
-                            'app_id_configured' => !empty(config('broadcasting.connections.pusher.app_id')),
-                            'key_configured'    => !empty(config('broadcasting.connections.pusher.key')),
-                            'secret_configured' => !empty(config('broadcasting.connections.pusher.secret')),
+                            'app_id_configured' => ! empty(config('broadcasting.connections.pusher.app_id')),
+                            'key_configured'    => ! empty(config('broadcasting.connections.pusher.key')),
+                            'secret_configured' => ! empty(config('broadcasting.connections.pusher.secret')),
                             'cluster'           => config('broadcasting.connections.pusher.options.cluster', 'not_set'),
                         ],
                     ];

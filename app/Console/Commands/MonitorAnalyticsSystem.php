@@ -73,7 +73,7 @@ class MonitorAnalyticsSystem extends Command
             // Additional check for running state after sleep
             if (function_exists('pcntl_signal_dispatch')) {
                 pcntl_signal_dispatch();
-                if (!$running) {
+                if (! $running) {
                     break;
                 }
             }
@@ -139,7 +139,7 @@ class MonitorAnalyticsSystem extends Command
                 $size = Queue::size($queueName);
                 $status = $size === 0 ? '✅' : ($size < 10 ? '⚠️' : '🔴');
                 $this->line("   {$status} {$description}: {$size} jobs");
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->line("   ❌ {$description}: Error");
             }
         }
@@ -164,7 +164,7 @@ class MonitorAnalyticsSystem extends Command
             try {
                 DB::connection()->getPdo();
                 $dbConnected = '✅ Connected';
-            } catch (Exception $dbException) {
+            } catch (Exception) {
                 $dbConnected = '❌ Disconnected';
             }
 

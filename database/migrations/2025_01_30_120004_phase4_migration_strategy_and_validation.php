@@ -541,7 +541,7 @@ return new class() extends Migration {
      * @param mixed $rule
      * @param mixed $migrationExecutionId
      */
-    private function executeValidationRule($rule, $migrationExecutionId): void
+    private function executeValidationRule($rule, int $migrationExecutionId): void
     {
         $startTime = microtime(TRUE);
 
@@ -551,7 +551,7 @@ return new class() extends Migration {
             $actualCount = $result[0]->{'COUNT(*)'} ?? 0;
 
             // Determine validation status
-            $expectedResult = json_decode($rule->expected_result, TRUE);
+            $expectedResult = json_decode((string) $rule->expected_result, TRUE);
             $expectedCount = $expectedResult['count'] ?? 0;
             $status = ($actualCount === $expectedCount) ? 'passed' : 'failed';
 
@@ -629,7 +629,7 @@ return new class() extends Migration {
      *
      * @param mixed $executionId
      */
-    private function completeMigrationExecutionRecord($executionId): void
+    private function completeMigrationExecutionRecord(int $executionId): void
     {
         $completedAt = now();
         $startedAt = DB::table('migration_executions')

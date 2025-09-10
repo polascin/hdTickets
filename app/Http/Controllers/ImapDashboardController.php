@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\Email\EmailMonitoringService;
 use App\Services\Email\ImapConnectionService;
+use Artisan;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+
+use function array_slice;
 
 /**
  * IMAP Dashboard Controller
@@ -15,17 +20,10 @@ use Illuminate\View\View;
  */
 class ImapDashboardController extends Controller
 {
-    private EmailMonitoringService $monitoringService;
-
-    private ImapConnectionService $connectionService;
-
     public function __construct(
-        EmailMonitoringService $monitoringService,
-        ImapConnectionService $connectionService
+        private EmailMonitoringService $monitoringService,
+        private ImapConnectionService $connectionService,
     ) {
-        $this->monitoringService = $monitoringService;
-        $this->connectionService = $connectionService;
-
         // Require authentication
         $this->middleware('auth');
 
@@ -35,8 +33,6 @@ class ImapDashboardController extends Controller
 
     /**
      * Display the main monitoring dashboard
-     *
-     * @return View
      */
     public function index(): View
     {
@@ -55,8 +51,6 @@ class ImapDashboardController extends Controller
 
     /**
      * Display connection health status
-     *
-     * @return View
      */
     public function connections(): View
     {
@@ -68,9 +62,9 @@ class ImapDashboardController extends Controller
                 $testResult = $this->connectionService->testConnection($connectionName);
                 $healthData[$connectionName] = array_merge(
                     $testResult,
-                    ['name' => $connectionName]
+                    ['name' => $connectionName],
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $healthData[$connectionName] = [
                     'name'    => $connectionName,
                     'success' => FALSE,
@@ -94,8 +88,6 @@ class ImapDashboardController extends Controller
 
     /**
      * Display platform configuration
-     *
-     * @return View
      */
     public function platforms(): View
     {
@@ -116,9 +108,6 @@ class ImapDashboardController extends Controller
 
     /**
      * Display monitoring logs
-     *
-     * @param  Request $request
-     * @return View
      */
     public function logs(Request $request): View
     {
@@ -147,8 +136,6 @@ class ImapDashboardController extends Controller
 
     /**
      * Display statistics and analytics
-     *
-     * @return View
      */
     public function analytics(): View
     {
@@ -175,8 +162,7 @@ class ImapDashboardController extends Controller
     /**
      * Manual trigger for email monitoring
      *
-     * @param  Request                           $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function triggerMonitoring(Request $request)
     {
@@ -199,12 +185,12 @@ class ImapDashboardController extends Controller
             }
 
             // Execute monitoring command
-            \Artisan::call($command);
-            $output = \Artisan::output();
+            Artisan::call($command);
+            $output = Artisan::output();
 
             return back()->with('success', 'Email monitoring completed successfully')
-                        ->with('command_output', $output);
-        } catch (\Exception $e) {
+                ->with('command_output', $output);
+        } catch (Exception $e) {
             return back()->with('error', 'Failed to run email monitoring: ' . $e->getMessage());
         }
     }
@@ -212,8 +198,7 @@ class ImapDashboardController extends Controller
     /**
      * Clear processed emails cache
      *
-     * @param  Request                           $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function clearCache(Request $request)
     {
@@ -230,67 +215,61 @@ class ImapDashboardController extends Controller
                 : 'Cache cleared for all connections';
 
             return back()->with('success', $message);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->with('error', 'Failed to clear cache: ' . $e->getMessage());
         }
     }
 
     /**
      * Get daily statistics
-     *
-     * @return array
      */
     private function getDailyStats(): array
     {
         // This would come from actual data in production
         return [
-            'emails_processed'      => rand(50, 200),
-            'sports_events_created' => rand(5, 25),
-            'tickets_discovered'    => rand(20, 100),
-            'parsing_errors'        => rand(0, 5),
-            'connection_failures'   => rand(0, 2),
+            'emails_processed'      => random_int(50, 200),
+            'sports_events_created' => random_int(5, 25),
+            'tickets_discovered'    => random_int(20, 100),
+            'parsing_errors'        => random_int(0, 5),
+            'connection_failures'   => random_int(0, 2),
         ];
     }
 
     /**
      * Get platform performance data
-     *
-     * @return array
      */
     private function getPlatformPerformance(): array
     {
         return [
             'ticketmaster' => [
-                'emails_processed'    => rand(20, 50),
-                'events_discovered'   => rand(3, 10),
-                'success_rate'        => rand(85, 98),
-                'avg_processing_time' => rand(200, 800),
+                'emails_processed'    => random_int(20, 50),
+                'events_discovered'   => random_int(3, 10),
+                'success_rate'        => random_int(85, 98),
+                'avg_processing_time' => random_int(200, 800),
             ],
             'stubhub' => [
-                'emails_processed'    => rand(15, 35),
-                'events_discovered'   => rand(2, 8),
-                'success_rate'        => rand(80, 95),
-                'avg_processing_time' => rand(150, 600),
+                'emails_processed'    => random_int(15, 35),
+                'events_discovered'   => random_int(2, 8),
+                'success_rate'        => random_int(80, 95),
+                'avg_processing_time' => random_int(150, 600),
             ],
             'seatgeek' => [
-                'emails_processed'    => rand(10, 25),
-                'events_discovered'   => rand(1, 6),
-                'success_rate'        => rand(85, 92),
-                'avg_processing_time' => rand(180, 700),
+                'emails_processed'    => random_int(10, 25),
+                'events_discovered'   => random_int(1, 6),
+                'success_rate'        => random_int(85, 92),
+                'avg_processing_time' => random_int(180, 700),
             ],
             'viagogo' => [
-                'emails_processed'    => rand(8, 20),
-                'events_discovered'   => rand(1, 5),
-                'success_rate'        => rand(82, 90),
-                'avg_processing_time' => rand(220, 750),
+                'emails_processed'    => random_int(8, 20),
+                'events_discovered'   => random_int(1, 5),
+                'success_rate'        => random_int(82, 90),
+                'avg_processing_time' => random_int(220, 750),
             ],
         ];
     }
 
     /**
      * Get processing trends data
-     *
-     * @return array
      */
     private function getProcessingTrends(): array
     {
@@ -301,9 +280,9 @@ class ImapDashboardController extends Controller
             $date = now()->subDays($i)->format('Y-m-d');
             $trends[] = [
                 'date'                  => $date,
-                'emails_processed'      => rand(40, 180),
-                'sports_events_created' => rand(3, 20),
-                'tickets_discovered'    => rand(15, 85),
+                'emails_processed'      => random_int(40, 180),
+                'sports_events_created' => random_int(3, 20),
+                'tickets_discovered'    => random_int(15, 85),
             ];
         }
 
@@ -312,21 +291,19 @@ class ImapDashboardController extends Controller
 
     /**
      * Get error analysis data
-     *
-     * @return array
      */
     private function getErrorAnalysis(): array
     {
         return [
-            'connection_errors'       => rand(0, 3),
-            'parsing_errors'          => rand(1, 8),
-            'authentication_failures' => rand(0, 2),
-            'timeout_errors'          => rand(0, 4),
+            'connection_errors'       => random_int(0, 3),
+            'parsing_errors'          => random_int(1, 8),
+            'authentication_failures' => random_int(0, 2),
+            'timeout_errors'          => random_int(0, 4),
             'common_error_types'      => [
-                'IMAP connection timeout' => rand(0, 3),
-                'Authentication failed'   => rand(0, 2),
-                'Mailbox not found'       => rand(0, 1),
-                'Email parsing failed'    => rand(1, 5),
+                'IMAP connection timeout' => random_int(0, 3),
+                'Authentication failed'   => random_int(0, 2),
+                'Mailbox not found'       => random_int(0, 1),
+                'Email parsing failed'    => random_int(1, 5),
             ],
         ];
     }

@@ -67,7 +67,7 @@ trait RateLimitingTrait
         $baseDelay = 1; // 1 second base
         $maxDelay = 30; // 30 seconds max
 
-        $delay = min($baseDelay * pow(2, $attempt), $maxDelay);
+        $delay = min($baseDelay * 2 ** $attempt, $maxDelay);
         $jitter = $delay * 0.1 * mt_rand(0, 1000) / 1000; // Add 10% jitter
 
         $totalDelay = $delay + $jitter;

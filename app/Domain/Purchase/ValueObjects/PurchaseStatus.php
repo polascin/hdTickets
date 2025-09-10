@@ -3,27 +3,28 @@
 namespace App\Domain\Purchase\ValueObjects;
 
 use InvalidArgumentException;
+use Stringable;
 
 use function in_array;
 use function sprintf;
 
-final readonly class PurchaseStatus
+final readonly class PurchaseStatus implements Stringable
 {
-    public const PENDING = 'PENDING';
+    public const string PENDING = 'PENDING';
 
-    public const QUEUED = 'QUEUED';
+    public const string QUEUED = 'QUEUED';
 
-    public const PROCESSING = 'PROCESSING';
+    public const string PROCESSING = 'PROCESSING';
 
-    public const COMPLETED = 'COMPLETED';
+    public const string COMPLETED = 'COMPLETED';
 
-    public const FAILED = 'FAILED';
+    public const string FAILED = 'FAILED';
 
-    public const CANCELLED = 'CANCELLED';
+    public const string CANCELLED = 'CANCELLED';
 
-    public const REFUNDED = 'REFUNDED';
+    public const string REFUNDED = 'REFUNDED';
 
-    private const VALID_STATUSES = [
+    private const array VALID_STATUSES = [
         self::PENDING,
         self::QUEUED,
         self::PROCESSING,
@@ -180,7 +181,7 @@ final readonly class PurchaseStatus
         return array_combine(
             self::VALID_STATUSES,
             array_map(
-                fn (string $status) => match ($status) {
+                fn (string $status): string => match ($status) {
                     self::PENDING    => 'Pending',
                     self::QUEUED     => 'Queued',
                     self::PROCESSING => 'Processing',
@@ -263,12 +264,12 @@ final readonly class PurchaseStatus
      */
     private function validate(string $status): void
     {
-        if (empty(trim($status))) {
+        if (in_array(trim($status), ['', '0'], TRUE)) {
             throw new InvalidArgumentException('Purchase status cannot be empty');
         }
 
         $normalizedStatus = strtoupper(trim($status));
-        if (!in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
+        if (! in_array($normalizedStatus, self::VALID_STATUSES, TRUE)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid purchase status: %s. Valid statuses: %s',

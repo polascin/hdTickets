@@ -55,10 +55,10 @@ trait AntiDetectionTrait
             'Accept'                    => $this->getRandomAcceptHeader(),
             'Accept-Language'           => $this->getAcceptLanguageHeader(),
             'Accept-Encoding'           => 'gzip, deflate, br',
-            'DNT'                       => mt_rand(0, 1) ? '1' : NULL,
+            'DNT'                       => mt_rand(0, 1) !== 0 ? '1' : NULL,
             'Connection'                => 'keep-alive',
             'Upgrade-Insecure-Requests' => '1',
-            'Cache-Control'             => mt_rand(0, 1) ? 'max-age=0' : 'no-cache',
+            'Cache-Control'             => mt_rand(0, 1) !== 0 ? 'max-age=0' : 'no-cache',
         ];
 
         // Randomly add optional headers
@@ -75,7 +75,7 @@ trait AntiDetectionTrait
         ];
 
         foreach ($optionalHeaders as $header => $values) {
-            if (mt_rand(0, 1)) {
+            if (mt_rand(0, 1) !== 0) {
                 $baseHeaders[$header] = $values[array_rand($values)];
             }
         }
@@ -86,7 +86,7 @@ trait AntiDetectionTrait
         }
 
         // Filter out null values
-        return array_filter($baseHeaders, fn ($value) => $value !== NULL);
+        return array_filter($baseHeaders, fn ($value): bool => $value !== NULL);
     }
 
     /**

@@ -2,8 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ScrapedTicket;
+use App\Services\ProxyRotationService;
 use App\Services\Scraping\PluginBasedScraperManager;
+use App\Services\TicketScrapingService;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
 use function count;
@@ -16,7 +20,7 @@ class FixScrapingSystem extends Command
 
     protected $description = 'Fix and enhance the scraping system';
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('🔧 Starting Scraping System Fix and Enhancement...');
 
@@ -40,7 +44,7 @@ class FixScrapingSystem extends Command
             $this->checkDatabase();
 
             // 5. Test scraping functionality
-            if (!$testMode) {
+            if (! $testMode) {
                 $this->info('🧪 Testing scraping functionality...');
                 $this->testScraping();
             }
@@ -66,20 +70,20 @@ class FixScrapingSystem extends Command
     private function checkDependencies(): void
     {
         // Check cURL
-        if (!extension_loaded('curl')) {
+        if (! extension_loaded('curl')) {
             throw new Exception('cURL extension is not loaded');
         }
         $this->comment('✓ cURL extension loaded');
 
         // Check allow_url_fopen
-        if (!ini_get('allow_url_fopen')) {
+        if (! ini_get('allow_url_fopen')) {
             $this->warn('⚠️ allow_url_fopen is disabled - some features may not work');
         } else {
             $this->comment('✓ allow_url_fopen enabled');
         }
 
         // Check GuzzleHttp
-        if (!class_exists('\GuzzleHttp\Client')) {
+        if (! class_exists(Client::class)) {
             throw new Exception('GuzzleHttp is not installed');
         }
         $this->comment('✓ GuzzleHttp available');
@@ -89,7 +93,7 @@ class FixScrapingSystem extends Command
     {
         // Test if ProxyRotationService can be resolved
         try {
-            $proxy = app(\App\Services\ProxyRotationService::class);
+            $proxy = app(ProxyRotationService::class);
             $this->comment('✓ ProxyRotationService binds correctly');
         } catch (Exception $e) {
             $this->warn('⚠️ ProxyRotationService binding issue: ' . $e->getMessage());
@@ -97,14 +101,17 @@ class FixScrapingSystem extends Command
 
         // Test TicketScrapingService
         try {
-            $scraping = app(\App\Services\TicketScrapingService::class);
+            $scraping = app(TicketScrapingService::class);
             $this->comment('✓ TicketScrapingService binds correctly');
         } catch (Exception $e) {
             $this->warn('⚠️ TicketScrapingService binding issue: ' . $e->getMessage());
         }
     }
 
-    private function testPluginLoading()
+    /**
+     * @return array{status: 'error', error: string}[]|array{status: 'loaded', enabled: mixed, name: mixed, description: mixed}[]
+     */
+    private function testPluginLoading(): array
     {
         $results = [];
 
@@ -146,11 +153,11 @@ class FixScrapingSystem extends Command
     private function checkDatabase(): void
     {
         try {
-            $count = \App\Models\ScrapedTicket::count();
+            $count = ScrapedTicket::count();
             $this->comment("✓ Database connected - {$count} scraped tickets found");
 
             // Check recent tickets
-            $recent = \App\Models\ScrapedTicket::where('scraped_at', '>=', now()->subDays(7))->count();
+            $recent = ScrapedTicket::where('scraped_at', '>=', now()->subDays(7))->count();
             $this->comment("📅 {$recent} tickets scraped in last 7 days");
         } catch (Exception $e) {
             $this->error('❌ Database issue: ' . $e->getMessage());
@@ -160,7 +167,7 @@ class FixScrapingSystem extends Command
     private function testScraping(): void
     {
         try {
-            $service = app(\App\Services\TicketScrapingService::class);
+            $service = app(TicketScrapingService::class);
 
             // Test with a simple search
             $this->comment('🔍 Testing ticket search...');
@@ -173,7 +180,7 @@ class FixScrapingSystem extends Command
             ]);
 
             $totalFound = 0;
-            foreach ($results as $platform => $tickets) {
+            foreach ($results as $tickets) {
                 $totalFound += count($tickets);
             }
 
@@ -200,7 +207,7 @@ class FixScrapingSystem extends Command
         $enabled = 0;
         $errors = 0;
 
-        foreach ($pluginResults as $name => $result) {
+        foreach ($pluginResults as $result) {
             if ($result['status'] === 'loaded') {
                 $loaded++;
                 if ($result['enabled']) {

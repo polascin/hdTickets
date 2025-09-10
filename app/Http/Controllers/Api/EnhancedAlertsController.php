@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\App\Models\Ticket;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -67,7 +68,7 @@ class EnhancedAlertsController extends Controller
     /**
      * Get  predictions
      */
-    public function getPredictions(App\Models\Ticket $ticket): JsonResponse
+    public function getPredictions(Ticket $ticket): JsonResponse
     {
         return response()->json([
             'success' => TRUE,

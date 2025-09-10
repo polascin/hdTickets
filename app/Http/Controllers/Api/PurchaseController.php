@@ -17,11 +17,8 @@ use function in_array;
 
 class PurchaseController extends Controller
 {
-    protected $purchaseEngine;
-
-    public function __construct(AutomatedPurchaseEngine $purchaseEngine)
+    public function __construct(protected AutomatedPurchaseEngine $purchaseEngine)
     {
-        $this->purchaseEngine = $purchaseEngine;
     }
 
     /**
@@ -99,7 +96,7 @@ class PurchaseController extends Controller
 
         $ticket = ScrapedTicket::where('uuid', $request->ticket_uuid)->first();
 
-        if (!$ticket->is_available) {
+        if (! $ticket->is_available) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket is no longer available',
@@ -151,7 +148,7 @@ class PurchaseController extends Controller
             ->where('selected_by_user_id', auth()->id())
             ->first();
 
-        if (!$queueItem) {
+        if (! $queueItem) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Queue item not found',
@@ -203,7 +200,7 @@ class PurchaseController extends Controller
             ->where('selected_by_user_id', auth()->id())
             ->first();
 
-        if (!$queueItem) {
+        if (! $queueItem) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Queue item not found',
@@ -307,7 +304,7 @@ class PurchaseController extends Controller
 
         $ticket = ScrapedTicket::where('uuid', $request->ticket_uuid)->first();
 
-        if (!$ticket->is_available) {
+        if (! $ticket->is_available) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Ticket is no longer available',
@@ -316,7 +313,7 @@ class PurchaseController extends Controller
 
         // Check if user has sufficient credits/permissions for automated purchase
         $user = auth()->user();
-        if (!$this->purchaseEngine->canInitiatePurchase($user, $ticket)) {
+        if (! $this->purchaseEngine->canInitiatePurchase($user, $ticket)) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Insufficient permissions or credits for automated purchase',
@@ -371,7 +368,7 @@ class PurchaseController extends Controller
             ->with(['ticket'])
             ->first();
 
-        if (!$attempt) {
+        if (! $attempt) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Purchase attempt not found',
@@ -411,7 +408,7 @@ class PurchaseController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$attempt) {
+        if (! $attempt) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Purchase attempt not found',
@@ -487,29 +484,25 @@ class PurchaseController extends Controller
                     AVG(CASE WHEN purchase_attempts.status = "success" THEN purchase_attempts.final_price END) as avg_price')
                 ->groupBy('scraped_tickets.platform')
                 ->get()
-                ->mapWithKeys(function ($item) {
-                    return [$item->platform => [
-                        'total_attempts'       => $item->total_attempts,
-                        'successful_purchases' => $item->successful,
-                        'success_rate'         => $item->total_attempts > 0 ? round(($item->successful / $item->total_attempts) * 100, 2) : 0,
-                        'average_price'        => round($item->avg_price ?? 0, 2),
-                    ]];
-                }),
+                ->mapWithKeys(fn ($item): array => [$item->platform => [
+                    'total_attempts'       => $item->total_attempts,
+                    'successful_purchases' => $item->successful,
+                    'success_rate'         => $item->total_attempts > 0 ? round(($item->successful / $item->total_attempts) * 100, 2) : 0,
+                    'average_price'        => round($item->avg_price ?? 0, 2),
+                ]]),
             'recent_activity' => PurchaseAttempt::where('user_id', $userId)
                 ->with(['ticket:uuid,title,platform,venue'])
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get()
-                ->map(function ($attempt) {
-                    return [
-                        'uuid'         => $attempt->uuid,
-                        'status'       => $attempt->status,
-                        'ticket_title' => $attempt->ticket->title ?? 'Unknown',
-                        'platform'     => $attempt->ticket->platform ?? 'Unknown',
-                        'final_price'  => $attempt->final_price,
-                        'created_at'   => $attempt->created_at->toISOString(),
-                    ];
-                }),
+                ->map(fn ($attempt): array => [
+                    'uuid'         => $attempt->uuid,
+                    'status'       => $attempt->status,
+                    'ticket_title' => $attempt->ticket->title ?? 'Unknown',
+                    'platform'     => $attempt->ticket->platform ?? 'Unknown',
+                    'final_price'  => $attempt->final_price,
+                    'created_at'   => $attempt->created_at->toISOString(),
+                ]),
         ];
 
         return response()->json([

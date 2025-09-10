@@ -122,32 +122,30 @@ class RealMadridPlugin extends BaseScraperPlugin
 
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
+        if (! empty($criteria['keyword'])) {
             $params['buscar'] = $criteria['keyword'];
         }
 
-        if (!empty($criteria['competition'])) {
+        if (! empty($criteria['competition'])) {
             $params['competicion'] = $this->mapCompetition($criteria['competition']);
         }
 
-        if (!empty($criteria['date_from'])) {
+        if (! empty($criteria['date_from'])) {
             $params['fecha_desde'] = $criteria['date_from'];
         }
 
-        if (!empty($criteria['date_to'])) {
+        if (! empty($criteria['date_to'])) {
             $params['fecha_hasta'] = $criteria['date_to'];
         }
 
-        if (!empty($criteria['opponent'])) {
+        if (! empty($criteria['opponent'])) {
             $params['rival'] = $criteria['opponent'];
         }
 
         // Remove empty parameters
-        $params = array_filter($params, function ($value) {
-            return !empty($value);
-        });
+        $params = array_filter($params, fn ($value): bool => ! empty($value));
 
-        if (!empty($params)) {
+        if ($params !== []) {
             return $baseSearchUrl . '?' . http_build_query($params);
         }
 
@@ -165,7 +163,7 @@ class RealMadridPlugin extends BaseScraperPlugin
             Log::info("Real Madrid Plugin: Scraping tickets from: {$searchUrl}");
 
             $response = $this->makeHttpRequest($searchUrl);
-            if (!$response) {
+            if (! $response) {
                 return [];
             }
 
@@ -288,11 +286,11 @@ class RealMadridPlugin extends BaseScraperPlugin
 
             // Create match title
             $title = trim($homeTeam . ' vs ' . $awayTeam);
-            if (empty($title) || $title === 'vs') {
+            if ($title === '' || $title === '0' || $title === 'vs') {
                 $title = $this->extractText($node, '.titulo, .title, h3');
             }
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -303,7 +301,7 @@ class RealMadridPlugin extends BaseScraperPlugin
             $eventDate = $this->parseDate($date);
 
             // Build full URL if relative
-            if ($link && !filter_var($link, FILTER_VALIDATE_URL)) {
+            if ($link && ! filter_var($link, FILTER_VALIDATE_URL)) {
                 $link = rtrim($this->baseUrl, '/') . '/' . ltrim($link, '/');
             }
 
@@ -335,7 +333,7 @@ class RealMadridPlugin extends BaseScraperPlugin
      */
     private function parsePrice(string $priceText): array
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return ['min' => NULL, 'max' => NULL];
         }
 
@@ -344,11 +342,9 @@ class RealMadridPlugin extends BaseScraperPlugin
 
         // Extract numeric values
         preg_match_all('/[\d,]+\.?\d*/', $priceText, $matches);
-        $prices = array_map(function ($price) {
-            return (float) str_replace(',', '.', $price);
-        }, $matches[0]);
+        $prices = array_map(fn (string $price): float => (float) str_replace(',', '.', $price), $matches[0]);
 
-        if (empty($prices)) {
+        if ($prices === []) {
             return ['min' => NULL, 'max' => NULL];
         }
 

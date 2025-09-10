@@ -34,7 +34,7 @@ class ConfigureNotificationChannels extends Command
         $setupDiscord = (bool) $this->option('discord') || $setupAll;
         $setupTelegram = (bool) $this->option('telegram') || $setupAll;
 
-        if (!$setupSlack && !$setupDiscord && !$setupTelegram) {
+        if (! $setupSlack && ! $setupDiscord && ! $setupTelegram) {
             $this->info('📋 Available notification channels:');
             $this->line('   • Slack - Team collaboration notifications');
             $this->line('   • Discord - Community notifications');
@@ -79,7 +79,7 @@ class ConfigureNotificationChannels extends Command
         $defaultChannel = (string) $this->ask('Enter default channel (e.g., #alerts)', '#alerts');
         $signingSecret = (string) $this->ask('Enter Slack Signing Secret (for webhooks)', '');
 
-        if ($botToken) {
+        if ($botToken !== '' && $botToken !== '0') {
             $this->updateEnvFile([
                 'SLACK_BOT_TOKEN'       => $botToken,
                 'SLACK_DEFAULT_CHANNEL' => $defaultChannel,
@@ -108,7 +108,7 @@ class ConfigureNotificationChannels extends Command
         $webhookUrl = (string) $this->ask('Enter Discord Webhook URL');
         $botToken = (string) $this->ask('Enter Discord Bot Token (optional)', '');
 
-        if ($webhookUrl) {
+        if ($webhookUrl !== '' && $webhookUrl !== '0') {
             $this->updateEnvFile([
                 'DISCORD_WEBHOOK_URL' => $webhookUrl,
                 'DISCORD_BOT_TOKEN'   => $botToken,

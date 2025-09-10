@@ -19,7 +19,7 @@ class LegalController extends Controller
             ->groupBy('type')
             ->map(fn ($docs) => $docs->first()); // Get latest version of each type
 
-        return view('legal.index', compact('documents'));
+        return view('legal.index', ['documents' => $documents]);
     }
 
     /**
@@ -29,11 +29,11 @@ class LegalController extends Controller
     {
         $document = LegalDocument::getActive($type);
 
-        if (!$document) {
+        if (! $document instanceof LegalDocument) {
             abort(404, 'Legal document not found');
         }
 
-        return view('legal.show', compact('document'));
+        return view('legal.show', ['document' => $document]);
     }
 
     /**

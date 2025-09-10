@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Ticket;
 use App\Models\User;
+use App\Policies\TicketPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -15,7 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        \App\Models\Ticket::class => \App\Policies\TicketPolicy::class,
+        Ticket::class => TicketPolicy::class,
     ];
 
     /**
@@ -32,88 +34,52 @@ class AuthServiceProvider extends ServiceProvider
         Passport::personalAccessTokensExpireIn(now()->addMonths(6));
 
         // SYSTEM ACCESS GATES
-        Gate::define('access-system', function (User $user) {
+        Gate::define('access-system', function (User $user): bool {
             return $user->canAccessSystem(); // Blocks scrapers
         });
 
-        Gate::define('web-login', function (User $user) {
+        Gate::define('web-login', function (User $user): bool {
             return $user->canLoginToWeb(); // Blocks scrapers
         });
 
         // ROLE-BASED ACCESS GATES
-        Gate::define('admin-access', function (User $user) {
-            return $user->isAdmin();
-        });
+        Gate::define('admin-access', fn (User $user): bool => $user->isAdmin());
 
-        Gate::define('agent-access', function (User $user) {
-            return $user->isAgent() || $user->isAdmin();
-        });
+        Gate::define('agent-access', fn (User $user): bool => $user->isAgent() || $user->isAdmin());
 
-        Gate::define('customer-access', function (User $user) {
-            return $user->isCustomer() || $user->isAgent() || $user->isAdmin();
-        });
+        Gate::define('customer-access', fn (User $user): bool => $user->isCustomer() || $user->isAgent() || $user->isAdmin());
 
         // ADMIN PERMISSION GATES (System & Platform Configuration)
-        Gate::define('manage-users', function (User $user) {
-            return $user->canManageUsers();
-        });
+        Gate::define('manage-users', fn (User $user): bool => $user->canManageUsers());
 
-        Gate::define('manage-system', function (User $user) {
-            return $user->canManageSystem();
-        });
+        Gate::define('manage-system', fn (User $user): bool => $user->canManageSystem());
 
-        Gate::define('manage-platforms', function (User $user) {
-            return $user->canManagePlatforms();
-        });
+        Gate::define('manage-platforms', fn (User $user): bool => $user->canManagePlatforms());
 
-        Gate::define('access-financials', function (User $user) {
-            return $user->canAccessFinancials();
-        });
+        Gate::define('access-financials', fn (User $user): bool => $user->canAccessFinancials());
 
-        Gate::define('manage-api-access', function (User $user) {
-            return $user->canManageApiAccess();
-        });
+        Gate::define('manage-api-access', fn (User $user): bool => $user->canManageApiAccess());
 
-        Gate::define('delete-any-data', function (User $user) {
-            return $user->canDeleteAnyData();
-        });
+        Gate::define('delete-any-data', fn (User $user): bool => $user->canDeleteAnyData());
 
-        Gate::define('access_reports', function (User $user) {
-            return $user->isAdmin();
-        });
+        Gate::define('access_reports', fn (User $user): bool => $user->isAdmin());
 
-        Gate::define('manage_users', function (User $user) {
-            return $user->canManageUsers();
-        });
+        Gate::define('manage_users', fn (User $user): bool => $user->canManageUsers());
 
         // AGENT PERMISSION GATES (Ticket Selection, Purchasing, Monitoring)
-        Gate::define('select-purchase-tickets', function (User $user) {
-            return $user->canSelectAndPurchaseTickets();
-        });
+        Gate::define('select-purchase-tickets', fn (User $user): bool => $user->canSelectAndPurchaseTickets());
 
-        Gate::define('make-purchase-decisions', function (User $user) {
-            return $user->canMakePurchaseDecisions();
-        });
+        Gate::define('make-purchase-decisions', fn (User $user): bool => $user->canMakePurchaseDecisions());
 
-        Gate::define('manage-monitoring', function (User $user) {
-            return $user->canManageMonitoring();
-        });
+        Gate::define('manage-monitoring', fn (User $user): bool => $user->canManageMonitoring());
 
-        Gate::define('view-scraping-metrics', function (User $user) {
-            return $user->canViewScrapingMetrics();
-        });
+        Gate::define('view-scraping-metrics', fn (User $user): bool => $user->canViewScrapingMetrics());
 
         // LEGACY GATES (for backward compatibility)
-        Gate::define('manage-tickets', function (User $user) {
-            return $user->isAgent() || $user->isAdmin();
-        });
+        Gate::define('manage-tickets', fn (User $user): bool => $user->isAgent() || $user->isAdmin());
 
-        Gate::define('view-analytics', function (User $user) {
-            return $user->isAdmin();
-        });
+        Gate::define('view-analytics', fn (User $user): bool => $user->isAdmin());
 
-        Gate::define('create-tickets', function (User $user) {
-            return $user->isCustomer() || $user->isAgent() || $user->isAdmin();
-        });
+        Gate::define('create-tickets', fn (User $user): bool => $user->isCustomer() || $user->isAgent() || $user->isAdmin());
     }
 }

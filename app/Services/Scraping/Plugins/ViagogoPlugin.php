@@ -6,6 +6,7 @@ use App\Services\Scraping\BaseScraperPlugin;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -15,9 +16,10 @@ class ViagogoPlugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -166,23 +168,23 @@ class ViagogoPlugin extends BaseScraperPlugin
     {
         $params = [];
 
-        if (!empty($criteria['keyword'])) {
-            $params['q'] = urlencode($criteria['keyword']);
+        if (! empty($criteria['keyword'])) {
+            $params['q'] = urlencode((string) $criteria['keyword']);
         }
 
-        if (!empty($criteria['city'])) {
-            $params['city'] = urlencode($criteria['city']);
+        if (! empty($criteria['city'])) {
+            $params['city'] = urlencode((string) $criteria['city']);
         }
 
-        if (!empty($criteria['country'])) {
-            $params['country'] = urlencode($criteria['country']);
+        if (! empty($criteria['country'])) {
+            $params['country'] = urlencode((string) $criteria['country']);
         }
 
-        if (!empty($criteria['category'])) {
-            $params['category'] = urlencode($criteria['category']);
+        if (! empty($criteria['category'])) {
+            $params['category'] = urlencode((string) $criteria['category']);
         }
 
-        if (!empty($criteria['date_range'])) {
+        if (! empty($criteria['date_range'])) {
             if (isset($criteria['date_range']['start'])) {
                 $params['fromDate'] = $criteria['date_range']['start'];
             }
@@ -235,7 +237,7 @@ class ViagogoPlugin extends BaseScraperPlugin
             $priceText = $this->extractText($node, '.price, .EventCard-price, .from-price, .listing-price');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -275,7 +277,7 @@ class ViagogoPlugin extends BaseScraperPlugin
      */
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 
@@ -294,16 +296,16 @@ class ViagogoPlugin extends BaseScraperPlugin
      */
     protected function determineCurrency(string $priceText): string
     {
-        if (strpos($priceText, '£') !== FALSE || strpos($priceText, 'GBP') !== FALSE) {
+        if (str_contains($priceText, '£') || str_contains($priceText, 'GBP')) {
             return 'GBP';
         }
-        if (strpos($priceText, '€') !== FALSE || strpos($priceText, 'EUR') !== FALSE) {
+        if (str_contains($priceText, '€') || str_contains($priceText, 'EUR')) {
             return 'EUR';
         }
-        if (strpos($priceText, '¥') !== FALSE || strpos($priceText, 'JPY') !== FALSE) {
+        if (str_contains($priceText, '¥') || str_contains($priceText, 'JPY')) {
             return 'JPY';
         }
-        if (strpos($priceText, '$') !== FALSE || strpos($priceText, 'USD') !== FALSE) {
+        if (str_contains($priceText, '$') || str_contains($priceText, 'USD')) {
             return 'USD';
         }
 
@@ -313,9 +315,10 @@ class ViagogoPlugin extends BaseScraperPlugin
     /**
      * Parse date from various formats
      */
+    #[Override]
     protected function parseDate(string $dateText): ?string
     {
-        if (empty($dateText)) {
+        if ($dateText === '' || $dateText === '0') {
             return NULL;
         }
 

@@ -86,7 +86,7 @@ class ProxyRotationService
         $cacheKey = "scraping.user_agent.{$platform}";
         $userAgent = Cache::get($cacheKey);
 
-        if (!$userAgent) {
+        if (! $userAgent) {
             $userAgent = $this->getRandomUserAgent();
             // Keep same user agent for 30 minutes per platform to maintain session consistency
             Cache::put($cacheKey, $userAgent, 30 * 60);
@@ -236,9 +236,7 @@ class ProxyRotationService
      */
     public function removeProxy(string $host, int $port): void
     {
-        $this->proxies = array_filter($this->proxies, function ($proxy) use ($host, $port) {
-            return !($proxy['host'] === $host && $proxy['port'] === $port);
-        });
+        $this->proxies = array_filter($this->proxies, fn (array $proxy): bool => ! ($proxy['host'] === $host && $proxy['port'] === $port));
 
         Cache::put('scraping.proxies', array_values($this->proxies), 3600 * 24);
     }
@@ -267,7 +265,7 @@ class ProxyRotationService
             $proxyKey = $this->getProxyKey($proxy);
             $health = $this->proxyHealth[$proxyKey] ?? NULL;
 
-            if (!$health) {
+            if (! $health) {
                 $stats['untested_proxies']++;
                 $stats['proxy_details'][$proxyKey] = [
                     'status' => 'untested',
@@ -342,7 +340,7 @@ class ProxyRotationService
         }
 
         // Add some randomization to headers to avoid detection
-        if (rand(0, 1)) {
+        if (random_int(0, 1) !== 0) {
             $headers['Sec-CH-UA'] = '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"';
             $headers['Sec-CH-UA-Mobile'] = '?0';
             $headers['Sec-CH-UA-Platform'] = '"Windows"';
@@ -379,7 +377,7 @@ class ProxyRotationService
                 // Add paid proxy services here for production
                 // Rotating residential proxies recommended for production use
             ]));
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Fallback to config if cache is not available
             $this->proxies = config('scraping.proxies', []);
             Log::debug('Cache not available during proxy loading, using config fallback');
@@ -436,7 +434,7 @@ class ProxyRotationService
     {
         try {
             $this->proxyHealth = Cache::get('scraping.proxy_health', []);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Fallback to empty array if cache is not available
             $this->proxyHealth = [];
             Log::debug('Cache not available during proxy health loading, using empty fallback');
@@ -453,7 +451,7 @@ class ProxyRotationService
     {
         $health = $this->proxyHealth[$proxyKey] ?? NULL;
 
-        if (!$health) {
+        if (! $health) {
             return TRUE; // Assume healthy if no data
         }
 
@@ -461,7 +459,7 @@ class ProxyRotationService
         $failures = $health['failures'] ?? 0;
         $lastCheck = $health['last_check'] ?? 0;
 
-        return !($failures > 5 && (time() - $lastCheck) < 3600);
+        return ! ($failures > 5 && (time() - $lastCheck) < 3600);
     }
 
     /**

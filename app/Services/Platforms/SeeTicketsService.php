@@ -45,7 +45,7 @@ class SeeTicketsService extends BasePlatformService
                 'Connection'      => 'keep-alive',
             ])->timeout(30)->get($searchUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('SeeTickets search failed: ' . $response->status());
             }
 
@@ -74,14 +74,14 @@ class SeeTicketsService extends BasePlatformService
     {
         $cacheKey = 'seetickets_event_' . md5($eventUrl);
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($eventUrl) {
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($eventUrl): array {
             try {
                 $response = Http::withHeaders([
                     'User-Agent' => $this->getRandomUserAgent(),
                     'Referer'    => $this->baseUrl,
                 ])->timeout(30)->get($eventUrl);
 
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     throw new Exception('Failed to fetch event details');
                 }
 
@@ -115,7 +115,7 @@ class SeeTicketsService extends BasePlatformService
             try {
                 $eventDetails = $this->getEventDetails($url);
 
-                if (!$eventDetails['success']) {
+                if (! $eventDetails['success']) {
                     $errors[] = "Failed to get details for: {$url}";
 
                     continue;
@@ -123,7 +123,7 @@ class SeeTicketsService extends BasePlatformService
 
                 foreach ($eventDetails['tickets'] as $ticketData) {
                     $ticket = $this->createTicketRecord($ticketData, $eventDetails);
-                    if ($ticket) {
+                    if ($ticket instanceof ScrapedTicket) {
                         $imported[] = $ticket;
                     }
                 }
@@ -254,7 +254,7 @@ class SeeTicketsService extends BasePlatformService
     {
         // Extract event title
         $titleNode = $xpath->query('.//h3[@class="event-title"] | .//h2[@class="event-name"]', $node)->item(0);
-        if (!$titleNode) {
+        if (! $titleNode) {
             return NULL;
         }
 
@@ -283,7 +283,7 @@ class SeeTicketsService extends BasePlatformService
         // Extract image
         $imageNode = $xpath->query('.//img', $node)->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : NULL;
-        if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+        if ($imageUrl && ! str_starts_with((string) $imageUrl, 'http')) {
             $imageUrl = $this->baseUrl . $imageUrl;
         }
 
@@ -344,7 +344,7 @@ class SeeTicketsService extends BasePlatformService
         // Extract event image
         $imageNode = $xpath->query('//img[@class="event-image"] | //img[contains(@class, "hero-image")]')->item(0);
         $imageUrl = $imageNode ? $imageNode->getAttribute('src') : NULL;
-        if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+        if ($imageUrl && ! str_starts_with((string) $imageUrl, 'http')) {
             $imageUrl = $this->baseUrl . $imageUrl;
         }
 
@@ -376,13 +376,13 @@ class SeeTicketsService extends BasePlatformService
 
         // Extract price
         $priceNode = $xpath->query('.//span[@class="price"] | .//td[@class="price"]', $ticketNode)->item(0);
-        if (!$priceNode) {
+        if (! $priceNode) {
             return NULL;
         }
 
         $priceText = trim($priceNode->textContent);
         $price = $this->extractPrice($priceText);
-        if (!$price) {
+        if (! $price) {
             return NULL;
         }
 
@@ -399,7 +399,7 @@ class SeeTicketsService extends BasePlatformService
             'price'             => $price,
             'currency'          => 'GBP',
             'availability'      => $availability,
-            'is_available'      => !$isSoldOut,
+            'is_available'      => ! $isSoldOut,
             'platform_specific' => [
                 'ticket_type'  => $this->extractTicketType($section),
                 'restrictions' => $this->extractRestrictions($ticketNode, $xpath),
@@ -473,7 +473,7 @@ class SeeTicketsService extends BasePlatformService
                 $date = Carbon::createFromFormat($format, $dateStr);
 
                 return $date->toDateTimeString();
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
@@ -481,7 +481,7 @@ class SeeTicketsService extends BasePlatformService
         // Try natural language parsing
         try {
             return Carbon::parse($dateStr)->toDateTimeString();
-        } catch (Exception $e) {
+        } catch (Exception) {
             Log::warning('Could not parse SeeTickets date', ['date_string' => $dateStr]);
 
             return NULL;
@@ -499,7 +499,7 @@ class SeeTicketsService extends BasePlatformService
         $priceText = preg_replace('/[^\d.,£\-\s]/', '', $priceText);
 
         // Look for price ranges like "£25 - £50" or "From £25"
-        if (preg_match('/£(\d+(?:\.\d{2})?)\s*-\s*£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+        if (preg_match('/£(\d+(?:\.\d{2})?)\s*-\s*£(\d+(?:\.\d{2})?)/', (string) $priceText, $matches)) {
             return [
                 'min'      => (float) $matches[1],
                 'max'      => (float) $matches[2],
@@ -508,7 +508,7 @@ class SeeTicketsService extends BasePlatformService
         }
 
         // Look for "From £X" format
-        if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/i', $priceText, $matches)) {
+        if (preg_match('/from\s*£(\d+(?:\.\d{2})?)/i', (string) $priceText, $matches)) {
             return [
                 'min'      => (float) $matches[1],
                 'max'      => NULL,
@@ -517,7 +517,7 @@ class SeeTicketsService extends BasePlatformService
         }
 
         // Single price
-        if (preg_match('/£(\d+(?:\.\d{2})?)/', $priceText, $matches)) {
+        if (preg_match('/£(\d+(?:\.\d{2})?)/', (string) $priceText, $matches)) {
             return [
                 'min'      => (float) $matches[1],
                 'max'      => (float) $matches[1],
@@ -604,6 +604,8 @@ class SeeTicketsService extends BasePlatformService
      */
     /**
      * ExtractRestrictions
+     *
+     * @return string[]
      */
     private function extractRestrictions(DOMNode $ticketNode, DOMXPath $xpath): array
     {

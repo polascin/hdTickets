@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -25,7 +25,7 @@ class RegisteredUserController extends Controller
     public function create(): View|Response
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         // Check if user is authenticated and is an admin
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        if (! Auth::check() || ! Auth::user()->isAdmin()) {
             abort(403, 'Access denied. User registration is restricted to administrators only.');
         }
 
@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
             'username'    => ['sometimes', 'string', 'max:255', 'unique:' . User::class],
             'email'       => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'phone'       => ['sometimes', 'string', 'max:20'],
-            'password'    => ['required', 'confirmed', Rules\Password::defaults()],
+            'password'    => ['required', 'confirmed', Password::defaults()],
             'role'        => ['sometimes', 'string', 'in:admin,agent,customer,scraper'],
             'is_active'   => ['sometimes', 'boolean'],
             'require_2fa' => ['sometimes', 'boolean'],

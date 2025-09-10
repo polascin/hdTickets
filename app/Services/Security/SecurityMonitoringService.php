@@ -92,11 +92,8 @@ class SecurityMonitoringService
         'account_takeover',
     ];
 
-    protected $securityService;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
     }
 
     /**
@@ -117,7 +114,7 @@ class SecurityMonitoringService
             } // Handled separately
 
             $detectedThreats = $this->detectPatterns($request, $config['patterns']);
-            if (!empty($detectedThreats)) {
+            if ($detectedThreats !== []) {
                 $threats[] = [
                     'type'        => $threatType,
                     'severity'    => $config['severity'],
@@ -138,7 +135,7 @@ class SecurityMonitoringService
         $riskLevel = $this->calculateRiskLevel($riskScore);
 
         // Take action based on threats
-        if (!empty($threats)) {
+        if ($threats !== []) {
             $this->handleDetectedThreats($request, $threats, $riskLevel);
         }
 
@@ -161,7 +158,7 @@ class SecurityMonitoringService
     {
         $suspiciousFlags = [];
 
-        if (!$success) {
+        if (! $success) {
             // Check for brute force patterns
             $recentFailures = $this->getRecentFailedLogins($user, 300); // 5 minutes
             if ($recentFailures >= 3) {
@@ -191,7 +188,7 @@ class SecurityMonitoringService
         }
 
         // Log security event
-        if (!empty($suspiciousFlags)) {
+        if ($suspiciousFlags !== []) {
             $this->logSecurityEvent('authentication_anomaly', [
                 'user_id'          => $user->id,
                 'success'          => $success,
@@ -594,19 +591,6 @@ class SecurityMonitoringService
     {
         $vulnerabilities = [];
 
-        // This would integrate with security advisories databases
-        // For now, return basic checks
-
-        // Check PHP version
-        if (version_compare(PHP_VERSION, '8.2.0', '<')) {
-            $vulnerabilities[] = [
-                'type'           => 'outdated_php_version',
-                'severity'       => 'medium',
-                'description'    => 'PHP version ' . PHP_VERSION . ' may have security vulnerabilities',
-                'recommendation' => 'Update to PHP 8.2 or later',
-            ];
-        }
-
         return [
             'scan_type'       => 'dependencies',
             'vulnerabilities' => $vulnerabilities,
@@ -627,7 +611,7 @@ class SecurityMonitoringService
         try {
             // Check for default passwords (simplified check)
             $users = DB::select("SELECT user, host FROM mysql.user WHERE user IN ('root', 'admin', 'test')");
-            if (!empty($users)) {
+            if (! empty($users)) {
                 $vulnerabilities[] = [
                     'type'           => 'default_database_users',
                     'severity'       => 'medium',
@@ -635,7 +619,7 @@ class SecurityMonitoringService
                     'recommendation' => 'Remove or rename default database users',
                 ];
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Database check failed
             $vulnerabilities[] = [
                 'type'           => 'database_check_failed',
@@ -663,7 +647,7 @@ class SecurityMonitoringService
         $vulnerabilities = [];
 
         // Check for security headers
-        if (!config('security.headers.X-Frame-Options')) {
+        if (! config('security.headers.X-Frame-Options')) {
             $vulnerabilities[] = [
                 'type'           => 'missing_security_header',
                 'severity'       => 'medium',
@@ -673,7 +657,7 @@ class SecurityMonitoringService
         }
 
         // Check for HTTPS enforcement
-        if (!config('session.secure') && config('app.env') === 'production') {
+        if (! config('session.secure') && config('app.env') === 'production') {
             $vulnerabilities[] = [
                 'type'           => 'https_not_enforced',
                 'severity'       => 'high',
@@ -798,7 +782,7 @@ class SecurityMonitoringService
         // Remove potentially sensitive information
         $data = preg_replace('/password["\']?\s*[:=]\s*["\']?[^"\'&\s]+/i', 'password=***', $data);
 
-        return preg_replace('/token["\']?\s*[:=]\s*["\']?[^"\'&\s]+/i', 'token=***', $data);
+        return preg_replace('/token["\']?\s*[:=]\s*["\']?[^"\'&\s]+/i', 'token=***', (string) $data);
     }
 
     /**

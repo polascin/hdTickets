@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Illuminate\Contracts\View\View;
+use App\Http\Controllers\Illuminate\Http\RedirectResponse;
 use App\Models\TicketSource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,12 +17,12 @@ class UserContributionController extends Controller
     /**
      * Create
      */
-    public function create(): Illuminate\Contracts\View\View
+    public function create(): View
     {
         $platforms = TicketSource::getPlatforms();
         $statuses = TicketSource::getStatuses();
 
-        return view('contributions.create', compact('platforms', 'statuses'));
+        return view('contributions.create', ['platforms' => $platforms, 'statuses' => $statuses]);
     }
 
     /**
@@ -29,7 +31,7 @@ class UserContributionController extends Controller
     /**
      * Store
      */
-    public function store(Request $request): Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'event_name'          => 'required|string|max:255',
@@ -81,7 +83,7 @@ class UserContributionController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('contributions.pending', compact('contributions'));
+        return view('contributions.pending', ['contributions' => $contributions]);
     }
 
     /**

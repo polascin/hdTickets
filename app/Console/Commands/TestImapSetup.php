@@ -7,6 +7,10 @@ use App\Services\Email\ImapConnectionService;
 use Exception;
 use Illuminate\Console\Command;
 
+use function count;
+use function extension_loaded;
+use function function_exists;
+
 /**
  * Test IMAP Setup Command
  *
@@ -14,14 +18,10 @@ use Illuminate\Console\Command;
  */
 class TestImapSetup extends Command
 {
-    /**
-     * The name and signature of the console command.
-     */
+    /** The name and signature of the console command. */
     protected $signature = 'hdtickets:test-imap';
 
-    /**
-     * The console command description.
-     */
+    /** The console command description. */
     protected $description = 'Test IMAP setup and verify all components are working';
 
     /**
@@ -35,22 +35,22 @@ class TestImapSetup extends Command
         $allTestsPassed = TRUE;
 
         // Test 1: IMAP Extension
-        if (!$this->testImapExtension()) {
+        if (! $this->testImapExtension()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 2: Configuration
-        if (!$this->testConfiguration()) {
+        if (! $this->testConfiguration()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 3: Service Classes
-        if (!$this->testServiceClasses()) {
+        if (! $this->testServiceClasses()) {
             $allTestsPassed = FALSE;
         }
 
         // Test 4: Email Parsing
-        if (!$this->testEmailParsing()) {
+        if (! $this->testEmailParsing()) {
             $allTestsPassed = FALSE;
         }
 
@@ -64,11 +64,10 @@ class TestImapSetup extends Command
             $this->info('   3. Set up cron job to run: php artisan hdtickets:monitor-emails');
 
             return Command::SUCCESS;
-        } else {
-            $this->error('❌ Some IMAP tests failed. Please check the output above.');
-
-            return Command::FAILURE;
         }
+        $this->error('❌ Some IMAP tests failed. Please check the output above.');
+
+        return Command::FAILURE;
     }
 
     /**
@@ -94,12 +93,11 @@ class TestImapSetup extends Command
             }
 
             return TRUE;
-        } else {
-            $this->error('  ❌ IMAP extension is not loaded');
-            $this->error('     Install with: sudo apt install php8.3-imap');
-
-            return FALSE;
         }
+        $this->error('  ❌ IMAP extension is not loaded');
+        $this->error('     Install with: sudo apt install php8.3-imap');
+
+        return FALSE;
     }
 
     /**
@@ -213,14 +211,14 @@ class TestImapSetup extends Command
             $this->info('      - Sports events found: ' . count($result['sports_events']));
             $this->info('      - Tickets found: ' . count($result['tickets']));
 
-            if (!empty($result['sports_events'])) {
+            if (! empty($result['sports_events'])) {
                 $event = $result['sports_events'][0];
                 $this->info("      - Event: {$event['name']}");
                 $this->info("      - Category: {$event['category']}");
                 $this->info("      - Platform: {$event['source_platform']}");
             }
 
-            if (!empty($result['tickets'])) {
+            if (! empty($result['tickets'])) {
                 $ticket = $result['tickets'][0];
                 $this->info('      - Ticket price: $' . number_format($ticket['price'], 2));
                 $this->info("      - Platform: {$ticket['source_platform']}");

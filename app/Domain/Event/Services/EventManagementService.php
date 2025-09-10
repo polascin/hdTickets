@@ -37,7 +37,7 @@ class EventManagementService
 
         // Check for duplicate events
         $existingEvent = $this->eventRepository->findByName($name);
-        if ($existingEvent !== NULL) {
+        if ($existingEvent instanceof SportsEvent) {
             throw new DomainException('Event with this name already exists');
         }
 
@@ -47,7 +47,7 @@ class EventManagementService
             $venue->fullName(),
         );
 
-        if (!empty($conflictingEvents)) {
+        if ($conflictingEvents !== []) {
             throw new DomainException('Venue conflict detected at the specified time');
         }
 
@@ -88,7 +88,7 @@ class EventManagementService
         ?string $competition = NULL,
     ): void {
         $event = $this->eventRepository->findById($eventId);
-        if ($event === NULL) {
+        if (! $event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 
@@ -102,7 +102,7 @@ class EventManagementService
     public function markEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
-        if ($event === NULL) {
+        if (! $event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 
@@ -116,7 +116,7 @@ class EventManagementService
     public function unmarkEventAsHighDemand(EventId $eventId): void
     {
         $event = $this->eventRepository->findById($eventId);
-        if ($event === NULL) {
+        if (! $event instanceof SportsEvent) {
             throw new DomainException('Event not found');
         }
 

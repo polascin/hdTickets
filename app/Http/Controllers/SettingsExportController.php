@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Illuminate\Contracts\View\View;
 use App\Models\User;
 use App\Models\UserFavoriteTeam;
 use App\Models\UserFavoriteVenue;
@@ -33,13 +34,13 @@ class SettingsExportController extends Controller
     /**
      * Index
      */
-    public function index(): Illuminate\Contracts\View\View
+    public function index(): View
     {
         $user = auth()->user();
 
         return view('profile.settings-export', [
             'user'                  => $user,
-            'last_export'           => $this->getLastExportInfo($user),
+            'last_export'           => $this->getLastExportInfo(),
             'supported_formats'     => $this->getSupportedFormats(),
             'exportable_categories' => $this->getExportableCategories(),
         ]);
@@ -134,7 +135,7 @@ class SettingsExportController extends Controller
 
             $validation = $this->validateImportData($importData);
 
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid import data structure',
@@ -187,7 +188,7 @@ class SettingsExportController extends Controller
             ], 422);
         }
 
-        if (!$request->input('preview_confirmed')) {
+        if (! $request->input('preview_confirmed')) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Import must be previewed and confirmed before processing',
@@ -208,7 +209,7 @@ class SettingsExportController extends Controller
 
             $validation = $this->validateImportData($importData);
 
-            if (!$validation['valid']) {
+            if (! $validation['valid']) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Invalid import data structure',
@@ -287,7 +288,7 @@ class SettingsExportController extends Controller
 
             foreach ($conflicts as $conflict) {
                 try {
-                    $this->resolveConflict($user, $conflict);
+                    $this->resolveConflict($conflict);
                     $resolved++;
                 } catch (Exception $e) {
                     $errors[] = "Failed to resolve conflict {$conflict['id']}: " . $e->getMessage();
@@ -342,7 +343,7 @@ class SettingsExportController extends Controller
             ], 422);
         }
 
-        if (!$request->input('confirm_reset')) {
+        if (! $request->input('confirm_reset')) {
             return response()->json([
                 'success' => FALSE,
                 'message' => 'Reset must be confirmed',
@@ -525,9 +526,9 @@ class SettingsExportController extends Controller
      */
     private function exportNotificationSettings(User $user): array
     {
-        $settings = UserNotificationSettings::where('user_id', $user->id)
+        return UserNotificationSettings::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($setting) {
+            ->mapWithKeys(function ($setting): array {
                 // Skip sensitive notification channels
                 if (in_array($setting->channel, ['webhook', 'api'], TRUE)) {
                     return [];
@@ -536,8 +537,6 @@ class SettingsExportController extends Controller
                 return [$setting->channel => $setting->is_enabled];
             })
             ->toArray();
-
-        return $settings;
     }
 
     /**
@@ -570,18 +569,12 @@ class SettingsExportController extends Controller
      */
     private function castPreferenceValue($value, string $dataType)
     {
-        switch ($dataType) {
-            case 'boolean':
-                return (bool) $value;
-            case 'integer':
-                return (int) $value;
-            case 'array':
-            case 'json':
-                return json_decode($value, TRUE);
-            case 'string':
-            default:
-                return (string) $value;
-        }
+        return match ($dataType) {
+            'boolean' => (bool) $value,
+            'integer' => (int) $value,
+            'array', 'json' => json_decode((string) $value, TRUE),
+            default => (string) $value,
+        };
     }
 
     /**
@@ -672,16 +665,16 @@ class SettingsExportController extends Controller
         $valid = TRUE;
 
         // Check required meta fields
-        if (!isset($data['meta'])) {
+        if (! isset($data['meta'])) {
             $errors[] = 'Missing meta information';
             $valid = FALSE;
-        } elseif (!isset($data['meta']['version'])) {
+        } elseif (! isset($data['meta']['version'])) {
             $errors[] = 'Missing version information';
             $valid = FALSE;
         }
 
         // Check data structure
-        if (!isset($data['data']) || !is_array($data['data'])) {
+        if (! isset($data['data']) || ! is_array($data['data'])) {
             $errors[] = 'Missing or invalid data section';
             $valid = FALSE;
         }
@@ -690,7 +683,7 @@ class SettingsExportController extends Controller
         $validCategories = ['preferences', 'teams', 'venues', 'prices', 'notifications'];
 
         foreach ($data['data'] as $category => $categoryData) {
-            if (!in_array($category, $validCategories, TRUE)) {
+            if (! in_array($category, $validCategories, TRUE)) {
                 $errors[] = "Invalid category: {$category}";
                 $valid = FALSE;
 
@@ -698,7 +691,7 @@ class SettingsExportController extends Controller
             }
 
             $categoryValidation = $this->validateCategoryData($category, $categoryData);
-            if (!$categoryValidation['valid']) {
+            if (! $categoryValidation['valid']) {
                 $errors = array_merge($errors, $categoryValidation['errors']);
                 $valid = FALSE;
             }
@@ -727,19 +720,19 @@ class SettingsExportController extends Controller
 
         switch ($category) {
             case 'preferences':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Preferences must be an array';
                     $valid = FALSE;
                 }
 
                 break;
             case 'teams':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Teams must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $team) {
-                        if (!isset($team['team_name']) || !isset($team['sport_type'])) {
+                        if (! isset($team['team_name']) || ! isset($team['sport_type'])) {
                             $errors[] = "Team at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -748,12 +741,12 @@ class SettingsExportController extends Controller
 
                 break;
             case 'venues':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Venues must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $venue) {
-                        if (!isset($venue['venue_name']) || !isset($venue['city'])) {
+                        if (! isset($venue['venue_name']) || ! isset($venue['city'])) {
                             $errors[] = "Venue at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -762,12 +755,12 @@ class SettingsExportController extends Controller
 
                 break;
             case 'prices':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Price preferences must be an array';
                     $valid = FALSE;
                 } else {
                     foreach ($data as $index => $price) {
-                        if (!isset($price['preference_name']) || !isset($price['max_price'])) {
+                        if (! isset($price['preference_name']) || ! isset($price['max_price'])) {
                             $errors[] = "Price preference at index {$index} missing required fields";
                             $valid = FALSE;
                         }
@@ -776,7 +769,7 @@ class SettingsExportController extends Controller
 
                 break;
             case 'notifications':
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $errors[] = 'Notification settings must be an array';
                     $valid = FALSE;
                 }
@@ -827,7 +820,7 @@ class SettingsExportController extends Controller
      *
      * @param mixed $data
      */
-    private function generateCategoryPreview(User $user, string $category, $data, string $mergeStrategy): array
+    private function generateCategoryPreview(User $user, string $category, array $data, string $mergeStrategy): array
     {
         $preview = [
             'changes'      => [],
@@ -836,30 +829,14 @@ class SettingsExportController extends Controller
             'change_count' => 0,
         ];
 
-        switch ($category) {
-            case 'preferences':
-                $preview = $this->previewPreferencesChanges($user, $data, $mergeStrategy);
-
-                break;
-            case 'teams':
-                $preview = $this->previewTeamsChanges($user, $data, $mergeStrategy);
-
-                break;
-            case 'venues':
-                $preview = $this->previewVenuesChanges($user, $data, $mergeStrategy);
-
-                break;
-            case 'prices':
-                $preview = $this->previewPricesChanges($user, $data, $mergeStrategy);
-
-                break;
-            case 'notifications':
-                $preview = $this->previewNotificationsChanges($user, $data, $mergeStrategy);
-
-                break;
-        }
-
-        return $preview;
+        return match ($category) {
+            'preferences'   => $this->previewPreferencesChanges($user, $data, $mergeStrategy),
+            'teams'         => $this->previewTeamsChanges($user, $data, $mergeStrategy),
+            'venues'        => $this->previewVenuesChanges($user, $data, $mergeStrategy),
+            'prices'        => $this->previewPricesChanges($user, $data, $mergeStrategy),
+            'notifications' => $this->previewNotificationsChanges($user, $data, $mergeStrategy),
+            default         => $preview,
+        };
     }
 
     /**
@@ -877,9 +854,7 @@ class SettingsExportController extends Controller
 
         $existingPrefs = UserPreference::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($pref) {
-                return ["{$pref->category}.{$pref->key}" => $pref];
-            });
+            ->mapWithKeys(fn ($pref): array => ["{$pref->category}.{$pref->key}" => $pref]);
 
         foreach ($data as $category => $preferences) {
             foreach ($preferences as $key => $prefData) {
@@ -943,9 +918,7 @@ class SettingsExportController extends Controller
 
         $existingTeams = UserFavoriteTeam::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($team) {
-                return ["{$team->sport_type}.{$team->team_name}" => $team];
-            });
+            ->mapWithKeys(fn ($team): array => ["{$team->sport_type}.{$team->team_name}" => $team]);
 
         foreach ($data as $teamData) {
             $teamKey = "{$teamData['sport_type']}.{$teamData['team_name']}";
@@ -1000,9 +973,7 @@ class SettingsExportController extends Controller
 
         $existingVenues = UserFavoriteVenue::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($venue) {
-                return ["{$venue->venue_name}.{$venue->city}" => $venue];
-            });
+            ->mapWithKeys(fn ($venue): array => ["{$venue->venue_name}.{$venue->city}" => $venue]);
 
         foreach ($data as $venueData) {
             $venueKey = "{$venueData['venue_name']}.{$venueData['city']}";
@@ -1057,9 +1028,7 @@ class SettingsExportController extends Controller
 
         $existingPrices = UserPricePreference::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($price) {
-                return [$price->preference_name => $price];
-            });
+            ->mapWithKeys(fn ($price): array => [$price->preference_name => $price]);
 
         foreach ($data as $priceData) {
             $priceName = $priceData['preference_name'];
@@ -1114,9 +1083,7 @@ class SettingsExportController extends Controller
 
         $existingSettings = UserNotificationSettings::where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(function ($setting) {
-                return [$setting->channel => $setting];
-            });
+            ->mapWithKeys(fn ($setting): array => [$setting->channel => $setting]);
 
         foreach ($data as $channel => $enabled) {
             if (isset($existingSettings[$channel])) {
@@ -1169,7 +1136,7 @@ class SettingsExportController extends Controller
         $changes = [];
 
         foreach ($import as $key => $value) {
-            if (!isset($existing[$key]) || $existing[$key] !== $value) {
+            if (! isset($existing[$key]) || $existing[$key] !== $value) {
                 $changes[$key] = [
                     'from' => $existing[$key] ?? NULL,
                     'to'   => $value,
@@ -1196,7 +1163,7 @@ class SettingsExportController extends Controller
 
         try {
             foreach ($categories as $category) {
-                if (!isset($importData['data'][$category])) {
+                if (! isset($importData['data'][$category])) {
                     continue;
                 }
 
@@ -1230,22 +1197,16 @@ class SettingsExportController extends Controller
      *
      * @param mixed $data
      */
-    private function importCategory(User $user, string $category, $data, string $mergeStrategy): array
+    private function importCategory(User $user, string $category, array $data, string $mergeStrategy): array
     {
-        switch ($category) {
-            case 'preferences':
-                return $this->importPreferences($user, $data, $mergeStrategy);
-            case 'teams':
-                return $this->importFavoriteTeams($user, $data, $mergeStrategy);
-            case 'venues':
-                return $this->importFavoriteVenues($user, $data, $mergeStrategy);
-            case 'prices':
-                return $this->importPricePreferences($user, $data, $mergeStrategy);
-            case 'notifications':
-                return $this->importNotificationSettings($user, $data, $mergeStrategy);
-            default:
-                return ['imported' => 0, 'conflicts' => [], 'errors' => ["Unknown category: {$category}"]];
-        }
+        return match ($category) {
+            'preferences'   => $this->importPreferences($user, $data, $mergeStrategy),
+            'teams'         => $this->importFavoriteTeams($user, $data, $mergeStrategy),
+            'venues'        => $this->importFavoriteVenues($user, $data, $mergeStrategy),
+            'prices'        => $this->importPricePreferences($user, $data, $mergeStrategy),
+            'notifications' => $this->importNotificationSettings($user, $data, $mergeStrategy),
+            default         => ['imported' => 0, 'conflicts' => [], 'errors' => ["Unknown category: {$category}"]],
+        };
     }
 
     /**
@@ -1495,11 +1456,9 @@ class SettingsExportController extends Controller
     /**
      * ResolveConflict
      */
-    private function resolveConflict(User $user, array $conflict): void
+    private function resolveConflict(array $conflict): void
     {
         $action = $conflict['action'];
-        $category = $conflict['category'];
-        $id = $conflict['id'];
 
         if ($action === 'keep_existing') {
             // No action needed, keep existing
@@ -1570,7 +1529,7 @@ class SettingsExportController extends Controller
     /**
      * Get  last export info
      */
-    private function getLastExportInfo(User $user): ?array
+    private function getLastExportInfo(): ?array
     {
         // This would typically come from a user_exports table
         // For now, return null

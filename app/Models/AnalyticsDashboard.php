@@ -26,17 +26,6 @@ class AnalyticsDashboard extends Model
         'last_accessed_at',
     ];
 
-    protected $casts = [
-        'configuration'    => 'array',
-        'widgets'          => 'array',
-        'filters'          => 'array',
-        'shared_with'      => 'array',
-        'is_public'        => 'boolean',
-        'is_default'       => 'boolean',
-        'last_accessed_at' => 'datetime',
-        'refresh_interval' => 'integer',
-    ];
-
     /**
      * Get the user that owns the dashboard
      */
@@ -169,5 +158,19 @@ class AnalyticsDashboard extends Model
         $newSharedWith = array_diff($currentSharedWith, $userIds);
 
         $this->update(['shared_with' => array_values($newSharedWith)]);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'configuration'    => 'array',
+            'widgets'          => 'array',
+            'filters'          => 'array',
+            'shared_with'      => 'array',
+            'is_public'        => 'boolean',
+            'is_default'       => 'boolean',
+            'last_accessed_at' => 'datetime',
+            'refresh_interval' => 'integer',
+        ];
     }
 }

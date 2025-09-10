@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,14 +24,6 @@ class UserFavoriteTeam extends Model
         'push_alerts',
         'sms_alerts',
         'priority',
-    ];
-
-    protected $casts = [
-        'aliases'      => 'array',
-        'email_alerts' => 'boolean',
-        'push_alerts'  => 'boolean',
-        'sms_alerts'   => 'boolean',
-        'priority'     => 'integer',
     ];
 
     /**
@@ -119,17 +112,6 @@ class UserFavoriteTeam extends Model
     }
 
     /**
-     * Get the full team display name
-     */
-    /**
-     * Get  full name attribute
-     */
-    public function getFullNameAttribute(): string
-    {
-        return $this->team_city ? "{$this->team_city} {$this->team_name}" : $this->team_name;
-    }
-
-    /**
      * Generate team slug from name and city
      */
     /**
@@ -140,21 +122,6 @@ class UserFavoriteTeam extends Model
         $name = $this->team_city ? "{$this->team_city} {$this->team_name}" : $this->team_name;
 
         return strtolower(str_replace([' ', '&', '.'], ['-', 'and', ''], $name));
-    }
-
-    /**
-     * Set team slug automatically
-     *
-     * @param mixed $value
-     */
-    /**
-     * Set  team slug attribute
-     *
-     * @param mixed $value
-     */
-    public function setTeamSlugAttribute($value): void
-    {
-        $this->attributes['team_slug'] = $value ?: $this->generateSlug();
     }
 
     /**
@@ -225,16 +192,14 @@ class UserFavoriteTeam extends Model
         return $query->orderByDesc('popularity')
             ->limit(50)
             ->get()
-            ->map(function ($team) {
-                return [
-                    'name'       => $team->team_name,
-                    'city'       => $team->team_city,
-                    'full_name'  => $team->team_city ? "{$team->team_city} {$team->team_name}" : $team->team_name,
-                    'league'     => $team->league,
-                    'sport'      => $team->sport_type,
-                    'popularity' => $team->popularity,
-                ];
-            })
+            ->map(fn ($team): array => [
+                'name'       => $team->team_name,
+                'city'       => $team->team_city,
+                'full_name'  => $team->team_city ? "{$team->team_city} {$team->team_name}" : $team->team_name,
+                'league'     => $team->league,
+                'sport'      => $team->sport_type,
+                'popularity' => $team->popularity,
+            ])
             ->toArray();
     }
 
@@ -251,9 +216,7 @@ class UserFavoriteTeam extends Model
         return str_contains(strtolower($this->team_name), $term)
                || str_contains(strtolower($this->team_city), $term)
                || str_contains(strtolower($this->full_name), $term)
-               || collect($this->aliases ?? [])->contains(function ($alias) use ($term) {
-                   return str_contains(strtolower($alias), $term);
-               });
+               || collect($this->aliases ?? [])->contains(fn ($alias): bool => str_contains(strtolower((string) $alias), $term));
     }
 
     /**
@@ -301,12 +264,35 @@ class UserFavoriteTeam extends Model
             'sports_count'        => $teams->groupBy('sport_type')->count(),
             'high_priority_count' => $teams->where('priority', '>=', 4)->count(),
             'email_alerts_count'  => $teams->where('email_alerts', TRUE)->count(),
-            'most_popular_sport'  => $teams->groupBy('sport_type')->sortByDesc(function ($group) {
-                return $group->count();
-            })->keys()->first(),
-            'by_sport' => $teams->groupBy('sport_type')->map(function ($group) {
-                return $group->count();
-            })->toArray(),
+            'most_popular_sport'  => $teams->groupBy('sport_type')->sortByDesc(fn ($group) => $group->count())->keys()->first(),
+            'by_sport'            => $teams->groupBy('sport_type')->map(fn ($group) => $group->count())->toArray(),
+        ];
+    }
+
+    /**
+     * Get  full name attribute
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(get: fn () => $this->team_city ? "{$this->team_city} {$this->team_name}" : $this->team_name);
+    }
+
+    /**
+     * Set  team slug attribute
+     */
+    protected function teamSlug(): Attribute
+    {
+        return Attribute::make(set: fn ($value): array => ['team_slug' => $value ?: $this->generateSlug()]);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'aliases'      => 'array',
+            'email_alerts' => 'boolean',
+            'push_alerts'  => 'boolean',
+            'sms_alerts'   => 'boolean',
+            'priority'     => 'integer',
         ];
     }
 }

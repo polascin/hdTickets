@@ -265,11 +265,8 @@ class RBACService
         ],
     ];
 
-    protected $securityService;
-
-    public function __construct(SecurityService $securityService)
+    public function __construct(protected SecurityService $securityService)
     {
-        $this->securityService = $securityService;
     }
 
     /**
@@ -284,9 +281,7 @@ class RBACService
         $cacheKey = "user_permissions:{$user->id}";
 
         // Get user permissions from cache or calculate
-        $userPermissions = Cache::remember($cacheKey, 3600, function () use ($user) {
-            return $this->calculateUserPermissions($user);
-        });
+        $userPermissions = Cache::remember($cacheKey, 3600, fn (): array => $this->calculateUserPermissions($user));
 
         // Check direct permission
         if (in_array($permission, $userPermissions, TRUE)) {
@@ -318,7 +313,7 @@ class RBACService
     public function hasAllPermissions(User $user, array $permissions, array $context = []): bool
     {
         foreach ($permissions as $permission) {
-            if (!$this->hasPermission($user, $permission, $context)) {
+            if (! $this->hasPermission($user, $permission, $context)) {
                 return FALSE;
             }
         }
@@ -351,13 +346,13 @@ class RBACService
      */
     public function grantPermission(User $user, string $permission, ?User $grantedBy = NULL): bool
     {
-        if (!$this->isValidPermission($permission)) {
+        if (! $this->isValidPermission($permission)) {
             return FALSE;
         }
 
         $customPermissions = $user->custom_permissions ?? [];
 
-        if (!in_array($permission, $customPermissions, TRUE)) {
+        if (! in_array($permission, $customPermissions, TRUE)) {
             $customPermissions[] = $permission;
             $user->update(['custom_permissions' => $customPermissions]);
 
@@ -412,7 +407,7 @@ class RBACService
      */
     public function assignRole(User $user, string $role, ?User $assignedBy = NULL): bool
     {
-        if (!$this->isValidRole($role)) {
+        if (! $this->isValidRole($role)) {
             return FALSE;
         }
 
@@ -443,9 +438,7 @@ class RBACService
     {
         $cacheKey = "user_permissions:{$user->id}";
 
-        return Cache::remember($cacheKey, 3600, function () use ($user) {
-            return $this->calculateUserPermissions($user);
-        });
+        return Cache::remember($cacheKey, 3600, fn (): array => $this->calculateUserPermissions($user));
     }
 
     /**
@@ -456,7 +449,7 @@ class RBACService
      */
     public function getRolePermissions(string $role): array
     {
-        if (!isset(self::ROLES[$role])) {
+        if (! isset(self::ROLES[$role])) {
             return [];
         }
 
@@ -515,21 +508,17 @@ class RBACService
         $permission = "{$resource}.{$action}";
 
         // Check basic permission first
-        if (!$this->hasPermission($user, $permission)) {
+        if (! $this->hasPermission($user, $permission)) {
             return FALSE;
         }
 
         // Resource-specific logic
-        switch ($resource) {
-            case 'tickets':
-                return $this->checkTicketPermission($user, $action, $resourceId);
-            case 'users':
-                return $this->checkUserPermission($user, $action, $resourceId);
-            case 'platforms':
-                return $this->checkPlatformPermission($user, $action, $resourceId);
-            default:
-                return TRUE;
-        }
+        return match ($resource) {
+            'tickets'   => $this->checkTicketPermission($user, $action, $resourceId),
+            'users'     => $this->checkUserPermission($user, $action, $resourceId),
+            'platforms' => $this->checkPlatformPermission($user, $action, $resourceId),
+            default     => TRUE,
+        };
     }
 
     /**
@@ -570,7 +559,7 @@ class RBACService
 
             // Check if inherited permissions exist
             foreach ($config['inherits'] as $inherited) {
-                if (!isset(self::PERMISSIONS[$inherited])) {
+                if (! isset(self::PERMISSIONS[$inherited])) {
                     $issues[] = "Permission {$permission} inherits non-existent permission: {$inherited}";
                 }
             }
@@ -658,7 +647,7 @@ class RBACService
      */
     protected function getInheritedPermissions(string $permission): array
     {
-        if (!isset(self::PERMISSIONS[$permission])) {
+        if (! isset(self::PERMISSIONS[$permission])) {
             return [];
         }
 
@@ -711,7 +700,7 @@ class RBACService
             return TRUE;
         }
 
-        return (bool) ($user->isCustomer() && $ticketId);
+        return $user->isCustomer() && $ticketId;
         // Check if ticket belongs to user (implement based on your ticket model)
         // Placeholder
     }
@@ -734,7 +723,7 @@ class RBACService
         }
 
         // Users can only manage themselves
-        return (bool) ($targetUserId && (int) $targetUserId === $user->id && in_array($action, ['view', 'update'], TRUE));
+        return $targetUserId && (int) $targetUserId === $user->id && in_array($action, ['view', 'update'], TRUE);
     }
 
     /**
@@ -787,7 +776,7 @@ class RBACService
             return TRUE;
         }
 
-        if (!isset(self::PERMISSIONS[$permission])) {
+        if (! isset(self::PERMISSIONS[$permission])) {
             return FALSE;
         }
 

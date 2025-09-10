@@ -24,17 +24,14 @@ use Illuminate\View\View;
 use Response;
 
 use function count;
+use function extension_loaded;
+use function is_array;
+use function sprintf;
 
 class ProfileController extends Controller
 {
-    protected TwoFactorAuthService $twoFactorService;
-
-    protected SecurityService $securityService;
-
-    public function __construct(TwoFactorAuthService $twoFactorService, SecurityService $securityService)
+    public function __construct(protected TwoFactorAuthService $twoFactorService, protected SecurityService $securityService)
     {
-        $this->twoFactorService = $twoFactorService;
-        $this->securityService = $securityService;
     }
 
     /**
@@ -91,17 +88,10 @@ class ProfileController extends Controller
             'completion_status'       => $profileCompletion['status'],
             'missing_critical_fields' => array_intersect($profileCompletion['missing_fields'], ['phone', 'two_factor_enabled']),
             'security_score'          => $this->calculateSecurityScore($user, $securityStatus),
-            'recommendations'         => $this->generateProfileRecommendations($user, $profileCompletion, $securityStatus),
+            'recommendations'         => $this->generateProfileRecommendations($profileCompletion, $securityStatus),
         ];
 
-        return view('profile.show', compact(
-            'user',
-            'profileCompletion',
-            'userStats',
-            'securityStatus',
-            'recentActivity',
-            'profileInsights'
-        ));
+        return view('profile.show', ['user' => $user, 'profileCompletion' => $profileCompletion, 'userStats' => $userStats, 'securityStatus' => $securityStatus, 'recentActivity' => $recentActivity, 'profileInsights' => $profileInsights]);
     }
 
     /**
@@ -114,7 +104,7 @@ class ProfileController extends Controller
 
         // Available timezones
         $timezones = collect(DateTimeZone::listIdentifiers())
-            ->mapWithKeys(fn ($timezone) => [$timezone => $timezone])
+            ->mapWithKeys(fn ($timezone): array => [$timezone => $timezone])
             ->toArray();
 
         // Available languages
@@ -131,12 +121,7 @@ class ProfileController extends Controller
             'sk' => 'Slovak',
         ];
 
-        return view('profile.edit', compact(
-            'user',
-            'profileCompletion',
-            'timezones',
-            'languages'
-        ));
+        return view('profile.edit', ['user' => $user, 'profileCompletion' => $profileCompletion, 'timezones' => $timezones, 'languages' => $languages]);
     }
 
     /**
@@ -241,7 +226,7 @@ class ProfileController extends Controller
 
             $user = $request->user();
             $photo = $request->file('photo');
-            $cropData = $request->input('crop_data') ? json_decode($request->input('crop_data'), TRUE) : NULL;
+            $cropData = $request->input('crop_data') ? json_decode((string) $request->input('crop_data'), TRUE) : NULL;
 
             // Delete old profile picture
             if ($user->profile_picture) {
@@ -252,7 +237,7 @@ class ProfileController extends Controller
             $path = $photo->storeAs(
                 'profile_pictures',
                 $user->id . '_' . time() . '.' . $photo->getClientOriginalExtension(),
-                'public'
+                'public',
             );
 
             // Process image (crop and resize)
@@ -285,22 +270,20 @@ class ProfileController extends Controller
             $user = $request->user();
             $cacheKey = "user_stats_{$user->id}";
 
-            $userStats = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($user) {
-                return [
-                    'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
-                    'total_alerts'     => $user->ticketAlerts()->count(),
-                    'active_searches'  => $user->ticketAlerts()
-                        ->where('status', 'active')
-                        ->where('created_at', '>=', now()->subMonth())
-                        ->count(),
-                    'recent_purchases'   => 0,
-                    'login_count'        => $user->login_count ?? 0,
-                    'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
-                    'profile_completion' => $user->getProfileCompletion()['percentage'],
-                    'security_score'     => $this->calculateSecurityScore($user),
-                    'account_age_days'   => $user->created_at->diffInDays(now()),
-                ];
-            });
+            $userStats = Cache::remember($cacheKey, now()->addMinutes(5), fn (): array => [
+                'monitored_events' => $user->ticketAlerts()->where('status', 'active')->count(),
+                'total_alerts'     => $user->ticketAlerts()->count(),
+                'active_searches'  => $user->ticketAlerts()
+                    ->where('status', 'active')
+                    ->where('created_at', '>=', now()->subMonth())
+                    ->count(),
+                'recent_purchases'   => 0,
+                'login_count'        => $user->login_count ?? 0,
+                'last_login_display' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+                'profile_completion' => $user->getProfileCompletion()['percentage'],
+                'security_score'     => $this->calculateSecurityScore($user),
+                'account_age_days'   => $user->created_at->diffInDays(now()),
+            ]);
 
             return response()->json([
                 'success'    => TRUE,
@@ -406,7 +389,7 @@ class ProfileController extends Controller
 
             $user = $request->user();
 
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (! Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Current password is incorrect.',
@@ -444,7 +427,7 @@ class ProfileController extends Controller
                 ->where('id', $sessionId)
                 ->first();
 
-            if (!$session) {
+            if (! $session) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Session not found.',
@@ -473,233 +456,6 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         return redirect()->route('account.deletion.warning');
-    }
-
-    /**
-     * Calculate security score
-     */
-    private function calculateSecurityScore($user, ?array $securityStatus = NULL): int
-    {
-        if (!$securityStatus) {
-            $securityStatus = [
-                'email_verified'     => (bool) $user->email_verified_at,
-                'two_factor_enabled' => (bool) $user->two_factor_secret,
-                'profile_complete'   => $user->getProfileCompletion()['percentage'] >= 100,
-                'password_age_days'  => $user->password_changed_at
-                    ? $user->password_changed_at->diffInDays(now())
-                    : $user->created_at->diffInDays(now()),
-            ];
-        }
-
-        $score = 0;
-
-        if ($securityStatus['email_verified']) {
-            $score += 20;
-        }
-        if ($securityStatus['two_factor_enabled']) {
-            $score += 30;
-        }
-        if ($securityStatus['profile_complete']) {
-            $score += 20;
-        }
-
-        // Password age scoring
-        $passwordAgeDays = $securityStatus['password_age_days'];
-        if ($passwordAgeDays <= 90) {
-            $score += 15;
-        } elseif ($passwordAgeDays <= 180) {
-            $score += 10;
-        } elseif ($passwordAgeDays <= 365) {
-            $score += 5;
-        }
-
-        // Recent activity
-        if ($user->last_login_at && $user->last_login_at->isAfter(now()->subDays(7))) {
-            $score += 10;
-        }
-
-        // Phone number
-        if (!empty($user->phone)) {
-            $score += 5;
-        }
-
-        return min($score, 100);
-    }
-
-    /**
-     * Generate recommendations
-     */
-    private function generateProfileRecommendations($user, $profileCompletion, $securityStatus): array
-    {
-        $recommendations = [];
-
-        if ($profileCompletion['percentage'] < 90) {
-            $recommendations[] = [
-                'type'        => 'profile',
-                'priority'    => 'high',
-                'title'       => 'Complete Your Profile',
-                'description' => 'Add missing information to unlock all features.',
-                'action'      => 'Complete Profile',
-                'route'       => 'profile.edit',
-                'icon'        => 'user-circle',
-            ];
-        }
-
-        if (!$securityStatus['email_verified']) {
-            $recommendations[] = [
-                'type'        => 'security',
-                'priority'    => 'high',
-                'title'       => 'Verify Your Email',
-                'description' => 'Verify your email address to secure your account.',
-                'action'      => 'Verify Email',
-                'route'       => NULL,
-                'icon'        => 'mail',
-            ];
-        }
-
-        if (!$securityStatus['two_factor_enabled']) {
-            $recommendations[] = [
-                'type'        => 'security',
-                'priority'    => 'medium',
-                'title'       => 'Enable Two-Factor Authentication',
-                'description' => 'Add an extra layer of security to your account.',
-                'action'      => 'Enable 2FA',
-                'route'       => 'profile.security',
-                'icon'        => 'shield-check',
-            ];
-        }
-
-        return $recommendations;
-    }
-
-    /**
-     * Process profile image
-     */
-    private function processProfileImage(string $path, ?array $cropData = NULL): void
-    {
-        try {
-            $fullPath = Storage::disk('public')->path($path);
-
-            if ($cropData && extension_loaded('gd')) {
-                $image = imagecreatefromstring(file_get_contents($fullPath));
-
-                if ($image) {
-                    $croppedImage = imagecrop($image, [
-                        'x'      => (int) $cropData['x'],
-                        'y'      => (int) $cropData['y'],
-                        'width'  => (int) $cropData['width'],
-                        'height' => (int) $cropData['height'],
-                    ]);
-
-                    if ($croppedImage) {
-                        $resized = imagescale($croppedImage, 300, 300);
-
-                        if ($resized) {
-                            imagejpeg($resized, $fullPath, 90);
-                            imagedestroy($resized);
-                        }
-
-                        imagedestroy($croppedImage);
-                    }
-
-                    imagedestroy($image);
-                }
-            }
-        } catch (Exception $e) {
-            Log::warning('Profile image processing failed: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Get security overview
-     */
-    private function getSecurityOverview($user): array
-    {
-        return [
-            'security_score'     => $this->calculateSecurityScore($user),
-            'two_factor_enabled' => (bool) $user->two_factor_secret,
-            'email_verified'     => (bool) $user->email_verified_at,
-            'recent_logins'      => LoginHistory::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->limit(10)
-                ->get(),
-            'active_sessions' => UserSession::where('user_id', $user->id)
-                ->active()
-                ->get(),
-            'password_age_days' => $user->password_changed_at
-                ? $user->password_changed_at->diffInDays(now())
-                : $user->created_at->diffInDays(now()),
-        ];
-    }
-
-    /**
-     * Get analytics data (internal)
-     */
-    private function getAnalyticsOverview($user): array
-    {
-        return [
-            'profile_views'       => $user->profile_views ?? 0,
-            'login_streak'        => $this->calculateLoginStreak($user),
-            'activity_trend'      => $this->getActivityTrend($user),
-            'ticket_alerts_stats' => [
-                'total'                => $user->ticketAlerts()->count(),
-                'active'               => $user->ticketAlerts()->where('status', 'active')->count(),
-                'triggered_this_month' => $user->ticketAlerts()
-                    ->where('last_triggered_at', '>=', now()->startOfMonth())
-                    ->count(),
-            ],
-        ];
-    }
-
-    /**
-     * Calculate login streak
-     */
-    private function calculateLoginStreak($user): int
-    {
-        $loginHistory = LoginHistory::where('user_id', $user->id)
-            ->where('status', 'success')
-            ->orderBy('created_at', 'desc')
-            ->pluck('created_at')
-            ->map(fn ($date) => $date->format('Y-m-d'))
-            ->unique()
-            ->values();
-
-        $streak = 0;
-        $currentDate = now()->format('Y-m-d');
-
-        foreach ($loginHistory as $index => $loginDate) {
-            $expectedDate = now()->subDays($index)->format('Y-m-d');
-
-            if ($loginDate === $expectedDate) {
-                $streak++;
-            } else {
-                break;
-            }
-        }
-
-        return $streak;
-    }
-
-    /**
-     * Get activity trend
-     */
-    private function getActivityTrend($user): array
-    {
-        $days = collect(range(0, 29))->map(function ($day) use ($user) {
-            $date = now()->subDays($day)->format('Y-m-d');
-
-            return [
-                'date'   => $date,
-                'logins' => LoginHistory::where('user_id', $user->id)
-                    ->whereDate('created_at', $date)
-                    ->count(),
-                'alerts_created' => TicketAlert::where('user_id', $user->id)
-                    ->whereDate('created_at', $date)
-                    ->count(),
-            ];
-        })->reverse()->values();
-
-        return $days->toArray();
     }
 
     /**
@@ -832,7 +588,7 @@ class ProfileController extends Controller
             $user = $request->user();
             $trustedDevices = $user->trusted_devices ?? [];
 
-            if (!isset($trustedDevices[$deviceIndex])) {
+            if (! isset($trustedDevices[$deviceIndex])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Device not found.',
@@ -866,7 +622,7 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
 
-            if (!$user->two_factor_secret) {
+            if (! $user->two_factor_secret) {
                 abort(404, 'Two-factor authentication is not enabled.');
             }
 
@@ -922,5 +678,242 @@ class ProfileController extends Controller
                 'message' => 'Failed to load analytics data.',
             ], 500);
         }
+    }
+
+    /**
+     * Calculate security score
+     *
+     * @param mixed $user
+     */
+    private function calculateSecurityScore($user, ?array $securityStatus = NULL): int
+    {
+        if (! $securityStatus) {
+            $securityStatus = [
+                'email_verified'     => (bool) $user->email_verified_at,
+                'two_factor_enabled' => (bool) $user->two_factor_secret,
+                'profile_complete'   => $user->getProfileCompletion()['percentage'] >= 100,
+                'password_age_days'  => $user->password_changed_at
+                    ? $user->password_changed_at->diffInDays(now())
+                    : $user->created_at->diffInDays(now()),
+            ];
+        }
+
+        $score = 0;
+
+        if ($securityStatus['email_verified']) {
+            $score += 20;
+        }
+        if ($securityStatus['two_factor_enabled']) {
+            $score += 30;
+        }
+        if ($securityStatus['profile_complete']) {
+            $score += 20;
+        }
+
+        // Password age scoring
+        $passwordAgeDays = $securityStatus['password_age_days'];
+        if ($passwordAgeDays <= 90) {
+            $score += 15;
+        } elseif ($passwordAgeDays <= 180) {
+            $score += 10;
+        } elseif ($passwordAgeDays <= 365) {
+            $score += 5;
+        }
+
+        // Recent activity
+        if ($user->last_login_at && $user->last_login_at->isAfter(now()->subDays(7))) {
+            $score += 10;
+        }
+
+        // Phone number
+        if (! empty($user->phone)) {
+            $score += 5;
+        }
+
+        return min($score, 100);
+    }
+
+    /**
+     * Generate recommendations
+     */
+    private function generateProfileRecommendations(array $profileCompletion, array $securityStatus): array
+    {
+        $recommendations = [];
+
+        if ($profileCompletion['percentage'] < 90) {
+            $recommendations[] = [
+                'type'        => 'profile',
+                'priority'    => 'high',
+                'title'       => 'Complete Your Profile',
+                'description' => 'Add missing information to unlock all features.',
+                'action'      => 'Complete Profile',
+                'route'       => 'profile.edit',
+                'icon'        => 'user-circle',
+            ];
+        }
+
+        if (! $securityStatus['email_verified']) {
+            $recommendations[] = [
+                'type'        => 'security',
+                'priority'    => 'high',
+                'title'       => 'Verify Your Email',
+                'description' => 'Verify your email address to secure your account.',
+                'action'      => 'Verify Email',
+                'route'       => NULL,
+                'icon'        => 'mail',
+            ];
+        }
+
+        if (! $securityStatus['two_factor_enabled']) {
+            $recommendations[] = [
+                'type'        => 'security',
+                'priority'    => 'medium',
+                'title'       => 'Enable Two-Factor Authentication',
+                'description' => 'Add an extra layer of security to your account.',
+                'action'      => 'Enable 2FA',
+                'route'       => 'profile.security',
+                'icon'        => 'shield-check',
+            ];
+        }
+
+        return $recommendations;
+    }
+
+    /**
+     * Process profile image
+     */
+    private function processProfileImage(string $path, ?array $cropData = NULL): void
+    {
+        try {
+            $fullPath = Storage::disk('public')->path($path);
+
+            if ($cropData && extension_loaded('gd')) {
+                $image = imagecreatefromstring(file_get_contents($fullPath));
+
+                if ($image) {
+                    $croppedImage = imagecrop($image, [
+                        'x'      => (int) $cropData['x'],
+                        'y'      => (int) $cropData['y'],
+                        'width'  => (int) $cropData['width'],
+                        'height' => (int) $cropData['height'],
+                    ]);
+
+                    if ($croppedImage) {
+                        $resized = imagescale($croppedImage, 300, 300);
+
+                        if ($resized) {
+                            imagejpeg($resized, $fullPath, 90);
+                            imagedestroy($resized);
+                        }
+
+                        imagedestroy($croppedImage);
+                    }
+
+                    imagedestroy($image);
+                }
+            }
+        } catch (Exception $e) {
+            Log::warning('Profile image processing failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get security overview
+     *
+     * @param mixed $user
+     */
+    private function getSecurityOverview($user): array
+    {
+        return [
+            'security_score'     => $this->calculateSecurityScore($user),
+            'two_factor_enabled' => (bool) $user->two_factor_secret,
+            'email_verified'     => (bool) $user->email_verified_at,
+            'recent_logins'      => LoginHistory::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get(),
+            'active_sessions' => UserSession::where('user_id', $user->id)
+                ->active()
+                ->get(),
+            'password_age_days' => $user->password_changed_at
+                ? $user->password_changed_at->diffInDays(now())
+                : $user->created_at->diffInDays(now()),
+        ];
+    }
+
+    /**
+     * Get analytics data (internal)
+     *
+     * @param mixed $user
+     */
+    private function getAnalyticsOverview($user): array
+    {
+        return [
+            'profile_views'       => $user->profile_views ?? 0,
+            'login_streak'        => $this->calculateLoginStreak($user),
+            'activity_trend'      => $this->getActivityTrend($user),
+            'ticket_alerts_stats' => [
+                'total'                => $user->ticketAlerts()->count(),
+                'active'               => $user->ticketAlerts()->where('status', 'active')->count(),
+                'triggered_this_month' => $user->ticketAlerts()
+                    ->where('last_triggered_at', '>=', now()->startOfMonth())
+                    ->count(),
+            ],
+        ];
+    }
+
+    /**
+     * Calculate login streak
+     *
+     * @param mixed $user
+     */
+    private function calculateLoginStreak($user): int
+    {
+        $loginHistory = LoginHistory::where('user_id', $user->id)
+            ->where('status', 'success')
+            ->orderBy('created_at', 'desc')
+            ->pluck('created_at')
+            ->map(fn ($date) => $date->format('Y-m-d'))
+            ->unique()
+            ->values();
+
+        $streak = 0;
+        now()->format('Y-m-d');
+
+        foreach ($loginHistory as $index => $loginDate) {
+            $expectedDate = now()->subDays($index)->format('Y-m-d');
+
+            if ($loginDate === $expectedDate) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    /**
+     * Get activity trend
+     *
+     * @param mixed $user
+     */
+    private function getActivityTrend($user): array
+    {
+        $days = collect(range(0, 29))->map(function ($day) use ($user): array {
+            $date = now()->subDays($day)->format('Y-m-d');
+
+            return [
+                'date'   => $date,
+                'logins' => LoginHistory::where('user_id', $user->id)
+                    ->whereDate('created_at', $date)
+                    ->count(),
+                'alerts_created' => TicketAlert::where('user_id', $user->id)
+                    ->whereDate('created_at', $date)
+                    ->count(),
+            ];
+        })->reverse()->values();
+
+        return $days->toArray();
     }
 }

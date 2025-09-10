@@ -22,7 +22,7 @@ class TicketLazyLoadController extends Controller
      */
     public function loadTickets(Request $request): JsonResponse
     {
-        $page = $request->get('page', 1);
+        $request->get('page', 1);
         $perPage = min($request->get('per_page', 20), 50); // Max 50 items per page
         $cacheKey = 'tickets_lazy_' . md5(serialize($request->all()));
 
@@ -101,32 +101,30 @@ class TicketLazyLoadController extends Controller
     {
         $cacheKey = 'dashboard_stats_lazy';
 
-        $stats = Cache::remember($cacheKey, now()->addMinutes(5), function () {
-            return [
-                'scraped_tickets'     => ScrapedTicket::count(),
-                'available_tickets'   => ScrapedTicket::where('is_available', TRUE)->count(),
-                'high_demand_tickets' => ScrapedTicket::where('is_high_demand', TRUE)->count(),
-                'platforms_monitored' => ScrapedTicket::distinct('platform')->count(),
-                'today_tickets'       => ScrapedTicket::whereDate('created_at', today())->count(),
-                'this_week_tickets'   => ScrapedTicket::whereBetween('created_at', [
-                    Carbon::now()->startOfWeek(),
-                    Carbon::now()->endOfWeek(),
-                ])->count(),
-                'avg_price' => ScrapedTicket::whereNotNull('min_price')
-                    ->avg('min_price'),
-                'price_ranges' => [
-                    'under_50'   => ScrapedTicket::where('min_price', '<', 50)->count(),
-                    '50_to_100'  => ScrapedTicket::whereBetween('min_price', [50, 100])->count(),
-                    '100_to_200' => ScrapedTicket::whereBetween('min_price', [100, 200])->count(),
-                    'above_200'  => ScrapedTicket::where('min_price', '>', 200)->count(),
-                ],
-                'platform_breakdown' => ScrapedTicket::select('platform')
-                    ->selectRaw('count(*) as count')
-                    ->groupBy('platform')
-                    ->pluck('count', 'platform')
-                    ->toArray(),
-            ];
-        });
+        $stats = Cache::remember($cacheKey, now()->addMinutes(5), fn (): array => [
+            'scraped_tickets'     => ScrapedTicket::count(),
+            'available_tickets'   => ScrapedTicket::where('is_available', TRUE)->count(),
+            'high_demand_tickets' => ScrapedTicket::where('is_high_demand', TRUE)->count(),
+            'platforms_monitored' => ScrapedTicket::distinct('platform')->count(),
+            'today_tickets'       => ScrapedTicket::whereDate('created_at', today())->count(),
+            'this_week_tickets'   => ScrapedTicket::whereBetween('created_at', [
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek(),
+            ])->count(),
+            'avg_price' => ScrapedTicket::whereNotNull('min_price')
+                ->avg('min_price'),
+            'price_ranges' => [
+                'under_50'   => ScrapedTicket::where('min_price', '<', 50)->count(),
+                '50_to_100'  => ScrapedTicket::whereBetween('min_price', [50, 100])->count(),
+                '100_to_200' => ScrapedTicket::whereBetween('min_price', [100, 200])->count(),
+                'above_200'  => ScrapedTicket::where('min_price', '>', 200)->count(),
+            ],
+            'platform_breakdown' => ScrapedTicket::select('platform')
+                ->selectRaw('count(*) as count')
+                ->groupBy('platform')
+                ->pluck('count', 'platform')
+                ->toArray(),
+        ]);
 
         return response()->json([
             'success'    => TRUE,
@@ -146,7 +144,7 @@ class TicketLazyLoadController extends Controller
         $query = $request->get('q', '');
         $limit = min($request->get('limit', 10), 20);
 
-        if (strlen($query) < 2) {
+        if (strlen((string) $query) < 2) {
             return response()->json([
                 'success' => TRUE,
                 'results' => [],
@@ -155,26 +153,22 @@ class TicketLazyLoadController extends Controller
 
         $cacheKey = 'ticket_search_' . md5($query . $limit);
 
-        $results = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($query, $limit) {
-            /** @phpstan-ignore-next-line */
-            return ScrapedTicket::where('title', 'like', '%' . $query . '%')
+        $results = Cache::remember($cacheKey, now()->addMinutes(10), fn () => /** @phpstan-ignore-next-line */
+            ScrapedTicket::where('title', 'like', '%' . $query . '%')
                 ->orWhere('description', 'like', '%' . $query . '%')
                 ->orWhere('venue', 'like', '%' . $query . '%')
                 ->select('id', 'title', 'venue', 'event_date', 'min_price', 'max_price', 'currency', 'platform')
                 ->limit($limit)
                 ->get()
-                ->map(function ($ticket) {
-                    return [
-                        'id'       => $ticket->id,
-                        'title'    => $ticket->title,
-                        'venue'    => $ticket->venue,
-                        'date'     => $ticket->event_date ? $ticket->event_date->format('M d, Y') : 'TBD',
-                        'price'    => $this->formatPrice($ticket),
-                        'platform' => $ticket->platform,
-                        'url'      => route('tickets.scraping.show', $ticket),
-                    ];
-                });
-        });
+                ->map(fn ($ticket): array => [
+                    'id'       => $ticket->id,
+                    'title'    => $ticket->title,
+                    'venue'    => $ticket->venue,
+                    'date'     => $ticket->event_date ? $ticket->event_date->format('M d, Y') : 'TBD',
+                    'price'    => $this->formatPrice($ticket),
+                    'platform' => $ticket->platform,
+                    'url'      => route('tickets.scraping.show', $ticket),
+                ]));
 
         return response()->json([
             'success' => TRUE,

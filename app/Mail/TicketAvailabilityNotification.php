@@ -14,18 +14,6 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $ticket;
-
-    public $oldStatus;
-
-    public $newStatus;
-
-    public $user;
-
-    public $platform;
-
-    public $quantity;
-
     /**
      * Create a new message instance.
      *
@@ -36,14 +24,8 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
      * @param mixed|null $platform
      * @param mixed|null $quantity
      */
-    public function __construct($ticket, $oldStatus, $newStatus, $user, $platform = NULL, $quantity = NULL)
+    public function __construct(public $ticket, public $oldStatus, public $newStatus, public $user, public $platform = NULL, public $quantity = NULL)
     {
-        $this->ticket = $ticket;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
-        $this->user = $user;
-        $this->platform = $platform;
-        $this->quantity = $quantity;
     }
 
     /**
@@ -120,20 +102,14 @@ class TicketAvailabilityNotification extends Mailable implements ShouldQueue
      */
     private function getStatusMessage(): string
     {
-        switch ($this->newStatus) {
-            case 'available':
-                return 'Tickets are now available for purchase!';
-            case 'sold_out':
-                return 'All tickets have been sold out.';
-            case 'limited':
-                return 'Only a few tickets remaining!';
-            case 'presale':
-                return 'Tickets are available for presale members.';
-            case 'not_available':
-                return 'Tickets are currently not available.';
-            default:
-                return 'Ticket status has been updated.';
-        }
+        return match ($this->newStatus) {
+            'available'     => 'Tickets are now available for purchase!',
+            'sold_out'      => 'All tickets have been sold out.',
+            'limited'       => 'Only a few tickets remaining!',
+            'presale'       => 'Tickets are available for presale members.',
+            'not_available' => 'Tickets are currently not available.',
+            default         => 'Ticket status has been updated.',
+        };
     }
 
     /**

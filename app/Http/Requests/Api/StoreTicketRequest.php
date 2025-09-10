@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\Ticket;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class StoreTicketRequest extends FormRequest
 {
@@ -46,6 +47,7 @@ class StoreTicketRequest extends FormRequest
     /**
      * Messages
      */
+    #[Override]
     public function messages(): array
     {
         return [
@@ -76,14 +78,14 @@ class StoreTicketRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Set default source if not provided
-        if (!$this->has('source')) {
+        if (! $this->has('source')) {
             $this->merge([
                 'source' => Ticket::SOURCE_API,
             ]);
         }
 
         // Set default priority if not provided
-        if (!$this->has('priority')) {
+        if (! $this->has('priority')) {
             $this->merge([
                 'priority' => Ticket::PRIORITY_MEDIUM,
             ]);

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Http\Controllers\TicketScrapingController;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use function get_class;
@@ -36,7 +37,7 @@ class TestTrending extends Command
             $this->info('Testing trending() method...');
             $response = $controller->trending($request);
 
-            if ($response instanceof \Illuminate\Http\JsonResponse) {
+            if ($response instanceof JsonResponse) {
                 $this->info('Response type: JsonResponse');
                 $this->info('Status code: ' . $response->getStatusCode());
                 $this->info('Content: ' . $response->getContent());

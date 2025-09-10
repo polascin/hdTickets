@@ -2,14 +2,31 @@
 
 namespace App\Providers;
 
+use App\Services\AlertEscalationService;
+use App\Services\AnalyticsService;
+use App\Services\AutomatedPurchaseEngine;
 use App\Services\Core\ServiceOrchestrator;
+use App\Services\EncryptionService;
+use App\Services\EnhancedAlertSystem;
+use App\Services\InAppNotificationService;
 use App\Services\Interfaces\NotificationInterface;
 use App\Services\Interfaces\PurchaseAutomationInterface;
 use App\Services\Interfaces\ScrapingInterface;
 use App\Services\Interfaces\TicketMonitoringInterface;
+use App\Services\NotificationManager;
+use App\Services\NotificationService;
+use App\Services\PerformanceMonitoringService;
+use App\Services\PlatformMonitoringService;
+use App\Services\PurchaseAnalyticsService;
+use App\Services\PurchaseService;
+use App\Services\RealTimeMonitoringService;
+use App\Services\Scraping\HighDemandTicketScraperService;
+use App\Services\Scraping\PluginBasedScraperManager;
+use App\Services\TicketScrapingService;
 use Exception;
 use Illuminate\Support\ServiceProvider;
 use Log;
+use Override;
 
 /**
  * Consolidated Service Provider
@@ -25,12 +42,11 @@ class ConsolidatedServiceProvider extends ServiceProvider
     /**
      * Register
      */
+    #[Override]
     public function register(): void
     {
         // Register the service orchestrator as singleton
-        $this->app->singleton(ServiceOrchestrator::class, function ($app) {
-            return new ServiceOrchestrator();
-        });
+        $this->app->singleton(ServiceOrchestrator::class, fn ($app): ServiceOrchestrator => new ServiceOrchestrator());
 
         // Register service interfaces as singletons
         $this->registerServiceInterfaces();
@@ -77,6 +93,7 @@ class ConsolidatedServiceProvider extends ServiceProvider
     /**
      * Provides
      */
+    #[Override]
     public function provides(): array
     {
         return [
@@ -107,24 +124,16 @@ class ConsolidatedServiceProvider extends ServiceProvider
     private function registerServiceInterfaces(): void
     {
         // Scraping Service Interface
-        $this->app->bind(ScrapingInterface::class, function ($app) {
-            return $app->make(ServiceOrchestrator::class)->getService('scrapingService');
-        });
+        $this->app->bind(ScrapingInterface::class, fn ($app) => $app->make(ServiceOrchestrator::class)->getService('scrapingService'));
 
         // Ticket Monitoring Interface
-        $this->app->bind(TicketMonitoringInterface::class, function ($app) {
-            return $app->make(ServiceOrchestrator::class)->getService('ticketMonitoringService');
-        });
+        $this->app->bind(TicketMonitoringInterface::class, fn ($app) => $app->make(ServiceOrchestrator::class)->getService('ticketMonitoringService'));
 
         // Purchase Automation Interface
-        $this->app->bind(PurchaseAutomationInterface::class, function ($app) {
-            return $app->make(ServiceOrchestrator::class)->getService('purchaseAutomationService');
-        });
+        $this->app->bind(PurchaseAutomationInterface::class, fn ($app) => $app->make(ServiceOrchestrator::class)->getService('purchaseAutomationService'));
 
         // Notification Interface
-        $this->app->bind(NotificationInterface::class, function ($app) {
-            return $app->make(ServiceOrchestrator::class)->getService('notificationService');
-        });
+        $this->app->bind(NotificationInterface::class, fn ($app) => $app->make(ServiceOrchestrator::class)->getService('notificationService'));
     }
 
     /**
@@ -150,9 +159,7 @@ class ConsolidatedServiceProvider extends ServiceProvider
         ];
 
         foreach ($serviceNames as $serviceName) {
-            $this->app->singleton($serviceName, function ($app) use ($serviceName) {
-                return $app->make(ServiceOrchestrator::class)->getService($serviceName);
-            });
+            $this->app->singleton($serviceName, fn ($app) => $app->make(ServiceOrchestrator::class)->getService($serviceName));
         }
 
         // Register legacy service aliases for backward compatibility
@@ -168,65 +175,57 @@ class ConsolidatedServiceProvider extends ServiceProvider
     private function registerLegacyAliases(): void
     {
         // Analytics Service (keep existing)
-        $this->app->alias('analyticsService', \App\Services\AnalyticsService::class);
+        $this->app->alias('analyticsService', AnalyticsService::class);
 
         // Encryption Service (keep existing)
-        $this->app->alias('encryptionService', \App\Services\EncryptionService::class);
+        $this->app->alias('encryptionService', EncryptionService::class);
 
         // Notification Service (enhanced version)
-        $this->app->alias('notificationService', \App\Services\NotificationService::class);
+        $this->app->alias('notificationService', NotificationService::class);
 
         // Legacy scraping services -> consolidated scraping service
         $legacyScrapingServices = [
-            \App\Services\TicketScrapingService::class,
-            \App\Services\Scraping\HighDemandTicketScraperService::class,
-            \App\Services\Scraping\PluginBasedScraperManager::class,
+            TicketScrapingService::class,
+            HighDemandTicketScraperService::class,
+            PluginBasedScraperManager::class,
         ];
 
         foreach ($legacyScrapingServices as $legacyService) {
-            $this->app->bind($legacyService, function ($app) {
-                return $app->make('scrapingService');
-            });
+            $this->app->bind($legacyService, fn ($app) => $app->make('scrapingService'));
         }
 
         // Legacy monitoring services -> consolidated monitoring service
         $legacyMonitoringServices = [
-            \App\Services\RealTimeMonitoringService::class,
-            \App\Services\PlatformMonitoringService::class,
-            \App\Services\PerformanceMonitoringService::class,
+            RealTimeMonitoringService::class,
+            PlatformMonitoringService::class,
+            PerformanceMonitoringService::class,
         ];
 
         foreach ($legacyMonitoringServices as $legacyService) {
-            $this->app->bind($legacyService, function ($app) {
-                return $app->make('ticketMonitoringService');
-            });
+            $this->app->bind($legacyService, fn ($app) => $app->make('ticketMonitoringService'));
         }
 
         // Legacy purchase services -> consolidated purchase automation
         $legacyPurchaseServices = [
-            \App\Services\PurchaseService::class,
-            \App\Services\AutomatedPurchaseEngine::class,
-            \App\Services\PurchaseAnalyticsService::class,
+            PurchaseService::class,
+            AutomatedPurchaseEngine::class,
+            PurchaseAnalyticsService::class,
         ];
 
         foreach ($legacyPurchaseServices as $legacyService) {
-            $this->app->bind($legacyService, function ($app) {
-                return $app->make('purchaseAutomationService');
-            });
+            $this->app->bind($legacyService, fn ($app) => $app->make('purchaseAutomationService'));
         }
 
         // Legacy notification services -> consolidated notification service
         $legacyNotificationServices = [
-            \App\Services\NotificationManager::class,
-            \App\Services\InAppNotificationService::class,
-            \App\Services\EnhancedAlertSystem::class,
-            \App\Services\AlertEscalationService::class,
+            NotificationManager::class,
+            InAppNotificationService::class,
+            EnhancedAlertSystem::class,
+            AlertEscalationService::class,
         ];
 
         foreach ($legacyNotificationServices as $legacyService) {
-            $this->app->bind($legacyService, function ($app) {
-                return $app->make('notificationService');
-            });
+            $this->app->bind($legacyService, fn ($app) => $app->make('notificationService'));
         }
     }
 }

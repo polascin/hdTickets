@@ -8,6 +8,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
+use function count;
+
 /**
  * Anomaly Detection Service
  *
@@ -19,8 +21,6 @@ class AnomalyDetectionService
     private array $config;
 
     private array $thresholds;
-
-    private array $detectors;
 
     public function __construct()
     {
@@ -38,42 +38,32 @@ class AnomalyDetectionService
             'volume'   => $this->config['volume_anomaly_threshold'],
             'velocity' => $this->config['velocity_anomaly_threshold'],
         ];
-
-        $this->detectors = [
-            'statistical'      => new StatisticalAnomalyDetector($this->config),
-            'isolation_forest' => new IsolationForestDetector($this->config),
-            'time_series'      => new TimeSeriesAnomalyDetector($this->config),
-        ];
     }
 
     /**
      * Get recent anomalies across all detection categories
      *
-     * @param  array $filters
      * @return array Recent anomalies data
      */
     public function getRecentAnomalies(array $filters = []): array
     {
         $cacheKey = 'recent_anomalies_' . md5(serialize($filters));
 
-        return Cache::remember($cacheKey, 600, function () use ($filters) {
-            return [
-                'price_anomalies'       => $this->detectPriceAnomalies($filters),
-                'volume_anomalies'      => $this->detectVolumeAnomalies($filters),
-                'velocity_anomalies'    => $this->detectVelocityAnomalies($filters),
-                'platform_anomalies'    => $this->detectPlatformAnomalies($filters),
-                'event_anomalies'       => $this->detectEventAnomalies($filters),
-                'temporal_anomalies'    => $this->detectTemporalAnomalies($filters),
-                'summary'               => $this->generateAnomalySummary($filters),
-                'severity_distribution' => $this->getSeverityDistribution($filters),
-            ];
-        });
+        return Cache::remember($cacheKey, 600, fn (): array => [
+            'price_anomalies'       => $this->detectPriceAnomalies($filters),
+            'volume_anomalies'      => $this->detectVolumeAnomalies($filters),
+            'velocity_anomalies'    => $this->detectVelocityAnomalies($filters),
+            'platform_anomalies'    => $this->detectPlatformAnomalies($filters),
+            'event_anomalies'       => $this->detectEventAnomalies($filters),
+            'temporal_anomalies'    => $this->detectTemporalAnomalies($filters),
+            'summary'               => $this->generateAnomalySummary(),
+            'severity_distribution' => $this->getSeverityDistribution(),
+        ]);
     }
 
     /**
      * Detect price anomalies
      *
-     * @param  array $filters
      * @return array Price anomaly data
      */
     public function detectPriceAnomalies(array $filters = []): array
@@ -91,11 +81,11 @@ class AnomalyDetectionService
         $anomalies = $anomalies->merge($statisticalAnomalies);
 
         // Time-series anomaly detection
-        $timeSeriesAnomalies = $this->detectTimeSeriesPriceAnomalies($dateRange, $filters);
+        $timeSeriesAnomalies = $this->detectTimeSeriesPriceAnomalies();
         $anomalies = $anomalies->merge($timeSeriesAnomalies);
 
         // Platform comparison anomalies
-        $platformAnomalies = $this->detectPlatformPriceAnomalies($dateRange, $filters);
+        $platformAnomalies = $this->detectPlatformPriceAnomalies();
         $anomalies = $anomalies->merge($platformAnomalies);
 
         return [
@@ -110,7 +100,6 @@ class AnomalyDetectionService
     /**
      * Detect volume anomalies
      *
-     * @param  array $filters
      * @return array Volume anomaly data
      */
     public function detectVolumeAnomalies(array $filters = []): array
@@ -118,14 +107,14 @@ class AnomalyDetectionService
         $dateRange = $this->getDateRange($filters);
 
         // Daily ticket volume analysis
-        $dailyVolumes = $this->getDailyTicketVolumes($dateRange, $filters);
+        $dailyVolumes = $this->getDailyTicketVolumes($dateRange);
         $volumeAnomalies = $this->detectVolumeOutliers($dailyVolumes);
 
         // Platform volume spikes
-        $platformSpikes = $this->detectPlatformVolumeSpikes($dateRange, $filters);
+        $platformSpikes = $this->detectPlatformVolumeSpikes();
 
         // Category volume anomalies
-        $categoryAnomalies = $this->detectCategoryVolumeAnomalies($dateRange, $filters);
+        $categoryAnomalies = $this->detectCategoryVolumeAnomalies();
 
         return [
             'daily_anomalies'    => $volumeAnomalies,
@@ -138,25 +127,23 @@ class AnomalyDetectionService
     /**
      * Detect velocity anomalies (rapid changes)
      *
-     * @param  array $filters
      * @return array Velocity anomaly data
      */
     public function detectVelocityAnomalies(array $filters = []): array
     {
-        $dateRange = $this->getDateRange($filters);
+        $this->getDateRange($filters);
 
         return [
-            'price_velocity'        => $this->detectPriceVelocityAnomalies($dateRange, $filters),
-            'volume_velocity'       => $this->detectVolumeVelocityAnomalies($dateRange, $filters),
-            'new_listings_velocity' => $this->detectNewListingsVelocity($dateRange, $filters),
-            'platform_velocity'     => $this->detectPlatformVelocityChanges($dateRange, $filters),
+            'price_velocity'        => $this->detectPriceVelocityAnomalies(),
+            'volume_velocity'       => $this->detectVolumeVelocityAnomalies(),
+            'new_listings_velocity' => $this->detectNewListingsVelocity(),
+            'platform_velocity'     => $this->detectPlatformVelocityChanges(),
         ];
     }
 
     /**
      * Detect platform-specific anomalies
      *
-     * @param  array $filters
      * @return array Platform anomaly data
      */
     public function detectPlatformAnomalies(array $filters = []): array
@@ -170,10 +157,10 @@ class AnomalyDetectionService
             $platformFilters = array_merge($filters, ['platform' => $platform]);
 
             $platformAnomalies[$platform] = [
-                'data_quality_issues'     => $this->detectDataQualityIssues($platform, $dateRange),
-                'pricing_inconsistencies' => $this->detectPricingInconsistencies($platform, $dateRange),
-                'availability_anomalies'  => $this->detectAvailabilityAnomalies($platform, $dateRange),
-                'behavior_changes'        => $this->detectPlatformBehaviorChanges($platform, $dateRange),
+                'data_quality_issues'     => $this->detectDataQualityIssues(),
+                'pricing_inconsistencies' => $this->detectPricingInconsistencies(),
+                'availability_anomalies'  => $this->detectAvailabilityAnomalies(),
+                'behavior_changes'        => $this->detectPlatformBehaviorChanges(),
             ];
         }
 
@@ -183,62 +170,59 @@ class AnomalyDetectionService
     /**
      * Detect event-specific anomalies
      *
-     * @param  array $filters
      * @return array Event anomaly data
      */
     public function detectEventAnomalies(array $filters = []): array
     {
-        $dateRange = $this->getDateRange($filters);
+        $this->getDateRange($filters);
 
         return [
-            'demand_spikes'        => $this->detectUnusualDemandSpikes($dateRange, $filters),
-            'price_manipulation'   => $this->detectPotentialPriceManipulation($dateRange, $filters),
-            'fake_events'          => $this->detectPotentialFakeEvents($dateRange, $filters),
-            'duplicate_events'     => $this->detectDuplicateEvents($dateRange, $filters),
-            'scheduling_conflicts' => $this->detectSchedulingConflicts($dateRange, $filters),
+            'demand_spikes'        => $this->detectUnusualDemandSpikes(),
+            'price_manipulation'   => $this->detectPotentialPriceManipulation(),
+            'fake_events'          => $this->detectPotentialFakeEvents(),
+            'duplicate_events'     => $this->detectDuplicateEvents(),
+            'scheduling_conflicts' => $this->detectSchedulingConflicts(),
         ];
     }
 
     /**
      * Detect temporal anomalies
      *
-     * @param  array $filters
      * @return array Temporal anomaly data
      */
     public function detectTemporalAnomalies(array $filters = []): array
     {
-        $dateRange = $this->getDateRange($filters);
+        $this->getDateRange($filters);
 
         return [
-            'seasonal_deviations'      => $this->detectSeasonalDeviations($dateRange, $filters),
-            'weekly_pattern_breaks'    => $this->detectWeeklyPatternBreaks($dateRange, $filters),
-            'holiday_impact_anomalies' => $this->detectHolidayImpactAnomalies($dateRange, $filters),
-            'time_zone_anomalies'      => $this->detectTimeZoneAnomalies($dateRange, $filters),
+            'seasonal_deviations'      => $this->detectSeasonalDeviations(),
+            'weekly_pattern_breaks'    => $this->detectWeeklyPatternBreaks(),
+            'holiday_impact_anomalies' => $this->detectHolidayImpactAnomalies(),
+            'time_zone_anomalies'      => $this->detectTimeZoneAnomalies(),
         ];
     }
 
     /**
      * Generate real-time anomaly alerts
      *
-     * @param  array $filters
      * @return array Real-time alert data
      */
     public function generateRealtimeAlerts(array $filters = []): array
     {
-        $recentData = $this->getRecentTicketData($filters);
+        $this->getRecentTicketData();
 
         $alerts = collect();
 
         // Real-time price spike detection
-        $priceAlerts = $this->detectRealtimePriceSpikes($recentData);
+        $priceAlerts = $this->detectRealtimePriceSpikes();
         $alerts = $alerts->merge($priceAlerts);
 
         // Real-time volume surge detection
-        $volumeAlerts = $this->detectRealtimeVolumeSurges($recentData);
+        $volumeAlerts = $this->detectRealtimeVolumeSurges();
         $alerts = $alerts->merge($volumeAlerts);
 
         // Real-time platform issues
-        $platformAlerts = $this->detectRealtimePlatformIssues($recentData);
+        $platformAlerts = $this->detectRealtimePlatformIssues();
         $alerts = $alerts->merge($platformAlerts);
 
         return [
@@ -302,31 +286,27 @@ class AnomalyDetectionService
         $lowerBound = $mean - ($threshold * $stdDev);
         $upperBound = $mean + ($threshold * $stdDev);
 
-        return $priceData->filter(function ($ticket) use ($lowerBound, $upperBound) {
-            return $ticket->price < $lowerBound || $ticket->price > $upperBound;
-        })->map(function ($ticket) use ($mean, $stdDev) {
-            return [
-                'type'           => 'statistical_price_outlier',
-                'ticket_id'      => $ticket->id ?? NULL,
-                'price'          => $ticket->price,
-                'expected_range' => [$mean - ($this->thresholds['price'] * $stdDev),
-                                   $mean + ($this->thresholds['price'] * $stdDev)],
-                'z_score'     => abs(($ticket->price - $mean) / $stdDev),
-                'severity'    => $this->calculateAnomalySeverity($ticket->price, $mean, $stdDev),
-                'platform'    => $ticket->source_platform,
-                'detected_at' => now()->toISOString(),
-            ];
-        });
+        return $priceData->filter(fn ($ticket): bool => $ticket->price < $lowerBound || $ticket->price > $upperBound)->map(fn ($ticket): array => [
+            'type'           => 'statistical_price_outlier',
+            'ticket_id'      => $ticket->id ?? NULL,
+            'price'          => $ticket->price,
+            'expected_range' => [$mean - ($this->thresholds['price'] * $stdDev),
+                $mean + ($this->thresholds['price'] * $stdDev)],
+            'z_score'     => abs(($ticket->price - $mean) / $stdDev),
+            'severity'    => $this->calculateAnomalySeverity($ticket->price, $mean, $stdDev),
+            'platform'    => $ticket->source_platform,
+            'detected_at' => now()->toISOString(),
+        ]);
     }
 
-    private function detectTimeSeriesPriceAnomalies(array $dateRange, array $filters): Collection
+    private function detectTimeSeriesPriceAnomalies(): Collection
     {
         // Simplified time-series anomaly detection
         // In a real implementation, this would use more sophisticated algorithms
         return collect();
     }
 
-    private function detectPlatformPriceAnomalies(array $dateRange, array $filters): Collection
+    private function detectPlatformPriceAnomalies(): Collection
     {
         // Cross-platform price comparison anomalies
         return collect();
@@ -335,9 +315,7 @@ class AnomalyDetectionService
     private function calculateStandardDeviation(Collection $values): float
     {
         $mean = $values->avg();
-        $variance = $values->map(function ($value) use ($mean) {
-            return pow($value - $mean, 2);
-        })->avg();
+        $variance = $values->map(fn ($value): int|float => ($value - $mean) ** 2)->avg();
 
         return sqrt($variance);
     }
@@ -374,7 +352,7 @@ class AnomalyDetectionService
         return $anomalies->pluck('category')->unique()->values()->toArray();
     }
 
-    private function getDailyTicketVolumes(array $dateRange, array $filters): Collection
+    private function getDailyTicketVolumes(array $dateRange): Collection
     {
         return DB::table('tickets')
             ->select([
@@ -398,24 +376,22 @@ class AnomalyDetectionService
         $stdDev = $this->calculateStandardDeviation($volumes);
         $threshold = $this->thresholds['volume'];
 
-        return $dailyVolumes->filter(function ($day) use ($mean, $stdDev, $threshold) {
+        return $dailyVolumes->filter(function ($day) use ($mean, $stdDev, $threshold): bool {
             $zScore = abs(($day->volume - $mean) / $stdDev);
 
             return $zScore > $threshold;
-        })->map(function ($day) use ($mean, $stdDev) {
-            return [
-                'type'            => 'volume_anomaly',
-                'date'            => $day->date,
-                'volume'          => $day->volume,
-                'expected_volume' => round($mean),
-                'z_score'         => abs(($day->volume - $mean) / $stdDev),
-                'severity'        => $this->calculateAnomalySeverity($day->volume, $mean, $stdDev),
-                'detected_at'     => now()->toISOString(),
-            ];
-        })->toArray();
+        })->map(fn ($day): array => [
+            'type'            => 'volume_anomaly',
+            'date'            => $day->date,
+            'volume'          => $day->volume,
+            'expected_volume' => round($mean),
+            'z_score'         => abs(($day->volume - $mean) / $stdDev),
+            'severity'        => $this->calculateAnomalySeverity($day->volume, $mean, $stdDev),
+            'detected_at'     => now()->toISOString(),
+        ])->toArray();
     }
 
-    private function generateAnomalySummary(array $filters): array
+    private function generateAnomalySummary(): array
     {
         // Generate summary statistics for all anomalies
         return [
@@ -427,7 +403,7 @@ class AnomalyDetectionService
         ];
     }
 
-    private function getSeverityDistribution(array $filters): array
+    private function getSeverityDistribution(): array
     {
         return [
             'critical' => 0,
@@ -439,32 +415,32 @@ class AnomalyDetectionService
 
     // Stub implementations for other anomaly detection methods
 
-    private function detectPlatformVolumeSpikes(array $dateRange, array $filters): array
+    private function detectPlatformVolumeSpikes(): array
     {
         return [];
     }
 
-    private function detectCategoryVolumeAnomalies(array $dateRange, array $filters): array
+    private function detectCategoryVolumeAnomalies(): array
     {
         return [];
     }
 
-    private function detectPriceVelocityAnomalies(array $dateRange, array $filters): array
+    private function detectPriceVelocityAnomalies(): array
     {
         return [];
     }
 
-    private function detectVolumeVelocityAnomalies(array $dateRange, array $filters): array
+    private function detectVolumeVelocityAnomalies(): array
     {
         return [];
     }
 
-    private function detectNewListingsVelocity(array $dateRange, array $filters): array
+    private function detectNewListingsVelocity(): array
     {
         return [];
     }
 
-    private function detectPlatformVelocityChanges(array $dateRange, array $filters): array
+    private function detectPlatformVelocityChanges(): array
     {
         return [];
     }
@@ -479,89 +455,89 @@ class AnomalyDetectionService
             ->toArray();
     }
 
-    private function detectDataQualityIssues(string $platform, array $dateRange): array
+    private function detectDataQualityIssues(): array
     {
         return [];
     }
 
-    private function detectPricingInconsistencies(string $platform, array $dateRange): array
+    private function detectPricingInconsistencies(): array
     {
         return [];
     }
 
-    private function detectAvailabilityAnomalies(string $platform, array $dateRange): array
+    private function detectAvailabilityAnomalies(): array
     {
         return [];
     }
 
-    private function detectPlatformBehaviorChanges(string $platform, array $dateRange): array
+    private function detectPlatformBehaviorChanges(): array
     {
         return [];
     }
 
-    private function detectUnusualDemandSpikes(array $dateRange, array $filters): array
+    private function detectUnusualDemandSpikes(): array
     {
         return [];
     }
 
-    private function detectPotentialPriceManipulation(array $dateRange, array $filters): array
+    private function detectPotentialPriceManipulation(): array
     {
         return [];
     }
 
-    private function detectPotentialFakeEvents(array $dateRange, array $filters): array
+    private function detectPotentialFakeEvents(): array
     {
         return [];
     }
 
-    private function detectDuplicateEvents(array $dateRange, array $filters): array
+    private function detectDuplicateEvents(): array
     {
         return [];
     }
 
-    private function detectSchedulingConflicts(array $dateRange, array $filters): array
+    private function detectSchedulingConflicts(): array
     {
         return [];
     }
 
-    private function detectSeasonalDeviations(array $dateRange, array $filters): array
+    private function detectSeasonalDeviations(): array
     {
         return [];
     }
 
-    private function detectWeeklyPatternBreaks(array $dateRange, array $filters): array
+    private function detectWeeklyPatternBreaks(): array
     {
         return [];
     }
 
-    private function detectHolidayImpactAnomalies(array $dateRange, array $filters): array
+    private function detectHolidayImpactAnomalies(): array
     {
         return [];
     }
 
-    private function detectTimeZoneAnomalies(array $dateRange, array $filters): array
+    private function detectTimeZoneAnomalies(): array
     {
         return [];
     }
 
-    private function getRecentTicketData(array $filters): Collection
+    private function getRecentTicketData(): Collection
     {
         return Ticket::where('created_at', '>=', now()->subHour())
             ->with('sportsEvent')
             ->get();
     }
 
-    private function detectRealtimePriceSpikes(Collection $recentData): Collection
+    private function detectRealtimePriceSpikes(): Collection
     {
         return collect();
     }
 
-    private function detectRealtimeVolumeSurges(Collection $recentData): Collection
+    private function detectRealtimeVolumeSurges(): Collection
     {
         return collect();
     }
 
-    private function detectRealtimePlatformIssues(Collection $recentData): Collection
+    private function detectRealtimePlatformIssues(): Collection
     {
         return collect();
     }
@@ -570,21 +546,12 @@ class AnomalyDetectionService
 // Stub classes for different detection algorithms
 class StatisticalAnomalyDetector
 {
-    public function __construct(array $config)
-    {
-    }
 }
 
 class IsolationForestDetector
 {
-    public function __construct(array $config)
-    {
-    }
 }
 
 class TimeSeriesAnomalyDetector
 {
-    public function __construct(array $config)
-    {
-    }
 }

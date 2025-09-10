@@ -12,21 +12,19 @@ use function count;
 
 class RealTimeDashboardController extends Controller
 {
+    // Initialize services - these would normally be injected
     protected $monitoringService;
 
+    // Would be injected
     protected $scraperManager;
 
+    // Would be injected
     protected $proxyService;
 
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('admin');
-
-        // Initialize services - these would normally be injected
-        $this->monitoringService = NULL; // Would be injected
-        $this->scraperManager = NULL; // Would be injected
-        $this->proxyService = NULL; // Would be injected
+        $this->middleware('admin'); // Would be injected
     }
 
     /**
@@ -42,7 +40,7 @@ class RealTimeDashboardController extends Controller
                 'health'     => $this->scraperManager ? $this->scraperManager->getHealthStatus() : [],
             ];
 
-            return view('admin.realtime-dashboard', compact('dashboardData'));
+            return view('admin.realtime-dashboard', ['dashboardData' => $dashboardData]);
         } catch (Exception $e) {
             Log::error('Failed to load real-time dashboard', [
                 'error' => $e->getMessage(),
@@ -191,8 +189,8 @@ class RealTimeDashboardController extends Controller
                 'results' => $results,
                 'summary' => [
                     'total'     => count($results),
-                    'healthy'   => count(array_filter($results, fn ($r) => $r['healthy'] ?? FALSE)),
-                    'unhealthy' => count(array_filter($results, fn ($r) => !($r['healthy'] ?? FALSE))),
+                    'healthy'   => count(array_filter($results, fn (array $r) => $r['healthy'] ?? FALSE)),
+                    'unhealthy' => count(array_filter($results, fn (array $r): bool => ! ($r['healthy'] ?? FALSE))),
                 ],
             ]);
         } catch (Exception $e) {

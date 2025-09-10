@@ -36,17 +36,15 @@ class NotificationChannelsController extends Controller
 
             $channels = UserNotificationSettings::where('user_id', $user->id)
                 ->get()
-                ->map(function ($setting) {
-                    return [
-                        'id'            => $setting->id,
-                        'channel'       => $setting->channel,
-                        'is_enabled'    => $setting->is_enabled,
-                        'is_configured' => $setting->isConfigured(),
-                        'settings'      => $setting->getChannelSettings(),
-                        'created_at'    => $setting->created_at,
-                        'updated_at'    => $setting->updated_at,
-                    ];
-                });
+                ->map(fn ($setting): array => [
+                    'id'            => $setting->id,
+                    'channel'       => $setting->channel,
+                    'is_enabled'    => $setting->is_enabled,
+                    'is_configured' => $setting->isConfigured(),
+                    'settings'      => $setting->getChannelSettings(),
+                    'created_at'    => $setting->created_at,
+                    'updated_at'    => $setting->updated_at,
+                ]);
 
             return response()->json([
                 'success' => TRUE,
@@ -148,7 +146,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -191,7 +189,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -264,7 +262,7 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
@@ -297,7 +295,7 @@ class NotificationChannelsController extends Controller
         try {
             $user = $request->user();
 
-            if (!isset($this->channelServices[$channel])) {
+            if (! isset($this->channelServices[$channel])) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Unknown channel: ' . $channel,
@@ -339,14 +337,14 @@ class NotificationChannelsController extends Controller
                 ->where('channel', $channel)
                 ->first();
 
-            if (!$setting) {
+            if (! $setting) {
                 return response()->json([
                     'success' => FALSE,
                     'message' => 'Channel not configured',
                 ], 404);
             }
 
-            $setting->update(['is_enabled' => !$setting->is_enabled]);
+            $setting->update(['is_enabled' => ! $setting->is_enabled]);
 
             return response()->json([
                 'success' => TRUE,
@@ -385,7 +383,7 @@ class NotificationChannelsController extends Controller
     /**
      * ValidateChannelData
      */
-    protected function validateChannelData(array $data, ?string $channel = NULL): \Illuminate\Validation\Validator
+    protected function validateChannelData(array $data, ?string $channel = NULL): \Illuminate\Contracts\Validation\Validator
     {
         $rules = [
             'channel' => [

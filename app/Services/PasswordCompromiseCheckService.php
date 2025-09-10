@@ -34,9 +34,7 @@ class PasswordCompromiseCheckService
 
             // Check cache first
             $cacheKey = "password_check_{$hashPrefix}";
-            $response = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($hashPrefix) {
-                return $this->fetchPasswordHashes($hashPrefix);
-            });
+            $response = Cache::remember($cacheKey, self::CACHE_TTL, fn (): ?string => $this->fetchPasswordHashes($hashPrefix));
 
             if ($response === NULL) {
                 return $this->createResponse(FALSE, 0, 'Unable to check password compromise status');
@@ -256,7 +254,7 @@ class PasswordCompromiseCheckService
      */
     private function getRecommendation(bool $isCompromised, int $count): string
     {
-        if (!$isCompromised) {
+        if (! $isCompromised) {
             return 'This password appears to be safe from known data breaches.';
         }
 
@@ -311,25 +309,5 @@ class PasswordCompromiseCheckService
                 'last_checked' => now()->toISOString(),
             ];
         }
-    }
-
-    /**
-     * Increment cache statistics
-     */
-    /**
-     * IncrementCacheStats
-     */
-    private function incrementCacheStats(bool $wasHit): void
-    {
-        Cache::increment('hibp_total_requests');
-
-        if ($wasHit) {
-            Cache::increment('hibp_cache_hits');
-        }
-
-        // Daily counter with expiration
-        $dailyKey = 'hibp_daily_checks_' . now()->format('Y-m-d');
-        Cache::increment($dailyKey, 1);
-        Cache::put($dailyKey, Cache::get($dailyKey, 1), now()->endOfDay());
     }
 }

@@ -20,11 +20,6 @@ class TrustedDevice extends Model
         'last_used_at',
     ];
 
-    protected $casts = [
-        'expires_at'   => 'datetime',
-        'last_used_at' => 'datetime',
-    ];
-
     /**
      * Get the user that owns the trusted device
      */
@@ -46,7 +41,7 @@ class TrustedDevice extends Model
      */
     public function isTrusted(): bool
     {
-        return !$this->isExpired();
+        return ! $this->isExpired();
     }
 
     /**
@@ -82,14 +77,15 @@ class TrustedDevice extends Model
     public function getDeviceType(): string
     {
         $userAgent = strtolower($this->user_agent);
-
         if (str_contains($userAgent, 'mobile') || str_contains($userAgent, 'android') || str_contains($userAgent, 'iphone')) {
             return 'mobile';
-        } elseif (str_contains($userAgent, 'tablet') || str_contains($userAgent, 'ipad')) {
-            return 'tablet';
-        } else {
-            return 'desktop';
         }
+
+        if (str_contains($userAgent, 'tablet') || str_contains($userAgent, 'ipad')) {
+            return 'tablet';
+        }
+
+        return 'desktop';
     }
 
     /**
@@ -98,16 +94,20 @@ class TrustedDevice extends Model
     public function getBrowserName(): string
     {
         $userAgent = strtolower($this->user_agent);
-
-        if (str_contains($userAgent, 'chrome') && !str_contains($userAgent, 'edg')) {
+        if (str_contains($userAgent, 'chrome') && ! str_contains($userAgent, 'edg')) {
             return 'Chrome';
-        } elseif (str_contains($userAgent, 'firefox')) {
+        }
+        if (str_contains($userAgent, 'firefox')) {
             return 'Firefox';
-        } elseif (str_contains($userAgent, 'safari') && !str_contains($userAgent, 'chrome')) {
+        }
+        if (str_contains($userAgent, 'safari') && ! str_contains($userAgent, 'chrome')) {
             return 'Safari';
-        } elseif (str_contains($userAgent, 'edg')) {
+        }
+        if (str_contains($userAgent, 'edg')) {
             return 'Edge';
-        } elseif (str_contains($userAgent, 'opera')) {
+        }
+
+        if (str_contains($userAgent, 'opera')) {
             return 'Opera';
         }
 
@@ -120,16 +120,20 @@ class TrustedDevice extends Model
     public function getOperatingSystem(): string
     {
         $userAgent = strtolower($this->user_agent);
-
         if (str_contains($userAgent, 'windows')) {
             return 'Windows';
-        } elseif (str_contains($userAgent, 'mac')) {
+        }
+        if (str_contains($userAgent, 'mac')) {
             return 'macOS';
-        } elseif (str_contains($userAgent, 'linux')) {
+        }
+        if (str_contains($userAgent, 'linux')) {
             return 'Linux';
-        } elseif (str_contains($userAgent, 'android')) {
+        }
+        if (str_contains($userAgent, 'android')) {
             return 'Android';
-        } elseif (str_contains($userAgent, 'iphone') || str_contains($userAgent, 'ipad')) {
+        }
+
+        if (str_contains($userAgent, 'iphone') || str_contains($userAgent, 'ipad')) {
             return 'iOS';
         }
 
@@ -146,6 +150,8 @@ class TrustedDevice extends Model
 
     /**
      * Scope for active (not expired) devices
+     *
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -154,6 +160,8 @@ class TrustedDevice extends Model
 
     /**
      * Scope for expired devices
+     *
+     * @param mixed $query
      */
     public function scopeExpired($query)
     {
@@ -162,6 +170,8 @@ class TrustedDevice extends Model
 
     /**
      * Scope for recently used devices
+     *
+     * @param mixed $query
      */
     public function scopeRecentlyUsed($query, int $days = 7)
     {
@@ -170,6 +180,8 @@ class TrustedDevice extends Model
 
     /**
      * Scope for devices by type
+     *
+     * @param mixed $query
      */
     public function scopeByType($query, string $type)
     {
@@ -177,9 +189,17 @@ class TrustedDevice extends Model
             'mobile'  => '%mobile%',
             'tablet'  => '%tablet%',
             'desktop' => '%',
-            default   => '%'
+            default   => '%',
         };
 
         return $query->where('user_agent', 'like', $userAgentPattern);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'expires_at'   => 'datetime',
+            'last_used_at' => 'datetime',
+        ];
     }
 }

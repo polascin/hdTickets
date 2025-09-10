@@ -5,6 +5,7 @@ namespace App\Services\Scraping\Plugins;
 use App\Services\Scraping\BaseScraperPlugin;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Override;
 use Symfony\Component\DomCrawler\Crawler;
 
 use function count;
@@ -14,9 +15,10 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
     /**
      * Main scraping method
      */
+    #[Override]
     public function scrape(array $criteria): array
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             throw new Exception("{$this->pluginName} plugin is disabled");
         }
 
@@ -134,7 +136,7 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
             $availability = $this->extractText($node, '.availability, .status');
             $link = $this->extractAttribute($node, 'a', 'href');
 
-            if (empty($title)) {
+            if ($title === '' || $title === '0') {
                 return NULL;
             }
 
@@ -163,18 +165,17 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
     protected function determineEventType(string $title, string $eventType): string
     {
         $lowerTitle = strtolower($title);
-        $lowerType = strtolower($eventType);
 
-        if (strpos($lowerTitle, 'british grand prix') !== FALSE || strpos($lowerTitle, 'f1') !== FALSE) {
+        if (str_contains($lowerTitle, 'british grand prix') || str_contains($lowerTitle, 'f1')) {
             return 'formula_1_british_gp';
         }
-        if (strpos($lowerTitle, 'motogp') !== FALSE) {
+        if (str_contains($lowerTitle, 'motogp')) {
             return 'motogp';
         }
-        if (strpos($lowerTitle, 'touring car') !== FALSE || strpos($lowerTitle, 'btcc') !== FALSE) {
+        if (str_contains($lowerTitle, 'touring car') || str_contains($lowerTitle, 'btcc')) {
             return 'british_touring_cars';
         }
-        if (strpos($lowerTitle, 'classic') !== FALSE) {
+        if (str_contains($lowerTitle, 'classic')) {
             return 'silverstone_classic';
         }
 
@@ -185,10 +186,10 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
     {
         $lowerStatus = strtolower($status);
 
-        if (strpos($lowerStatus, 'sold out') !== FALSE) {
+        if (str_contains($lowerStatus, 'sold out')) {
             return 'sold_out';
         }
-        if (strpos($lowerStatus, 'available') !== FALSE) {
+        if (str_contains($lowerStatus, 'available')) {
             return 'available';
         }
 
@@ -197,7 +198,7 @@ class SilverstoneF1Plugin extends BaseScraperPlugin
 
     protected function parsePrice(string $priceText): ?float
     {
-        if (empty($priceText)) {
+        if ($priceText === '' || $priceText === '0') {
             return NULL;
         }
 

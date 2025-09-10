@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -12,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
@@ -22,30 +24,20 @@ use function count;
  */
 class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
-    /** @var \Illuminate\Support\Collection<int, object{status: string, total: int}> */
-    protected \Illuminate\Support\Collection $trends;
-
-    protected string $startDate;
-
-    protected string $endDate;
-
     /**
-     * @param \Illuminate\Support\Collection<int, object{status: string, total: int}> $trends
+     * @param Collection<int, object{status: string, total: int}> $trends
      */
-    public function __construct(\Illuminate\Support\Collection $trends, string $startDate, string $endDate)
+    public function __construct(protected Collection $trends, protected string $startDate, protected string $endDate)
     {
-        $this->trends = $trends;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, object{status: string, total: int}>
+     * @return Collection<int, object{status: string, total: int}>
      */
     /**
      * Collection
      */
-    public function collection(): \Illuminate\Support\Collection
+    public function collection(): Collection
     {
         return collect($this->trends);
     }
@@ -82,7 +74,7 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
         $percentage = $total > 0 ? round(($trend->total / $total) * 100, 2) : 0;
 
         return [
-            ucfirst($trend->status),
+            ucfirst((string) $trend->status),
             $trend->total,
             $percentage,
             $this->analyzeTrend($trend->status, $trend->total),
@@ -108,7 +100,7 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
             'A:D' => [
                 'borders' => [
                     'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'borderStyle' => Border::BORDER_THIN,
                     ],
                 ],
             ],
@@ -179,15 +171,11 @@ class TicketAvailabilityTrendsExport implements FromCollection, WithHeadings, Wi
      */
     private function analyzeTrend(string $status, int $count): string
     {
-        switch ($status) {
-            case 'active':
-                return $count > 100 ? 'High availability' : 'Moderate availability';
-            case 'sold_out':
-                return $count > 50 ? 'High demand' : 'Normal demand';
-            case 'expired':
-                return $count > 20 ? 'Many expired listings' : 'Few expired listings';
-            default:
-                return 'Analysis pending';
-        }
+        return match ($status) {
+            'active'   => $count > 100 ? 'High availability' : 'Moderate availability',
+            'sold_out' => $count > 50 ? 'High demand' : 'Normal demand',
+            'expired'  => $count > 20 ? 'Many expired listings' : 'Few expired listings',
+            default    => 'Analysis pending',
+        };
     }
 }

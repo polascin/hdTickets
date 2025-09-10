@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Override;
 use Tests\TestCase;
 
 class AccessibilityTest extends TestCase
@@ -15,6 +16,7 @@ class AccessibilityTest extends TestCase
 
     private string $testPassword = 'TestP@ssw0rd123!';
 
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -114,7 +116,7 @@ class AccessibilityTest extends TestCase
         $content = $response->getContent();
 
         // Error messages should have proper ARIA attributes
-        if (strpos((string) $content, 'hd-error-message') !== FALSE) {
+        if (str_contains((string) $content, 'hd-error-message')) {
             $this->assertStringContains('role="alert"', $content);
             $this->assertStringContains('aria-live="polite"', $content);
         }
@@ -248,12 +250,12 @@ class AccessibilityTest extends TestCase
         $content = $response->getContent();
 
         // Check for aria-describedby that includes error IDs
-        if (strpos((string) $content, 'email-error') !== FALSE) {
+        if (str_contains((string) $content, 'email-error')) {
             $this->assertStringContains('aria-describedby="email-description email-error"', $content);
         }
 
         // Check that aria-invalid is set to true for invalid fields
-        if (strpos((string) $content, 'aria-invalid="true"') !== FALSE) {
+        if (str_contains((string) $content, 'aria-invalid="true"')) {
             $this->assertStringContains('aria-invalid="true"', $content);
         }
     }
@@ -332,7 +334,7 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('spellcheck="false"', $content);
 
         // Check for language attributes if present
-        if (strpos((string) $content, 'lang=') !== FALSE) {
+        if (str_contains((string) $content, 'lang=')) {
             $this->assertMatchesRegularExpression('/lang="[a-z]{2,}"/', $content);
         }
     }
@@ -437,7 +439,7 @@ class AccessibilityTest extends TestCase
         $content = $response->getContent();
 
         // Check that error context is preserved for screen readers
-        if (strpos((string) $content, 'hd-error-message') !== FALSE) {
+        if (str_contains((string) $content, 'hd-error-message')) {
             $this->assertStringContains('Email error:', $content);
             $this->assertStringContains('Password error:', $content);
         }
