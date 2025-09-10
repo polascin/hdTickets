@@ -365,30 +365,20 @@ class WelcomePageService
     {
         try {
             // Use existing relationships/methods from User model
-            $subscription = method_exists($user, 'subscriptions')
-                ? $user->subscriptions()->latest()->first()
-                : NULL;
+            $subscription = $user->subscriptions()->latest()->first();
 
-            $monthlyUsage = method_exists($user, 'getMonthlyTicketUsage')
-                ? $user->getMonthlyTicketUsage()
-                : 0;
+            $monthlyUsage = $user->getMonthlyTicketUsage();
 
-            $ticketLimit = method_exists($user, 'getMonthlyTicketLimit')
-                ? $user->getMonthlyTicketLimit()
-                : (int) config('subscription.default_ticket_limit', 100);
+            $ticketLimit = $user->getMonthlyTicketLimit();
 
             // Unlimited plan represented by 0 in PaymentPlan (see model logic)
             $remaining = $ticketLimit === 0
                 ? -1 // -1 signifies unlimited in existing conventions
                 : max(0, $ticketLimit - $monthlyUsage);
 
-            $hasActive = method_exists($user, 'hasActiveSubscription')
-                ? $user->hasActiveSubscription()
-                : FALSE;
+            $hasActive = $user->hasActiveSubscription();
 
-            $inTrial = method_exists($user, 'isOnTrial')
-                ? $user->isOnTrial()
-                : FALSE;
+            $inTrial = $user->isOnTrial();
 
             $canPurchase = $remaining === -1 || $remaining > 0;
 

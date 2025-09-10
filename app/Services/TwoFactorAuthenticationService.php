@@ -439,14 +439,28 @@ class TwoFactorAuthenticationService
             $secretKey,
         );
 
-        $renderer = new ImageRenderer(
-            new RendererStyle(300),
-            new SvgImageBackEnd(),
-        );
+        // If BaconQrCode library isn't installed, return otpauth URL for client-side generation
+        if (! class_exists(Writer::class) || ! class_exists(ImageRenderer::class)) {
+            return $qrCodeUrl; // Fallback: raw provisioning URI
+        }
 
-        $writer = new Writer($renderer);
+        try {
+            $renderer = new ImageRenderer(
+                new RendererStyle(300),
+                new SvgImageBackEnd(),
+            );
 
-        return 'data:image/svg+xml;base64,' . base64_encode($writer->writeString($qrCodeUrl));
+            $writer = new Writer($renderer);
+
+            return 'data:image/svg+xml;base64,' . base64_encode($writer->writeString($qrCodeUrl));
+        } catch (Exception $e) {
+            Log::warning('QR code generation failed (falling back to URI)', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return $qrCodeUrl;
+        }
     }
 
     /**

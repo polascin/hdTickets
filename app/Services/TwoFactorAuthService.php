@@ -64,15 +64,24 @@ class TwoFactorAuthService
     public function getQRCodeSvg(User $user, string $secretKey): string
     {
         $qrCodeUrl = $this->getQRCodeUrl($user, $secretKey);
+        // Fallback if BaconQrCode not installed
+        if (! class_exists(Writer::class) || ! class_exists(ImageRenderer::class)) {
+            return $qrCodeUrl; // Return raw otpauth URI so frontend can handle
+        }
 
-        $renderer = new ImageRenderer(
-            new RendererStyle(200),
-            new SvgImageBackEnd(),
-        );
+        try {
+            $renderer = new ImageRenderer(
+                new RendererStyle(200),
+                new SvgImageBackEnd(),
+            );
 
-        $writer = new Writer($renderer);
+            $writer = new Writer($renderer);
 
-        return $writer->writeString($qrCodeUrl);
+            return $writer->writeString($qrCodeUrl);
+        } catch (Exception $e) {
+            // Provide graceful degradation
+            return $qrCodeUrl;
+        }
     }
 
     /**

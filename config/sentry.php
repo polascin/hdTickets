@@ -8,10 +8,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
-use Sentry\Integration\EnvironmentIntegration;
-use Sentry\Integration\FrameContextifierIntegration;
-use Sentry\Integration\RequestIntegration;
-use Sentry\Integration\TransactionIntegration;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -85,12 +81,24 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'integrations' => [
-        RequestIntegration::class,
-        TransactionIntegration::class,
-        FrameContextifierIntegration::class,
-        EnvironmentIntegration::class,
-    ],
+    // Build integrations list only for classes that exist (package may be optional)
+    'integrations' => (static function (): array {
+        $candidates = [
+            'Sentry\\Integration\\RequestIntegration',
+            'Sentry\\Integration\\TransactionIntegration',
+            'Sentry\\Integration\\FrameContextifierIntegration',
+            'Sentry\\Integration\\EnvironmentIntegration',
+        ];
+
+        $available = [];
+        foreach ($candidates as $class) {
+            if (class_exists($class)) {
+                $available[] = $class;
+            }
+        }
+
+        return $available;
+    })(),
 
     /*
     |--------------------------------------------------------------------------

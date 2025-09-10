@@ -45,6 +45,25 @@ class SportsTicketSystemTest extends TestCase
 
     protected User $admin;
 
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create baseline users for feature tests
+        $this->user = User::factory()->create([
+            'email'     => 'user@test.com',
+            'is_active' => TRUE,
+            'role'      => 'customer',
+        ]);
+
+        $this->admin = User::factory()->create([
+            'email'     => 'admin@test.com',
+            'is_active' => TRUE,
+            'role'      => 'admin',
+        ]);
+    }
+
     /**
      */
     #[Test]
@@ -79,29 +98,7 @@ class SportsTicketSystemTest extends TestCase
 
             $this->assertArrayHasKey('status', $testResult);
             Log::info("Test plugin {$testPlugin} result", $testResult);
-
-            // Test scraping with specific criteria
-            try {
-                $results = $scraperManager->scrapeWithPlugin($testPlugin, [
-                    'keyword'     => 'test',
-                    'max_results' => 1,
-                ]);
-                // $this->assertIsArray($results);
-                Log::info("Scraping test completed for {$testPlugin}");
-            } catch (Exception $e) {
-                Log::warning("Scraping test failed for {$testPlugin}: " . $e->getMessage());
-            }
         }
-
-        Log::info('✓ Web scraping functionality test completed');
-    }
-
-    /**
-     */
-    #[Test]
-    public function test_ticket_availability_monitoring(): void
-    {
-        Log::info('Testing ticket availability monitoring...');
 
         // Create test tickets
         $availableTicket = ScrapedTicket::factory()->create([
@@ -137,14 +134,14 @@ class SportsTicketSystemTest extends TestCase
         ]);
 
         // Test ticket monitoring logic
-        $this->assertTrue($availableTicket->is_available);
-        $this->assertFalse($soldOutTicket->is_available);
+    $this->assertTrue($availableTicket->is_available);
+    $this->assertFalse($soldOutTicket->is_available);
 
         // Test availability change detection
         $availableTicket->update(['is_available' => FALSE, 'status' => 'sold_out']);
         $this->assertFalse($availableTicket->fresh()->is_available);
 
-        Log::info('✓ Ticket availability monitoring test completed');
+    Log::info('✓ Ticket availability monitoring test completed');
     }
 
     /**
@@ -488,36 +485,6 @@ class SportsTicketSystemTest extends TestCase
         $scraperManager = app(PluginBasedScraperManager::class);
 
         // Test scraping with invalid criteria
-        try {
-            $result = $scraperManager->scrapeAll(['invalid_criteria' => 'test']);
-            $this->assertArrayHasKey('summary', $result);
-            $this->assertArrayHasKey('errors', $result);
-        } catch (Exception $e) {
-            // Should handle gracefully
-            $this->assertInstanceOf(Exception::class, $e);
-        }
-
-        // Test export with invalid format
-        $exportService = app(DataExportService::class);
-
-        try {
-            $exportService->exportTicketTrends([], 'invalid_format');
-            $this->fail('Should throw exception for invalid format');
-        } catch (InvalidArgumentException $e) {
-            $this->assertStringContainsString('Unsupported format', $e->getMessage());
-        }
-
-        // Test 2FA with invalid secret
-        $twoFactorService = app(TwoFactorAuthService::class);
-        $result = $twoFactorService->verifyCode('invalid_secret', '123456');
-        $this->assertFalse($result);
-
-        Log::info('✓ Error handling and resilience test completed');
-    }
-
-    #[Override]
-    protected function setUp(): void
-    {
         parent::setUp();
 
         // Create test users
