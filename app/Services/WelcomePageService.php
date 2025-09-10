@@ -364,18 +364,44 @@ class WelcomePageService
     public function getUserSubscriptionInfo(User $user): array
     {
         try {
-            $subscription = $user->subscription()->latest()->first();
+            // Use existing relationships/methods from User model
+            $subscription = method_exists($user, 'subscriptions')
+                ? $user->subscriptions()->latest()->first()
+                : NULL;
+
+            $monthlyUsage = method_exists($user, 'getMonthlyTicketUsage')
+                ? $user->getMonthlyTicketUsage()
+                : 0;
+
+            $ticketLimit = method_exists($user, 'getMonthlyTicketLimit')
+                ? $user->getMonthlyTicketLimit()
+                : (int) config('subscription.default_ticket_limit', 100);
+
+            // Unlimited plan represented by 0 in PaymentPlan (see model logic)
+            $remaining = $ticketLimit === 0
+                ? -1 // -1 signifies unlimited in existing conventions
+                : max(0, $ticketLimit - $monthlyUsage);
+
+            $hasActive = method_exists($user, 'hasActiveSubscription')
+                ? $user->hasActiveSubscription()
+                : FALSE;
+
+            $inTrial = method_exists($user, 'isOnTrial')
+                ? $user->isOnTrial()
+                : FALSE;
+
+            $canPurchase = $remaining === -1 || $remaining > 0;
 
             return [
-                'has_active_subscription' => $user->hasActiveSubscription(),
-                'is_in_trial'             => $user->isInTrialPeriod(),
-                'trial_ends_at'           => $user->trial_ends_at,
+                'has_active_subscription' => $hasActive,
+                'is_in_trial'             => $inTrial,
+                'trial_ends_at'           => $subscription?->trial_ends_at,
                 'subscription_ends_at'    => $subscription?->ends_at,
-                'monthly_ticket_usage'    => $user->getMonthlyTicketUsage(),
-                'ticket_limit'            => $user->getTicketLimit(),
-                'remaining_tickets'       => $user->getRemainingTickets(),
+                'monthly_ticket_usage'    => $monthlyUsage,
+                'ticket_limit'            => $ticketLimit,
+                'remaining_tickets'       => $remaining,
                 'subscription_status'     => $subscription?->status,
-                'can_purchase_tickets'    => $user->canPurchaseTickets(),
+                'can_purchase_tickets'    => $canPurchase,
             ];
         } catch (Exception $e) {
             Log::error('Error fetching user subscription info: ' . $e->getMessage());

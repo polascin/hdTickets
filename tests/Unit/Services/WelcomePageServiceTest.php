@@ -298,18 +298,6 @@ class WelcomePageServiceTest extends TestCase
             'ends_at' => now()->addMonth(),
         ]);
 
-        // Mock user methods that might not exist
-        $user = $this->getMockBuilder(User::class)
-            ->onlyMethods(['hasActiveSubscription', 'isInTrialPeriod', 'getMonthlyTicketUsage', 'getTicketLimit', 'getRemainingTickets', 'canPurchaseTickets'])
-            ->getMock();
-
-        $user->method('hasActiveSubscription')->willReturn(TRUE);
-        $user->method('isInTrialPeriod')->willReturn(FALSE);
-        $user->method('getMonthlyTicketUsage')->willReturn(25);
-        $user->method('getTicketLimit')->willReturn(100);
-        $user->method('getRemainingTickets')->willReturn(75);
-        $user->method('canPurchaseTickets')->willReturn(TRUE);
-
         $userInfo = $this->service->getUserSubscriptionInfo($user);
 
         $expectedKeys = [
@@ -328,15 +316,15 @@ class WelcomePageServiceTest extends TestCase
     #[Test]
     public function it_handles_exceptions_gracefully_in_user_subscription_info(): void
     {
-        $user = $this->getMockBuilder(User::class)
+        // Create a partial mock that will throw when calling hasActiveSubscription
+        $user = User::factory()->make();
+        $userMock = $this->getMockBuilder(get_class($user))
             ->onlyMethods(['hasActiveSubscription'])
             ->getMock();
+        $userMock->method('hasActiveSubscription')->willThrowException(new Exception('Error'));
 
-        $user->method('hasActiveSubscription')->willThrowException(new Exception('Error'));
-
-        $userInfo = $this->service->getUserSubscriptionInfo($user);
-
-        $this->assertEmpty($userInfo);
+        $userInfo = $this->service->getUserSubscriptionInfo($userMock);
+        $this->assertEmpty($userInfo); // Graceful fallback on exception
     }
 
     /**

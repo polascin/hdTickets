@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\UserSubscription;
+use App\Models\PaymentPlan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,9 +18,26 @@ class UserSubscriptionFactory extends Factory
     {
         $startsAt = now();
 
+        $plan = PaymentPlan::query()->first() ?? PaymentPlan::factory()->create([
+            'name' => 'Test Plan',
+            'slug' => 'test-plan',
+            'description' => 'Test plan for factories',
+            'price' => 29.99,
+            'billing_cycle' => 'monthly',
+            'features' => json_encode(['feature a','feature b']),
+            'max_tickets_per_month' => 100,
+            'max_concurrent_purchases' => 2,
+            'max_platforms' => 5,
+            'priority_support' => false,
+            'advanced_analytics' => false,
+            'automated_purchasing' => false,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
         return [
             'user_id'             => User::factory(),
-            'payment_plan_id'     => NULL,
+            'payment_plan_id'     => $plan->id,
             'status'              => 'active',
             'starts_at'           => $startsAt,
             'ends_at'             => $startsAt->copy()->addMonth(),
