@@ -1,7 +1,7 @@
 HD TICKETS - PASSWORD CHANGED
 =====================================
 
-Hello {{ $user->getFullNameAttribute() ?: $user->username }},
+Hello {{ $user->full_name ?: $user->username }},
 
 This is to confirm that your password for your HD Tickets account ({{ $user->email }}) was successfully changed.
 

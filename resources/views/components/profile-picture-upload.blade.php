@@ -10,7 +10,7 @@
         <div class="profile-picture-preview">
             <div class="profile-picture" id="profile-picture-preview" data-profile-picture data-initials="{{ $user->getProfileDisplay()['initials'] }}">
                 @if($user->profile_picture)
-                    <img src="{{ $user->getProfileDisplay()['picture_url'] }}" alt="{{ $user->getFullNameAttribute() }}" />
+                    <img src="{{ $user->getProfileDisplay()['picture_url'] }}" alt="{{ $user->full_name }}" />
                 @else
                     <span class="user-initials">{{ $user->getProfileDisplay()['initials'] }}</span>
                 @endif

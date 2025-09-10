@@ -112,7 +112,7 @@ class CreateRootAdmin extends Command
                 ['Name', $user->name],
                 ['Surname', $user->surname ?? 'N/A'],
                 ['Username', $user->username ?? 'N/A'],
-                ['Full Name', $user->getFullNameAttribute()],
+                ['Full Name', $user->full_name],
                 ['Email', $user->email],
                 ['Role', strtoupper($user->role)],
                 ['Status', $user->is_active ? 'ACTIVE' : 'INACTIVE'],

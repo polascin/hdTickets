@@ -89,7 +89,7 @@
     </div>
     
     <div class="content">
-        <p>Hello {{ $user->getFullNameAttribute() ?: $user->username }},</p>
+        <p>Hello {{ $user->full_name ?: $user->username }},</p>
         
         <p>This is to confirm that your password for your HD Tickets account ({{ $user->email }}) was successfully changed.</p>
         
