@@ -10,6 +10,9 @@ return new class() extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('audit_logs')) {
+            return; // Already created by earlier system tables migration
+        }
         Schema::create('audit_logs', function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

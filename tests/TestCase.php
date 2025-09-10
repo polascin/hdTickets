@@ -72,8 +72,14 @@ abstract class TestCase extends BaseTestCase
         // Clear any lingering cache data
         Cache::flush();
 
-        // Clear any queued jobs
-        Queue::purge();
+        // Clear queued jobs (sync driver has no purge method); for other drivers dispatch events as needed
+        try {
+            if (method_exists(Queue::getFacadeRoot(), 'clear')) {
+                Queue::clear();
+            }
+        } catch (\Throwable $e) {
+            // Ignore cleanup errors
+        }
     }
 
     /**

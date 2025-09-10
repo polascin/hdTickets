@@ -12,15 +12,15 @@ use function array_slice;
 
 class AnalyticsService
 {
-    private const string ANALYTICS_PREFIX = 'analytics:';
+    private const ANALYTICS_PREFIX = 'analytics:';
 
-    private const string EVENTS_KEY = 'events';
+    private const EVENTS_KEY = 'events';
 
-    private const string METRICS_KEY = 'metrics';
+    private const METRICS_KEY = 'metrics';
 
-    private const string USER_BEHAVIOR_KEY = 'user_behavior';
+    private const USER_BEHAVIOR_KEY = 'user_behavior';
 
-    private const string TICKET_PERFORMANCE_KEY = 'ticket_performance';
+    private const TICKET_PERFORMANCE_KEY = 'ticket_performance';
 
     /**
      * Track user events and behavior

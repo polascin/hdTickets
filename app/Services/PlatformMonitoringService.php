@@ -15,11 +15,11 @@ use function is_array;
 
 class PlatformMonitoringService
 {
-    private const float CRITICAL_SUCCESS_RATE_THRESHOLD = 50.0; // Below 50% is critical
+    private const CRITICAL_SUCCESS_RATE_THRESHOLD = 50.0; // Below 50% is critical
 
-    private const float WARNING_SUCCESS_RATE_THRESHOLD = 80.0;  // Below 80% is warning
+    private const WARNING_SUCCESS_RATE_THRESHOLD = 80.0;  // Below 80% is warning
 
-    private const int HIGH_RESPONSE_TIME_THRESHOLD = 5000;          // Check every hour
+    private const HIGH_RESPONSE_TIME_THRESHOLD = 5000;          // Check every hour
 
     /**
      * Monitor all platforms and generate alerts if needed

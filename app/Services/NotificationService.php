@@ -25,16 +25,16 @@ use function is_array;
  */
 class NotificationService extends BaseService implements NotificationInterface
 {
-    private const string NOTIFICATIONS_PREFIX = 'notifications:';
+    private const NOTIFICATIONS_PREFIX = 'notifications:';
 
     /** @var array<int, string> */
-    private const array CHANNELS = ['database', 'broadcast', 'push', 'mail', 'sms', 'discord', 'slack', 'telegram', 'webhook'];
+    private const CHANNELS = ['database', 'broadcast', 'push', 'mail', 'sms', 'discord', 'slack', 'telegram', 'webhook'];
 
-    private const string PRIORITY_HIGH = 'high';
+    private const PRIORITY_HIGH = 'high';
 
-    private const string PRIORITY_NORMAL = 'normal';
+    private const PRIORITY_NORMAL = 'normal';
 
-    private const string PRIORITY_LOW = 'low';
+    private const PRIORITY_LOW = 'low';
 
     public $analytics;
 

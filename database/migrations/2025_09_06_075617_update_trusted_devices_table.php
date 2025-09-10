@@ -10,6 +10,9 @@ return new class() extends Migration {
      */
     public function up(): void
     {
+        if (! Schema::hasTable('trusted_devices')) {
+            return; // Table not present in test environment
+        }
         Schema::table('trusted_devices', function (Blueprint $table): void {
             // Add trust token
             $table->string('trust_token')->after('device_fingerprint');
@@ -38,6 +41,9 @@ return new class() extends Migration {
      */
     public function down(): void
     {
+        if (! Schema::hasTable('trusted_devices')) {
+            return;
+        }
         Schema::table('trusted_devices', function (Blueprint $table): void {
             // Drop new columns
             $table->dropColumn([

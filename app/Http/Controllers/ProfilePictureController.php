@@ -21,13 +21,13 @@ use function in_array;
 class ProfilePictureController extends Controller
 {
     /** Maximum file size in bytes (5MB) */
-    private const int MAX_FILE_SIZE = 5242880; // 5MB
+    private const MAX_FILE_SIZE = 5242880; // 5MB
 
     /** Allowed image formats */
-    private const array ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
+    private const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'webp'];
 
     /** Profile picture dimensions */
-    private const array PROFILE_DIMENSIONS = [
+    private const PROFILE_DIMENSIONS = [
         'thumbnail' => 150,   // 150x150 for thumbnails
         'medium'    => 300,      // 300x300 for profile views
         'large'     => 500,        // 500x500 for full size

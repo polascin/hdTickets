@@ -10,7 +10,7 @@ use function sprintf;
 
 final readonly class PlatformSource implements Stringable
 {
-    private const array VALID_PLATFORMS = [
+    private const VALID_PLATFORMS = [
         'TICKETMASTER',
         'STUBHUB',
         'VIAGOGO',

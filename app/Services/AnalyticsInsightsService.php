@@ -15,7 +15,7 @@ use function count;
 
 class AnalyticsInsightsService
 {
-    private const int CACHE_TTL = 1800; // 30 minutes
+    private const CACHE_TTL = 1800; // 30 minutes
 
     /**
      * Generate predictive insights for ticket demand

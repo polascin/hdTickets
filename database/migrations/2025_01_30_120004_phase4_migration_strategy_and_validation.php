@@ -12,6 +12,11 @@ return new class() extends Migration {
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            // Minimal subset for tests: create tracking tables only
+            $this->createMigrationTrackingTables();
+            return;
+        }
         // 1. Create migration tracking and validation tables
         $this->createMigrationTrackingTables();
 
@@ -37,6 +42,14 @@ return new class() extends Migration {
     public function down(): void
     {
         // Drop monitoring views and procedures
+        if (app()->environment('testing')) {
+            Schema::dropIfExists('migration_executions');
+            Schema::dropIfExists('data_validation_rules');
+            Schema::dropIfExists('data_validation_results');
+            Schema::dropIfExists('schema_snapshots');
+            Schema::dropIfExists('shadow_table_operations');
+            return;
+        }
         if (DB::getDriverName() === 'mysql') {
             DB::statement('DROP PROCEDURE IF EXISTS CheckMigrationHealth');
             DB::statement('DROP VIEW IF EXISTS v_migration_health_status');

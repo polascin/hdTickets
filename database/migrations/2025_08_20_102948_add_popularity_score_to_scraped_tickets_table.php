@@ -10,13 +10,12 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::table('scraped_tickets', function (Blueprint $table): void {
-            // Add popularity_score column as decimal with default value
-            $table->decimal('popularity_score', 5, 2)->default(50.0)->after('predicted_demand');
-
-            // Add index for performance since it's used in WHERE clauses
-            $table->index('popularity_score');
-        });
+        if (! Schema::hasColumn('scraped_tickets', 'popularity_score')) {
+            Schema::table('scraped_tickets', function (Blueprint $table): void {
+                $table->decimal('popularity_score', 5, 2)->default(50.0)->after('predicted_demand');
+                $table->index('popularity_score');
+            });
+        }
     }
 
     /**
@@ -24,10 +23,11 @@ return new class() extends Migration {
      */
     public function down(): void
     {
-        Schema::table('scraped_tickets', function (Blueprint $table): void {
-            // Drop the index first, then the column
-            $table->dropIndex(['popularity_score']);
-            $table->dropColumn('popularity_score');
-        });
+        if (Schema::hasColumn('scraped_tickets', 'popularity_score')) {
+            Schema::table('scraped_tickets', function (Blueprint $table): void {
+                try { $table->dropIndex(['popularity_score']); } catch (Throwable $e) { /* ignore */ }
+                $table->dropColumn('popularity_score');
+            });
+        }
     }
 };

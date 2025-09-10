@@ -11,9 +11,9 @@ use function array_slice;
 
 class UserRotationService
 {
-    private const string CACHE_KEY_PREFIX = 'user_rotation_';
+    private const CACHE_KEY_PREFIX = 'user_rotation_';
 
-    private const int DEFAULT_CACHE_TTL = 3600; // 1 hour
+    private const DEFAULT_CACHE_TTL = 3600; // 1 hour
 
     /**
      * Get a rotated user for scraping operations

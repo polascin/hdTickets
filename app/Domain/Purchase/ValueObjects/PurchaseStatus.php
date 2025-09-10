@@ -10,21 +10,21 @@ use function sprintf;
 
 final readonly class PurchaseStatus implements Stringable
 {
-    public const string PENDING = 'PENDING';
+    public const PENDING = 'PENDING';
 
-    public const string QUEUED = 'QUEUED';
+    public const QUEUED = 'QUEUED';
 
-    public const string PROCESSING = 'PROCESSING';
+    public const PROCESSING = 'PROCESSING';
 
-    public const string COMPLETED = 'COMPLETED';
+    public const COMPLETED = 'COMPLETED';
 
-    public const string FAILED = 'FAILED';
+    public const FAILED = 'FAILED';
 
-    public const string CANCELLED = 'CANCELLED';
+    public const CANCELLED = 'CANCELLED';
 
-    public const string REFUNDED = 'REFUNDED';
+    public const REFUNDED = 'REFUNDED';
 
-    private const array VALID_STATUSES = [
+    private const VALID_STATUSES = [
         self::PENDING,
         self::QUEUED,
         self::PROCESSING,

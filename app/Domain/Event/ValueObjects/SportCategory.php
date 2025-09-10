@@ -10,7 +10,7 @@ use function sprintf;
 
 final readonly class SportCategory implements Stringable
 {
-    private const array VALID_CATEGORIES = [
+    private const VALID_CATEGORIES = [
         'FOOTBALL',
         'BASKETBALL',
         'TENNIS',

@@ -22,9 +22,9 @@ use function is_string;
  */
 class RecommendationService
 {
-    private const int CACHE_TTL = 900; // 15 minutes
+    private const CACHE_TTL = 900; // 15 minutes
 
-    private const int MAX_RECOMMENDATIONS = 10;
+    private const MAX_RECOMMENDATIONS = 10;
 
     /**
      * Get personalized ticket recommendations for a user

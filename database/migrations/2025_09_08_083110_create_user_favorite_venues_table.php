@@ -10,6 +10,9 @@ return new class() extends Migration {
      */
     public function up(): void
     {
+        if (Schema::hasTable('user_favorite_venues')) {
+            return;
+        }
         Schema::create('user_favorite_venues', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

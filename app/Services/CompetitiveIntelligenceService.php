@@ -20,9 +20,9 @@ use function is_array;
  */
 class CompetitiveIntelligenceService
 {
-    private const int CACHE_TTL = 3600; // 1 hour
+    private const CACHE_TTL = 3600; // 1 hour
 
-    private const string CACHE_PREFIX = 'competitive_intelligence';
+    private const CACHE_PREFIX = 'competitive_intelligence';
 
     /**
      * Get comprehensive competitive analysis dashboard data

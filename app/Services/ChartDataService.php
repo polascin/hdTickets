@@ -16,7 +16,7 @@ use function count;
 
 class ChartDataService
 {
-    private const int CACHE_TTL = 900; // 15 minutes for chart data
+    private const CACHE_TTL = 900; // 15 minutes for chart data
 
     /**
      * Generate comprehensive ticket trends chart data

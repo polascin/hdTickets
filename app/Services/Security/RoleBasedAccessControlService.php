@@ -26,7 +26,7 @@ use function in_array;
 class RoleBasedAccessControlService
 {
     // Role hierarchy (lower values have higher privileges)
-    private const array ROLE_HIERARCHY = [
+    private const ROLE_HIERARCHY = [
         'admin'    => 1,
         'agent'    => 2,
         'customer' => 3,
@@ -34,7 +34,7 @@ class RoleBasedAccessControlService
     ];
 
     // Core permissions for each role
-    private const array ROLE_PERMISSIONS = [
+    private const ROLE_PERMISSIONS = [
         'admin' => [
             'system.*',
             'security.*',
@@ -69,7 +69,7 @@ class RoleBasedAccessControlService
     ];
 
     // Restricted actions that require special handling
-    private const array RESTRICTED_ACTIONS = [
+    private const RESTRICTED_ACTIONS = [
         'security.config.modify',
         'users.role.change',
         'system.maintenance',

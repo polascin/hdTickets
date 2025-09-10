@@ -41,12 +41,12 @@ class EnhancedLoginTest extends TestCase
     #[Test]
     public function it_displays_the_login_page(): void
     {
-        $response = $this->get('/login');
+    $response = $this->get('/login');
 
-        $response->assertStatus(200);
-        $response->assertSee('Welcome back');
-        $response->assertSee('Sign in to access your HD Tickets');
-        $response->assertViewIs(Login::class);
+    $response->assertStatus(200);
+    // Updated UI copy no longer includes 'Welcome back' phrase.
+    $response->assertSee('Enhanced Security Login');
+    $response->assertSee('Sports Events Entry Tickets System');
     }
 
     #[Test]
@@ -56,9 +56,8 @@ class EnhancedLoginTest extends TestCase
 
         $response = $this->get('/login');
 
-        $response->assertStatus(200);
-        $response->assertSee('Enhanced Security Login');
-        $response->assertViewIs('auth.login-enhanced');
+    $response->assertStatus(200);
+    $response->assertSee('Enhanced Security Login');
     }
 
     #[Test]

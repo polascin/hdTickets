@@ -30,10 +30,10 @@ use function is_object;
 class UserPreferencesService
 {
     /** Cache key prefix for user preferences. */
-    private const string CACHE_PREFIX = 'user_preferences:';
+    private const CACHE_PREFIX = 'user_preferences:';
 
     /** Cache TTL in seconds (1 hour). */
-    private const int CACHE_TTL = 3600;
+    private const CACHE_TTL = 3600;
 
     /**
      * Get user preferences with defaults.

@@ -20,9 +20,9 @@ use function count;
  */
 class TicketMonitoringService extends BaseService implements TicketMonitoringInterface
 {
-    private const string MONITORING_PREFIX = 'ticket_monitoring:';
+    private const MONITORING_PREFIX = 'ticket_monitoring:';
 
-    private const string ALERT_PREFIX = 'ticket_alerts:';
+    private const ALERT_PREFIX = 'ticket_alerts:';
 
     private array $monitoredTickets = [];
 

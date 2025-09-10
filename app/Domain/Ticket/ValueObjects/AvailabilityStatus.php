@@ -10,17 +10,17 @@ use function sprintf;
 
 final readonly class AvailabilityStatus implements Stringable
 {
-    public const string AVAILABLE = 'AVAILABLE';
+    public const AVAILABLE = 'AVAILABLE';
 
-    public const string LIMITED = 'LIMITED';
+    public const LIMITED = 'LIMITED';
 
-    public const string SOLD_OUT = 'SOLD_OUT';
+    public const SOLD_OUT = 'SOLD_OUT';
 
-    public const string ON_SALE_SOON = 'ON_SALE_SOON';
+    public const ON_SALE_SOON = 'ON_SALE_SOON';
 
-    public const string UNKNOWN = 'UNKNOWN';
+    public const UNKNOWN = 'UNKNOWN';
 
-    private const array VALID_STATUSES = [
+    private const VALID_STATUSES = [
         self::AVAILABLE,
         self::LIMITED,
         self::SOLD_OUT,

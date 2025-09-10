@@ -39,7 +39,7 @@ use function in_array;
 class RecommendationEngineService
 {
     // Recommendation weights and thresholds
-    private const array WEIGHTS = [
+    private const WEIGHTS = [
         'user_preferences'   => 0.25,
         'purchase_history'   => 0.20,
         'browsing_behavior'  => 0.15,

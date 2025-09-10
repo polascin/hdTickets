@@ -23,8 +23,9 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        // Main ticket alerts table
-        Schema::create('ticket_alerts', function (Blueprint $table): void {
+        // Main ticket alerts table (guarded to avoid duplicate creation)
+        if (! Schema::hasTable('ticket_alerts')) {
+            Schema::create('ticket_alerts', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('event_identifier', 100)->index(); // Reference to event/ticket
@@ -48,10 +49,12 @@ return new class() extends Migration {
             $table->index(['event_identifier', 'alert_type']);
             $table->index(['status', 'expires_at']);
             $table->index('last_checked_at');
-        });
+            });
+    }
 
         // Alert history table for tracking price and availability changes
-        Schema::create('alert_history', function (Blueprint $table): void {
+        if (! Schema::hasTable('alert_history')) {
+            Schema::create('alert_history', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('alert_id')->constrained('ticket_alerts')->onDelete('cascade');
             $table->decimal('price', 10, 2)->nullable();
@@ -68,10 +71,12 @@ return new class() extends Migration {
             // Indexes
             $table->index(['alert_id', 'checked_at']);
             $table->index(['triggered_alert', 'checked_at']);
-        });
+            });
+        }
 
         // Alert notifications tracking table
-        Schema::create('alert_notifications', function (Blueprint $table): void {
+        if (! Schema::hasTable('alert_notifications')) {
+            Schema::create('alert_notifications', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('alert_id')->constrained('ticket_alerts')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
@@ -92,10 +97,12 @@ return new class() extends Migration {
             $table->index(['alert_id', 'notification_type']);
             $table->index(['user_id', 'status']);
             $table->index(['status', 'next_retry_at']);
-        });
+            });
+        }
 
         // Alert statistics summary table (for analytics and reporting)
-        Schema::create('alert_statistics', function (Blueprint $table): void {
+        if (! Schema::hasTable('alert_statistics')) {
+            Schema::create('alert_statistics', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('alert_id')->constrained('ticket_alerts')->onDelete('cascade');
             $table->date('date');
@@ -112,13 +119,16 @@ return new class() extends Migration {
             // Unique constraint and indexes
             $table->unique(['alert_id', 'date']);
             $table->index('date');
-        });
+            });
+        }
 
         // User alert preferences table
-        Schema::create('user_alert_preferences', function (Blueprint $table): void {
+        if (! Schema::hasTable('user_alert_preferences')) {
+            Schema::create('user_alert_preferences', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->json('notification_methods')->default('["email"]'); // Default notification methods
+            // MySQL JSON columns cannot have a non-NULL literal default in many versions, so we omit default
+            $table->json('notification_methods')->nullable(); // Default handled at application layer
             $table->time('quiet_hours_start')->nullable(); // No notifications during quiet hours
             $table->time('quiet_hours_end')->nullable();
             $table->json('quiet_days')->nullable(); // Days of week for quiet periods [0,6] = Sunday,Saturday
@@ -138,10 +148,12 @@ return new class() extends Migration {
 
             // Unique constraint
             $table->unique('user_id');
-        });
+            });
+        }
 
         // Platform monitoring configuration
-        Schema::create('monitoring_platforms', function (Blueprint $table): void {
+        if (! Schema::hasTable('monitoring_platforms')) {
+            Schema::create('monitoring_platforms', function (Blueprint $table): void {
             $table->id();
             $table->string('name', 100)->unique(); // StubHub, Ticketmaster, SeatGeek, etc.
             $table->string('identifier', 50)->unique(); // Internal platform identifier
@@ -150,17 +162,27 @@ return new class() extends Migration {
             $table->integer('rate_limit_per_minute')->default(10); // API rate limits
             $table->json('supported_sports')->nullable(); // Sports available on this platform
             $table->json('supported_regions')->nullable(); // Geographic regions covered
-            $table->decimal('reliability_score', 3, 2)->default(100.00); // Platform reliability %
+            // Allow full percentage values up to 100.00
+            $table->decimal('reliability_score', 5, 2)->nullable(); // Platform reliability % (seeded)
             $table->timestamp('last_successful_check')->nullable();
             $table->timestamp('last_failed_check')->nullable();
             $table->integer('consecutive_failures')->default(0);
             $table->text('failure_reason')->nullable();
             $table->json('configuration')->nullable(); // Platform-specific config
             $table->timestamps();
-        });
+            });
+        } else {
+            // Ensure reliability_score width supports values like 95.50 when schema dump pre-created it as DECIMAL(3,2)
+            try {
+                DB::statement('ALTER TABLE monitoring_platforms MODIFY reliability_score DECIMAL(5,2) NULL');
+            } catch (Throwable $e) {
+                // Ignore if alteration not needed or fails (e.g., lacks privileges in CI)
+            }
+        }
 
         // Global monitoring settings
-        Schema::create('monitoring_settings', function (Blueprint $table): void {
+        if (! Schema::hasTable('monitoring_settings')) {
+            Schema::create('monitoring_settings', function (Blueprint $table): void {
             $table->id();
             $table->string('key', 100)->unique();
             $table->text('value');
@@ -168,10 +190,12 @@ return new class() extends Migration {
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(FALSE); // Can be displayed to users
             $table->timestamps();
-        });
+            });
+        }
 
-        // Insert default monitoring settings
-        DB::table('monitoring_settings')->insert([
+        // Insert default monitoring settings if table exists and empty
+        if (Schema::hasTable('monitoring_settings') && DB::table('monitoring_settings')->count() === 0) {
+            DB::table('monitoring_settings')->insert([
             [
                 'key'         => 'default_check_interval',
                 'value'       => '15',
@@ -217,10 +241,12 @@ return new class() extends Migration {
                 'created_at'  => now(),
                 'updated_at'  => now(),
             ],
-        ]);
+            ]);
+        }
 
-        // Insert default platform configurations
-        DB::table('monitoring_platforms')->insert([
+        // Insert default platform configurations if table exists and empty
+    if (Schema::hasTable('monitoring_platforms') && DB::table('monitoring_platforms')->count() === 0) {
+            DB::table('monitoring_platforms')->insert([
             [
                 'name'                   => 'StubHub',
                 'identifier'             => 'stubhub',
@@ -273,7 +299,8 @@ return new class() extends Migration {
                 'created_at'             => now(),
                 'updated_at'             => now(),
             ],
-        ]);
+            ]);
+        }
     }
 
     /**

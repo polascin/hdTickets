@@ -22,11 +22,11 @@ use function in_array;
  */
 class PurchaseAutomationService extends BaseService implements PurchaseAutomationInterface
 {
-    private const string QUEUE_PREFIX = 'purchase_queue:';
+    private const QUEUE_PREFIX = 'purchase_queue:';
 
-    private const string DECISION_PREFIX = 'purchase_decisions:';
+    private const DECISION_PREFIX = 'purchase_decisions:';
 
-    private const string AUTOMATION_PREFIX = 'purchase_automation:';
+    private const AUTOMATION_PREFIX = 'purchase_automation:';
 
     private PurchaseDecisionChain $decisionChain;
 

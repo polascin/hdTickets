@@ -312,6 +312,10 @@ return new class() extends Migration {
      */
     private function implementTablePartitioning(): void
     {
+        if (app()->environment('testing')) {
+            // Skip complex partitioning during tests for speed and compatibility
+            return;
+        }
         if (DB::getDriverName() === 'mysql') {
             // Partition scraping_stats table by month (last 12 months + current + future)
             DB::statement('

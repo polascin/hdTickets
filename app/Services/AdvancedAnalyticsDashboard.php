@@ -14,7 +14,7 @@ use function count;
 
 class AdvancedAnalyticsDashboard
 {
-    private const int CACHE_TTL = 3600; // 1 hour
+    private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct()
     {

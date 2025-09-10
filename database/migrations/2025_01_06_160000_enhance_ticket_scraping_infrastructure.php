@@ -127,15 +127,19 @@ return new class() extends Migration {
             $table->index(['results_count', 'click_through_rate'], 'idx_search_performance');
         });
 
-        // Add composite indexes to existing tables for performance
-        DB::statement('CREATE INDEX IF NOT EXISTS idx_scraped_tickets_complex_search 
-                      ON scraped_tickets (sport, is_available, event_date, min_price, is_high_demand)');
-
-        DB::statement('CREATE INDEX IF NOT EXISTS idx_scraped_tickets_location_search 
-                      ON scraped_tickets (venue, location, country, event_date)');
-
-        DB::statement('CREATE INDEX IF NOT EXISTS idx_scraped_tickets_platform_performance 
-                      ON scraped_tickets (platform, scraping_quality_score, last_scraped_successfully)');
+        // Add composite indexes to existing tables for performance (MySQL lacks CREATE INDEX IF NOT EXISTS)
+        $connection = config('database.connections.'.config('database.default').'.database');
+        $indexes = [
+            'idx_scraped_tickets_complex_search' => 'sport, is_available, event_date, min_price, is_high_demand',
+            'idx_scraped_tickets_location_search' => 'venue, location, country, event_date',
+            'idx_scraped_tickets_platform_performance' => 'platform, scraping_quality_score, last_scraped_successfully',
+        ];
+        foreach ($indexes as $name => $cols) {
+            $exists = DB::selectOne("SELECT COUNT(1) AS c FROM information_schema.STATISTICS WHERE table_schema = ? AND table_name = 'scraped_tickets' AND index_name = ?", [$connection, $name]);
+            if (! $exists || (int) $exists->c === 0) {
+                DB::statement("CREATE INDEX {$name} ON scraped_tickets ({$cols})");
+            }
+        }
 
         // Add full-text search indexes
         if (config('database.default') === 'mysql') {
@@ -205,13 +209,25 @@ return new class() extends Migration {
         });
 
         // Drop composite indexes
-        DB::statement('DROP INDEX IF EXISTS idx_scraped_tickets_complex_search ON scraped_tickets');
-        DB::statement('DROP INDEX IF EXISTS idx_scraped_tickets_location_search ON scraped_tickets');
-        DB::statement('DROP INDEX IF EXISTS idx_scraped_tickets_platform_performance ON scraped_tickets');
+        foreach ([
+            'idx_scraped_tickets_complex_search',
+            'idx_scraped_tickets_location_search',
+            'idx_scraped_tickets_platform_performance',
+        ] as $name) {
+            try {
+                DB::statement("DROP INDEX {$name} ON scraped_tickets");
+            } catch (Throwable $e) {
+                // Ignore if index missing
+            }
+        }
 
         // Drop full-text indexes
         if (config('database.default') === 'mysql') {
-            DB::statement('DROP INDEX IF EXISTS idx_scraped_tickets_fulltext_search ON scraped_tickets');
+            try {
+                DB::statement('DROP INDEX idx_scraped_tickets_fulltext_search ON scraped_tickets');
+            } catch (Throwable $e) {
+                // ignore
+            }
         }
     }
 };

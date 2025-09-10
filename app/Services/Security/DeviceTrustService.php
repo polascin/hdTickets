@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 class DeviceTrustService
 {
     // Device trust levels
-    private const array TRUST_LEVELS = [
+    private const TRUST_LEVELS = [
         'untrusted'     => 0,
         'new'           => 25,
         'recognized'    => 50,
@@ -30,10 +30,10 @@ class DeviceTrustService
     ];
 
     // Maximum trusted devices per user
-    private const int MAX_TRUSTED_DEVICES = 10;
+    private const MAX_TRUSTED_DEVICES = 10;
 
     // Trust token expiry in days
-    private const int TRUST_TOKEN_EXPIRY_DAYS = 90;
+    private const TRUST_TOKEN_EXPIRY_DAYS = 90;
 
     public function __construct(private SecurityMonitoringService $securityMonitoring)
     {

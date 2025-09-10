@@ -31,19 +31,19 @@ use function strlen;
  */
 class MultiFactorAuthService
 {
-    private const int BACKUP_CODE_LENGTH = 8;
+    private const BACKUP_CODE_LENGTH = 8;
 
-    private const int BACKUP_CODE_COUNT = 10;
+    private const BACKUP_CODE_COUNT = 10;
 
-    private const int TOTP_WINDOW = 30; // seconds
+    private const TOTP_WINDOW = 30; // seconds
 
-    private const int TOTP_LEEWAY = 1; // Allow 1 step before/after for time sync issues
+    private const TOTP_LEEWAY = 1; // Allow 1 step before/after for time sync issues
 
-    private const int RATE_LIMIT_ATTEMPTS = 5;
+    private const RATE_LIMIT_ATTEMPTS = 5;
 
-    private const int RATE_LIMIT_WINDOW = 300; // 5 minutes
+    private const RATE_LIMIT_WINDOW = 300; // 5 minutes
 
-    private const int TRUSTED_DEVICE_DURATION = 2592000;
+    private const TRUSTED_DEVICE_DURATION = 2592000;
 
     public function __construct(protected SecurityMonitoringService $securityMonitoring)
     {
