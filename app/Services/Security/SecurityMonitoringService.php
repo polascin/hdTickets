@@ -799,6 +799,15 @@ class SecurityMonitoringService
         Log::channel('security')->info($eventType, $data);
     }
 
+    /**
+     * Public wrapper for logging events externally without exposing protected method.
+     */
+    public function recordSecurityEvent(string $eventType, string $message, array $context = []): void
+    {
+        $payload = array_merge(['message' => $message], $context);
+        $this->logSecurityEvent($eventType, $payload);
+    }
+
     // Additional helper methods would be implemented here...
     // Due to length constraints, I'm showing the core structure
 

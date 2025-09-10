@@ -308,8 +308,18 @@ class ApiSecurityService
      */
     public function verifyRequestSignature(Request $request, string $signature, string $keySecret): bool
     {
-        $timestamp = $request->header('X-Timestamp');
-        if (! $timestamp || abs(time() - $timestamp) > config('security.api.timestamp_tolerance', 300)) {
+        $timestampHeader = $request->header('X-Timestamp');
+
+        // Validate numeric timestamp header
+        if ($timestampHeader === NULL || ! is_numeric($timestampHeader)) {
+            return FALSE; // Missing or non-numeric timestamp
+        }
+
+        $timestamp = (int) $timestampHeader;
+        $tolerance = (int) config('security.api.timestamp_tolerance', 300);
+
+        // Reject if clock skew exceeds tolerance (protects against replay attacks)
+        if (abs(time() - $timestamp) > $tolerance) {
             return FALSE;
         }
 
@@ -652,9 +662,20 @@ class ApiSecurityService
     protected function ipInCidr(string $ip, string $cidr): bool
     {
         [$subnet, $mask] = explode('/', $cidr);
+        $mask = (int) $mask; // Ensure mask is treated as integer for bit operations
+
+        if ($mask < 0 || $mask > 32) {
+            return FALSE; // Invalid mask
+        }
 
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return (ip2long($ip) & ~((1 << (32 - $mask)) - 1)) === ip2long($subnet);
+            $ipLong = ip2long($ip);
+            $subnetLong = ip2long($subnet);
+            if ($ipLong === FALSE || $subnetLong === FALSE) {
+                return FALSE;
+            }
+
+            return ($ipLong & ~((1 << (32 - $mask)) - 1)) === $subnetLong;
         }
 
         // IPv6 support would go here

@@ -665,7 +665,7 @@ class EnhancedLoginSecurityService
         return $recommendations;
     }
 
-    protected function logSecurityEvent(?User $user, string $eventType, array $data): void
+    public function logSecurityEvent(?User $user, string $eventType, array $data): void
     {
         SecurityEvent::create([
             'user_id'     => $user?->id,

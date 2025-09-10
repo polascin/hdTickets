@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
-use UnauthorizedActionException;
+use InvalidArgumentException as UnauthorizedActionException; // Alias to satisfy previous usage without custom class
 
 use function array_key_exists;
 use function count;
@@ -107,9 +107,9 @@ class RoleBasedAccessControlService
         }
 
         // Log permission denial for security monitoring
-        $this->securityMonitoring->logSecurityEvent(
+        $this->securityMonitoring->recordSecurityEvent(
             'permission_denied',
-            'Permission denied for user',
+            'Permission denied for user'
         );
 
         return FALSE;
@@ -198,15 +198,21 @@ class RoleBasedAccessControlService
     /**
      * Get users by role with pagination
      */
+    /**
+     * @return Collection<int,User>
+     */
     public function getUsersByRole(string $role, int $perPage = 15): Collection
     {
         if (! array_key_exists($role, self::ROLE_PERMISSIONS)) {
             throw new InvalidArgumentException("Invalid role: {$role}");
         }
 
-        return User::where('role', $role)
+        $paginator = User::where('role', $role)
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
+
+        // Convert paginator items to collection to satisfy return type while preserving side effects
+        return collect($paginator->items());
     }
 
     /**
@@ -216,9 +222,9 @@ class RoleBasedAccessControlService
     {
         // Only admins can change roles
         if (! $this->isAdmin($adminUser)) {
-            $this->securityMonitoring->logSecurityEvent(
+            $this->securityMonitoring->recordSecurityEvent(
                 'unauthorized_role_change',
-                'Unauthorized attempt to change user role',
+                'Unauthorized attempt to change user role'
             );
 
             return FALSE;
@@ -244,7 +250,7 @@ class RoleBasedAccessControlService
             Cache::forget("user_permissions_{$targetUser->id}");
 
             // Log role change
-            $this->securityMonitoring->logSecurityEvent(
+            $this->securityMonitoring->recordSecurityEvent(
                 'role_changed',
                 'User role changed by admin',
             );
@@ -375,9 +381,9 @@ class RoleBasedAccessControlService
         }
 
         // Log bulk operation
-        $this->securityMonitoring->logSecurityEvent(
+        $this->securityMonitoring->recordSecurityEvent(
             'bulk_role_assignment',
-            'Bulk role assignment performed',
+            'Bulk role assignment performed'
         );
 
         return $results;

@@ -25,8 +25,7 @@ class MonitorSportsEventEmails extends Command
                             {--dry-run : Show what would be processed without actual processing}
                             {--stats : Show monitoring statistics only}
                             {--test-connection : Test email connection only}
-                            {--clear-cache : Clear processed emails cache}
-                            {--verbose : Show detailed output}';
+                            {--clear-cache : Clear processed emails cache}';
 
     /** The console command description. */
     protected $description = 'Monitor email inboxes for sports event ticket notifications and process them for HD Tickets system';
@@ -65,7 +64,7 @@ class MonitorSportsEventEmails extends Command
         } catch (Exception $e) {
             $this->error('❌ Command failed: ' . $e->getMessage());
 
-            if ($this->option('verbose')) {
+            if ($this->output->isVerbose()) {
                 $this->error($e->getTraceAsString());
             }
 
@@ -175,7 +174,7 @@ class MonitorSportsEventEmails extends Command
                 } else {
                     $this->line("  ✅ {$name}: {$data['emails_found']} found, {$data['emails_processed']} processed, {$data['sports_events_identified']} sports events");
 
-                    if ($this->option('verbose') && ! empty($data['mailboxes_checked'])) {
+                    if ($this->output->isVerbose() && ! empty($data['mailboxes_checked'])) {
                         foreach ($data['mailboxes_checked'] as $mailbox => $mailboxData) {
                             if (isset($mailboxData['error'])) {
                                 $this->line("      📫 {$mailbox}: ❌ " . $mailboxData['error']['error']);
@@ -282,7 +281,7 @@ class MonitorSportsEventEmails extends Command
                 $this->line("  📧 Messages: {$result['messages_count']}");
                 $this->line("  🆕 Recent: {$result['recent_count']}");
 
-                if ($this->option('verbose') && ! empty($result['mailboxes'])) {
+                if ($this->output->isVerbose() && ! empty($result['mailboxes'])) {
                     $this->line('  📋 Available mailboxes:');
                     foreach ($result['mailboxes'] as $mailbox) {
                         $this->line("    • {$mailbox}");

@@ -159,9 +159,9 @@ class DeviceTrustService
         ]);
 
         // Log device trust event
-        $this->securityMonitoring->logSecurityEvent(
+        $this->securityMonitoring->recordSecurityEvent(
             'device_trusted',
-            'New device added to trusted devices',
+            'New device added to trusted devices'
         );
 
         return $trustToken;
@@ -181,9 +181,9 @@ class DeviceTrustService
         }
 
         // Log device untrust event
-        $this->securityMonitoring->logSecurityEvent(
+        $this->securityMonitoring->recordSecurityEvent(
             'device_untrusted',
-            'Device removed from trusted devices',
+            'Device removed from trusted devices'
         );
 
         $device->delete();
@@ -244,9 +244,9 @@ class DeviceTrustService
         TrustedDevice::where('user_id', $user->id)->delete();
 
         // Log bulk device revocation
-        $this->securityMonitoring->logSecurityEvent(
+        $this->securityMonitoring->recordSecurityEvent(
             'all_devices_revoked',
-            'All trusted devices revoked for user',
+            'All trusted devices revoked for user'
         );
 
         return $count;
