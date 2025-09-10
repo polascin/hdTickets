@@ -265,10 +265,10 @@ class WelcomePageServiceTest extends TestCase
 
         $stats = $this->service->getStatistics();
 
-        // Should return fallback stats
-        $this->assertEquals('15K+', $stats['users']);
-        $this->assertEquals('1M+', $stats['events_monitored']);
-        $this->assertEquals('5M+', $stats['tickets_tracked']);
+    // Per-metric fallbacks (users count uses direct model count and is unaffected)
+    $this->assertEquals('0+', $stats['users']);
+    $this->assertEquals('1M+', $stats['events_monitored']);
+    $this->assertEquals('5M+', $stats['tickets_tracked']);
     }
 
     /**
