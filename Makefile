@@ -111,7 +111,7 @@ pint-fix:
 ## Run static analysis with PHPStan
 analyze:
 	@echo "$(BLUE)🔬 Running static analysis...$(NC)"
-	$(VENDOR_BIN)/phpstan analyse --configuration=phpstan.neon
+	$(VENDOR_BIN)/phpstan analyse --configuration=phpstan.neon --memory-limit=1G
 	@echo "$(GREEN)✅ Static analysis completed$(NC)"
 
 ## Validate PSR-4 namespace compliance

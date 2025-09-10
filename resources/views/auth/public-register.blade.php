@@ -232,7 +232,7 @@
 
                     <!-- Step 3: Legal -->
                     <section x-show="currentStep === 3" x-cloak>
-                        <x-legal.acceptance :documents="$legalDocuments" :errors="@json($errors->toArray())" />
+                        <x-legal.acceptance :documents="$legalDocuments" :errors="$errors->toArray()" />
 
                         <div class="mt-4 bg-warning-50 border-l-4 border-warning-500 p-4 rounded-lg">
                             <div class="flex items-start">

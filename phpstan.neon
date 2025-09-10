@@ -19,9 +19,10 @@ parameters:
     excludePaths:
         - tests/Browser/
         - tests/Performance/
+        - tests/DuskTestCase.php
         - app/helpers.php
         - bootstrap/cache/
-        - node_modules/ (?)
+        - node_modules/
         - storage/
         - vendor/
     
