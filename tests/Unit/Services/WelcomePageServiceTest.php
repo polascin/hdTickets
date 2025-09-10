@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\WelcomePageService;
@@ -11,8 +10,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use Tests\TestCase;
+
+use function get_class;
 
 class WelcomePageServiceTest extends TestCase
 {
@@ -20,8 +22,6 @@ class WelcomePageServiceTest extends TestCase
 
     protected WelcomePageService $service;
 
-    /**
-     */
     #[Test]
     public function it_returns_complete_welcome_page_data(): void
     {
@@ -42,8 +42,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertArrayHasKey('security_features', $data);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_exclude_specific_data_sections(): void
     {
@@ -62,8 +60,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertArrayHasKey('legal_docs', $data);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_statistics_with_correct_structure(): void
     {
@@ -82,8 +78,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEquals('24/7', $stats['monitoring']);
     }
 
-    /**
-     */
     #[Test]
     public function it_caches_statistics_properly(): void
     {
@@ -99,8 +93,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEquals($stats1, $stats2);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_pricing_information_with_defaults(): void
     {
@@ -124,8 +116,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertTrue($pricing['service_provided_as_is']);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_features_list_with_correct_categories(): void
     {
@@ -146,8 +136,6 @@ class WelcomePageServiceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_legal_documents_information(): void
     {
@@ -168,8 +156,6 @@ class WelcomePageServiceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_role_information_for_all_roles(): void
     {
@@ -194,8 +180,6 @@ class WelcomePageServiceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_security_features_information(): void
     {
@@ -215,8 +199,6 @@ class WelcomePageServiceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_tracks_page_views_properly(): void
     {
@@ -238,8 +220,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertCount(1, $cachedViews);
     }
 
-    /**
-     */
     #[Test]
     public function it_applies_ab_test_variants_correctly(): void
     {
@@ -255,8 +235,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEquals(17, $result['pricing']['yearly_discount_percentage']);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_fallback_stats_on_exception(): void
     {
@@ -265,14 +243,12 @@ class WelcomePageServiceTest extends TestCase
 
         $stats = $this->service->getStatistics();
 
-    // Per-metric fallbacks (users count uses direct model count and is unaffected)
-    $this->assertEquals('0+', $stats['users']);
-    $this->assertEquals('1M+', $stats['events_monitored']);
-    $this->assertEquals('5M+', $stats['tickets_tracked']);
+        // Per-metric fallbacks (users count uses direct model count and is unaffected)
+        $this->assertEquals('0+', $stats['users']);
+        $this->assertEquals('1M+', $stats['events_monitored']);
+        $this->assertEquals('5M+', $stats['tickets_tracked']);
     }
 
-    /**
-     */
     #[Test]
     public function it_formats_user_count_correctly(): void
     {
@@ -286,8 +262,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEquals('1.5K+', $result);
     }
 
-    /**
-     */
     #[Test]
     public function it_gets_user_subscription_info_correctly(): void
     {
@@ -311,8 +285,6 @@ class WelcomePageServiceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_exceptions_gracefully_in_user_subscription_info(): void
     {
@@ -327,8 +299,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEmpty($userInfo); // Graceful fallback on exception
     }
 
-    /**
-     */
     #[Test]
     public function it_caches_pricing_information(): void
     {
@@ -344,8 +314,6 @@ class WelcomePageServiceTest extends TestCase
         $this->assertEquals($pricing1, $pricing2);
     }
 
-    /**
-     */
     #[Test]
     public function it_caches_features_list(): void
     {

@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class UserSubscriptionTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function subscription_helpers_are_defined(): void
     {

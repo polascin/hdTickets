@@ -128,10 +128,10 @@ return new class() extends Migration {
         });
 
         // Add composite indexes to existing tables for performance (MySQL lacks CREATE INDEX IF NOT EXISTS)
-        $connection = config('database.connections.'.config('database.default').'.database');
+        $connection = config('database.connections.' . config('database.default') . '.database');
         $indexes = [
-            'idx_scraped_tickets_complex_search' => 'sport, is_available, event_date, min_price, is_high_demand',
-            'idx_scraped_tickets_location_search' => 'venue, location, country, event_date',
+            'idx_scraped_tickets_complex_search'       => 'sport, is_available, event_date, min_price, is_high_demand',
+            'idx_scraped_tickets_location_search'      => 'venue, location, country, event_date',
             'idx_scraped_tickets_platform_performance' => 'platform, scraping_quality_score, last_scraped_successfully',
         ];
         foreach ($indexes as $name => $cols) {

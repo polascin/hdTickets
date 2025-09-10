@@ -10,14 +10,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Basic Watchlist Item model (lightweight stub until full implementation)
  *
- * @property int         $id
- * @property int         $user_id
- * @property int         $ticket_id
- * @property array|null  $criteria
- * @property Carbon      $created_at
- * @property Carbon      $updated_at
- * @property User        $user
- * @property Ticket      $ticket
+ * @property int        $id
+ * @property int        $user_id
+ * @property int        $ticket_id
+ * @property array|null $criteria
+ * @property Carbon     $created_at
+ * @property Carbon     $updated_at
+ * @property User       $user
+ * @property Ticket     $ticket
  */
 class WatchlistItem extends Model
 {
@@ -29,13 +29,6 @@ class WatchlistItem extends Model
         'criteria',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'criteria' => 'array',
-        ];
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -44,5 +37,12 @@ class WatchlistItem extends Model
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'criteria' => 'array',
+        ];
     }
 }

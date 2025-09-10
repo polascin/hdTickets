@@ -460,6 +460,23 @@ class EnhancedLoginSecurityService
         return $recommendations;
     }
 
+    public function logSecurityEvent(?User $user, string $eventType, array $data): void
+    {
+        SecurityEvent::create([
+            'user_id'     => $user?->id,
+            'event_type'  => $eventType,
+            'ip_address'  => request()->ip(),
+            'user_agent'  => request()->userAgent(),
+            'data'        => $data,
+            'occurred_at' => now(),
+        ]);
+
+        Log::info("Security event: {$eventType}", array_merge([
+            'user_id' => $user?->id,
+            'ip'      => request()->ip(),
+        ], $data));
+    }
+
     /**
      * Get geolocation data for IP address
      */
@@ -663,22 +680,5 @@ class EnhancedLoginSecurityService
         }
 
         return $recommendations;
-    }
-
-    public function logSecurityEvent(?User $user, string $eventType, array $data): void
-    {
-        SecurityEvent::create([
-            'user_id'     => $user?->id,
-            'event_type'  => $eventType,
-            'ip_address'  => request()->ip(),
-            'user_agent'  => request()->userAgent(),
-            'data'        => $data,
-            'occurred_at' => now(),
-        ]);
-
-        Log::info("Security event: {$eventType}", array_merge([
-            'user_id' => $user?->id,
-            'ip'      => request()->ip(),
-        ], $data));
     }
 }

@@ -13,9 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Mockery;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class TicketPurchaseValidationMiddlewareTest extends TestCase
 {
@@ -71,8 +71,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertContains('Active subscription required', $responseData['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_allows_unlimited_purchases_for_agent(): void
     {
@@ -88,8 +86,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Agent purchase allowed', $response->getContent());
     }
 
-    /**
-     */
     #[Test]
     public function it_blocks_purchase_when_exceeding_ticket_limit(): void
     {
@@ -117,8 +113,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertContains('Would exceed monthly ticket limit', $responseData['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_blocks_purchase_for_unavailable_ticket(): void
     {
@@ -147,8 +141,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertContains('Ticket is not available', $responseData['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_blocks_purchase_when_quantity_exceeds_availability(): void
     {
@@ -180,8 +172,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertContains('Not enough tickets available', $responseData['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_missing_quantity_parameter(): void
     {
@@ -206,8 +196,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Quantity parameter is required', $responseData['message']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_invalid_quantity_parameter(): void
     {
@@ -234,8 +222,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Quantity must be a valid positive integer', $responseData['message']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_zero_quantity(): void
     {
@@ -262,8 +248,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Quantity must be a valid positive integer', $responseData['message']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_missing_ticket_parameter(): void
     {
@@ -282,8 +266,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Ticket not found', $responseData['message']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_unauthenticated_user(): void
     {
@@ -304,8 +286,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Authentication required', $responseData['message']);
     }
 
-    /**
-     */
     #[Test]
     public function it_provides_eligibility_information_in_response(): void
     {
@@ -335,8 +315,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals(50, $responseData['user_info']['remaining_tickets']);
     }
 
-    /**
-     */
     #[Test]
     public function it_respects_free_access_period_for_new_customers(): void
     {
@@ -359,8 +337,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Free access purchase allowed', $response->getContent());
     }
 
-    /**
-     */
     #[Test]
     public function it_blocks_purchase_after_free_access_expires(): void
     {
@@ -386,8 +362,6 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertContains('Active subscription required', $responseData['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_service_exceptions_gracefully(): void
     {

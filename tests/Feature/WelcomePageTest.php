@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\WelcomePageService;
@@ -11,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Cache;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WelcomePageTest extends TestCase
@@ -62,8 +62,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Enterprise');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_displays_subscription_plans(): void
     {
@@ -77,8 +75,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('No credit card required');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_displays_security_features(): void
     {
@@ -92,8 +88,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Secure Payment Processing');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_displays_legal_compliance_information(): void
     {
@@ -119,8 +113,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('<meta name="twitter:card" content="summary_large_image">');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_includes_structured_data(): void
     {
@@ -133,8 +125,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('"price": "29.99"');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_has_correct_footer_legal_links(): void
     {
@@ -149,8 +139,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Acceptable Use Policy');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_stats_api_returns_correct_data(): void
     {
@@ -169,8 +157,6 @@ class WelcomePageTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_handles_different_user_roles_correctly(): void
     {
@@ -186,8 +172,6 @@ class WelcomePageTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_caches_data_properly(): void
     {
@@ -198,8 +182,6 @@ class WelcomePageTest extends TestCase
         $this->assertTrue(Cache::has('welcome_page_stats'));
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_handles_subscription_info_for_authenticated_users(): void
     {
@@ -216,8 +198,6 @@ class WelcomePageTest extends TestCase
         // Should show personalized content based on subscription
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_includes_alpine_js_components(): void
     {
@@ -229,8 +209,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('x-transition');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_is_mobile_responsive(): void
     {
@@ -241,8 +219,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('@media (max-width: 768px)');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_security_headers_are_present(): void
     {
@@ -252,8 +228,6 @@ class WelcomePageTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_handles_fallback_data_gracefully(): void
     {
@@ -270,8 +244,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('HD Tickets');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_tracks_analytics_properly(): void
     {
@@ -283,8 +255,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('gtag');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_ab_testing_works_correctly(): void
     {
@@ -296,8 +266,6 @@ class WelcomePageTest extends TestCase
         // Should show variant-specific content
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_redirects_based_on_configuration(): void
     {
@@ -311,8 +279,6 @@ class WelcomePageTest extends TestCase
         $response->assertRedirect('/dashboard');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_includes_accessibility_features(): void
     {
@@ -324,8 +290,6 @@ class WelcomePageTest extends TestCase
         $response->assertSeeHtml('role="main"');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_language_content_is_correct(): void
     {
@@ -336,8 +300,6 @@ class WelcomePageTest extends TestCase
         $response->assertSee('Professional Sports Event Ticket Monitoring Platform');
     }
 
-    /**
-     */
     #[Test]
     public function welcome_page_displays_scraper_role_notice(): void
     {

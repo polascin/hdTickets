@@ -37,8 +37,8 @@ class EnhancedDashboardController extends Controller
         // Get comprehensive dashboard data
         $dashboardData = $this->getComprehensiveDashboardData($user);
 
-    // Using new unified layout (v3). Legacy view 'dashboard.customer-enhanced-v2' kept for fallback/migration.
-    return view('dashboard.customer-v3', $dashboardData);
+        // Using new unified layout (v3). Legacy view 'dashboard.customer-enhanced-v2' kept for fallback/migration.
+        return view('dashboard.customer-v3', $dashboardData);
     }
 
     /**

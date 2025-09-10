@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -13,14 +12,13 @@ use App\Services\PaymentService;
 use App\Services\Scraping\PluginBasedScraperManager;
 use App\Services\TwoFactorAuthService;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use InvalidArgumentException;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -45,27 +43,6 @@ class SportsTicketSystemTest extends TestCase
 
     protected User $admin;
 
-    #[Override]
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create baseline users for feature tests
-        $this->user = User::factory()->create([
-            'email'     => 'user@test.com',
-            'is_active' => TRUE,
-            'role'      => 'customer',
-        ]);
-
-        $this->admin = User::factory()->create([
-            'email'     => 'admin@test.com',
-            'is_active' => TRUE,
-            'role'      => 'admin',
-        ]);
-    }
-
-    /**
-     */
     #[Test]
     public function test_web_scraping_functionality(): void
     {
@@ -134,18 +111,16 @@ class SportsTicketSystemTest extends TestCase
         ]);
 
         // Test ticket monitoring logic
-    $this->assertTrue($availableTicket->is_available);
-    $this->assertFalse($soldOutTicket->is_available);
+        $this->assertTrue($availableTicket->is_available);
+        $this->assertFalse($soldOutTicket->is_available);
 
         // Test availability change detection
         $availableTicket->update(['is_available' => FALSE, 'status' => 'sold_out']);
         $this->assertFalse($availableTicket->fresh()->is_available);
 
-    Log::info('✓ Ticket availability monitoring test completed');
+        Log::info('✓ Ticket availability monitoring test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_sms_notification_system(): void
     {
@@ -177,8 +152,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ SMS notification system test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_pusher_notification_system(): void
     {
@@ -213,8 +186,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Pusher/WebSocket notification system test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_payment_integration(): void
     {
@@ -243,8 +214,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Payment integration test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_two_factor_authentication(): void
     {
@@ -294,8 +263,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ 2FA authentication test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_activity_logging(): void
     {
@@ -323,8 +290,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Activity logging test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_export_functionality(): void
     {
@@ -387,8 +352,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Export functionality test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_real_time_websocket_updates(): void
     {
@@ -415,8 +378,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Real-time WebSocket updates test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_system_integration_flow(): void
     {
@@ -475,8 +436,6 @@ class SportsTicketSystemTest extends TestCase
         Log::info('✓ Complete system integration flow test completed');
     }
 
-    /**
-     */
     #[Test]
     public function test_error_handling_and_resilience(): void
     {
@@ -506,6 +465,25 @@ class SportsTicketSystemTest extends TestCase
             'broadcasting.connections.pusher.key'    => 'test_key',
             'broadcasting.connections.pusher.secret' => 'test_secret',
             'broadcasting.connections.pusher.app_id' => 'test_app_id',
+        ]);
+    }
+
+    #[Override]
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create baseline users for feature tests
+        $this->user = User::factory()->create([
+            'email'     => 'user@test.com',
+            'is_active' => TRUE,
+            'role'      => 'customer',
+        ]);
+
+        $this->admin = User::factory()->create([
+            'email'     => 'admin@test.com',
+            'is_active' => TRUE,
+            'role'      => 'admin',
         ]);
     }
 

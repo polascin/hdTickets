@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Core\ScrapingService;
 use App\Services\Interfaces\ScrapingInterface;
 use Illuminate\Support\Facades\Cache;
@@ -10,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Mockery;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ScrapingServiceTest extends TestCase
@@ -22,16 +22,12 @@ class ScrapingServiceTest extends TestCase
 
     private $mockEncryptionService;
 
-    /**
-     */
     #[Test]
     public function it_implements_scraping_interface(): void
     {
         $this->assertInstanceOf(ScrapingInterface::class, $this->scrapingService);
     }
 
-    /**
-     */
     #[Test]
     public function it_initializes_with_dependencies(): void
     {
@@ -47,8 +43,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertEquals('healthy', $healthStatus['status']);
     }
 
-    /**
-     */
     #[Test]
     public function it_throws_exception_when_missing_required_dependencies(): void
     {
@@ -61,8 +55,6 @@ class ScrapingServiceTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_available_platforms(): void
     {
@@ -81,8 +73,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertContains('stubhub', $platforms);
     }
 
-    /**
-     */
     #[Test]
     public function it_enables_and_disables_platforms(): void
     {
@@ -103,8 +93,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertTrue(TRUE); // Platform should be disabled
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_scraping_statistics(): void
     {
@@ -126,8 +114,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertArrayHasKey('health_status', $statistics);
     }
 
-    /**
-     */
     #[Test]
     public function it_schedules_recurring_scraping(): void
     {
@@ -148,8 +134,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertStringStartsWith('scraping_', $jobId);
     }
 
-    /**
-     */
     #[Test]
     public function it_updates_scheduled_scraping_criteria(): void
     {
@@ -175,8 +159,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_cancels_scheduled_scraping(): void
     {
@@ -198,8 +180,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_errors_gracefully(): void
     {
@@ -218,8 +198,6 @@ class ScrapingServiceTest extends TestCase
         $this->scrapingService->scrapePlatform('non_existent_platform', []);
     }
 
-    /**
-     */
     #[Test]
     public function it_maintains_health_status(): void
     {
@@ -240,8 +218,6 @@ class ScrapingServiceTest extends TestCase
         $this->assertEquals('healthy', $healthStatus['status']);
     }
 
-    /**
-     */
     #[Test]
     public function it_cleans_up_resources(): void
     {

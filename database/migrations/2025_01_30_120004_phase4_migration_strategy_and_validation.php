@@ -15,6 +15,7 @@ return new class() extends Migration {
         if (app()->environment('testing')) {
             // Minimal subset for tests: create tracking tables only
             $this->createMigrationTrackingTables();
+
             return;
         }
         // 1. Create migration tracking and validation tables
@@ -48,6 +49,7 @@ return new class() extends Migration {
             Schema::dropIfExists('data_validation_results');
             Schema::dropIfExists('schema_snapshots');
             Schema::dropIfExists('shadow_table_operations');
+
             return;
         }
         if (DB::getDriverName() === 'mysql') {

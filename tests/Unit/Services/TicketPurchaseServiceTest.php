@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
@@ -12,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TicketPurchaseServiceTest extends TestCase
@@ -28,8 +28,6 @@ class TicketPurchaseServiceTest extends TestCase
 
     private Ticket $ticket;
 
-    /**
-     */
     #[Test]
     public function it_can_check_purchase_eligibility_for_customer_with_active_subscription(): void
     {
@@ -55,8 +53,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertEquals(100, $eligibility['user_info']['remaining_tickets']);
     }
 
-    /**
-     */
     #[Test]
     public function it_denies_purchase_for_customer_without_active_subscription(): void
     {
@@ -70,8 +66,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertContains('Active subscription required', $eligibility['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_denies_purchase_for_customer_exceeding_ticket_limit(): void
     {
@@ -108,8 +102,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertContains('Would exceed monthly ticket limit', $eligibility['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_allows_unlimited_purchases_for_agent(): void
     {
@@ -124,8 +116,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertNull($eligibility['user_info']['ticket_limit']);
     }
 
-    /**
-     */
     #[Test]
     public function it_allows_unlimited_purchases_for_admin(): void
     {
@@ -140,8 +130,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertNull($eligibility['user_info']['ticket_limit']);
     }
 
-    /**
-     */
     #[Test]
     public function it_denies_purchase_for_unavailable_ticket(): void
     {
@@ -157,8 +145,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertContains('Ticket is not available', $eligibility['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_denies_purchase_when_quantity_exceeds_availability(): void
     {
@@ -177,8 +163,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertContains('Not enough tickets available', $eligibility['reasons']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_create_successful_purchase(): void
     {
@@ -220,8 +204,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertEquals('Aisle seats preferred', $purchase->special_requests);
     }
 
-    /**
-     */
     #[Test]
     public function it_calculates_fees_correctly(): void
     {
@@ -243,8 +225,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertEquals(5.50, $fees['total_fees']);
     }
 
-    /**
-     */
     #[Test]
     public function it_generates_unique_purchase_ids(): void
     {
@@ -273,8 +253,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertStringStartsWith('PUR-', $purchase2->purchase_id);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_confirm_purchase(): void
     {
@@ -300,8 +278,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertNotNull($confirmedPurchase->confirmed_at);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_cancel_purchase(): void
     {
@@ -326,8 +302,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertEquals('User requested cancellation', $cancelledPurchase->cancellation_reason);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_user_monthly_ticket_usage(): void
     {
@@ -364,8 +338,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertEquals(6, $usage);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_edge_case_of_zero_quantity_purchase(): void
     {
@@ -387,8 +359,6 @@ class TicketPurchaseServiceTest extends TestCase
         );
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_negative_quantity_purchase(): void
     {
@@ -410,8 +380,6 @@ class TicketPurchaseServiceTest extends TestCase
         );
     }
 
-    /**
-     */
     #[Test]
     public function it_respects_free_access_period_for_new_customers(): void
     {
@@ -435,8 +403,6 @@ class TicketPurchaseServiceTest extends TestCase
         $this->assertArrayHasKey('free_access_remaining', $eligibility['user_info']);
     }
 
-    /**
-     */
     #[Test]
     public function it_denies_purchase_after_free_access_period_expires(): void
     {

@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Override;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Enhanced Login System Feature Tests
@@ -41,12 +41,12 @@ class EnhancedLoginTest extends TestCase
     #[Test]
     public function it_displays_the_login_page(): void
     {
-    $response = $this->get('/login');
+        $response = $this->get('/login');
 
-    $response->assertStatus(200);
-    // Updated UI copy no longer includes 'Welcome back' phrase.
-    $response->assertSee('Enhanced Security Login');
-    $response->assertSee('Sports Events Entry Tickets System');
+        $response->assertStatus(200);
+        // Updated UI copy no longer includes 'Welcome back' phrase.
+        $response->assertSee('Enhanced Security Login');
+        $response->assertSee('Sports Events Entry Tickets System');
     }
 
     #[Test]
@@ -56,8 +56,8 @@ class EnhancedLoginTest extends TestCase
 
         $response = $this->get('/login');
 
-    $response->assertStatus(200);
-    $response->assertSee('Enhanced Security Login');
+        $response->assertStatus(200);
+        $response->assertSee('Enhanced Security Login');
     }
 
     #[Test]
@@ -82,8 +82,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertEquals(1, $this->testUser->login_count);
     }
 
-    /**
-     */
     #[Test]
     public function it_rejects_invalid_credentials(): void
     {
@@ -101,8 +99,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertEquals(1, $this->testUser->failed_login_attempts);
     }
 
-    /**
-     */
     #[Test]
     public function it_locks_account_after_multiple_failed_attempts(): void
     {
@@ -130,8 +126,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertTrue($this->testUser->locked_until->isFuture());
     }
 
-    /**
-     */
     #[Test]
     public function it_rejects_login_for_locked_account(): void
     {
@@ -152,8 +146,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_rejects_login_for_inactive_account(): void
     {
@@ -171,8 +163,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_rejects_login_for_scraper_accounts(): void
     {
@@ -190,8 +180,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_enforces_rate_limiting(): void
     {
@@ -213,8 +201,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_two_factor_authentication_redirect(): void
     {
@@ -237,8 +223,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertEquals($this->testUser->id, Session::get('2fa_user_id'));
     }
 
-    /**
-     */
     #[Test]
     public function it_can_complete_two_factor_authentication(): void
     {
@@ -271,8 +255,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertNull(Session::get('2fa_remember'));
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_invalid_two_factor_codes(): void
     {
@@ -303,8 +285,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertEquals(1, $this->testUser->failed_login_attempts);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_use_recovery_codes_for_two_factor(): void
     {
@@ -340,8 +320,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertContains('EFGH-5678', $remainingCodes);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_sms_backup_codes(): void
     {
@@ -369,8 +347,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertStringContainsString('SMS verification code sent', session('success'));
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_email_backup_codes(): void
     {
@@ -393,8 +369,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertStringContainsString('Email verification code sent', session('success'));
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_required_login_fields(): void
     {
@@ -405,8 +379,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_email_format(): void
     {
@@ -420,8 +392,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_honeypot_field(): void
     {
@@ -436,8 +406,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_email_availability(): void
     {
@@ -461,8 +429,6 @@ class EnhancedLoginTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_nonexistent_email_check(): void
     {
@@ -477,8 +443,6 @@ class EnhancedLoginTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_rate_limits_email_checks(): void
     {
@@ -496,8 +460,6 @@ class EnhancedLoginTest extends TestCase
         $response->assertJson(['error' => 'Too many requests']);
     }
 
-    /**
-     */
     #[Test]
     public function it_processes_device_fingerprinting(): void
     {
@@ -519,8 +481,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertAuthenticatedAs($this->testUser);
     }
 
-    /**
-     */
     #[Test]
     public function it_remembers_user_when_requested(): void
     {
@@ -538,8 +498,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertNotNull($this->testUser->remember_token);
     }
 
-    /**
-     */
     #[Test]
     public function it_clears_failed_attempts_on_successful_login(): void
     {
@@ -561,8 +519,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertNull($this->testUser->locked_until);
     }
 
-    /**
-     */
     #[Test]
     public function it_logs_successful_login_activity(): void
     {
@@ -583,8 +539,6 @@ class EnhancedLoginTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_redirects_to_intended_url_after_login(): void
     {
@@ -599,8 +553,6 @@ class EnhancedLoginTest extends TestCase
         $response->assertRedirect('/some-protected-page');
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_logout_correctly(): void
     {
@@ -612,8 +564,6 @@ class EnhancedLoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function it_displays_two_factor_challenge_page(): void
     {
@@ -626,8 +576,6 @@ class EnhancedLoginTest extends TestCase
         $response->assertSee('Enter your authentication code');
     }
 
-    /**
-     */
     #[Test]
     public function it_redirects_to_login_if_no_2fa_session(): void
     {

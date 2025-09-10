@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class MonthlyUsageAggregationTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function monthly_usage_includes_pending_and_confirmed_and_handles_boundaries(): void
     {

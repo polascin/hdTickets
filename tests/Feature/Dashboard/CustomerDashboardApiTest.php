@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class CustomerDashboardApiTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function tiles_and_lists_payload_shapes_are_consistent(): void
     {

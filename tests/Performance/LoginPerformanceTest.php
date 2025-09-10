@@ -2,13 +2,13 @@
 
 namespace Tests\Performance;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function count;
@@ -35,8 +35,6 @@ class LoginPerformanceTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_page_load_performance(): void
     {
@@ -55,8 +53,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nLogin page load time: " . round($loadTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_login_authentication_performance(): void
     {
@@ -79,8 +75,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nAuthentication time: " . round($authTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_concurrent_login_performance(): void
     {
@@ -117,8 +111,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nConcurrent login average time: " . round($averageTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_database_query_performance_during_login(): void
     {
@@ -148,8 +140,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nTotal queries during login: " . count($queries) . "\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_memory_usage_during_login(): void
     {
@@ -172,8 +162,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nMemory used during login: " . round($memoryUsed / 1024 / 1024, 2) . "MB\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_cache_performance_during_login(): void
     {
@@ -220,8 +208,6 @@ class LoginPerformanceTest extends TestCase
         echo 'Login without cache: ' . round($timeWithoutCache, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_rate_limiting_performance(): void
     {
@@ -250,8 +236,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nAverage failed login attempt time: " . round($averageAttemptTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_session_handling_performance(): void
     {
@@ -287,8 +271,6 @@ class LoginPerformanceTest extends TestCase
         $this->assertLessThan(500, $sessionAccessTime, "Session access took {$sessionAccessTime}ms");
     }
 
-    /**
-     */
     #[Test]
     public function test_two_factor_auth_performance(): void
     {
@@ -318,8 +300,6 @@ class LoginPerformanceTest extends TestCase
         echo "\n2FA-enabled login time: " . round($twoFactorTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_activity_logging_performance(): void
     {
@@ -351,8 +331,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nLogin with activity logging time: " . round($loggingTime, 2) . "ms\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_password_hashing_performance(): void
     {
@@ -380,8 +358,6 @@ class LoginPerformanceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function test_login_response_size(): void
     {
@@ -396,8 +372,6 @@ class LoginPerformanceTest extends TestCase
         echo "\nLogin page content size: " . round($contentSize / 1024, 2) . "KB\n";
     }
 
-    /**
-     */
     #[Test]
     public function test_core_web_vitals_simulation(): void
     {

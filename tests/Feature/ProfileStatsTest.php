@@ -2,17 +2,15 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ProfileStatsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     */
     #[Test]
     public function it_returns_profile_stats_json(): void
     {

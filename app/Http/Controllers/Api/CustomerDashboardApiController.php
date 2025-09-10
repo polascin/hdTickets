@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Throwable;
+
+use function in_array;
 
 /**
  * Lightweight API endpoints backing the enhanced customer dashboard (v2).
@@ -26,7 +28,7 @@ class CustomerDashboardApiController extends Controller
     public function stats(Request $request): JsonResponse
     {
         if (! $user = Auth::user()) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         $cacheKey = 'api:dashboard:stats:user:' . $user->id;
@@ -52,7 +54,7 @@ class CustomerDashboardApiController extends Controller
         });
 
         $response = response()->json([
-            'success' => true,
+            'success' => TRUE,
             'stats'   => $stats,
             'meta'    => [
                 'refreshed_at' => now()->toISOString(),
@@ -72,7 +74,7 @@ class CustomerDashboardApiController extends Controller
     public function tickets(Request $request): JsonResponse
     {
         if (! Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         try {
@@ -85,15 +87,16 @@ class CustomerDashboardApiController extends Controller
                 $query->byPlatform($platform);
             }
             if ($max = $request->get('maxPrice')) {
-                $query->priceRange(null, (float) $max);
+                $query->priceRange(NULL, (float) $max);
             }
 
             // Basic demand metrics pre-aggregation (counts per sport and platform for current filter set)
             $demandMetrics = Cache::remember('api:dashboard:demand:' . md5(json_encode($request->all())), 60, function () use ($query) {
                 $base = clone $query;
+
                 return [
-                    'by_sport'    => (clone $base)->selectRaw('sport, COUNT(*) as c')->groupBy('sport')->orderByDesc('c')->limit(10)->pluck('c','sport'),
-                    'by_platform' => (clone $base)->selectRaw('platform, COUNT(*) as c')->groupBy('platform')->orderByDesc('c')->limit(10)->pluck('c','platform'),
+                    'by_sport'    => (clone $base)->selectRaw('sport, COUNT(*) as c')->groupBy('sport')->orderByDesc('c')->limit(10)->pluck('c', 'sport'),
+                    'by_platform' => (clone $base)->selectRaw('platform, COUNT(*) as c')->groupBy('platform')->orderByDesc('c')->limit(10)->pluck('c', 'platform'),
                 ];
             });
 
@@ -101,7 +104,7 @@ class CustomerDashboardApiController extends Controller
             $sort = $request->get('sort', 'created_at:desc');
             [$field, $dir] = array_pad(explode(':', $sort), 2, 'desc');
             $allowed = ['created_at', 'price', 'event_date', 'min_price', 'max_price'];
-            if (! in_array($field, $allowed, true)) {
+            if (! in_array($field, $allowed, TRUE)) {
                 $field = 'created_at';
             }
             $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
@@ -120,13 +123,15 @@ class CustomerDashboardApiController extends Controller
 
             $tickets = collect($paginator->items())->map(function ($t) use ($alertKeywords) {
                 $titleLower = strtolower((string) $t->title);
-                $hasAlert = false;
+                $hasAlert = FALSE;
                 foreach ($alertKeywords as $kw) {
                     if ($kw !== '' && str_contains($titleLower, $kw)) {
-                        $hasAlert = true;
+                        $hasAlert = TRUE;
+
                         break;
                     }
                 }
+
                 return [
                     'id'                 => $t->id,
                     'event_title'        => $t->title,
@@ -143,28 +148,29 @@ class CustomerDashboardApiController extends Controller
             });
 
             $response = response()->json([
-                'success'      => true,
-                'tickets'      => $tickets,
-                'count'        => $tickets->count(),
-                'pagination'   => [
+                'success'    => TRUE,
+                'tickets'    => $tickets,
+                'count'      => $tickets->count(),
+                'pagination' => [
                     'total'        => $paginator->total(),
                     'per_page'     => $paginator->perPage(),
                     'current_page' => $paginator->currentPage(),
                     'last_page'    => $paginator->lastPage(),
                 ],
-                'demand'       => [
+                'demand' => [
                     'sport_distribution'    => $demandMetrics['by_sport'],
                     'platform_distribution' => $demandMetrics['by_platform'],
                 ],
-                'meta'         => [
+                'meta' => [
                     'refreshed_at' => now()->toISOString(),
                 ],
             ]);
 
             return $this->withCachingHeaders($response, 30);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Dashboard tickets API failure', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Failed to load tickets'], 500);
+
+            return response()->json(['success' => FALSE, 'message' => 'Failed to load tickets'], 500);
         }
     }
 
@@ -175,7 +181,7 @@ class CustomerDashboardApiController extends Controller
     public function recommendations(): JsonResponse
     {
         if (! $user = Auth::user()) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+            return response()->json(['success' => FALSE, 'message' => 'Unauthenticated'], 401);
         }
 
         $cacheKey = 'api:dashboard:recs:user:' . $user->id;
@@ -185,10 +191,10 @@ class CustomerDashboardApiController extends Controller
 
             $q = ScrapedTicket::available()->upcoming()->recent(48);
             if ($favoriteTeams) {
-                $q->where(function ($qb) use ($favoriteTeams) {
+                $q->where(function ($qb) use ($favoriteTeams): void {
                     foreach ($favoriteTeams as $team) {
                         $qb->orWhere('title', 'like', "%{$team}%")
-                           ->orWhere('team', 'like', "%{$team}%");
+                            ->orWhere('team', 'like', "%{$team}%");
                     }
                 });
             }
@@ -206,7 +212,7 @@ class CustomerDashboardApiController extends Controller
         });
 
         $response = response()->json([
-            'success'         => true,
+            'success'         => TRUE,
             'recommendations' => $recommendations,
             'meta'            => [
                 'refreshed_at' => now()->toISOString(),
@@ -220,9 +226,10 @@ class CustomerDashboardApiController extends Controller
     // ---------- Helpers ----------
     private function deriveDemandLevel(?float $score): string
     {
-        if ($score === null) {
+        if ($score === NULL) {
             return 'low';
         }
+
         return $score > 80 ? 'high' : ($score > 50 ? 'medium' : 'low');
     }
 
@@ -238,6 +245,7 @@ class CustomerDashboardApiController extends Controller
                 return 'down';
             }
         }
+
         return 'stable';
     }
 
@@ -246,6 +254,7 @@ class CustomerDashboardApiController extends Controller
         if (! $userId) {
             return [];
         }
+
         return Cache::remember('api:dashboard:user-alert-keywords:' . $userId, 60, function () use ($userId) {
             return TicketAlert::where('user_id', $userId)
                 ->active()
@@ -262,6 +271,7 @@ class CustomerDashboardApiController extends Controller
     {
         $response->headers->set('Cache-Control', 'private, max-age=' . $ttlSeconds . ', must-revalidate');
         $response->headers->set('X-RateLimit-Policy', 'burst=10;window=60');
+
         return $response;
     }
 }

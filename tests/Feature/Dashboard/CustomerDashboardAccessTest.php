@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class CustomerDashboardAccessTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function customer_dashboard_route_access_matrix(): void
     {

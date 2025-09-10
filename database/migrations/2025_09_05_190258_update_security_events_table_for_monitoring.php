@@ -59,16 +59,29 @@ return new class() extends Migration {
 
         Schema::table('security_events', function (Blueprint $table): void {
             // Drop foreign key and indexes
-            try { $table->dropForeign(['incident_id']); } catch (Throwable $e) { /* ignore */ }
-            foreach (['severity','threat_score','incident_id','session_id'] as $idx) {
-                try { $table->dropIndex([$idx]); } catch (Throwable $e) { /* ignore */ }
+            try {
+                $table->dropForeign(['incident_id']);
+            } catch (Throwable $e) { // ignore
             }
-            try { $table->dropIndex(['ip_address','occurred_at']); } catch (Throwable $e) { /* ignore */ }
+            foreach (['severity', 'threat_score', 'incident_id', 'session_id'] as $idx) {
+                try {
+                    $table->dropIndex([$idx]);
+                } catch (Throwable $e) { // ignore
+                }
+            }
+
+            try {
+                $table->dropIndex(['ip_address', 'occurred_at']);
+            } catch (Throwable $e) { // ignore
+            }
 
             // Drop new columns
-            foreach (['severity','location','request_data','session_id','threat_score','incident_id'] as $col) {
+            foreach (['severity', 'location', 'request_data', 'session_id', 'threat_score', 'incident_id'] as $col) {
                 if (Schema::hasColumn('security_events', $col)) {
-                    try { $table->dropColumn($col); } catch (Throwable $e) { /* ignore */ }
+                    try {
+                        $table->dropColumn($col);
+                    } catch (Throwable $e) { // ignore
+                    }
                 }
             }
         });

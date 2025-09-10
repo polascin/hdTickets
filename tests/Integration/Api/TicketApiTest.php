@@ -2,7 +2,6 @@
 
 namespace Tests\Integration\Api;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\Ticket;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -10,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TicketApiTest extends TestCase
@@ -20,8 +20,6 @@ class TicketApiTest extends TestCase
 
     private User $admin;
 
-    /**
-     */
     #[Test]
     public function it_can_list_tickets_without_authentication(): void
     {
@@ -45,8 +43,6 @@ class TicketApiTest extends TestCase
         $this->assertCount(3, $data);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_filter_tickets_by_sport_type(): void
     {
@@ -66,8 +62,6 @@ class TicketApiTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_can_filter_tickets_by_price_range(): void
     {
@@ -83,8 +77,6 @@ class TicketApiTest extends TestCase
         $this->assertCount(2, $data);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_filter_tickets_by_availability(): void
     {
@@ -100,8 +92,6 @@ class TicketApiTest extends TestCase
         $this->assertCount(2, $data); // available and limited
     }
 
-    /**
-     */
     #[Test]
     public function it_can_search_tickets_by_team(): void
     {
@@ -123,8 +113,6 @@ class TicketApiTest extends TestCase
         $this->assertStringContainsString('Manchester United', $data[0]['team_home']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_sort_tickets_by_price(): void
     {
@@ -141,8 +129,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals(150, $data[2]['price_min']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_sort_tickets_by_event_date(): void
     {
@@ -161,8 +147,6 @@ class TicketApiTest extends TestCase
         $this->assertTrue($firstEventDate->lessThan($lastEventDate));
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_single_ticket_details(): void
     {
@@ -191,8 +175,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals('football', $data['sport_type']);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_404_for_nonexistent_ticket(): void
     {
@@ -202,8 +184,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals('Ticket not found', $response->json('message'));
     }
 
-    /**
-     */
     #[Test]
     public function it_requires_authentication_to_create_ticket_alerts(): void
     {
@@ -215,8 +195,6 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 401);
     }
 
-    /**
-     */
     #[Test]
     public function authenticated_user_can_create_ticket_alert(): void
     {
@@ -249,8 +227,6 @@ class TicketApiTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_ticket_alert_creation_data(): void
     {
@@ -270,8 +246,6 @@ class TicketApiTest extends TestCase
         $this->assertArrayHasKey('notification_channels', $errors);
     }
 
-    /**
-     */
     #[Test]
     public function authenticated_user_can_list_their_alerts(): void
     {
@@ -297,8 +271,6 @@ class TicketApiTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function authenticated_user_can_update_their_alert(): void
     {
@@ -325,8 +297,6 @@ class TicketApiTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_update_other_users_alert(): void
     {
@@ -342,8 +312,6 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 403);
     }
 
-    /**
-     */
     #[Test]
     public function authenticated_user_can_delete_their_alert(): void
     {
@@ -358,8 +326,6 @@ class TicketApiTest extends TestCase
         $this->assertSoftDeleted($alert);
     }
 
-    /**
-     */
     #[Test]
     public function it_requires_authentication_for_purchase_attempts(): void
     {
@@ -373,8 +339,6 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 401);
     }
 
-    /**
-     */
     #[Test]
     public function authenticated_user_can_create_purchase_attempt(): void
     {
@@ -407,8 +371,6 @@ class TicketApiTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_purchase_attempt_data(): void
     {
@@ -430,8 +392,6 @@ class TicketApiTest extends TestCase
         $this->assertArrayHasKey('priority', $errors);
     }
 
-    /**
-     */
     #[Test]
     public function it_prevents_purchase_attempts_for_sold_out_tickets(): void
     {
@@ -448,8 +408,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals('Ticket is not available for purchase', $response->json('message'));
     }
 
-    /**
-     */
     #[Test]
     public function premium_user_gets_higher_priority_for_purchases(): void
     {
@@ -469,8 +427,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals('high', $purchaseAttempt['priority']);
     }
 
-    /**
-     */
     #[Test]
     public function admin_can_access_ticket_management_endpoints(): void
     {
@@ -498,8 +454,6 @@ class TicketApiTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function regular_user_cannot_access_admin_endpoints(): void
     {
@@ -512,8 +466,6 @@ class TicketApiTest extends TestCase
         $this->assertApiResponse($response, 403);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_ticket_statistics(): void
     {
@@ -538,8 +490,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals(1, $stats['by_sport']['basketball']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_trending_tickets(): void
     {
@@ -565,8 +515,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals('Popular Event', $data[0]['title']);
     }
 
-    /**
-     */
     #[Test]
     public function it_implements_rate_limiting_for_api_endpoints(): void
     {
@@ -584,8 +532,6 @@ class TicketApiTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_proper_pagination_metadata(): void
     {
@@ -605,8 +551,6 @@ class TicketApiTest extends TestCase
         $this->assertEquals(3, $meta['last_page']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_api_versioning(): void
     {

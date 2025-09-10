@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\PurchaseAttempt;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -12,14 +11,13 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     */
     #[Test]
     public function it_can_create_a_user_with_basic_attributes(): void
     {
@@ -41,8 +39,6 @@ class UserTest extends TestCase
         $this->assertTrue(Hash::check('password', $user->password));
     }
 
-    /**
-     */
     #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
@@ -59,8 +55,6 @@ class UserTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_hides_sensitive_attributes(): void
     {
@@ -74,8 +68,6 @@ class UserTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_casts_attributes_correctly(): void
     {
@@ -90,8 +82,6 @@ class UserTest extends TestCase
         $this->assertInstanceOf(Carbon::class, $user->last_login_at);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_subscriptions(): void
     {
@@ -110,8 +100,6 @@ class UserTest extends TestCase
         $this->assertEquals('premium', $user->subscriptions->first()->plan_name);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_ticket_alerts(): void
     {
@@ -130,8 +118,6 @@ class UserTest extends TestCase
         $this->assertEquals('Football Alerts', $user->ticketAlerts->first()->title);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_purchase_attempts(): void
     {
@@ -151,8 +137,6 @@ class UserTest extends TestCase
         $this->assertEquals('pending', $user->purchaseAttempts->first()->status);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_user_is_premium(): void
     {
@@ -176,8 +160,6 @@ class UserTest extends TestCase
         $this->assertTrue($user->isPremium());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_user_is_admin(): void
     {
@@ -188,8 +170,6 @@ class UserTest extends TestCase
         $this->assertTrue($adminUser->isAdmin());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_user_subscription_status(): void
     {
@@ -216,8 +196,6 @@ class UserTest extends TestCase
         $this->assertEquals('expired', $user->getSubscriptionStatus());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_user_preferences_with_defaults(): void
     {
@@ -234,8 +212,6 @@ class UserTest extends TestCase
         $this->assertEquals('UTC', $preferences['timezone']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_update_user_preferences(): void
     {
@@ -255,8 +231,6 @@ class UserTest extends TestCase
         $this->assertEquals('dark', $preferences['theme']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_enable_two_factor_authentication(): void
     {
@@ -269,8 +243,6 @@ class UserTest extends TestCase
         $this->assertEquals($secret, $user->two_factor_secret);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_disable_two_factor_authentication(): void
     {
@@ -281,8 +253,6 @@ class UserTest extends TestCase
         $this->assertNull($user->two_factor_secret);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_two_factor_is_enabled(): void
     {
@@ -295,8 +265,6 @@ class UserTest extends TestCase
         $this->assertTrue($user->hasTwoFactorEnabled());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_active_ticket_alerts_count(): void
     {
@@ -330,8 +298,6 @@ class UserTest extends TestCase
         $this->assertEquals(2, $user->getActiveAlertsCount());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_recent_purchase_attempts(): void
     {
@@ -363,8 +329,6 @@ class UserTest extends TestCase
         $this->assertEquals('pending', $recentAttempts->first()->status);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_soft_delete_user(): void
     {
@@ -376,8 +340,6 @@ class UserTest extends TestCase
         $this->assertNotNull($user->deleted_at);
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_email_format(): void
     {
@@ -391,8 +353,6 @@ class UserTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_enforces_unique_email_constraint(): void
     {
@@ -403,8 +363,6 @@ class UserTest extends TestCase
         $this->createTestUser(['email' => 'test@example.com']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_users_by_role(): void
     {
@@ -419,8 +377,6 @@ class UserTest extends TestCase
         $this->assertEquals(1, $admins->count());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_active_users(): void
     {

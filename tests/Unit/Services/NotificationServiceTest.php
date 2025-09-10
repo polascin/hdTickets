@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\SendDelayedNotification;
 use App\Mail\BulkNotification;
 use App\Mail\PaymentFailure;
@@ -17,6 +16,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -29,8 +29,6 @@ class NotificationServiceTest extends TestCase
 
     private $mockPushService;
 
-    /**
-     */
     #[Test]
     public function it_can_send_email_notification(): void
     {
@@ -49,8 +47,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertQueued(TicketNotification::class);
     }
 
-    /**
-     */
     #[Test]
     public function it_skips_email_when_user_disabled_email_notifications(): void
     {
@@ -68,8 +64,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertNothingQueued();
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_sms_notification(): void
     {
@@ -92,8 +86,6 @@ class NotificationServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_skips_sms_when_user_has_no_phone_number(): void
     {
@@ -107,8 +99,6 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_skips_sms_when_user_disabled_sms_notifications(): void
     {
@@ -125,8 +115,6 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_push_notification(): void
     {
@@ -149,8 +137,6 @@ class NotificationServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_slack_notification(): void
     {
@@ -168,8 +154,6 @@ class NotificationServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_ticket_alert_notification(): void
     {
@@ -216,8 +200,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertQueued(TicketAlert::class);
     }
 
-    /**
-     */
     #[Test]
     public function it_respects_user_notification_frequency_limits(): void
     {
@@ -236,8 +218,6 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_allows_notifications_after_frequency_period_passes(): void
     {
@@ -256,8 +236,6 @@ class NotificationServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_bulk_notifications(): void
     {
@@ -277,8 +255,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertQueued(BulkNotification::class, 3);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_notification_failures_gracefully(): void
     {
@@ -299,8 +275,6 @@ class NotificationServiceTest extends TestCase
         $this->assertTrue(TRUE); // Placeholder - in real implementation, check logs
     }
 
-    /**
-     */
     #[Test]
     public function it_can_queue_delayed_notifications(): void
     {
@@ -318,8 +292,6 @@ class NotificationServiceTest extends TestCase
         Queue::assertPushed(SendDelayedNotification::class);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_admin_notifications(): void
     {
@@ -337,8 +309,6 @@ class NotificationServiceTest extends TestCase
         // In real implementation, verify admin users were notified
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_purchase_confirmation_notification(): void
     {
@@ -360,8 +330,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertQueued(PurchaseConfirmation::class);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_payment_failure_notification(): void
     {
@@ -379,8 +347,6 @@ class NotificationServiceTest extends TestCase
         Mail::assertQueued(PaymentFailure::class);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_notification_statistics(): void
     {
@@ -401,8 +367,6 @@ class NotificationServiceTest extends TestCase
         $this->assertEquals(1, $stats['by_type']['purchase_confirmation']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_validate_notification_preferences(): void
     {
@@ -426,8 +390,6 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_unsubscribe_user_from_notifications(): void
     {
@@ -449,8 +411,6 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($user->preferences['notifications']['email']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_notification_delivery_status(): void
     {
@@ -473,8 +433,6 @@ class NotificationServiceTest extends TestCase
         $this->assertNotNull($status['delivered_at']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_send_notification_with_template(): void
     {

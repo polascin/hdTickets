@@ -61,7 +61,9 @@
     "squizlabs/php_codesniffer": "^3.10",
     "phpmetrics/phpmetrics": "^2.8",
     "rector/rector": "^2.0",
-    "driftingly/rector-laravel": "^2.0"
+    "driftingly/rector-laravel": "^2.0",
+    "maatwebsite/excel": "^3.1",
+    "phpoffice/phpspreadsheet": "^1.29"
   },
   "autoload": {
     "psr-4": {

@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class RecommendationServiceTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function can_generate_recommendations_for_user(): void
     {

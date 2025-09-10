@@ -25,7 +25,10 @@ return new class() extends Migration {
     {
         if (Schema::hasColumn('scraped_tickets', 'popularity_score')) {
             Schema::table('scraped_tickets', function (Blueprint $table): void {
-                try { $table->dropIndex(['popularity_score']); } catch (Throwable $e) { /* ignore */ }
+                try {
+                    $table->dropIndex(['popularity_score']);
+                } catch (Throwable $e) { // ignore
+                }
                 $table->dropColumn('popularity_score');
             });
         }

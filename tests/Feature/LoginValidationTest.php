@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LoginValidationTest extends TestCase
@@ -61,8 +61,6 @@ class LoginValidationTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_displays_form(): void
     {
@@ -81,8 +79,6 @@ class LoginValidationTest extends TestCase
         $response->assertSee('aria-labelledby="login-form-title"');
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_valid_credentials_succeeds(): void
     {
@@ -102,8 +98,6 @@ class LoginValidationTest extends TestCase
         $this->assertNotNull($this->validUser->last_login_at);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_remember_me_sets_cookie(): void
     {
@@ -121,8 +115,6 @@ class LoginValidationTest extends TestCase
         $response->assertCookie(Auth::getRecallerName());
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_invalid_email_fails(): void
     {
@@ -136,8 +128,6 @@ class LoginValidationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_invalid_password_fails(): void
     {
@@ -155,8 +145,6 @@ class LoginValidationTest extends TestCase
         $this->assertEquals(1, $this->validUser->failed_login_attempts);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_inactive_account_fails(): void
     {
@@ -170,8 +158,6 @@ class LoginValidationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_locked_account_fails(): void
     {
@@ -185,8 +171,6 @@ class LoginValidationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function test_account_locks_after_five_failed_attempts(): void
     {
@@ -214,8 +198,6 @@ class LoginValidationTest extends TestCase
         $this->assertTrue($user->locked_until->isFuture());
     }
 
-    /**
-     */
     #[Test]
     public function test_failed_attempts_reset_on_successful_login(): void
     {
@@ -241,8 +223,6 @@ class LoginValidationTest extends TestCase
         $this->assertNull($user->locked_until);
     }
 
-    /**
-     */
     #[Test]
     public function test_honeypot_protection_blocks_bots(): void
     {
@@ -256,8 +236,6 @@ class LoginValidationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function test_csrf_protection_is_enforced(): void
     {
@@ -280,8 +258,6 @@ class LoginValidationTest extends TestCase
         $response->assertStatus(419); // CSRF token mismatch
     }
 
-    /**
-     */
     #[Test]
     public function test_rate_limiting_prevents_brute_force(): void
     {
@@ -302,8 +278,6 @@ class LoginValidationTest extends TestCase
         $this->assertStringContains('Too many login attempts', $errors->first('email'));
     }
 
-    /**
-     */
     #[Test]
     public function test_email_validation_rules(): void
     {
@@ -332,8 +306,6 @@ class LoginValidationTest extends TestCase
         $response->assertSessionHasErrors(['email']);
     }
 
-    /**
-     */
     #[Test]
     public function test_password_validation_rules(): void
     {
@@ -346,8 +318,6 @@ class LoginValidationTest extends TestCase
         $response->assertSessionHasErrors(['password']);
     }
 
-    /**
-     */
     #[Test]
     public function test_user_login_activity_logging(): void
     {
@@ -371,8 +341,6 @@ class LoginValidationTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_with_two_factor_authentication_enabled(): void
     {
@@ -394,8 +362,6 @@ class LoginValidationTest extends TestCase
         $this->assertEquals($this->validUser->id, Session::get('2fa_user_id'));
     }
 
-    /**
-     */
     #[Test]
     public function test_scraper_users_cannot_login(): void
     {
@@ -416,8 +382,6 @@ class LoginValidationTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function test_login_form_accessibility_attributes(): void
     {
@@ -436,8 +400,6 @@ class LoginValidationTest extends TestCase
         $this->assertStringContains('Skip to main content', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_session_regeneration(): void
     {

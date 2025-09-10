@@ -109,7 +109,7 @@ class RoleBasedAccessControlService
         // Log permission denial for security monitoring
         $this->securityMonitoring->recordSecurityEvent(
             'permission_denied',
-            'Permission denied for user'
+            'Permission denied for user',
         );
 
         return FALSE;
@@ -224,7 +224,7 @@ class RoleBasedAccessControlService
         if (! $this->isAdmin($adminUser)) {
             $this->securityMonitoring->recordSecurityEvent(
                 'unauthorized_role_change',
-                'Unauthorized attempt to change user role'
+                'Unauthorized attempt to change user role',
             );
 
             return FALSE;
@@ -383,7 +383,7 @@ class RoleBasedAccessControlService
         // Log bulk operation
         $this->securityMonitoring->recordSecurityEvent(
             'bulk_role_assignment',
-            'Bulk role assignment performed'
+            'Bulk role assignment performed',
         );
 
         return $results;

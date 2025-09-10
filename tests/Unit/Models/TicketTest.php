@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\PurchaseAttempt;
 use App\Models\ScrapedTicket;
 use App\Models\Ticket;
@@ -12,14 +11,13 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TicketTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     */
     #[Test]
     public function it_can_create_a_ticket_with_basic_attributes(): void
     {
@@ -50,8 +48,6 @@ class TicketTest extends TestCase
         $this->assertEquals(200.00, $ticket->price_max);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
@@ -69,8 +65,6 @@ class TicketTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_casts_attributes_correctly(): void
     {
@@ -89,8 +83,6 @@ class TicketTest extends TestCase
         $this->assertInstanceOf(Carbon::class, $ticket->last_scraped_at);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_ticket_source(): void
     {
@@ -102,8 +94,6 @@ class TicketTest extends TestCase
         $this->assertEquals($source->name, $ticket->source->name);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_purchase_attempts(): void
     {
@@ -123,8 +113,6 @@ class TicketTest extends TestCase
         $this->assertEquals('pending', $ticket->purchaseAttempts->first()->status);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_price_history(): void
     {
@@ -142,8 +130,6 @@ class TicketTest extends TestCase
         $this->assertEquals(100.00, $ticket->priceHistory->first()->price);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_scraped_tickets(): void
     {
@@ -165,8 +151,6 @@ class TicketTest extends TestCase
         $this->assertEquals('external_123', $ticket->scrapedData->first()->external_id);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_ticket_is_available(): void
     {
@@ -177,8 +161,6 @@ class TicketTest extends TestCase
         $this->assertFalse($soldOutTicket->isAvailable());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_ticket_is_sold_out(): void
     {
@@ -189,8 +171,6 @@ class TicketTest extends TestCase
         $this->assertTrue($soldOutTicket->isSoldOut());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_ticket_price_range(): void
     {
@@ -205,8 +185,6 @@ class TicketTest extends TestCase
         $this->assertEquals('$75.00 - $250.00', $priceRange);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_formatted_event_date(): void
     {
@@ -219,8 +197,6 @@ class TicketTest extends TestCase
         $this->assertStringContains('7:30 PM', $formattedDate);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_team_display_name(): void
     {
@@ -234,8 +210,6 @@ class TicketTest extends TestCase
         $this->assertEquals('Manchester United vs Liverpool FC', $teamDisplay);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_event_is_upcoming(): void
     {
@@ -246,8 +220,6 @@ class TicketTest extends TestCase
         $this->assertFalse($pastTicket->isUpcoming());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_event_is_today(): void
     {
@@ -258,8 +230,6 @@ class TicketTest extends TestCase
         $this->assertFalse($tomorrowTicket->isToday());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_days_until_event(): void
     {
@@ -270,8 +240,6 @@ class TicketTest extends TestCase
         $this->assertEquals(5, $daysUntil);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_average_price(): void
     {
@@ -285,8 +253,6 @@ class TicketTest extends TestCase
         $this->assertEquals(150.00, $averagePrice);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_update_availability_status(): void
     {
@@ -305,8 +271,6 @@ class TicketTest extends TestCase
         $this->assertEquals(0, $ticket->available_quantity);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_add_price_history_entry(): void
     {
@@ -321,8 +285,6 @@ class TicketTest extends TestCase
         $this->assertEquals('USD', $priceEntry->currency);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_price_trend(): void
     {
@@ -338,8 +300,6 @@ class TicketTest extends TestCase
         $this->assertEquals('decreasing', $trend);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_available_tickets(): void
     {
@@ -353,8 +313,6 @@ class TicketTest extends TestCase
         $this->assertNotContains('sold_out', $availableTickets->pluck('status')->toArray());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_tickets_by_sport(): void
     {
@@ -370,8 +328,6 @@ class TicketTest extends TestCase
         });
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_tickets_by_price_range(): void
     {
@@ -384,8 +340,6 @@ class TicketTest extends TestCase
         $this->assertEquals(2, $affordableTickets->count());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_upcoming_tickets(): void
     {
@@ -401,8 +355,6 @@ class TicketTest extends TestCase
         });
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_tickets_by_city(): void
     {
@@ -418,8 +370,6 @@ class TicketTest extends TestCase
         });
     }
 
-    /**
-     */
     #[Test]
     public function it_can_search_tickets_by_team(): void
     {
@@ -434,8 +384,6 @@ class TicketTest extends TestCase
         $this->assertEquals(2, $liverpoolTickets->count());
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_required_fields(): void
     {
@@ -448,8 +396,6 @@ class TicketTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_price_constraints(): void
     {
@@ -462,8 +408,6 @@ class TicketTest extends TestCase
         $this->assertTrue($ticket->price_max < $ticket->price_min);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_soft_delete_ticket(): void
     {

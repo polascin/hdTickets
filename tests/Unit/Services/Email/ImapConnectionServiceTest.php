@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services\Email;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Email\ImapConnectionService;
 use Illuminate\Support\Facades\Config;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
@@ -21,16 +21,12 @@ class ImapConnectionServiceTest extends TestCase
 
     private array $testConfig;
 
-    /**
-     */
     #[Test]
     public function it_can_be_instantiated(): void
     {
         $this->assertInstanceOf(ImapConnectionService::class, $this->service);
     }
 
-    /**
-     */
     #[Test]
     public function it_throws_exception_for_unknown_connection(): void
     {
@@ -40,8 +36,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->service->getConnection('nonexistent');
     }
 
-    /**
-     */
     #[Test]
     public function it_throws_exception_for_missing_credentials(): void
     {
@@ -51,8 +45,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->service->getConnection('invalid');
     }
 
-    /**
-     */
     #[Test]
     public function it_builds_connection_string_correctly(): void
     {
@@ -71,8 +63,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->assertStringContains('novalidate-cert', $connectionString);
     }
 
-    /**
-     */
     #[Test]
     public function it_gets_connection_statistics(): void
     {
@@ -89,8 +79,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->assertEquals('test', $stats['default_connection']);
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_connection_cleanup(): void
     {
@@ -99,8 +87,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->assertTrue(method_exists($this->service, 'cleanupConnections'));
     }
 
-    /**
-     */
     #[Test]
     public function it_can_close_all_connections(): void
     {
@@ -108,8 +94,6 @@ class ImapConnectionServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /**
-     */
     #[Test]
     public function test_connection_returns_failure_for_invalid_config(): void
     {

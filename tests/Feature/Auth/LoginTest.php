@@ -5,13 +5,13 @@ namespace Tests\Feature\Auth;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;
 use App\Services\RecaptchaService;
-use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Mockery;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -32,8 +32,6 @@ class LoginTest extends TestCase
         $response->assertSee('Sign In');
     }
 
-    /**
-     */
     #[Test]
     public function user_can_login_with_valid_credentials(): void
     {
@@ -46,8 +44,6 @@ class LoginTest extends TestCase
         $this->assertAuthenticatedAs($this->user);
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_with_invalid_email(): void
     {
@@ -61,8 +57,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_with_invalid_password(): void
     {
@@ -75,8 +69,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_with_empty_credentials(): void
     {
@@ -89,8 +81,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_with_invalid_email_format(): void
     {
@@ -103,8 +93,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_when_account_is_deactivated(): void
     {
@@ -124,8 +112,6 @@ class LoginTest extends TestCase
         $this->assertStringContainsString('deactivated', $errors->first('email'));
     }
 
-    /**
-     */
     #[Test]
     public function scraper_user_cannot_access_web_login(): void
     {
@@ -143,8 +129,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function user_account_gets_locked_after_failed_attempts(): void
     {
@@ -162,8 +146,6 @@ class LoginTest extends TestCase
         $this->assertTrue($this->user->locked_until->isFuture());
     }
 
-    /**
-     */
     #[Test]
     public function user_cannot_login_when_account_is_locked(): void
     {
@@ -186,8 +168,6 @@ class LoginTest extends TestCase
         $this->assertStringContainsString('locked', $errors->first('email'));
     }
 
-    /**
-     */
     #[Test]
     public function user_can_login_after_lockout_expires(): void
     {
@@ -211,8 +191,6 @@ class LoginTest extends TestCase
         $this->assertNull($this->user->locked_until);
     }
 
-    /**
-     */
     #[Test]
     public function failed_login_attempts_are_reset_after_successful_login(): void
     {
@@ -230,8 +208,6 @@ class LoginTest extends TestCase
         $this->assertEquals(0, $this->user->failed_login_attempts);
     }
 
-    /**
-     */
     #[Test]
     public function login_is_rate_limited_per_ip(): void
     {
@@ -257,8 +233,6 @@ class LoginTest extends TestCase
         $this->assertStringContainsString('Too many', $errors->first('email'));
     }
 
-    /**
-     */
     #[Test]
     public function remember_me_functionality_works(): void
     {
@@ -276,8 +250,6 @@ class LoginTest extends TestCase
         $this->assertNotNull($this->user->remember_token);
     }
 
-    /**
-     */
     #[Test]
     public function honeypot_field_prevents_bot_submissions(): void
     {
@@ -291,8 +263,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function two_factor_enabled_user_is_redirected_to_2fa_challenge(): void
     {
@@ -314,8 +284,6 @@ class LoginTest extends TestCase
         $this->assertEquals($this->user->id, session('2fa_user_id'));
     }
 
-    /**
-     */
     #[Test]
     public function login_logs_successful_activity(): void
     {
@@ -333,8 +301,6 @@ class LoginTest extends TestCase
         $this->assertNotNull($this->user->last_login_ip);
     }
 
-    /**
-     */
     #[Test]
     public function login_updates_user_login_metadata(): void
     {
@@ -353,8 +319,6 @@ class LoginTest extends TestCase
         $this->assertNotNull($this->user->last_login_user_agent);
     }
 
-    /**
-     */
     #[Test]
     public function security_headers_are_present_on_login_page(): void
     {
@@ -365,8 +329,6 @@ class LoginTest extends TestCase
         $response->assertHeader('X-XSS-Protection', '1; mode=block');
     }
 
-    /**
-     */
     #[Test]
     public function csrf_token_is_required_for_login(): void
     {
@@ -381,8 +343,6 @@ class LoginTest extends TestCase
         $response->assertStatus(302);
     }
 
-    /**
-     */
     #[Test]
     public function device_fingerprinting_data_is_processed(): void
     {
@@ -407,8 +367,6 @@ class LoginTest extends TestCase
         $this->assertAuthenticatedAs($this->user);
     }
 
-    /**
-     */
     #[Test]
     public function login_form_preserves_email_on_validation_failure(): void
     {
@@ -421,8 +379,6 @@ class LoginTest extends TestCase
         $response->assertSessionHasErrors(['email']);
     }
 
-    /**
-     */
     #[Test]
     public function redirect_after_login_works_correctly(): void
     {
@@ -439,8 +395,6 @@ class LoginTest extends TestCase
         $response->assertRedirect('/dashboard');
     }
 
-    /**
-     */
     #[Test]
     public function login_with_recaptcha_when_enabled(): void
     {
@@ -467,8 +421,6 @@ class LoginTest extends TestCase
         $this->assertAuthenticatedAs($this->user);
     }
 
-    /**
-     */
     #[Test]
     public function login_fails_with_invalid_recaptcha(): void
     {
@@ -495,8 +447,6 @@ class LoginTest extends TestCase
         $this->assertGuest();
     }
 
-    /**
-     */
     #[Test]
     public function enhanced_security_middleware_processes_requests(): void
     {

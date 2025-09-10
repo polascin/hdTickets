@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class TicketFiltersTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function filters_and_sorting_work_and_paginate(): void
     {

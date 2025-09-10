@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Override;
 use Tests\Factories\TestDataFactory;
+use Throwable;
 
 use function get_class;
 
@@ -77,7 +78,7 @@ abstract class TestCase extends BaseTestCase
             if (method_exists(Queue::getFacadeRoot(), 'clear')) {
                 Queue::clear();
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Ignore cleanup errors
         }
     }

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AccessibilityTest extends TestCase
@@ -30,8 +30,6 @@ class AccessibilityTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function test_login_form_has_proper_labels(): void
     {
@@ -47,8 +45,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('Required field:', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_form_elements_have_aria_attributes(): void
     {
@@ -68,8 +64,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('aria-live="assertive"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_skip_navigation_links_present(): void
     {
@@ -84,8 +78,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('href="#login-form"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_screen_reader_only_content_present(): void
     {
@@ -99,8 +91,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('This form includes real-time validation', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_error_messages_have_proper_aria_attributes(): void
     {
@@ -123,8 +113,6 @@ class AccessibilityTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function test_form_has_proper_heading_structure(): void
     {
@@ -139,8 +127,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('Account Registration', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_color_contrast_elements_have_proper_classes(): void
     {
@@ -155,8 +141,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('hd-link', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_form_elements_have_autocomplete_attributes(): void
     {
@@ -168,8 +152,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('autocomplete="current-password"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_form_has_proper_tabindex_structure(): void
     {
@@ -183,8 +165,6 @@ class AccessibilityTest extends TestCase
         $this->assertMatchesRegularExpression('/style="display: none;"[^>]*tabindex="-1"/', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_images_have_proper_alt_text_or_aria_hidden(): void
     {
@@ -200,8 +180,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('Password visibility toggle', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_focus_management_elements_present(): void
     {
@@ -215,8 +193,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('hd-enhanced-checkbox', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_keyboard_navigation_support(): void
     {
@@ -232,8 +208,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('id="password-toggle"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_form_validation_accessibility(): void
     {
@@ -261,8 +235,6 @@ class AccessibilityTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function test_live_region_announcements(): void
     {
@@ -280,8 +252,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('aria-atomic="true"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_fieldset_and_legend_structure(): void
     {
@@ -293,8 +263,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('aria-labelledby="remember-group-label"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_button_accessibility_attributes(): void
     {
@@ -310,8 +278,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('aria-describedby="password-toggle-description"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_link_accessibility(): void
     {
@@ -323,8 +289,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('aria-describedby="forgot-password-description"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_spellcheck_and_language_attributes(): void
     {
@@ -340,8 +304,6 @@ class AccessibilityTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function test_error_prevention_features(): void
     {
@@ -354,8 +316,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('data-lpignore="true"', $content); // LastPass ignore
     }
 
-    /**
-     */
     #[Test]
     public function test_progressive_enhancement_support(): void
     {
@@ -370,8 +330,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('hd-enhanced-checkbox', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_mobile_accessibility_features(): void
     {
@@ -386,8 +344,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('form-input', $content); // Should be touch-friendly
     }
 
-    /**
-     */
     #[Test]
     public function test_security_and_privacy_accessibility(): void
     {
@@ -402,8 +358,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('data-lpignore="true"', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_contextual_help_and_instructions(): void
     {
@@ -421,8 +375,6 @@ class AccessibilityTest extends TestCase
         $this->assertStringContains('Keep you signed in on this device', $content);
     }
 
-    /**
-     */
     #[Test]
     public function test_error_recovery_accessibility(): void
     {
@@ -446,8 +398,6 @@ class AccessibilityTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function test_semantic_html_structure(): void
     {

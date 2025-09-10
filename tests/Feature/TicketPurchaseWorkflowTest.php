@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
@@ -11,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TicketPurchaseWorkflowTest extends TestCase
@@ -25,8 +25,6 @@ class TicketPurchaseWorkflowTest extends TestCase
 
     private Ticket $ticket;
 
-    /**
-     */
     #[Test]
     public function customer_with_active_subscription_can_complete_purchase_workflow(): void
     {
@@ -105,8 +103,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertSee('Championship Game');
     }
 
-    /**
-     */
     #[Test]
     public function customer_without_subscription_is_redirected_to_subscription_plans(): void
     {
@@ -135,8 +131,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ]);
     }
 
-    /**
-     */
     #[Test]
     public function customer_exceeding_ticket_limit_receives_proper_error(): void
     {
@@ -181,8 +175,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertEquals(1, $responseData['user_info']['remaining_tickets']);
     }
 
-    /**
-     */
     #[Test]
     public function agent_can_purchase_unlimited_tickets(): void
     {
@@ -204,8 +196,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertEquals(50, $purchase->quantity);
     }
 
-    /**
-     */
     #[Test]
     public function admin_can_purchase_unlimited_tickets(): void
     {
@@ -227,8 +217,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertEquals(100, $purchase->quantity);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_fails_for_unavailable_ticket(): void
     {
@@ -256,8 +244,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ]);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_fails_when_quantity_exceeds_availability(): void
     {
@@ -288,8 +274,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ]);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_history_shows_correct_information(): void
     {
@@ -341,8 +325,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertDontSee('history_test_2');
     }
 
-    /**
-     */
     #[Test]
     public function purchase_failure_shows_appropriate_error_page(): void
     {
@@ -359,8 +341,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertSee('Championship Game');
     }
 
-    /**
-     */
     #[Test]
     public function new_customer_within_free_access_period_can_purchase(): void
     {
@@ -388,8 +368,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertNotNull($purchase);
     }
 
-    /**
-     */
     #[Test]
     public function customer_beyond_free_access_period_cannot_purchase_without_subscription(): void
     {
@@ -414,8 +392,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ]);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_validation_requires_terms_acceptance(): void
     {
@@ -438,8 +414,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertJsonValidationErrors(['accept_terms']);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_validation_requires_purchase_confirmation(): void
     {
@@ -462,8 +436,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertJsonValidationErrors(['confirm_purchase']);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_with_invalid_quantity_is_rejected(): void
     {
@@ -486,8 +458,6 @@ class TicketPurchaseWorkflowTest extends TestCase
             ->assertJsonValidationErrors(['quantity']);
     }
 
-    /**
-     */
     #[Test]
     public function unauthenticated_user_is_redirected_to_login(): void
     {
@@ -496,8 +466,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    /**
-     */
     #[Test]
     public function purchase_includes_proper_fee_calculation(): void
     {
@@ -529,8 +497,6 @@ class TicketPurchaseWorkflowTest extends TestCase
         $this->assertEquals(208.50, $purchase->total_amount);
     }
 
-    /**
-     */
     #[Test]
     public function user_can_cancel_pending_purchase(): void
     {

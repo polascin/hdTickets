@@ -2,7 +2,6 @@
 
 namespace Tests\Performance;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\SendBulkNotifications;
 use App\Models\PurchaseAttempt;
 use App\Models\Ticket;
@@ -14,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 use function count;
@@ -28,8 +28,6 @@ class SystemPerformanceTest extends TestCase
 
     private const CONCURRENT_USERS = 10;
 
-    /**
-     */
     #[Test]
     public function it_can_handle_high_volume_ticket_listing_requests(): void
     {
@@ -47,8 +45,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(self::MEMORY_THRESHOLD_MB * 1024 * 1024, $metrics['memory_used']);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_handle_complex_ticket_filtering_efficiently(): void
     {
@@ -64,8 +60,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(self::PERFORMANCE_THRESHOLD_MS, $metrics['execution_time'] * 1000);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_handle_concurrent_user_registrations(): void
     {
@@ -94,8 +88,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(5.0, $totalTime); // 5 seconds max for all concurrent requests
     }
 
-    /**
-     */
     #[Test]
     public function it_can_handle_bulk_purchase_attempts_efficiently(): void
     {
@@ -118,8 +110,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(self::MEMORY_THRESHOLD_MB * 1024 * 1024, $metrics['memory_used']);
     }
 
-    /**
-     */
     #[Test]
     public function database_queries_are_optimized_for_ticket_listing(): void
     {
@@ -144,8 +134,6 @@ class SystemPerformanceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function scraping_service_performs_efficiently_under_load(): void
     {
@@ -162,8 +150,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(10.0, $metrics['execution_time']);
     }
 
-    /**
-     */
     #[Test]
     public function notification_service_handles_bulk_notifications_efficiently(): void
     {
@@ -185,8 +171,6 @@ class SystemPerformanceTest extends TestCase
         Queue::assertPushed(SendBulkNotifications::class);
     }
 
-    /**
-     */
     #[Test]
     public function cache_improves_api_response_times(): void
     {
@@ -208,8 +192,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan($firstMetrics['execution_time'] * 0.5, $secondMetrics['execution_time']);
     }
 
-    /**
-     */
     #[Test]
     public function purchase_engine_processes_queue_efficiently(): void
     {
@@ -234,8 +216,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(30.0, $metrics['execution_time']); // 30 seconds max
     }
 
-    /**
-     */
     #[Test]
     public function memory_usage_remains_stable_during_long_operations(): void
     {
@@ -255,8 +235,6 @@ class SystemPerformanceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function api_rate_limiting_performs_efficiently(): void
     {
@@ -274,8 +252,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(5.0, $metrics['execution_time']);
     }
 
-    /**
-     */
     #[Test]
     public function database_connection_pool_handles_concurrent_requests(): void
     {
@@ -292,8 +268,6 @@ class SystemPerformanceTest extends TestCase
         $this->assertLessThan(3.0, $metrics['execution_time']);
     }
 
-    /**
-     */
     #[Test]
     public function search_functionality_performs_well_with_large_dataset(): void
     {
@@ -316,8 +290,6 @@ class SystemPerformanceTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function pagination_performs_efficiently_across_large_datasets(): void
     {

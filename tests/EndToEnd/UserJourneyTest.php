@@ -2,7 +2,6 @@
 
 namespace Tests\EndToEnd;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\ProcessPurchaseAttempt;
 use App\Mail\AccountDeletionRequested;
 use App\Mail\SubscriptionConfirmation;
@@ -16,14 +15,13 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserJourneyTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     */
     #[Test]
     public function complete_user_registration_and_onboarding_journey(): void
     {
@@ -100,8 +98,6 @@ class UserJourneyTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function ticket_discovery_and_purchase_attempt_journey(): void
     {
@@ -164,8 +160,6 @@ class UserJourneyTest extends TestCase
         $this->assertEquals('pending', $response->json('status'));
     }
 
-    /**
-     */
     #[Test]
     public function premium_user_upgrade_and_benefits_journey(): void
     {
@@ -240,8 +234,6 @@ class UserJourneyTest extends TestCase
         $this->assertEquals(10, $user->ticketAlerts()->count());
     }
 
-    /**
-     */
     #[Test]
     public function ticket_alert_notification_and_response_journey(): void
     {
@@ -311,8 +303,6 @@ class UserJourneyTest extends TestCase
         $this->assertNotNull($alert->last_triggered_at);
     }
 
-    /**
-     */
     #[Test]
     public function admin_ticket_management_and_monitoring_journey(): void
     {
@@ -378,8 +368,6 @@ class UserJourneyTest extends TestCase
         $this->assertApiResponse($response, 200);
     }
 
-    /**
-     */
     #[Test]
     public function user_account_management_and_privacy_journey(): void
     {
@@ -475,8 +463,6 @@ class UserJourneyTest extends TestCase
         Mail::assertQueued(AccountDeletionRequested::class);
     }
 
-    /**
-     */
     #[Test]
     public function error_handling_and_recovery_journey(): void
     {
@@ -532,8 +518,6 @@ class UserJourneyTest extends TestCase
         $this->assertApiResponse($response, 403, ['message']);
     }
 
-    /**
-     */
     #[Test]
     public function mobile_app_user_journey(): void
     {

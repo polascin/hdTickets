@@ -3,6 +3,7 @@
 
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
     level: 5  # Temporarily reduced from 8 to allow commit with 74 remaining errors

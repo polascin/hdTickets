@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Services\Email;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Services\Email\EmailParsingService;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -19,16 +19,12 @@ class EmailParsingServiceTest extends TestCase
 {
     private EmailParsingService $service;
 
-    /**
-     */
     #[Test]
     public function it_can_be_instantiated(): void
     {
         $this->assertInstanceOf(EmailParsingService::class, $this->service);
     }
 
-    /**
-     */
     #[Test]
     public function it_detects_sport_categories_correctly(): void
     {
@@ -46,8 +42,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('unknown', $method->invoke($this->service, 'Random Event Name'));
     }
 
-    /**
-     */
     #[Test]
     public function it_parses_ticketmaster_emails(): void
     {
@@ -78,8 +72,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('football', $result['sports_events'][0]['category']);
     }
 
-    /**
-     */
     #[Test]
     public function it_parses_stubhub_emails(): void
     {
@@ -106,8 +98,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals('stubhub', $result['tickets'][0]['source_platform']);
     }
 
-    /**
-     */
     #[Test]
     public function it_parses_generic_sports_emails(): void
     {
@@ -137,8 +127,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertCount(2, $result['tickets']);
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_parsed_data(): void
     {
@@ -170,8 +158,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals(50.0, $result['tickets'][0]['price']);
     }
 
-    /**
-     */
     #[Test]
     public function it_extracts_email_metadata(): void
     {
@@ -209,8 +195,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertEquals(1, $result['keyword_frequency']['stadium']);
     }
 
-    /**
-     */
     #[Test]
     public function it_parses_event_dates(): void
     {
@@ -225,8 +209,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertNull($method->invoke($this->service, NULL));
     }
 
-    /**
-     */
     #[Test]
     public function it_gets_parsing_statistics(): void
     {
@@ -242,8 +224,6 @@ class EmailParsingServiceTest extends TestCase
         $this->assertContains('basketball', $stats['sport_categories']);
     }
 
-    /**
-     */
     #[Test]
     public function it_parses_complete_email_data(): void
     {

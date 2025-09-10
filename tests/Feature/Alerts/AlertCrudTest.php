@@ -7,8 +7,6 @@ use Tests\TestCase;
 
 class AlertCrudTest extends TestCase
 {
-    /**
-     */
     #[Test]
     public function user_can_create_update_delete_and_toggle_alerts(): void
     {

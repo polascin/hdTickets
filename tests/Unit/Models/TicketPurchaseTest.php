@@ -2,21 +2,19 @@
 
 namespace Tests\Unit\Models;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TicketPurchaseTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     */
     #[Test]
     public function it_can_create_a_ticket_purchase(): void
     {
@@ -55,8 +53,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals('Aisle seats preferred', $purchase->special_requests);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
@@ -74,8 +70,6 @@ class TicketPurchaseTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function it_casts_attributes_correctly(): void
     {
@@ -104,8 +98,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertIsFloat($purchase->total_amount);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_user(): void
     {
@@ -127,8 +119,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals($user->id, $purchase->user->id);
     }
 
-    /**
-     */
     #[Test]
     public function it_has_relationship_with_ticket(): void
     {
@@ -150,8 +140,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals($ticket->id, $purchase->ticket->id);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_is_pending(): void
     {
@@ -163,8 +151,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertFalse($purchase->isFailed());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_is_confirmed(): void
     {
@@ -179,8 +165,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertFalse($purchase->isFailed());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_is_cancelled(): void
     {
@@ -196,8 +180,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertFalse($purchase->isFailed());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_is_failed(): void
     {
@@ -209,8 +191,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertFalse($purchase->isCancelled());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_calculate_total_tickets_for_purchase(): void
     {
@@ -219,8 +199,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals(5, $purchase->getTotalTickets());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_formatted_purchase_date(): void
     {
@@ -233,8 +211,6 @@ class TicketPurchaseTest extends TestCase
         );
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_formatted_total_amount(): void
     {
@@ -243,8 +219,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals('$1,234.56', $purchase->getFormattedTotalAmount());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_can_be_cancelled(): void
     {
@@ -257,8 +231,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertFalse($cancelledPurchase->canBeCancelled());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_processing_fee_percentage(): void
     {
@@ -270,8 +242,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals(3.0, $purchase->getProcessingFeePercentage());
     }
 
-    /**
-     */
     #[Test]
     public function it_handles_zero_subtotal_for_processing_fee_percentage(): void
     {
@@ -283,8 +253,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals(0.0, $purchase->getProcessingFeePercentage());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_seat_preferences_summary(): void
     {
@@ -303,8 +271,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertStringContainsString('Type: Premium', $summary);
     }
 
-    /**
-     */
     #[Test]
     public function it_returns_empty_string_for_no_seat_preferences(): void
     {
@@ -317,8 +283,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals('', $purchase->getSeatPreferencesSummary());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_by_status(): void
     {
@@ -343,8 +307,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals('failed', $failed->first()->status);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_by_user(): void
     {
@@ -362,8 +324,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals(1, $user2Purchases->count());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_by_date_range(): void
     {
@@ -382,8 +342,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertTrue($recentPurchases->contains($todayPurchase));
     }
 
-    /**
-     */
     #[Test]
     public function it_can_scope_by_current_month(): void
     {
@@ -397,8 +355,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertTrue($currentMonthPurchases->contains($thisMonth));
     }
 
-    /**
-     */
     #[Test]
     public function it_validates_required_fields(): void
     {
@@ -412,8 +368,6 @@ class TicketPurchaseTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function it_generates_unique_purchase_ids(): void
     {
@@ -423,8 +377,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertNotEquals($purchase1->purchase_id, $purchase2->purchase_id);
     }
 
-    /**
-     */
     #[Test]
     public function it_can_get_purchase_age_in_days(): void
     {
@@ -433,8 +385,6 @@ class TicketPurchaseTest extends TestCase
         $this->assertEquals(5, $purchase->getAgeInDays());
     }
 
-    /**
-     */
     #[Test]
     public function it_can_check_if_purchase_is_recent(): void
     {

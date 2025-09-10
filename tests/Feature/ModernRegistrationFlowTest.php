@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use PHPUnit\Framework\Attributes\Test;
 use App\Models\LegalDocument;
 use App\Models\User;
 use App\Models\UserLegalAcceptance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Override;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -22,8 +22,6 @@ class ModernRegistrationFlowTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /**
-     */
     #[Test]
     public function registration_page_displays_modern_stepper_interface(): void
     {
@@ -45,8 +43,6 @@ class ModernRegistrationFlowTest extends TestCase
         $response->assertSee('currentStep');
     }
 
-    /**
-     */
     #[Test]
     public function validation_endpoint_provides_field_level_feedback(): void
     {
@@ -76,8 +72,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function email_availability_endpoint_checks_uniqueness(): void
     {
@@ -109,8 +103,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function password_strength_endpoint_provides_detailed_feedback(): void
     {
@@ -151,8 +143,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function complete_registration_flow_with_all_features(): void
     {
@@ -201,8 +191,6 @@ class ModernRegistrationFlowTest extends TestCase
         }
     }
 
-    /**
-     */
     #[Test]
     public function registration_fails_without_required_legal_acceptances(): void
     {
@@ -230,8 +218,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function registration_handles_step_navigation_correctly(): void
     {
@@ -262,8 +248,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function validation_endpoints_respect_rate_limiting(): void
     {
@@ -281,8 +265,6 @@ class ModernRegistrationFlowTest extends TestCase
         $this->assertEquals(429, $response->status());
     }
 
-    /**
-     */
     #[Test]
     public function registration_preserves_server_side_validation_as_source_of_truth(): void
     {
@@ -311,8 +293,6 @@ class ModernRegistrationFlowTest extends TestCase
         ]);
     }
 
-    /**
-     */
     #[Test]
     public function registration_handles_optional_fields_correctly(): void
     {
