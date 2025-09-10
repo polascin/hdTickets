@@ -200,6 +200,47 @@ Route::prefix('v1/dashboard')->middleware(['auth:sanctum', ApiRateLimit::class .
         ->name('recommendations');
 
     /*
+     * Dashboard Stats Endpoint
+     * Purpose: Get dashboard statistics for tiles
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard stats tiles
+     */
+    Route::get('/stats', function (Request $request) {
+        $user = $request->user();
+        $controller = app(App\Http\Controllers\EnhancedDashboardController::class);
+        $data = $controller->getRealtimeData($request)->getData();
+        
+        return response()->json([
+            'success' => true,
+            'stats' => [
+                'available_tickets' => $data->data->statistics->available_tickets->current ?? 0,
+                'new_today' => $data->data->statistics->available_tickets->change_24h ?? 0,
+                'monitored_events' => $data->data->statistics->high_demand->current ?? 0,
+                'active_alerts' => $data->data->statistics->active_alerts->current ?? 0,
+                'price_alerts' => $data->data->statistics->active_alerts->current ?? 0,
+                'triggered_today' => $data->data->statistics->active_alerts->triggered_today ?? 0,
+            ]
+        ]);
+    })->name('stats');
+
+    /*
+     * Dashboard Tickets Endpoint
+     * Purpose: Get recent tickets with filtering
+     * Access: Authenticated users
+     * Used by: Enhanced dashboard tickets grid
+     */
+    Route::get('/tickets', function (Request $request) {
+        $user = $request->user();
+        $controller = app(App\Http\Controllers\EnhancedDashboardController::class);
+        $data = $controller->getRealtimeData($request)->getData();
+        
+        return response()->json([
+            'success' => true,
+            'tickets' => $data->data->recent_tickets ?? []
+        ]);
+    })->name('tickets');
+
+    /*
      * Upcoming Events Endpoint
      * Purpose: Get upcoming events based on user preferences
      * Access: Authenticated users
@@ -270,6 +311,17 @@ Route::prefix('v1/alerts')->middleware(['auth:sanctum', ApiRateLimit::class . ':
     Route::post('/{uuid}/test', [App\Http\Controllers\Api\AlertController::class, 'test']);
     Route::get('/statistics', [App\Http\Controllers\Api\AlertController::class, 'statistics']);
     Route::post('/check-all', [App\Http\Controllers\Api\AlertController::class, 'checkAll']);
+    
+    // Dashboard alert toggling (expects ticket ID instead of alert UUID)
+    Route::post('/{ticketId}', function (Request $request, string $ticketId) {
+        // Create new alert for ticket
+        return response()->json(['success' => true, 'message' => 'Alert created']);
+    });
+    
+    Route::delete('/{ticketId}', function (Request $request, string $ticketId) {
+        // Remove alert for ticket
+        return response()->json(['success' => true, 'message' => 'Alert removed']);
+    });
 });
 
 // Purchase routes

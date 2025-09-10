@@ -204,7 +204,7 @@
       </x-ui.card>
 
       <!-- Revenue & Subscriptions -->
-      <x-ui.card hover="true" class="bg-gradient-to-br from-green-500 to-green-600 text-white cursor-pointer" onclick="window.location.href='{{ route('admin.subscriptions.index') }}'">
+      <x-ui.card hover="true" class="bg-gradient-to-br from-green-500 to-green-600 text-white cursor-pointer" onclick="window.location.href='{{ route('admin.reports.index') }}'">
         <x-ui.card-content>
           <div class="flex items-center justify-between">
             <div>

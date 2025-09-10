@@ -954,7 +954,17 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function hasActiveSubscription(): bool
     {
-        return $this->activeSubscription() !== NULL;
+        try {
+            // Check if subscriptions table exists
+            if (!$this->subscriptions()->getModel()->getConnection()->getSchemaBuilder()->hasTable('user_subscriptions')) {
+                return false; // No subscriptions table means no subscriptions
+            }
+            
+            return $this->activeSubscription() !== NULL;
+        } catch (\Exception $e) {
+            \Log::warning('Error checking active subscription for user ' . $this->id . ': ' . $e->getMessage());
+            return false; // Default to no subscription on error
+        }
     }
 
     /**
@@ -1188,7 +1198,10 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         return $this->hasMany(PurchaseQueue::class);
     }
-    
+
+    /**
+     * User's ticket purchases
+     */
     public function ticketPurchases(): HasMany
     {
         return $this->hasMany(TicketPurchase::class);
@@ -1347,11 +1360,17 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
      */
     public function getMonthlyTicketUsage(): int
     {
-        return $this->ticketPurchases()
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->whereIn('status', ['confirmed', 'pending'])
-            ->sum('quantity') ?? 0;
+        try {
+            // Use purchase attempts table which exists
+            return $this->purchaseAttempts()
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->whereIn('status', ['success', 'in_progress', 'pending'])
+                ->sum('attempted_quantity') ?? 0;
+        } catch (\Exception $e) {
+            \Log::warning('Error calculating monthly ticket usage for user ' . $this->id . ': ' . $e->getMessage());
+            return 0; // Return 0 on error to prevent crashes
+        }
     }
     
     /**
@@ -1364,10 +1383,10 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         }
         
         $trialPeriod = (int) config('subscription.free_access_days', 7);
-        $daysSinceRegistration = $this->created_at->diffInDays(now());
+        $daysSinceRegistration = (int) $this->created_at->diffInDays(now());
         $daysRemaining = $trialPeriod - $daysSinceRegistration;
         
-        return max(0, $daysRemaining);
+        return (int) max(0, $daysRemaining);
     }
 
     /**

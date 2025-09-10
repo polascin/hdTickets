@@ -33,7 +33,7 @@
                         </div>
                         
                         @if(auth()->user()->role === 'customer')
-                            <a href="{{ route('subscriptions.dashboard') }}" 
+                            <a href="{{ route('subscription.plans') }}" 
                                class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
                                 @if(auth()->user()->hasActiveSubscription())
                                     Manage Subscription
@@ -414,7 +414,7 @@
                             @endif
 
                             <div class="mt-4">
-                                <a href="{{ route('subscriptions.dashboard') }}" 
+                                <a href="{{ route('subscription.plans') }}" 
                                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors text-center block">
                                     @if(auth()->user()->hasActiveSubscription())
                                         Manage Subscription

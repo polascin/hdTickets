@@ -486,6 +486,68 @@
                     <div class="widget-header">
                         <h3 class="widget-title">Latest Tickets</h3>
                         <div class="widget-actions">
+                            <!-- Filters Toggle -->
+                            <details class="filters" @toggle="computeFilterCount()">
+                                <summary class="filters-summary">
+                                    Filters <span class="badge" x-show="filterCount > 0" x-text="filterCount"></span>
+                                </summary>
+                                <div class="filters-panel">
+                                    <div class="filters-row">
+                                        <div class="filter-group">
+                                            <label>Sports</label>
+                                            <select multiple x-model="filters.sports">
+                                                <option value="football">Football</option>
+                                                <option value="basketball">Basketball</option>
+                                                <option value="baseball">Baseball</option>
+                                                <option value="hockey">Hockey</option>
+                                                <option value="soccer">Soccer</option>
+                                            </select>
+                                        </div>
+                                        <div class="filter-group">
+                                            <label>Platforms</label>
+                                            <div class="checkboxes">
+                                                <label><input type="checkbox" value="StubHub" x-model="filters.platforms"> StubHub</label>
+                                                <label><input type="checkbox" value="Ticketmaster" x-model="filters.platforms"> Ticketmaster</label>
+                                                <label><input type="checkbox" value="SeatGeek" x-model="filters.platforms"> SeatGeek</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filters-row">
+                                        <div class="filter-group">
+                                            <label>Price</label>
+                                            <div class="range">
+                                                <input type="number" min="0" step="1" placeholder="Min" x-model.number="filters.price_min"/>
+                                                <span>-</span>
+                                                <input type="number" min="0" step="1" placeholder="Max" x-model.number="filters.price_max"/>
+                                            </div>
+                                        </div>
+                                        <div class="filter-group">
+                                            <label>Date range</label>
+                                            <div class="range">
+                                                <input type="date" x-model="filters.date_from"/>
+                                                <span>-</span>
+                                                <input type="date" x-model="filters.date_to"/>
+                                            </div>
+                                        </div>
+                                        <div class="filter-group">
+                                            <label>Sort</label>
+                                            <select x-model="filters.sort">
+                                                <option value="newest">Newest</option>
+                                                <option value="price_asc">Price: Low to High</option>
+                                                <option value="price_desc">Price: High to Low</option>
+                                                <option value="date_asc">Event Date: Soonest</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="filters-actions">
+                                        <button class="btn-secondary" @click.prevent="resetFilters()">Reset</button>
+                                        <button class="btn-primary" :disabled="isFiltering" @click.prevent="applyFilters()">
+                                            <span x-show="!isFiltering">Apply</span>
+                                            <span x-show="isFiltering">Filtering...</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </details>
                             <button @click="refreshRecentTickets()" class="widget-refresh">
                                 <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -628,14 +690,14 @@
                             <!-- Action Buttons -->
                             <div class="subscription-actions">
                                 @if(!$user->hasActiveSubscription())
-                                    <a href="{{ route('subscriptions.plans') }}" class="btn-upgrade">
+                                    <a href="{{ route('subscription.plans') }}" class="btn-upgrade">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                                         </svg>
                                         Upgrade Now
                                     </a>
                                 @else
-                                    <a href="{{ route('subscriptions.manage') }}" class="btn-manage">
+                                    <a href="{{ route('subscription.plans') }}" class="btn-manage">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                         </svg>
@@ -685,6 +747,139 @@
                                 <button @click="openSettings()" class="empty-action">Configure Preferences</button>
                             </div>
                         @endif
+                    </div>
+                </section>
+
+                <!-- Alert Management Widget -->
+                <section class="dashboard-widget alert-management">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5" />
+                            </svg>
+                            My Alerts
+                        </h3>
+                        <div class="widget-actions">
+                            <button @click="showCreateAlert = true" class="btn-create-alert">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Create
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="widget-content">
+                        <!-- Quick Alert Creation Form -->
+                        <div x-show="showCreateAlert" class="alert-form">
+                            <form @submit.prevent="createAlert()">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Alert Name</label>
+                                        <input type="text" x-model="newAlert.name" placeholder="e.g., Lakers vs Warriors" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Sport</label>
+                                        <select x-model="newAlert.sport">
+                                            <option value="">Any Sport</option>
+                                            <option value="football">Football</option>
+                                            <option value="basketball">Basketball</option>
+                                            <option value="baseball">Baseball</option>
+                                            <option value="hockey">Hockey</option>
+                                            <option value="soccer">Soccer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Max Price</label>
+                                        <input type="number" min="0" step="1" x-model.number="newAlert.max_price" placeholder="250">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Platform</label>
+                                        <select x-model="newAlert.platform">
+                                            <option value="">Any Platform</option>
+                                            <option value="StubHub">StubHub</option>
+                                            <option value="Ticketmaster">Ticketmaster</option>
+                                            <option value="SeatGeek">SeatGeek</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" @click="showCreateAlert = false" class="btn-cancel">Cancel</button>
+                                    <button type="submit" :disabled="isCreatingAlert" class="btn-create">
+                                        <span x-show="!isCreatingAlert">Create Alert</span>
+                                        <span x-show="isCreatingAlert">Creating...</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Active Alerts List -->
+                        <div class="alerts-list">
+                            <template x-for="alert in userAlerts" :key="alert.id">
+                                <div class="alert-item" :class="{ 'inactive': !alert.is_active }">
+                                    <div class="alert-header">
+                                        <div class="alert-name" x-text="alert.name"></div>
+                                        <div class="alert-status" :class="alert.is_active ? 'active' : 'inactive'">
+                                            <span x-text="alert.is_active ? 'Active' : 'Paused'"></span>
+                                        </div>
+                                    </div>
+                                    <div class="alert-details">
+                                        <span class="alert-criteria" x-text="getAlertCriteria(alert)"></span>
+                                        <div class="alert-stats">
+                                            <span class="matches" x-text="alert.matches_count + ' matches'"></span>
+                                            <span class="success-rate" x-text="alert.success_rate + '% success'"></span>
+                                        </div>
+                                    </div>
+                                    <div class="alert-actions">
+                                        <button @click="toggleAlert(alert)" class="btn-toggle" :title="alert.is_active ? 'Pause alert' : 'Activate alert'">
+                                            <svg x-show="alert.is_active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <svg x-show="!alert.is_active" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1M9 16v-6a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2H11a2 2 0 01-2-2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="editAlert(alert)" class="btn-edit" title="Edit alert">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="deleteAlert(alert)" class="btn-delete" title="Delete alert">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Empty state for no alerts -->
+                            <div x-show="userAlerts.length === 0" class="empty-state">
+                                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM12 17H7a3 3 0 01-3-3V5a3 3 0 013-3h5" />
+                                </svg>
+                                <p class="empty-text">No alerts configured</p>
+                                <button @click="showCreateAlert = true" class="empty-action">Create your first alert</button>
+                            </div>
+                        </div>
+
+                        <!-- Alert Templates -->
+                        <div class="alert-templates">
+                            <h4>Quick Templates</h4>
+                            <div class="templates-grid">
+                                <button @click="useTemplate('price_drop')" class="template-btn">
+                                    <span>📉</span> Price Drop
+                                </button>
+                                <button @click="useTemplate('last_minute')" class="template-btn">
+                                    <span>⏰</span> Last Minute
+                                </button>
+                                <button @click="useTemplate('premium_seats')" class="template-btn">
+                                    <span>🎟️</span> Premium Seats
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

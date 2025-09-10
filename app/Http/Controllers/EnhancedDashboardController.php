@@ -43,7 +43,7 @@ class EnhancedDashboardController extends Controller
         // Get comprehensive dashboard data
         $dashboardData = $this->getComprehensiveDashboardData($user);
 
-        return view('dashboard.customer-enhanced-fixed', $dashboardData);
+        return view('dashboard.customer-enhanced-v2', $dashboardData);
     }
 
     /**
@@ -149,9 +149,19 @@ class EnhancedDashboardController extends Controller
         $cacheKey = "dashboard_data:user:{$user->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user) {
+            $statistics = $this->getEnhancedStatistics($user);
+            
             return [
                 'user'                        => $user,
-                'statistics'                  => $this->getEnhancedStatistics($user),
+                'statistics'                  => $statistics,
+                'stats'                       => [
+                    'available_tickets' => $statistics['available_tickets']['current'] ?? 0,
+                    'new_today' => $this->getNewTicketsToday(),
+                    'monitored_events' => $this->getMonitoredEventsCount($user),
+                    'active_alerts' => $statistics['active_alerts']['current'] ?? 0,
+                    'price_alerts' => $statistics['active_alerts']['current'] ?? 0,
+                    'triggered_today' => $statistics['active_alerts']['triggered_today'] ?? 0,
+                ],
                 'recentTickets'               => $this->getRecentTicketsWithMetadata(),
                 'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
                 'alertsData'                  => $this->getAlertsData($user),
@@ -681,6 +691,32 @@ class EnhancedDashboardController extends Controller
     private function getScrapingSuccessRate(): float
     {
         return 98.2; // Placeholder
+    }
+
+    private function getNewTicketsToday(): int
+    {
+        return ScrapedTicket::whereDate('scraped_at', Carbon::today())->count();
+    }
+
+    private function getMonitoredEventsCount(User $user): int
+    {
+        // Count unique events from scraped tickets that match user's alert criteria or preferences
+        $preferences = $user->preferences ?? [];
+        $favoriteTeams = $preferences['favorite_teams'] ?? [];
+        
+        $query = ScrapedTicket::available()
+            ->selectRaw('COUNT(DISTINCT CONCAT(title, venue, event_date)) as unique_events');
+            
+        if (!empty($favoriteTeams)) {
+            $query->where(function ($q) use ($favoriteTeams) {
+                foreach ($favoriteTeams as $team) {
+                    $q->orWhere('title', 'like', "%{$team}%")
+                        ->orWhere('teams', 'like', "%{$team}%");
+                }
+            });
+        }
+        
+        return (int) $query->value('unique_events') ?: 0;
     }
 
 

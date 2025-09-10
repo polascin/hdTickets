@@ -17,7 +17,8 @@ const DASHBOARD_CONFIG = {
         recommendations: '/api/v1/dashboard/recommendations',
         notifications: '/api/v1/dashboard/notifications',
         settings: '/api/v1/dashboard/settings',
-        events: '/api/v1/dashboard/events'
+        events: '/api/v1/dashboard/events',
+        ticketsFilter: '/api/v1/tickets/filter'
     }
 };
 
@@ -41,12 +42,31 @@ function enhancedCustomerDashboard() {
             notifications: [],
             trends: {}
         },
+
+        // Filter State
+        filters: {
+            sports: [],
+            platforms: [],
+            price_min: null,
+            price_max: null,
+            date_from: null,
+            date_to: null,
+            sort: 'newest'
+        },
+        filterCount: 0,
+        isFiltering: false,
         
         // UI State
         showNotifications: false,
         showSettings: false,
+        showCreateAlert: false,
         notificationCount: 0,
         hasNotifications: false,
+        
+        // Alerts
+        userAlerts: [],
+        newAlert: { name: '', sport: '', max_price: null, platform: '' },
+        isCreatingAlert: false,
         
         // User Preferences
         settings: {
@@ -60,6 +80,16 @@ function enhancedCustomerDashboard() {
         // Cache Management
         cache: new Map(),
         cacheExpiry: new Map(),
+        
+        // Performance Monitoring
+        performanceMetrics: {
+            pageLoadTime: 0,
+            apiResponseTimes: {},
+            errorCount: 0,
+            userInteractions: 0,
+            websocketStability: 0
+        },
+        analyticsQueue: [],
         
         // WebSocket Connection
         websocket: null,
@@ -97,6 +127,9 @@ function enhancedCustomerDashboard() {
                 // Setup performance monitoring
                 this.setupPerformanceMonitoring();
                 
+                // Record page load performance
+                this.recordPageLoadMetrics();
+                
                 // Mark as live
                 this.isLiveData = true;
                 
@@ -122,11 +155,12 @@ function enhancedCustomerDashboard() {
                 }
                 
                 // Load fresh data in parallel
-                const [realtimeData, analyticsData, recommendations, notifications] = await Promise.allSettled([
+                const [realtimeData, analyticsData, recommendations, notifications, alerts] = await Promise.allSettled([
                     this.fetchWithCache('realtime'),
                     this.fetchWithCache('analytics'),
                     this.fetchWithCache('recommendations'),
-                    this.fetchWithCache('notifications')
+                    this.fetchWithCache('notifications'),
+                    this.fetchUserAlerts()
                 ]);
                 
                 // Process successful responses
@@ -145,6 +179,10 @@ function enhancedCustomerDashboard() {
                 if (notifications.status === 'fulfilled') {
                     this.processNotifications(notifications.value);
                 }
+
+                if (alerts.status === 'fulfilled') {
+                    this.userAlerts = alerts.value || [];
+                }
                 
                 this.lastUpdate = new Date();
                 
@@ -153,7 +191,455 @@ function enhancedCustomerDashboard() {
                 throw error;
             }
         },
+
+        /**
+         * Apply current filters and refresh tickets
+         */
+        async applyFilters() {
+            this.isFiltering = true;
+            try {
+                await this.fetchFilteredTickets();
+            } finally {
+                this.isFiltering = false;
+            }
+        },
+
+        /**
+         * Reset filters to defaults
+         */
+        async resetFilters() {
+            this.filters = { sports: [], platforms: [], price_min: null, price_max: null, date_from: null, date_to: null, sort: 'newest' };
+            await this.applyFilters();
+        },
+
+        /**
+         * Compute active filter count
+         */
+        computeFilterCount() {
+            let count = 0;
+            if (this.filters.sports?.length) count += 1;
+            if (this.filters.platforms?.length) count += 1;
+            if (this.filters.price_min != null || this.filters.price_max != null) count += 1;
+            if (this.filters.date_from || this.filters.date_to) count += 1;
+            if (this.filters.sort && this.filters.sort !== 'newest') count += 1;
+            this.filterCount = count;
+        },
+
+        /**
+         * Fetch filtered tickets from API
+         */
+        async fetchFilteredTickets() {
+            this.computeFilterCount();
+            const params = new URLSearchParams();
+            if (this.filters.sports?.length) this.filters.sports.forEach(s => params.append('sport[]', s));
+            if (this.filters.platforms?.length) this.filters.platforms.forEach(p => params.append('platform[]', p));
+            if (this.filters.price_min != null) params.set('price_min', this.filters.price_min);
+            if (this.filters.price_max != null) params.set('price_max', this.filters.price_max);
+            if (this.filters.date_from) params.set('date_from', this.filters.date_from);
+            if (this.filters.date_to) params.set('date_to', this.filters.date_to);
+            if (this.filters.sort) params.set('sort', this.filters.sort);
+            params.set('limit', '12');
+
+            const url = `${DASHBOARD_CONFIG.endpoints.ticketsFilter}?${params.toString()}`;
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' }, method: 'GET' });
+            if (!res.ok) throw new Error('Failed to fetch filtered tickets');
+            const json = await res.json();
+            // Expecting json.data or json.tickets
+            const items = json.data?.tickets || json.data || json.tickets || [];
+            this.dashboardData.recentTickets = items;
+            this.recentTickets = items;
+            this.lastUpdate = new Date();
+        },
         
+        /**
+         * Fetch user alerts
+         */
+        async fetchUserAlerts() {
+            try {
+                const res = await fetch('/api/v1/dashboard/notifications', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return [];
+                const json = await res.json();
+                // Adapt: if endpoint returns notifications, map to alerts fallback
+                if (Array.isArray(json?.data)) {
+                    return json.data.filter(n => n.type === 'alert').map(n => ({
+                        id: n.id,
+                        name: n.title || 'Alert',
+                        is_active: !n.read_at,
+                        matches_count: n.matches_count || 0,
+                        success_rate: n.success_rate || 0,
+                        criteria: n.criteria || {}
+                    }));
+                }
+                // If EnhancedDashboardController exposes alerts_data
+                if (json?.alerts) return json.alerts;
+                return [];
+            } catch (_) { return []; }
+        },
+
+        getAlertCriteria(alert) {
+            const parts = [];
+            if (alert.criteria?.sport) parts.push(`Sport: ${alert.criteria.sport}`);
+            if (alert.criteria?.platform) parts.push(`Platform: ${alert.criteria.platform}`);
+            if (alert.criteria?.max_price) parts.push(`<= $${alert.criteria.max_price}`);
+            return parts.join(' • ') || 'Any';
+        },
+
+        async createAlert() {
+            this.isCreatingAlert = true;
+            try {
+                const payload = {
+                    name: this.newAlert.name,
+                    sport: this.newAlert.sport || null,
+                    max_price: this.newAlert.max_price || null,
+                    platform: this.newAlert.platform || null,
+                };
+                const res = await fetch('/api/v1/alerts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error('Failed to create alert');
+                await this.refreshAlerts();
+                this.showCreateAlert = false;
+                this.newAlert = { name: '', sport: '', max_price: null, platform: '' };
+            } catch (e) {
+                console.error(e);
+            } finally {
+                this.isCreatingAlert = false;
+            }
+        },
+
+        async refreshAlerts() {
+            this.userAlerts = await this.fetchUserAlerts();
+        },
+
+        async toggleAlert(alert) {
+            try {
+                const url = `/api/v1/alerts/${alert.uuid || alert.id}/toggle`;
+                const res = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Toggle failed');
+                await this.refreshAlerts();
+            } catch (e) { console.error(e); }
+        },
+
+        editAlert(alert) {
+            // Simple placeholder open settings with prefilled data
+            this.showCreateAlert = true;
+            this.newAlert = { name: alert.name, sport: alert.criteria?.sport || '', max_price: alert.criteria?.max_price || null, platform: alert.criteria?.platform || '' };
+        },
+
+        async deleteAlert(alert) {
+            if (!confirm('Delete this alert?')) return;
+            try {
+                const url = `/api/v1/alerts/${alert.uuid || alert.id}`;
+                const res = await fetch(url, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Delete failed');
+                await this.refreshAlerts();
+            } catch (e) { console.error(e); }
+        },
+
+        useTemplate(type) {
+            if (type === 'price_drop') this.newAlert = { name: 'Price Drop', sport: '', max_price: 100, platform: '' };
+            if (type === 'last_minute') this.newAlert = { name: 'Last Minute', sport: '', max_price: 50, platform: '' };
+            if (type === 'premium_seats') this.newAlert = { name: 'Premium Seats', sport: '', max_price: 500, platform: '' };
+            this.showCreateAlert = true;
+            this.trackInteraction('template_used', { template: type });
+        },
+        
+        /**
+         * Record page load performance metrics
+         */
+        recordPageLoadMetrics() {
+            if (performance && performance.timing) {
+                const timing = performance.timing;
+                this.performanceMetrics.pageLoadTime = timing.loadEventEnd - timing.navigationStart;
+                
+                // Add performance marks
+                if (performance.mark) {
+                    performance.mark('dashboard-init-complete');
+                }
+                
+                this.trackEvent('page_load', {
+                    load_time: this.performanceMetrics.pageLoadTime,
+                    dom_ready: timing.domContentLoadedEventEnd - timing.navigationStart,
+                    first_paint: timing.responseEnd - timing.navigationStart
+                });
+            }
+        },
+        
+        /**
+         * Setup comprehensive performance monitoring
+         */
+        setupPerformanceMonitoring() {
+            // Monitor API response times
+            this.monitorApiPerformance();
+            
+            // Track user interactions
+            this.setupInteractionTracking();
+            
+            // Monitor WebSocket stability
+            this.monitorWebSocketStability();
+            
+            // Setup error tracking
+            this.setupErrorTracking();
+            
+            // Send analytics data periodically
+            this.startAnalyticsReporting();
+        },
+        
+        /**
+         * Monitor API performance
+         */
+        monitorApiPerformance() {
+            const originalFetch = window.fetch;
+            window.fetch = async (...args) => {
+                const startTime = performance.now();
+                const url = args[0];
+                
+                try {
+                    const response = await originalFetch(...args);
+                    const endTime = performance.now();
+                    const duration = endTime - startTime;
+                    
+                    // Record API response time
+                    const endpoint = this.getEndpointName(url);
+                    if (!this.performanceMetrics.apiResponseTimes[endpoint]) {
+                        this.performanceMetrics.apiResponseTimes[endpoint] = [];
+                    }
+                    this.performanceMetrics.apiResponseTimes[endpoint].push(duration);
+                    
+                    // Track successful API calls
+                    this.trackEvent('api_call', {
+                        endpoint: endpoint,
+                        duration: Math.round(duration),
+                        status: response.status,
+                        success: response.ok
+                    });
+                    
+                    return response;
+                } catch (error) {
+                    const endTime = performance.now();
+                    const duration = endTime - startTime;
+                    
+                    // Track failed API calls
+                    this.trackEvent('api_error', {
+                        endpoint: this.getEndpointName(url),
+                        duration: Math.round(duration),
+                        error: error.message
+                    });
+                    
+                    this.performanceMetrics.errorCount++;
+                    throw error;
+                }
+            };
+        },
+        
+        /**
+         * Setup interaction tracking
+         */
+        setupInteractionTracking() {
+            document.addEventListener('click', (event) => {
+                this.performanceMetrics.userInteractions++;
+                
+                // Track specific dashboard interactions
+                const target = event.target.closest('[data-track]');
+                if (target) {
+                    this.trackInteraction('click', {
+                        element: target.dataset.track,
+                        timestamp: Date.now()
+                    });
+                }
+            });
+            
+            // Track scroll events (throttled)
+            let scrollTimeout;
+            document.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    this.trackInteraction('scroll', {
+                        scrollTop: window.scrollY,
+                        timestamp: Date.now()
+                    });
+                }, 500);
+            });
+        },
+        
+        /**
+         * Monitor WebSocket connection stability
+         */
+        monitorWebSocketStability() {
+            let connectionAttempts = 0;
+            let successfulConnections = 0;
+            
+            const originalSetupWebSocket = this.setupWebSocket;
+            this.setupWebSocket = () => {
+                connectionAttempts++;
+                
+                originalSetupWebSocket.call(this);
+                
+                if (this.websocket) {
+                    this.websocket.addEventListener('open', () => {
+                        successfulConnections++;
+                        this.performanceMetrics.websocketStability = (successfulConnections / connectionAttempts) * 100;
+                        
+                        this.trackEvent('websocket_connect', {
+                            attempts: connectionAttempts,
+                            success_rate: this.performanceMetrics.websocketStability
+                        });
+                    });
+                    
+                    this.websocket.addEventListener('error', (error) => {
+                        this.trackEvent('websocket_error', {
+                            error: error.type,
+                            attempts: connectionAttempts
+                        });
+                    });
+                }
+            };
+        },
+        
+        /**
+         * Setup error tracking
+         */
+        setupErrorTracking() {
+            window.addEventListener('error', (event) => {
+                this.performanceMetrics.errorCount++;
+                
+                this.trackEvent('js_error', {
+                    message: event.message,
+                    filename: event.filename,
+                    line: event.lineno,
+                    column: event.colno,
+                    stack: event.error?.stack?.substring(0, 500)
+                });
+            });
+            
+            window.addEventListener('unhandledrejection', (event) => {
+                this.performanceMetrics.errorCount++;
+                
+                this.trackEvent('promise_rejection', {
+                    reason: event.reason?.toString?.()?.substring(0, 200) || 'Unknown',
+                    stack: event.reason?.stack?.substring(0, 500)
+                });
+            });
+        },
+        
+        /**
+         * Track custom events
+         */
+        trackEvent(eventName, data = {}) {
+            const event = {
+                name: eventName,
+                data: data,
+                timestamp: Date.now(),
+                url: window.location.pathname,
+                user_agent: navigator.userAgent,
+                session_id: this.getSessionId()
+            };
+            
+            this.analyticsQueue.push(event);
+            
+            // Immediate send for critical events
+            if (['js_error', 'api_error', 'websocket_error'].includes(eventName)) {
+                this.sendAnalytics([event]);
+            }
+        },
+        
+        /**
+         * Track user interactions
+         */
+        trackInteraction(type, data = {}) {
+            this.trackEvent('user_interaction', {
+                interaction_type: type,
+                ...data
+            });
+        },
+        
+        /**
+         * Start periodic analytics reporting
+         */
+        startAnalyticsReporting() {
+            // Send analytics every 30 seconds
+            setInterval(() => {
+                if (this.analyticsQueue.length > 0) {
+                    const events = [...this.analyticsQueue];
+                    this.analyticsQueue = [];
+                    this.sendAnalytics(events);
+                }
+            }, 30000);
+            
+            // Send analytics when user leaves
+            window.addEventListener('beforeunload', () => {
+                if (this.analyticsQueue.length > 0) {
+                    navigator.sendBeacon(
+                        '/api/v1/dashboard/analytics',
+                        JSON.stringify({
+                            events: this.analyticsQueue,
+                            performance_summary: this.getPerformanceSummary()
+                        })
+                    );
+                }
+            });
+        },
+        
+        /**
+         * Send analytics data to server
+         */
+        async sendAnalytics(events) {
+            try {
+                await fetch('/api/v1/dashboard/analytics', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        events: events,
+                        performance_summary: this.getPerformanceSummary()
+                    })
+                });
+            } catch (error) {
+                console.warn('Analytics tracking failed:', error);
+            }
+        },
+        
+        /**
+         * Get performance summary
+         */
+        getPerformanceSummary() {
+            const avgApiTimes = {};
+            for (const [endpoint, times] of Object.entries(this.performanceMetrics.apiResponseTimes)) {
+                avgApiTimes[endpoint] = times.length > 0 
+                    ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
+                    : 0;
+            }
+            
+            return {
+                page_load_time: this.performanceMetrics.pageLoadTime,
+                avg_api_response_times: avgApiTimes,
+                error_count: this.performanceMetrics.errorCount,
+                user_interactions: this.performanceMetrics.userInteractions,
+                websocket_stability: this.performanceMetrics.websocketStability,
+                session_duration: Date.now() - (this.initTime || Date.now())
+            };
+        },
+        
+        /**
+         * Helper methods
+         */
+        getEndpointName(url) {
+            if (typeof url !== 'string') return 'unknown';
+            const parts = url.split('/');
+            return parts[parts.length - 1] || parts[parts.length - 2] || 'root';
+        },
+        
+        getSessionId() {
+            if (!this.sessionId) {
+                this.sessionId = 'dashboard_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            return this.sessionId;
+        },
+
         /**
          * Setup WebSocket connection for real-time updates
          */
