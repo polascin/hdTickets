@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
@@ -15,8 +16,8 @@ class TicketPurchaseTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_create_a_ticket_purchase(): void
     {
         $user = $this->createTestUser();
@@ -55,8 +56,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
         $purchase = new TicketPurchase();
@@ -74,8 +75,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_casts_attributes_correctly(): void
     {
         $user = $this->createTestUser();
@@ -104,8 +105,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_user(): void
     {
         $user = $this->createTestUser();
@@ -127,8 +128,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_ticket(): void
     {
         $user = $this->createTestUser();
@@ -150,8 +151,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_is_pending(): void
     {
         $purchase = $this->createTestPurchase(['status' => 'pending']);
@@ -163,8 +164,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_is_confirmed(): void
     {
         $purchase = $this->createTestPurchase([
@@ -179,8 +180,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_is_cancelled(): void
     {
         $purchase = $this->createTestPurchase([
@@ -196,8 +197,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_is_failed(): void
     {
         $purchase = $this->createTestPurchase(['status' => 'failed']);
@@ -209,8 +210,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_calculate_total_tickets_for_purchase(): void
     {
         $purchase = $this->createTestPurchase(['quantity' => 5]);
@@ -219,8 +220,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_formatted_purchase_date(): void
     {
         $purchaseDate = now()->subDays(2);
@@ -233,8 +234,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_formatted_total_amount(): void
     {
         $purchase = $this->createTestPurchase(['total_amount' => 1234.56]);
@@ -243,8 +244,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_can_be_cancelled(): void
     {
         $pendingPurchase = $this->createTestPurchase(['status' => 'pending']);
@@ -257,8 +258,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_processing_fee_percentage(): void
     {
         $purchase = $this->createTestPurchase([
@@ -270,8 +271,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_zero_subtotal_for_processing_fee_percentage(): void
     {
         $purchase = $this->createTestPurchase([
@@ -283,8 +284,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_seat_preferences_summary(): void
     {
         $purchase = $this->createTestPurchase([
@@ -303,8 +304,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_empty_string_for_no_seat_preferences(): void
     {
         $purchase = $this->createTestPurchase(['seat_preferences' => NULL]);
@@ -317,8 +318,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_by_status(): void
     {
         $this->createTestPurchase(['status' => 'pending']);
@@ -343,8 +344,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_by_user(): void
     {
         $user1 = $this->createTestUser();
@@ -362,8 +363,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_by_date_range(): void
     {
         $oldPurchase = $this->createTestPurchase(['created_at' => now()->subWeek()]);
@@ -382,8 +383,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_by_current_month(): void
     {
         $lastMonth = $this->createTestPurchase(['created_at' => now()->subMonth()]);
@@ -397,8 +398,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_required_fields(): void
     {
         $this->expectException(QueryException::class);
@@ -412,8 +413,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_generates_unique_purchase_ids(): void
     {
         $purchase1 = $this->createTestPurchase(['purchase_id' => 'PUR-UNIQUE-1']);
@@ -423,8 +424,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_purchase_age_in_days(): void
     {
         $purchase = $this->createTestPurchase(['created_at' => now()->subDays(5)]);
@@ -433,8 +434,8 @@ class TicketPurchaseTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_purchase_is_recent(): void
     {
         $recentPurchase = $this->createTestPurchase(['created_at' => now()->subHour()]);

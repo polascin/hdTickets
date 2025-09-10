@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\LegalDocument;
 use App\Models\User;
 use App\Models\UserLegalAcceptance;
@@ -22,8 +23,8 @@ class ModernRegistrationFlowTest extends TestCase
     use WithFaker;
 
     /**
-     * @test
      */
+    #[Test]
     public function registration_page_displays_modern_stepper_interface(): void
     {
         $response = $this->get('/register/public');
@@ -45,8 +46,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function validation_endpoint_provides_field_level_feedback(): void
     {
         $response = $this->postJson('/register/public/validate', [
@@ -76,8 +77,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function email_availability_endpoint_checks_uniqueness(): void
     {
         // Test available email
@@ -109,8 +110,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function password_strength_endpoint_provides_detailed_feedback(): void
     {
         $response = $this->postJson('/register/public/check-password', [
@@ -151,8 +152,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function complete_registration_flow_with_all_features(): void
     {
         $userData = [
@@ -201,8 +202,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function registration_fails_without_required_legal_acceptances(): void
     {
         $userData = [
@@ -230,8 +231,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function registration_handles_step_navigation_correctly(): void
     {
         // Test registration with current_step parameter
@@ -262,8 +263,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function validation_endpoints_respect_rate_limiting(): void
     {
         // Test rate limiting on validation endpoint (60 requests per minute)
@@ -281,8 +282,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function registration_preserves_server_side_validation_as_source_of_truth(): void
     {
         // Attempt registration with data that might pass client-side but fail server-side
@@ -311,8 +312,8 @@ class ModernRegistrationFlowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function registration_handles_optional_fields_correctly(): void
     {
         $userData = [

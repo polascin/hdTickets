@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Email;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Services\Email\EmailParsingService;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -19,16 +20,16 @@ class EmailParsingServiceTest extends TestCase
     private EmailParsingService $service;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_be_instantiated(): void
     {
         $this->assertInstanceOf(EmailParsingService::class, $this->service);
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_detects_sport_categories_correctly(): void
     {
         // Use reflection to access private method
@@ -46,8 +47,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_parses_ticketmaster_emails(): void
     {
         $headers = [
@@ -78,8 +79,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_parses_stubhub_emails(): void
     {
         $headers = [
@@ -106,8 +107,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_parses_generic_sports_emails(): void
     {
         $headers = [
@@ -137,8 +138,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_parsed_data(): void
     {
         $reflection = new ReflectionClass($this->service);
@@ -170,8 +171,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_extracts_email_metadata(): void
     {
         $headers = [
@@ -209,8 +210,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_parses_event_dates(): void
     {
         $reflection = new ReflectionClass($this->service);
@@ -225,8 +226,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_gets_parsing_statistics(): void
     {
         $stats = $this->service->getParsingStats();
@@ -242,8 +243,8 @@ class EmailParsingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_parses_complete_email_data(): void
     {
         $emailData = [

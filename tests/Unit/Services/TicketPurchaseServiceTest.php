@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
@@ -28,8 +29,8 @@ class TicketPurchaseServiceTest extends TestCase
     private Ticket $ticket;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_purchase_eligibility_for_customer_with_active_subscription(): void
     {
         // Create active subscription
@@ -55,8 +56,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_denies_purchase_for_customer_without_active_subscription(): void
     {
         $eligibility = $this->purchaseService->checkPurchaseEligibility(
@@ -70,8 +71,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_denies_purchase_for_customer_exceeding_ticket_limit(): void
     {
         // Create subscription with low limit
@@ -108,8 +109,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_allows_unlimited_purchases_for_agent(): void
     {
         $eligibility = $this->purchaseService->checkPurchaseEligibility(
@@ -124,8 +125,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_allows_unlimited_purchases_for_admin(): void
     {
         $eligibility = $this->purchaseService->checkPurchaseEligibility(
@@ -140,8 +141,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_denies_purchase_for_unavailable_ticket(): void
     {
         $unavailableTicket = $this->createTestTicket(['is_available' => FALSE]);
@@ -157,8 +158,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_denies_purchase_when_quantity_exceeds_availability(): void
     {
         $limitedTicket = $this->createTestTicket([
@@ -177,8 +178,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_create_successful_purchase(): void
     {
         // Give customer active subscription
@@ -220,8 +221,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_calculates_fees_correctly(): void
     {
         $baseAmount = 100.00;
@@ -243,8 +244,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_generates_unique_purchase_ids(): void
     {
         UserSubscription::create([
@@ -273,8 +274,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_confirm_purchase(): void
     {
         UserSubscription::create([
@@ -300,8 +301,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_cancel_purchase(): void
     {
         UserSubscription::create([
@@ -326,8 +327,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_user_monthly_ticket_usage(): void
     {
         // Create purchases for current month
@@ -364,8 +365,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_edge_case_of_zero_quantity_purchase(): void
     {
         UserSubscription::create([
@@ -387,8 +388,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_negative_quantity_purchase(): void
     {
         UserSubscription::create([
@@ -410,8 +411,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_respects_free_access_period_for_new_customers(): void
     {
         // Customer within free access period (created recently)
@@ -435,8 +436,8 @@ class TicketPurchaseServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_denies_purchase_after_free_access_period_expires(): void
     {
         // Customer beyond free access period

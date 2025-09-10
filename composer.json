@@ -46,7 +46,7 @@
   },
   "require-dev": {
     "laravel/breeze": "^2.3",
-    "phpunit/phpunit": "^12.0",
+    "phpunit/phpunit": "^11.5",
     "mockery/mockery": "^1.6",
     "fakerphp/faker": "^1.24",
     "laravel/pint": "^1.0",
@@ -55,7 +55,6 @@
     "spatie/laravel-ignition": "^2.8",
     "symfony/var-dumper": "^7.3",
     "laravel/telescope": "^5.10",
-    "brianium/paratest": "^7.8",
     "friendsofphp/php-cs-fixer": "^3.64",
     "phpstan/phpstan": "^2.1",
     "phpmd/phpmd": "^2.15",

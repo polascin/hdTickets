@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Override;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Enhanced Login System Feature Tests
@@ -37,9 +38,7 @@ class EnhancedLoginTest extends TestCase
 
     private string $testPassword = 'SecurePassword123!';
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_displays_the_login_page(): void
     {
         $response = $this->get('/login');
@@ -50,9 +49,7 @@ class EnhancedLoginTest extends TestCase
         $response->assertViewIs(Login::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_displays_the_enhanced_login_page_when_configured(): void
     {
         config(['auth.enhanced_login' => TRUE]);
@@ -64,9 +61,7 @@ class EnhancedLoginTest extends TestCase
         $response->assertViewIs('auth.login-enhanced');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_can_successfully_login_with_valid_credentials(): void
     {
         $response = $this->post('/login', [
@@ -89,8 +84,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_rejects_invalid_credentials(): void
     {
         $response = $this->post('/login', [
@@ -108,8 +103,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_locks_account_after_multiple_failed_attempts(): void
     {
         // Make 4 failed attempts
@@ -137,8 +132,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_rejects_login_for_locked_account(): void
     {
         $this->testUser->update([
@@ -159,8 +154,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_rejects_login_for_inactive_account(): void
     {
         $this->testUser->update(['is_active' => FALSE]);
@@ -178,8 +173,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_rejects_login_for_scraper_accounts(): void
     {
         $this->testUser->update(['role' => 'scraper']);
@@ -197,8 +192,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_enforces_rate_limiting(): void
     {
         $key = 'login_attempts_email:' . $this->testUser->email . '|127.0.0.1';
@@ -220,8 +215,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_two_factor_authentication_redirect(): void
     {
         // Enable 2FA for user
@@ -244,8 +239,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_complete_two_factor_authentication(): void
     {
         // Setup 2FA
@@ -278,8 +273,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_invalid_two_factor_codes(): void
     {
         // Setup 2FA
@@ -310,8 +305,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_use_recovery_codes_for_two_factor(): void
     {
         // Setup 2FA with recovery codes
@@ -347,8 +342,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_sms_backup_codes(): void
     {
         if (! config('services.twilio.sid')) {
@@ -376,8 +371,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_email_backup_codes(): void
     {
         // Setup 2FA
@@ -400,8 +395,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_required_login_fields(): void
     {
         $response = $this->post('/login', []);
@@ -412,8 +407,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_email_format(): void
     {
         $response = $this->post('/login', [
@@ -427,8 +422,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_honeypot_field(): void
     {
         $response = $this->post('/login', [
@@ -443,8 +438,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_email_availability(): void
     {
         $response = $this->postJson('/login/check-email', [
@@ -468,8 +463,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_nonexistent_email_check(): void
     {
         $response = $this->postJson('/login/check-email', [
@@ -484,8 +479,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_rate_limits_email_checks(): void
     {
         $email = 'test@example.com';
@@ -503,8 +498,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_processes_device_fingerprinting(): void
     {
         $deviceFingerprint = base64_encode(json_encode([
@@ -526,8 +521,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_remembers_user_when_requested(): void
     {
         $response = $this->post('/login', [
@@ -545,8 +540,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_clears_failed_attempts_on_successful_login(): void
     {
         // Set some failed attempts
@@ -568,8 +563,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_logs_successful_login_activity(): void
     {
         $response = $this->post('/login', [
@@ -590,8 +585,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_redirects_to_intended_url_after_login(): void
     {
         // Set intended URL in session
@@ -606,8 +601,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_logout_correctly(): void
     {
         $this->actingAs($this->testUser);
@@ -619,8 +614,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_displays_two_factor_challenge_page(): void
     {
         Session::put('2fa_user_id', $this->testUser->id);
@@ -633,8 +628,8 @@ class EnhancedLoginTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_redirects_to_login_if_no_2fa_session(): void
     {
         $response = $this->get('/2fa/challenge');

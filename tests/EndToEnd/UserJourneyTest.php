@@ -2,6 +2,7 @@
 
 namespace Tests\EndToEnd;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\ProcessPurchaseAttempt;
 use App\Mail\AccountDeletionRequested;
 use App\Mail\SubscriptionConfirmation;
@@ -22,8 +23,8 @@ class UserJourneyTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @test
      */
+    #[Test]
     public function complete_user_registration_and_onboarding_journey(): void
     {
         Mail::fake();
@@ -100,8 +101,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function ticket_discovery_and_purchase_attempt_journey(): void
     {
         Queue::fake();
@@ -164,8 +165,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function premium_user_upgrade_and_benefits_journey(): void
     {
         Mail::fake();
@@ -240,8 +241,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function ticket_alert_notification_and_response_journey(): void
     {
         Mail::fake();
@@ -311,8 +312,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function admin_ticket_management_and_monitoring_journey(): void
     {
         $admin = $this->createTestUser(['role' => 'admin']);
@@ -378,8 +379,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function user_account_management_and_privacy_journey(): void
     {
         Mail::fake();
@@ -475,8 +476,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function error_handling_and_recovery_journey(): void
     {
         $user = $this->createTestUser();
@@ -532,8 +533,8 @@ class UserJourneyTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function mobile_app_user_journey(): void
     {
         $user = $this->createTestUser();

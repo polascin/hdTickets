@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\SendDelayedNotification;
 use App\Mail\BulkNotification;
 use App\Mail\PaymentFailure;
@@ -29,8 +30,8 @@ class NotificationServiceTest extends TestCase
     private $mockPushService;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_email_notification(): void
     {
         $user = $this->createTestUser([
@@ -49,8 +50,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_skips_email_when_user_disabled_email_notifications(): void
     {
         $user = $this->createTestUser([
@@ -68,8 +69,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_sms_notification(): void
     {
         $user = $this->createTestUser([
@@ -92,8 +93,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_skips_sms_when_user_has_no_phone_number(): void
     {
         $user = $this->createTestUser(['phone' => NULL]);
@@ -107,8 +108,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_skips_sms_when_user_disabled_sms_notifications(): void
     {
         $user = $this->createTestUser([
@@ -125,8 +126,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_push_notification(): void
     {
         $user = $this->createTestUser([
@@ -149,8 +150,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_slack_notification(): void
     {
         $this->mockSlackService
@@ -168,8 +169,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_ticket_alert_notification(): void
     {
         $user = $this->createTestUser([
@@ -216,8 +217,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_respects_user_notification_frequency_limits(): void
     {
         $user = $this->createTestUser();
@@ -236,8 +237,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_allows_notifications_after_frequency_period_passes(): void
     {
         $user = $this->createTestUser();
@@ -256,8 +257,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_bulk_notifications(): void
     {
         $users = collect([
@@ -277,8 +278,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_notification_failures_gracefully(): void
     {
         $user = $this->createTestUser(['email' => 'invalid@email']);
@@ -299,8 +300,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_queue_delayed_notifications(): void
     {
         $user = $this->createTestUser();
@@ -318,8 +319,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_admin_notifications(): void
     {
         collect([
@@ -337,8 +338,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_purchase_confirmation_notification(): void
     {
         $user = $this->createTestUser(['email' => 'buyer@example.com']);
@@ -360,8 +361,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_payment_failure_notification(): void
     {
         $user = $this->createTestUser(['email' => 'buyer@example.com']);
@@ -379,8 +380,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_notification_statistics(): void
     {
         $user = $this->createTestUser();
@@ -401,8 +402,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_validate_notification_preferences(): void
     {
         $validPreferences = [
@@ -426,8 +427,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_unsubscribe_user_from_notifications(): void
     {
         $user = $this->createTestUser([
@@ -449,8 +450,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_notification_delivery_status(): void
     {
         $notificationId = 'notif_123';
@@ -473,8 +474,8 @@ class NotificationServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_send_notification_with_template(): void
     {
         $user = $this->createTestUser(['name' => 'John Doe']);

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Services\Core\ScrapingService;
 use App\Services\Interfaces\ScrapingInterface;
 use Illuminate\Support\Facades\Cache;
@@ -22,16 +23,16 @@ class ScrapingServiceTest extends TestCase
     private $mockEncryptionService;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_implements_scraping_interface(): void
     {
         $this->assertInstanceOf(ScrapingInterface::class, $this->scrapingService);
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_initializes_with_dependencies(): void
     {
         $dependencies = [
@@ -47,8 +48,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_throws_exception_when_missing_required_dependencies(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -61,8 +62,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_available_platforms(): void
     {
         $dependencies = [
@@ -81,8 +82,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_enables_and_disables_platforms(): void
     {
         $dependencies = [
@@ -103,8 +104,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_scraping_statistics(): void
     {
         Cache::shouldReceive('get')->andReturn([]);
@@ -126,8 +127,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_schedules_recurring_scraping(): void
     {
         Cache::shouldReceive('put')->once();
@@ -148,8 +149,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_updates_scheduled_scraping_criteria(): void
     {
         // Mock cache get to return existing schedule
@@ -175,8 +176,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_cancels_scheduled_scraping(): void
     {
         Cache::shouldReceive('forget')
@@ -198,8 +199,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_errors_gracefully(): void
     {
         Log::shouldReceive('error')->once();
@@ -218,8 +219,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_maintains_health_status(): void
     {
         $dependencies = [
@@ -240,8 +241,8 @@ class ScrapingServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_cleans_up_resources(): void
     {
         $dependencies = [

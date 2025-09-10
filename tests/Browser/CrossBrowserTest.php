@@ -2,6 +2,7 @@
 
 namespace Tests\Browser;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Hash;
@@ -27,8 +28,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_chrome_login_functionality(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -45,8 +46,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_firefox_compatibility(): void
     {
         // Note: This would require Firefox setup in your testing environment
@@ -64,8 +65,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_responsive_design_mobile(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -83,8 +84,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_responsive_design_tablet(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -102,8 +103,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_form_validation_across_browsers(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -118,8 +119,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_remember_me_functionality(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -135,8 +136,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_password_visibility_toggle(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -153,8 +154,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_keyboard_navigation_accessibility(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -178,8 +179,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_form_submission_loading_state(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -194,8 +195,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_error_handling_display(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -210,8 +211,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_csrf_token_handling(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -222,8 +223,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_honeypot_field_hidden(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -235,8 +236,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_mobile_browser_compatibility(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -259,8 +260,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_screen_reader_announcements(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -275,8 +276,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_color_contrast_accessibility(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -298,8 +299,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_javascript_disabled_fallback(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -315,8 +316,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_session_timeout_handling(): void
     {
         $this->browse(function (Browser $browser): void {
@@ -334,8 +335,8 @@ class CrossBrowserTest extends DuskTestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_form_auto_fill_compatibility(): void
     {
         $this->browse(function (Browser $browser): void {

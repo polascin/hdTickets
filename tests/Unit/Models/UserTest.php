@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\PurchaseAttempt;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -18,8 +19,8 @@ class UserTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_create_a_user_with_basic_attributes(): void
     {
         $userData = [
@@ -41,8 +42,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
         $user = new User();
@@ -59,8 +60,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_hides_sensitive_attributes(): void
     {
         $user = User::factory()->create();
@@ -74,8 +75,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_casts_attributes_correctly(): void
     {
         $user = User::factory()->create([
@@ -90,8 +91,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_subscriptions(): void
     {
         $user = $this->createTestUser();
@@ -110,8 +111,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_ticket_alerts(): void
     {
         $user = $this->createTestUser();
@@ -130,8 +131,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_purchase_attempts(): void
     {
         $user = $this->createTestUser();
@@ -151,8 +152,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_user_is_premium(): void
     {
         $user = $this->createTestUser();
@@ -176,8 +177,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_user_is_admin(): void
     {
         $regularUser = $this->createTestUser(['role' => 'user']);
@@ -188,8 +189,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_user_subscription_status(): void
     {
         $user = $this->createTestUser();
@@ -216,8 +217,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_user_preferences_with_defaults(): void
     {
         $user = $this->createTestUser();
@@ -234,8 +235,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_update_user_preferences(): void
     {
         $user = $this->createTestUser();
@@ -255,8 +256,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_enable_two_factor_authentication(): void
     {
         $user = $this->createTestUser();
@@ -269,8 +270,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_disable_two_factor_authentication(): void
     {
         $user = $this->createTestUser(['two_factor_secret' => 'test_secret']);
@@ -281,8 +282,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_two_factor_is_enabled(): void
     {
         $user = $this->createTestUser();
@@ -295,8 +296,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_active_ticket_alerts_count(): void
     {
         $user = $this->createTestUser();
@@ -330,8 +331,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_recent_purchase_attempts(): void
     {
         $user = $this->createTestUser();
@@ -363,8 +364,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_soft_delete_user(): void
     {
         $user = $this->createTestUser();
@@ -376,8 +377,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_email_format(): void
     {
         $this->expectException(QueryException::class);
@@ -391,8 +392,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_enforces_unique_email_constraint(): void
     {
         $this->createTestUser(['email' => 'test@example.com']);
@@ -403,8 +404,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_users_by_role(): void
     {
         $this->createTestUser(['role' => 'user']);
@@ -419,8 +420,8 @@ class UserTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_active_users(): void
     {
         $this->createTestUser(['status' => 'active']);

@@ -2,6 +2,7 @@
 
 namespace Tests\Integration\Api;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\Ticket;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -20,8 +21,8 @@ class TicketApiTest extends TestCase
     private User $admin;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_list_tickets_without_authentication(): void
     {
         // Create some test tickets
@@ -45,8 +46,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_filter_tickets_by_sport_type(): void
     {
         $this->createTestTicket(['sport_type' => 'football']);
@@ -66,8 +67,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_filter_tickets_by_price_range(): void
     {
         $this->createTestTicket(['price_min' => 50, 'price_max' => 100]);
@@ -83,8 +84,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_filter_tickets_by_availability(): void
     {
         $this->createTestTicket(['status' => 'available']);
@@ -100,8 +101,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_search_tickets_by_team(): void
     {
         $this->createTestTicket([
@@ -123,8 +124,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_sort_tickets_by_price(): void
     {
         $this->createTestTicket(['price_min' => 100]);
@@ -141,8 +142,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_sort_tickets_by_event_date(): void
     {
         $this->createTestTicket(['event_date' => now()->addDays(10)]);
@@ -161,8 +162,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_single_ticket_details(): void
     {
         $ticket = $this->createTestTicket([
@@ -191,8 +192,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_404_for_nonexistent_ticket(): void
     {
         $response = $this->getJson('/api/tickets/99999');
@@ -202,8 +203,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_requires_authentication_to_create_ticket_alerts(): void
     {
         $response = $this->postJson('/api/tickets/alerts', [
@@ -215,8 +216,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function authenticated_user_can_create_ticket_alert(): void
     {
         Sanctum::actingAs($this->user);
@@ -249,8 +250,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_ticket_alert_creation_data(): void
     {
         Sanctum::actingAs($this->user);
@@ -270,8 +271,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function authenticated_user_can_list_their_alerts(): void
     {
         Sanctum::actingAs($this->user);
@@ -297,8 +298,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function authenticated_user_can_update_their_alert(): void
     {
         Sanctum::actingAs($this->user);
@@ -325,8 +326,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function user_cannot_update_other_users_alert(): void
     {
         Sanctum::actingAs($this->user);
@@ -342,8 +343,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function authenticated_user_can_delete_their_alert(): void
     {
         Sanctum::actingAs($this->user);
@@ -358,8 +359,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_requires_authentication_for_purchase_attempts(): void
     {
         $ticket = $this->createTestTicket();
@@ -373,8 +374,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function authenticated_user_can_create_purchase_attempt(): void
     {
         Sanctum::actingAs($this->user);
@@ -407,8 +408,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_purchase_attempt_data(): void
     {
         Sanctum::actingAs($this->user);
@@ -430,8 +431,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_prevents_purchase_attempts_for_sold_out_tickets(): void
     {
         Sanctum::actingAs($this->user);
@@ -448,8 +449,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function premium_user_gets_higher_priority_for_purchases(): void
     {
         $premiumUser = $this->createPremiumUser();
@@ -469,8 +470,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function admin_can_access_ticket_management_endpoints(): void
     {
         Sanctum::actingAs($this->admin);
@@ -498,8 +499,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function regular_user_cannot_access_admin_endpoints(): void
     {
         Sanctum::actingAs($this->user);
@@ -512,8 +513,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_ticket_statistics(): void
     {
         // Create various tickets for statistics
@@ -538,8 +539,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_trending_tickets(): void
     {
         // Create tickets with different view counts or interest levels
@@ -565,8 +566,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_implements_rate_limiting_for_api_endpoints(): void
     {
         // Make multiple rapid requests to test rate limiting
@@ -584,8 +585,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_proper_pagination_metadata(): void
     {
         // Create more tickets than per-page limit
@@ -605,8 +606,8 @@ class TicketApiTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_api_versioning(): void
     {
         $response = $this->getJson('/api/v1/tickets');

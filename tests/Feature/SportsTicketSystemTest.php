@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
@@ -45,8 +46,8 @@ class SportsTicketSystemTest extends TestCase
     protected User $admin;
 
     /**
-     * @test
      */
+    #[Test]
     public function test_web_scraping_functionality(): void
     {
         Log::info('Testing web scraping functionality...');
@@ -96,8 +97,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_ticket_availability_monitoring(): void
     {
         Log::info('Testing ticket availability monitoring...');
@@ -147,8 +148,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_sms_notification_system(): void
     {
         Log::info('Testing SMS notification system via Twilio...');
@@ -180,8 +181,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_pusher_notification_system(): void
     {
         Log::info('Testing Pusher/WebSocket notification system...');
@@ -216,8 +217,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_payment_integration(): void
     {
         Log::info('Testing payment integration (Stripe and PayPal)...');
@@ -246,8 +247,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_two_factor_authentication(): void
     {
         Log::info('Testing 2FA authentication flow...');
@@ -297,8 +298,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_activity_logging(): void
     {
         Log::info('Testing activity logging system...');
@@ -326,8 +327,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_export_functionality(): void
     {
         Log::info('Testing export functionality (PDF, Excel)...');
@@ -390,8 +391,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_real_time_websocket_updates(): void
     {
         Log::info('Testing real-time WebSocket updates...');
@@ -418,8 +419,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_system_integration_flow(): void
     {
         Log::info('Testing complete system integration flow...');
@@ -478,8 +479,8 @@ class SportsTicketSystemTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_error_handling_and_resilience(): void
     {
         Log::info('Testing error handling and system resilience...');

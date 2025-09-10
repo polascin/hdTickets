@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
+use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,11 +13,13 @@ class CustomerDashboardApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_stats_endpoint_requires_authentication(): void
     {
         $this->getJson('/api/dashboard/stats')->assertStatus(401);
     }
 
+    #[Test]
     public function test_it_returns_stats_structure(): void
     {
         $user = User::factory()->create();
@@ -34,6 +37,7 @@ class CustomerDashboardApiTest extends TestCase
             ]);
     }
 
+    #[Test]
     public function test_tickets_endpoint_supports_filters_and_pagination(): void
     {
         $user = User::factory()->create();
@@ -47,6 +51,7 @@ class CustomerDashboardApiTest extends TestCase
             ]);
     }
 
+    #[Test]
     public function test_recommendations_endpoint_returns_data(): void
     {
         $user = User::factory()->create();

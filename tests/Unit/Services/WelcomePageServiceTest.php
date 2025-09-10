@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\WelcomePageService;
@@ -20,8 +21,8 @@ class WelcomePageServiceTest extends TestCase
     protected WelcomePageService $service;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_complete_welcome_page_data(): void
     {
         $options = [
@@ -42,8 +43,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_exclude_specific_data_sections(): void
     {
         $options = [
@@ -62,8 +63,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_statistics_with_correct_structure(): void
     {
         $stats = $this->service->getStatistics();
@@ -82,8 +83,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_caches_statistics_properly(): void
     {
         // First call should cache the data
@@ -99,8 +100,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_pricing_information_with_defaults(): void
     {
         $pricing = $this->service->getPricingInformation();
@@ -124,8 +125,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_features_list_with_correct_categories(): void
     {
         $features = $this->service->getFeaturesList();
@@ -146,8 +147,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_legal_documents_information(): void
     {
         $legalDocs = $this->service->getLegalDocuments();
@@ -168,8 +169,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_role_information_for_all_roles(): void
     {
         $roles = $this->service->getRoleInformation();
@@ -194,8 +195,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_security_features_information(): void
     {
         $securityFeatures = $this->service->getSecurityFeatures();
@@ -215,8 +216,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_tracks_page_views_properly(): void
     {
         $viewData = [
@@ -238,8 +239,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_applies_ab_test_variants_correctly(): void
     {
         $data = ['pricing' => ['monthly_price' => 29.99]];
@@ -255,8 +256,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_returns_fallback_stats_on_exception(): void
     {
         // Mock DB to throw exception
@@ -271,8 +272,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_formats_user_count_correctly(): void
     {
         User::factory(1500)->create();
@@ -286,8 +287,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_gets_user_subscription_info_correctly(): void
     {
         $user = User::factory()->create(['role' => 'customer']);
@@ -323,8 +324,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_exceptions_gracefully_in_user_subscription_info(): void
     {
         $user = $this->getMockBuilder(User::class)
@@ -339,8 +340,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_caches_pricing_information(): void
     {
         // First call should cache the data
@@ -356,8 +357,8 @@ class WelcomePageServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_caches_features_list(): void
     {
         // First call should cache the data

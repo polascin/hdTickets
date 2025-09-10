@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\UserSubscription;
 use App\Services\WelcomePageService;
@@ -62,8 +63,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_displays_subscription_plans(): void
     {
         $response = $this->get('/home');
@@ -77,8 +78,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_displays_security_features(): void
     {
         $response = $this->get('/home');
@@ -92,8 +93,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_displays_legal_compliance_information(): void
     {
         $response = $this->get('/home');
@@ -119,8 +120,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_includes_structured_data(): void
     {
         $response = $this->get('/home');
@@ -133,8 +134,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_has_correct_footer_legal_links(): void
     {
         $response = $this->get('/home');
@@ -149,8 +150,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_stats_api_returns_correct_data(): void
     {
         $response = $this->getJson('/api/welcome-stats');
@@ -169,8 +170,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_handles_different_user_roles_correctly(): void
     {
         $testRoles = ['customer', 'agent', 'admin'];
@@ -186,8 +187,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_caches_data_properly(): void
     {
         // First request should cache the data
@@ -198,8 +199,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_handles_subscription_info_for_authenticated_users(): void
     {
         $user = User::factory()->create(['role' => 'customer']);
@@ -216,8 +217,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_includes_alpine_js_components(): void
     {
         $response = $this->get('/home');
@@ -229,8 +230,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_is_mobile_responsive(): void
     {
         $response = $this->get('/home');
@@ -241,8 +242,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_security_headers_are_present(): void
     {
         $response = $this->get('/home');
@@ -252,8 +253,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_handles_fallback_data_gracefully(): void
     {
         // Mock service to throw exception
@@ -270,8 +271,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_tracks_analytics_properly(): void
     {
         $response = $this->get('/home');
@@ -283,8 +284,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_ab_testing_works_correctly(): void
     {
         // Test A/B variant assignment
@@ -296,8 +297,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_redirects_based_on_configuration(): void
     {
         config(['welcome.redirect_authenticated_users' => TRUE]);
@@ -311,8 +312,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_includes_accessibility_features(): void
     {
         $response = $this->get('/home');
@@ -324,8 +325,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_language_content_is_correct(): void
     {
         $response = $this->get('/home');
@@ -336,8 +337,8 @@ class WelcomePageTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function welcome_page_displays_scraper_role_notice(): void
     {
         $response = $this->get('/home');

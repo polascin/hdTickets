@@ -2,6 +2,7 @@
 
 namespace Tests\Performance;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -35,8 +36,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_page_load_performance(): void
     {
         $startTime = microtime(TRUE);
@@ -55,8 +56,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_authentication_performance(): void
     {
         $startTime = microtime(TRUE);
@@ -79,8 +80,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_concurrent_login_performance(): void
     {
         $users = User::factory()->count(10)->create([
@@ -117,8 +118,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_database_query_performance_during_login(): void
     {
         DB::enableQueryLog();
@@ -148,8 +149,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_memory_usage_during_login(): void
     {
         $memoryBefore = memory_get_usage(TRUE);
@@ -172,8 +173,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_cache_performance_during_login(): void
     {
         // Pre-warm cache with user data
@@ -220,8 +221,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_rate_limiting_performance(): void
     {
         $attempts = [];
@@ -250,8 +251,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_session_handling_performance(): void
     {
         $startTime = microtime(TRUE);
@@ -287,8 +288,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_two_factor_auth_performance(): void
     {
         // Enable 2FA for user
@@ -318,8 +319,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_activity_logging_performance(): void
     {
         // Enable activity logging
@@ -351,8 +352,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_password_hashing_performance(): void
     {
         $passwords = [
@@ -380,8 +381,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_response_size(): void
     {
         $response = $this->get('/login');
@@ -396,8 +397,8 @@ class LoginPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_core_web_vitals_simulation(): void
     {
         // Simulate Core Web Vitals measurements

@@ -2,6 +2,7 @@
 
 namespace Tests\Performance;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Jobs\SendBulkNotifications;
 use App\Models\PurchaseAttempt;
 use App\Models\Ticket;
@@ -21,15 +22,15 @@ class SystemPerformanceTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const int PERFORMANCE_THRESHOLD_MS = 1000; // 1 second max
+    private const PERFORMANCE_THRESHOLD_MS = 1000; // 1 second max
 
-    private const int MEMORY_THRESHOLD_MB = 100; // 100MB max
+    private const MEMORY_THRESHOLD_MB = 100; // 100MB max
 
-    private const int CONCURRENT_USERS = 10;
+    private const CONCURRENT_USERS = 10;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_handle_high_volume_ticket_listing_requests(): void
     {
         // Create a large dataset
@@ -47,8 +48,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_handle_complex_ticket_filtering_efficiently(): void
     {
         $this->createLargeTicketDataset(500);
@@ -64,8 +65,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_handle_concurrent_user_registrations(): void
     {
         $concurrentRequests = [];
@@ -94,8 +95,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_handle_bulk_purchase_attempts_efficiently(): void
     {
         $user = $this->createTestUser();
@@ -118,8 +119,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function database_queries_are_optimized_for_ticket_listing(): void
     {
         $this->createLargeTicketDataset(200);
@@ -144,8 +145,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function scraping_service_performs_efficiently_under_load(): void
     {
         $sources = $this->createMultipleTicketSources(5);
@@ -162,8 +163,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function notification_service_handles_bulk_notifications_efficiently(): void
     {
         $users = $this->createMultipleUsers(100);
@@ -185,8 +186,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function cache_improves_api_response_times(): void
     {
         $this->createLargeTicketDataset(500);
@@ -208,8 +209,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_engine_processes_queue_efficiently(): void
     {
         $users = $this->createMultipleUsers(50);
@@ -234,8 +235,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function memory_usage_remains_stable_during_long_operations(): void
     {
         $initialMemory = memory_get_usage();
@@ -255,8 +256,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function api_rate_limiting_performs_efficiently(): void
     {
         $metrics = $this->measurePerformance(function (): void {
@@ -274,8 +275,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function database_connection_pool_handles_concurrent_requests(): void
     {
         $concurrentQueries = [];
@@ -292,8 +293,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function search_functionality_performs_well_with_large_dataset(): void
     {
         $this->createLargeTicketDataset(1000);
@@ -316,8 +317,8 @@ class SystemPerformanceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function pagination_performs_efficiently_across_large_datasets(): void
     {
         $this->createLargeTicketDataset(10000);

@@ -15,6 +15,7 @@ use Mockery;
 use Override;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class TicketPurchaseValidationMiddlewareTest extends TestCase
 {
@@ -28,9 +29,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
 
     private Ticket $ticket;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_allows_purchase_for_customer_with_active_subscription(): void
     {
         // Create active subscription
@@ -54,9 +53,7 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
         $this->assertEquals('Purchase allowed', $response->getContent());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_blocks_purchase_for_customer_without_active_subscription(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
@@ -75,8 +72,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_allows_unlimited_purchases_for_agent(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
@@ -92,8 +89,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_blocks_purchase_when_exceeding_ticket_limit(): void
     {
         // Create subscription with low limit
@@ -121,8 +118,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_blocks_purchase_for_unavailable_ticket(): void
     {
         $unavailableTicket = $this->createTestTicket(['is_available' => FALSE]);
@@ -151,8 +148,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_blocks_purchase_when_quantity_exceeds_availability(): void
     {
         $limitedTicket = $this->createTestTicket([
@@ -184,8 +181,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_missing_quantity_parameter(): void
     {
         UserSubscription::create([
@@ -210,8 +207,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_invalid_quantity_parameter(): void
     {
         UserSubscription::create([
@@ -238,8 +235,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_zero_quantity(): void
     {
         UserSubscription::create([
@@ -266,8 +263,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_missing_ticket_parameter(): void
     {
         $request = Request::create('/tickets/invalid/purchase', 'POST', [
@@ -286,8 +283,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_unauthenticated_user(): void
     {
         $request = Request::create('/tickets/' . $this->ticket->id . '/purchase', 'POST', [
@@ -308,8 +305,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_provides_eligibility_information_in_response(): void
     {
         UserSubscription::create([
@@ -339,8 +336,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_respects_free_access_period_for_new_customers(): void
     {
         $newCustomer = $this->createTestUser([
@@ -363,8 +360,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_blocks_purchase_after_free_access_expires(): void
     {
         $oldCustomer = $this->createTestUser([
@@ -390,8 +387,8 @@ class TicketPurchaseValidationMiddlewareTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_service_exceptions_gracefully(): void
     {
         // Mock the service to throw an exception

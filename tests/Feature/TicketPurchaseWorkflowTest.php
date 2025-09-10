@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
 use App\Models\User;
@@ -25,8 +26,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     private Ticket $ticket;
 
     /**
-     * @test
      */
+    #[Test]
     public function customer_with_active_subscription_can_complete_purchase_workflow(): void
     {
         // Create active subscription
@@ -105,8 +106,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function customer_without_subscription_is_redirected_to_subscription_plans(): void
     {
         $response = $this->actingAs($this->customerUser)
@@ -135,8 +136,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function customer_exceeding_ticket_limit_receives_proper_error(): void
     {
         // Create subscription with low limit
@@ -181,8 +182,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function agent_can_purchase_unlimited_tickets(): void
     {
         $response = $this->actingAs($this->agentUser)
@@ -204,8 +205,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function admin_can_purchase_unlimited_tickets(): void
     {
         $response = $this->actingAs($this->adminUser)
@@ -227,8 +228,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_fails_for_unavailable_ticket(): void
     {
         $unavailableTicket = $this->createTestTicket(['is_available' => FALSE]);
@@ -256,8 +257,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_fails_when_quantity_exceeds_availability(): void
     {
         $limitedTicket = $this->createTestTicket([
@@ -288,8 +289,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_history_shows_correct_information(): void
     {
         UserSubscription::create([
@@ -341,8 +342,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_failure_shows_appropriate_error_page(): void
     {
         $response = $this->actingAs($this->customerUser)
@@ -359,8 +360,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function new_customer_within_free_access_period_can_purchase(): void
     {
         $newCustomer = $this->createTestUser([
@@ -388,8 +389,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function customer_beyond_free_access_period_cannot_purchase_without_subscription(): void
     {
         $oldCustomer = $this->createTestUser([
@@ -414,8 +415,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_validation_requires_terms_acceptance(): void
     {
         UserSubscription::create([
@@ -438,8 +439,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_validation_requires_purchase_confirmation(): void
     {
         UserSubscription::create([
@@ -462,8 +463,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_with_invalid_quantity_is_rejected(): void
     {
         UserSubscription::create([
@@ -486,8 +487,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function unauthenticated_user_is_redirected_to_login(): void
     {
         $response = $this->get(route('tickets.purchase', $this->ticket));
@@ -496,8 +497,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function purchase_includes_proper_fee_calculation(): void
     {
         UserSubscription::create([
@@ -529,8 +530,8 @@ class TicketPurchaseWorkflowTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function user_can_cancel_pending_purchase(): void
     {
         UserSubscription::create([

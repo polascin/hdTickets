@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Email;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Services\Email\ImapConnectionService;
 use Illuminate\Support\Facades\Config;
 use PHPUnit\Framework\TestCase;
@@ -21,16 +22,16 @@ class ImapConnectionServiceTest extends TestCase
     private array $testConfig;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_be_instantiated(): void
     {
         $this->assertInstanceOf(ImapConnectionService::class, $this->service);
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_throws_exception_for_unknown_connection(): void
     {
         $this->expectException(RuntimeException::class);
@@ -40,8 +41,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_throws_exception_for_missing_credentials(): void
     {
         $this->expectException(RuntimeException::class);
@@ -51,8 +52,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_builds_connection_string_correctly(): void
     {
         $config = $this->testConfig['connections']['test'];
@@ -71,8 +72,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_gets_connection_statistics(): void
     {
         $stats = $this->service->getConnectionStats();
@@ -89,8 +90,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_handles_connection_cleanup(): void
     {
         // This test would normally verify that inactive connections are cleaned up
@@ -99,8 +100,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_close_all_connections(): void
     {
         $result = $this->service->closeAllConnections();
@@ -108,8 +109,8 @@ class ImapConnectionServiceTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_connection_returns_failure_for_invalid_config(): void
     {
         $result = $this->service->testConnection('invalid');

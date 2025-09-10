@@ -2,13 +2,14 @@
 
 namespace Tests\Unit\Services;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RecommendationServiceTest extends TestCase
 {
     /**
-     * @test
      */
+    #[Test]
     public function can_generate_recommendations_for_user(): void
     {
         $this->markTestIncomplete('Add deterministic cases for recommendations with factories/mocks.');

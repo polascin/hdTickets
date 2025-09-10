@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\PurchaseAttempt;
 use App\Models\ScrapedTicket;
 use App\Models\Ticket;
@@ -18,8 +19,8 @@ class TicketTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_create_a_ticket_with_basic_attributes(): void
     {
         $ticketData = [
@@ -50,8 +51,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_proper_fillable_attributes(): void
     {
         $ticket = new Ticket();
@@ -69,8 +70,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_casts_attributes_correctly(): void
     {
         $ticket = $this->createTestTicket([
@@ -89,8 +90,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_ticket_source(): void
     {
         $source = $this->createTestTicketSource();
@@ -102,8 +103,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_purchase_attempts(): void
     {
         $ticket = $this->createTestTicket();
@@ -123,8 +124,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_price_history(): void
     {
         $ticket = $this->createTestTicket();
@@ -142,8 +143,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_has_relationship_with_scraped_tickets(): void
     {
         $source = $this->createTestTicketSource();
@@ -165,8 +166,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_ticket_is_available(): void
     {
         $availableTicket = $this->createTestTicket(['status' => 'available']);
@@ -177,8 +178,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_ticket_is_sold_out(): void
     {
         $availableTicket = $this->createTestTicket(['status' => 'available']);
@@ -189,8 +190,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_ticket_price_range(): void
     {
         $ticket = $this->createTestTicket([
@@ -205,8 +206,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_formatted_event_date(): void
     {
         $eventDate = Carbon::createFromFormat('Y-m-d H:i:s', '2024-12-25 19:30:00');
@@ -219,8 +220,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_team_display_name(): void
     {
         $ticket = $this->createTestTicket([
@@ -234,8 +235,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_event_is_upcoming(): void
     {
         $upcomingTicket = $this->createTestTicket(['event_date' => now()->addDays(7)]);
@@ -246,8 +247,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_check_if_event_is_today(): void
     {
         $todayTicket = $this->createTestTicket(['event_date' => now()]);
@@ -258,8 +259,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_days_until_event(): void
     {
         $ticket = $this->createTestTicket(['event_date' => now()->addDays(5)]);
@@ -270,8 +271,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_average_price(): void
     {
         $ticket = $this->createTestTicket([
@@ -285,8 +286,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_update_availability_status(): void
     {
         $ticket = $this->createTestTicket(['status' => 'available', 'available_quantity' => 10]);
@@ -305,8 +306,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_add_price_history_entry(): void
     {
         $ticket = $this->createTestTicket();
@@ -321,8 +322,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_get_price_trend(): void
     {
         $ticket = $this->createTestTicket();
@@ -338,8 +339,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_available_tickets(): void
     {
         $this->createTestTicket(['status' => 'available']);
@@ -353,8 +354,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_tickets_by_sport(): void
     {
         $this->createTestTicket(['sport_type' => 'football']);
@@ -370,8 +371,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_tickets_by_price_range(): void
     {
         $this->createTestTicket(['price_min' => 50, 'price_max' => 100]);
@@ -384,8 +385,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_upcoming_tickets(): void
     {
         $this->createTestTicket(['event_date' => now()->addDays(7)]);
@@ -401,8 +402,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_scope_tickets_by_city(): void
     {
         $this->createTestTicket(['city' => 'Manchester']);
@@ -418,8 +419,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_search_tickets_by_team(): void
     {
         $this->createTestTicket(['team_home' => 'Manchester United', 'team_away' => 'Liverpool']);
@@ -434,8 +435,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_required_fields(): void
     {
         $this->expectException(QueryException::class);
@@ -448,8 +449,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_validates_price_constraints(): void
     {
         $ticket = $this->createTestTicket([
@@ -462,8 +463,8 @@ class TicketTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function it_can_soft_delete_ticket(): void
     {
         $ticket = $this->createTestTicket();

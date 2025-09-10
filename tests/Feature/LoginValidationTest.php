@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
@@ -61,8 +62,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_displays_form(): void
     {
         $response = $this->get('/login');
@@ -81,8 +82,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_valid_credentials_succeeds(): void
     {
         $response = $this->post('/login', [
@@ -102,8 +103,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_remember_me_sets_cookie(): void
     {
         $response = $this->post('/login', [
@@ -121,8 +122,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_invalid_email_fails(): void
     {
         $response = $this->post('/login', [
@@ -136,8 +137,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_invalid_password_fails(): void
     {
         $response = $this->post('/login', [
@@ -155,8 +156,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_inactive_account_fails(): void
     {
         $response = $this->post('/login', [
@@ -170,8 +171,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_locked_account_fails(): void
     {
         $response = $this->post('/login', [
@@ -185,8 +186,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_account_locks_after_five_failed_attempts(): void
     {
         $user = User::factory()->create([
@@ -214,8 +215,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_failed_attempts_reset_on_successful_login(): void
     {
         $user = User::factory()->create([
@@ -241,8 +242,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_honeypot_protection_blocks_bots(): void
     {
         $response = $this->post('/login', [
@@ -256,8 +257,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_csrf_protection_is_enforced(): void
     {
         $response = $this->withoutMiddleware(VerifyCsrfToken::class)
@@ -280,8 +281,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_rate_limiting_prevents_brute_force(): void
     {
         $email = 'ratelimit@test.com';
@@ -302,8 +303,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_email_validation_rules(): void
     {
         // Test empty email
@@ -332,8 +333,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_password_validation_rules(): void
     {
         // Test empty password
@@ -346,8 +347,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_user_login_activity_logging(): void
     {
         // Clear any existing activity logs
@@ -371,8 +372,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_with_two_factor_authentication_enabled(): void
     {
         // Enable 2FA for user
@@ -394,8 +395,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_scraper_users_cannot_login(): void
     {
         $scraperUser = User::factory()->create([
@@ -416,8 +417,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_form_accessibility_attributes(): void
     {
         $response = $this->get('/login');
@@ -436,8 +437,8 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * @test
      */
+    #[Test]
     public function test_login_session_regeneration(): void
     {
         $response = $this->post('/login', [
