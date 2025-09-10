@@ -1188,6 +1188,11 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     {
         return $this->hasMany(PurchaseQueue::class);
     }
+    
+    public function ticketPurchases(): HasMany
+    {
+        return $this->hasMany(TicketPurchase::class);
+    }
 
     public function unreadNotifications(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
@@ -1320,6 +1325,49 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
             'two_factor_secret',
             'two_factor_recovery_codes',
         ];
+    }
+
+    /**
+     * Get user's monthly ticket limit based on their subscription plan
+     */
+    public function getMonthlyTicketLimit(): int
+    {
+        $plan = $this->getCurrentPlan();
+        
+        if (!$plan) {
+            // Free trial default limit
+            return (int) config('subscription.default_ticket_limit', 100);
+        }
+        
+        return $plan->max_tickets_per_month ?? 100;
+    }
+    
+    /**
+     * Get user's current monthly ticket usage
+     */
+    public function getMonthlyTicketUsage(): int
+    {
+        return $this->ticketPurchases()
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->sum('quantity') ?? 0;
+    }
+    
+    /**
+     * Get remaining days in free trial period
+     */
+    public function getFreeTrialDaysRemaining(): ?int
+    {
+        if ($this->hasActiveSubscription()) {
+            return null; // Not on trial
+        }
+        
+        $trialPeriod = (int) config('subscription.free_access_days', 7);
+        $daysSinceRegistration = $this->created_at->diffInDays(now());
+        $daysRemaining = $trialPeriod - $daysSinceRegistration;
+        
+        return max(0, $daysRemaining);
     }
 
     /**

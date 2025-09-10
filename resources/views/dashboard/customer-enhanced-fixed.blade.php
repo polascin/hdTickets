@@ -557,6 +557,102 @@
                     </div>
                 </section>
 
+                <!-- Subscription Status Widget -->
+                <section class="dashboard-widget subscription-status">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            Subscription
+                        </h3>
+                        @if($user->hasActiveSubscription())
+                            <span class="widget-badge success">Active</span>
+                        @else
+                            <span class="widget-badge warning">Trial</span>
+                        @endif
+                    </div>
+
+                    <div class="widget-content">
+                        <div class="subscription-overview">
+                            <!-- Plan Type -->
+                            <div class="plan-info">
+                                <div class="plan-name">
+                                    @if($user->hasActiveSubscription())
+                                        {{ $user->getCurrentPlan()->name ?? 'Basic Plan' }}
+                                    @else
+                                        Free Trial
+                                    @endif
+                                </div>
+                                @if(!$user->hasActiveSubscription())
+                                    <div class="trial-remaining">
+                                        @php
+                                            $daysRemaining = $user->getFreeTrialDaysRemaining();
+                                        @endphp
+                                        @if($daysRemaining > 0)
+                                            {{ $daysRemaining }} {{ Str::plural('day', $daysRemaining) }} remaining
+                                        @else
+                                            <span class="text-danger">Trial expired</span>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Usage Progress Bar -->
+                            <div class="usage-progress">
+                                @php
+                                    $monthlyLimit = $user->getMonthlyTicketLimit();
+                                    $currentUsage = $user->getMonthlyTicketUsage();
+                                    $percentageUsed = $monthlyLimit > 0 ? min(100, ($currentUsage / $monthlyLimit) * 100) : 0;
+                                    $remaining = max(0, $monthlyLimit - $currentUsage);
+                                    $usageClass = $percentageUsed >= 90 ? 'danger' : ($percentageUsed >= 70 ? 'warning' : 'success');
+                                @endphp
+                                
+                                <div class="usage-header">
+                                    <span class="usage-label">Monthly Tickets</span>
+                                    <span class="usage-count">{{ $currentUsage }} / {{ $monthlyLimit }}</span>
+                                </div>
+                                
+                                <div class="progress-bar">
+                                    <div class="progress-fill {{ $usageClass }}" style="width: {{ $percentageUsed }}%"></div>
+                                </div>
+                                
+                                <div class="usage-details">
+                                    <span class="remaining-count">{{ $remaining }} remaining</span>
+                                    @if($percentageUsed >= 80)
+                                        <span class="usage-warning">{{ $percentageUsed >= 90 ? '⚠️ Nearly at limit' : '⚡ High usage' }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="subscription-actions">
+                                @if(!$user->hasActiveSubscription())
+                                    <a href="{{ route('subscriptions.plans') }}" class="btn-upgrade">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                        Upgrade Now
+                                    </a>
+                                @else
+                                    <a href="{{ route('subscriptions.manage') }}" class="btn-manage">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        </svg>
+                                        Manage
+                                    </a>
+                                @endif
+                                
+                                <button @click="refreshSubscriptionData()" class="btn-refresh">
+                                    <svg :class="{ 'animate-spin': isLoading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Personalized Recommendations Widget -->
                 <section class="dashboard-widget recommendations">
                     <div class="widget-header">

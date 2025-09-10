@@ -24,7 +24,7 @@ class PublicRegistrationValidationController extends Controller
      * This endpoint mirrors the validation rules from PublicRegistrationRequest
      * to provide immediate feedback without creating users or side effects.
      */
-    public function validate(Request $request): JsonResponse
+    public function validateRegistrationData(Request $request): JsonResponse
     {
         try {
             // Get the validation rules from PublicRegistrationRequest

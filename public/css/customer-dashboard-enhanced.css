@@ -1792,3 +1792,208 @@
         color: black !important;
     }
 }
+
+/* === SUBSCRIPTION WIDGET === */
+.subscription-status {
+    border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.subscription-status .widget-badge.success {
+    background: var(--success-color);
+    color: white;
+}
+
+.subscription-status .widget-badge.warning {
+    background: var(--warning-color);
+    color: white;
+}
+
+.subscription-overview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.plan-info {
+    text-align: center;
+    padding: var(--spacing-md) 0;
+}
+
+.plan-name {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.trial-remaining {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+    font-weight: 600;
+}
+
+.usage-progress {
+    padding: var(--spacing-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+}
+
+.usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.usage-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.usage-count {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin: var(--spacing-sm) 0;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width var(--transition-normal);
+    border-radius: var(--radius-md);
+}
+
+.progress-fill.success {
+    background: linear-gradient(90deg, var(--success-color), var(--success-light));
+}
+
+.progress-fill.warning {
+    background: linear-gradient(90deg, var(--warning-color), var(--warning-light));
+}
+
+.progress-fill.danger {
+    background: linear-gradient(90deg, var(--danger-color), var(--danger-light));
+}
+
+.usage-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-sm);
+}
+
+.remaining-count {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+}
+
+.usage-warning {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--warning-color);
+}
+
+.subscription-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.btn-upgrade {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-upgrade svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-manage {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-manage:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-400);
+    text-decoration: none;
+    color: var(--gray-800);
+}
+
+.btn-manage svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-refresh {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--gray-100);
+    color: var(--gray-600);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-refresh:hover {
+    background: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.btn-refresh svg {
+    width: 18px;
+    height: 18px;
+}
