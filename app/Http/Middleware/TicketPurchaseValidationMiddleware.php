@@ -515,6 +515,14 @@ class TicketPurchaseValidationMiddleware
         $ticketId = $request->route('ticket')?->id ?? $request->route('id') ?? $request->input('ticket_id');
 
         if (! $ticketId) {
+            // Attempt to parse from URL like /tickets/{id}/purchase
+            $path = $request->path();
+            if (preg_match('#/tickets/(\d+)#', '/' . ltrim($path, '/'), $m)) {
+                $ticketId = (int) $m[1];
+            }
+        }
+
+        if (! $ticketId) {
             return NULL;
         }
 
