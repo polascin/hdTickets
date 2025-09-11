@@ -21,8 +21,10 @@
   "dependencies": {
     "@alpinejs/focus": "^3.14.1",
     "@alpinejs/persist": "^3.14.1",
+    "@fortawesome/fontawesome-free": "^7.0.1",
     "alpinejs": "^3.14.9",
     "axios": "^1.11.0",
+    "bootstrap": "^5.3.8",
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "cropperjs": "^2.0.1",
