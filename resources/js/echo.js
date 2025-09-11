@@ -49,7 +49,7 @@ const echoConfig = {
         enableLogging: process.env.NODE_ENV === 'development',
         
         // Custom authorizer for private channels
-        authorizer: (channel, options) => {
+        authorizer: (channel, _options) => {
             return {
                 authorize: (socketId, callback) => {
                     axios.post('/broadcasting/auth', {

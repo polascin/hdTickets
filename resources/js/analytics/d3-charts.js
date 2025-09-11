@@ -30,7 +30,7 @@ class D3AnalyticsCharts {
      * @param {Array} data - Data array with platform, date, and price
      * @param {Object} options - Chart configuration options
      */
-    createPriceHeatmap(containerId, data, options = {}) {
+    createPriceHeatmap(containerId, data, _options = {}) {
         const container = d3.select(`#${containerId}`);
         container.selectAll('*').remove();
 
@@ -131,7 +131,7 @@ class D3AnalyticsCharts {
      * @param {Object} data - Graph data with nodes and links
      * @param {Object} options - Chart configuration options
      */
-    createPlatformNetwork(containerId, data, options = {}) {
+    createPlatformNetwork(containerId, data, _options = {}) {
         const container = d3.select(`#${containerId}`);
         container.selectAll('*').remove();
 
@@ -155,7 +155,7 @@ class D3AnalyticsCharts {
         const tooltip = this.createTooltip();
 
         // Draw links
-        const link = svg.append('g')
+        const _link = svg.append('g')
             .selectAll('.link')
             .data(data.links)
             .enter()
@@ -205,7 +205,7 @@ class D3AnalyticsCharts {
 
         // Update positions on simulation tick
         simulation.on('tick', () => {
-            link
+            _link
                 .attr('x1', d => d.source.x)
                 .attr('y1', d => d.source.y)
                 .attr('x2', d => d.target.x)
@@ -228,7 +228,7 @@ class D3AnalyticsCharts {
      * @param {Object} data - Hierarchical data structure
      * @param {Object} options - Chart configuration options
      */
-    createRadialTree(containerId, data, options = {}) {
+    createRadialTree(containerId, data, _options = {}) {
         const container = d3.select(`#${containerId}`);
         container.selectAll('*').remove();
 
@@ -314,7 +314,7 @@ class D3AnalyticsCharts {
      * @param {Array} data - Array of events with size and category
      * @param {Object} options - Chart configuration options
      */
-    createBubbleChart(containerId, data, options = {}) {
+    createBubbleChart(containerId, data, _options = {}) {
         const container = d3.select(`#${containerId}`);
         container.selectAll('*').remove();
 
@@ -396,7 +396,7 @@ class D3AnalyticsCharts {
      * @param {Array} dimensions - Array of dimension names to display
      * @param {Object} options - Chart configuration options
      */
-    createParallelCoordinates(containerId, data, dimensions, options = {}) {
+    createParallelCoordinates(containerId, data, dimensions, _options = {}) {
         const container = d3.select(`#${containerId}`);
         container.selectAll('*').remove();
 
@@ -487,7 +487,7 @@ class D3AnalyticsCharts {
     /**
      * Add color legend to chart
      */
-    addColorLegend(svg, colorScale, width, height) {
+    addColorLegend(svg, colorScale, width, _height) {
         const legendWidth = 200;
         const legendHeight = 20;
         const legendX = width + this.config.margins.left - legendWidth;
@@ -505,7 +505,7 @@ class D3AnalyticsCharts {
         const domain = colorScale.domain();
         const range = d3.range(0, 1.1, 0.1);
         
-        range.forEach((t, i) => {
+        range.forEach((t, _i) => {
             gradient.append('stop')
                 .attr('offset', `${t * 100}%`)
                 .attr('stop-color', colorScale(domain[0] + t * (domain[1] - domain[0])));

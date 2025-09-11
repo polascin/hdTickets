@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Setup global event handlers
     setupEventHandlers(syncManager, refreshManager, installManager, lifecycleManager);
     
-    console.log('HD Tickets PWA initialized successfully');
+    console.warn('HD Tickets PWA initialized successfully');
   } catch (error) {
     console.error('Failed to initialize HD Tickets PWA:', error);
   }
@@ -84,7 +84,7 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
 
   // Handle lifecycle state changes
   document.addEventListener('lifecycle:state-change', (e) => {
-    console.log('App lifecycle state changed:', e.detail.state);
+    console.warn('App lifecycle state changed:', e.detail.state);
     
     // Pause/resume managers based on lifecycle
     if (e.detail.state === 'hidden' || e.detail.state === 'frozen') {
@@ -175,7 +175,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
       .then(registration => {
-        console.info('SW registered: ', registration);
+        console.warn('SW registered: ', registration);
       })
       .catch(registrationError => {
         console.error('SW registration failed: ', registrationError);
@@ -198,7 +198,7 @@ window.addEventListener('beforeinstallprompt', e => {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(choiceResult => {
         if (choiceResult.outcome === 'accepted') {
-          console.info('User accepted the install prompt');
+          console.warn('User accepted the install prompt');
         } else {
           console.warn('User dismissed the install prompt');
         }

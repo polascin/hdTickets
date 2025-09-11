@@ -46,7 +46,7 @@ class NotificationSystem {
      * Initialize the notification system
      */
     async initializeSystem() {
-        console.log('🔔 Initializing HD Tickets Notification System...');
+        console.warn('🔔 Initializing HD Tickets Notification System...');
 
         try {
             // Initialize service worker for push notifications
@@ -69,7 +69,7 @@ class NotificationSystem {
             // Connect to user-specific channels
             this.subscribeToUserChannels();
 
-            console.log('✅ Notification system initialized successfully');
+            console.warn('✅ Notification system initialized successfully');
             this.showSystemNotification('Notification system activated', 'success');
 
         } catch (error) {
@@ -87,10 +87,10 @@ class NotificationSystem {
             this.serviceWorker = registration;
 
             registration.addEventListener('updatefound', () => {
-                console.log('📥 Service worker update found');
+                console.warn('📥 Service worker update found');
             });
 
-            console.log('✅ Service worker registered');
+            console.warn('✅ Service worker registered');
         } catch (error) {
             console.error('❌ Service worker registration failed:', error);
             throw error;
@@ -128,13 +128,13 @@ class NotificationSystem {
             this.echo.connector.pusher.connection.bind('connected', () => {
                 this.isConnected = true;
                 this.retryCount = 0;
-                console.log('🔗 WebSocket connected');
+                console.warn('🔗 WebSocket connected');
                 this.showSystemNotification('Real-time notifications connected', 'success');
             });
 
             this.echo.connector.pusher.connection.bind('disconnected', () => {
                 this.isConnected = false;
-                console.log('🔌 WebSocket disconnected');
+                console.warn('🔌 WebSocket disconnected');
                 this.handleDisconnection();
             });
 
@@ -161,7 +161,7 @@ class NotificationSystem {
         const permission = await this.requestNotificationPermission();
         
         if (permission === 'granted') {
-            console.log('✅ Browser notifications enabled');
+            console.warn('✅ Browser notifications enabled');
             await this.setupPushNotifications();
         } else {
             console.warn('⚠️ Browser notification permission denied');
@@ -201,7 +201,7 @@ class NotificationSystem {
             // Send subscription to server
             await this.registerPushSubscription(subscription);
 
-            console.log('✅ Push notifications configured');
+            console.warn('✅ Push notifications configured');
         } catch (error) {
             console.error('❌ Push notification setup failed:', error);
         }
@@ -226,7 +226,7 @@ class NotificationSystem {
                 this.loadSound('error', '/sounds/error.mp3')
             ]);
 
-            console.log('🔊 Audio system initialized');
+            console.warn('🔊 Audio system initialized');
         } catch (error) {
             console.warn('⚠️ Audio system initialization failed:', error);
         }
@@ -304,7 +304,7 @@ class NotificationSystem {
                 this.handlePlatformAlert(event);
             });
 
-        console.log('📡 Subscribed to notification channels');
+        console.warn('📡 Subscribed to notification channels');
     }
 
     /**
@@ -694,7 +694,7 @@ class NotificationSystem {
         try {
             const history = localStorage.getItem('hd_notification_history');
             return history ? JSON.parse(history) : [];
-        } catch (_error) {
+        } catch {
             return [];
         }
     }
@@ -744,12 +744,12 @@ class NotificationSystem {
     }
 
     handleOnline() {
-        console.log('🌐 Network connection restored');
+        console.warn('🌐 Network connection restored');
         this.reconnect();
     }
 
     handleOffline() {
-        console.log('🔌 Network connection lost');
+        console.warn('🔌 Network connection lost');
         this.showSystemNotification('Network connection lost. Notifications may be delayed.', 'warning');
     }
 
@@ -776,7 +776,7 @@ class NotificationSystem {
         const delay = this.config.retryDelay * this.retryCount;
 
         setTimeout(() => {
-            console.log(`🔄 Reconnection attempt ${this.retryCount}/${this.config.retryAttempts}`);
+            console.warn(`🔄 Reconnection attempt ${this.retryCount}/${this.config.retryAttempts}`);
             this.reconnect();
         }, delay);
     }
@@ -798,7 +798,7 @@ class NotificationSystem {
      * Initialize fallback polling for notifications
      */
     initializeFallbackPolling() {
-        console.log('📡 Using fallback polling for notifications');
+        console.warn('📡 Using fallback polling for notifications');
         
         const poll = async () => {
             try {
@@ -836,7 +836,7 @@ class NotificationSystem {
 
     urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
         const rawData = window.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
         
@@ -858,12 +858,12 @@ class NotificationSystem {
                     subscription: subscription
                 })
             });
-        } catch (_error) {
-            console.error('❌ Failed to register push subscription:', _error);
+        } catch (error) {
+            console.error('❌ Failed to register push subscription:', error);
         }
     }
 
-    showSystemNotification(message, type = 'info') {
+    showSystemNotification(message, _type = 'info') {
         const notification = {
             id: `system_${Date.now()}`,
             type: 'system',
@@ -905,7 +905,7 @@ class NotificationSystem {
         try {
             const stored = localStorage.getItem('hd_notification_preferences');
             return stored ? { ...defaults, ...JSON.parse(stored) } : defaults;
-        } catch (error) {
+        } catch {
             return defaults;
         }
     }
@@ -921,7 +921,7 @@ class NotificationSystem {
     updatePreferences(newPreferences) {
         this.preferences = { ...this.preferences, ...newPreferences };
         this.savePreferences();
-        console.log('✅ Notification preferences updated');
+        console.warn('✅ Notification preferences updated');
     }
 
     /**
@@ -986,7 +986,7 @@ class NotificationSystem {
         }
 
         this.notificationQueue = [];
-        console.log('🗑️ Notification system destroyed');
+        console.warn('🗑️ Notification system destroyed');
     }
 }
 

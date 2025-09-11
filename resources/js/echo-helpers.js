@@ -18,7 +18,7 @@
       try {
         const socketId = pusher.connection.socket_id;
         document.dispatchEvent(new CustomEvent('echo:connected', { detail: { socketId } }));
-      } catch {}
+      } catch { /* no-op */ }
       updateConnectionStatus('connected');
     });
 
