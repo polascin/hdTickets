@@ -36,7 +36,7 @@ class ContainerQuerySupport {
     checkSupport() {
         try {
             return CSS.supports('container-type', 'inline-size');
-        } catch (e) {
+        } catch {
             return false;
         }
     }

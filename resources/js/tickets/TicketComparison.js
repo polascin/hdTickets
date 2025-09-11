@@ -749,7 +749,7 @@ class TicketComparison {
             try {
                 await navigator.clipboard.writeText(shareText);
                 this.showNotification('Comparison copied to clipboard', 'success');
-            } catch (err) {
+        } catch {
                 this.showNotification('Unable to copy to clipboard', 'error');
             }
             return;

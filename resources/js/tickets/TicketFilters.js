@@ -147,7 +147,7 @@ class TicketFilters {
         }, this.options.debounceMs);
     }
     
-    handleSearchInput(event = null) {
+    handleSearchInput(_event = null) {
         this.clearDebounce();
         
         const searchInput = document.getElementById('keywords');

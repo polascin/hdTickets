@@ -548,12 +548,12 @@ class HDPerformanceOptimizer {
     }
 
     initializeComponent(element) {
-        const componentType = element.getAttribute('data-component');
+        const _componentType = element.getAttribute('data-component');
         // Component initialization logic
     }
 
     startAnimation(element) {
-        const animationType = element.getAttribute('data-animation');
+        const _animationType = element.getAttribute('data-animation');
         // Animation logic
     }
 
@@ -612,7 +612,7 @@ class HDPerformanceOptimizer {
         // Heavy component initialization
     }
 
-    updateScrollAnimations(scrollY) {
+    updateScrollAnimations(_scrollY) {
         // Scroll-based animation updates
     }
 

@@ -270,8 +270,8 @@ class PriceMonitor {
         }
     }
     
-    handleStatusUpdate(event) {
-        const { ticket_id, old_status, new_status, reason } = event;
+  handleStatusUpdate(event) {
+        const { ticket_id, new_status, reason } = event;
         
         this.updateTicketStatus(ticket_id, new_status);
         

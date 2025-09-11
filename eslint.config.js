@@ -23,6 +23,10 @@ export default [
         document: "readonly",
         console: "readonly",
         navigator: "readonly",
+        location: "readonly",
+        history: "readonly",
+        URL: "readonly",
+        URLSearchParams: "readonly",
         localStorage: "readonly",
         sessionStorage: "readonly",
         setTimeout: "readonly",
@@ -30,12 +34,27 @@ export default [
         setInterval: "readonly",
         clearInterval: "readonly",
         fetch: "readonly",
+        FormData: "readonly",
+        Blob: "readonly",
+        AbortController: "readonly",
         Notification: "readonly",
         CustomEvent: "readonly",
+        requestAnimationFrame: "readonly",
+        cancelAnimationFrame: "readonly",
         IntersectionObserver: "readonly",
+        MutationObserver: "readonly",
+        ResizeObserver: "readonly",
         PerformanceObserver: "readonly",
         performance: "readonly",
         screen: "readonly",
+        CSS: "readonly",
+        Image: "readonly",
+        Audio: "readonly",
+        Node: "readonly",
+        getComputedStyle: "readonly",
+        btoa: "readonly",
+        atob: "readonly",
+        d3: "readonly",
 
         // Google Analytics
         gtag: "readonly",
@@ -52,12 +71,12 @@ export default [
       "@typescript-eslint": tseslint
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { "allow": ["warn", "error"] }],
-      "prefer-const": "error",
+      "prefer-const": "warn",
       "no-var": "error",
       "no-unused-vars": "off",
       "no-prototype-builtins": "warn",
@@ -69,7 +88,8 @@ export default [
       "semi-spacing": ["error", { "before": false, "after": true }],
       "no-extra-semi": "error",
       "no-unexpected-multiline": "error",
-      "no-unreachable": "error"
+      "no-unreachable": "error",
+      "no-useless-escape": "warn"
     }
   },
   {

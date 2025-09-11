@@ -186,7 +186,7 @@
         /**
          * Handle touch end events
          */
-        handleTouchEnd(e) {
+        handleTouchEnd(_e) {
             this.touchEndTime = Date.now();
             const duration = this.touchEndTime - this.touchStartTime;
 
@@ -365,7 +365,7 @@
          * Handle virtual keyboard appearance
          */
         handleVirtualKeyboard() {
-            let initialViewportHeight = window.innerHeight;
+            const initialViewportHeight = window.innerHeight;
 
             window.addEventListener('resize', () => {
                 const currentViewportHeight = window.innerHeight;

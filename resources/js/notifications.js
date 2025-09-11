@@ -694,7 +694,7 @@ class NotificationSystem {
         try {
             const history = localStorage.getItem('hd_notification_history');
             return history ? JSON.parse(history) : [];
-        } catch (error) {
+        } catch (_error) {
             return [];
         }
     }
@@ -858,8 +858,8 @@ class NotificationSystem {
                     subscription: subscription
                 })
             });
-        } catch (error) {
-            console.error('❌ Failed to register push subscription:', error);
+        } catch (_error) {
+            console.error('❌ Failed to register push subscription:', _error);
         }
     }
 
@@ -913,8 +913,8 @@ class NotificationSystem {
     savePreferences() {
         try {
             localStorage.setItem('hd_notification_preferences', JSON.stringify(this.preferences));
-        } catch (error) {
-            console.error('❌ Failed to save preferences:', error);
+        } catch (_error) {
+            console.error('❌ Failed to save preferences:', _error);
         }
     }
 

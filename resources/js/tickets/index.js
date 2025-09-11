@@ -132,7 +132,6 @@ class HDTicketsApp {
                 const ticketId = button.dataset.ticketId;
                 if (!ticketId) return;
                 
-                const wasBookmarked = button.classList.contains('bookmarked');
                 
                 try {
                     // Show loading state

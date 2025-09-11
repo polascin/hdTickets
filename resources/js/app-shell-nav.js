@@ -27,7 +27,7 @@ export default class AppShellNav {
       if (!res.ok) return;
       const html = await res.text();
       this.saveCache(url, html);
-    } catch (e) {
+    } catch {
       // ignore
     }
   }
@@ -62,7 +62,7 @@ export default class AppShellNav {
       this.swapContent(html);
       this.updateActiveNav(url);
       this.scrollRestore();
-    } catch (e) {
+    } catch {
       location.href = url; // fallback
     }
   }
@@ -125,7 +125,7 @@ export default class AppShellNav {
         } else {
           a.classList.remove('text-indigo-600');
         }
-      } catch (_) {}
+      } catch {}
     });
   }
 

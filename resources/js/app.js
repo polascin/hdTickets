@@ -49,7 +49,7 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Handle sync success notifications
-  document.addEventListener('sync:success', (e) => {
+  document.addEventListener('sync:success', (_e) => {
     // Show success notification if notifications system is available
     if (window.showNotification) {
       window.showNotification('Data synced successfully', 'success');
@@ -116,15 +116,8 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
   });
 
   // Handle unsaved data warnings
-  let hasUnsavedData = false;
   document.addEventListener('data:changed', (e) => {
-    if (e.detail.hasUnsavedChanges) {
-      hasUnsavedData = true;
-      lifecycleManager.markUnsavedChanges(true);
-    } else {
-      hasUnsavedData = false;
-      lifecycleManager.markUnsavedChanges(false);
-    }
+    lifecycleManager.markUnsavedChanges(!!e.detail.hasUnsavedChanges);
   });
 
   // Handle active purchases for unload warnings
