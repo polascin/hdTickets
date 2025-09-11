@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Responsive Dashboard - HD Tickets')
 
 @section('content')

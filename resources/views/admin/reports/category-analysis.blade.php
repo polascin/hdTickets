@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Category Analysis Report')
 
 @section('content')
@@ -212,7 +211,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
 <script>
 // Category Distribution Chart (Doughnut)
 const ctx1 = document.getElementById('categoryDistributionChart').getContext('2d');

@@ -57,7 +57,6 @@
             {{-- Fallback CSS and JS when Vite is not available --}}
             <link rel="stylesheet" href="{{ asset('resources/css/app.css') }}">
             <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         @endif
         
         {{-- Additional Head Content --}}

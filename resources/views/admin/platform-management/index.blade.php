@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Platform Management - Sports Ticket Monitoring System')
 
 @section('content')
@@ -141,16 +140,16 @@
   </div>
 @endsection
 
-@section('styles')
+@push('styles')
   <link href="{{ asset('/assets/css/platform-management.css') }}" rel="stylesheet">
-@endsection
+@endpush
 
-@section('scripts')
-  <script src="{{ asset('resources/js/components/platform-management.js') }}"></script>
+@push('scripts')
+  @vite('resources/js/admin/platform-management.js')
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       window.platformManagement = new PlatformManagement({
-        updateInterval: 30000, // Update every 30 seconds
+        updateInterval: 30000,
         endpoints: {
           stats: '{{ route('admin.platform-management.stats') }}',
           config: '{{ route('admin.platform-management.config') }}',
@@ -160,4 +159,4 @@
       });
     });
   </script>
-@endsection
+@endpush

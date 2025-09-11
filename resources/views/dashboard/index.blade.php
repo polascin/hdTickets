@@ -1,4 +1,4 @@
-@extends('layouts.app-v2')
+@extends('layouts.modern')
 @section('title', 'Unified Dashboard')
 @section('content')
   <div class="min-h-screen bg-transparent" x-data="mainDashboard()">

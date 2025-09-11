@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="{{ asset('css/sports-tickets-colors.css') }}">
   
   {{-- Chart.js for Price History --}}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
   
   <x-slot name="headerActions">
     <div class="flex flex-col sm:flex-row gap-3">

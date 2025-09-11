@@ -98,13 +98,10 @@
 
 @push('styles')
 <link href="{{ asset('css/profile-picture.css') }}?v={{ time() }}" rel="stylesheet">
-<!-- Cropper.js CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" integrity="sha512-cyzxRvewl+7jiNzQQw2sFOOlUY28D5dSlqpKBOvt7sLw0xFfkBnz4RUIDlgd8WvUSKyf4UKvJJJ8V8oQr5WFkQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endpush
 
 @push('scripts')
-<!-- Cropper.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+@vite('resources/js/vendor/cropperjs.js')
 <!-- Profile Picture Manager -->
 <script src="{{ asset('js/profile-picture-manager.js') }}?v={{ time() }}"></script>
 @endpush

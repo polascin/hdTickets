@@ -1,16 +1,12 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Analytics Dashboard - HD Tickets')
 
-@section('meta')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@push('styles')
     <meta name="analytics-config" content="{{ json_encode($config) }}">
     <meta name="analytics-filters" content="{{ json_encode($filters) }}">
-@endsection
+@endpush
 
-@section('styles')
-    <!-- Chart.js -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+@push('styles')
     <!-- D3.js will be loaded via CDN in scripts -->
     <style>
         .analytics-dashboard {
@@ -154,7 +150,7 @@
             opacity: 1;
         }
     </style>
-@endsection
+@endpush
 
 @section('content')
 <div class="analytics-dashboard">
@@ -483,13 +479,9 @@
 </div>
 @endsection
 
-@section('scripts')
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-
-<!-- D3.js -->
-<script src="https://d3js.org/d3.v7.min.js"></script>
+@push('scripts')
+@vite('resources/js/vendor/chart.js')
+@vite('resources/js/vendor/d3.js')
 
 <script>
 // Global analytics dashboard object
@@ -1073,4 +1065,4 @@ window.addEventListener('beforeunload', function() {
     AnalyticsDashboard.stopAutoRefresh();
 });
 </script>
-@endsection
+@endpush

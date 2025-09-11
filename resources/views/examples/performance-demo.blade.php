@@ -1,12 +1,13 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Performance Optimization Demo')
 
 @section('content')
 {{-- Include Performance Scripts --}}
+@push('scripts')
 <script src="{{ asset('js/lazy-loading.js') }}" defer></script>
 <script src="{{ asset('js/virtual-scrolling.js') }}" defer></script>
 <script src="{{ asset('js/debounce-utils.js') }}" defer></script>
+@endpush
 
 <div class="container container--xl" id="main-content">
     {{-- Header Section --}}

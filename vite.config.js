@@ -169,26 +169,6 @@ export default defineConfig({
     cors: true,
   },
   
-  // CSS processing options
-  css: {
-    // Enable CSS modules
-    modules: {
-      localsConvention: 'camelCaseOnly',
-    },
-    // PostCSS configuration
-    postcss: {
-      plugins: [
-        require('autoprefixer'),
-        require('cssnano')({ preset: 'default' }),
-      ],
-    },
-    // CSS preprocessor options
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "@styles/variables.scss";`,
-      },
-    },
-  },
   
   // Optimization options
   optimizeDeps: {

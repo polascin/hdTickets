@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Reports Dashboard')
 
 @section('content')
@@ -247,7 +246,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
 <script>
 // Weekly Trend Chart
 const ctx = document.getElementById('weeklyTrendChart').getContext('2d');

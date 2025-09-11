@@ -1,15 +1,18 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Customer Dashboard')
 
-@section('head')
-    <meta name="description" content="Sports event ticket monitoring dashboard - view tickets, alerts, and subscription status">
-    <link rel="preload" href="{{ asset('css/customer-dashboard-enhanced-v2.css') }}" as="style">
-    <link rel="stylesheet" href="{{ asset('css/customer-dashboard-enhanced-v2.css') }}">
-    @if(config('broadcasting.default') !== 'null')
-        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-    @endif
-@endsection
+@section('description', 'Sports event ticket monitoring dashboard - view tickets, alerts, and subscription status')
+
+@push('styles')
+<link rel="preload" href="{{ asset('css/customer-dashboard-enhanced-v2.css') }}" as="style">
+<link rel="stylesheet" href="{{ asset('css/customer-dashboard-enhanced-v2.css') }}">
+@endpush
+
+@push('scripts')
+@if(config('broadcasting.default') !== 'null')
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+@endif
+@endpush
 
 @section('content')
 <div 

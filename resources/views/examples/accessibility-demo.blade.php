@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Accessibility Compliance Demo')
 
 @section('content')

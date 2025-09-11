@@ -1,4 +1,4 @@
-@extends('layouts.app-v2')
+@extends('layouts.modern')
 @section('title', 'Basic Dashboard')
 @section('content')
   <div class="space-y-6">

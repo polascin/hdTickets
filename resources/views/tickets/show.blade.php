@@ -1,5 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-gray-50" x-data="ticketDetails()">
+@extends('layouts.modern')
+@section('title', 'Ticket Details')
+@section('content')
+<div class="min-h-screen bg-gray-50" x-data="ticketDetails()">
         {{-- Back Navigation --}}
         <div class="bg-white border-b border-gray-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -625,4 +627,4 @@
             }
         }
     </script>
-</x-app-layout>
+@endsection

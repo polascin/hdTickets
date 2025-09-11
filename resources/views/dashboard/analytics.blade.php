@@ -1,4 +1,4 @@
-@extends('layouts.app-v2')
+@extends('layouts.modern')
 
 @section('title', 'Dashboard Analytics')
 @section('description', 'Advanced analytics and insights for your sports ticket monitoring and purchasing activities')
@@ -505,7 +505,7 @@
 
 @push('scripts')
   <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
   <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
 
   <script>

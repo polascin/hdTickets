@@ -1,9 +1,7 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Security Configuration - HD Tickets')
 
-@section('head')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+@push('styles')
 <style>
     .config-section { transition: all 0.3s ease; }
     .config-section:hover { background-color: #f9fafb; }
@@ -12,7 +10,7 @@
     .status-warning { color: #d97706; }
     .config-card { border-left: 4px solid #3b82f6; }
 </style>
-@endsection
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="securityConfig()">

@@ -1,11 +1,7 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Security Events - HD Tickets')
 
-@section('head')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/pusher.min.js') }}"></script>
+@push('styles')
 <style>
     .event-card { transition: all 0.3s ease; }
     .event-card:hover { transform: translateY(-1px); }
@@ -24,7 +20,12 @@
         50% { transform: scale(1.05); }
     }
 </style>
-@endsection
+@endpush
+
+@push('scripts')
+@vite('resources/js/vendor/chart.js')
+<script src="{{ asset('js/pusher.min.js') }}"></script>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="securityEvents()">

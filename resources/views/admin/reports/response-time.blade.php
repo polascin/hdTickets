@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Response Time Report')
 
 @section('content')
@@ -238,7 +237,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
 <script>
 // Response Time Chart
 const ctx = document.getElementById('responseTimeChart').getContext('2d');

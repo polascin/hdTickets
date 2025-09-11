@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Profile Analytics')
 
 @section('header')
@@ -480,7 +479,7 @@
 @endsection
 
 @push('scripts')
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
   <script>
     // Activity Chart
     const activityCtx = document.getElementById('activityChart').getContext('2d');

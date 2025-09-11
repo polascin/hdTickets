@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Dashboard Test')
 
 @section('content')
@@ -59,7 +58,8 @@
     </div>
 </div>
 
-<!-- Include our dashboard CSS -->
+@push('styles')
 <link href="{{ css_with_timestamp('css/customer-dashboard.css') }}" rel="stylesheet">
+@endpush
 
 @endsection

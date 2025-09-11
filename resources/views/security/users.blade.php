@@ -1,10 +1,7 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'User Security Management - HD Tickets')
 
-@section('head')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@push('styles')
 <style>
     .user-card { transition: all 0.3s ease; }
     .user-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
@@ -19,7 +16,11 @@
     .security-medium { background-color: #dbeafe; }
     .security-low { background-color: #d1fae5; }
 </style>
-@endsection
+@endpush
+
+@push('scripts')
+@vite('resources/js/vendor/chart.js')
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="userSecurityManager()">

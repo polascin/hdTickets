@@ -1,10 +1,10 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'PWA Features Demo')
 
 @section('content')
-{{-- Include PWA Manager --}}
+@push('scripts')
 <script src="{{ asset('js/pwa-manager.js') }}" defer></script>
+@endpush
 
 <div class="container container--xl" id="main-content">
     {{-- Header Section --}}

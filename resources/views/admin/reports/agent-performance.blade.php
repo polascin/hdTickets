@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Agent Performance Report')
 
 @section('content')
@@ -200,7 +199,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
 <script>
 // Performance Chart
 const ctx = document.getElementById('performanceChart').getContext('2d');

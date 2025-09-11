@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'High-Demand Sports Tickets')
 
 @section('content')

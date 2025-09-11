@@ -1,5 +1,9 @@
-@extends('layouts.app-v2')
+@extends('layouts.modern')
 @section('title', 'Agent Dashboard')
+
+@push('styles')
+  <link rel="stylesheet" href="{{ asset('css/ui-v2.css') }}">
+@endpush
 @section('content')
   <div class="flex items-center justify-between mb-6">
     <div>

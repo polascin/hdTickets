@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Database & Cache Optimization Demo')
 
 @section('content')

@@ -1,18 +1,17 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Security Documentation - HD Tickets')
 
-@section('head')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+@push('styles')
 <style>
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .code-block { background-color: #f8f9fa; border-radius: 0.375rem; padding: 1rem; }
 </style>
-@endsection
+@endpush
+
+@push('scripts')
+@vite('resources/js/vendor/prism.js')
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="{ activeSection: 'overview' }">

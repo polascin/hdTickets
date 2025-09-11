@@ -1,4 +1,4 @@
-@extends('layouts.app-v2')
+@extends('layouts.modern')
 
 @section('title', 'Admin Dashboard')
 @section('description', 'Sports Ticket Management - Complete platform overview and control')

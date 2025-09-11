@@ -1,4 +1,4 @@
-@extends('layouts.dashboard-full')
+@extends('layouts.modern')
 
 @section('title', 'Enhanced Customer Dashboard - HD Tickets Sports Events')
 

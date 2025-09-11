@@ -147,7 +147,7 @@ function setupEventHandlers(syncManager, refreshManager, installManager, lifecyc
     // Could send to error tracking service
   });
 }
-import './echo';
+import './echo-helpers';
 
 // Make Alpine available globally
 window.Alpine = Alpine;
@@ -164,6 +164,9 @@ import './utils/containerQueries';
 import './utils/gridLayout';
 import './utils/touchSupport';
 import './utils/performanceOptimizer';
+import './utils/themeManager';
+import './utils/assetOptimizer';
+import './utils/mobileTouchUtils';
 
 // Ticket system components (conditional loading)
 if (document.querySelector('[data-ticket-system]')) {

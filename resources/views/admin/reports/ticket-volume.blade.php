@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Ticket Volume Report')
 
 @section('content')
@@ -124,7 +123,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
 <script>
 // Volume Chart
 const ctx = document.getElementById('volumeChart').getContext('2d');

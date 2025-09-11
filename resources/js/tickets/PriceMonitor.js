@@ -61,12 +61,15 @@ class PriceMonitor {
         }
         
         try {
-            this.echo = new Echo(this.options.echoConfig);
+            // Use the globally initialized Echo instance to avoid duplicate initializations
+            this.echo = window.Echo;
             this.setupConnectionEvents();
-            this.isConnected = true;
+            this.isConnected = (window.EchoHelpers && typeof window.EchoHelpers.isConnected === 'function')
+                ? window.EchoHelpers.isConnected()
+                : true;
             this.retryCount = 0;
         } catch (error) {
-            console.error('Failed to initialize Echo:', error);
+            console.error('Failed to attach to Echo instance:', error);
             this.handleConnectionError();
         }
     }

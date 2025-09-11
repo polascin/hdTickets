@@ -135,28 +135,7 @@
     <!-- Mobile Enhancements CSS -->
     <link href="{{ asset('css/mobile-enhancements.css') }}" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
-    <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css') }}"
-      rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Theme Manager -->
-    <script src="{{ asset('resources/js/utils/themeManager.js') }}" defer></script>
-
-    <!-- Mobile Touch Utils -->
-    <script src="{{ asset('resources/js/utils/mobileTouchUtils.js') }}" defer></script>
-
-    <!-- Enhanced HD Tickets JavaScript -->
-    <script src="{{ asset('js/notificationManager.js') }}" defer></script>
-    <script src="{{ asset('js/performanceMonitor.js') }}" defer></script>
-
-    <!-- Dropdown Position Fix JavaScript -->
-    <script src="{{ asset('js/dropdown-position-fix.js') }}" defer></script>
-
-    @if(app()->environment('local'))
-    <!-- Dropdown Debug JavaScript (Development Only) -->
-    <script src="{{ asset('js/dropdown-debug.js') }}" defer></script>
-    @endif
 
     <!-- Inline Critical CSS for Above-the-Fold Content -->
     <style>
@@ -166,10 +145,8 @@
     <!-- Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
       @vite(['resources/css/app.css', 'resources/js/app.js'])
-      <script type="module" src="{{ asset('resources/js/utils/assetOptimizer.js') }}"></script>
     @else
       <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <!-- Fallback Alpine.js components registration -->
       <script>
         document.addEventListener('alpine:init', () => {

@@ -40,7 +40,7 @@
                     <span class="font-semibold">HD Tickets</span>
                 </a>
                 <div class="flex items-center space-x-2">
-                    <a href="/notifications" class="relative p-2 -m-2 rounded-lg hover:bg-gray-100">
+                    <a href="{{ route('dashboard.notifications.index') }}" class="relative p-2 -m-2 rounded-lg hover:bg-gray-100">
                         <span x-show="hasUnread" class="absolute right-1 top-1 inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
@@ -130,20 +130,20 @@
                 </svg>
                 <span>Tickets</span>
             </a>
-            <a href="/watchlist" class="flex flex-col items-center py-2 {{ request()->is('watchlist') ? 'text-indigo-600' : 'text-gray-600' }}">
+            <a href="{{ route('monitoring.index') }}" class="flex flex-col items-center py-2 {{ request()->routeIs('monitoring.*') ? 'text-indigo-600' : 'text-gray-600' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c.973.118 1.79.78 2.082 1.707l.259.813c.147.46.54.82 1.017.931.352.082.695.185 1.028.31.94.353 1.497 1.37 1.29 2.35-.625 2.969-2.468 5.173-5.585 6.813-2.2 1.17-4.781 1.49-7.771 1.49-2.99 0-5.571-.32-7.771-1.49C.963 13.86-.88 11.656-1.505 8.687c-.206-.98.35-1.997 1.29-2.35.333-.125.676-.228 1.028-.31.477-.111.87-.47 1.017-.931l.26-.813c.291-.927 1.108-1.589 2.08-1.707z" clip-rule="evenodd" />
                     <path d="M9 14.25c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-4.5a.75.75 0 00-.75.75z" />
                 </svg>
                 <span>Watch</span>
             </a>
-            <a href="/alerts" class="flex flex-col items-center py-2 {{ request()->is('alerts') ? 'text-indigo-600' : 'text-gray-600' }}">
+            <a href="{{ route('monitoring.alerts.index') }}" class="flex flex-col items-center py-2 {{ request()->routeIs('monitoring.alerts.*') ? 'text-indigo-600' : 'text-gray-600' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path fill-rule="evenodd" d="M5.25 2.25A.75.75 0 016 3v2.25h12V3a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H6a3 3 0 01-3-3V3a.75.75 0 01.75-.75zM3.75 21a.75.75 0 000 1.5h16.5a.75.75 0 000-1.5H3.75z" clip-rule="evenodd" />
                 </svg>
                 <span>Alerts</span>
             </a>
-            <a href="/analytics" class="flex flex-col items-center py-2 {{ request()->is('analytics') ? 'text-indigo-600' : 'text-gray-600' }}">
+            <a href="{{ route('dashboard.analytics') }}" class="flex flex-col items-center py-2 {{ request()->routeIs('dashboard.analytics') ? 'text-indigo-600' : 'text-gray-600' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path fill-rule="evenodd" d="M3 3.75A.75.75 0 013.75 3h16.5a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75H3.75A.75.75 0 013 20.25V3.75zm3.75 3a.75.75 0 00-.75.75v9.75c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V7.5a.75.75 0 00-.75-.75h-1.5zM10.5 9a.75.75 0 00-.75.75v7.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75v-7.5A.75.75 0 0012 9h-1.5zM15.75 12.75a.75.75 0 00-.75.75v3.75c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75h-1.5z" clip-rule="evenodd" />
                 </svg>

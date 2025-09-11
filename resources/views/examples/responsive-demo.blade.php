@@ -1,11 +1,14 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Responsive Design Showcase')
 
 @section('content')
-{{-- Include Responsive Design CSS and JS --}}
+@push('styles')
 <link rel="stylesheet" href="{{ asset('css/responsive-design.css') }}">
+@endpush
+
+@push('scripts')
 <script src="{{ asset('js/responsive-design.js') }}" defer></script>
+@endpush
 
 <div class="container container--xl" id="main-content">
     {{-- Header Section --}}

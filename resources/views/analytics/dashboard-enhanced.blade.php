@@ -318,7 +318,7 @@
   </div>
 
   @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/vendor/chart.js')
     <script>
       function analyticsManager() {
         return {

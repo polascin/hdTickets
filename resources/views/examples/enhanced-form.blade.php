@@ -1,5 +1,4 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Enhanced Form UX Examples')
 
 @section('content')
@@ -12,8 +11,13 @@
         </div>
 
         {{-- Include CSS and JS --}}
-        <link rel="stylesheet" href="{{ asset('css/enhanced-forms.css') }}">
-        <script src="{{ asset('js/formValidator.js') }}" defer></script>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/enhanced-forms.css') }}">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('js/formValidator.js') }}" defer></script>
+@endpush
 
         {{-- Basic Enhanced Form --}}
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">

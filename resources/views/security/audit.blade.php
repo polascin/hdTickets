@@ -1,10 +1,7 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Security Audit Logs - HD Tickets')
 
-@section('head')
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@push('styles')
 <style>
     .audit-entry { transition: all 0.3s ease; }
     .audit-entry:hover { background-color: #f9fafb; }
@@ -18,7 +15,11 @@
     .risk-high { background-color: #fef2f2; }
     .timeline-dot { position: absolute; left: -6px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; }
 </style>
-@endsection
+@endpush
+
+@push('scripts')
+@vite('resources/js/vendor/chart.js')
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="auditLogManager()">

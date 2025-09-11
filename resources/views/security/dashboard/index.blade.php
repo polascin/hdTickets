@@ -1,12 +1,7 @@
-@extends('layouts.app')
-
+@extends('layouts.modern')
 @section('title', 'Security Dashboard - HD Tickets')
 
-@section('head')
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+@push('styles')
 <style>
     @keyframes pulse {
         0%, 100% { opacity: 1; }
@@ -23,7 +18,11 @@
     .status-investigating { @apply bg-yellow-100 text-yellow-800; }
     .status-resolved { @apply bg-green-100 text-green-800; }
 </style>
-@endsection
+@endpush
+
+@push('scripts')
+@vite('resources/js/vendor/chart.js')
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-gray-50" x-data="securityDashboard()">

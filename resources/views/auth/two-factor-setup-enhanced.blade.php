@@ -444,8 +444,8 @@
     </div>
   </div>
 
-  @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+@push('scripts')
+    @vite('resources/js/vendor/qrcode.js')
     <script>
       function twoFactorSetup() {
         return {
