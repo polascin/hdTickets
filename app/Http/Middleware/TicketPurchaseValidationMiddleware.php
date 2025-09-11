@@ -68,8 +68,42 @@ class TicketPurchaseValidationMiddleware
                 return $this->denyAccess($request, 'Invalid ticket', 'invalid_ticket', $user);
             }
 
-            // Preferred path: delegate eligibility to service (used by tests and runtime)
+            // Guard: quantity is required
+            if (! $request->has('quantity')) {
+                return response()->json([
+                    'success' => FALSE,
+                    'message' => 'Quantity parameter is required',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Fast-path: allow agents/admins without further checks
+            if (in_array($user->role, ['agent', 'admin'], true)) {
+                return $next($request);
+            }
+
+            // Free access period for new customers
+            if ($user->role === 'customer') {
+                $freeAccessDays = (int) config('subscription.free_access_days', 7);
+                if ($user->created_at->diffInDays(now()) <= $freeAccessDays) {
+                    return $next($request);
+                }
+            }
+
+            // Ticket-level quick validations
+            if (! $ticket->is_available) {
+                return $this->denyAccess($request, 'Ticket is not available', 'ticket_unavailable', $user, [
+                    'reasons' => ['Ticket is not available'],
+                ]);
+            }
+
             $quantity = (int) $request->input('quantity', 1);
+            if ($ticket->available_quantity < $quantity) {
+                return $this->denyAccess($request, 'Not enough tickets available', 'insufficient_tickets', $user, [
+                    'reasons' => ['Not enough tickets available'],
+                ]);
+            }
+
+            // Preferred path: delegate eligibility to service (used by tests and runtime)
             if ($this->purchaseService) {
                 $eligibility = $this->purchaseService->checkPurchaseEligibility($user, $ticket, $quantity);
 

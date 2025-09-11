@@ -132,12 +132,13 @@ class TicketPurchaseService
         }
 
         // Check ticket availability
-        if (! $ticket->is_available || $ticket->available_quantity < $quantity) {
+        if (! $ticket->is_available || $ticket->available_quantity < $requestedQuantity) {
+            $msg = ! $ticket->is_available ? 'Ticket is not available' : 'Not enough tickets available';
             return [
                 'valid'   => FALSE,
-                'message' => 'Insufficient tickets available',
+                'message' => $msg,
                 'data'    => [
-                    'requested'     => $quantity,
+                    'requested'     => $requestedQuantity,
                     'available'     => $ticket->available_quantity,
                     'ticket_status' => $ticket->is_available ? 'available' : 'unavailable',
                 ],
@@ -184,7 +185,8 @@ class TicketPurchaseService
      */
     private function checkTicketLimits(User $user, int $requestedQuantity): array
     {
-        $subscription = $user->subscription;
+        // Resolve active subscription consistently
+        $subscription = $user->activeSubscription();
 
         if (! $subscription) {
             return [
@@ -197,8 +199,8 @@ class TicketPurchaseService
             ];
         }
 
-        // Check if subscription is active
-        if (! $subscription->isActive() && ! $subscription->isInFreeTrial()) {
+        // Check if subscription is active (or in free trial)
+        if (! $subscription->isActive() && ! $subscription->isOnTrial()) {
             return [
                 'valid'   => FALSE,
                 'message' => 'Subscription is not active',
@@ -209,14 +211,15 @@ class TicketPurchaseService
             ];
         }
 
-        // Check monthly limits
-        $monthlyLimit = $subscription->plan->ticket_limit ?? config('subscription.default_ticket_limit', 100);
+        // Check monthly limits (prefer explicit subscription ticket_limit, then plan max, then config)
+        $planLimit = $subscription->paymentPlan?->max_tickets_per_month;
+        $monthlyLimit = $subscription->ticket_limit ?? $planLimit ?? config('subscription.default_ticket_limit', 100);
         $currentUsage = $user->getMonthlyTicketUsage();
 
         if (($currentUsage + $requestedQuantity) > $monthlyLimit) {
             return [
                 'valid'   => FALSE,
-                'message' => 'Monthly ticket limit would be exceeded',
+                'message' => 'Would exceed monthly ticket limit',
                 'data'    => [
                     'monthly_limit' => $monthlyLimit,
                     'current_usage' => $currentUsage,

@@ -80,28 +80,19 @@ class TestDataFactory
      */
     public function createTicket(array $attributes = []): Ticket
     {
+        $requester = $attributes['requester_id'] ?? $this->createUser();
+
         $defaultAttributes = [
             'title'              => fake()->sentence(4),
+            'description'        => fake()->paragraph(),
             'event_date'         => fake()->dateTimeBetween('+1 week', '+6 months'),
             'venue'              => fake()->company() . ' Stadium',
-            'city'               => fake()->city(),
-            'country'            => fake()->country(),
-            'sport_type'         => fake()->randomElement(['football', 'basketball', 'baseball', 'hockey', 'soccer']),
-            'team_home'          => fake()->words(2, TRUE),
-            'team_away'          => fake()->words(2, TRUE),
-            'price_min'          => fake()->numberBetween(25, 100),
-            'price_max'          => fake()->numberBetween(100, 500),
             'currency'           => 'USD',
             'available_quantity' => fake()->numberBetween(1, 1000),
-            'status'             => fake()->randomElement(['available', 'limited', 'sold_out']),
-            'source_platform'    => fake()->randomElement(['ticketmaster', 'stubhub', 'seatgeek']),
-            'source_url'         => fake()->url(),
-            'last_scraped_at'    => now(),
-            'metadata'           => [
-                'section'      => fake()->randomElement(['A', 'B', 'C', 'VIP']),
-                'row'          => fake()->numberBetween(1, 30),
-                'seat_numbers' => fake()->randomElements([1, 2, 3, 4, 5, 6, 7, 8], 2),
-            ],
+            'is_available'       => true,
+            'price'              => fake()->randomFloat(2, 25, 500),
+            'status'             => 'open',
+            'requester_id'       => $requester instanceof User ? $requester->id : $requester,
         ];
 
         $ticketData = array_merge($defaultAttributes, $attributes);

@@ -49,7 +49,35 @@ class UserSubscription extends Model
         'amount_paid',
         'payment_method',
         'metadata',
+        'ticket_limit',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $subscription): void {
+            if (empty($subscription->payment_plan_id)) {
+                $basic = PaymentPlan::firstOrCreate(
+                    ['slug' => 'basic'],
+                    [
+                        'name'                    => 'Basic',
+                        'description'             => 'Default basic plan',
+                        'price'                   => 19.99,
+                        'billing_cycle'           => 'monthly',
+                        'features'                => ['Email & push notifications'],
+                        'max_tickets_per_month'   => 25,
+                        'max_concurrent_purchases'=> 2,
+                        'max_platforms'           => 2,
+                        'priority_support'        => false,
+                        'advanced_analytics'      => false,
+                        'automated_purchasing'    => false,
+                        'is_active'               => true,
+                        'sort_order'              => 2,
+                    ]
+                );
+                $subscription->payment_plan_id = $basic->id;
+            }
+        });
+    }
 
     /**
      * Get the user that owns the subscription
@@ -326,6 +354,7 @@ class UserSubscription extends Model
             'user_id'         => 'integer',
             'payment_plan_id' => 'integer',
             'metadata'        => 'array',
+            'ticket_limit'    => 'integer',
         ];
     }
 }
