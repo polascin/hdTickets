@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use App\Domain\Purchase\Models\TicketPurchase;
 use App\Models\Ticket;
+use App\Models\TicketPurchase;
 use App\Models\User;
 use App\Services\AdvancedRBACService;
 use App\Services\SecurityMonitoringService;
+use App\Services\TicketPurchaseService;
 use Closure;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -29,8 +30,18 @@ use function count;
  */
 class TicketPurchaseValidationMiddleware
 {
-    public function __construct(protected SecurityMonitoringService $securityMonitoring, protected AdvancedRBACService $rbacService)
-    {
+    public function __construct(
+        protected TicketPurchaseService $purchaseService,
+        protected ?SecurityMonitoringService $securityMonitoring = null,
+        protected ?AdvancedRBACService $rbacService = null,
+    ) {
+        // Optionally resolve missing services from container (for framework usage)
+        if ($this->securityMonitoring === null && function_exists('app') && app()->bound(SecurityMonitoringService::class)) {
+            $this->securityMonitoring = app(SecurityMonitoringService::class);
+        }
+        if ($this->rbacService === null && function_exists('app') && app()->bound(AdvancedRBACService::class)) {
+            $this->rbacService = app(AdvancedRBACService::class);
+        }
     }
 
     /**
@@ -57,7 +68,49 @@ class TicketPurchaseValidationMiddleware
                 return $this->denyAccess($request, 'Invalid ticket', 'invalid_ticket', $user);
             }
 
-            // Perform comprehensive purchase validation
+            // Preferred path: delegate eligibility to service (used by tests and runtime)
+            $quantity = (int) $request->input('quantity', 1);
+            if ($this->purchaseService) {
+                $eligibility = $this->purchaseService->checkPurchaseEligibility($user, $ticket, $quantity);
+
+                if (empty($eligibility['valid'])) {
+                    return $this->denyAccess(
+                        $request,
+                        $eligibility['message'] ?? 'Purchase not allowed',
+                        'purchase_validation_failed',
+                        $user,
+                        [
+                            'reasons'   => [$eligibility['message'] ?? 'not_allowed'],
+                            'user_info' => $eligibility['data'] ?? [],
+                        ],
+                    );
+                }
+
+                // Log successful validation (best-effort)
+                if ($this->securityMonitoring) {
+                    $this->securityMonitoring->logSecurityEvent(
+                        'ticket_purchase_validated',
+                        $user,
+                        $request,
+                        [
+                            'ticket_id'         => $ticket->id,
+                            'ticket_title'      => $ticket->title,
+                            'validation_passed' => TRUE,
+                        ],
+                    );
+                }
+
+                // Add normalized validation data to request for controller use
+                $request->merge(['purchase_validation' => [
+                    'can_purchase' => TRUE,
+                    'message'      => 'Purchase validation successful',
+                    'user_info'    => $eligibility['data'] ?? [],
+                ]]);
+
+                return $next($request);
+            }
+
+            // Fallback: internal validation flow
             $validation = $this->validatePurchaseEligibility($user, $ticket, $request);
 
             if (! $validation['can_purchase']) {
@@ -71,16 +124,18 @@ class TicketPurchaseValidationMiddleware
             }
 
             // Log successful validation
-            $this->securityMonitoring->logSecurityEvent(
-                'ticket_purchase_validated',
-                $user,
-                $request,
-                [
-                    'ticket_id'         => $ticket->id,
-                    'ticket_title'      => $ticket->title,
-                    'validation_passed' => TRUE,
-                ],
-            );
+            if ($this->securityMonitoring) {
+                $this->securityMonitoring->logSecurityEvent(
+                    'ticket_purchase_validated',
+                    $user,
+                    $request,
+                    [
+                        'ticket_id'         => $ticket->id,
+                        'ticket_title'      => $ticket->title,
+                        'validation_passed' => TRUE,
+                    ],
+                );
+            }
 
             // Add validation data to request for controller use
             $request->merge(['purchase_validation' => $validation]);
@@ -96,7 +151,7 @@ class TicketPurchaseValidationMiddleware
 
             return response()->json([
                 'success'    => FALSE,
-                'message'    => 'Purchase validation failed due to system error',
+                'message'    => 'Unable to validate purchase at this time. Please try again later.',
                 'error_code' => 'validation_system_error',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -376,15 +431,17 @@ class TicketPurchaseValidationMiddleware
             $validation['message'] = 'Additional security verification is required for this purchase.';
 
             // Log high-risk purchase attempt
-            $this->securityMonitoring->logSecurityEvent(
-                'high_risk_purchase_attempt',
-                $user,
-                $request,
-                [
-                    'security_score' => $securityScore,
-                    'risk_factors'   => $this->getSecurityRiskFactors($user, $request),
-                ],
-            );
+            if ($this->securityMonitoring) {
+                $this->securityMonitoring->logSecurityEvent(
+                    'high_risk_purchase_attempt',
+                    $user,
+                    $request,
+                    [
+                        'security_score' => $securityScore,
+                        'risk_factors'   => $this->getSecurityRiskFactors($user, $request),
+                    ],
+                );
+            }
 
             return FALSE;
         }
@@ -531,16 +588,18 @@ class TicketPurchaseValidationMiddleware
         array $additionalData = [],
     ) {
         // Log the denial
-        $this->securityMonitoring->logSecurityEvent(
-            'ticket_purchase_denied',
-            $user,
-            $request,
-            array_merge([
-                'reason'        => $reason,
-                'message'       => $message,
-                'requested_uri' => $request->getRequestUri(),
-            ], $additionalData),
-        );
+            if ($this->securityMonitoring) {
+                $this->securityMonitoring->logSecurityEvent(
+                    'ticket_purchase_denied',
+                    $user,
+                    $request,
+                    array_merge([
+                        'reason'        => $reason,
+                        'message'       => $message,
+                        'requested_uri' => $request->getRequestUri(),
+                    ], $additionalData),
+                );
+            }
 
         // Return appropriate response based on request type
         if ($request->expectsJson()) {

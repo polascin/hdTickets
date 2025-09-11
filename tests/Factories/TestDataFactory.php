@@ -18,7 +18,7 @@ class TestDataFactory
     /**
      * Create a test user with specific attributes and role
      */
-    public function createUser(array $attributes = [], string $role = 'user'): User
+    public function createUser(array $attributes = [], string $role = 'customer'): User
     {
         $defaultAttributes = [
             'name'              => fake()->name(),
@@ -26,7 +26,7 @@ class TestDataFactory
             'email_verified_at' => now(),
             'password'          => Hash::make('password'),
             'role'              => $role,
-            'status'            => 'active',
+            'is_active'         => true,
             'preferences'       => [
                 'notifications' => [
                     'email' => TRUE,
@@ -59,7 +59,8 @@ class TestDataFactory
      */
     public function createPremiumUser(array $attributes = []): User
     {
-        $user = $this->createUser($attributes, 'premium');
+        // Premium is a subscription plan; role remains 'customer'
+        $user = $this->createUser($attributes, 'customer');
 
         // Create premium subscription
         UserSubscription::create([

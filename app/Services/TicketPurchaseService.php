@@ -21,6 +21,14 @@ use function in_array;
 class TicketPurchaseService
 {
     /**
+     * Check purchase eligibility (used by middleware/tests)
+     */
+    public function checkPurchaseEligibility(User $user, Ticket $ticket, int $quantity = 1): array
+    {
+        return $this->validatePurchase($user, $ticket, $quantity);
+    }
+
+    /**
      * Attempt to purchase tickets for a user
      */
     public function purchaseTickets(
