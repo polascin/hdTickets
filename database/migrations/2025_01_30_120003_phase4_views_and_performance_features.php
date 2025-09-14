@@ -244,63 +244,69 @@ return new class() extends Migration {
     {
         if (DB::getDriverName() === 'mysql') {
             // Materialized view: Daily platform statistics
-            Schema::create('mv_daily_platform_stats', function (Blueprint $table): void {
-                $table->id();
-                $table->date('stats_date');
-                $table->string('platform', 100);
-                $table->integer('total_tickets_scraped')->default(0);
-                $table->integer('available_tickets')->default(0);
-                $table->integer('successful_scrapes')->default(0);
-                $table->integer('failed_scrapes')->default(0);
-                $table->decimal('success_rate', 5, 2)->default(0);
-                $table->decimal('avg_response_time_ms', 10, 2)->default(0);
-                $table->decimal('avg_min_price', 10, 2)->nullable();
-                $table->decimal('avg_max_price', 10, 2)->nullable();
-                $table->integer('unique_events')->default(0);
-                $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
+            if (! Schema::hasTable('mv_daily_platform_stats')) {
+                Schema::create('mv_daily_platform_stats', function (Blueprint $table): void {
+                    $table->id();
+                    $table->date('stats_date');
+                    $table->string('platform', 100);
+                    $table->integer('total_tickets_scraped')->default(0);
+                    $table->integer('available_tickets')->default(0);
+                    $table->integer('successful_scrapes')->default(0);
+                    $table->integer('failed_scrapes')->default(0);
+                    $table->decimal('success_rate', 5, 2)->default(0);
+                    $table->decimal('avg_response_time_ms', 10, 2)->default(0);
+                    $table->decimal('avg_min_price', 10, 2)->nullable();
+                    $table->decimal('avg_max_price', 10, 2)->nullable();
+                    $table->integer('unique_events')->default(0);
+                    $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
 
-                $table->unique(['stats_date', 'platform']);
-                $table->index(['stats_date', 'platform']);
-                $table->index('stats_date');
-            });
+                    $table->unique(['stats_date', 'platform']);
+                    $table->index(['stats_date', 'platform']);
+                    $table->index('stats_date');
+                });
+            }
 
             // Materialized view: Weekly user activity summary
-            Schema::create('mv_weekly_user_activity', function (Blueprint $table): void {
-                $table->id();
-                $table->date('week_start');
-                $table->unsignedBigInteger('user_id');
-                $table->integer('alerts_created')->default(0);
-                $table->integer('alerts_triggered')->default(0);
-                $table->integer('purchase_attempts')->default(0);
-                $table->integer('successful_purchases')->default(0);
-                $table->decimal('total_spent', 12, 2)->default(0);
-                $table->integer('tickets_viewed')->default(0);
-                $table->integer('login_count')->default(0);
-                $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
+            if (! Schema::hasTable('mv_weekly_user_activity')) {
+                Schema::create('mv_weekly_user_activity', function (Blueprint $table): void {
+                    $table->id();
+                    $table->date('week_start');
+                    $table->unsignedBigInteger('user_id');
+                    $table->integer('alerts_created')->default(0);
+                    $table->integer('alerts_triggered')->default(0);
+                    $table->integer('purchase_attempts')->default(0);
+                    $table->integer('successful_purchases')->default(0);
+                    $table->decimal('total_spent', 12, 2)->default(0);
+                    $table->integer('tickets_viewed')->default(0);
+                    $table->integer('login_count')->default(0);
+                    $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
 
-                $table->unique(['week_start', 'user_id']);
-                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-                $table->index(['week_start', 'user_id']);
-            });
+                    $table->unique(['week_start', 'user_id']);
+                    $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                    $table->index(['week_start', 'user_id']);
+                });
+            }
 
             // Materialized view: Monthly revenue analytics
-            Schema::create('mv_monthly_revenue_analytics', function (Blueprint $table): void {
-                $table->id();
-                $table->date('month_start');
-                $table->string('platform', 100);
-                $table->string('sport', 100);
-                $table->integer('total_purchases')->default(0);
-                $table->decimal('total_revenue', 15, 2)->default(0);
-                $table->decimal('avg_ticket_price', 10, 2)->default(0);
-                $table->decimal('total_fees', 12, 2)->default(0);
-                $table->integer('unique_buyers')->default(0);
-                $table->integer('tickets_sold')->default(0);
-                $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
+            if (! Schema::hasTable('mv_monthly_revenue_analytics')) {
+                Schema::create('mv_monthly_revenue_analytics', function (Blueprint $table): void {
+                    $table->id();
+                    $table->date('month_start');
+                    $table->string('platform', 100);
+                    $table->string('sport', 100);
+                    $table->integer('total_purchases')->default(0);
+                    $table->decimal('total_revenue', 15, 2)->default(0);
+                    $table->decimal('avg_ticket_price', 10, 2)->default(0);
+                    $table->decimal('total_fees', 12, 2)->default(0);
+                    $table->integer('unique_buyers')->default(0);
+                    $table->integer('tickets_sold')->default(0);
+                    $table->timestamp('last_updated')->useCurrent()->useCurrentOnUpdate();
 
-                $table->unique(['month_start', 'platform', 'sport']);
-                $table->index(['month_start', 'platform']);
-                $table->index('month_start');
-            });
+                    $table->unique(['month_start', 'platform', 'sport']);
+                    $table->index(['month_start', 'platform']);
+                    $table->index('month_start');
+                });
+            }
 
             // Initial population of materialized views
             $this->populateMaterializedViews();
@@ -312,13 +318,16 @@ return new class() extends Migration {
      */
     private function implementTablePartitioning(): void
     {
-        if (app()->environment('testing')) {
-            // Skip complex partitioning during tests for speed and compatibility
+        // Only enable in production, or when explicitly opted in via env
+        $partitioningEnabled = app()->environment('production') || (bool) env('DB_ENABLE_PARTITIONING', false);
+        if (! $partitioningEnabled) {
             return;
         }
+
         if (DB::getDriverName() === 'mysql') {
             // Partition scraping_stats table by month (last 12 months + current + future)
-            DB::statement('
+            if (Schema::hasTable('scraping_stats')) {
+                DB::statement('
                 ALTER TABLE scraping_stats 
                 PARTITION BY RANGE (YEAR(created_at) * 100 + MONTH(created_at)) (
                     PARTITION p202312 VALUES LESS THAN (202401),
@@ -338,9 +347,11 @@ return new class() extends Migration {
                     PARTITION p_future VALUES LESS THAN MAXVALUE
                 )
             ');
+            }
 
             // Partition activity_log table by month
-            DB::statement('
+            if (Schema::hasTable('activity_log')) {
+                DB::statement('
                 ALTER TABLE activity_log 
                 PARTITION BY RANGE (YEAR(created_at) * 100 + MONTH(created_at)) (
                     PARTITION al_202312 VALUES LESS THAN (202401),
@@ -360,6 +371,7 @@ return new class() extends Migration {
                     PARTITION al_future VALUES LESS THAN MAXVALUE
                 )
             ');
+            }
 
             // Partition audit_logs table by month (if exists)
             if (Schema::hasTable('audit_logs')) {

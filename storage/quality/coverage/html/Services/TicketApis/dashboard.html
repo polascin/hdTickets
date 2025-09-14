@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Services/TicketApis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">Services</a></li>
+         <li class="breadcrumb-item"><a href="index.html">TicketApis</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="BaseApiClient.php.html#20">App\Services\TicketApis\BaseApiClient</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#22">App\Services\TicketApis\BaseWebScrapingClient</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#16">App\Services\TicketApis\StubHubClient</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#9">App\Services\TicketApis\TicketmasterClient</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#15">App\Services\TicketApis\ViagogoClient</a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="StubHubClient.php.html#16">App\Services\TicketApis\StubHubClient</a></td><td class="text-right">20306</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#15">App\Services\TicketApis\ViagogoClient</a></td><td class="text-right">18090</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#22">App\Services\TicketApis\BaseWebScrapingClient</a></td><td class="text-right">12882</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#20">App\Services\TicketApis\BaseApiClient</a></td><td class="text-right">1892</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#9">App\Services\TicketApis\TicketmasterClient</a></td><td class="text-right">1406</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="BaseApiClient.php.html#30"><abbr title="App\Services\TicketApis\BaseApiClient::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#59"><abbr title="App\Services\TicketApis\BaseApiClient::isEnabled">isEnabled</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#70"><abbr title="App\Services\TicketApis\BaseApiClient::hasScrapingFallback">hasScrapingFallback</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#82"><abbr title="App\Services\TicketApis\BaseApiClient::fallbackToScraping">fallbackToScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#99"><abbr title="App\Services\TicketApis\BaseApiClient::getBaseUrl">getBaseUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#110"><abbr title="App\Services\TicketApis\BaseApiClient::makeRequest">makeRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#230"><abbr title="App\Services\TicketApis\BaseApiClient::executeRequest">executeRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#252"><abbr title="App\Services\TicketApis\BaseApiClient::getCacheKey">getCacheKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#263"><abbr title="App\Services\TicketApis\BaseApiClient::getCacheTtl">getCacheTtl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#284"><abbr title="App\Services\TicketApis\BaseApiClient::getPlatformName">getPlatformName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#298"><abbr title="App\Services\TicketApis\BaseApiClient::handleHttpError">handleHttpError</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#359"><abbr title="App\Services\TicketApis\BaseApiClient::createPlatformException">createPlatformException</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#66"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::setProxyConfig">setProxyConfig</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#77"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::setDelayRange">setDelayRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#89"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::fallbackToScraping">fallbackToScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#136"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::getBaseUrl">getBaseUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#154"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::makeScrapingRequest">makeScrapingRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#224"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::enforceDelay">enforceDelay</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#245"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::buildAntiDetectionHeaders">buildAntiDetectionHeaders</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#282"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::getRandomUserAgent">getRandomUserAgent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#293"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::getRequestOptions">getRequestOptions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#315"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::updateRequestStats">updateRequestStats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#336"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::updateSession">updateSession</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#352"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::trySelectors">trySelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#374"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractJsonLdData">extractJsonLdData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#413"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectSelectors">detectSelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#452"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectEventSelectors">detectEventSelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#481"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectPriceSelectors">detectPriceSelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#507"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectDateSelectors">detectDateSelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#542"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectVenueSelectors">detectVenueSelectors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#568"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractPriceWithFallbacks">extractPriceWithFallbacks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#625"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::mapCurrencySymbol">mapCurrencySymbol</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#643"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#710"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#733"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractNumericPrice">extractNumericPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#752"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::respectRateLimit">respectRateLimit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#805"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::handleScrapingError">handleScrapingError</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#858"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectAntiBot">detectAntiBot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#897"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::trackSelectorEffectiveness">trackSelectorEffectiveness</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#18"><abbr title="App\Services\TicketApis\StubHubClient::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#29"><abbr title="App\Services\TicketApis\StubHubClient::searchEvents">searchEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#52"><abbr title="App\Services\TicketApis\StubHubClient::scrapeSearchResults">scrapeSearchResults</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#75"><abbr title="App\Services\TicketApis\StubHubClient::getEvent">getEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#99"><abbr title="App\Services\TicketApis\StubHubClient::scrapeEventDetails">scrapeEventDetails</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#119"><abbr title="App\Services\TicketApis\StubHubClient::getVenue">getVenue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#136"><abbr title="App\Services\TicketApis\StubHubClient::getEventTickets">getEventTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#163"><abbr title="App\Services\TicketApis\StubHubClient::getHeaders">getHeaders</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#184"><abbr title="App\Services\TicketApis\StubHubClient::searchEventsViaApi">searchEventsViaApi</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#195"><abbr title="App\Services\TicketApis\StubHubClient::buildScrapingSearchUrl">buildScrapingSearchUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#228"><abbr title="App\Services\TicketApis\StubHubClient::extractSearchResults">extractSearchResults</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#271"><abbr title="App\Services\TicketApis\StubHubClient::parseSearchResultsHtml">parseSearchResultsHtml</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#284"><abbr title="App\Services\TicketApis\StubHubClient::extractEventFromNode">extractEventFromNode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#353"><abbr title="App\Services\TicketApis\StubHubClient::parseEventCard">parseEventCard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#422"><abbr title="App\Services\TicketApis\StubHubClient::getEventViaApi">getEventViaApi</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#432"><abbr title="App\Services\TicketApis\StubHubClient::getEventViaScraping">getEventViaScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#453"><abbr title="App\Services\TicketApis\StubHubClient::parseEventDetailsHtml">parseEventDetailsHtml</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#515"><abbr title="App\Services\TicketApis\StubHubClient::buildApiSearchParams">buildApiSearchParams</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#544"><abbr title="App\Services\TicketApis\StubHubClient::transformEventData">transformEventData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#579"><abbr title="App\Services\TicketApis\StubHubClient::determineStatus">determineStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#595"><abbr title="App\Services\TicketApis\StubHubClient::extractCity">extractCity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#608"><abbr title="App\Services\TicketApis\StubHubClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#621"><abbr title="App\Services\TicketApis\StubHubClient::extractEventIdFromUrl">extractEventIdFromUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#635"><abbr title="App\Services\TicketApis\StubHubClient::extractPriceRange">extractPriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#657"><abbr title="App\Services\TicketApis\StubHubClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#703"><abbr title="App\Services\TicketApis\StubHubClient::extractEventDetails">extractEventDetails</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#763"><abbr title="App\Services\TicketApis\StubHubClient::extractPrices">extractPrices</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#805"><abbr title="App\Services\TicketApis\StubHubClient::extractTicketClasses">extractTicketClasses</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#830"><abbr title="App\Services\TicketApis\StubHubClient::extractZones">extractZones</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#856"><abbr title="App\Services\TicketApis\StubHubClient::mapSections">mapSections</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#884"><abbr title="App\Services\TicketApis\StubHubClient::determineSectionType">determineSectionType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#913"><abbr title="App\Services\TicketApis\StubHubClient::mapAvailabilityStatus">mapAvailabilityStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="StubHubClient.php.html#934"><abbr title="App\Services\TicketApis\StubHubClient::determineCountry">determineCountry</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#11"><abbr title="App\Services\TicketApis\TicketmasterClient::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#21"><abbr title="App\Services\TicketApis\TicketmasterClient::searchEvents">searchEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#29"><abbr title="App\Services\TicketApis\TicketmasterClient::getEvent">getEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#37"><abbr title="App\Services\TicketApis\TicketmasterClient::getVenue">getVenue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#48"><abbr title="App\Services\TicketApis\TicketmasterClient::scrapeSearchResults">scrapeSearchResults</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#70"><abbr title="App\Services\TicketApis\TicketmasterClient::scrapeEventDetails">scrapeEventDetails</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#87"><abbr title="App\Services\TicketApis\TicketmasterClient::getHeaders">getHeaders</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#101"><abbr title="App\Services\TicketApis\TicketmasterClient::extractSearchResults">extractSearchResults</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#141"><abbr title="App\Services\TicketApis\TicketmasterClient::extractEventFromNode">extractEventFromNode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#215"><abbr title="App\Services\TicketApis\TicketmasterClient::extractPrices">extractPrices</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#247"><abbr title="App\Services\TicketApis\TicketmasterClient::formatPriceRange">formatPriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#277"><abbr title="App\Services\TicketApis\TicketmasterClient::transformEventData">transformEventData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#298"><abbr title="App\Services\TicketApis\TicketmasterClient::buildSearchUrl">buildSearchUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#319"><abbr title="App\Services\TicketApis\TicketmasterClient::extractEventDetails">extractEventDetails</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#35"><abbr title="App\Services\TicketApis\ViagogoClient::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#49"><abbr title="App\Services\TicketApis\ViagogoClient::searchEvents">searchEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#60"><abbr title="App\Services\TicketApis\ViagogoClient::getEvent">getEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#71"><abbr title="App\Services\TicketApis\ViagogoClient::getVenue">getVenue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#92"><abbr title="App\Services\TicketApis\ViagogoClient::getEventTickets">getEventTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#123"><abbr title="App\Services\TicketApis\ViagogoClient::getHeaders">getHeaders</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#136"><abbr title="App\Services\TicketApis\ViagogoClient::searchEventsViaScraping">searchEventsViaScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#166"><abbr title="App\Services\TicketApis\ViagogoClient::buildScrapingSearchUrl">buildScrapingSearchUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#209"><abbr title="App\Services\TicketApis\ViagogoClient::parseSearchResultsHtml">parseSearchResultsHtml</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#259"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventCard">parseEventCard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#341"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventFromLink">parseEventFromLink</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#394"><abbr title="App\Services\TicketApis\ViagogoClient::getEventViaScraping">getEventViaScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#426"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventDetailsHtml">parseEventDetailsHtml</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#513"><abbr title="App\Services\TicketApis\ViagogoClient::transformEventData">transformEventData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#555"><abbr title="App\Services\TicketApis\ViagogoClient::determineStatus">determineStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#575"><abbr title="App\Services\TicketApis\ViagogoClient::extractCity">extractCity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#593"><abbr title="App\Services\TicketApis\ViagogoClient::extractCountry">extractCountry</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#628"><abbr title="App\Services\TicketApis\ViagogoClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#640"><abbr title="App\Services\TicketApis\ViagogoClient::extractEventIdFromUrl">extractEventIdFromUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#661"><abbr title="App\Services\TicketApis\ViagogoClient::extractPriceRange">extractPriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#684"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#745"><abbr title="App\Services\TicketApis\ViagogoClient::extractGuaranteeInfo">extractGuaranteeInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#793"><abbr title="App\Services\TicketApis\ViagogoClient::determineCurrency">determineCurrency</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#843"><abbr title="App\Services\TicketApis\ViagogoClient::mapAvailabilityStatus">mapAvailabilityStatus</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ViagogoClient.php.html#426"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventDetailsHtml">parseEventDetailsHtml</abbr></a></td><td class="text-right">462</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#259"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventCard">parseEventCard</abbr></a></td><td class="text-right">380</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#110"><abbr title="App\Services\TicketApis\BaseApiClient::makeRequest">makeRequest</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#793"><abbr title="App\Services\TicketApis\ViagogoClient::determineCurrency">determineCurrency</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#374"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractJsonLdData">extractJsonLdData</abbr></a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="StubHubClient.php.html#353"><abbr title="App\Services\TicketApis\StubHubClient::parseEventCard">parseEventCard</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#298"><abbr title="App\Services\TicketApis\BaseApiClient::handleHttpError">handleHttpError</abbr></a></td><td class="text-right">132</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#568"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractPriceWithFallbacks">extractPriceWithFallbacks</abbr></a></td><td class="text-right">132</td></tr>
+       <tr><td><a href="StubHubClient.php.html#453"><abbr title="App\Services\TicketApis\StubHubClient::parseEventDetailsHtml">parseEventDetailsHtml</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#341"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventFromLink">parseEventFromLink</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#643"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#805"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::handleScrapingError">handleScrapingError</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="StubHubClient.php.html#884"><abbr title="App\Services\TicketApis\StubHubClient::determineSectionType">determineSectionType</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#209"><abbr title="App\Services\TicketApis\ViagogoClient::parseSearchResultsHtml">parseSearchResultsHtml</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="StubHubClient.php.html#284"><abbr title="App\Services\TicketApis\StubHubClient::extractEventFromNode">extractEventFromNode</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="StubHubClient.php.html#657"><abbr title="App\Services\TicketApis\StubHubClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="StubHubClient.php.html#703"><abbr title="App\Services\TicketApis\StubHubClient::extractEventDetails">extractEventDetails</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="StubHubClient.php.html#830"><abbr title="App\Services\TicketApis\StubHubClient::extractZones">extractZones</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#247"><abbr title="App\Services\TicketApis\TicketmasterClient::formatPriceRange">formatPriceRange</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#555"><abbr title="App\Services\TicketApis\ViagogoClient::determineStatus">determineStatus</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#684"><abbr title="App\Services\TicketApis\ViagogoClient::parseEventDate">parseEventDate</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#230"><abbr title="App\Services\TicketApis\BaseApiClient::executeRequest">executeRequest</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#413"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectSelectors">detectSelectors</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#507"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectDateSelectors">detectDateSelectors</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="StubHubClient.php.html#228"><abbr title="App\Services\TicketApis\StubHubClient::extractSearchResults">extractSearchResults</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="StubHubClient.php.html#805"><abbr title="App\Services\TicketApis\StubHubClient::extractTicketClasses">extractTicketClasses</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="StubHubClient.php.html#856"><abbr title="App\Services\TicketApis\StubHubClient::mapSections">mapSections</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#166"><abbr title="App\Services\TicketApis\ViagogoClient::buildScrapingSearchUrl">buildScrapingSearchUrl</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#745"><abbr title="App\Services\TicketApis\ViagogoClient::extractGuaranteeInfo">extractGuaranteeInfo</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#352"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::trySelectors">trySelectors</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#752"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::respectRateLimit">respectRateLimit</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#858"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectAntiBot">detectAntiBot</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#195"><abbr title="App\Services\TicketApis\StubHubClient::buildScrapingSearchUrl">buildScrapingSearchUrl</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#515"><abbr title="App\Services\TicketApis\StubHubClient::buildApiSearchParams">buildApiSearchParams</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#579"><abbr title="App\Services\TicketApis\StubHubClient::determineStatus">determineStatus</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#635"><abbr title="App\Services\TicketApis\StubHubClient::extractPriceRange">extractPriceRange</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#763"><abbr title="App\Services\TicketApis\StubHubClient::extractPrices">extractPrices</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="StubHubClient.php.html#934"><abbr title="App\Services\TicketApis\StubHubClient::determineCountry">determineCountry</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#101"><abbr title="App\Services\TicketApis\TicketmasterClient::extractSearchResults">extractSearchResults</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#141"><abbr title="App\Services\TicketApis\TicketmasterClient::extractEventFromNode">extractEventFromNode</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#661"><abbr title="App\Services\TicketApis\ViagogoClient::extractPriceRange">extractPriceRange</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#154"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::makeScrapingRequest">makeScrapingRequest</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#481"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectPriceSelectors">detectPriceSelectors</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#710"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="StubHubClient.php.html#29"><abbr title="App\Services\TicketApis\StubHubClient::searchEvents">searchEvents</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#215"><abbr title="App\Services\TicketApis\TicketmasterClient::extractPrices">extractPrices</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#575"><abbr title="App\Services\TicketApis\ViagogoClient::extractCity">extractCity</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#593"><abbr title="App\Services\TicketApis\ViagogoClient::extractCountry">extractCountry</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#89"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::fallbackToScraping">fallbackToScraping</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#224"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::enforceDelay">enforceDelay</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#245"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::buildAntiDetectionHeaders">buildAntiDetectionHeaders</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#336"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::updateSession">updateSession</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#452"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectEventSelectors">detectEventSelectors</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#542"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::detectVenueSelectors">detectVenueSelectors</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#897"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::trackSelectorEffectiveness">trackSelectorEffectiveness</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StubHubClient.php.html#75"><abbr title="App\Services\TicketApis\StubHubClient::getEvent">getEvent</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StubHubClient.php.html#163"><abbr title="App\Services\TicketApis\StubHubClient::getHeaders">getHeaders</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StubHubClient.php.html#544"><abbr title="App\Services\TicketApis\StubHubClient::transformEventData">transformEventData</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="StubHubClient.php.html#595"><abbr title="App\Services\TicketApis\StubHubClient::extractCity">extractCity</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#298"><abbr title="App\Services\TicketApis\TicketmasterClient::buildSearchUrl">buildSearchUrl</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#319"><abbr title="App\Services\TicketApis\TicketmasterClient::extractEventDetails">extractEventDetails</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#136"><abbr title="App\Services\TicketApis\ViagogoClient::searchEventsViaScraping">searchEventsViaScraping</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#394"><abbr title="App\Services\TicketApis\ViagogoClient::getEventViaScraping">getEventViaScraping</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#513"><abbr title="App\Services\TicketApis\ViagogoClient::transformEventData">transformEventData</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#70"><abbr title="App\Services\TicketApis\BaseApiClient::hasScrapingFallback">hasScrapingFallback</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="BaseApiClient.php.html#359"><abbr title="App\Services\TicketApis\BaseApiClient::createPlatformException">createPlatformException</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#293"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::getRequestOptions">getRequestOptions</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#315"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::updateRequestStats">updateRequestStats</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="BaseWebScrapingClient.php.html#733"><abbr title="App\Services\TicketApis\BaseWebScrapingClient::extractNumericPrice">extractNumericPrice</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#18"><abbr title="App\Services\TicketApis\StubHubClient::__construct">__construct</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#52"><abbr title="App\Services\TicketApis\StubHubClient::scrapeSearchResults">scrapeSearchResults</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#99"><abbr title="App\Services\TicketApis\StubHubClient::scrapeEventDetails">scrapeEventDetails</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#136"><abbr title="App\Services\TicketApis\StubHubClient::getEventTickets">getEventTickets</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#432"><abbr title="App\Services\TicketApis\StubHubClient::getEventViaScraping">getEventViaScraping</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#608"><abbr title="App\Services\TicketApis\StubHubClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="StubHubClient.php.html#621"><abbr title="App\Services\TicketApis\StubHubClient::extractEventIdFromUrl">extractEventIdFromUrl</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#48"><abbr title="App\Services\TicketApis\TicketmasterClient::scrapeSearchResults">scrapeSearchResults</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketmasterClient.php.html#70"><abbr title="App\Services\TicketApis\TicketmasterClient::scrapeEventDetails">scrapeEventDetails</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#92"><abbr title="App\Services\TicketApis\ViagogoClient::getEventTickets">getEventTickets</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#628"><abbr title="App\Services\TicketApis\ViagogoClient::normalizeUrl">normalizeUrl</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ViagogoClient.php.html#640"><abbr title="App\Services\TicketApis\ViagogoClient::extractEventIdFromUrl">extractEventIdFromUrl</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.36</a> at Sun Sep 14 8:09:41 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([5,0,0,0,0,0,0,0,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([110,0,0,0,0,0,0,0,0,0,0,10], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,43,"<a href=\"BaseApiClient.php.html#20\">App\\Services\\TicketApis\\BaseApiClient<\/a>"],[0,113,"<a href=\"BaseWebScrapingClient.php.html#22\">App\\Services\\TicketApis\\BaseWebScrapingClient<\/a>"],[0,142,"<a href=\"StubHubClient.php.html#16\">App\\Services\\TicketApis\\StubHubClient<\/a>"],[0,37,"<a href=\"TicketmasterClient.php.html#9\">App\\Services\\TicketApis\\TicketmasterClient<\/a>"],[0,134,"<a href=\"ViagogoClient.php.html#15\">App\\Services\\TicketApis\\ViagogoClient<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"BaseApiClient.php.html#30\">App\\Services\\TicketApis\\BaseApiClient::__construct<\/a>"],[100,0,"<a href=\"BaseApiClient.php.html#41\">App\\Services\\TicketApis\\BaseApiClient::searchEvents<\/a>"],[100,0,"<a href=\"BaseApiClient.php.html#46\">App\\Services\\TicketApis\\BaseApiClient::getEvent<\/a>"],[100,0,"<a href=\"BaseApiClient.php.html#51\">App\\Services\\TicketApis\\BaseApiClient::getVenue<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#59\">App\\Services\\TicketApis\\BaseApiClient::isEnabled<\/a>"],[0,2,"<a href=\"BaseApiClient.php.html#70\">App\\Services\\TicketApis\\BaseApiClient::hasScrapingFallback<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#82\">App\\Services\\TicketApis\\BaseApiClient::fallbackToScraping<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#99\">App\\Services\\TicketApis\\BaseApiClient::getBaseUrl<\/a>"],[0,15,"<a href=\"BaseApiClient.php.html#110\">App\\Services\\TicketApis\\BaseApiClient::makeRequest<\/a>"],[0,6,"<a href=\"BaseApiClient.php.html#230\">App\\Services\\TicketApis\\BaseApiClient::executeRequest<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#252\">App\\Services\\TicketApis\\BaseApiClient::getCacheKey<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#263\">App\\Services\\TicketApis\\BaseApiClient::getCacheTtl<\/a>"],[100,0,"<a href=\"BaseApiClient.php.html#271\">App\\Services\\TicketApis\\BaseApiClient::getHeaders<\/a>"],[100,0,"<a href=\"BaseApiClient.php.html#276\">App\\Services\\TicketApis\\BaseApiClient::transformEventData<\/a>"],[0,1,"<a href=\"BaseApiClient.php.html#284\">App\\Services\\TicketApis\\BaseApiClient::getPlatformName<\/a>"],[0,11,"<a href=\"BaseApiClient.php.html#298\">App\\Services\\TicketApis\\BaseApiClient::handleHttpError<\/a>"],[0,2,"<a href=\"BaseApiClient.php.html#359\">App\\Services\\TicketApis\\BaseApiClient::createPlatformException<\/a>"],[100,0,"<a href=\"BaseWebScrapingClient.php.html#56\">App\\Services\\TicketApis\\BaseWebScrapingClient::scrapeSearchResults<\/a>"],[100,0,"<a href=\"BaseWebScrapingClient.php.html#58\">App\\Services\\TicketApis\\BaseWebScrapingClient::scrapeEventDetails<\/a>"],[0,1,"<a href=\"BaseWebScrapingClient.php.html#66\">App\\Services\\TicketApis\\BaseWebScrapingClient::setProxyConfig<\/a>"],[0,1,"<a href=\"BaseWebScrapingClient.php.html#77\">App\\Services\\TicketApis\\BaseWebScrapingClient::setDelayRange<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#89\">App\\Services\\TicketApis\\BaseWebScrapingClient::fallbackToScraping<\/a>"],[0,1,"<a href=\"BaseWebScrapingClient.php.html#136\">App\\Services\\TicketApis\\BaseWebScrapingClient::getBaseUrl<\/a>"],[100,0,"<a href=\"BaseWebScrapingClient.php.html#142\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractSearchResults<\/a>"],[100,0,"<a href=\"BaseWebScrapingClient.php.html#144\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractEventFromNode<\/a>"],[100,0,"<a href=\"BaseWebScrapingClient.php.html#146\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractPrices<\/a>"],[0,4,"<a href=\"BaseWebScrapingClient.php.html#154\">App\\Services\\TicketApis\\BaseWebScrapingClient::makeScrapingRequest<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#224\">App\\Services\\TicketApis\\BaseWebScrapingClient::enforceDelay<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#245\">App\\Services\\TicketApis\\BaseWebScrapingClient::buildAntiDetectionHeaders<\/a>"],[0,1,"<a href=\"BaseWebScrapingClient.php.html#282\">App\\Services\\TicketApis\\BaseWebScrapingClient::getRandomUserAgent<\/a>"],[0,2,"<a href=\"BaseWebScrapingClient.php.html#293\">App\\Services\\TicketApis\\BaseWebScrapingClient::getRequestOptions<\/a>"],[0,2,"<a href=\"BaseWebScrapingClient.php.html#315\">App\\Services\\TicketApis\\BaseWebScrapingClient::updateRequestStats<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#336\">App\\Services\\TicketApis\\BaseWebScrapingClient::updateSession<\/a>"],[0,5,"<a href=\"BaseWebScrapingClient.php.html#352\">App\\Services\\TicketApis\\BaseWebScrapingClient::trySelectors<\/a>"],[0,13,"<a href=\"BaseWebScrapingClient.php.html#374\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractJsonLdData<\/a>"],[0,6,"<a href=\"BaseWebScrapingClient.php.html#413\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectSelectors<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#452\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectEventSelectors<\/a>"],[0,4,"<a href=\"BaseWebScrapingClient.php.html#481\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectPriceSelectors<\/a>"],[0,6,"<a href=\"BaseWebScrapingClient.php.html#507\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectDateSelectors<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#542\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectVenueSelectors<\/a>"],[0,11,"<a href=\"BaseWebScrapingClient.php.html#568\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractPriceWithFallbacks<\/a>"],[0,1,"<a href=\"BaseWebScrapingClient.php.html#625\">App\\Services\\TicketApis\\BaseWebScrapingClient::mapCurrencySymbol<\/a>"],[0,9,"<a href=\"BaseWebScrapingClient.php.html#643\">App\\Services\\TicketApis\\BaseWebScrapingClient::parseEventDate<\/a>"],[0,4,"<a href=\"BaseWebScrapingClient.php.html#710\">App\\Services\\TicketApis\\BaseWebScrapingClient::normalizeUrl<\/a>"],[0,2,"<a href=\"BaseWebScrapingClient.php.html#733\">App\\Services\\TicketApis\\BaseWebScrapingClient::extractNumericPrice<\/a>"],[0,5,"<a href=\"BaseWebScrapingClient.php.html#752\">App\\Services\\TicketApis\\BaseWebScrapingClient::respectRateLimit<\/a>"],[0,9,"<a href=\"BaseWebScrapingClient.php.html#805\">App\\Services\\TicketApis\\BaseWebScrapingClient::handleScrapingError<\/a>"],[0,5,"<a href=\"BaseWebScrapingClient.php.html#858\">App\\Services\\TicketApis\\BaseWebScrapingClient::detectAntiBot<\/a>"],[0,3,"<a href=\"BaseWebScrapingClient.php.html#897\">App\\Services\\TicketApis\\BaseWebScrapingClient::trackSelectorEffectiveness<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#18\">App\\Services\\TicketApis\\StubHubClient::__construct<\/a>"],[0,4,"<a href=\"StubHubClient.php.html#29\">App\\Services\\TicketApis\\StubHubClient::searchEvents<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#52\">App\\Services\\TicketApis\\StubHubClient::scrapeSearchResults<\/a>"],[0,3,"<a href=\"StubHubClient.php.html#75\">App\\Services\\TicketApis\\StubHubClient::getEvent<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#99\">App\\Services\\TicketApis\\StubHubClient::scrapeEventDetails<\/a>"],[0,1,"<a href=\"StubHubClient.php.html#119\">App\\Services\\TicketApis\\StubHubClient::getVenue<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#136\">App\\Services\\TicketApis\\StubHubClient::getEventTickets<\/a>"],[0,3,"<a href=\"StubHubClient.php.html#163\">App\\Services\\TicketApis\\StubHubClient::getHeaders<\/a>"],[0,1,"<a href=\"StubHubClient.php.html#184\">App\\Services\\TicketApis\\StubHubClient::searchEventsViaApi<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#195\">App\\Services\\TicketApis\\StubHubClient::buildScrapingSearchUrl<\/a>"],[0,6,"<a href=\"StubHubClient.php.html#228\">App\\Services\\TicketApis\\StubHubClient::extractSearchResults<\/a>"],[0,1,"<a href=\"StubHubClient.php.html#271\">App\\Services\\TicketApis\\StubHubClient::parseSearchResultsHtml<\/a>"],[0,7,"<a href=\"StubHubClient.php.html#284\">App\\Services\\TicketApis\\StubHubClient::extractEventFromNode<\/a>"],[0,12,"<a href=\"StubHubClient.php.html#353\">App\\Services\\TicketApis\\StubHubClient::parseEventCard<\/a>"],[0,1,"<a href=\"StubHubClient.php.html#422\">App\\Services\\TicketApis\\StubHubClient::getEventViaApi<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#432\">App\\Services\\TicketApis\\StubHubClient::getEventViaScraping<\/a>"],[0,10,"<a href=\"StubHubClient.php.html#453\">App\\Services\\TicketApis\\StubHubClient::parseEventDetailsHtml<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#515\">App\\Services\\TicketApis\\StubHubClient::buildApiSearchParams<\/a>"],[0,3,"<a href=\"StubHubClient.php.html#544\">App\\Services\\TicketApis\\StubHubClient::transformEventData<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#579\">App\\Services\\TicketApis\\StubHubClient::determineStatus<\/a>"],[0,3,"<a href=\"StubHubClient.php.html#595\">App\\Services\\TicketApis\\StubHubClient::extractCity<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#608\">App\\Services\\TicketApis\\StubHubClient::normalizeUrl<\/a>"],[0,2,"<a href=\"StubHubClient.php.html#621\">App\\Services\\TicketApis\\StubHubClient::extractEventIdFromUrl<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#635\">App\\Services\\TicketApis\\StubHubClient::extractPriceRange<\/a>"],[0,7,"<a href=\"StubHubClient.php.html#657\">App\\Services\\TicketApis\\StubHubClient::parseEventDate<\/a>"],[0,7,"<a href=\"StubHubClient.php.html#703\">App\\Services\\TicketApis\\StubHubClient::extractEventDetails<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#763\">App\\Services\\TicketApis\\StubHubClient::extractPrices<\/a>"],[0,6,"<a href=\"StubHubClient.php.html#805\">App\\Services\\TicketApis\\StubHubClient::extractTicketClasses<\/a>"],[0,7,"<a href=\"StubHubClient.php.html#830\">App\\Services\\TicketApis\\StubHubClient::extractZones<\/a>"],[0,6,"<a href=\"StubHubClient.php.html#856\">App\\Services\\TicketApis\\StubHubClient::mapSections<\/a>"],[0,9,"<a href=\"StubHubClient.php.html#884\">App\\Services\\TicketApis\\StubHubClient::determineSectionType<\/a>"],[0,1,"<a href=\"StubHubClient.php.html#913\">App\\Services\\TicketApis\\StubHubClient::mapAvailabilityStatus<\/a>"],[0,5,"<a href=\"StubHubClient.php.html#934\">App\\Services\\TicketApis\\StubHubClient::determineCountry<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#11\">App\\Services\\TicketApis\\TicketmasterClient::__construct<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#21\">App\\Services\\TicketApis\\TicketmasterClient::searchEvents<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#29\">App\\Services\\TicketApis\\TicketmasterClient::getEvent<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#37\">App\\Services\\TicketApis\\TicketmasterClient::getVenue<\/a>"],[0,2,"<a href=\"TicketmasterClient.php.html#48\">App\\Services\\TicketApis\\TicketmasterClient::scrapeSearchResults<\/a>"],[0,2,"<a href=\"TicketmasterClient.php.html#70\">App\\Services\\TicketApis\\TicketmasterClient::scrapeEventDetails<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#87\">App\\Services\\TicketApis\\TicketmasterClient::getHeaders<\/a>"],[0,5,"<a href=\"TicketmasterClient.php.html#101\">App\\Services\\TicketApis\\TicketmasterClient::extractSearchResults<\/a>"],[0,5,"<a href=\"TicketmasterClient.php.html#141\">App\\Services\\TicketApis\\TicketmasterClient::extractEventFromNode<\/a>"],[0,4,"<a href=\"TicketmasterClient.php.html#215\">App\\Services\\TicketApis\\TicketmasterClient::extractPrices<\/a>"],[0,7,"<a href=\"TicketmasterClient.php.html#247\">App\\Services\\TicketApis\\TicketmasterClient::formatPriceRange<\/a>"],[0,1,"<a href=\"TicketmasterClient.php.html#277\">App\\Services\\TicketApis\\TicketmasterClient::transformEventData<\/a>"],[0,3,"<a href=\"TicketmasterClient.php.html#298\">App\\Services\\TicketApis\\TicketmasterClient::buildSearchUrl<\/a>"],[0,3,"<a href=\"TicketmasterClient.php.html#319\">App\\Services\\TicketApis\\TicketmasterClient::extractEventDetails<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#35\">App\\Services\\TicketApis\\ViagogoClient::__construct<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#49\">App\\Services\\TicketApis\\ViagogoClient::searchEvents<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#60\">App\\Services\\TicketApis\\ViagogoClient::getEvent<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#71\">App\\Services\\TicketApis\\ViagogoClient::getVenue<\/a>"],[0,2,"<a href=\"ViagogoClient.php.html#92\">App\\Services\\TicketApis\\ViagogoClient::getEventTickets<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#123\">App\\Services\\TicketApis\\ViagogoClient::getHeaders<\/a>"],[0,3,"<a href=\"ViagogoClient.php.html#136\">App\\Services\\TicketApis\\ViagogoClient::searchEventsViaScraping<\/a>"],[0,6,"<a href=\"ViagogoClient.php.html#166\">App\\Services\\TicketApis\\ViagogoClient::buildScrapingSearchUrl<\/a>"],[0,9,"<a href=\"ViagogoClient.php.html#209\">App\\Services\\TicketApis\\ViagogoClient::parseSearchResultsHtml<\/a>"],[0,19,"<a href=\"ViagogoClient.php.html#259\">App\\Services\\TicketApis\\ViagogoClient::parseEventCard<\/a>"],[0,10,"<a href=\"ViagogoClient.php.html#341\">App\\Services\\TicketApis\\ViagogoClient::parseEventFromLink<\/a>"],[0,3,"<a href=\"ViagogoClient.php.html#394\">App\\Services\\TicketApis\\ViagogoClient::getEventViaScraping<\/a>"],[0,21,"<a href=\"ViagogoClient.php.html#426\">App\\Services\\TicketApis\\ViagogoClient::parseEventDetailsHtml<\/a>"],[0,3,"<a href=\"ViagogoClient.php.html#513\">App\\Services\\TicketApis\\ViagogoClient::transformEventData<\/a>"],[0,7,"<a href=\"ViagogoClient.php.html#555\">App\\Services\\TicketApis\\ViagogoClient::determineStatus<\/a>"],[0,4,"<a href=\"ViagogoClient.php.html#575\">App\\Services\\TicketApis\\ViagogoClient::extractCity<\/a>"],[0,4,"<a href=\"ViagogoClient.php.html#593\">App\\Services\\TicketApis\\ViagogoClient::extractCountry<\/a>"],[0,2,"<a href=\"ViagogoClient.php.html#628\">App\\Services\\TicketApis\\ViagogoClient::normalizeUrl<\/a>"],[0,2,"<a href=\"ViagogoClient.php.html#640\">App\\Services\\TicketApis\\ViagogoClient::extractEventIdFromUrl<\/a>"],[0,5,"<a href=\"ViagogoClient.php.html#661\">App\\Services\\TicketApis\\ViagogoClient::extractPriceRange<\/a>"],[0,7,"<a href=\"ViagogoClient.php.html#684\">App\\Services\\TicketApis\\ViagogoClient::parseEventDate<\/a>"],[0,6,"<a href=\"ViagogoClient.php.html#745\">App\\Services\\TicketApis\\ViagogoClient::extractGuaranteeInfo<\/a>"],[0,15,"<a href=\"ViagogoClient.php.html#793\">App\\Services\\TicketApis\\ViagogoClient::determineCurrency<\/a>"],[0,1,"<a href=\"ViagogoClient.php.html#843\">App\\Services\\TicketApis\\ViagogoClient::mapAvailabilityStatus<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

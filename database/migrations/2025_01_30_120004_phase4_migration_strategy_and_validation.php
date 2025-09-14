@@ -449,6 +449,12 @@ return new class() extends Migration {
             });
         }
 
+        // Skip stored procedures on local/dev unless explicitly enabled (MySQL requires elevated privileges and specific modes)
+        $proceduresEnabled = app()->environment('production') || (bool) env('DB_ENABLE_PROCEDURES', false);
+        if (! $proceduresEnabled) {
+            return;
+        }
+
         if (DB::getDriverName() === 'mysql') {
             // Create shadow table sync procedure
             DB::statement('DROP PROCEDURE IF EXISTS SyncShadowTable');
@@ -456,7 +462,7 @@ return new class() extends Migration {
                 CREATE PROCEDURE SyncShadowTable(
                     IN p_source_table VARCHAR(100),
                     IN p_shadow_table VARCHAR(100),
-                    IN p_batch_size INT DEFAULT 1000,
+                    IN p_batch_size INT,
                     OUT p_result VARCHAR(255)
                 )
                 BEGIN
@@ -466,8 +472,7 @@ return new class() extends Migration {
                     
                     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
                     BEGIN
-                        GET DIAGNOSTICS CONDITION 1 @p1 = MESSAGE_TEXT;
-                        SET p_result = CONCAT("Sync failed: ", @p1);
+                        SET p_result = "Sync failed";
                         ROLLBACK;
                         RESIGNAL;
                     END;

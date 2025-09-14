@@ -15,6 +15,15 @@ return new class() extends Migration {
             return;
         }
 
+        // If key 2FA-related columns already exist, skip to avoid duplicates
+        if (
+            Schema::hasColumn('users', 'two_factor_enabled') &&
+            Schema::hasColumn('users', 'require_2fa') &&
+            Schema::hasColumn('users', 'locked_until')
+        ) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table): void {
             // Check each column before adding
             if (! Schema::hasColumn('users', 'two_factor_enabled')) {

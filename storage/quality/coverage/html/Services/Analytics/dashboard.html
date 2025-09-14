@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Services/Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">Services</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Analytics</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#19">App\Services\Analytics\AdvancedAnalyticsService</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#32">App\Services\Analytics\AnalyticsExportService</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#19">App\Services\Analytics\AnomalyDetectionService</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#23">App\Services\Analytics\AutomatedReportingService</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#18">App\Services\Analytics\PredictiveAnalyticsEngine</a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AnalyticsExportService.php.html#32">App\Services\Analytics\AnalyticsExportService</a></td><td class="text-right">11772</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#18">App\Services\Analytics\PredictiveAnalyticsEngine</a></td><td class="text-right">4830</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#19">App\Services\Analytics\AdvancedAnalyticsService</a></td><td class="text-right">4032</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#19">App\Services\Analytics\AnomalyDetectionService</a></td><td class="text-right">3540</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#23">App\Services\Analytics\AutomatedReportingService</a></td><td class="text-right">2862</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#21"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#32"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getDashboardData">getDashboardData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#54"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getOverviewMetrics">getOverviewMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#106"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPlatformPerformanceMetrics">getPlatformPerformanceMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#153"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPricingTrends">getPricingTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#184"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getEventPopularityMetrics">getEventPopularityMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#203"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getMarketIntelligence">getMarketIntelligence</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#219"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPredictiveInsights">getPredictiveInsights</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#235"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getRecentAnomalies">getRecentAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#245"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getBusinessRecommendations">getBusinessRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#266"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::exportAnalyticsData">exportAnalyticsData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#282"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getHistoricalComparison">getHistoricalComparison</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#303"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getRealtimeAnalytics">getRealtimeAnalytics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#315"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getDateRange">getDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#325"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPreviousPeriodMetrics">getPreviousPeriodMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#338"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::calculateGrowthRate">calculateGrowthRate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#347"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPriceRange">getPriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#357"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getTopPlatforms">getTopPlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#371"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getTopSportsCategories">getTopSportsCategories</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#385"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getMarketActivityLevel">getMarketActivityLevel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#404"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPlatformQualityMetrics">getPlatformQualityMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#415"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPlatformTrends">getPlatformTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#425"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::calculateMarketShare">calculateMarketShare</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#435"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::rankPlatformsByPerformance">rankPlatformsByPerformance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#443"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getTimePricingTrends">getTimePricingTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#453"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getSportPricingAnalysis">getSportPricingAnalysis</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#470"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getVenuePricingPatterns">getVenuePricingPatterns</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#488"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPriceDistribution">getPriceDistribution</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#509"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPriceOutliers">getPriceOutliers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#539"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getTrendingEvents">getTrendingEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#560"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::calculateEventPopularityScores">calculateEventPopularityScores</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#566"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::analyzeDemandPatterns">analyzeDemandPatterns</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#572"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getSeasonalTrends">getSeasonalTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#578"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getVenuePopularity">getVenuePopularity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#597"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getTeamPerformanceCorrelation">getTeamPerformanceCorrelation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#603"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getCompetitiveAnalysis">getCompetitiveAnalysis</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#609"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::identifyMarketOpportunities">identifyMarketOpportunities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#615"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::analyzePricingStrategies">analyzePricingStrategies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#621"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::assessMarketRisks">assessMarketRisks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#627"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::generatePricingRecommendations">generatePricingRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#636"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::generatePlatformRecommendations">generatePlatformRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#645"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::identifyInvestmentOpportunities">identifyInvestmentOpportunities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#654"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::generateRiskMitigationStrategies">generateRiskMitigationStrategies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#663"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::calculateHistoricalTrends">calculateHistoricalTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#669"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::generateHistoricalInsights">generateHistoricalInsights</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#675"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getLiveMetrics">getLiveMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#684"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getStreamingData">getStreamingData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#690"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getInstantInsights">getInstantInsights</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#696"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getRealtimeAlerts">getRealtimeAlerts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#38"><abbr title="App\Services\Analytics\AnalyticsExportService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#58"><abbr title="App\Services\Analytics\AnalyticsExportService::export">export</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#110"><abbr title="App\Services\Analytics\AnalyticsExportService::exportForApi">exportForApi</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#164"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToCsv">exportToCsv</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#194"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToPdf">exportToPdf</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#223"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToJson">exportToJson</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#254"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToXlsx">exportToXlsx</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#277"><abbr title="App\Services\Analytics\AnalyticsExportService::buildExcelWorkbook">buildExcelWorkbook</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#319"><abbr title="App\Services\Analytics\AnalyticsExportService::addOverviewSheet">addOverviewSheet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#365"><abbr title="App\Services\Analytics\AnalyticsExportService::addPlatformPerformanceSheet">addPlatformPerformanceSheet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#417"><abbr title="App\Services\Analytics\AnalyticsExportService::addPricingTrendsSheet">addPricingTrendsSheet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#478"><abbr title="App\Services\Analytics\AnalyticsExportService::addEventPopularitySheet">addEventPopularitySheet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#520"><abbr title="App\Services\Analytics\AnalyticsExportService::addAnomaliesSheet">addAnomaliesSheet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#562"><abbr title="App\Services\Analytics\AnalyticsExportService::prepareCsvData">prepareCsvData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#606"><abbr title="App\Services\Analytics\AnalyticsExportService::generatePdfHtml">generatePdfHtml</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#699"><abbr title="App\Services\Analytics\AnalyticsExportService::generateFilename">generateFilename</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#710"><abbr title="App\Services\Analytics\AnalyticsExportService::formatCsvRow">formatCsvRow</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#731"><abbr title="App\Services\Analytics\AnalyticsExportService::countRecords">countRecords</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#747"><abbr title="App\Services\Analytics\AnalyticsExportService::generateDownloadUrl">generateDownloadUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#756"><abbr title="App\Services\Analytics\AnalyticsExportService::generateApiDataset">generateApiDataset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#773"><abbr title="App\Services\Analytics\AnalyticsExportService::generateTicketsDataset">generateTicketsDataset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#803"><abbr title="App\Services\Analytics\AnalyticsExportService::generatePlatformsDataset">generatePlatformsDataset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#824"><abbr title="App\Services\Analytics\AnalyticsExportService::generateAnalyticsDataset">generateAnalyticsDataset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#838"><abbr title="App\Services\Analytics\AnalyticsExportService::generateCompetitiveDataset">generateCompetitiveDataset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#852"><abbr title="App\Services\Analytics\AnalyticsExportService::exportApiToCsv">exportApiToCsv</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#881"><abbr title="App\Services\Analytics\AnalyticsExportService::generateApiDownloadUrl">generateApiDownloadUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#889"><abbr title="App\Services\Analytics\AnalyticsExportService::cleanupOldExports">cleanupOldExports</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#25"><abbr title="App\Services\Analytics\AnomalyDetectionService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#48"><abbr title="App\Services\Analytics\AnomalyDetectionService::getRecentAnomalies">getRecentAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#69"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPriceAnomalies">detectPriceAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#105"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectVolumeAnomalies">detectVolumeAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#132"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectVelocityAnomalies">detectVelocityAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#149"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformAnomalies">detectPlatformAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#175"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectEventAnomalies">detectEventAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#193"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectTemporalAnomalies">detectTemporalAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#210"><abbr title="App\Services\Analytics\AnomalyDetectionService::generateRealtimeAlerts">generateRealtimeAlerts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#242"><abbr title="App\Services\Analytics\AnomalyDetectionService::getDateRange">getDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#252"><abbr title="App\Services\Analytics\AnomalyDetectionService::getPriceStatistics">getPriceStatistics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#275"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectStatisticalPriceOutliers">detectStatisticalPriceOutliers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#302"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectTimeSeriesPriceAnomalies">detectTimeSeriesPriceAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#309"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformPriceAnomalies">detectPlatformPriceAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#315"><abbr title="App\Services\Analytics\AnomalyDetectionService::calculateStandardDeviation">calculateStandardDeviation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#323"><abbr title="App\Services\Analytics\AnomalyDetectionService::calculateAnomalySeverity">calculateAnomalySeverity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#335"><abbr title="App\Services\Analytics\AnomalyDetectionService::calculateSeverityBreakdown">calculateSeverityBreakdown</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#345"><abbr title="App\Services\Analytics\AnomalyDetectionService::getAffectedPlatforms">getAffectedPlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#350"><abbr title="App\Services\Analytics\AnomalyDetectionService::getAffectedCategories">getAffectedCategories</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#355"><abbr title="App\Services\Analytics\AnomalyDetectionService::getDailyTicketVolumes">getDailyTicketVolumes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#368"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectVolumeOutliers">detectVolumeOutliers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#394"><abbr title="App\Services\Analytics\AnomalyDetectionService::generateAnomalySummary">generateAnomalySummary</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#406"><abbr title="App\Services\Analytics\AnomalyDetectionService::getSeverityDistribution">getSeverityDistribution</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#418"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformVolumeSpikes">detectPlatformVolumeSpikes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#423"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectCategoryVolumeAnomalies">detectCategoryVolumeAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#428"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPriceVelocityAnomalies">detectPriceVelocityAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#433"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectVolumeVelocityAnomalies">detectVolumeVelocityAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#438"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectNewListingsVelocity">detectNewListingsVelocity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#443"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformVelocityChanges">detectPlatformVelocityChanges</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#448"><abbr title="App\Services\Analytics\AnomalyDetectionService::getActivePlatforms">getActivePlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#458"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectDataQualityIssues">detectDataQualityIssues</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#463"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPricingInconsistencies">detectPricingInconsistencies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#468"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectAvailabilityAnomalies">detectAvailabilityAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#473"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformBehaviorChanges">detectPlatformBehaviorChanges</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#478"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectUnusualDemandSpikes">detectUnusualDemandSpikes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#483"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPotentialPriceManipulation">detectPotentialPriceManipulation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#488"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPotentialFakeEvents">detectPotentialFakeEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#493"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectDuplicateEvents">detectDuplicateEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#498"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectSchedulingConflicts">detectSchedulingConflicts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#503"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectSeasonalDeviations">detectSeasonalDeviations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#508"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectWeeklyPatternBreaks">detectWeeklyPatternBreaks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#513"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectHolidayImpactAnomalies">detectHolidayImpactAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#518"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectTimeZoneAnomalies">detectTimeZoneAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#523"><abbr title="App\Services\Analytics\AnomalyDetectionService::getRecentTicketData">getRecentTicketData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#530"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectRealtimePriceSpikes">detectRealtimePriceSpikes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#535"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectRealtimeVolumeSurges">detectRealtimeVolumeSurges</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#540"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectRealtimePlatformIssues">detectRealtimePlatformIssues</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#27"><abbr title="App\Services\Analytics\AutomatedReportingService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#42"><abbr title="App\Services\Analytics\AutomatedReportingService::generateScheduledReports">generateScheduledReports</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#94"><abbr title="App\Services\Analytics\AutomatedReportingService::createScheduledReport">createScheduledReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#129"><abbr title="App\Services\Analytics\AutomatedReportingService::generateCustomReport">generateCustomReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#191"><abbr title="App\Services\Analytics\AutomatedReportingService::getReportTemplates">getReportTemplates</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#239"><abbr title="App\Services\Analytics\AutomatedReportingService::getReportStatistics">getReportStatistics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#268"><abbr title="App\Services\Analytics\AutomatedReportingService::scheduleReports">scheduleReports</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#313"><abbr title="App\Services\Analytics\AutomatedReportingService::getActiveScheduledReports">getActiveScheduledReports</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#323"><abbr title="App\Services\Analytics\AutomatedReportingService::generateAndDeliverReport">generateAndDeliverReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#392"><abbr title="App\Services\Analytics\AutomatedReportingService::getAnalyticsDataForSections">getAnalyticsDataForSections</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#443"><abbr title="App\Services\Analytics\AutomatedReportingService::getAnalyticsDataForReport">getAnalyticsDataForReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#454"><abbr title="App\Services\Analytics\AutomatedReportingService::prepareFiltersForReportType">prepareFiltersForReportType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#482"><abbr title="App\Services\Analytics\AutomatedReportingService::deliverReport">deliverReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#516"><abbr title="App\Services\Analytics\AutomatedReportingService::updateReportStatistics">updateReportStatistics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#540"><abbr title="App\Services\Analytics\AutomatedReportingService::cleanupOldReports">cleanupOldReports</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#572"><abbr title="App\Services\Analytics\AutomatedReportingService::getDateRange">getDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#585"><abbr title="App\Services\Analytics\AutomatedReportingService::calculateSuccessRate">calculateSuccessRate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#595"><abbr title="App\Services\Analytics\AutomatedReportingService::calculateAverageGenerationTime">calculateAverageGenerationTime</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#606"><abbr title="App\Services\Analytics\AutomatedReportingService::calculateTotalFileSize">calculateTotalFileSize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#616"><abbr title="App\Services\Analytics\AutomatedReportingService::getMostPopularSections">getMostPopularSections</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#630"><abbr title="App\Services\Analytics\AutomatedReportingService::getReportSummary">getReportSummary</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#22"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#37"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getPricePredictions">getPricePredictions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#56"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getDemandForecasts">getDemandForecasts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#72"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getEventSuccessProbability">getEventSuccessProbability</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#88"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getOptimalPricing">getOptimalPricing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#104"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getMarketTrends">getMarketTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#120"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getDemandForecast">getDemandForecast</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#132"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictUpcomingEventPrices">predictUpcomingEventPrices</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#159"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictPriceTrends">predictPriceTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#172"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictPlatformPricing">predictPlatformPricing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#192"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictOptimalBuyingTime">predictOptimalBuyingTime</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#203"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculatePredictionConfidence">calculatePredictionConfidence</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#215"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getModelAccuracyMetrics">getModelAccuracyMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#226"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastEventDemand">forecastEventDemand</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#236"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastSeasonalDemand">forecastSeasonalDemand</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#246"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastPlatformDemand">forecastPlatformDemand</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#255"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastCapacityUtilization">forecastCapacityUtilization</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#264"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessMarketSaturation">assessMarketSaturation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#276"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getHistoricalEventPrices">getHistoricalEventPrices</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#282"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculatePricePrediction">calculatePricePrediction</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#298"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getHistoricalPriceData">getHistoricalPriceData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#315"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getDateRange">getDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#327"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateOverallTrend">calculateOverallTrend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#332"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateSportSpecificTrends">calculateSportSpecificTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#337"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculatePlatformTrends">calculatePlatformTrends</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#342"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateSeasonalAdjustments">calculateSeasonalAdjustments</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#347"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictAveragePrice">predictAveragePrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#352"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateVolatilityPrediction">calculateVolatilityPrediction</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#357"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessCompetitivePosition">assessCompetitivePosition</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#362"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyOptimalBuyingWindows">identifyOptimalBuyingWindows</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#371"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculatePriceDropProbability">calculatePriceDropProbability</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#380"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictLastMinuteDeals">predictLastMinuteDeals</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#389"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessEarlyBirdPricing">assessEarlyBirdPricing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#398"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictSelloutProbability">predictSelloutProbability</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#403"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastAttendance">forecastAttendance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#408"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictRevenuePotential">predictRevenuePotential</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#413"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyRiskFactors">identifyRiskFactors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#418"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateSuccessIndicators">calculateSuccessIndicators</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#423"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::analyzePriceElasticity">analyzePriceElasticity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#428"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateOptimalPricePoints">calculateOptimalPricePoints</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#433"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::recommendDynamicPricing">recommendDynamicPricing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#438"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::analyzeCompetitorPricing">analyzeCompetitorPricing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#443"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::optimizeMargins">optimizeMargins</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#448"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::projectMarketGrowth">projectMarketGrowth</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#453"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyEmergingSegments">identifyEmergingSegments</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#458"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyDecliningMarkets">identifyDecliningMarkets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#463"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessTechnologyImpact">assessTechnologyImpact</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#468"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessRegulatoryImpact">assessRegulatoryImpact</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#473"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getShortTermDemandForecast">getShortTermDemandForecast</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#478"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getLongTermDemandForecast">getLongTermDemandForecast</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#483"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getSeasonalAdjustments">getSeasonalAdjustments</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#488"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessExternalFactors">assessExternalFactors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#493"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyHighDemandEvents">identifyHighDemandEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#498"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastDemandByCategory">forecastDemandByCategory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#503"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastDemandByVenue">forecastDemandByVenue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#508"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::createDemandTimeline">createDemandTimeline</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#513"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifySeasonalPeaks">identifySeasonalPeaks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#518"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyOffSeasonOpportunities">identifyOffSeasonOpportunities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#523"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessHolidayImpact">assessHolidayImpact</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#528"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::analyzeWeatherCorrelation">analyzeWeatherCorrelation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#533"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastPlatformGrowth">forecastPlatformGrowth</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#538"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::forecastMarketShareEvolution">forecastMarketShareEvolution</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#543"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::predictPlatformMigration">predictPlatformMigration</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#548"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::calculateUtilizationRates">calculateUtilizationRates</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#553"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyCapacityConstraints">identifyCapacityConstraints</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#558"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::identifyExpansionOpportunities">identifyExpansionOpportunities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#563"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::assessBarriersToEntry">assessBarriersToEntry</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="AnalyticsExportService.php.html#110"><abbr title="App\Services\Analytics\AnalyticsExportService::exportForApi">exportForApi</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#417"><abbr title="App\Services\Analytics\AnalyticsExportService::addPricingTrendsSheet">addPricingTrendsSheet</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#392"><abbr title="App\Services\Analytics\AutomatedReportingService::getAnalyticsDataForSections">getAnalyticsDataForSections</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#365"><abbr title="App\Services\Analytics\AnalyticsExportService::addPlatformPerformanceSheet">addPlatformPerformanceSheet</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#58"><abbr title="App\Services\Analytics\AnalyticsExportService::export">export</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#277"><abbr title="App\Services\Analytics\AnalyticsExportService::buildExcelWorkbook">buildExcelWorkbook</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#385"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getMarketActivityLevel">getMarketActivityLevel</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#478"><abbr title="App\Services\Analytics\AnalyticsExportService::addEventPopularitySheet">addEventPopularitySheet</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#520"><abbr title="App\Services\Analytics\AnalyticsExportService::addAnomaliesSheet">addAnomaliesSheet</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#606"><abbr title="App\Services\Analytics\AnalyticsExportService::generatePdfHtml">generatePdfHtml</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#756"><abbr title="App\Services\Analytics\AnalyticsExportService::generateApiDataset">generateApiDataset</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#773"><abbr title="App\Services\Analytics\AnalyticsExportService::generateTicketsDataset">generateTicketsDataset</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#323"><abbr title="App\Services\Analytics\AnomalyDetectionService::calculateAnomalySeverity">calculateAnomalySeverity</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#129"><abbr title="App\Services\Analytics\AutomatedReportingService::generateCustomReport">generateCustomReport</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#268"><abbr title="App\Services\Analytics\AutomatedReportingService::scheduleReports">scheduleReports</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#540"><abbr title="App\Services\Analytics\AutomatedReportingService::cleanupOldReports">cleanupOldReports</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#164"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToCsv">exportToCsv</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#562"><abbr title="App\Services\Analytics\AnalyticsExportService::prepareCsvData">prepareCsvData</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#710"><abbr title="App\Services\Analytics\AnalyticsExportService::formatCsvRow">formatCsvRow</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#803"><abbr title="App\Services\Analytics\AnalyticsExportService::generatePlatformsDataset">generatePlatformsDataset</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#889"><abbr title="App\Services\Analytics\AnalyticsExportService::cleanupOldExports">cleanupOldExports</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#454"><abbr title="App\Services\Analytics\AutomatedReportingService::prepareFiltersForReportType">prepareFiltersForReportType</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#54"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getOverviewMetrics">getOverviewMetrics</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#315"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getDateRange">getDateRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#338"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::calculateGrowthRate">calculateGrowthRate</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#319"><abbr title="App\Services\Analytics\AnalyticsExportService::addOverviewSheet">addOverviewSheet</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#731"><abbr title="App\Services\Analytics\AnalyticsExportService::countRecords">countRecords</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#852"><abbr title="App\Services\Analytics\AnalyticsExportService::exportApiToCsv">exportApiToCsv</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#242"><abbr title="App\Services\Analytics\AnomalyDetectionService::getDateRange">getDateRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#252"><abbr title="App\Services\Analytics\AnomalyDetectionService::getPriceStatistics">getPriceStatistics</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#275"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectStatisticalPriceOutliers">detectStatisticalPriceOutliers</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#42"><abbr title="App\Services\Analytics\AutomatedReportingService::generateScheduledReports">generateScheduledReports</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#323"><abbr title="App\Services\Analytics\AutomatedReportingService::generateAndDeliverReport">generateAndDeliverReport</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#482"><abbr title="App\Services\Analytics\AutomatedReportingService::deliverReport">deliverReport</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#572"><abbr title="App\Services\Analytics\AutomatedReportingService::getDateRange">getDateRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="PredictiveAnalyticsEngine.php.html#315"><abbr title="App\Services\Analytics\PredictiveAnalyticsEngine::getDateRange">getDateRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#282"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getHistoricalComparison">getHistoricalComparison</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#488"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPriceDistribution">getPriceDistribution</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AdvancedAnalyticsService.php.html#509"><abbr title="App\Services\Analytics\AdvancedAnalyticsService::getPriceOutliers">getPriceOutliers</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AnalyticsExportService.php.html#223"><abbr title="App\Services\Analytics\AnalyticsExportService::exportToJson">exportToJson</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#149"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectPlatformAnomalies">detectPlatformAnomalies</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AnomalyDetectionService.php.html#368"><abbr title="App\Services\Analytics\AnomalyDetectionService::detectVolumeOutliers">detectVolumeOutliers</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="AutomatedReportingService.php.html#516"><abbr title="App\Services\Analytics\AutomatedReportingService::updateReportStatistics">updateReportStatistics</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.36</a> at Sun Sep 14 8:09:41 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([5,0,0,0,0,0,0,0,0,0,0,3], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([211,0,0,0,0,0,0,0,0,0,0,0], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,63,"<a href=\"AdvancedAnalyticsService.php.html#19\">App\\Services\\Analytics\\AdvancedAnalyticsService<\/a>"],[0,108,"<a href=\"AnalyticsExportService.php.html#32\">App\\Services\\Analytics\\AnalyticsExportService<\/a>"],[0,59,"<a href=\"AnomalyDetectionService.php.html#19\">App\\Services\\Analytics\\AnomalyDetectionService<\/a>"],[100,0,"<a href=\"AnomalyDetectionService.php.html#547\">App\\Services\\Analytics\\StatisticalAnomalyDetector<\/a>"],[100,0,"<a href=\"AnomalyDetectionService.php.html#551\">App\\Services\\Analytics\\IsolationForestDetector<\/a>"],[100,0,"<a href=\"AnomalyDetectionService.php.html#555\">App\\Services\\Analytics\\TimeSeriesAnomalyDetector<\/a>"],[0,53,"<a href=\"AutomatedReportingService.php.html#23\">App\\Services\\Analytics\\AutomatedReportingService<\/a>"],[0,69,"<a href=\"PredictiveAnalyticsEngine.php.html#18\">App\\Services\\Analytics\\PredictiveAnalyticsEngine<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"AdvancedAnalyticsService.php.html#21\">App\\Services\\Analytics\\AdvancedAnalyticsService::__construct<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#32\">App\\Services\\Analytics\\AdvancedAnalyticsService::getDashboardData<\/a>"],[0,3,"<a href=\"AdvancedAnalyticsService.php.html#54\">App\\Services\\Analytics\\AdvancedAnalyticsService::getOverviewMetrics<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#106\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPlatformPerformanceMetrics<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#153\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPricingTrends<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#184\">App\\Services\\Analytics\\AdvancedAnalyticsService::getEventPopularityMetrics<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#203\">App\\Services\\Analytics\\AdvancedAnalyticsService::getMarketIntelligence<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#219\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPredictiveInsights<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#235\">App\\Services\\Analytics\\AdvancedAnalyticsService::getRecentAnomalies<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#245\">App\\Services\\Analytics\\AdvancedAnalyticsService::getBusinessRecommendations<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#266\">App\\Services\\Analytics\\AdvancedAnalyticsService::exportAnalyticsData<\/a>"],[0,2,"<a href=\"AdvancedAnalyticsService.php.html#282\">App\\Services\\Analytics\\AdvancedAnalyticsService::getHistoricalComparison<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#303\">App\\Services\\Analytics\\AdvancedAnalyticsService::getRealtimeAnalytics<\/a>"],[0,3,"<a href=\"AdvancedAnalyticsService.php.html#315\">App\\Services\\Analytics\\AdvancedAnalyticsService::getDateRange<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#325\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPreviousPeriodMetrics<\/a>"],[0,3,"<a href=\"AdvancedAnalyticsService.php.html#338\">App\\Services\\Analytics\\AdvancedAnalyticsService::calculateGrowthRate<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#347\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPriceRange<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#357\">App\\Services\\Analytics\\AdvancedAnalyticsService::getTopPlatforms<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#371\">App\\Services\\Analytics\\AdvancedAnalyticsService::getTopSportsCategories<\/a>"],[0,6,"<a href=\"AdvancedAnalyticsService.php.html#385\">App\\Services\\Analytics\\AdvancedAnalyticsService::getMarketActivityLevel<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#404\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPlatformQualityMetrics<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#415\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPlatformTrends<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#425\">App\\Services\\Analytics\\AdvancedAnalyticsService::calculateMarketShare<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#435\">App\\Services\\Analytics\\AdvancedAnalyticsService::rankPlatformsByPerformance<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#443\">App\\Services\\Analytics\\AdvancedAnalyticsService::getTimePricingTrends<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#453\">App\\Services\\Analytics\\AdvancedAnalyticsService::getSportPricingAnalysis<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#470\">App\\Services\\Analytics\\AdvancedAnalyticsService::getVenuePricingPatterns<\/a>"],[0,2,"<a href=\"AdvancedAnalyticsService.php.html#488\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPriceDistribution<\/a>"],[0,2,"<a href=\"AdvancedAnalyticsService.php.html#509\">App\\Services\\Analytics\\AdvancedAnalyticsService::getPriceOutliers<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#539\">App\\Services\\Analytics\\AdvancedAnalyticsService::getTrendingEvents<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#560\">App\\Services\\Analytics\\AdvancedAnalyticsService::calculateEventPopularityScores<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#566\">App\\Services\\Analytics\\AdvancedAnalyticsService::analyzeDemandPatterns<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#572\">App\\Services\\Analytics\\AdvancedAnalyticsService::getSeasonalTrends<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#578\">App\\Services\\Analytics\\AdvancedAnalyticsService::getVenuePopularity<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#597\">App\\Services\\Analytics\\AdvancedAnalyticsService::getTeamPerformanceCorrelation<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#603\">App\\Services\\Analytics\\AdvancedAnalyticsService::getCompetitiveAnalysis<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#609\">App\\Services\\Analytics\\AdvancedAnalyticsService::identifyMarketOpportunities<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#615\">App\\Services\\Analytics\\AdvancedAnalyticsService::analyzePricingStrategies<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#621\">App\\Services\\Analytics\\AdvancedAnalyticsService::assessMarketRisks<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#627\">App\\Services\\Analytics\\AdvancedAnalyticsService::generatePricingRecommendations<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#636\">App\\Services\\Analytics\\AdvancedAnalyticsService::generatePlatformRecommendations<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#645\">App\\Services\\Analytics\\AdvancedAnalyticsService::identifyInvestmentOpportunities<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#654\">App\\Services\\Analytics\\AdvancedAnalyticsService::generateRiskMitigationStrategies<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#663\">App\\Services\\Analytics\\AdvancedAnalyticsService::calculateHistoricalTrends<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#669\">App\\Services\\Analytics\\AdvancedAnalyticsService::generateHistoricalInsights<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#675\">App\\Services\\Analytics\\AdvancedAnalyticsService::getLiveMetrics<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#684\">App\\Services\\Analytics\\AdvancedAnalyticsService::getStreamingData<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#690\">App\\Services\\Analytics\\AdvancedAnalyticsService::getInstantInsights<\/a>"],[0,1,"<a href=\"AdvancedAnalyticsService.php.html#696\">App\\Services\\Analytics\\AdvancedAnalyticsService::getRealtimeAlerts<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#38\">App\\Services\\Analytics\\AnalyticsExportService::__construct<\/a>"],[0,7,"<a href=\"AnalyticsExportService.php.html#58\">App\\Services\\Analytics\\AnalyticsExportService::export<\/a>"],[0,9,"<a href=\"AnalyticsExportService.php.html#110\">App\\Services\\Analytics\\AnalyticsExportService::exportForApi<\/a>"],[0,4,"<a href=\"AnalyticsExportService.php.html#164\">App\\Services\\Analytics\\AnalyticsExportService::exportToCsv<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#194\">App\\Services\\Analytics\\AnalyticsExportService::exportToPdf<\/a>"],[0,2,"<a href=\"AnalyticsExportService.php.html#223\">App\\Services\\Analytics\\AnalyticsExportService::exportToJson<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#254\">App\\Services\\Analytics\\AnalyticsExportService::exportToXlsx<\/a>"],[0,7,"<a href=\"AnalyticsExportService.php.html#277\">App\\Services\\Analytics\\AnalyticsExportService::buildExcelWorkbook<\/a>"],[0,3,"<a href=\"AnalyticsExportService.php.html#319\">App\\Services\\Analytics\\AnalyticsExportService::addOverviewSheet<\/a>"],[0,8,"<a href=\"AnalyticsExportService.php.html#365\">App\\Services\\Analytics\\AnalyticsExportService::addPlatformPerformanceSheet<\/a>"],[0,9,"<a href=\"AnalyticsExportService.php.html#417\">App\\Services\\Analytics\\AnalyticsExportService::addPricingTrendsSheet<\/a>"],[0,6,"<a href=\"AnalyticsExportService.php.html#478\">App\\Services\\Analytics\\AnalyticsExportService::addEventPopularitySheet<\/a>"],[0,6,"<a href=\"AnalyticsExportService.php.html#520\">App\\Services\\Analytics\\AnalyticsExportService::addAnomaliesSheet<\/a>"],[0,4,"<a href=\"AnalyticsExportService.php.html#562\">App\\Services\\Analytics\\AnalyticsExportService::prepareCsvData<\/a>"],[0,6,"<a href=\"AnalyticsExportService.php.html#606\">App\\Services\\Analytics\\AnalyticsExportService::generatePdfHtml<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#699\">App\\Services\\Analytics\\AnalyticsExportService::generateFilename<\/a>"],[0,4,"<a href=\"AnalyticsExportService.php.html#710\">App\\Services\\Analytics\\AnalyticsExportService::formatCsvRow<\/a>"],[0,3,"<a href=\"AnalyticsExportService.php.html#731\">App\\Services\\Analytics\\AnalyticsExportService::countRecords<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#747\">App\\Services\\Analytics\\AnalyticsExportService::generateDownloadUrl<\/a>"],[0,6,"<a href=\"AnalyticsExportService.php.html#756\">App\\Services\\Analytics\\AnalyticsExportService::generateApiDataset<\/a>"],[0,5,"<a href=\"AnalyticsExportService.php.html#773\">App\\Services\\Analytics\\AnalyticsExportService::generateTicketsDataset<\/a>"],[0,4,"<a href=\"AnalyticsExportService.php.html#803\">App\\Services\\Analytics\\AnalyticsExportService::generatePlatformsDataset<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#824\">App\\Services\\Analytics\\AnalyticsExportService::generateAnalyticsDataset<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#838\">App\\Services\\Analytics\\AnalyticsExportService::generateCompetitiveDataset<\/a>"],[0,3,"<a href=\"AnalyticsExportService.php.html#852\">App\\Services\\Analytics\\AnalyticsExportService::exportApiToCsv<\/a>"],[0,1,"<a href=\"AnalyticsExportService.php.html#881\">App\\Services\\Analytics\\AnalyticsExportService::generateApiDownloadUrl<\/a>"],[0,4,"<a href=\"AnalyticsExportService.php.html#889\">App\\Services\\Analytics\\AnalyticsExportService::cleanupOldExports<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#25\">App\\Services\\Analytics\\AnomalyDetectionService::__construct<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#48\">App\\Services\\Analytics\\AnomalyDetectionService::getRecentAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#69\">App\\Services\\Analytics\\AnomalyDetectionService::detectPriceAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#105\">App\\Services\\Analytics\\AnomalyDetectionService::detectVolumeAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#132\">App\\Services\\Analytics\\AnomalyDetectionService::detectVelocityAnomalies<\/a>"],[0,2,"<a href=\"AnomalyDetectionService.php.html#149\">App\\Services\\Analytics\\AnomalyDetectionService::detectPlatformAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#175\">App\\Services\\Analytics\\AnomalyDetectionService::detectEventAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#193\">App\\Services\\Analytics\\AnomalyDetectionService::detectTemporalAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#210\">App\\Services\\Analytics\\AnomalyDetectionService::generateRealtimeAlerts<\/a>"],[0,3,"<a href=\"AnomalyDetectionService.php.html#242\">App\\Services\\Analytics\\AnomalyDetectionService::getDateRange<\/a>"],[0,3,"<a href=\"AnomalyDetectionService.php.html#252\">App\\Services\\Analytics\\AnomalyDetectionService::getPriceStatistics<\/a>"],[0,3,"<a href=\"AnomalyDetectionService.php.html#275\">App\\Services\\Analytics\\AnomalyDetectionService::detectStatisticalPriceOutliers<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#302\">App\\Services\\Analytics\\AnomalyDetectionService::detectTimeSeriesPriceAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#309\">App\\Services\\Analytics\\AnomalyDetectionService::detectPlatformPriceAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#315\">App\\Services\\Analytics\\AnomalyDetectionService::calculateStandardDeviation<\/a>"],[0,5,"<a href=\"AnomalyDetectionService.php.html#323\">App\\Services\\Analytics\\AnomalyDetectionService::calculateAnomalySeverity<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#335\">App\\Services\\Analytics\\AnomalyDetectionService::calculateSeverityBreakdown<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#345\">App\\Services\\Analytics\\AnomalyDetectionService::getAffectedPlatforms<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#350\">App\\Services\\Analytics\\AnomalyDetectionService::getAffectedCategories<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#355\">App\\Services\\Analytics\\AnomalyDetectionService::getDailyTicketVolumes<\/a>"],[0,2,"<a href=\"AnomalyDetectionService.php.html#368\">App\\Services\\Analytics\\AnomalyDetectionService::detectVolumeOutliers<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#394\">App\\Services\\Analytics\\AnomalyDetectionService::generateAnomalySummary<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#406\">App\\Services\\Analytics\\AnomalyDetectionService::getSeverityDistribution<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#418\">App\\Services\\Analytics\\AnomalyDetectionService::detectPlatformVolumeSpikes<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#423\">App\\Services\\Analytics\\AnomalyDetectionService::detectCategoryVolumeAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#428\">App\\Services\\Analytics\\AnomalyDetectionService::detectPriceVelocityAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#433\">App\\Services\\Analytics\\AnomalyDetectionService::detectVolumeVelocityAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#438\">App\\Services\\Analytics\\AnomalyDetectionService::detectNewListingsVelocity<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#443\">App\\Services\\Analytics\\AnomalyDetectionService::detectPlatformVelocityChanges<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#448\">App\\Services\\Analytics\\AnomalyDetectionService::getActivePlatforms<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#458\">App\\Services\\Analytics\\AnomalyDetectionService::detectDataQualityIssues<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#463\">App\\Services\\Analytics\\AnomalyDetectionService::detectPricingInconsistencies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#468\">App\\Services\\Analytics\\AnomalyDetectionService::detectAvailabilityAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#473\">App\\Services\\Analytics\\AnomalyDetectionService::detectPlatformBehaviorChanges<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#478\">App\\Services\\Analytics\\AnomalyDetectionService::detectUnusualDemandSpikes<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#483\">App\\Services\\Analytics\\AnomalyDetectionService::detectPotentialPriceManipulation<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#488\">App\\Services\\Analytics\\AnomalyDetectionService::detectPotentialFakeEvents<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#493\">App\\Services\\Analytics\\AnomalyDetectionService::detectDuplicateEvents<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#498\">App\\Services\\Analytics\\AnomalyDetectionService::detectSchedulingConflicts<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#503\">App\\Services\\Analytics\\AnomalyDetectionService::detectSeasonalDeviations<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#508\">App\\Services\\Analytics\\AnomalyDetectionService::detectWeeklyPatternBreaks<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#513\">App\\Services\\Analytics\\AnomalyDetectionService::detectHolidayImpactAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#518\">App\\Services\\Analytics\\AnomalyDetectionService::detectTimeZoneAnomalies<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#523\">App\\Services\\Analytics\\AnomalyDetectionService::getRecentTicketData<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#530\">App\\Services\\Analytics\\AnomalyDetectionService::detectRealtimePriceSpikes<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#535\">App\\Services\\Analytics\\AnomalyDetectionService::detectRealtimeVolumeSurges<\/a>"],[0,1,"<a href=\"AnomalyDetectionService.php.html#540\">App\\Services\\Analytics\\AnomalyDetectionService::detectRealtimePlatformIssues<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#27\">App\\Services\\Analytics\\AutomatedReportingService::__construct<\/a>"],[0,3,"<a href=\"AutomatedReportingService.php.html#42\">App\\Services\\Analytics\\AutomatedReportingService::generateScheduledReports<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#94\">App\\Services\\Analytics\\AutomatedReportingService::createScheduledReport<\/a>"],[0,5,"<a href=\"AutomatedReportingService.php.html#129\">App\\Services\\Analytics\\AutomatedReportingService::generateCustomReport<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#191\">App\\Services\\Analytics\\AutomatedReportingService::getReportTemplates<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#239\">App\\Services\\Analytics\\AutomatedReportingService::getReportStatistics<\/a>"],[0,5,"<a href=\"AutomatedReportingService.php.html#268\">App\\Services\\Analytics\\AutomatedReportingService::scheduleReports<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#313\">App\\Services\\Analytics\\AutomatedReportingService::getActiveScheduledReports<\/a>"],[0,3,"<a href=\"AutomatedReportingService.php.html#323\">App\\Services\\Analytics\\AutomatedReportingService::generateAndDeliverReport<\/a>"],[0,9,"<a href=\"AutomatedReportingService.php.html#392\">App\\Services\\Analytics\\AutomatedReportingService::getAnalyticsDataForSections<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#443\">App\\Services\\Analytics\\AutomatedReportingService::getAnalyticsDataForReport<\/a>"],[0,4,"<a href=\"AutomatedReportingService.php.html#454\">App\\Services\\Analytics\\AutomatedReportingService::prepareFiltersForReportType<\/a>"],[0,3,"<a href=\"AutomatedReportingService.php.html#482\">App\\Services\\Analytics\\AutomatedReportingService::deliverReport<\/a>"],[0,2,"<a href=\"AutomatedReportingService.php.html#516\">App\\Services\\Analytics\\AutomatedReportingService::updateReportStatistics<\/a>"],[0,5,"<a href=\"AutomatedReportingService.php.html#540\">App\\Services\\Analytics\\AutomatedReportingService::cleanupOldReports<\/a>"],[0,3,"<a href=\"AutomatedReportingService.php.html#572\">App\\Services\\Analytics\\AutomatedReportingService::getDateRange<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#585\">App\\Services\\Analytics\\AutomatedReportingService::calculateSuccessRate<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#595\">App\\Services\\Analytics\\AutomatedReportingService::calculateAverageGenerationTime<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#606\">App\\Services\\Analytics\\AutomatedReportingService::calculateTotalFileSize<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#616\">App\\Services\\Analytics\\AutomatedReportingService::getMostPopularSections<\/a>"],[0,1,"<a href=\"AutomatedReportingService.php.html#630\">App\\Services\\Analytics\\AutomatedReportingService::getReportSummary<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#22\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::__construct<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#37\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getPricePredictions<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#56\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getDemandForecasts<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#72\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getEventSuccessProbability<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#88\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getOptimalPricing<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#104\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getMarketTrends<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#120\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getDemandForecast<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#132\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictUpcomingEventPrices<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#159\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictPriceTrends<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#172\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictPlatformPricing<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#192\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictOptimalBuyingTime<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#203\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculatePredictionConfidence<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#215\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getModelAccuracyMetrics<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#226\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastEventDemand<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#236\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastSeasonalDemand<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#246\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastPlatformDemand<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#255\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastCapacityUtilization<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#264\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessMarketSaturation<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#276\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getHistoricalEventPrices<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#282\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculatePricePrediction<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#298\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getHistoricalPriceData<\/a>"],[0,3,"<a href=\"PredictiveAnalyticsEngine.php.html#315\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getDateRange<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#327\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateOverallTrend<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#332\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateSportSpecificTrends<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#337\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculatePlatformTrends<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#342\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateSeasonalAdjustments<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#347\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictAveragePrice<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#352\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateVolatilityPrediction<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#357\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessCompetitivePosition<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#362\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyOptimalBuyingWindows<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#371\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculatePriceDropProbability<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#380\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictLastMinuteDeals<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#389\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessEarlyBirdPricing<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#398\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictSelloutProbability<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#403\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastAttendance<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#408\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictRevenuePotential<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#413\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyRiskFactors<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#418\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateSuccessIndicators<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#423\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::analyzePriceElasticity<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#428\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateOptimalPricePoints<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#433\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::recommendDynamicPricing<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#438\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::analyzeCompetitorPricing<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#443\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::optimizeMargins<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#448\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::projectMarketGrowth<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#453\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyEmergingSegments<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#458\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyDecliningMarkets<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#463\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessTechnologyImpact<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#468\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessRegulatoryImpact<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#473\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getShortTermDemandForecast<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#478\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getLongTermDemandForecast<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#483\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::getSeasonalAdjustments<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#488\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessExternalFactors<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#493\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyHighDemandEvents<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#498\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastDemandByCategory<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#503\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastDemandByVenue<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#508\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::createDemandTimeline<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#513\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifySeasonalPeaks<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#518\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyOffSeasonOpportunities<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#523\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessHolidayImpact<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#528\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::analyzeWeatherCorrelation<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#533\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastPlatformGrowth<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#538\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::forecastMarketShareEvolution<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#543\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::predictPlatformMigration<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#548\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::calculateUtilizationRates<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#553\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyCapacityConstraints<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#558\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::identifyExpansionOpportunities<\/a>"],[0,1,"<a href=\"PredictiveAnalyticsEngine.php.html#563\">App\\Services\\Analytics\\PredictiveAnalyticsEngine::assessBarriersToEntry<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

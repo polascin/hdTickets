@@ -86,7 +86,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create a test user with specified role
      */
-    protected function createTestUser(array $attributes = [], string $role = 'user'): User
+    protected function createTestUser(array $attributes = [], string $role = 'customer'): User
     {
         return $this->testDataFactory->createUser($attributes, $role);
     }

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Services/Security</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">Services</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Security</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="DataSecurityService.php.html#21">App\Services\Security\DataSecurityService</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#711">App\Services\Security\EncryptionKeyManager</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#18">App\Services\Security\SecurityMonitoringService</a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="SecurityMonitoringService.php.html#18">App\Services\Security\SecurityMonitoringService</a></td><td class="text-right">15750</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#21">App\Services\Security\DataSecurityService</a></td><td class="text-right">5402</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#711">App\Services\Security\EncryptionKeyManager</a></td><td class="text-right">12</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="DataSecurityService.php.html#109"><abbr title="App\Services\Security\DataSecurityService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#124"><abbr title="App\Services\Security\DataSecurityService::encryptField">encryptField</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#151"><abbr title="App\Services\Security\DataSecurityService::decryptField">decryptField</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#188"><abbr title="App\Services\Security\DataSecurityService::maskForLog">maskForLog</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#212"><abbr title="App\Services\Security\DataSecurityService::rotateEncryptionKeys">rotateEncryptionKeys</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#243"><abbr title="App\Services\Security\DataSecurityService::configureTableEncryption">configureTableEncryption</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#276"><abbr title="App\Services\Security\DataSecurityService::createSecureBackup">createSecureBackup</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#331"><abbr title="App\Services\Security\DataSecurityService::validateDataIntegrity">validateDataIntegrity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#373"><abbr title="App\Services\Security\DataSecurityService::setupDataRetention">setupDataRetention</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#388"><abbr title="App\Services\Security\DataSecurityService::initializeEncryption">initializeEncryption</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#404"><abbr title="App\Services\Security\DataSecurityService::getFieldConfig">getFieldConfig</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#424"><abbr title="App\Services\Security\DataSecurityService::encryptWithAES256">encryptWithAES256</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#450"><abbr title="App\Services\Security\DataSecurityService::decryptWithAES256">decryptWithAES256</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#478"><abbr title="App\Services\Security\DataSecurityService::encryptEphemeral">encryptEphemeral</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#489"><abbr title="App\Services\Security\DataSecurityService::decryptEphemeral">decryptEphemeral</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#504"><abbr title="App\Services\Security\DataSecurityService::tokenizeData">tokenizeData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#520"><abbr title="App\Services\Security\DataSecurityService::detokenizeData">detokenizeData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#536"><abbr title="App\Services\Security\DataSecurityService::partialMask">partialMask</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#558"><abbr title="App\Services\Security\DataSecurityService::getOrCreateFieldEncryptionKey">getOrCreateFieldEncryptionKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#576"><abbr title="App\Services\Security\DataSecurityService::getFieldEncryptionKey">getFieldEncryptionKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#595"><abbr title="App\Services\Security\DataSecurityService::getCurrentKeyVersion">getCurrentKeyVersion</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#608"><abbr title="App\Services\Security\DataSecurityService::rotateFieldKey">rotateFieldKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#632"><abbr title="App\Services\Security\DataSecurityService::auditFieldAccess">auditFieldAccess</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#648"><abbr title="App\Services\Security\DataSecurityService::handleDecryptionError">handleDecryptionError</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#669"><abbr title="App\Services\Security\DataSecurityService::createEncryptedTableBackup">createEncryptedTableBackup</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#682"><abbr title="App\Services\Security\DataSecurityService::calculateBackupChecksum">calculateBackupChecksum</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#700"><abbr title="App\Services\Security\DataSecurityService::scheduleDataPurge">scheduleDataPurge</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#716"><abbr title="App\Services\Security\EncryptionKeyManager::generateKey">generateKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#724"><abbr title="App\Services\Security\EncryptionKeyManager::rotateKey">rotateKey</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#95"><abbr title="App\Services\Security\SecurityMonitoringService::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#105"><abbr title="App\Services\Security\SecurityMonitoringService::monitorRequest">monitorRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#157"><abbr title="App\Services\Security\SecurityMonitoringService::monitorAuthentication">monitorAuthentication</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#210"><abbr title="App\Services\Security\SecurityMonitoringService::runVulnerabilityScans">runVulnerabilityScans</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#282"><abbr title="App\Services\Security\SecurityMonitoringService::getSecurityDashboard">getSecurityDashboard</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#306"><abbr title="App\Services\Security\SecurityMonitoringService::generateComplianceReport">generateComplianceReport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#344"><abbr title="App\Services\Security\SecurityMonitoringService::processSecurityEvent">processSecurityEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#380"><abbr title="App\Services\Security\SecurityMonitoringService::recordSecurityEvent">recordSecurityEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#392"><abbr title="App\Services\Security\SecurityMonitoringService::detectPatterns">detectPatterns</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#430"><abbr title="App\Services\Security\SecurityMonitoringService::detectBehavioralAnomalies">detectBehavioralAnomalies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#476"><abbr title="App\Services\Security\SecurityMonitoringService::handleDetectedThreats">handleDetectedThreats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#518"><abbr title="App\Services\Security\SecurityMonitoringService::calculateThreatScore">calculateThreatScore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#535"><abbr title="App\Services\Security\SecurityMonitoringService::calculateRiskLevel">calculateRiskLevel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#552"><abbr title="App\Services\Security\SecurityMonitoringService::scanConfiguration">scanConfiguration</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#599"><abbr title="App\Services\Security\SecurityMonitoringService::scanDependencies">scanDependencies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#616"><abbr title="App\Services\Security\SecurityMonitoringService::scanDatabase">scanDatabase</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#654"><abbr title="App\Services\Security\SecurityMonitoringService::scanWebApplication">scanWebApplication</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#691"><abbr title="App\Services\Security\SecurityMonitoringService::scanFilePermissions">scanFilePermissions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#736"><abbr title="App\Services\Security\SecurityMonitoringService::getDashboardOverview">getDashboardOverview</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#756"><abbr title="App\Services\Security\SecurityMonitoringService::aggregateVulnerabilities">aggregateVulnerabilities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#789"><abbr title="App\Services\Security\SecurityMonitoringService::sanitizeForLog">sanitizeForLog</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#803"><abbr title="App\Services\Security\SecurityMonitoringService::logSecurityEvent">logSecurityEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#817"><abbr title="App\Services\Security\SecurityMonitoringService::getRecentFailedLogins">getRecentFailedLogins</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#825"><abbr title="App\Services\Security\SecurityMonitoringService::getRecentFailedLoginsFromIp">getRecentFailedLoginsFromIp</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#833"><abbr title="App\Services\Security\SecurityMonitoringService::detectCredentialStuffing">detectCredentialStuffing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#841"><abbr title="App\Services\Security\SecurityMonitoringService::isNewLocation">isNewLocation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#849"><abbr title="App\Services\Security\SecurityMonitoringService::detectImpossibleTravel">detectImpossibleTravel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#857"><abbr title="App\Services\Security\SecurityMonitoringService::calculateAuthRiskLevel">calculateAuthRiskLevel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#865"><abbr title="App\Services\Security\SecurityMonitoringService::isAnomalousUserAgent">isAnomalousUserAgent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#873"><abbr title="App\Services\Security\SecurityMonitoringService::getGeolocation">getGeolocation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#881"><abbr title="App\Services\Security\SecurityMonitoringService::isAnomalousLocation">isAnomalousLocation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#889"><abbr title="App\Services\Security\SecurityMonitoringService::blockRequest">blockRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#896"><abbr title="App\Services\Security\SecurityMonitoringService::sanitizeRequest">sanitizeRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#903"><abbr title="App\Services\Security\SecurityMonitoringService::applyRateLimit">applyRateLimit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#910"><abbr title="App\Services\Security\SecurityMonitoringService::sendSecurityAlert">sendSecurityAlert</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#917"><abbr title="App\Services\Security\SecurityMonitoringService::getActionsForThreats">getActionsForThreats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#925"><abbr title="App\Services\Security\SecurityMonitoringService::checkGDPRCompliance">checkGDPRCompliance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#933"><abbr title="App\Services\Security\SecurityMonitoringService::checkISO27001Compliance">checkISO27001Compliance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#941"><abbr title="App\Services\Security\SecurityMonitoringService::checkPCIDSSCompliance">checkPCIDSSCompliance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#949"><abbr title="App\Services\Security\SecurityMonitoringService::checkSOXCompliance">checkSOXCompliance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#957"><abbr title="App\Services\Security\SecurityMonitoringService::assessSecurityControls">assessSecurityControls</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#965"><abbr title="App\Services\Security\SecurityMonitoringService::performRiskAssessment">performRiskAssessment</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#973"><abbr title="App\Services\Security\SecurityMonitoringService::generateComplianceRecommendations">generateComplianceRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#981"><abbr title="App\Services\Security\SecurityMonitoringService::calculateComplianceScore">calculateComplianceScore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#989"><abbr title="App\Services\Security\SecurityMonitoringService::sendComplianceAlert">sendComplianceAlert</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#996"><abbr title="App\Services\Security\SecurityMonitoringService::calculateEventSeverity">calculateEventSeverity</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1004"><abbr title="App\Services\Security\SecurityMonitoringService::enrichSecurityEvent">enrichSecurityEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1012"><abbr title="App\Services\Security\SecurityMonitoringService::correlateEvents">correlateEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1020"><abbr title="App\Services\Security\SecurityMonitoringService::checkAutomatedResponseTriggers">checkAutomatedResponseTriggers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1027"><abbr title="App\Services\Security\SecurityMonitoringService::storeSecurityEvent">storeSecurityEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1034"><abbr title="App\Services\Security\SecurityMonitoringService::updateSecurityMetrics">updateSecurityMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1041"><abbr title="App\Services\Security\SecurityMonitoringService::triggerSecurityAlert">triggerSecurityAlert</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1048"><abbr title="App\Services\Security\SecurityMonitoringService::getThreatSummary">getThreatSummary</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1056"><abbr title="App\Services\Security\SecurityMonitoringService::getAuthenticationStats">getAuthenticationStats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1064"><abbr title="App\Services\Security\SecurityMonitoringService::getVulnerabilityStatus">getVulnerabilityStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1072"><abbr title="App\Services\Security\SecurityMonitoringService::getComplianceStatus">getComplianceStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1080"><abbr title="App\Services\Security\SecurityMonitoringService::getRecentSecurityAlerts">getRecentSecurityAlerts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1088"><abbr title="App\Services\Security\SecurityMonitoringService::getTopThreats">getTopThreats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1096"><abbr title="App\Services\Security\SecurityMonitoringService::getGeographicThreats">getGeographicThreats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1104"><abbr title="App\Services\Security\SecurityMonitoringService::getSecuritySystemHealth">getSecuritySystemHealth</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1112"><abbr title="App\Services\Security\SecurityMonitoringService::getSecurityRecommendations">getSecurityRecommendations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1120"><abbr title="App\Services\Security\SecurityMonitoringService::getEventCount">getEventCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1128"><abbr title="App\Services\Security\SecurityMonitoringService::getCriticalAlertCount">getCriticalAlertCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1136"><abbr title="App\Services\Security\SecurityMonitoringService::getBlockedAttackCount">getBlockedAttackCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1144"><abbr title="App\Services\Security\SecurityMonitoringService::getFailedLoginCount">getFailedLoginCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1152"><abbr title="App\Services\Security\SecurityMonitoringService::getCurrentVulnerabilityScore">getCurrentVulnerabilityScore</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#1160"><abbr title="App\Services\Security\SecurityMonitoringService::getCurrentComplianceScore">getCurrentComplianceScore</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="SecurityMonitoringService.php.html#157"><abbr title="App\Services\Security\SecurityMonitoringService::monitorAuthentication">monitorAuthentication</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#151"><abbr title="App\Services\Security\DataSecurityService::decryptField">decryptField</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#124"><abbr title="App\Services\Security\DataSecurityService::encryptField">encryptField</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#188"><abbr title="App\Services\Security\DataSecurityService::maskForLog">maskForLog</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#331"><abbr title="App\Services\Security\DataSecurityService::validateDataIntegrity">validateDataIntegrity</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#476"><abbr title="App\Services\Security\SecurityMonitoringService::handleDetectedThreats">handleDetectedThreats</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#518"><abbr title="App\Services\Security\SecurityMonitoringService::calculateThreatScore">calculateThreatScore</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#535"><abbr title="App\Services\Security\SecurityMonitoringService::calculateRiskLevel">calculateRiskLevel</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#691"><abbr title="App\Services\Security\SecurityMonitoringService::scanFilePermissions">scanFilePermissions</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#756"><abbr title="App\Services\Security\SecurityMonitoringService::aggregateVulnerabilities">aggregateVulnerabilities</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#105"><abbr title="App\Services\Security\SecurityMonitoringService::monitorRequest">monitorRequest</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#392"><abbr title="App\Services\Security\SecurityMonitoringService::detectPatterns">detectPatterns</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#552"><abbr title="App\Services\Security\SecurityMonitoringService::scanConfiguration">scanConfiguration</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#212"><abbr title="App\Services\Security\DataSecurityService::rotateEncryptionKeys">rotateEncryptionKeys</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#276"><abbr title="App\Services\Security\DataSecurityService::createSecureBackup">createSecureBackup</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#450"><abbr title="App\Services\Security\DataSecurityService::decryptWithAES256">decryptWithAES256</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#430"><abbr title="App\Services\Security\SecurityMonitoringService::detectBehavioralAnomalies">detectBehavioralAnomalies</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#654"><abbr title="App\Services\Security\SecurityMonitoringService::scanWebApplication">scanWebApplication</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#373"><abbr title="App\Services\Security\DataSecurityService::setupDataRetention">setupDataRetention</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#576"><abbr title="App\Services\Security\DataSecurityService::getFieldEncryptionKey">getFieldEncryptionKey</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#616"><abbr title="App\Services\Security\SecurityMonitoringService::scanDatabase">scanDatabase</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#243"><abbr title="App\Services\Security\DataSecurityService::configureTableEncryption">configureTableEncryption</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#424"><abbr title="App\Services\Security\DataSecurityService::encryptWithAES256">encryptWithAES256</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#520"><abbr title="App\Services\Security\DataSecurityService::detokenizeData">detokenizeData</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#536"><abbr title="App\Services\Security\DataSecurityService::partialMask">partialMask</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#558"><abbr title="App\Services\Security\DataSecurityService::getOrCreateFieldEncryptionKey">getOrCreateFieldEncryptionKey</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#595"><abbr title="App\Services\Security\DataSecurityService::getCurrentKeyVersion">getCurrentKeyVersion</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#682"><abbr title="App\Services\Security\DataSecurityService::calculateBackupChecksum">calculateBackupChecksum</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="DataSecurityService.php.html#724"><abbr title="App\Services\Security\EncryptionKeyManager::rotateKey">rotateKey</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#210"><abbr title="App\Services\Security\SecurityMonitoringService::runVulnerabilityScans">runVulnerabilityScans</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#306"><abbr title="App\Services\Security\SecurityMonitoringService::generateComplianceReport">generateComplianceReport</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="SecurityMonitoringService.php.html#344"><abbr title="App\Services\Security\SecurityMonitoringService::processSecurityEvent">processSecurityEvent</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.36</a> at Sun Sep 14 8:09:41 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([3,0,0,0,0,0,0,0,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([96,0,0,0,0,0,0,0,0,0,0,0], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,73,"<a href=\"DataSecurityService.php.html#21\">App\\Services\\Security\\DataSecurityService<\/a>"],[0,3,"<a href=\"DataSecurityService.php.html#711\">App\\Services\\Security\\EncryptionKeyManager<\/a>"],[0,125,"<a href=\"SecurityMonitoringService.php.html#18\">App\\Services\\Security\\SecurityMonitoringService<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"DataSecurityService.php.html#109\">App\\Services\\Security\\DataSecurityService::__construct<\/a>"],[0,7,"<a href=\"DataSecurityService.php.html#124\">App\\Services\\Security\\DataSecurityService::encryptField<\/a>"],[0,9,"<a href=\"DataSecurityService.php.html#151\">App\\Services\\Security\\DataSecurityService::decryptField<\/a>"],[0,7,"<a href=\"DataSecurityService.php.html#188\">App\\Services\\Security\\DataSecurityService::maskForLog<\/a>"],[0,4,"<a href=\"DataSecurityService.php.html#212\">App\\Services\\Security\\DataSecurityService::rotateEncryptionKeys<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#243\">App\\Services\\Security\\DataSecurityService::configureTableEncryption<\/a>"],[0,4,"<a href=\"DataSecurityService.php.html#276\">App\\Services\\Security\\DataSecurityService::createSecureBackup<\/a>"],[0,7,"<a href=\"DataSecurityService.php.html#331\">App\\Services\\Security\\DataSecurityService::validateDataIntegrity<\/a>"],[0,3,"<a href=\"DataSecurityService.php.html#373\">App\\Services\\Security\\DataSecurityService::setupDataRetention<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#388\">App\\Services\\Security\\DataSecurityService::initializeEncryption<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#404\">App\\Services\\Security\\DataSecurityService::getFieldConfig<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#424\">App\\Services\\Security\\DataSecurityService::encryptWithAES256<\/a>"],[0,4,"<a href=\"DataSecurityService.php.html#450\">App\\Services\\Security\\DataSecurityService::decryptWithAES256<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#478\">App\\Services\\Security\\DataSecurityService::encryptEphemeral<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#489\">App\\Services\\Security\\DataSecurityService::decryptEphemeral<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#504\">App\\Services\\Security\\DataSecurityService::tokenizeData<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#520\">App\\Services\\Security\\DataSecurityService::detokenizeData<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#536\">App\\Services\\Security\\DataSecurityService::partialMask<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#558\">App\\Services\\Security\\DataSecurityService::getOrCreateFieldEncryptionKey<\/a>"],[0,3,"<a href=\"DataSecurityService.php.html#576\">App\\Services\\Security\\DataSecurityService::getFieldEncryptionKey<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#595\">App\\Services\\Security\\DataSecurityService::getCurrentKeyVersion<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#608\">App\\Services\\Security\\DataSecurityService::rotateFieldKey<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#632\">App\\Services\\Security\\DataSecurityService::auditFieldAccess<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#648\">App\\Services\\Security\\DataSecurityService::handleDecryptionError<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#669\">App\\Services\\Security\\DataSecurityService::createEncryptedTableBackup<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#682\">App\\Services\\Security\\DataSecurityService::calculateBackupChecksum<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#700\">App\\Services\\Security\\DataSecurityService::scheduleDataPurge<\/a>"],[0,1,"<a href=\"DataSecurityService.php.html#716\">App\\Services\\Security\\EncryptionKeyManager::generateKey<\/a>"],[0,2,"<a href=\"DataSecurityService.php.html#724\">App\\Services\\Security\\EncryptionKeyManager::rotateKey<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#95\">App\\Services\\Security\\SecurityMonitoringService::__construct<\/a>"],[0,5,"<a href=\"SecurityMonitoringService.php.html#105\">App\\Services\\Security\\SecurityMonitoringService::monitorRequest<\/a>"],[0,10,"<a href=\"SecurityMonitoringService.php.html#157\">App\\Services\\Security\\SecurityMonitoringService::monitorAuthentication<\/a>"],[0,2,"<a href=\"SecurityMonitoringService.php.html#210\">App\\Services\\Security\\SecurityMonitoringService::runVulnerabilityScans<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#282\">App\\Services\\Security\\SecurityMonitoringService::getSecurityDashboard<\/a>"],[0,2,"<a href=\"SecurityMonitoringService.php.html#306\">App\\Services\\Security\\SecurityMonitoringService::generateComplianceReport<\/a>"],[0,2,"<a href=\"SecurityMonitoringService.php.html#344\">App\\Services\\Security\\SecurityMonitoringService::processSecurityEvent<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#380\">App\\Services\\Security\\SecurityMonitoringService::recordSecurityEvent<\/a>"],[0,5,"<a href=\"SecurityMonitoringService.php.html#392\">App\\Services\\Security\\SecurityMonitoringService::detectPatterns<\/a>"],[0,4,"<a href=\"SecurityMonitoringService.php.html#430\">App\\Services\\Security\\SecurityMonitoringService::detectBehavioralAnomalies<\/a>"],[0,7,"<a href=\"SecurityMonitoringService.php.html#476\">App\\Services\\Security\\SecurityMonitoringService::handleDetectedThreats<\/a>"],[0,6,"<a href=\"SecurityMonitoringService.php.html#518\">App\\Services\\Security\\SecurityMonitoringService::calculateThreatScore<\/a>"],[0,6,"<a href=\"SecurityMonitoringService.php.html#535\">App\\Services\\Security\\SecurityMonitoringService::calculateRiskLevel<\/a>"],[0,5,"<a href=\"SecurityMonitoringService.php.html#552\">App\\Services\\Security\\SecurityMonitoringService::scanConfiguration<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#599\">App\\Services\\Security\\SecurityMonitoringService::scanDependencies<\/a>"],[0,3,"<a href=\"SecurityMonitoringService.php.html#616\">App\\Services\\Security\\SecurityMonitoringService::scanDatabase<\/a>"],[0,4,"<a href=\"SecurityMonitoringService.php.html#654\">App\\Services\\Security\\SecurityMonitoringService::scanWebApplication<\/a>"],[0,6,"<a href=\"SecurityMonitoringService.php.html#691\">App\\Services\\Security\\SecurityMonitoringService::scanFilePermissions<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#736\">App\\Services\\Security\\SecurityMonitoringService::getDashboardOverview<\/a>"],[0,6,"<a href=\"SecurityMonitoringService.php.html#756\">App\\Services\\Security\\SecurityMonitoringService::aggregateVulnerabilities<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#789\">App\\Services\\Security\\SecurityMonitoringService::sanitizeForLog<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#803\">App\\Services\\Security\\SecurityMonitoringService::logSecurityEvent<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#817\">App\\Services\\Security\\SecurityMonitoringService::getRecentFailedLogins<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#825\">App\\Services\\Security\\SecurityMonitoringService::getRecentFailedLoginsFromIp<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#833\">App\\Services\\Security\\SecurityMonitoringService::detectCredentialStuffing<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#841\">App\\Services\\Security\\SecurityMonitoringService::isNewLocation<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#849\">App\\Services\\Security\\SecurityMonitoringService::detectImpossibleTravel<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#857\">App\\Services\\Security\\SecurityMonitoringService::calculateAuthRiskLevel<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#865\">App\\Services\\Security\\SecurityMonitoringService::isAnomalousUserAgent<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#873\">App\\Services\\Security\\SecurityMonitoringService::getGeolocation<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#881\">App\\Services\\Security\\SecurityMonitoringService::isAnomalousLocation<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#889\">App\\Services\\Security\\SecurityMonitoringService::blockRequest<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#896\">App\\Services\\Security\\SecurityMonitoringService::sanitizeRequest<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#903\">App\\Services\\Security\\SecurityMonitoringService::applyRateLimit<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#910\">App\\Services\\Security\\SecurityMonitoringService::sendSecurityAlert<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#917\">App\\Services\\Security\\SecurityMonitoringService::getActionsForThreats<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#925\">App\\Services\\Security\\SecurityMonitoringService::checkGDPRCompliance<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#933\">App\\Services\\Security\\SecurityMonitoringService::checkISO27001Compliance<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#941\">App\\Services\\Security\\SecurityMonitoringService::checkPCIDSSCompliance<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#949\">App\\Services\\Security\\SecurityMonitoringService::checkSOXCompliance<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#957\">App\\Services\\Security\\SecurityMonitoringService::assessSecurityControls<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#965\">App\\Services\\Security\\SecurityMonitoringService::performRiskAssessment<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#973\">App\\Services\\Security\\SecurityMonitoringService::generateComplianceRecommendations<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#981\">App\\Services\\Security\\SecurityMonitoringService::calculateComplianceScore<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#989\">App\\Services\\Security\\SecurityMonitoringService::sendComplianceAlert<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#996\">App\\Services\\Security\\SecurityMonitoringService::calculateEventSeverity<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1004\">App\\Services\\Security\\SecurityMonitoringService::enrichSecurityEvent<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1012\">App\\Services\\Security\\SecurityMonitoringService::correlateEvents<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1020\">App\\Services\\Security\\SecurityMonitoringService::checkAutomatedResponseTriggers<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1027\">App\\Services\\Security\\SecurityMonitoringService::storeSecurityEvent<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1034\">App\\Services\\Security\\SecurityMonitoringService::updateSecurityMetrics<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1041\">App\\Services\\Security\\SecurityMonitoringService::triggerSecurityAlert<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1048\">App\\Services\\Security\\SecurityMonitoringService::getThreatSummary<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1056\">App\\Services\\Security\\SecurityMonitoringService::getAuthenticationStats<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1064\">App\\Services\\Security\\SecurityMonitoringService::getVulnerabilityStatus<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1072\">App\\Services\\Security\\SecurityMonitoringService::getComplianceStatus<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1080\">App\\Services\\Security\\SecurityMonitoringService::getRecentSecurityAlerts<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1088\">App\\Services\\Security\\SecurityMonitoringService::getTopThreats<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1096\">App\\Services\\Security\\SecurityMonitoringService::getGeographicThreats<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1104\">App\\Services\\Security\\SecurityMonitoringService::getSecuritySystemHealth<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1112\">App\\Services\\Security\\SecurityMonitoringService::getSecurityRecommendations<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1120\">App\\Services\\Security\\SecurityMonitoringService::getEventCount<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1128\">App\\Services\\Security\\SecurityMonitoringService::getCriticalAlertCount<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1136\">App\\Services\\Security\\SecurityMonitoringService::getBlockedAttackCount<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1144\">App\\Services\\Security\\SecurityMonitoringService::getFailedLoginCount<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1152\">App\\Services\\Security\\SecurityMonitoringService::getCurrentVulnerabilityScore<\/a>"],[0,1,"<a href=\"SecurityMonitoringService.php.html#1160\">App\\Services\\Security\\SecurityMonitoringService::getCurrentComplianceScore<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

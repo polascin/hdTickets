@@ -13,72 +13,78 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create root admin user (ticketmaster)
-        User::create([
-            'name'              => 'ticketmaster',
-            'surname'           => 'admin',
-            'username'          => 'ticketmaster',
-            'email'             => 'ticketmaster@hdtickets.admin',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('SecureAdminPass123!'),
-            'role'              => User::ROLE_ADMIN,
-            'is_active'         => TRUE,
-        ]);
+        // Idempotent seed of fixed accounts
+        $fixedUsers = [
+            [
+                'name'              => 'ticketmaster',
+                'surname'           => 'admin',
+                'username'          => 'ticketmaster',
+                'email'             => 'ticketmaster@hdtickets.admin',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('SecureAdminPass123!'),
+                'role'              => User::ROLE_ADMIN,
+                'is_active'         => TRUE,
+            ],
+            [
+                'name'              => 'Admin',
+                'surname'           => 'User',
+                'username'          => 'admin.user',
+                'email'             => 'admin@hdtickets.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'role'              => User::ROLE_ADMIN,
+            ],
+            [
+                'name'              => 'Agent',
+                'surname'           => 'User',
+                'username'          => 'agent.user',
+                'email'             => 'agent@hdtickets.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'role'              => User::ROLE_AGENT,
+            ],
+            [
+                'name'              => 'Customer',
+                'surname'           => 'User',
+                'username'          => 'customer.user',
+                'email'             => 'customer@hdtickets.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'role'              => User::ROLE_CUSTOMER,
+            ],
+            [
+                'name'              => 'John',
+                'surname'           => 'Agent',
+                'username'          => 'john.agent',
+                'email'             => 'john.agent@hdtickets.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'role'              => User::ROLE_AGENT,
+            ],
+            [
+                'name'              => 'Jane',
+                'surname'           => 'Customer',
+                'username'          => 'jane.customer',
+                'email'             => 'jane.customer@hdtickets.com',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'role'              => User::ROLE_CUSTOMER,
+            ],
+        ];
 
-        // Create Admin User
-        User::create([
-            'name'              => 'Admin',
-            'surname'           => 'User',
-            'username'          => 'admin.user',
-            'email'             => 'admin@hdtickets.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'role'              => User::ROLE_ADMIN,
-        ]);
+        foreach ($fixedUsers as $data) {
+            User::updateOrCreate(
+                ['username' => $data['username']],
+                $data,
+            );
+        }
 
-        // Create Agent User
-        User::create([
-            'name'              => 'Agent',
-            'surname'           => 'User',
-            'username'          => 'agent.user',
-            'email'             => 'agent@hdtickets.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'role'              => User::ROLE_AGENT,
-        ]);
-
-        // Create Customer User
-        User::create([
-            'name'              => 'Customer',
-            'surname'           => 'User',
-            'username'          => 'customer.user',
-            'email'             => 'customer@hdtickets.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'role'              => User::ROLE_CUSTOMER,
-        ]);
-
-        // Create additional sample users
-        User::create([
-            'name'              => 'John',
-            'surname'           => 'Agent',
-            'username'          => 'john.agent',
-            'email'             => 'john.agent@hdtickets.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'role'              => User::ROLE_AGENT,
-        ]);
-
-        User::create([
-            'name'              => 'Jane',
-            'surname'           => 'Customer',
-            'username'          => 'jane.customer',
-            'email'             => 'jane.customer@hdtickets.com',
-            'email_verified_at' => now(),
-            'password'          => Hash::make('password'),
-            'role'              => User::ROLE_CUSTOMER,
-        ]);
-        // Create 1000+ fake users for testing
-        User::factory()->count(1000)->create();
+        // Ensure there are at least 1000 total users; create only the difference
+        $targetTotal = 1000;
+        $currentTotal = User::count();
+        $toCreate = max(0, $targetTotal - $currentTotal);
+        if ($toCreate > 0) {
+            User::factory()->count($toCreate)->create();
+        }
     }
 }

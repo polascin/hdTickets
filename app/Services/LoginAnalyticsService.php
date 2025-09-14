@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 
 use function array_slice;
 use function count;
@@ -215,7 +216,10 @@ class LoginAnalyticsService
 
         // Track active IPs (last 5 minutes)
         $cutoff = now()->subMinutes(5);
-        $metrics['active_ips'] = array_filter($metrics['active_ips'], fn (array $entry) => carbon($entry['timestamp'])->gt($cutoff));
+        $metrics['active_ips'] = array_filter(
+            $metrics['active_ips'],
+            fn (array $entry) => Carbon::parse($entry['timestamp'])->gt($cutoff)
+        );
 
         if (! collect($metrics['active_ips'])->contains('ip', $ip)) {
             $metrics['active_ips'][] = [

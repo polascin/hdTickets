@@ -12,14 +12,24 @@ class PaymentPlansSeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear existing plans
-        PaymentPlan::truncate();
+        // Idempotent seeding: upsert by unique slug, do not truncate to avoid FK issues
+        $defaults = PaymentPlan::getDefaultPlans();
 
-        // Create default payment plans
-        foreach (PaymentPlan::getDefaultPlans() as $planData) {
-            PaymentPlan::create($planData);
+        foreach ($defaults as $planData) {
+            if (! isset($planData['slug'])) {
+                // Skip invalid entries without slug
+                continue;
+            }
+
+            PaymentPlan::updateOrCreate(
+                ['slug' => $planData['slug']],
+                $planData,
+            );
         }
 
-        $this->command->info('Payment plans seeded successfully!');
+        // Optionally, deactivate plans not present in defaults instead of deleting
+        // PaymentPlan::whereNotIn('slug', collect($defaults)->pluck('slug'))->update(['is_active' => false]);
+
+        $this->command?->info('Payment plans seeded successfully (idempotent)!');
     }
 }

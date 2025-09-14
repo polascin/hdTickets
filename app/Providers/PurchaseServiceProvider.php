@@ -24,8 +24,8 @@ class PurchaseServiceProvider extends ServiceProvider
 
         $this->app->singleton(AdvancedAnalyticsDashboard::class, fn ($app): AdvancedAnalyticsDashboard => new AdvancedAnalyticsDashboard());
 
+        // Bind AutomatedPurchaseEngine with the correct dependency signature
         $this->app->singleton(AutomatedPurchaseEngine::class, fn ($app): AutomatedPurchaseEngine => new AutomatedPurchaseEngine(
-            $app->make(PurchaseAnalyticsService::class),
             $app->make(AdvancedAnalyticsDashboard::class),
         ));
 

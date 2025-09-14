@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Services/Core</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">Services</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Core</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ScrapingService.php.html#25">App\Services\Core\ScrapingService</a></td><td class="text-right">31%</td></tr>
+       <tr><td><a href="BaseService.php.html#18">App\Services\Core\BaseService</a></td><td class="text-right">68%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ScrapingService.php.html#25">App\Services\Core\ScrapingService</a></td><td class="text-right">422</td></tr>
+       <tr><td><a href="BaseService.php.html#18">App\Services\Core\BaseService</a></td><td class="text-right">30</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="BaseService.php.html#114"><abbr title="App\Services\Core\BaseService::ensureInitialized">ensureInitialized</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseService.php.html#127"><abbr title="App\Services\Core\BaseService::handleError">handleError</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseService.php.html#144"><abbr title="App\Services\Core\BaseService::logOperation">logOperation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="BaseService.php.html#195"><abbr title="App\Services\Core\BaseService::onInitialize">onInitialize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#42"><abbr title="App\Services\Core\ScrapingService::scrapeAllPlatforms">scrapeAllPlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#124"><abbr title="App\Services\Core\ScrapingService::scrapePlatform">scrapePlatform</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#144"><abbr title="App\Services\Core\ScrapingService::getAvailablePlatforms">getAvailablePlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#199"><abbr title="App\Services\Core\ScrapingService::scheduleRecurringScraping">scheduleRecurringScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#220"><abbr title="App\Services\Core\ScrapingService::updateScheduledScraping">updateScheduledScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#243"><abbr title="App\Services\Core\ScrapingService::cancelScheduledScraping">cancelScheduledScraping</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#281"><abbr title="App\Services\Core\ScrapingService::scrapePlatformWithAdapter">scrapePlatformWithAdapter</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#316"><abbr title="App\Services\Core\ScrapingService::isPlatformEnabled">isPlatformEnabled</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapingService.php.html#341"><abbr title="App\Services\Core\ScrapingService::updatePlatformMetrics">updatePlatformMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ScrapingService.php.html#42"><abbr title="App\Services\Core\ScrapingService::scrapeAllPlatforms">scrapeAllPlatforms</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="BaseService.php.html#114"><abbr title="App\Services\Core\BaseService::ensureInitialized">ensureInitialized</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ScrapingService.php.html#124"><abbr title="App\Services\Core\ScrapingService::scrapePlatform">scrapePlatform</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ScrapingService.php.html#220"><abbr title="App\Services\Core\ScrapingService::updateScheduledScraping">updateScheduledScraping</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ScrapingService.php.html#281"><abbr title="App\Services\Core\ScrapingService::scrapePlatformWithAdapter">scrapePlatformWithAdapter</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ScrapingService.php.html#316"><abbr title="App\Services\Core\ScrapingService::isPlatformEnabled">isPlatformEnabled</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="ScrapingService.php.html#341"><abbr title="App\Services\Core\ScrapingService::updatePlatformMetrics">updatePlatformMetrics</abbr></a></td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.36</a> at Sun Sep 14 7:00:34 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,0,1,0,0,1,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([13,0,0,0,0,0,0,0,0,0,1,19], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[68.75,19,"<a href=\"BaseService.php.html#18\">App\\Services\\Core\\BaseService<\/a>"],[31.843575418994412,35,"<a href=\"ScrapingService.php.html#25\">App\\Services\\Core\\ScrapingService<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"BaseService.php.html#28\">App\\Services\\Core\\BaseService::__construct<\/a>"],[100,1,"<a href=\"BaseService.php.html#40\">App\\Services\\Core\\BaseService::initialize<\/a>"],[100,2,"<a href=\"BaseService.php.html#58\">App\\Services\\Core\\BaseService::getHealthStatus<\/a>"],[100,1,"<a href=\"BaseService.php.html#75\">App\\Services\\Core\\BaseService::cleanup<\/a>"],[100,1,"<a href=\"BaseService.php.html#92\">App\\Services\\Core\\BaseService::getDependency<\/a>"],[100,1,"<a href=\"BaseService.php.html#103\">App\\Services\\Core\\BaseService::hasDependency<\/a>"],[0,2,"<a href=\"BaseService.php.html#114\">App\\Services\\Core\\BaseService::ensureInitialized<\/a>"],[0,1,"<a href=\"BaseService.php.html#127\">App\\Services\\Core\\BaseService::handleError<\/a>"],[0,1,"<a href=\"BaseService.php.html#144\">App\\Services\\Core\\BaseService::logOperation<\/a>"],[100,1,"<a href=\"BaseService.php.html#159\">App\\Services\\Core\\BaseService::loadConfiguration<\/a>"],[100,1,"<a href=\"BaseService.php.html#171\">App\\Services\\Core\\BaseService::getConfig<\/a>"],[100,1,"<a href=\"BaseService.php.html#182\">App\\Services\\Core\\BaseService::getServiceConfigKey<\/a>"],[0,1,"<a href=\"BaseService.php.html#195\">App\\Services\\Core\\BaseService::onInitialize<\/a>"],[100,1,"<a href=\"BaseService.php.html#206\">App\\Services\\Core\\BaseService::onCleanup<\/a>"],[100,3,"<a href=\"BaseService.php.html#217\">App\\Services\\Core\\BaseService::validateDependencies<\/a>"],[0,4,"<a href=\"ScrapingService.php.html#42\">App\\Services\\Core\\ScrapingService::scrapeAllPlatforms<\/a>"],[0,2,"<a href=\"ScrapingService.php.html#124\">App\\Services\\Core\\ScrapingService::scrapePlatform<\/a>"],[0,1,"<a href=\"ScrapingService.php.html#144\">App\\Services\\Core\\ScrapingService::getAvailablePlatforms<\/a>"],[100,2,"<a href=\"ScrapingService.php.html#155\">App\\Services\\Core\\ScrapingService::enablePlatform<\/a>"],[100,1,"<a href=\"ScrapingService.php.html#169\">App\\Services\\Core\\ScrapingService::disablePlatform<\/a>"],[100,1,"<a href=\"ScrapingService.php.html#184\">App\\Services\\Core\\ScrapingService::getScrapingStatistics<\/a>"],[0,1,"<a href=\"ScrapingService.php.html#199\">App\\Services\\Core\\ScrapingService::scheduleRecurringScraping<\/a>"],[0,2,"<a href=\"ScrapingService.php.html#220\">App\\Services\\Core\\ScrapingService::updateScheduledScraping<\/a>"],[0,1,"<a href=\"ScrapingService.php.html#243\">App\\Services\\Core\\ScrapingService::cancelScheduledScraping<\/a>"],[100,1,"<a href=\"ScrapingService.php.html#253\">App\\Services\\Core\\ScrapingService::onInitialize<\/a>"],[0,2,"<a href=\"ScrapingService.php.html#281\">App\\Services\\Core\\ScrapingService::scrapePlatformWithAdapter<\/a>"],[0,2,"<a href=\"ScrapingService.php.html#316\">App\\Services\\Core\\ScrapingService::isPlatformEnabled<\/a>"],[100,1,"<a href=\"ScrapingService.php.html#325\">App\\Services\\Core\\ScrapingService::loadScrapingMetrics<\/a>"],[100,1,"<a href=\"ScrapingService.php.html#333\">App\\Services\\Core\\ScrapingService::saveEnabledPlatforms<\/a>"],[0,2,"<a href=\"ScrapingService.php.html#341\">App\\Services\\Core\\ScrapingService::updatePlatformMetrics<\/a>"],[100,2,"<a href=\"ScrapingService.php.html#367\">App\\Services\\Core\\ScrapingService::getPlatformStatistics<\/a>"],[100,3,"<a href=\"ScrapingService.php.html#382\">App\\Services\\Core\\ScrapingService::getOverallStatistics<\/a>"],[93.75,6,"<a href=\"ScrapingService.php.html#403\">App\\Services\\Core\\ScrapingService::getScrapingHealthStatus<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

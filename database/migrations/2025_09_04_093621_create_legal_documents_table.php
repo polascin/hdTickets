@@ -10,6 +10,11 @@ return new class() extends Migration {
      */
     public function up(): void
     {
+        // If the table already exists (e.g., created manually or via a prior targeted run), skip.
+        if (Schema::hasTable('legal_documents')) {
+            return;
+        }
+
         Schema::create('legal_documents', function (Blueprint $table): void {
             $table->id();
             $table->string('type', 50)->index(); // terms_of_service, privacy_policy, etc.

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/hdtickets/app/Models</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/hdtickets/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Models</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Category.php.html#44">App\Models\Category</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#26">App\Models\LegalDocument</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#13">App\Models\TicketSource</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#11">App\Models\PaymentPlan</a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#36">App\Models\UserSubscription</a></td><td class="text-right">14%</td></tr>
+       <tr><td><a href="Ticket.php.html#62">App\Models\Ticket</a></td><td class="text-right">15%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#48">App\Models\ScrapedTicket</a></td><td class="text-right">23%</td></tr>
+       <tr><td><a href="User.php.html#93">App\Models\User</a></td><td class="text-right">24%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#14">App\Models\TicketAlert</a></td><td class="text-right">28%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#13">App\Models\PurchaseAttempt</a></td><td class="text-right">31%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="User.php.html#93">App\Models\User</a></td><td class="text-right">7552</td></tr>
+       <tr><td><a href="Ticket.php.html#62">App\Models\Ticket</a></td><td class="text-right">1974</td></tr>
+       <tr><td><a href="UserSubscription.php.html#36">App\Models\UserSubscription</a></td><td class="text-right">1152</td></tr>
+       <tr><td><a href="TicketSource.php.html#13">App\Models\TicketSource</a></td><td class="text-right">1122</td></tr>
+       <tr><td><a href="Category.php.html#44">App\Models\Category</a></td><td class="text-right">930</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#48">App\Models\ScrapedTicket</a></td><td class="text-right">606</td></tr>
+       <tr><td><a href="TicketAlert.php.html#14">App\Models\TicketAlert</a></td><td class="text-right">451</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#11">App\Models\PaymentPlan</a></td><td class="text-right">348</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#13">App\Models\PurchaseAttempt</a></td><td class="text-right">192</td></tr>
+       <tr><td><a href="LegalDocument.php.html#26">App\Models\LegalDocument</a></td><td class="text-right">182</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Category.php.html#70"><abbr title="App\Models\Category::getRouteKeyName">getRouteKeyName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#82"><abbr title="App\Models\Category::parent">parent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#93"><abbr title="App\Models\Category::children">children</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#104"><abbr title="App\Models\Category::scrapedTickets">scrapedTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#115"><abbr title="App\Models\Category::tickets">tickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#126"><abbr title="App\Models\Category::ticketSources">ticketSources</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#141"><abbr title="App\Models\Category::scopeActive">scopeActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#151"><abbr title="App\Models\Category::scopeRoot">scopeRoot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#161"><abbr title="App\Models\Category::scopeChild">scopeChild</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#172"><abbr title="App\Models\Category::scopeByParent">scopeByParent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#183"><abbr title="App\Models\Category::scopeSearch">scopeSearch</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#196"><abbr title="App\Models\Category::scopeOrdered">scopeOrdered</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#207"><abbr title="App\Models\Category::isActive">isActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#218"><abbr title="App\Models\Category::isRoot">isRoot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#229"><abbr title="App\Models\Category::hasChildren">hasChildren</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#240"><abbr title="App\Models\Category::getAncestors">getAncestors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#259"><abbr title="App\Models\Category::getDescendants">getDescendants</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#275"><abbr title="App\Models\Category::fullPath">fullPath</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#292"><abbr title="App\Models\Category::availableTicketsCount">availableTicketsCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#300"><abbr title="App\Models\Category::totalScrapedTicketsCount">totalScrapedTicketsCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#308"><abbr title="App\Models\Category::ticketSourcesCount">ticketSourcesCount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#319"><abbr title="App\Models\Category::boot">boot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Category.php.html#345"><abbr title="App\Models\Category::casts">casts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#61"><abbr title="App\Models\LegalDocument::getTypes">getTypes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#78"><abbr title="App\Models\LegalDocument::getRequiredForRegistration">getRequiredForRegistration</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#91"><abbr title="App\Models\LegalDocument::getActive">getActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#103"><abbr title="App\Models\LegalDocument::getActiveRequiredDocuments">getActiveRequiredDocuments</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#118"><abbr title="App\Models\LegalDocument::userAcceptances">userAcceptances</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#126"><abbr title="App\Models\LegalDocument::isCurrentlyActive">isCurrentlyActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#134"><abbr title="App\Models\LegalDocument::generateSlug">generateSlug</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#155"><abbr title="App\Models\LegalDocument::typeName">typeName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="LegalDocument.php.html#160"><abbr title="App\Models\LegalDocument::casts">casts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#39"><abbr title="App\Models\PaymentPlan::subscriptions">subscriptions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#50"><abbr title="App\Models\PaymentPlan::activeSubscriptions">activeSubscriptions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#65"><abbr title="App\Models\PaymentPlan::scopeActive">scopeActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#75"><abbr title="App\Models\PaymentPlan::scopeOrdered">scopeOrdered</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#86"><abbr title="App\Models\PaymentPlan::hasUnlimitedTickets">hasUnlimitedTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#97"><abbr title="App\Models\PaymentPlan::getDefaultPlans">getDefaultPlans</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#193"><abbr title="App\Models\PaymentPlan::formattedPrice">formattedPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#215"><abbr title="App\Models\PaymentPlan::monthlyEquivalent">monthlyEquivalent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#228"><abbr title="App\Models\PaymentPlan::featuresList">featuresList</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#68"><abbr title="App\Models\PurchaseAttempt::purchaseQueue">purchaseQueue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#79"><abbr title="App\Models\PurchaseAttempt::scrapedTicket">scrapedTicket</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#90"><abbr title="App\Models\PurchaseAttempt::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#101"><abbr title="App\Models\PurchaseAttempt::ticket">ticket</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#112"><abbr title="App\Models\PurchaseAttempt::scopeByStatus">scopeByStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#122"><abbr title="App\Models\PurchaseAttempt::scopeSuccessful">scopeSuccessful</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#132"><abbr title="App\Models\PurchaseAttempt::scopeFailed">scopeFailed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#143"><abbr title="App\Models\PurchaseAttempt::isSuccess">isSuccess</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#154"><abbr title="App\Models\PurchaseAttempt::isFailed">isFailed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#165"><abbr title="App\Models\PurchaseAttempt::isInProgress">isInProgress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#176"><abbr title="App\Models\PurchaseAttempt::isPending">isPending</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#187"><abbr title="App\Models\PurchaseAttempt::markInProgress">markInProgress</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#209"><abbr title="App\Models\PurchaseAttempt::markSuccessful">markSuccessful</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#228"><abbr title="App\Models\PurchaseAttempt::markFailed">markFailed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#244"><abbr title="App\Models\PurchaseAttempt::cancel">cancel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#254"><abbr title="App\Models\PurchaseAttempt::transactionId">transactionId</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#259"><abbr title="App\Models\PurchaseAttempt::confirmationNumber">confirmationNumber</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#264"><abbr title="App\Models\PurchaseAttempt::purchaseDetails">purchaseDetails</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#274"><abbr title="App\Models\PurchaseAttempt::responseData">responseData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#93"><abbr title="App\Models\ScrapedTicket::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#98"><abbr title="App\Models\ScrapedTicket::source">source</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#107"><abbr title="App\Models\ScrapedTicket::category">category</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#113"><abbr title="App\Models\ScrapedTicket::scopeHighDemand">scopeHighDemand</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#118"><abbr title="App\Models\ScrapedTicket::scopeByPlatform">scopeByPlatform</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#123"><abbr title="App\Models\ScrapedTicket::scopeAvailable">scopeAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#128"><abbr title="App\Models\ScrapedTicket::scopePopular">scopePopular</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#133"><abbr title="App\Models\ScrapedTicket::scopeForEvent">scopeForEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#142"><abbr title="App\Models\ScrapedTicket::scopePriceRange">scopePriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#155"><abbr title="App\Models\ScrapedTicket::scopeRecent">scopeRecent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#160"><abbr title="App\Models\ScrapedTicket::scopeByStatus">scopeByStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#165"><abbr title="App\Models\ScrapedTicket::scopeUpcoming">scopeUpcoming</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#170"><abbr title="App\Models\ScrapedTicket::scopeByDateRange">scopeByDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#182"><abbr title="App\Models\ScrapedTicket::scopeBySport">scopeBySport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#187"><abbr title="App\Models\ScrapedTicket::scopeByTeam">scopeByTeam</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#192"><abbr title="App\Models\ScrapedTicket::scopeByLocation">scopeByLocation</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#198"><abbr title="App\Models\ScrapedTicket::scopeFullTextSearch">scopeFullTextSearch</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#207"><abbr title="App\Models\ScrapedTicket::scopeWithinWeek">scopeWithinWeek</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#215"><abbr title="App\Models\ScrapedTicket::scopeWithinMonth">scopeWithinMonth</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#234"><abbr title="App\Models\ScrapedTicket::formattedPrice">formattedPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#246"><abbr title="App\Models\ScrapedTicket::totalPrice">totalPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#251"><abbr title="App\Models\ScrapedTicket::isRecent">isRecent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#259"><abbr title="App\Models\ScrapedTicket::platformDisplayName">platformDisplayName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#143"><abbr title="App\Models\Ticket::getRouteKeyName">getRouteKeyName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#157"><abbr title="App\Models\Ticket::getStatuses">getStatuses</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#177"><abbr title="App\Models\Ticket::getPriorities">getPriorities</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#196"><abbr title="App\Models\Ticket::getSources">getSources</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#213"><abbr title="App\Models\Ticket::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#224"><abbr title="App\Models\Ticket::requester">requester</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#235"><abbr title="App\Models\Ticket::assignedTo">assignedTo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#246"><abbr title="App\Models\Ticket::assignee">assignee</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#257"><abbr title="App\Models\Ticket::category">category</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#268"><abbr title="App\Models\Ticket::scopeByStatus">scopeByStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#279"><abbr title="App\Models\Ticket::scopeByPriority">scopeByPriority</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#290"><abbr title="App\Models\Ticket::scopeByAssignee">scopeByAssignee</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#301"><abbr title="App\Models\Ticket::scopeByCategory">scopeByCategory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#312"><abbr title="App\Models\Ticket::scopeByUser">scopeByUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#323"><abbr title="App\Models\Ticket::scopeBySource">scopeBySource</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#333"><abbr title="App\Models\Ticket::scopeOpen">scopeOpen</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#347"><abbr title="App\Models\Ticket::scopeClosed">scopeClosed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#361"><abbr title="App\Models\Ticket::scopeHighPriority">scopeHighPriority</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#375"><abbr title="App\Models\Ticket::scopeOverdue">scopeOverdue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#391"><abbr title="App\Models\Ticket::scopeRecent">scopeRecent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#403"><abbr title="App\Models\Ticket::scopeInDateRange">scopeInDateRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#414"><abbr title="App\Models\Ticket::scopeSearch">scopeSearch</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#429"><abbr title="App\Models\Ticket::scopeWithTag">scopeWithTag</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#440"><abbr title="App\Models\Ticket::isOpen">isOpen</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#455"><abbr title="App\Models\Ticket::isClosed">isClosed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#470"><abbr title="App\Models\Ticket::isOverdue">isOverdue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#481"><abbr title="App\Models\Ticket::isHighPriority">isHighPriority</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#496"><abbr title="App\Models\Ticket::resolve">resolve</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#510"><abbr title="App\Models\Ticket::assignTo">assignTo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#523"><abbr title="App\Models\Ticket::addTag">addTag</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#541"><abbr title="App\Models\Ticket::removeTag">removeTag</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#557"><abbr title="App\Models\Ticket::priorityColor">priorityColor</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#572"><abbr title="App\Models\Ticket::statusColor">statusColor</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Ticket.php.html#588"><abbr title="App\Models\Ticket::formattedTitle">formattedTitle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#48"><abbr title="App\Models\TicketAlert::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#56"><abbr title="App\Models\TicketAlert::matches">matches</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#67"><abbr title="App\Models\TicketAlert::scopeActive">scopeActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#72"><abbr title="App\Models\TicketAlert::scopeForUser">scopeForUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#77"><abbr title="App\Models\TicketAlert::scopeByPlatform">scopeByPlatform</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#82"><abbr title="App\Models\TicketAlert::scopeNeedsCheck">scopeNeedsCheck</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#95"><abbr title="App\Models\TicketAlert::matchesTicket">matchesTicket</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#147"><abbr title="App\Models\TicketAlert::incrementMatches">incrementMatches</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#157"><abbr title="App\Models\TicketAlert::formattedMaxPrice">formattedMaxPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#165"><abbr title="App\Models\TicketAlert::lastChecked">lastChecked</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketAlert.php.html#173"><abbr title="App\Models\TicketAlert::platformDisplayName">platformDisplayName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#129"><abbr title="App\Models\TicketSource::getPlatforms">getPlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#183"><abbr title="App\Models\TicketSource::getStatuses">getStatuses</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#197"><abbr title="App\Models\TicketSource::isAvailable">isAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#207"><abbr title="App\Models\TicketSource::scopeActive">scopeActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#212"><abbr title="App\Models\TicketSource::scopeAvailable">scopeAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#217"><abbr title="App\Models\TicketSource::scopeByPlatform">scopeByPlatform</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#222"><abbr title="App\Models\TicketSource::scopeUpcoming">scopeUpcoming</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#227"><abbr title="App\Models\TicketSource::scopePast">scopePast</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#232"><abbr title="App\Models\TicketSource::scopeByCountry">scopeByCountry</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#237"><abbr title="App\Models\TicketSource::scopeByCurrency">scopeByCurrency</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#242"><abbr title="App\Models\TicketSource::scopeInPriceRange">scopeInPriceRange</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#255"><abbr title="App\Models\TicketSource::category">category</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#260"><abbr title="App\Models\TicketSource::getCurrencySymbol">getCurrencySymbol</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#277"><abbr title="App\Models\TicketSource::isPlatformClub">isPlatformClub</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#305"><abbr title="App\Models\TicketSource::isPlatformVenue">isPlatformVenue</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#319"><abbr title="App\Models\TicketSource::getCurrencies">getCurrencies</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#334"><abbr title="App\Models\TicketSource::getCountries">getCountries</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#352"><abbr title="App\Models\TicketSource::platformName">platformName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#364"><abbr title="App\Models\TicketSource::statusName">statusName</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#376"><abbr title="App\Models\TicketSource::formattedPrice">formattedPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#398"><abbr title="App\Models\TicketSource::timeUntilEvent">timeUntilEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#409"><abbr title="App\Models\TicketSource::lastCheckedHuman">lastCheckedHuman</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#423"><abbr title="App\Models\TicketSource::statusBadgeClass">statusBadgeClass</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="TicketSource.php.html#438"><abbr title="App\Models\TicketSource::casts">casts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#235"><abbr title="App\Models\User::getRoles">getRoles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#266"><abbr title="App\Models\User::isAdmin">isAdmin</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#277"><abbr title="App\Models\User::isAgent">isAgent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#288"><abbr title="App\Models\User::isCustomer">isCustomer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#310"><abbr title="App\Models\User::isRootAdmin">isRootAdmin</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#321"><abbr title="App\Models\User::canManageUsers">canManageUsers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#336"><abbr title="App\Models\User::canSelectAndPurchaseTickets">canSelectAndPurchaseTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#351"><abbr title="App\Models\User::canMakePurchaseDecisions">canMakePurchaseDecisions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#366"><abbr title="App\Models\User::canManageMonitoring">canManageMonitoring</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#381"><abbr title="App\Models\User::canViewScrapingMetrics">canViewScrapingMetrics</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#400"><abbr title="App\Models\User::canManageSystem">canManageSystem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#411"><abbr title="App\Models\User::canManagePlatforms">canManagePlatforms</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#422"><abbr title="App\Models\User::canAccessFinancials">canAccessFinancials</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#433"><abbr title="App\Models\User::canManageApiAccess">canManageApiAccess</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#444"><abbr title="App\Models\User::canDeleteAnyData">canDeleteAnyData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#470"><abbr title="App\Models\User::canLoginToWeb">canLoginToWeb</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#481"><abbr title="App\Models\User::isScrapingRotationUser">isScrapingRotationUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#495"><abbr title="App\Models\User::scopeUniqueUsername">scopeUniqueUsername</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#518"><abbr title="App\Models\User::isUsernameUnique">isUsernameUnique</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#531"><abbr title="App\Models\User::getPermissions">getPermissions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#571"><abbr title="App\Models\User::getLastLoginInfo">getLastLoginInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#600"><abbr title="App\Models\User::getActivityStats">getActivityStats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#615"><abbr title="App\Models\User::getAccountCreationInfo">getAccountCreationInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#639"><abbr title="App\Models\User::getUserPermissionsDisplay">getUserPermissionsDisplay</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#703"><abbr title="App\Models\User::getProfileDisplay">getProfileDisplay</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#737"><abbr title="App\Models\User::getProfilePictureSizes">getProfilePictureSizes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#767"><abbr title="App\Models\User::getProfilePictureUrl">getProfilePictureUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#777"><abbr title="App\Models\User::getNotificationPreferences">getNotificationPreferences</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#788"><abbr title="App\Models\User::getEnhancedUserInfo">getEnhancedUserInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#814"><abbr title="App\Models\User::tickets">tickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#825"><abbr title="App\Models\User::assignedTickets">assignedTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#836"><abbr title="App\Models\User::createdBy">createdBy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#847"><abbr title="App\Models\User::createdUsers">createdUsers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#877"><abbr title="App\Models\User::currentSubscription">currentSubscription</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#903"><abbr title="App\Models\User::loginHistory">loginHistory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#914"><abbr title="App\Models\User::sessions">sessions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#922"><abbr title="App\Models\User::recentLoginHistory">recentLoginHistory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#933"><abbr title="App\Models\User::activeSessions">activeSessions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#992"><abbr title="App\Models\User::canAccessFeature">canAccessFeature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1014"><abbr title="App\Models\User::getRemainingTicketAllowance">getRemainingTicketAllowance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1033"><abbr title="App\Models\User::hasReachedTicketLimit">hasReachedTicketLimit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1046"><abbr title="App\Models\User::subscribeToPlan">subscribeToPlan</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1078"><abbr title="App\Models\User::deletionRequests">deletionRequests</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1089"><abbr title="App\Models\User::currentDeletionRequest">currentDeletionRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1100"><abbr title="App\Models\User::dataExportRequests">dataExportRequests</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1111"><abbr title="App\Models\User::deletionAuditLogs">deletionAuditLogs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1122"><abbr title="App\Models\User::hasActiveDeletionRequest">hasActiveDeletionRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1133"><abbr title="App\Models\User::isInDeletionGracePeriod">isInDeletionGracePeriod</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1146"><abbr title="App\Models\User::getCurrentDeletionRequest">getCurrentDeletionRequest</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1170"><abbr title="App\Models\User::isVerified">isVerified</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1175"><abbr title="App\Models\User::hasPermission">hasPermission</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1180"><abbr title="App\Models\User::scrapedTickets">scrapedTickets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1190"><abbr title="App\Models\User::purchaseQueues">purchaseQueues</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1198"><abbr title="App\Models\User::ticketPurchases">ticketPurchases</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1203"><abbr title="App\Models\User::unreadNotifications">unreadNotifications</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1215"><abbr title="App\Models\User::roles">roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1225"><abbr title="App\Models\User::userPermissions">userPermissions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1233"><abbr title="App\Models\User::resourceAccess">resourceAccess</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1241"><abbr title="App\Models\User::twoFactorBackupCodes">twoFactorBackupCodes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1249"><abbr title="App\Models\User::twoFactorRecoveries">twoFactorRecoveries</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1257"><abbr title="App\Models\User::loginAttempts">loginAttempts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1265"><abbr title="App\Models\User::trustedDevices">trustedDevices</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1273"><abbr title="App\Models\User::securityEvents">securityEvents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1281"><abbr title="App\Models\User::favoriteTeams">favoriteTeams</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1290"><abbr title="App\Models\User::favoriteVenues">favoriteVenues</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1299"><abbr title="App\Models\User::userPreferences">userPreferences</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1341"><abbr title="App\Models\User::getFreeTrialDaysRemaining">getFreeTrialDaysRemaining</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1386"><abbr title="App\Models\User::getEncryptionService">getEncryptionService</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1406"><abbr title="App\Models\User::getEncryptedFields">getEncryptedFields</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#60"><abbr title="App\Models\UserSubscription::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#86"><abbr title="App\Models\UserSubscription::scopeActive">scopeActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#100"><abbr title="App\Models\UserSubscription::scopeExpired">scopeExpired</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#114"><abbr title="App\Models\UserSubscription::scopeTrial">scopeTrial</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#129"><abbr title="App\Models\UserSubscription::isActive">isActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#159"><abbr title="App\Models\UserSubscription::isTrialExpired">isTrialExpired</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#170"><abbr title="App\Models\UserSubscription::isExpired">isExpired</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#181"><abbr title="App\Models\UserSubscription::cancel">cancel</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#194"><abbr title="App\Models\UserSubscription::expire">expire</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#208"><abbr title="App\Models\UserSubscription::activate">activate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#244"><abbr title="App\Models\UserSubscription::startTrial">startTrial</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#256"><abbr title="App\Models\UserSubscription::daysRemaining">daysRemaining</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#271"><abbr title="App\Models\UserSubscription::trialDaysRemaining">trialDaysRemaining</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#286"><abbr title="App\Models\UserSubscription::statusColor">statusColor</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#301"><abbr title="App\Models\UserSubscription::formattedStatus">formattedStatus</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#1365"><abbr title="App\Models\User::profilePhotoUrl">profilePhotoUrl</abbr></a></td><td class="text-right">18%</td></tr>
+       <tr><td><a href="User.php.html#947"><abbr title="App\Models\User::hasActiveSubscription">hasActiveSubscription</abbr></a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="User.php.html#192"><abbr title="App\Models\User::__construct">__construct</abbr></a></td><td class="text-right">40%</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#282"><abbr title="App\Models\PurchaseAttempt::boot">boot</abbr></a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="User.php.html#1322"><abbr title="App\Models\User::getMonthlyTicketUsage">getMonthlyTicketUsage</abbr></a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="UserSubscription.php.html#144"><abbr title="App\Models\UserSubscription::isOnTrial">isOnTrial</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#272"><abbr title="App\Models\ScrapedTicket::boot">boot</abbr></a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="Ticket.php.html#599"><abbr title="App\Models\Ticket::boot">boot</abbr></a></td><td class="text-right">72%</td></tr>
+       <tr><td><a href="User.php.html#663"><abbr title="App\Models\User::getProfileCompletion">getProfileCompletion</abbr></a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="TicketAlert.php.html#95"><abbr title="App\Models\TicketAlert::matchesTicket">matchesTicket</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="Ticket.php.html#572"><abbr title="App\Models\Ticket::statusColor">statusColor</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="Ticket.php.html#557"><abbr title="App\Models\Ticket::priorityColor">priorityColor</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="UserSubscription.php.html#208"><abbr title="App\Models\UserSubscription::activate">activate</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="UserSubscription.php.html#286"><abbr title="App\Models\UserSubscription::statusColor">statusColor</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#193"><abbr title="App\Models\PaymentPlan::formattedPrice">formattedPrice</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="TicketAlert.php.html#173"><abbr title="App\Models\TicketAlert::platformDisplayName">platformDisplayName</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="TicketSource.php.html#376"><abbr title="App\Models\TicketSource::formattedPrice">formattedPrice</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="User.php.html#737"><abbr title="App\Models\User::getProfilePictureSizes">getProfilePictureSizes</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="User.php.html#992"><abbr title="App\Models\User::canAccessFeature">canAccessFeature</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Category.php.html#319"><abbr title="App\Models\Category::boot">boot</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#215"><abbr title="App\Models\PaymentPlan::monthlyEquivalent">monthlyEquivalent</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#259"><abbr title="App\Models\ScrapedTicket::platformDisplayName">platformDisplayName</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="User.php.html#703"><abbr title="App\Models\User::getProfileDisplay">getProfileDisplay</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="User.php.html#600"><abbr title="App\Models\User::getActivityStats">getActivityStats</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="LegalDocument.php.html#103"><abbr title="App\Models\LegalDocument::getActiveRequiredDocuments">getActiveRequiredDocuments</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#142"><abbr title="App\Models\ScrapedTicket::scopePriceRange">scopePriceRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#170"><abbr title="App\Models\ScrapedTicket::scopeByDateRange">scopeByDateRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Ticket.php.html#470"><abbr title="App\Models\Ticket::isOverdue">isOverdue</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="TicketSource.php.html#242"><abbr title="App\Models\TicketSource::scopeInPriceRange">scopeInPriceRange</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="User.php.html#615"><abbr title="App\Models\User::getAccountCreationInfo">getAccountCreationInfo</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="User.php.html#1014"><abbr title="App\Models\User::getRemainingTicketAllowance">getRemainingTicketAllowance</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserSubscription.php.html#129"><abbr title="App\Models\UserSubscription::isActive">isActive</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserSubscription.php.html#256"><abbr title="App\Models\UserSubscription::daysRemaining">daysRemaining</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="UserSubscription.php.html#271"><abbr title="App\Models\UserSubscription::trialDaysRemaining">trialDaysRemaining</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="Category.php.html#240"><abbr title="App\Models\Category::getAncestors">getAncestors</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Category.php.html#259"><abbr title="App\Models\Category::getDescendants">getDescendants</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Category.php.html#275"><abbr title="App\Models\Category::fullPath">fullPath</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="LegalDocument.php.html#126"><abbr title="App\Models\LegalDocument::isCurrentlyActive">isCurrentlyActive</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="LegalDocument.php.html#134"><abbr title="App\Models\LegalDocument::generateSlug">generateSlug</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="PaymentPlan.php.html#228"><abbr title="App\Models\PaymentPlan::featuresList">featuresList</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Ticket.php.html#523"><abbr title="App\Models\Ticket::addTag">addTag</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Ticket.php.html#541"><abbr title="App\Models\Ticket::removeTag">removeTag</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketAlert.php.html#157"><abbr title="App\Models\TicketAlert::formattedMaxPrice">formattedMaxPrice</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketAlert.php.html#165"><abbr title="App\Models\TicketAlert::lastChecked">lastChecked</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketSource.php.html#398"><abbr title="App\Models\TicketSource::timeUntilEvent">timeUntilEvent</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="TicketSource.php.html#409"><abbr title="App\Models\TicketSource::lastCheckedHuman">lastCheckedHuman</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#310"><abbr title="App\Models\User::isRootAdmin">isRootAdmin</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#336"><abbr title="App\Models\User::canSelectAndPurchaseTickets">canSelectAndPurchaseTickets</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#351"><abbr title="App\Models\User::canMakePurchaseDecisions">canMakePurchaseDecisions</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#366"><abbr title="App\Models\User::canManageMonitoring">canManageMonitoring</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#381"><abbr title="App\Models\User::canViewScrapingMetrics">canViewScrapingMetrics</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#495"><abbr title="App\Models\User::scopeUniqueUsername">scopeUniqueUsername</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#571"><abbr title="App\Models\User::getLastLoginInfo">getLastLoginInfo</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#1033"><abbr title="App\Models\User::hasReachedTicketLimit">hasReachedTicketLimit</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#1046"><abbr title="App\Models\User::subscribeToPlan">subscribeToPlan</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#1133"><abbr title="App\Models\User::isInDeletionGracePeriod">isInDeletionGracePeriod</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#1341"><abbr title="App\Models\User::getFreeTrialDaysRemaining">getFreeTrialDaysRemaining</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#1386"><abbr title="App\Models\User::getEncryptionService">getEncryptionService</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="UserSubscription.php.html#159"><abbr title="App\Models\UserSubscription::isTrialExpired">isTrialExpired</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="UserSubscription.php.html#170"><abbr title="App\Models\UserSubscription::isExpired">isExpired</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="UserSubscription.php.html#301"><abbr title="App\Models\UserSubscription::formattedStatus">formattedStatus</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="User.php.html#947"><abbr title="App\Models\User::hasActiveSubscription">hasActiveSubscription</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="UserSubscription.php.html#144"><abbr title="App\Models\UserSubscription::isOnTrial">isOnTrial</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="Ticket.php.html#599"><abbr title="App\Models\Ticket::boot">boot</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="User.php.html#1365"><abbr title="App\Models\User::profilePhotoUrl">profilePhotoUrl</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="User.php.html#663"><abbr title="App\Models\User::getProfileCompletion">getProfileCompletion</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="ScrapedTicket.php.html#272"><abbr title="App\Models\ScrapedTicket::boot">boot</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="User.php.html#192"><abbr title="App\Models\User::__construct">__construct</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="PurchaseAttempt.php.html#282"><abbr title="App\Models\PurchaseAttempt::boot">boot</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="User.php.html#1322"><abbr title="App\Models\User::getMonthlyTicketUsage">getMonthlyTicketUsage</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.25</a> and <a href="https://phpunit.de/">PHPUnit 11.5.36</a> at Sun Sep 14 7:00:34 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([3,1,2,3,1,0,0,0,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([236,0,1,0,1,1,0,3,2,1,0,23], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,30,"<a href=\"Category.php.html#44\">App\\Models\\Category<\/a>"],[0,13,"<a href=\"LegalDocument.php.html#26\">App\\Models\\LegalDocument<\/a>"],[6.349206349206349,20,"<a href=\"PaymentPlan.php.html#11\">App\\Models\\PaymentPlan<\/a>"],[31.57894736842105,23,"<a href=\"PurchaseAttempt.php.html#13\">App\\Models\\PurchaseAttempt<\/a>"],[23.943661971830984,36,"<a href=\"ScrapedTicket.php.html#48\">App\\Models\\ScrapedTicket<\/a>"],[15.107913669064748,56,"<a href=\"Ticket.php.html#62\">App\\Models\\Ticket<\/a>"],[28.78787878787879,34,"<a href=\"TicketAlert.php.html#14\">App\\Models\\TicketAlert<\/a>"],[0,33,"<a href=\"TicketSource.php.html#13\">App\\Models\\TicketSource<\/a>"],[24.37673130193906,131,"<a href=\"User.php.html#93\">App\\Models\\User<\/a>"],[14.285714285714285,42,"<a href=\"UserSubscription.php.html#36\">App\\Models\\UserSubscription<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"Category.php.html#70\">App\\Models\\Category::getRouteKeyName<\/a>"],[0,1,"<a href=\"Category.php.html#82\">App\\Models\\Category::parent<\/a>"],[0,1,"<a href=\"Category.php.html#93\">App\\Models\\Category::children<\/a>"],[0,1,"<a href=\"Category.php.html#104\">App\\Models\\Category::scrapedTickets<\/a>"],[0,1,"<a href=\"Category.php.html#115\">App\\Models\\Category::tickets<\/a>"],[0,1,"<a href=\"Category.php.html#126\">App\\Models\\Category::ticketSources<\/a>"],[0,1,"<a href=\"Category.php.html#141\">App\\Models\\Category::scopeActive<\/a>"],[0,1,"<a href=\"Category.php.html#151\">App\\Models\\Category::scopeRoot<\/a>"],[0,1,"<a href=\"Category.php.html#161\">App\\Models\\Category::scopeChild<\/a>"],[0,1,"<a href=\"Category.php.html#172\">App\\Models\\Category::scopeByParent<\/a>"],[0,1,"<a href=\"Category.php.html#183\">App\\Models\\Category::scopeSearch<\/a>"],[0,1,"<a href=\"Category.php.html#196\">App\\Models\\Category::scopeOrdered<\/a>"],[0,1,"<a href=\"Category.php.html#207\">App\\Models\\Category::isActive<\/a>"],[0,1,"<a href=\"Category.php.html#218\">App\\Models\\Category::isRoot<\/a>"],[0,1,"<a href=\"Category.php.html#229\">App\\Models\\Category::hasChildren<\/a>"],[0,2,"<a href=\"Category.php.html#240\">App\\Models\\Category::getAncestors<\/a>"],[0,2,"<a href=\"Category.php.html#259\">App\\Models\\Category::getDescendants<\/a>"],[0,2,"<a href=\"Category.php.html#275\">App\\Models\\Category::fullPath<\/a>"],[0,1,"<a href=\"Category.php.html#292\">App\\Models\\Category::availableTicketsCount<\/a>"],[0,1,"<a href=\"Category.php.html#300\">App\\Models\\Category::totalScrapedTicketsCount<\/a>"],[0,1,"<a href=\"Category.php.html#308\">App\\Models\\Category::ticketSourcesCount<\/a>"],[0,5,"<a href=\"Category.php.html#319\">App\\Models\\Category::boot<\/a>"],[0,1,"<a href=\"Category.php.html#345\">App\\Models\\Category::casts<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#61\">App\\Models\\LegalDocument::getTypes<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#78\">App\\Models\\LegalDocument::getRequiredForRegistration<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#91\">App\\Models\\LegalDocument::getActive<\/a>"],[0,3,"<a href=\"LegalDocument.php.html#103\">App\\Models\\LegalDocument::getActiveRequiredDocuments<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#118\">App\\Models\\LegalDocument::userAcceptances<\/a>"],[0,2,"<a href=\"LegalDocument.php.html#126\">App\\Models\\LegalDocument::isCurrentlyActive<\/a>"],[0,2,"<a href=\"LegalDocument.php.html#134\">App\\Models\\LegalDocument::generateSlug<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#155\">App\\Models\\LegalDocument::typeName<\/a>"],[0,1,"<a href=\"LegalDocument.php.html#160\">App\\Models\\LegalDocument::casts<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#39\">App\\Models\\PaymentPlan::subscriptions<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#50\">App\\Models\\PaymentPlan::activeSubscriptions<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#65\">App\\Models\\PaymentPlan::scopeActive<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#75\">App\\Models\\PaymentPlan::scopeOrdered<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#86\">App\\Models\\PaymentPlan::hasUnlimitedTickets<\/a>"],[0,1,"<a href=\"PaymentPlan.php.html#97\">App\\Models\\PaymentPlan::getDefaultPlans<\/a>"],[0,6,"<a href=\"PaymentPlan.php.html#193\">App\\Models\\PaymentPlan::formattedPrice<\/a>"],[0,5,"<a href=\"PaymentPlan.php.html#215\">App\\Models\\PaymentPlan::monthlyEquivalent<\/a>"],[0,2,"<a href=\"PaymentPlan.php.html#228\">App\\Models\\PaymentPlan::featuresList<\/a>"],[100,1,"<a href=\"PaymentPlan.php.html#240\">App\\Models\\PaymentPlan::casts<\/a>"],[100,1,"<a href=\"PurchaseAttempt.php.html#56\">App\\Models\\PurchaseAttempt::__construct<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#68\">App\\Models\\PurchaseAttempt::purchaseQueue<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#79\">App\\Models\\PurchaseAttempt::scrapedTicket<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#90\">App\\Models\\PurchaseAttempt::user<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#101\">App\\Models\\PurchaseAttempt::ticket<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#112\">App\\Models\\PurchaseAttempt::scopeByStatus<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#122\">App\\Models\\PurchaseAttempt::scopeSuccessful<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#132\">App\\Models\\PurchaseAttempt::scopeFailed<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#143\">App\\Models\\PurchaseAttempt::isSuccess<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#154\">App\\Models\\PurchaseAttempt::isFailed<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#165\">App\\Models\\PurchaseAttempt::isInProgress<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#176\">App\\Models\\PurchaseAttempt::isPending<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#187\">App\\Models\\PurchaseAttempt::markInProgress<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#209\">App\\Models\\PurchaseAttempt::markSuccessful<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#228\">App\\Models\\PurchaseAttempt::markFailed<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#244\">App\\Models\\PurchaseAttempt::cancel<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#254\">App\\Models\\PurchaseAttempt::transactionId<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#259\">App\\Models\\PurchaseAttempt::confirmationNumber<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#264\">App\\Models\\PurchaseAttempt::purchaseDetails<\/a>"],[0,1,"<a href=\"PurchaseAttempt.php.html#274\">App\\Models\\PurchaseAttempt::responseData<\/a>"],[60,2,"<a href=\"PurchaseAttempt.php.html#282\">App\\Models\\PurchaseAttempt::boot<\/a>"],[100,1,"<a href=\"PurchaseAttempt.php.html#294\">App\\Models\\PurchaseAttempt::casts<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#93\">App\\Models\\ScrapedTicket::user<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#98\">App\\Models\\ScrapedTicket::source<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#107\">App\\Models\\ScrapedTicket::category<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#113\">App\\Models\\ScrapedTicket::scopeHighDemand<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#118\">App\\Models\\ScrapedTicket::scopeByPlatform<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#123\">App\\Models\\ScrapedTicket::scopeAvailable<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#128\">App\\Models\\ScrapedTicket::scopePopular<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#133\">App\\Models\\ScrapedTicket::scopeForEvent<\/a>"],[0,3,"<a href=\"ScrapedTicket.php.html#142\">App\\Models\\ScrapedTicket::scopePriceRange<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#155\">App\\Models\\ScrapedTicket::scopeRecent<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#160\">App\\Models\\ScrapedTicket::scopeByStatus<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#165\">App\\Models\\ScrapedTicket::scopeUpcoming<\/a>"],[0,3,"<a href=\"ScrapedTicket.php.html#170\">App\\Models\\ScrapedTicket::scopeByDateRange<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#182\">App\\Models\\ScrapedTicket::scopeBySport<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#187\">App\\Models\\ScrapedTicket::scopeByTeam<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#192\">App\\Models\\ScrapedTicket::scopeByLocation<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#198\">App\\Models\\ScrapedTicket::scopeFullTextSearch<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#207\">App\\Models\\ScrapedTicket::scopeWithinWeek<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#215\">App\\Models\\ScrapedTicket::scopeWithinMonth<\/a>"],[100,1,"<a href=\"ScrapedTicket.php.html#226\">App\\Models\\ScrapedTicket::price<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#234\">App\\Models\\ScrapedTicket::formattedPrice<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#246\">App\\Models\\ScrapedTicket::totalPrice<\/a>"],[0,1,"<a href=\"ScrapedTicket.php.html#251\">App\\Models\\ScrapedTicket::isRecent<\/a>"],[0,5,"<a href=\"ScrapedTicket.php.html#259\">App\\Models\\ScrapedTicket::platformDisplayName<\/a>"],[71.42857142857143,3,"<a href=\"ScrapedTicket.php.html#272\">App\\Models\\ScrapedTicket::boot<\/a>"],[100,1,"<a href=\"ScrapedTicket.php.html#292\">App\\Models\\ScrapedTicket::casts<\/a>"],[0,1,"<a href=\"Ticket.php.html#143\">App\\Models\\Ticket::getRouteKeyName<\/a>"],[0,1,"<a href=\"Ticket.php.html#157\">App\\Models\\Ticket::getStatuses<\/a>"],[0,1,"<a href=\"Ticket.php.html#177\">App\\Models\\Ticket::getPriorities<\/a>"],[0,1,"<a href=\"Ticket.php.html#196\">App\\Models\\Ticket::getSources<\/a>"],[0,1,"<a href=\"Ticket.php.html#213\">App\\Models\\Ticket::user<\/a>"],[0,1,"<a href=\"Ticket.php.html#224\">App\\Models\\Ticket::requester<\/a>"],[0,1,"<a href=\"Ticket.php.html#235\">App\\Models\\Ticket::assignedTo<\/a>"],[0,1,"<a href=\"Ticket.php.html#246\">App\\Models\\Ticket::assignee<\/a>"],[0,1,"<a href=\"Ticket.php.html#257\">App\\Models\\Ticket::category<\/a>"],[0,1,"<a href=\"Ticket.php.html#268\">App\\Models\\Ticket::scopeByStatus<\/a>"],[0,1,"<a href=\"Ticket.php.html#279\">App\\Models\\Ticket::scopeByPriority<\/a>"],[0,1,"<a href=\"Ticket.php.html#290\">App\\Models\\Ticket::scopeByAssignee<\/a>"],[0,1,"<a href=\"Ticket.php.html#301\">App\\Models\\Ticket::scopeByCategory<\/a>"],[0,1,"<a href=\"Ticket.php.html#312\">App\\Models\\Ticket::scopeByUser<\/a>"],[0,1,"<a href=\"Ticket.php.html#323\">App\\Models\\Ticket::scopeBySource<\/a>"],[0,1,"<a href=\"Ticket.php.html#333\">App\\Models\\Ticket::scopeOpen<\/a>"],[0,1,"<a href=\"Ticket.php.html#347\">App\\Models\\Ticket::scopeClosed<\/a>"],[0,1,"<a href=\"Ticket.php.html#361\">App\\Models\\Ticket::scopeHighPriority<\/a>"],[0,1,"<a href=\"Ticket.php.html#375\">App\\Models\\Ticket::scopeOverdue<\/a>"],[0,1,"<a href=\"Ticket.php.html#391\">App\\Models\\Ticket::scopeRecent<\/a>"],[0,1,"<a href=\"Ticket.php.html#403\">App\\Models\\Ticket::scopeInDateRange<\/a>"],[0,1,"<a href=\"Ticket.php.html#414\">App\\Models\\Ticket::scopeSearch<\/a>"],[0,1,"<a href=\"Ticket.php.html#429\">App\\Models\\Ticket::scopeWithTag<\/a>"],[0,1,"<a href=\"Ticket.php.html#440\">App\\Models\\Ticket::isOpen<\/a>"],[0,1,"<a href=\"Ticket.php.html#455\">App\\Models\\Ticket::isClosed<\/a>"],[0,3,"<a href=\"Ticket.php.html#470\">App\\Models\\Ticket::isOverdue<\/a>"],[0,1,"<a href=\"Ticket.php.html#481\">App\\Models\\Ticket::isHighPriority<\/a>"],[0,1,"<a href=\"Ticket.php.html#496\">App\\Models\\Ticket::resolve<\/a>"],[0,1,"<a href=\"Ticket.php.html#510\">App\\Models\\Ticket::assignTo<\/a>"],[0,2,"<a href=\"Ticket.php.html#523\">App\\Models\\Ticket::addTag<\/a>"],[0,2,"<a href=\"Ticket.php.html#541\">App\\Models\\Ticket::removeTag<\/a>"],[0,7,"<a href=\"Ticket.php.html#557\">App\\Models\\Ticket::priorityColor<\/a>"],[0,8,"<a href=\"Ticket.php.html#572\">App\\Models\\Ticket::statusColor<\/a>"],[0,1,"<a href=\"Ticket.php.html#588\">App\\Models\\Ticket::formattedTitle<\/a>"],[72.72727272727273,4,"<a href=\"Ticket.php.html#599\">App\\Models\\Ticket::boot<\/a>"],[100,1,"<a href=\"Ticket.php.html#626\">App\\Models\\Ticket::casts<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#48\">App\\Models\\TicketAlert::user<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#56\">App\\Models\\TicketAlert::matches<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#67\">App\\Models\\TicketAlert::scopeActive<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#72\">App\\Models\\TicketAlert::scopeForUser<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#77\">App\\Models\\TicketAlert::scopeByPlatform<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#82\">App\\Models\\TicketAlert::scopeNeedsCheck<\/a>"],[0,15,"<a href=\"TicketAlert.php.html#95\">App\\Models\\TicketAlert::matchesTicket<\/a>"],[0,1,"<a href=\"TicketAlert.php.html#147\">App\\Models\\TicketAlert::incrementMatches<\/a>"],[0,2,"<a href=\"TicketAlert.php.html#157\">App\\Models\\TicketAlert::formattedMaxPrice<\/a>"],[0,2,"<a href=\"TicketAlert.php.html#165\">App\\Models\\TicketAlert::lastChecked<\/a>"],[0,6,"<a href=\"TicketAlert.php.html#173\">App\\Models\\TicketAlert::platformDisplayName<\/a>"],[100,1,"<a href=\"TicketAlert.php.html#192\">App\\Models\\TicketAlert::boot<\/a>"],[100,1,"<a href=\"TicketAlert.php.html#204\">App\\Models\\TicketAlert::casts<\/a>"],[0,1,"<a href=\"TicketSource.php.html#129\">App\\Models\\TicketSource::getPlatforms<\/a>"],[0,1,"<a href=\"TicketSource.php.html#183\">App\\Models\\TicketSource::getStatuses<\/a>"],[0,1,"<a href=\"TicketSource.php.html#197\">App\\Models\\TicketSource::isAvailable<\/a>"],[0,1,"<a href=\"TicketSource.php.html#207\">App\\Models\\TicketSource::scopeActive<\/a>"],[0,1,"<a href=\"TicketSource.php.html#212\">App\\Models\\TicketSource::scopeAvailable<\/a>"],[0,1,"<a href=\"TicketSource.php.html#217\">App\\Models\\TicketSource::scopeByPlatform<\/a>"],[0,1,"<a href=\"TicketSource.php.html#222\">App\\Models\\TicketSource::scopeUpcoming<\/a>"],[0,1,"<a href=\"TicketSource.php.html#227\">App\\Models\\TicketSource::scopePast<\/a>"],[0,1,"<a href=\"TicketSource.php.html#232\">App\\Models\\TicketSource::scopeByCountry<\/a>"],[0,1,"<a href=\"TicketSource.php.html#237\">App\\Models\\TicketSource::scopeByCurrency<\/a>"],[0,3,"<a href=\"TicketSource.php.html#242\">App\\Models\\TicketSource::scopeInPriceRange<\/a>"],[0,1,"<a href=\"TicketSource.php.html#255\">App\\Models\\TicketSource::category<\/a>"],[0,1,"<a href=\"TicketSource.php.html#260\">App\\Models\\TicketSource::getCurrencySymbol<\/a>"],[0,1,"<a href=\"TicketSource.php.html#277\">App\\Models\\TicketSource::isPlatformClub<\/a>"],[0,1,"<a href=\"TicketSource.php.html#305\">App\\Models\\TicketSource::isPlatformVenue<\/a>"],[0,1,"<a href=\"TicketSource.php.html#319\">App\\Models\\TicketSource::getCurrencies<\/a>"],[0,1,"<a href=\"TicketSource.php.html#334\">App\\Models\\TicketSource::getCountries<\/a>"],[0,1,"<a href=\"TicketSource.php.html#352\">App\\Models\\TicketSource::platformName<\/a>"],[0,1,"<a href=\"TicketSource.php.html#364\">App\\Models\\TicketSource::statusName<\/a>"],[0,6,"<a href=\"TicketSource.php.html#376\">App\\Models\\TicketSource::formattedPrice<\/a>"],[0,2,"<a href=\"TicketSource.php.html#398\">App\\Models\\TicketSource::timeUntilEvent<\/a>"],[0,2,"<a href=\"TicketSource.php.html#409\">App\\Models\\TicketSource::lastCheckedHuman<\/a>"],[0,1,"<a href=\"TicketSource.php.html#423\">App\\Models\\TicketSource::statusBadgeClass<\/a>"],[0,1,"<a href=\"TicketSource.php.html#438\">App\\Models\\TicketSource::casts<\/a>"],[40,2,"<a href=\"User.php.html#192\">App\\Models\\User::__construct<\/a>"],[0,1,"<a href=\"User.php.html#235\">App\\Models\\User::getRoles<\/a>"],[100,1,"<a href=\"User.php.html#255\">App\\Models\\User::hasRole<\/a>"],[0,1,"<a href=\"User.php.html#266\">App\\Models\\User::isAdmin<\/a>"],[0,1,"<a href=\"User.php.html#277\">App\\Models\\User::isAgent<\/a>"],[0,1,"<a href=\"User.php.html#288\">App\\Models\\User::isCustomer<\/a>"],[100,1,"<a href=\"User.php.html#299\">App\\Models\\User::isScraper<\/a>"],[0,2,"<a href=\"User.php.html#310\">App\\Models\\User::isRootAdmin<\/a>"],[0,1,"<a href=\"User.php.html#321\">App\\Models\\User::canManageUsers<\/a>"],[0,2,"<a href=\"User.php.html#336\">App\\Models\\User::canSelectAndPurchaseTickets<\/a>"],[0,2,"<a href=\"User.php.html#351\">App\\Models\\User::canMakePurchaseDecisions<\/a>"],[0,2,"<a href=\"User.php.html#366\">App\\Models\\User::canManageMonitoring<\/a>"],[0,2,"<a href=\"User.php.html#381\">App\\Models\\User::canViewScrapingMetrics<\/a>"],[0,1,"<a href=\"User.php.html#400\">App\\Models\\User::canManageSystem<\/a>"],[0,1,"<a href=\"User.php.html#411\">App\\Models\\User::canManagePlatforms<\/a>"],[0,1,"<a href=\"User.php.html#422\">App\\Models\\User::canAccessFinancials<\/a>"],[0,1,"<a href=\"User.php.html#433\">App\\Models\\User::canManageApiAccess<\/a>"],[0,1,"<a href=\"User.php.html#444\">App\\Models\\User::canDeleteAnyData<\/a>"],[100,1,"<a href=\"User.php.html#459\">App\\Models\\User::canAccessSystem<\/a>"],[0,1,"<a href=\"User.php.html#470\">App\\Models\\User::canLoginToWeb<\/a>"],[0,1,"<a href=\"User.php.html#481\">App\\Models\\User::isScrapingRotationUser<\/a>"],[0,2,"<a href=\"User.php.html#495\">App\\Models\\User::scopeUniqueUsername<\/a>"],[0,1,"<a href=\"User.php.html#518\">App\\Models\\User::isUsernameUnique<\/a>"],[0,1,"<a href=\"User.php.html#531\">App\\Models\\User::getPermissions<\/a>"],[0,2,"<a href=\"User.php.html#571\">App\\Models\\User::getLastLoginInfo<\/a>"],[0,4,"<a href=\"User.php.html#600\">App\\Models\\User::getActivityStats<\/a>"],[0,3,"<a href=\"User.php.html#615\">App\\Models\\User::getAccountCreationInfo<\/a>"],[0,1,"<a href=\"User.php.html#639\">App\\Models\\User::getUserPermissionsDisplay<\/a>"],[89.28571428571429,4,"<a href=\"User.php.html#663\">App\\Models\\User::getProfileCompletion<\/a>"],[0,5,"<a href=\"User.php.html#703\">App\\Models\\User::getProfileDisplay<\/a>"],[0,6,"<a href=\"User.php.html#737\">App\\Models\\User::getProfilePictureSizes<\/a>"],[0,1,"<a href=\"User.php.html#767\">App\\Models\\User::getProfilePictureUrl<\/a>"],[0,1,"<a href=\"User.php.html#777\">App\\Models\\User::getNotificationPreferences<\/a>"],[0,1,"<a href=\"User.php.html#788\">App\\Models\\User::getEnhancedUserInfo<\/a>"],[0,1,"<a href=\"User.php.html#814\">App\\Models\\User::tickets<\/a>"],[0,1,"<a href=\"User.php.html#825\">App\\Models\\User::assignedTickets<\/a>"],[0,1,"<a href=\"User.php.html#836\">App\\Models\\User::createdBy<\/a>"],[0,1,"<a href=\"User.php.html#847\">App\\Models\\User::createdUsers<\/a>"],[100,1,"<a href=\"User.php.html#858\">App\\Models\\User::subscriptions<\/a>"],[100,1,"<a href=\"User.php.html#869\">App\\Models\\User::ticketAlerts<\/a>"],[0,1,"<a href=\"User.php.html#877\">App\\Models\\User::currentSubscription<\/a>"],[100,1,"<a href=\"User.php.html#885\">App\\Models\\User::activeSubscription<\/a>"],[0,1,"<a href=\"User.php.html#903\">App\\Models\\User::loginHistory<\/a>"],[0,1,"<a href=\"User.php.html#914\">App\\Models\\User::sessions<\/a>"],[0,1,"<a href=\"User.php.html#922\">App\\Models\\User::recentLoginHistory<\/a>"],[0,1,"<a href=\"User.php.html#933\">App\\Models\\User::activeSessions<\/a>"],[33.33333333333333,3,"<a href=\"User.php.html#947\">App\\Models\\User::hasActiveSubscription<\/a>"],[100,2,"<a href=\"User.php.html#969\">App\\Models\\User::isOnTrial<\/a>"],[100,2,"<a href=\"User.php.html#979\">App\\Models\\User::getCurrentPlan<\/a>"],[0,6,"<a href=\"User.php.html#992\">App\\Models\\User::canAccessFeature<\/a>"],[0,3,"<a href=\"User.php.html#1014\">App\\Models\\User::getRemainingTicketAllowance<\/a>"],[0,2,"<a href=\"User.php.html#1033\">App\\Models\\User::hasReachedTicketLimit<\/a>"],[0,2,"<a href=\"User.php.html#1046\">App\\Models\\User::subscribeToPlan<\/a>"],[0,1,"<a href=\"User.php.html#1078\">App\\Models\\User::deletionRequests<\/a>"],[0,1,"<a href=\"User.php.html#1089\">App\\Models\\User::currentDeletionRequest<\/a>"],[0,1,"<a href=\"User.php.html#1100\">App\\Models\\User::dataExportRequests<\/a>"],[0,1,"<a href=\"User.php.html#1111\">App\\Models\\User::deletionAuditLogs<\/a>"],[0,1,"<a href=\"User.php.html#1122\">App\\Models\\User::hasActiveDeletionRequest<\/a>"],[0,2,"<a href=\"User.php.html#1133\">App\\Models\\User::isInDeletionGracePeriod<\/a>"],[0,1,"<a href=\"User.php.html#1146\">App\\Models\\User::getCurrentDeletionRequest<\/a>"],[100,1,"<a href=\"User.php.html#1157\">App\\Models\\User::getActivitylogOptions<\/a>"],[0,1,"<a href=\"User.php.html#1170\">App\\Models\\User::isVerified<\/a>"],[0,1,"<a href=\"User.php.html#1175\">App\\Models\\User::hasPermission<\/a>"],[0,1,"<a href=\"User.php.html#1180\">App\\Models\\User::scrapedTickets<\/a>"],[100,1,"<a href=\"User.php.html#1185\">App\\Models\\User::purchaseAttempts<\/a>"],[0,1,"<a href=\"User.php.html#1190\">App\\Models\\User::purchaseQueues<\/a>"],[0,1,"<a href=\"User.php.html#1198\">App\\Models\\User::ticketPurchases<\/a>"],[0,1,"<a href=\"User.php.html#1203\">App\\Models\\User::unreadNotifications<\/a>"],[0,1,"<a href=\"User.php.html#1215\">App\\Models\\User::roles<\/a>"],[0,1,"<a href=\"User.php.html#1225\">App\\Models\\User::userPermissions<\/a>"],[0,1,"<a href=\"User.php.html#1233\">App\\Models\\User::resourceAccess<\/a>"],[0,1,"<a href=\"User.php.html#1241\">App\\Models\\User::twoFactorBackupCodes<\/a>"],[0,1,"<a href=\"User.php.html#1249\">App\\Models\\User::twoFactorRecoveries<\/a>"],[0,1,"<a href=\"User.php.html#1257\">App\\Models\\User::loginAttempts<\/a>"],[0,1,"<a href=\"User.php.html#1265\">App\\Models\\User::trustedDevices<\/a>"],[0,1,"<a href=\"User.php.html#1273\">App\\Models\\User::securityEvents<\/a>"],[0,1,"<a href=\"User.php.html#1281\">App\\Models\\User::favoriteTeams<\/a>"],[0,1,"<a href=\"User.php.html#1290\">App\\Models\\User::favoriteVenues<\/a>"],[0,1,"<a href=\"User.php.html#1299\">App\\Models\\User::userPreferences<\/a>"],[100,2,"<a href=\"User.php.html#1307\">App\\Models\\User::getMonthlyTicketLimit<\/a>"],[62.5,2,"<a href=\"User.php.html#1322\">App\\Models\\User::getMonthlyTicketUsage<\/a>"],[0,2,"<a href=\"User.php.html#1341\">App\\Models\\User::getFreeTrialDaysRemaining<\/a>"],[100,1,"<a href=\"User.php.html#1357\">App\\Models\\User::fullName<\/a>"],[18.181818181818183,2,"<a href=\"User.php.html#1365\">App\\Models\\User::profilePhotoUrl<\/a>"],[0,2,"<a href=\"User.php.html#1386\">App\\Models\\User::getEncryptionService<\/a>"],[0,1,"<a href=\"User.php.html#1406\">App\\Models\\User::getEncryptedFields<\/a>"],[100,1,"<a href=\"User.php.html#1423\">App\\Models\\User::casts<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#60\">App\\Models\\UserSubscription::user<\/a>"],[100,1,"<a href=\"UserSubscription.php.html#71\">App\\Models\\UserSubscription::paymentPlan<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#86\">App\\Models\\UserSubscription::scopeActive<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#100\">App\\Models\\UserSubscription::scopeExpired<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#114\">App\\Models\\UserSubscription::scopeTrial<\/a>"],[0,3,"<a href=\"UserSubscription.php.html#129\">App\\Models\\UserSubscription::isActive<\/a>"],[66.66666666666666,4,"<a href=\"UserSubscription.php.html#144\">App\\Models\\UserSubscription::isOnTrial<\/a>"],[0,2,"<a href=\"UserSubscription.php.html#159\">App\\Models\\UserSubscription::isTrialExpired<\/a>"],[0,2,"<a href=\"UserSubscription.php.html#170\">App\\Models\\UserSubscription::isExpired<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#181\">App\\Models\\UserSubscription::cancel<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#194\">App\\Models\\UserSubscription::expire<\/a>"],[0,7,"<a href=\"UserSubscription.php.html#208\">App\\Models\\UserSubscription::activate<\/a>"],[0,1,"<a href=\"UserSubscription.php.html#244\">App\\Models\\UserSubscription::startTrial<\/a>"],[0,3,"<a href=\"UserSubscription.php.html#256\">App\\Models\\UserSubscription::daysRemaining<\/a>"],[0,3,"<a href=\"UserSubscription.php.html#271\">App\\Models\\UserSubscription::trialDaysRemaining<\/a>"],[0,7,"<a href=\"UserSubscription.php.html#286\">App\\Models\\UserSubscription::statusColor<\/a>"],[0,2,"<a href=\"UserSubscription.php.html#301\">App\\Models\\UserSubscription::formattedStatus<\/a>"],[100,1,"<a href=\"UserSubscription.php.html#319\">App\\Models\\UserSubscription::casts<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>
