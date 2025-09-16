@@ -54,11 +54,12 @@ class EnhancedDashboardController extends Controller
         }
 
         try {
-            $statistics = $this->getEnhancedStatistics($user);
-            $recentTickets = $this->getRecentTicketsWithMetadata()->take(6);
+            $statistics = $this->formatStatisticsForView($user);
+            $recentTickets = collect($this->getFormattedRecentTickets())->take(6)->all();
 
             $data = [
-                'statistics'       => $statistics,
+                'statistics'       => $statistics, // Flat statistics for direct access
+                'stats'            => $statistics, // Alias for backward compatibility
                 'recent_tickets'   => $recentTickets,
                 'recentTickets'    => $recentTickets, // Backward compatibility
                 'alerts_triggered' => $this->getRecentlyTriggeredAlerts(),
@@ -68,15 +69,9 @@ class EnhancedDashboardController extends Controller
                     'searches_today'   => $this->getUserSearchesToday(),
                     'engagement_score' => $this->getUserEngagementScore(),
                 ],
-                'subscription' => [
-                    'monthly_limit'   => $user->getMonthlyTicketLimit(),
-                    'current_usage'   => $user->getMonthlyTicketUsage(),
-                    'percentage_used' => min(100, ($user->getMonthlyTicketUsage() / max(1, $user->getMonthlyTicketLimit())) * 100),
-                    'has_active'      => $user->hasActiveSubscription(),
-                    'days_remaining'  => $user->hasActiveSubscription() ? NULL : $user->getFreeTrialDaysRemaining(),
-                ],
-                'timestamp'    => Carbon::now()->toISOString(),
-                'last_updated' => Carbon::now()->toISOString(),
+                'subscription' => $this->getSubscriptionData($user),
+                'timestamp'        => Carbon::now()->toISOString(),
+                'last_updated'     => Carbon::now()->toISOString(),
             ];
 
             return response()->json([
@@ -98,6 +93,32 @@ class EnhancedDashboardController extends Controller
                 'success' => FALSE,
                 'error'   => 'Unable to fetch realtime data',
             ], 500);
+        }
+    }
+
+    /**
+     * Get subscription data with safe fallbacks
+     */
+    private function getSubscriptionData(User $user): array
+    {
+        try {
+            return [
+                'monthly_limit'   => $user->getMonthlyTicketLimit() ?? 100,
+                'current_usage'   => $user->getMonthlyTicketUsage() ?? 0,
+                'percentage_used' => min(100, (($user->getMonthlyTicketUsage() ?? 0) / max(1, $user->getMonthlyTicketLimit() ?? 100)) * 100),
+                'has_active'      => $user->hasActiveSubscription() ?? false,
+                'days_remaining'  => method_exists($user, 'getFreeTrialDaysRemaining') ? $user->getFreeTrialDaysRemaining() : null,
+            ];
+        } catch (Exception $e) {
+            Log::debug('Failed to get subscription data, using defaults', ['error' => $e->getMessage()]);
+
+            return [
+                'monthly_limit'   => 100,
+                'current_usage'   => 0,
+                'percentage_used' => 0,
+                'has_active'      => false,
+                'days_remaining'  => null,
+            ];
         }
     }
 
@@ -144,20 +165,15 @@ class EnhancedDashboardController extends Controller
         $cacheKey = "dashboard_data:user:{$user->id}";
 
         return Cache::remember($cacheKey, 300, function () use ($user): array {
-            $statistics = $this->getEnhancedStatistics($user);
+            // Get flat statistics for the view
+            $statistics = $this->formatStatisticsForView($user);
+            $recentTickets = $this->getFormattedRecentTickets();
 
             return [
-                'user'       => $user,
-                'statistics' => $statistics,
-                'stats'      => [
-                    'available_tickets' => $statistics['available_tickets']['current'] ?? 0,
-                    'new_today'         => $this->getNewTicketsToday(),
-                    'monitored_events'  => $this->getMonitoredEventsCount($user),
-                    'active_alerts'     => $statistics['active_alerts']['current'] ?? 0,
-                    'price_alerts'      => $statistics['active_alerts']['current'] ?? 0,
-                    'triggered_today'   => $statistics['active_alerts']['triggered_today'] ?? 0,
-                ],
-                'recentTickets'               => $this->getRecentTicketsWithMetadata(),
+                'user'                        => $user,
+                'statistics'                  => $statistics, // This will be the flat statistics array
+                'stats'                       => $statistics, // Alias for backward compatibility
+                'recentTickets'               => $recentTickets,
                 'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
                 'alertsData'                  => $this->getAlertsData($user),
                 'trendsData'                  => $this->getTrendsData(),
@@ -167,6 +183,38 @@ class EnhancedDashboardController extends Controller
                 'userPreferences'             => $this->getUserPreferences($user),
             ];
         });
+    }
+
+    /**
+     * Format statistics as flat scalar values for the view
+     */
+    private function formatStatisticsForView(User $user): array
+    {
+        try {
+            return [
+                'available_tickets' => (int) $this->getAvailableTicketsCount(),
+                'new_today'         => (int) $this->getNewTicketsToday(),
+                'monitored_events'  => (int) $this->getMonitoredEventsCount($user),
+                'active_alerts'     => (int) $this->getUserAlertsCount($user),
+                'price_alerts'      => (int) $this->getUserAlertsCount($user), // Alias for price alerts
+                'triggered_today'   => (int) $this->getTriggeredAlertsToday($user),
+            ];
+        } catch (Exception $e) {
+            Log::warning('Failed to get dashboard statistics, using defaults', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            // Return safe default values
+            return [
+                'available_tickets' => 0,
+                'new_today'         => 0,
+                'monitored_events'  => 0,
+                'active_alerts'     => 0,
+                'price_alerts'      => 0,
+                'triggered_today'   => 0,
+            ];
+        }
     }
 
     /**
@@ -232,6 +280,42 @@ class EnhancedDashboardController extends Controller
                 'recommendation_score' => $this->calculateRecommendationScore($ticket),
                 'urgency_level'        => $this->calculateUrgencyLevel($ticket),
             ]);
+    }
+
+    /**
+     * Get formatted recent tickets with flat data structure for the view
+     */
+    private function getFormattedRecentTickets(): array
+    {
+        try {
+            return ScrapedTicket::with(['category'])
+                ->available()
+                ->recent(24) // Last 24 hours
+                ->orderBy('scraped_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($ticket): array {
+                    return [
+                        'id'         => (int) $ticket->id,
+                        'title'      => (string) ($ticket->title ?? 'Sports Event'),
+                        'venue'      => (string) ($ticket->venue ?? 'TBD'),
+                        'price'      => (float) ($ticket->min_price ?? 0),
+                        'platform'   => (string) ($ticket->platform ?? 'Unknown'),
+                        'sport'      => (string) ($ticket->sport ?? 'Sports'),
+                        'event_date' => $ticket->event_date ? $ticket->event_date->format('Y-m-d') : null,
+                        'scraped_at' => $ticket->scraped_at ? $ticket->scraped_at->diffForHumans() : 'Recently',
+                        'available'  => (bool) $ticket->is_available,
+                        'high_demand' => (bool) ($ticket->is_high_demand ?? false),
+                    ];
+                })
+                ->toArray();
+        } catch (Exception $e) {
+            Log::warning('Failed to get recent tickets, returning empty array', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
     }
 
     /**

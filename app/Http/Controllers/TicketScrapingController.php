@@ -39,7 +39,7 @@ class TicketScrapingController extends Controller
             $filterService = TicketFilteringService::fromRequest($request);
 
             // Get paginated results
-            $perPage = min($request->get('per_page', 20), 50); // Max 50 per page
+            $perPage = min((int)$request->get('per_page', 20), 50); // Max 50 per page
             $tickets = $filterService->paginate($perPage);
 
             // Get statistics and facets for the current filter set
@@ -520,15 +520,16 @@ class TicketScrapingController extends Controller
                 ->where('scraped_at', '>=', $startDate)
                 ->count(),
             'avg_price' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                ->whereNotNull('total_price')
-                ->avg('total_price'),
+                ->whereNotNull('min_price')
+                ->selectRaw('AVG(COALESCE((min_price + max_price) / 2, min_price)) as avg_price')
+                ->value('avg_price'),
             'price_ranges' => [
                 'under_100' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                    ->where('total_price', '<', 100)->count(),
+                    ->where('min_price', '<', 100)->count(),
                 '100_300' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                    ->whereBetween('total_price', [100, 300])->count(),
+                    ->whereBetween('min_price', [100, 300])->count(),
                 'over_300' => ScrapedTicket::where('scraped_at', '>=', $startDate)
-                    ->where('total_price', '>', 300)->count(),
+                    ->where('min_price', '>', 300)->count(),
             ],
         ];
 
@@ -546,7 +547,7 @@ class TicketScrapingController extends Controller
     {
         try {
             $filterService = TicketFilteringService::fromRequest($request);
-            $perPage = min($request->get('per_page', 20), 50);
+            $perPage = min((int)$request->get('per_page', 20), 50);
 
             $tickets = $filterService->paginate($perPage);
             $stats = $filterService->getStats();

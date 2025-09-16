@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -73,10 +74,18 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($fixedUsers as $data) {
-            User::updateOrCreate(
-                ['username' => $data['username']],
-                $data,
-            );
+            // Use raw database operation to avoid domain events conflicts during seeding
+            $existing = DB::table('users')->where('username', $data['username'])->first();
+            
+            if ($existing) {
+                DB::table('users')->where('username', $data['username'])->update(
+                    array_merge($data, ['updated_at' => now()])
+                );
+            } else {
+                DB::table('users')->insert(
+                    array_merge($data, ['created_at' => now(), 'updated_at' => now()])
+                );
+            }
         }
 
         // Ensure there are at least 1000 total users; create only the difference

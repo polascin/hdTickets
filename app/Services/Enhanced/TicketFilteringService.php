@@ -238,27 +238,23 @@ class TicketFilteringService
     {
         $this->query->where(function ($q) use ($team): void {
             $q->where('team', 'LIKE', '%' . $team . '%')
-                ->orWhereHas('homeTeam', function ($q) use ($team): void {
-                    $q->where('name', 'LIKE', '%' . $team . '%');
-                })
-                ->orWhereHas('awayTeam', function ($q) use ($team): void {
-                    $q->where('name', 'LIKE', '%' . $team . '%');
-                });
+                ->orWhere('title', 'LIKE', '%' . $team . '%')
+                ->orWhere('search_keyword', 'LIKE', '%' . $team . '%');
         });
 
         $this->appliedFilters['team'] = $team;
 
         return $this;
     }
-
     /**
      * Filter by league
      */
     public function byLeague(string $league): self
     {
-        $this->query->whereHas('league', function ($q) use ($league): void {
-            $q->where('name', 'LIKE', '%' . $league . '%')
-                ->orWhere('slug', 'LIKE', '%' . $league . '%');
+        $this->query->where(function ($q) use ($league): void {
+            $q->where('title', 'LIKE', '%' . $league . '%')
+                ->orWhere('search_keyword', 'LIKE', '%' . $league . '%')
+                ->orWhere('sport', 'LIKE', '%' . $league . '%');
         });
 
         $this->appliedFilters['league'] = $league;
@@ -336,7 +332,7 @@ class TicketFilteringService
     public function paginate(int $perPage = 20)
     {
         // Add relationships for better performance
-        $this->query->with(['homeTeam', 'awayTeam', 'venue', 'league', 'category']);
+        $this->query->with(['category']);
 
         return $this->query->paginate($perPage);
     }
@@ -346,7 +342,7 @@ class TicketFilteringService
      */
     public function get()
     {
-        $this->query->with(['homeTeam', 'awayTeam', 'venue', 'league', 'category']);
+        $this->query->with(['category']);
 
         return $this->query->get();
     }

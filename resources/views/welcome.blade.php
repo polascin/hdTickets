@@ -67,8 +67,30 @@
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
             color: #ffffff;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 25%, #3b82f6 50%, #8b5cf6 75%, #c084fc 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/><circle cx="900" cy="800" r="80" fill="url(%23a)"/></svg>') no-repeat;
+            background-size: cover;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
@@ -190,38 +212,80 @@
         /* Stats Section */
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
             margin: 80px 0;
         }
 
         .stat-card {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            padding: 32px 24px;
-            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 40px 24px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6, #f59e0b);
+            background-size: 200% 100%;
+            animation: gradientMove 3s linear infinite;
         }
 
         .stat-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-8px) scale(1.02);
             background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
+            animation: pulse 2s infinite;
         }
 
         .stat-number {
-            font-size: 48px;
+            font-size: 52px;
             font-weight: 700;
             color: #ffffff;
             display: block;
             margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .stat-label {
             font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stat-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         /* Features Section */
@@ -303,37 +367,143 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            body {
+                background-size: 200% 200%;
+            }
+            
+            .container {
+                padding: 0 16px;
+            }
+            
+            .header {
+                padding: 16px 0;
+            }
+            
+            .main {
+                padding: 40px 0;
+            }
+            
+            .hero {
+                margin-bottom: 60px;
+            }
+            
             .hero-title {
-                font-size: 48px;
+                font-size: 42px;
+                line-height: 1.1;
             }
 
             .hero-subtitle {
-                font-size: 20px;
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+            
+            .hero-description {
+                font-size: 16px;
+                margin-bottom: 32px;
             }
 
             .hero-cta {
                 flex-direction: column;
                 align-items: center;
+                gap: 12px;
             }
 
             .nav {
                 flex-direction: column;
-                gap: 20px;
+                gap: 16px;
             }
 
             .nav-links {
                 flex-wrap: wrap;
                 justify-content: center;
             }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
 
             .stats {
                 grid-template-columns: 1fr;
-                gap: 24px;
+                gap: 20px;
+                margin: 60px 0;
+            }
+            
+            .stat-card {
+                padding: 32px 20px;
+            }
+            
+            .stat-number {
+                font-size: 44px;
+            }
+            
+            .stat-label {
+                font-size: 14px;
+            }
+            
+            .stat-description {
+                font-size: 12px;
             }
 
             .features {
                 grid-template-columns: 1fr;
-                gap: 24px;
+                gap: 20px;
+                margin: 60px 0;
+            }
+            
+            .feature-card {
+                padding: 24px;
+            }
+            
+            .feature-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            
+            .feature-title {
+                font-size: 20px;
+            }
+            
+            .btn {
+                padding: 16px 24px;
+                font-size: 16px;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 16px;
+            }
+            
+            .hero-description {
+                font-size: 15px;
+            }
+            
+            .stats {
+                margin: 40px 0;
+            }
+            
+            .stat-card {
+                padding: 24px 16px;
+            }
+            
+            .stat-number {
+                font-size: 36px;
+            }
+            
+            .stat-icon {
+                font-size: 24px;
             }
         }
 
@@ -403,20 +573,35 @@
 
             <!-- Statistics Section -->
             <section class="stats slide-up" aria-label="Platform statistics">
-                <div class="stat-card" x-data="{ count: 0 }" x-intersect="count = 50">
+                <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 75">
+                    <div class="stat-icon">🌐</div>
                     <span class="stat-number" x-text="count + '+'" x-transition></span>
                     <span class="stat-label">Integrated Platforms</span>
+                    <span class="stat-description">Major ticket vendors worldwide</span>
                 </div>
-                <div class="stat-card" x-data="{ visible: false }" x-intersect="visible = true">
+                <div class="stat-card premium-stat" x-data="{ visible: false }" x-intersect="visible = true">
+                    <div class="stat-icon">⚡</div>
                     <span class="stat-number" x-show="visible" x-transition>24/7</span>
-                    <span class="stat-label">Real-Time Monitoring</span>
+                    <span class="stat-label">AI-Powered Monitoring</span>
+                    <span class="stat-description">Real-time price tracking</span>
                 </div>
-                <div class="stat-card" x-data="{ count: 0 }" x-intersect="count = 15000">
-                    <span class="stat-number" x-text="Math.floor(count/1000) + 'K+'" x-transition></span>
-                    <span class="stat-label">Active Users</span>
+                <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 25">
+                    <div class="stat-icon">👥</div>
+                    <span class="stat-number" x-text="count + 'K+'" x-transition></span>
+                    <span class="stat-label">Happy Customers</span>
+                    <span class="stat-description">Sports fans like you</span>
+                </div>
+                <div class="stat-card premium-stat" x-data="{ count: 0 }" x-intersect="count = 2">
+                    <div class="stat-icon">💰</div>
+                    <span class="stat-number" x-text="'$' + count + 'M+'" x-transition></span>
+                    <span class="stat-label">Saved on Tickets</span>
+                    <span class="stat-description">By our community</span>
                 </div>
             </section>
 
+            <!-- Social Proof Section -->
+            @include('components.welcome.social-proof')
+            
             <!-- Role Comparison Section -->
             @include('components.welcome.role-comparison')
 
