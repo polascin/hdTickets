@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('layouts.app-v2')
 
 @section('title', 'HD Design System Style Guide')
 

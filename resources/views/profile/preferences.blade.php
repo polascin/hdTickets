@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-v2')
 
 @section('content')
   <div class="min-h-screen bg-gray-50" x-data="preferencesManager()">

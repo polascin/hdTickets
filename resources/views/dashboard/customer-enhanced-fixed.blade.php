@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-v2')
 
 @section('title', 'Enhanced Customer Dashboard - HD Tickets Sports Events')
 
