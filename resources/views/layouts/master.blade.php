@@ -18,11 +18,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="themeManager()" :class="{ 'dark': darkMode }">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="theme-color" content="#3B82F6">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <link rel="manifest" href="/manifest.json">
         
         {{-- Page Title --}}
         <title>
@@ -40,25 +39,8 @@
         <link rel="icon" type="image/png" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
         <link rel="apple-touch-icon" href="{{ asset('assets/images/hdTicketsLogo.png') }}">
         
-        {{-- Preload Critical Resources --}}
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="preload" href="{{ css_with_timestamp('https://fonts.bunny.net/css?family=Inter:400,500,600,700&display=swap') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        
-        {{-- CSS Framework - Bootstrap with customizations --}}
-        <link href="{{ css_with_timestamp('https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-        
-        {{-- Font Awesome Icons --}}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
-        
         {{-- Application Styles --}}
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            {{-- Fallback CSS and JS when Vite is not available --}}
-            <link rel="stylesheet" href="{{ asset('resources/css/app.css') }}">
-            <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        @endif
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         {{-- Additional Head Content --}}
         @stack('head')
