@@ -135,7 +135,7 @@ class TicketComparison {
                                 <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
-                                <p class="mt-2 text-sm">Select tickets to compare by clicking the compare button on ticket cards</p>
+                    <p class="mt-2 text-sm">Select up to 6 tickets to compare by clicking the comparison button on any ticket card</p>
                             </div>
                         </div>
                     </div>
@@ -271,7 +271,7 @@ class TicketComparison {
         // Get ticket data
         const ticketData = this.getTicketData(ticketId);
         if (!ticketData) {
-            this.showNotification('Unable to load ticket data', 'error');
+        this.showNotification('Unable to load ticket information. Please try again.', 'error');
             return false;
         }
         
@@ -279,7 +279,7 @@ class TicketComparison {
         this.updateUI();
         this.saveComparison();
         
-        this.showNotification('Ticket added to comparison', 'success');
+        this.showNotification('Ticket added to comparison list', 'success');
         return true;
     }
     
@@ -289,7 +289,7 @@ class TicketComparison {
             this.updateUI();
             this.saveComparison();
             
-            this.showNotification('Ticket removed from comparison', 'info');
+        this.showNotification('Ticket removed from comparison list', 'info');
             return true;
         }
         return false;
@@ -299,12 +299,12 @@ class TicketComparison {
         this.compareList.clear();
         this.updateUI();
         this.saveComparison();
-        this.showNotification('Comparison cleared', 'info');
+        this.showNotification('All tickets cleared from comparison', 'info');
     }
     
     showComparison() {
         if (this.compareList.size === 0) {
-            this.showNotification('Select tickets to compare first', 'warning');
+        this.showNotification('Please select at least one ticket to compare', 'warning');
             return;
         }
         
@@ -332,13 +332,13 @@ class TicketComparison {
         
         const data = {
             id: ticketId,
-            title: ticketElement.querySelector('.ticket-title')?.textContent || 'Unknown Event',
+            title: ticketElement.querySelector('.ticket-title')?.textContent || 'Event Details Unavailable',
             price: this.extractPrice(ticketElement),
-            venue: ticketElement.querySelector('.ticket-venue')?.textContent || 'Unknown Venue',
-            date: ticketElement.querySelector('.ticket-date')?.textContent || 'Unknown Date',
-            category: ticketElement.querySelector('.ticket-category')?.textContent || 'General',
-            availability: ticketElement.querySelector('.ticket-availability')?.textContent || 'Unknown',
-            platform: ticketElement.querySelector('.ticket-platform')?.textContent || 'Unknown',
+            venue: ticketElement.querySelector('.ticket-venue')?.textContent || 'Venue TBD',
+            date: ticketElement.querySelector('.ticket-date')?.textContent || 'Date TBD',
+            category: ticketElement.querySelector('.ticket-category')?.textContent || 'General Admission',
+            availability: ticketElement.querySelector('.ticket-availability')?.textContent || 'Check Platform',
+            platform: ticketElement.querySelector('.ticket-platform')?.textContent || 'Multiple Platforms',
             rating: this.extractRating(ticketElement),
             image: ticketElement.querySelector('.ticket-image img')?.src || '/images/default-ticket.jpg',
             url: ticketElement.querySelector('a')?.href || '#',
@@ -438,7 +438,7 @@ class TicketComparison {
                     <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
-                    <p class="mt-2 text-sm">Select tickets to compare by clicking the compare button on ticket cards</p>
+                    <p class="mt-2 text-sm">Select up to 6 tickets to compare by clicking the comparison button on any ticket card</p>
                 </div>
             `;
             return;

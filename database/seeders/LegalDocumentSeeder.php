@@ -110,34 +110,51 @@ class LegalDocumentSeeder extends Seeder
 <p><strong>Effective Date:</strong> ' . now()->format('F j, Y') . '</p>
 
 <h2>1. Service Description</h2>
-<p>HD Tickets provides sports event ticket monitoring, scraping, and purchase automation services. Our platform helps users find and acquire tickets for sporting events.</p>
+<p>HD Tickets is a professional sports event ticket monitoring, analysis, and purchase facilitation platform. Our service provides automated ticket discovery, price tracking, availability alerts, and purchasing assistance for sporting events across multiple platforms.</p>
 
 <h2>2. Service Provided "As Is"</h2>
-<p><strong>IMPORTANT:</strong> This service is provided "AS IS" without any warranties, express or implied. We do not guarantee the availability, accuracy, or completeness of ticket information.</p>
+<p><strong>IMPORTANT DISCLAIMER:</strong> This service is provided "AS IS" without any warranties, express or implied. We do not guarantee the availability, accuracy, or completeness of ticket information, pricing data, or third-party platform connectivity.</p>
 
 <h2>3. No Warranty</h2>
-<p>We disclaim all warranties, including but not limited to:
-- Merchantability
-- Fitness for a particular purpose
-- Non-infringement
-- Accuracy of information
-- Availability of tickets</p>
+<p>HD Tickets explicitly disclaims all warranties, including but not limited to:
+- Merchantability and fitness for a particular purpose
+- Non-infringement of third-party rights
+- Accuracy, completeness, or timeliness of information
+- Availability of tickets or pricing
+- Uninterrupted or error-free service operation
+- Compatibility with third-party ticketing platforms</p>
 
 <h2>4. No Money-Back Guarantee</h2>
-<p><strong>NO REFUNDS:</strong> All subscription payments are final. We do not offer refunds, credits, or money-back guarantees under any circumstances.</p>
+<p><strong>FINAL PAYMENTS:</strong> All subscription payments, service charges, and fees are final and non-refundable. We do not offer refunds, credits, chargebacks, or money-back guarantees under any circumstances, including but not limited to service dissatisfaction, technical issues, or third-party platform changes.</p>
 
-<h2>5. User Responsibilities</h2>
+<h2>5. User Responsibilities and Conduct</h2>
 <p>Users must:
-- Provide accurate information
-- Comply with all applicable laws
-- Respect third-party websites\' terms of service
-- Not engage in fraudulent activities</p>
+- Provide accurate and up-to-date account information
+- Comply with all applicable local, national, and international laws
+- Respect third-party websites\' terms of service and usage policies
+- Not engage in fraudulent, deceptive, or illegal activities
+- Not attempt to circumvent security measures or access restrictions
+- Not resell or distribute access to our service without authorization
+- Use the service solely for personal, non-commercial purposes unless otherwise agreed</p>
 
-<h2>6. Limitation of Liability</h2>
-<p>In no event shall HD Tickets be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of our service.</p>
+<h2>6. Platform Integration and Third-Party Services</h2>
+<p>HD Tickets integrates with various third-party ticketing platforms. We are not responsible for:
+- Changes to third-party APIs, terms, or availability
+- Third-party platform outages or technical issues
+- Accuracy of information provided by external sources
+- Transaction processing by external payment systems</p>
 
-<h2>7. Acceptance</h2>
-<p>By using our service, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.</p>';
+<h2>7. Limitation of Liability</h2>
+<p>In no event shall HD Tickets, its officers, directors, employees, or agents be liable for any direct, indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses, arising from your use of our service, even if advised of the possibility of such damages.</p>
+
+<h2>8. Subscription Terms and Billing</h2>
+<p>Subscription fees are charged in advance on a recurring basis. Failure to pay subscription fees may result in service suspension or termination. Users are responsible for maintaining current payment information.</p>
+
+<h2>9. Service Modifications and Termination</h2>
+<p>We reserve the right to modify, suspend, or terminate the service at any time without prior notice. We may also terminate user accounts for violations of these terms.</p>
+
+<h2>10. Acceptance and Binding Agreement</h2>
+<p>By creating an account or using our service, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. Continued use constitutes ongoing acceptance of these terms.</p>';
     }
 
     private function getDisclaimerContent(): string
@@ -334,8 +351,8 @@ class LegalDocumentSeeder extends Seeder
 <h2>2. Trademark Notice</h2>
 <p>HD Tickets and related logos are trademarks of HD Tickets. All other trademarks are property of their respective owners.</p>
 
-<h2>3. Governing Law</h2>
-<p>These terms are governed by the laws of [Jurisdiction], without regard to conflict of law principles.</p>
+        <h2>3. Governing Law</h2>
+<p>These terms are governed by the laws of the United Kingdom, without regard to conflict of law principles.</p>
 
 <h2>4. Severability</h2>
 <p>If any provision is found unenforceable, the remaining provisions will continue in full force and effect.</p>

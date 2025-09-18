@@ -6,6 +6,7 @@ use App\Models\ScrapedTicket;
 use App\Models\TicketAlert;
 use App\Models\User;
 use App\Services\AnalyticsService;
+use App\Services\Dashboard\DashboardCacheService;
 use App\Services\RecommendationService;
 use Carbon\Carbon;
 use Exception;
@@ -19,8 +20,11 @@ use Illuminate\View\View;
 
 class EnhancedDashboardController extends Controller
 {
-    public function __construct(protected AnalyticsService $analytics, protected RecommendationService $recommendations)
-    {
+    public function __construct(
+        protected AnalyticsService $analytics, 
+        protected RecommendationService $recommendations,
+        protected DashboardCacheService $cacheService
+    ) {
     }
 
     /**
@@ -162,18 +166,13 @@ class EnhancedDashboardController extends Controller
      */
     private function getComprehensiveDashboardData(User $user): array
     {
-        $cacheKey = "dashboard_data:user:{$user->id}";
-
-        return Cache::remember($cacheKey, 300, function () use ($user): array {
-            // Get flat statistics for the view
-            $statistics = $this->formatStatisticsForView($user);
-            $recentTickets = $this->getFormattedRecentTickets();
-
-            return [
+        try {
+            // Use the cache service for optimized data retrieval
+            $cachedData = $this->cacheService->getComprehensiveDashboardData($user);
+            
+            // Get additional data that's not cached by the service
+            $additionalData = [
                 'user'                        => $user,
-                'statistics'                  => $statistics, // This will be the flat statistics array
-                'stats'                       => $statistics, // Alias for backward compatibility
-                'recentTickets'               => $recentTickets,
                 'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
                 'alertsData'                  => $this->getAlertsData($user),
                 'trendsData'                  => $this->getTrendsData(),
@@ -182,7 +181,21 @@ class EnhancedDashboardController extends Controller
                 'performanceMetrics'          => $this->getPerformanceMetrics(),
                 'userPreferences'             => $this->getUserPreferences($user),
             ];
-        });
+            
+            // Merge cached data with additional data
+            return array_merge($cachedData, $additionalData, [
+                'stats' => $cachedData['statistics'], // Alias for backward compatibility
+                'recentTickets' => $cachedData['recent_tickets'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to get comprehensive dashboard data', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+            
+            // Fallback to original method if cache service fails
+            return $this->getFallbackDashboardData($user);
+        }
     }
 
     /**
@@ -830,5 +843,73 @@ class EnhancedDashboardController extends Controller
             'top_venues'     => ['Stadium A', 'Arena B', 'Field C'],
             'trending_teams' => ['Team 1', 'Team 2', 'Team 3'],
         ];
+    }
+
+    /**
+     * Fallback dashboard data when cache service fails
+     */
+    private function getFallbackDashboardData(User $user): array
+    {
+        try {
+            $statistics = $this->formatStatisticsForView($user);
+            $recentTickets = $this->getFormattedRecentTickets();
+
+            return [
+                'user'                        => $user,
+                'statistics'                  => $statistics,
+                'stats'                       => $statistics, // Alias for backward compatibility
+                'recentTickets'               => $recentTickets,
+                'recent_tickets'              => $recentTickets,
+                'personalizedRecommendations' => $this->getPersonalizedRecommendations($user),
+                'alertsData'                  => $this->getAlertsData($user),
+                'trendsData'                  => $this->getTrendsData(),
+                'upcomingEvents'              => $this->getUpcomingEvents($user),
+                'priceAlerts'                 => $this->getPriceAlerts($user),
+                'performanceMetrics'          => $this->getPerformanceMetrics(),
+                'userPreferences'             => $this->getUserPreferences($user),
+                'system_status'               => $this->getSystemStatus(),
+                'user_data'                   => [
+                    'preferences' => $user->preferences ?? [],
+                    'subscription' => $this->getSubscriptionData($user),
+                ],
+                'generated_at'                => Carbon::now()->toISOString(),
+            ];
+        } catch (\Exception $e) {
+            Log::error('Fallback dashboard data generation failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Return minimal safe data
+            return [
+                'user' => $user,
+                'statistics' => [
+                    'available_tickets' => 0,
+                    'new_today' => 0,
+                    'monitored_events' => 0,
+                    'active_alerts' => 0,
+                    'price_alerts' => 0,
+                    'triggered_today' => 0,
+                ],
+                'stats' => [
+                    'available_tickets' => 0,
+                    'new_today' => 0,
+                    'monitored_events' => 0,
+                    'active_alerts' => 0,
+                    'price_alerts' => 0,
+                    'triggered_today' => 0,
+                ],
+                'recentTickets' => [],
+                'recent_tickets' => [],
+                'system_status' => [
+                    'scraping_active' => false,
+                    'api_responsive' => false,
+                    'database_healthy' => false,
+                    'cache_healthy' => false,
+                    'last_check' => Carbon::now()->toISOString(),
+                ],
+                'generated_at' => Carbon::now()->toISOString(),
+            ];
+        }
     }
 }

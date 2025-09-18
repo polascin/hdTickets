@@ -16,13 +16,6 @@
   use Illuminate\Support\Facades\Request;
 @endphp
 
-{{-- Skip Navigation Links --}}
-<nav class="skip-links" aria-label="Skip navigation">
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  <a href="#main-navigation" class="skip-link">Skip to navigation</a>
-  <a href="#search" class="skip-link">Skip to search</a>
-  <a href="#footer" class="skip-link">Skip to footer</a>
-</nav>
 
 {{-- Include Accessibility CSS --}}
 <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">

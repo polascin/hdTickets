@@ -189,8 +189,8 @@
 }
 
 .security-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
+    font-size: 32px;
+    margin-bottom: 16px;
     display: block;
 }
 
@@ -323,9 +323,35 @@
         gap: 24px;
     }
     
+    .security-card {
+        padding: 24px;
+    }
+    
+    .security-icon {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+    
+    .security-title {
+        font-size: 20px;
+    }
+    
     .security-badges {
         flex-direction: column;
         gap: 20px;
+    }
+    
+    .badge-item {
+        justify-content: center;
+        padding: 12px 20px;
+    }
+    
+    .badge-icon {
+        font-size: 28px;
+    }
+    
+    .security-commitment {
+        padding: 24px;
     }
     
     .security-actions {

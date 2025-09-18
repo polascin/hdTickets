@@ -176,8 +176,8 @@
 }
 
 .role-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 32px;
+    margin-bottom: 12px;
 }
 
 .role-name {
@@ -303,6 +303,23 @@
     .role-grid {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+    
+    .role-card {
+        padding: 24px;
+    }
+    
+    .role-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .role-name {
+        font-size: 24px;
+    }
+    
+    .price {
+        font-size: 32px;
     }
 }
 </style>

@@ -138,8 +138,8 @@
     <div class="subscription-disclaimer">
         <p>
             <strong>No Money-Back Guarantee Policy:</strong> All sales are final. Service provided "as-is" with no warranties. 
-            Please review our <a href="#" class="link">Terms of Service</a> and 
-            <a href="#" class="link">Service Disclaimer</a> before subscribing.
+            Please review our <a href="{{ route('legal.terms-of-service') }}" class="link">Terms of Service</a> and 
+            <a href="{{ route('legal.disclaimer') }}" class="link">Service Disclaimer</a> before subscribing.
         </p>
     </div>
 </section>
@@ -201,8 +201,8 @@
 }
 
 .plan-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 32px;
+    margin-bottom: 12px;
 }
 
 .plan-name {
@@ -378,9 +378,30 @@
         gap: 24px;
     }
     
+    .subscription-card {
+        padding: 24px;
+    }
+    
+    .plan-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .plan-name {
+        font-size: 24px;
+    }
+    
+    .price {
+        font-size: 32px;
+    }
+    
     .feature-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 16px;
+    }
+    
+    .feature-item .feature-icon {
+        font-size: 28px;
     }
 }
 </style>

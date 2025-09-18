@@ -18,10 +18,6 @@
     x-data="customerDashboard()"
     x-init="init()"
 >
-    {{-- Skip to content for accessibility --}}
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
-        Skip to main content
-    </a>
 
     {{-- Main Dashboard Header --}}
     <header role="banner" class="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-slate-200/60 dark:bg-slate-900/80 dark:border-slate-700/60">

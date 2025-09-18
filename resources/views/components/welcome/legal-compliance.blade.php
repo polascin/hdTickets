@@ -100,7 +100,7 @@
         </p>
         
         <div class="documents-grid">
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.terms-of-service') }}" class="document-link">
                 <div class="document-icon">📄</div>
                 <div class="document-info">
                     <strong>Terms of Service</strong>
@@ -108,7 +108,7 @@
                 </div>
             </a>
             
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.disclaimer') }}" class="document-link">
                 <div class="document-icon">⚠️</div>
                 <div class="document-info">
                     <strong>Service Disclaimer</strong>
@@ -116,7 +116,7 @@
                 </div>
             </a>
             
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.privacy-policy') }}" class="document-link">
                 <div class="document-icon">🔒</div>
                 <div class="document-info">
                     <strong>Privacy Policy</strong>
@@ -124,7 +124,7 @@
                 </div>
             </a>
             
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.data-processing-agreement') }}" class="document-link">
                 <div class="document-icon">⚖️</div>
                 <div class="document-info">
                     <strong>Data Processing Agreement</strong>
@@ -132,7 +132,7 @@
                 </div>
             </a>
             
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.cookie-policy') }}" class="document-link">
                 <div class="document-icon">🍪</div>
                 <div class="document-info">
                     <strong>Cookie Policy</strong>
@@ -140,7 +140,7 @@
                 </div>
             </a>
             
-            <a href="#" class="document-link">
+            <a href="{{ route('legal.acceptable-use-policy') }}" class="document-link">
                 <div class="document-icon">📋</div>
                 <div class="document-info">
                     <strong>Acceptable Use Policy</strong>
@@ -208,8 +208,8 @@
 }
 
 .compliance-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
+    font-size: 32px;
+    margin-bottom: 16px;
     display: block;
 }
 
@@ -401,14 +401,31 @@
         gap: 24px;
     }
     
+    .compliance-icon {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+    
     .documents-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
     
+    .document-icon {
+        font-size: 20px;
+    }
+    
     .compliance-stats {
         flex-direction: column;
         gap: 24px;
+    }
+    
+    .compliance-card {
+        padding: 24px;
+    }
+    
+    .compliance-commitment {
+        padding: 24px;
     }
 }
 </style>

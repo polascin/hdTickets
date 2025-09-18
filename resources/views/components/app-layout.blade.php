@@ -1505,13 +1505,6 @@
   </head>
 
   <body class="h-full font-sans antialiased">
-    <!-- Skip to main content link for accessibility -->
-    <a href="#main-content" class="hd-sr-only focus:absolute focus:top-4 focus:left-4 z-50 hd-button hd-button--primary"
-      style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;"
-      onfocus="this.style.cssText = 'position: absolute; top: 1rem; left: 1rem; z-index: 50;';"
-      onblur="this.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';">
-      Skip to main content
-    </a>
 
     <div class="h-full bg-gray-100 flex flex-col">
       @include('layouts.navigation')

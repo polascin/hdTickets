@@ -85,7 +85,9 @@
                 <h5>Important Service Notice</h5>
                 <p>
                     <strong>No Money-Back Guarantee:</strong> Service provided "as-is" with no warranties. 
-                    All sales are final. Please review all legal documents before subscribing.
+                    All sales are final. Please review our 
+                    <a href="{{ route('legal.terms-of-service') }}" class="footer-link">Terms of Service</a> and 
+                    <a href="{{ route('legal.disclaimer') }}" class="footer-link">Service Disclaimer</a> before subscribing.
                 </p>
             </div>
         </div>

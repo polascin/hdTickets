@@ -30,10 +30,9 @@
     border: 0 !important;
 }
 
-/* Show screen reader content when focused (for skip links) */
+/* Show screen reader content when focused */
 .hd-sr-only:focus,
-.sr-only:focus,
-.skip-link:focus {
+.sr-only:focus {
     position: static !important;
     width: auto !important;
     height: auto !important;

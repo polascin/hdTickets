@@ -49,6 +49,7 @@ class LegalDocument extends Model
         'title',
         'slug',
         'content',
+        'summary',
         'version',
         'is_active',
         'requires_acceptance',

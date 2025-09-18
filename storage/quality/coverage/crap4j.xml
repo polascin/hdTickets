@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <crap_result>
   <project/>
-  <timestamp>2025-09-14 08:09:40</timestamp>
+  <timestamp>2025-09-18 07:55:52</timestamp>
   <stats>
     <name>Method Crap Stats</name>
-    <methodCount>1955</methodCount>
-    <crapMethodCount>328</crapMethodCount>
-    <crapLoad>2372</crapLoad>
-    <totalCrap>27796</totalCrap>
-    <crapMethodPercent>16.78</crapMethodPercent>
+    <methodCount>1988</methodCount>
+    <crapMethodCount>331</crapMethodCount>
+    <crapLoad>2391</crapLoad>
+    <totalCrap>28134</totalCrap>
+    <crapMethodPercent>16.65</crapMethodPercent>
   </stats>
   <methods>
     <method>
@@ -697,8 +697,8 @@
       <package>App\Http\Controllers</package>
       <className>App\Http\Controllers\EnhancedDashboardController</className>
       <methodName>__construct</methodName>
-      <methodSignature>__construct(App\Services\AnalyticsService $analytics, App\Services\RecommendationService $recommendations)</methodSignature>
-      <fullMethod>__construct(App\Services\AnalyticsService $analytics, App\Services\RecommendationService $recommendations)</fullMethod>
+      <methodSignature>__construct(App\Services\AnalyticsService $analytics, App\Services\RecommendationService $recommendations, App\Services\Dashboard\DashboardCacheService $cacheService)</methodSignature>
+      <fullMethod>__construct(App\Services\AnalyticsService $analytics, App\Services\RecommendationService $recommendations, App\Services\Dashboard\DashboardCacheService $cacheService)</fullMethod>
       <crap>2</crap>
       <complexity>1</complexity>
       <coverage>0</coverage>
@@ -721,8 +721,19 @@
       <methodName>getRealtimeData</methodName>
       <methodSignature>getRealtimeData(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse</methodSignature>
       <fullMethod>getRealtimeData(Illuminate\Http\Request $request): Illuminate\Http\JsonResponse</fullMethod>
-      <crap>20</crap>
-      <complexity>4</complexity>
+      <crap>12</crap>
+      <complexity>3</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Http\Controllers</package>
+      <className>App\Http\Controllers\EnhancedDashboardController</className>
+      <methodName>getSubscriptionData</methodName>
+      <methodSignature>getSubscriptionData(App\Models\User $user): array</methodSignature>
+      <fullMethod>getSubscriptionData(App\Models\User $user): array</fullMethod>
+      <crap>12</crap>
+      <complexity>3</complexity>
       <coverage>0</coverage>
       <crapLoad>0</crapLoad>
     </method>
@@ -743,8 +754,19 @@
       <methodName>getComprehensiveDashboardData</methodName>
       <methodSignature>getComprehensiveDashboardData(App\Models\User $user): array</methodSignature>
       <fullMethod>getComprehensiveDashboardData(App\Models\User $user): array</fullMethod>
-      <crap>2</crap>
-      <complexity>1</complexity>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Http\Controllers</package>
+      <className>App\Http\Controllers\EnhancedDashboardController</className>
+      <methodName>formatStatisticsForView</methodName>
+      <methodSignature>formatStatisticsForView(App\Models\User $user): array</methodSignature>
+      <fullMethod>formatStatisticsForView(App\Models\User $user): array</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
       <coverage>0</coverage>
       <crapLoad>0</crapLoad>
     </method>
@@ -767,6 +789,17 @@
       <fullMethod>getRecentTicketsWithMetadata(): Illuminate\Support\Collection</fullMethod>
       <crap>2</crap>
       <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Http\Controllers</package>
+      <className>App\Http\Controllers\EnhancedDashboardController</className>
+      <methodName>getFormattedRecentTickets</methodName>
+      <methodSignature>getFormattedRecentTickets(): array</methodSignature>
+      <fullMethod>getFormattedRecentTickets(): array</fullMethod>
+      <crap>20</crap>
+      <complexity>4</complexity>
       <coverage>0</coverage>
       <crapLoad>0</crapLoad>
     </method>
@@ -1284,6 +1317,17 @@
       <fullMethod>getPopularContentAnalytics(): array</fullMethod>
       <crap>2</crap>
       <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Http\Controllers</package>
+      <className>App\Http\Controllers\EnhancedDashboardController</className>
+      <methodName>getFallbackDashboardData</methodName>
+      <methodSignature>getFallbackDashboardData(App\Models\User $user): array</methodSignature>
+      <fullMethod>getFallbackDashboardData(App\Models\User $user): array</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
       <coverage>0</coverage>
       <crapLoad>0</crapLoad>
     </method>
@@ -2331,6 +2375,72 @@
       <complexity>5</complexity>
       <coverage>0</coverage>
       <crapLoad>5</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>addPerformanceContext</methodName>
+      <methodSignature>addPerformanceContext(array|\Monolog\LogRecord $record): array|\Monolog\LogRecord</methodSignature>
+      <fullMethod>addPerformanceContext(array|\Monolog\LogRecord $record): array|\Monolog\LogRecord</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>getResponseTime</methodName>
+      <methodSignature>getResponseTime(): float</methodSignature>
+      <fullMethod>getResponseTime(): float</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>getCpuUsage</methodName>
+      <methodSignature>getCpuUsage(): float</methodSignature>
+      <fullMethod>getCpuUsage(): float</fullMethod>
+      <crap>12</crap>
+      <complexity>3</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>getLoadAverage</methodName>
+      <methodSignature>getLoadAverage(): array</methodSignature>
+      <fullMethod>getLoadAverage(): array</fullMethod>
+      <crap>20</crap>
+      <complexity>4</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>getConnectionCount</methodName>
+      <methodSignature>getConnectionCount(): int</methodSignature>
+      <fullMethod>getConnectionCount(): int</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Logging</package>
+      <className>App\Logging\PerformanceLogger</className>
+      <methodName>__invoke</methodName>
+      <methodSignature>__invoke(Illuminate\Log\Logger $logger): void</methodSignature>
+      <fullMethod>__invoke(Illuminate\Log\Logger $logger): void</fullMethod>
+      <crap>12</crap>
+      <complexity>3</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
     </method>
     <method>
       <package>App\Providers</package>
@@ -6313,6 +6423,259 @@
       <complexity>5</complexity>
       <coverage>0</coverage>
       <crapLoad>5</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getStatistics</methodName>
+      <methodSignature>getStatistics(?App\Models\User $user): array</methodSignature>
+      <fullMethod>getStatistics(?App\Models\User $user): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getRecentTickets</methodName>
+      <methodSignature>getRecentTickets(int $limit): array</methodSignature>
+      <fullMethod>getRecentTickets(int $limit): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getUserDashboardData</methodName>
+      <methodSignature>getUserDashboardData(App\Models\User $user): array</methodSignature>
+      <fullMethod>getUserDashboardData(App\Models\User $user): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getComprehensiveDashboardData</methodName>
+      <methodSignature>getComprehensiveDashboardData(App\Models\User $user): array</methodSignature>
+      <fullMethod>getComprehensiveDashboardData(App\Models\User $user): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>invalidateCache</methodName>
+      <methodSignature>invalidateCache(string $type, ?int $userId): void</methodSignature>
+      <fullMethod>invalidateCache(string $type, ?int $userId): void</fullMethod>
+      <crap>72</crap>
+      <complexity>8</complexity>
+      <coverage>0</coverage>
+      <crapLoad>8</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>warmCache</methodName>
+      <methodSignature>warmCache(App\Models\User $user): void</methodSignature>
+      <fullMethod>warmCache(App\Models\User $user): void</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getCacheStats</methodName>
+      <methodSignature>getCacheStats(): array</methodSignature>
+      <fullMethod>getCacheStats(): array</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>buildCacheKey</methodName>
+      <methodSignature>buildCacheKey(string $type, mixed $identifier): string</methodSignature>
+      <fullMethod>buildCacheKey(string $type, mixed $identifier): string</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>calculateStatistics</methodName>
+      <methodSignature>calculateStatistics(?App\Models\User $user): array</methodSignature>
+      <fullMethod>calculateStatistics(?App\Models\User $user): array</fullMethod>
+      <crap>30</crap>
+      <complexity>5</complexity>
+      <coverage>0</coverage>
+      <crapLoad>5</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>fetchRecentTickets</methodName>
+      <methodSignature>fetchRecentTickets(int $limit): array</methodSignature>
+      <fullMethod>fetchRecentTickets(int $limit): array</fullMethod>
+      <crap>20</crap>
+      <complexity>4</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>calculateUserData</methodName>
+      <methodSignature>calculateUserData(App\Models\User $user): array</methodSignature>
+      <fullMethod>calculateUserData(App\Models\User $user): array</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getSystemStatus</methodName>
+      <methodSignature>getSystemStatus(): array</methodSignature>
+      <fullMethod>getSystemStatus(): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>isCacheHealthy</methodName>
+      <methodSignature>isCacheHealthy(): bool</methodSignature>
+      <fullMethod>isCacheHealthy(): bool</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>invalidateUserCache</methodName>
+      <methodSignature>invalidateUserCache(int $userId): void</methodSignature>
+      <fullMethod>invalidateUserCache(int $userId): void</fullMethod>
+      <crap>6</crap>
+      <complexity>2</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>calculateHitRate</methodName>
+      <methodSignature>calculateHitRate(): float</methodSignature>
+      <fullMethod>calculateHitRate(): float</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getMonitoredEventsCount</methodName>
+      <methodSignature>getMonitoredEventsCount(?App\Models\User $user): int</methodSignature>
+      <fullMethod>getMonitoredEventsCount(?App\Models\User $user): int</fullMethod>
+      <crap>42</crap>
+      <complexity>6</complexity>
+      <coverage>0</coverage>
+      <crapLoad>6</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getTriggeredAlertsToday</methodName>
+      <methodSignature>getTriggeredAlertsToday(App\Models\User $user): int</methodSignature>
+      <fullMethod>getTriggeredAlertsToday(App\Models\User $user): int</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getSubscriptionData</methodName>
+      <methodSignature>getSubscriptionData(App\Models\User $user): array</methodSignature>
+      <fullMethod>getSubscriptionData(App\Models\User $user): array</fullMethod>
+      <crap>12</crap>
+      <complexity>3</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getUserViewsToday</methodName>
+      <methodSignature>getUserViewsToday(App\Models\User $user): int</methodSignature>
+      <fullMethod>getUserViewsToday(App\Models\User $user): int</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getUserSearchesToday</methodName>
+      <methodSignature>getUserSearchesToday(App\Models\User $user): int</methodSignature>
+      <fullMethod>getUserSearchesToday(App\Models\User $user): int</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getUserEngagementScore</methodName>
+      <methodSignature>getUserEngagementScore(App\Models\User $user): float</methodSignature>
+      <fullMethod>getUserEngagementScore(App\Models\User $user): float</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getFallbackStatistics</methodName>
+      <methodSignature>getFallbackStatistics(): array</methodSignature>
+      <fullMethod>getFallbackStatistics(): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
+    </method>
+    <method>
+      <package>App\Services\Dashboard</package>
+      <className>App\Services\Dashboard\DashboardCacheService</className>
+      <methodName>getFallbackUserData</methodName>
+      <methodSignature>getFallbackUserData(): array</methodSignature>
+      <fullMethod>getFallbackUserData(): array</fullMethod>
+      <crap>2</crap>
+      <complexity>1</complexity>
+      <coverage>0</coverage>
+      <crapLoad>0</crapLoad>
     </method>
     <method>
       <package>App\Services</package>

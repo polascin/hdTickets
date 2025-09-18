@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
-  <build time="Sun Sep 14 8:09:41 UTC 2025" phpunit="11.5.36" coverage="11.0.11">
+  <build time="Thu Sep 18 7:55:52 UTC 2025" phpunit="11.5.36" coverage="11.0.11">
     <runtime name="PHP" version="8.3.25" url="https://www.php.net/"/>
     <driver name="pcov" version="1.0.12"/>
   </build>
@@ -8,24 +8,24 @@
     <tests/>
     <directory name="/">
       <totals>
-        <lines total="43151" comments="9026" code="34125" executable="18214" executed="0" percent="0.00"/>
-        <methods count="1934" tested="0" percent="0.00"/>
+        <lines total="43920" comments="9161" code="34759" executable="18599" executed="0" percent="0.00"/>
+        <methods count="1967" tested="0" percent="0.00"/>
         <functions count="0" tested="0" percent="0"/>
-        <classes count="97" tested="0" percent="0.00"/>
+        <classes count="99" tested="0" percent="0.00"/>
         <traits count="4" tested="0" percent="0.00"/>
       </totals>
       <directory name="Http">
         <totals>
-          <lines total="2819" comments="429" code="2390" executable="1375" executed="0" percent="0.00"/>
-          <methods count="158" tested="0" percent="0.00"/>
+          <lines total="2984" comments="452" code="2532" executable="1486" executed="0" percent="0.00"/>
+          <methods count="162" tested="0" percent="0.00"/>
           <functions count="0" tested="0" percent="0"/>
           <classes count="4" tested="0" percent="0.00"/>
           <traits count="0" tested="0" percent="0"/>
         </totals>
         <directory name="Controllers">
           <totals>
-            <lines total="2819" comments="429" code="2390" executable="1375" executed="0" percent="0.00"/>
-            <methods count="158" tested="0" percent="0.00"/>
+            <lines total="2984" comments="452" code="2532" executable="1486" executed="0" percent="0.00"/>
+            <methods count="162" tested="0" percent="0.00"/>
             <functions count="0" tested="0" percent="0"/>
             <classes count="4" tested="0" percent="0.00"/>
             <traits count="0" tested="0" percent="0"/>
@@ -59,8 +59,8 @@
           </file>
           <file name="EnhancedDashboardController.php" href="Http/Controllers/EnhancedDashboardController.php.xml">
             <totals>
-              <lines total="751" comments="82" code="669" executable="382" executed="0" percent="0.00"/>
-              <methods count="54" tested="0" percent="0.00"/>
+              <lines total="916" comments="105" code="811" executable="493" executed="0" percent="0.00"/>
+              <methods count="58" tested="0" percent="0.00"/>
               <functions count="0" tested="0" percent="0"/>
               <classes count="1" tested="0" percent="0.00"/>
               <traits count="0" tested="0" percent="0"/>
@@ -185,6 +185,24 @@
           </file>
         </directory>
       </directory>
+      <directory name="Logging">
+        <totals>
+          <lines total="128" comments="33" code="95" executable="37" executed="0" percent="0.00"/>
+          <methods count="6" tested="0" percent="0.00"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="1" tested="0" percent="0.00"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <file name="PerformanceLogger.php" href="Logging/PerformanceLogger.php.xml">
+          <totals>
+            <lines total="128" comments="33" code="95" executable="37" executed="0" percent="0.00"/>
+            <methods count="6" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
       <directory name="Providers">
         <totals>
           <lines total="1220" comments="375" code="845" executable="355" executed="0" percent="0.00"/>
@@ -304,10 +322,10 @@
       </directory>
       <directory name="Services">
         <totals>
-          <lines total="37793" comments="7942" code="29851" executable="15978" executed="0" percent="0.00"/>
-          <methods count="1681" tested="0" percent="0.00"/>
+          <lines total="38269" comments="8021" code="30248" executable="16215" executed="0" percent="0.00"/>
+          <methods count="1704" tested="0" percent="0.00"/>
           <functions count="0" tested="0" percent="0"/>
-          <classes count="77" tested="0" percent="0.00"/>
+          <classes count="78" tested="0" percent="0.00"/>
           <traits count="4" tested="0" percent="0.00"/>
         </totals>
         <directory name="Analytics">
@@ -358,6 +376,24 @@
             <totals>
               <lines total="568" comments="51" code="517" executable="229" executed="0" percent="0.00"/>
               <methods count="67" tested="0" percent="0.00"/>
+              <functions count="0" tested="0" percent="0"/>
+              <classes count="1" tested="0" percent="0.00"/>
+              <traits count="0" tested="0" percent="0"/>
+            </totals>
+          </file>
+        </directory>
+        <directory name="Dashboard">
+          <totals>
+            <lines total="476" comments="79" code="397" executable="237" executed="0" percent="0.00"/>
+            <methods count="23" tested="0" percent="0.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+          <file name="DashboardCacheService.php" href="Services/Dashboard/DashboardCacheService.php.xml">
+            <totals>
+              <lines total="476" comments="79" code="397" executable="237" executed="0" percent="0.00"/>
+              <methods count="23" tested="0" percent="0.00"/>
               <functions count="0" tested="0" percent="0"/>
               <classes count="1" tested="0" percent="0.00"/>
               <traits count="0" tested="0" percent="0"/>

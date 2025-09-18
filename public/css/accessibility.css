@@ -40,11 +40,6 @@
   --hc-success: #51cf66;
   --hc-warning: #ffd43b;
   
-  /* Skip link properties */
-  --skip-link-bg: #000000;
-  --skip-link-text: #ffffff;
-  --skip-link-height: 40px;
-  --skip-link-padding: 8px 16px;
   
   /* Screen reader properties */
   --sr-only-clip: rect(1px, 1px, 1px, 1px);
@@ -69,55 +64,6 @@
   }
 }
 
-/* ============================================================================
-   Skip Navigation Links
-   ============================================================================ */
-
-.skip-links {
-  position: absolute;
-  top: -100vh;
-  left: 0;
-  width: 100%;
-  z-index: 10000;
-  background: var(--skip-link-bg);
-  padding: 0;
-  list-style: none;
-  margin: 0;
-}
-
-.skip-link {
-  position: absolute;
-  top: -100vh;
-  left: 0;
-  background: var(--skip-link-bg);
-  color: var(--skip-link-text);
-  text-decoration: none;
-  padding: var(--skip-link-padding);
-  height: var(--skip-link-height);
-  line-height: calc(var(--skip-link-height) - 16px);
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 0 0 4px 0;
-  border: 2px solid transparent;
-  transition: all var(--animation-duration) var(--animation-easing);
-}
-
-.skip-link:focus {
-  top: 0;
-  outline: none;
-  border-color: var(--focus-ring-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.skip-link:hover:focus {
-  background: var(--focus-ring-color);
-  color: white;
-}
-
-/* Skip links container when focused */
-.skip-links:focus-within {
-  top: 0;
-}
 
 /* ============================================================================
    Focus Management and Indicators
@@ -212,8 +158,8 @@ a:focus-visible,
   overflow: visible !important;
   clip: auto !important;
   white-space: normal !important;
-  background: var(--skip-link-bg);
-  color: var(--skip-link-text);
+  background: #000000;
+  color: #ffffff;
   border: 2px solid var(--focus-ring-color);
   border-radius: 4px;
   z-index: 10000;

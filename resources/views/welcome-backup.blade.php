@@ -405,13 +405,6 @@
       :class="{ 'dark': darkMode }"
       x-cloak>
     
-    <!-- Skip Navigation Link for Accessibility -->
-    <a href="#main-content" 
-       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-md z-50"
-       role="button"
-       aria-label="Skip to main content">
-        Skip to main content
-    </a>
     
     <!-- Theme Switcher -->
     <div x-data="themeSwitcher" class="fixed top-4 right-4 z-40">

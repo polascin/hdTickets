@@ -970,16 +970,6 @@
   </head>
 
   <body class="font-sans antialiased">
-    <!-- Skip Links for Screen Reader Navigation -->
-    <div class="hd-skip-links">
-      <a href="#main-content" class="hd-skip-link">Skip to main content</a>
-      <a href="#navigation" class="hd-skip-link">Skip to navigation</a>
-      @auth
-        @if (auth()->user()->role === 'admin')
-          <a href="#admin-tools" class="hd-skip-link">Skip to admin tools</a>
-        @endif
-      @endauth
-    </div>
 
     <!-- Live Regions for Screen Reader Announcements (created by JS but adding fallback) -->
     <div id="hd-live-polite" class="hd-live-region" aria-live="polite" aria-atomic="true"></div>

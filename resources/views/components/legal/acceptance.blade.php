@@ -45,13 +45,14 @@
             <div class="
                 bg-white dark:bg-gray-800 
                 border @if($hasError) border-error-300 dark:border-error-600 @else border-gray-200 dark:border-gray-700 @endif 
-                rounded-lg p-4 transition-all duration-200
+                rounded-lg p-3 sm:p-4 transition-all duration-200
                 hover:border-gray-300 dark:hover:border-gray-600
                 focus-within:border-primary-500 dark:focus-within:border-primary-400
                 focus-within:ring-2 focus-within:ring-primary-500/20
+                touch-manipulation
             ">
                 <!-- Document Header -->
-                <div class="flex items-start space-x-3">
+                <div class="flex items-start space-x-2 sm:space-x-3">
                     <!-- Checkbox -->
                     <div class="flex-shrink-0 mt-0.5">
                         <input
@@ -62,9 +63,9 @@
                             {{ old($fieldName) ? 'checked' : '' }}
                             required
                             class="
-                                w-4 h-4 rounded border-gray-300 dark:border-gray-600 
+                                w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300 dark:border-gray-600 
                                 text-success-600 focus:ring-success-500 focus:ring-offset-0
-                                transition-colors duration-200
+                                transition-colors duration-200 touch-manipulation
                                 @if($hasError) border-error-300 dark:border-error-600 @endif
                             "
                             aria-invalid="{{ $hasError ? 'true' : 'false' }}"
@@ -74,13 +75,15 @@
                     
                     <!-- Document Info -->
                     <div class="flex-1 min-w-0">
-                        <label for="{{ $checkboxId }}" class="block text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
+                        <label for="{{ $checkboxId }}" class="block text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 cursor-pointer leading-relaxed">
                             I have read and accept the 
                             <button
                                 type="button"
                                 class="
                                     text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300 
                                     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 rounded
+                                    touch-manipulation inline-flex items-center gap-1
+                                    min-h-[44px] sm:min-h-0 -my-2 sm:my-0 py-2 sm:py-0
                                 "
                                 x-on:click="openDocument({
                                     type: '{{ $type }}',
@@ -92,8 +95,8 @@
                                 })"
                                 :aria-label="'View {{ $document->title }}'"
                             >
-                                {{ $document->title }}
-                                <svg class="w-3 h-3 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <span>{{ $document->title }}</span>
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
                             </button>
@@ -101,22 +104,24 @@
                         
                         <!-- Version & Date Info -->
                         @if($document->version || $document->effective_date)
-                            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                @if($document->version)
-                                    Version {{ $document->version }}
-                                @endif
-                                @if($document->version && $document->effective_date)
-                                    •
-                                @endif
-                                @if($document->effective_date)
-                                    Last updated {{ $document->effective_date->format('M j, Y') }}
-                                @endif
+                            <div class="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                    @if($document->version)
+                                        <span>Version {{ $document->version }}</span>
+                                    @endif
+                                    @if($document->version && $document->effective_date)
+                                        <span class="hidden sm:inline">•</span>
+                                    @endif
+                                    @if($document->effective_date)
+                                        <span>Last updated {{ $document->effective_date->format('M j, Y') }}</span>
+                                    @endif
+                                </div>
                             </div>
                         @endif
                         
                         <!-- Summary Preview -->
                         @if($document->summary)
-                            <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                            <p class="mt-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                                 {{ $document->summary }}
                             </p>
                         @endif
@@ -137,24 +142,25 @@
     </div>
     
     <!-- GDPR Information Notice -->
-    <div class="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <div class="flex items-start">
+    <div class="mt-4 sm:mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
+        <div class="flex items-start gap-2 sm:gap-3">
             <div class="flex-shrink-0">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                 </svg>
             </div>
-            <div class="ml-3 flex-1">
-                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-300">
+            <div class="flex-1 min-w-0">
+                <h4 class="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300">
                     Data Protection Information
                 </h4>
-                <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                <div class="mt-1 sm:mt-2 text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
                     <p>
                         We process your personal data in accordance with GDPR. You have rights including access, 
                         rectification, erasure, and data portability. 
-                        <a href="{{ route('legal.privacy-policy') }}" target="_blank" class="underline hover:no-underline">
-                            Learn more about your privacy rights
-                            <svg class="w-3 h-3 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <a href="{{ route('legal.privacy-policy') }}" target="_blank" 
+                           class="underline hover:no-underline touch-manipulation inline-flex items-center gap-1 min-h-[44px] sm:min-h-0 -my-2 sm:my-0 py-2 sm:py-0">
+                            <span>Learn more about your privacy rights</span>
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                             </svg>
                         </a>
@@ -187,11 +193,14 @@
         ></div>
         
         <!-- Modal Content -->
-        <div class="flex min-h-full items-center justify-center p-4">
+        <div class="flex min-h-full items-start sm:items-center justify-center p-2 sm:p-4">
             <div 
                 class="
                     relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 
-                    text-left shadow-xl transition-all w-full max-w-4xl max-h-[90vh]
+                    text-left shadow-xl transition-all w-full 
+                    max-w-sm sm:max-w-2xl md:max-w-4xl lg:max-w-5xl
+                    h-[95vh] sm:h-auto sm:max-h-[90vh]
+                    mt-2 sm:mt-0
                 "
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -201,54 +210,61 @@
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex-1 min-w-0">
-                        <h2 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-100" x-text="selectedDocument?.title">
+                <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex-1 min-w-0 pr-3">
+                        <h2 id="modal-title" class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight" x-text="selectedDocument?.title">
                         </h2>
-                        <div class="mt-1 text-sm text-gray-500 dark:text-gray-400" x-show="selectedDocument?.version || selectedDocument?.effectiveDate">
-                            <span x-show="selectedDocument?.version" x-text="'Version ' + selectedDocument?.version"></span>
-                            <span x-show="selectedDocument?.version && selectedDocument?.effectiveDate"> • </span>
-                            <span x-show="selectedDocument?.effectiveDate" x-text="'Last updated ' + selectedDocument?.effectiveDate"></span>
+                        <div class="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400" x-show="selectedDocument?.version || selectedDocument?.effectiveDate">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                <span x-show="selectedDocument?.version" x-text="'Version ' + selectedDocument?.version"></span>
+                                <span x-show="selectedDocument?.version && selectedDocument?.effectiveDate" class="hidden sm:inline"> • </span>
+                                <span x-show="selectedDocument?.effectiveDate" x-text="'Last updated ' + selectedDocument?.effectiveDate"></span>
+                            </div>
                         </div>
                     </div>
                     <button
                         type="button"
                         class="
-                            ml-4 flex-shrink-0 rounded-lg p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
-                            focus:outline-none focus:ring-2 focus:ring-primary-500
+                            flex-shrink-0 rounded-lg p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 
+                            focus:outline-none focus:ring-2 focus:ring-primary-500 touch-manipulation
                         "
                         x-on:click="closeModal()"
                         aria-label="Close document"
                     >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
                 
                 <!-- Modal Body -->
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1" style="max-height: calc(95vh - 140px);">
                     <!-- Summary -->
-                    <div x-show="selectedDocument?.summary" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Document Summary</h3>
-                        <p class="text-sm text-blue-700 dark:text-blue-300" x-text="selectedDocument?.summary"></p>
+                    <div x-show="selectedDocument?.summary" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <h3 class="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Document Summary</h3>
+                        <p class="text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed" x-text="selectedDocument?.summary"></p>
                     </div>
                     
                     <!-- Document Content -->
                     <div 
-                        class="prose prose-sm max-w-none dark:prose-invert prose-blue"
+                        class="prose prose-sm sm:prose-base max-w-none dark:prose-invert prose-blue
+                               prose-headings:text-sm sm:prose-headings:text-base
+                               prose-p:text-sm sm:prose-p:text-base prose-p:leading-relaxed
+                               prose-ul:text-sm sm:prose-ul:text-base
+                               prose-ol:text-sm sm:prose-ol:text-base"
                         x-html="selectedDocument?.content"
                     ></div>
                 </div>
                 
                 <!-- Modal Footer -->
-                <div class="flex items-center justify-end p-6 border-t border-gray-200 dark:border-gray-700 space-x-3">
+                <div class="flex items-center justify-end p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700">
                     <button
                         type="button"
                         class="
-                            px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 
-                            border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 
-                            focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200
+                            w-full sm:w-auto px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 
+                            bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg 
+                            hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 
+                            transition-colors duration-200 touch-manipulation
                         "
                         x-on:click="closeModal()"
                     >
@@ -284,10 +300,68 @@
         margin-top: 0;
     }
     
+    /* Mobile-specific improvements */
+    @media (max-width: 640px) {
+        .hd-legal-acceptance .prose h1,
+        .hd-legal-acceptance .prose h2,
+        .hd-legal-acceptance .prose h3,
+        .hd-legal-acceptance .prose h4 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hd-legal-acceptance .prose p,
+        .hd-legal-acceptance .prose ul,
+        .hd-legal-acceptance .prose ol {
+            margin-bottom: 0.75rem;
+        }
+        
+        .hd-legal-acceptance .prose ul,
+        .hd-legal-acceptance .prose ol {
+            padding-left: 1rem;
+        }
+        
+        /* Improve touch targets */
+        .hd-legal-acceptance button {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .hd-legal-acceptance input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Improve modal scroll behavior on mobile */
+        .hd-legal-acceptance [role="dialog"] {
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+    
+    /* Prevent horizontal scroll on mobile */
+    @media (max-width: 640px) {
+        .hd-legal-acceptance .prose table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .hd-legal-acceptance .prose code {
+            word-break: break-all;
+        }
+    }
+    
     @media (prefers-reduced-motion: reduce) {
         .hd-legal-acceptance * {
             transition: none !important;
         }
+    }
+    
+    /* Focus improvements for accessibility */
+    .hd-legal-acceptance button:focus-visible,
+    .hd-legal-acceptance input:focus-visible {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
     }
 </style>
 @endpush

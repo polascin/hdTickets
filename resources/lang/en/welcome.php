@@ -154,7 +154,7 @@ return [
     'legal' => [
         'title'      => 'Legal Compliance & Trust',
         'subtitle'   => 'Full transparency and compliance with international regulations and industry standards',
-        'disclaimer' => 'No Money-Back Guarantee Policy: All sales are final. Service provided "as-is" with no warranties.',
+        'disclaimer' => 'No Money-Back Guarantee Policy: All sales are final. Service provided "as-is" with no warranties. Please review our Terms of Service and Service Disclaimer before subscribing.',
     ],
 
     'footer' => [
