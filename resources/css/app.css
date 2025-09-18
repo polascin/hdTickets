@@ -27,6 +27,9 @@
   .btn-danger { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2; }
   .btn-ghost { @apply inline-flex items-center justify-center rounded-md border border-transparent bg-transparent px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2; }
 
+  /* Bootstrap-compat base button alias for residual classes */
+  .btn { @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors; }
+
   .card { @apply overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm; }
   .card-dark { @apply overflow-hidden rounded-lg border border-gray-700 bg-gray-800 shadow-sm; }
 
